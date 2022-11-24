@@ -15,13 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { SelectChangeEvent, Stack, Typography } from '@mui/material';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { Stack, Typography } from '@mui/material';
+import { useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { SettingSelect, SettingsGroup, SettingSwitch } from '../components/Settings';
+import { SettingSelect, SettingSelectProps, SettingsGroup, SettingSwitch } from '../components/Settings';
 import { CustomThemeContext } from '../contexts/CustomThemeProvider';
-import { availableLanguages } from '../i18n';
+import { languagesInfos, LanguageTag } from '../i18n';
 
 export default function GeneralPreferences() {
   const { t } = useTranslation();
@@ -45,30 +45,30 @@ const SettingTheme = () => {
   return <SettingSwitch label={t('setting_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />;
 };
 
-const settingLanguageOptions = availableLanguages.map(({ tag, fullName }) => ({ label: fullName, value: tag }));
+const settingLanguageOptions = languagesInfos.map(({ tag, fullName }) => ({
+  label: fullName,
+  payload: tag,
+}));
 
 const SettingLanguage = () => {
   const { t, i18n } = useTranslation();
 
-  const [languageValue, setLanguageValue] = useState(i18n.language);
+  const option = useMemo(
+    // TODO: Tell Typescript the result can't be undefined
+    () => settingLanguageOptions.find((option) => option.payload === i18n.language),
+    [i18n.language]
+  );
 
-  useEffect(() => {
-    i18n.changeLanguage(languageValue);
-  }, [languageValue, i18n]);
-
-  const onChange = useCallback(
-    (event: SelectChangeEvent<unknown>) => {
-      setLanguageValue(event.target.value as string);
+  const onChange = useCallback<SettingSelectProps<LanguageTag>['onChange']>(
+    (newValue) => {
+      if (newValue) {
+        i18n.changeLanguage(newValue.payload);
+      }
     },
-    [setLanguageValue]
+    [i18n]
   );
 
   return (
-    <SettingSelect
-      label={t('setting_language')}
-      value={languageValue}
-      onChange={onChange}
-      options={settingLanguageOptions}
-    />
+    <SettingSelect label={t('setting_language')} option={option} options={settingLanguageOptions} onChange={onChange} />
   );
 };

@@ -55,12 +55,17 @@ export const SettingButton = ({ onClick, ...settingBaseProps }: SettingButtonPro
   );
 };
 
-interface SettingSelectProps extends Setting, CustomSelectProps {}
+export interface SettingSelectProps<OptionPayload> extends Setting, CustomSelectProps<OptionPayload> {}
 
-export const SettingSelect = ({ options, value, onChange, ...settingBaseProps }: SettingSelectProps) => {
+export const SettingSelect = <OptionPayload,>({
+  options,
+  option,
+  onChange,
+  ...settingBaseProps
+}: SettingSelectProps<OptionPayload>) => {
   return (
     <SettingBase {...settingBaseProps}>
-      <CustomSelect value={value} options={options} onChange={onChange} />
+      <CustomSelect<OptionPayload> option={option} options={options} onChange={onChange} size="small" />
     </SettingBase>
   );
 };

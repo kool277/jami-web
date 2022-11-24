@@ -21,26 +21,28 @@ import { initReactI18next } from 'react-i18next';
 import translationEn from './locale/en/translation.json';
 import translationFr from './locale/fr/translation.json';
 
+export type LanguageTag = 'en' | 'fr';
+
 interface LanguageInfo {
-  tag: string;
-  fullName: string;
-  translation: ResourceLanguage;
+  readonly tag: LanguageTag;
+  readonly fullName: string;
+  readonly translation: ResourceLanguage;
 }
 
-export const availableLanguages: LanguageInfo[] = [
-  {
-    tag: 'fr',
-    fullName: 'Français',
-    translation: translationFr,
-  },
+export const languagesInfos: readonly LanguageInfo[] = [
   {
     tag: 'en',
     fullName: 'English',
     translation: translationEn,
   },
-];
+  {
+    tag: 'fr',
+    fullName: 'Français',
+    translation: translationFr,
+  },
+] as const;
 
-const resources = availableLanguages.reduce((resources: Resource, { tag, translation }) => {
+const resources = languagesInfos.reduce((resources: Resource, { tag, translation }) => {
   resources[tag] = { translation };
   return resources;
 }, {});

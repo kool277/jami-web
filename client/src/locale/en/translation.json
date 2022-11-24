@@ -29,6 +29,7 @@
   "conversation_title_three": "{{member0}}, {{member1}} and {{member2}}",
   "conversation_title_four": "{{member0}}, {{member1}}, {{member2}}, +1 other member",
   "conversation_title_more": "{{member0}}, {{member1}}, {{member2}}, +{{excess}} other members",
+  "select_placeholder": "Select an option",
   "dialog_close": "Close",
   "dialog_cancel": "Cancel",
   "Menu": "Menu",

@@ -106,6 +106,23 @@ export const ArrowRightUp = (props: SvgIconProps) => {
   );
 };
 
+export const ArrowHeadDown = (props: SvgIconProps) => {
+  return (
+    <SvgIcon {...props} viewBox="6 8 12 7.5">
+      <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z" />
+    </SvgIcon>
+  );
+};
+
+export const ArrowHeadUp = (props: SvgIconProps) => {
+  return (
+    <SvgIcon {...props} viewBox="6 8 12 7.5">
+      <path fill="none" d="M0 0h24v24H0z" />
+      <path d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z" />
+    </SvgIcon>
+  );
+};
+
 export const AudioCallIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="0 0 15.338 16">
