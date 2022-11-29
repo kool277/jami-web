@@ -100,6 +100,7 @@ export const InfosDialog = (props: InfosDialogProps) => {
 interface ConfirmationDialogProps extends Omit<BaseDialogProps, 'actions'> {
   onConfirm: () => void;
   confirmButtonText: string;
+  content: string;
 }
 
 export const ConfirmationDialog = ({ onConfirm, confirmButtonText, ...props }: ConfirmationDialogProps) => {
@@ -109,6 +110,7 @@ export const ConfirmationDialog = ({ onConfirm, confirmButtonText, ...props }: C
   return (
     <BaseDialog
       {...props}
+      content={<Typography variant="body1">{props.content}</Typography>}
       actions={
         <>
           <Button onClick={onConfirm}>{confirmButtonText}</Button>

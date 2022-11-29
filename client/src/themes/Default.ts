@@ -253,6 +253,38 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
           },
         },
       },
+      MuiDialog: {
+        styleOverrides: {
+          paper: {
+            padding: '16px',
+            boxShadow: '3px 3px 7px #00000029',
+            borderRadius: '20px',
+          },
+        },
+      },
+      MuiDialogActions: {
+        styleOverrides: {
+          root: {
+            padding: '0px',
+          },
+        },
+      },
+      MuiDialogContent: {
+        styleOverrides: {
+          root: {
+            padding: '0px',
+            margin: '16px 0px',
+            minWidth: '500px',
+          },
+        },
+      },
+      MuiDialogTitle: {
+        styleOverrides: {
+          root: {
+            padding: '0px',
+          },
+        },
+      },
       MuiSwitch: {
         defaultProps: {
           disableRipple: true,

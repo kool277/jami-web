@@ -80,7 +80,7 @@ export default function ConversationListItem({ conversationSummary }: Conversati
   );
 
   return (
-    <Box onContextMenu={contextMenuHandler.handleAnchorPosition}>
+    <Box>
       <ConversationMenu
         conversationId={conversationId}
         conversationName={conversationName}
@@ -88,7 +88,13 @@ export default function ConversationListItem({ conversationSummary }: Conversati
         isSelected={isSelected}
         contextMenuProps={contextMenuHandler.props}
       />
-      <ListItem button alignItems="flex-start" selected={isSelected} onClick={onClick}>
+      <ListItem
+        button
+        alignItems="flex-start"
+        selected={isSelected}
+        onClick={onClick}
+        onContextMenu={contextMenuHandler.handleAnchorPosition}
+      >
         <ListItemAvatar>
           <ConversationAvatar displayName={conversationName} />
         </ListItemAvatar>
