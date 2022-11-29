@@ -302,12 +302,12 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
             },
           },
           thumb: {
-            width: '28px',
-            height: '28px',
+            boxSizing: 'border-box',
+            width: '30px',
+            height: '30px',
             border: `1px solid ${palette.primary.dark}`,
+            boxShadow: 'none',
             '.Mui-checked.Mui-checked &': {
-              width: '30px',
-              height: '30px',
               border: 'none',
             },
           },
