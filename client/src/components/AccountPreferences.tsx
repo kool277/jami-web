@@ -39,7 +39,7 @@ import { AccountDetails } from 'jami-web-common';
 import { useState } from 'react';
 
 import { useAuthContext } from '../contexts/AuthProvider';
-import ConversationAvatar from './ConversationAvatar';
+import ConversationAvatar, { AvatarEditor } from './ConversationAvatar';
 import ConversationsOverviewCard from './ConversationsOverviewCard';
 import JamiIdCard from './JamiIdCard';
 
@@ -100,6 +100,7 @@ export default function AccountPreferences() {
         exit: { transition: { staggerChildren: 0.02 } },
       }}
     >
+      <AvatarEditor />
       <motion.div variants={thumbnailVariants}>
         <Typography variant="h2" component="h2" gutterBottom>
           {alias}

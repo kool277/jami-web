@@ -73,6 +73,8 @@ export const RoundButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
   border: `1px solid ${theme.palette.primary.dark}`,
   color: theme.palette.primary.dark,
   fontSize: '15px',
+  background: 'white',
+  opacity: 1,
   '&:hover': {
     background: theme.palette.primary.light,
   },
@@ -218,7 +220,7 @@ export const CancelPictureButton = (props: IconButtonProps) => {
 };
 
 export const EditPictureButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="edit picture" Icon={PenIcon} size="large" />;
+  return <RoundButton {...props} aria-label="edit picture" Icon={PenIcon} size="medium" />;
 };
 
 export const UploadPictureButton = (props: IconButtonProps) => {
@@ -465,3 +467,44 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
     </ClickAwayListener>
   );
 };
+
+const RecordButtonSize = '50px';
+const RecordButtonOutlineWidth = '1px';
+const RecordButtonOutlineOffset = '4px';
+const RecordButtonInnerSize =
+  parseInt(RecordButtonSize) - parseInt(RecordButtonOutlineWidth) * 2 - parseInt(RecordButtonOutlineOffset) * 2 + 'px';
+export const RecordButton = styled((props: IconButtonProps) => (
+  <IconButton {...props} disableRipple={true}>
+    <Box
+      sx={{
+        width: RecordButtonInnerSize,
+        height: RecordButtonInnerSize,
+        borderRadius: '100%',
+        outline: `${RecordButtonOutlineWidth} solid #e57f90`,
+        outlineOffset: RecordButtonOutlineOffset,
+        backgroundColor: '#e57f90',
+        '&:hover': {
+          outlineColor: '#cc0022',
+          backgroundColor: '#cc0022',
+        },
+      }}
+    />
+  </IconButton>
+))({
+  width: RecordButtonSize,
+  height: RecordButtonSize,
+  padding: 0,
+});
+
+export const CornerCloseButton = styled(({ ...props }: IconButtonProps) => (
+  <IconButton {...props}>
+    <SaltireIcon fontSize="inherit" />
+  </IconButton>
+))({
+  position: 'absolute',
+  top: '20px',
+  right: '20px',
+  zIndex: 200,
+  color: 'white',
+  fontSize: '10px',
+});

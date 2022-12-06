@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Divider, Stack } from '@mui/material';
+import { Divider, Stack } from '@mui/material';
 import { ConversationMessage, Message, WebSocketMessageType } from 'jami-web-common';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
@@ -23,6 +23,7 @@ import { useDropzone } from 'react-dropzone';
 import { FilePreviewRemovable } from '../components/FilePreview';
 import LoadingPage from '../components/Loading';
 import MessageList from '../components/MessageList';
+import { FileDragOverlay } from '../components/Overlay';
 import SendMessageForm from '../components/SendMessageForm';
 import { useConversationContext } from '../contexts/ConversationProvider';
 import { WebSocketContext } from '../contexts/WebSocketProvider';
@@ -107,19 +108,7 @@ const ChatInterface = () => {
 
   return (
     <Stack flex={1} overflow="hidden" {...getRootProps()} paddingBottom="16px">
-      {isDragActive && (
-        // dark overlay when the user is dragging a file
-        <Box
-          sx={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'black',
-            opacity: '30%',
-            zIndex: 100,
-          }}
-        />
-      )}
+      {isDragActive && <FileDragOverlay />}
       <input {...getInputProps()} />
       <MessageList messages={messages} />
       <Divider

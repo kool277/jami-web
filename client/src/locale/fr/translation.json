@@ -1,5 +1,6 @@
 {
   "severity": "",
+  "change_picture": "Modifier l'image",
   "ongoing_call_unmuted": "Appel en cours",
   "ongoing_call_muted": "Appel en cours (muet)",
   "connecting_call": "Connexion...",
