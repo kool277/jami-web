@@ -22,5 +22,13 @@ export default defineConfig({
     setupNodeEvents(_on, _config) {
       // implement node event listeners here
     },
+    env: {
+      // SERVER_URL
+      CLIENT_URL: 'http://localhost:3000',
+      // TEST_USERNAME
+      // TEST_USER_PASSWORD
+      // USED_USERNAME
+    },
+    video: false,
   },
 });

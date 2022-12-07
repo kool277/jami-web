@@ -55,6 +55,9 @@ function RegistrationForm() {
 
   const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername);
 
+  const usernameOk = usernameStatus === 'success';
+  const passwordOk = passwordStatus === 'strong';
+
   useEffect(() => {
     if (response !== undefined) {
       const { responseMessage } = response;
@@ -118,8 +121,6 @@ function RegistrationForm() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    const usernameOk = usernameStatus === 'success';
-    const passwordOk = passwordStatus === 'strong';
 
     const canCreate = usernameOk && passwordOk;
 
@@ -156,6 +157,7 @@ function RegistrationForm() {
         <Form method="post" id="register-form">
           <div>
             <UsernameInput
+              data-cy="username-input"
               value={username}
               onChange={handleUsername}
               status={usernameStatus}
@@ -165,6 +167,7 @@ function RegistrationForm() {
           </div>
           <div>
             <PasswordInput
+              data-cy="password-input"
               value={password}
               onChange={handlePassword}
               status={passwordStatus}
@@ -174,6 +177,8 @@ function RegistrationForm() {
           </div>
 
           <Button
+            disabled={!usernameOk || !passwordOk}
+            data-cy="register-button"
             variant="contained"
             type="submit"
             onClick={handleSubmit}
@@ -186,7 +191,9 @@ function RegistrationForm() {
         <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(50) }}>
           <Typography variant="body1">
             {t('registration_form_to_login_text')} &nbsp;
-            <Link to={'/login'}>{t('registration_form_to_login_link')}</Link>
+            <Link data-cy="login-link" to={'/login'}>
+              {t('registration_form_to_login_link')}
+            </Link>
           </Typography>
         </Box>
       </Stack>

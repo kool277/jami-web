@@ -99,6 +99,7 @@ function LoginForm() {
         <Form method="post" id="login-form">
           <div>
             <UsernameInput
+              data-cy="username-input"
               value={username}
               onChange={handleUsername}
               tooltipTitle={t('login_form_username_tooltip')}
@@ -107,6 +108,7 @@ function LoginForm() {
           </div>
           <div>
             <PasswordInput
+              data-cy="password-input"
               value={password}
               onChange={handlePassword}
               tooltipTitle={t('login_form_password_tooltip')}
@@ -129,6 +131,7 @@ function LoginForm() {
           </div>
 
           <Button
+            data-cy="login-button"
             variant="contained"
             type="submit"
             onClick={login}
@@ -141,7 +144,9 @@ function LoginForm() {
         <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(50) }}>
           <Typography variant="body1">
             {t('login_form_to_registration_text')} &nbsp;
-            <Link to={'/register'}>{t('login_form_to_registration_link')}</Link>
+            <Link data-cy="register-link" to={'/register'}>
+              {t('login_form_to_registration_link')}
+            </Link>
           </Typography>
         </Box>
       </Stack>

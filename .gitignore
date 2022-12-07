@@ -6,3 +6,11 @@ dist/
 .vscode/
 .idea/
 *.iml
+
+*jamid.node
+server/*jami.node
+
+# Cypress
+client/cypress/videos/
+client/cypress/screenshots/
+client/**/cypress.env.json

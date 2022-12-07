@@ -60,9 +60,10 @@ module.exports = {
   ignorePatterns: ['node_modules/', 'dist/', 'daemon/', 'test/'],
   overrides: [
     {
-      files: ['**/*.test.{js,jsx,ts,tsx}'],
+      files: ['**/*.test.{js,jsx,ts,tsx}', '**/*.cy.{js,jsx,ts,tsx}'],
       env: {
         jest: true,
+        'cypress/globals': true,
       },
     },
   ],
@@ -71,7 +72,7 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', 'header', 'html', 'simple-import-sort', 'unused-imports'],
+  plugins: ['@typescript-eslint', 'header', 'html', 'simple-import-sort', 'unused-imports', 'cypress'],
   rules: {
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-empty-function': 'off',

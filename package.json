@@ -9,6 +9,7 @@
   "scripts": {
     "start": "concurrently \"npm start --workspace server\" \"npm start --workspace client\"",
     "start:prod": "concurrently \"npm run start:prod --workspace server\" \"npm run start:prod --workspace client\"",
+    "start:debug-server": "LD_LIBRARY_PATH='${PWD}/daemon/src/.libs' HOME=/tmp npm start --workspace server",
     "build": "npm run build --workspaces",
     "clean": "npm run clean --workspaces",
     "clean:all": "npm run clean && find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
@@ -33,6 +34,7 @@
     "concurrently": "^7.4.0",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-html": "^7.1.0",
     "eslint-plugin-simple-import-sort": "^8.0.0",

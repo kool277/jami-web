@@ -43,7 +43,7 @@ export default function Header() {
 
   return (
     <Box>
-      <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+      <Button data-cy="menu-button" aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
         {t('Menu')}
       </Button>
       <Menu id="simple-menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => closeMenuAndNavigate()}>
@@ -52,7 +52,9 @@ export default function Header() {
         <MenuItem onClick={() => closeMenuAndNavigate('/settings-account')}>{t('settings_menu_item_account')}</MenuItem>
         <MenuItem onClick={() => closeMenuAndNavigate('/settings-general')}>{t('settings_menu_item_general')}</MenuItem>
         <MenuItem onClick={() => closeMenuAndNavigate('/settings/account/manage-account')}>{t('settings')}</MenuItem>
-        <MenuItem onClick={logout}>{t('logout')}</MenuItem>
+        <MenuItem data-cy="logout-button" onClick={logout}>
+          {t('logout')}
+        </MenuItem>
       </Menu>
     </Box>
   );
