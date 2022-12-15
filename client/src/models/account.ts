@@ -70,10 +70,10 @@ export class Account implements IAccount {
   }
 
   getDisplayName() {
-    return this.details['Account.displayName'] ?? this.getDisplayUri();
+    return this.details['Account.displayName'] || this.getDisplayUri();
   }
 
   getDisplayNameNoFallback() {
-    return this.details['Account.displayName'] ?? this.getRegisteredName();
+    return this.details['Account.displayName'] || this.getRegisteredName();
   }
 }

@@ -15,7 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import { Box, ListItemButton, Stack, Typography } from '@mui/material';
+import dayjs from 'dayjs';
 import { IConversationSummary } from 'jami-web-common';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useCallback, useContext, useMemo, useState } from 'react';
@@ -29,6 +30,8 @@ import { useUrlParams } from '../hooks/useUrlParams';
 import { setRefreshFromSlice } from '../redux/appSlice';
 import { useAppDispatch } from '../redux/hooks';
 import { ConversationRouteParams } from '../router';
+import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages';
+import { formatRelativeDate, formatTime } from '../utils/dates&times';
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu';
 import ConversationAvatar from './ConversationAvatar';
 import { ConfirmationDialog, DialogContentList, InfosDialog, useDialogHandler } from './Dialog';
@@ -40,13 +43,14 @@ type ConversationListItemProps = {
 };
 
 export default function ConversationListItem({ conversationSummary }: ConversationListItemProps) {
+  const { account } = useAuthContext();
   const {
     urlParams: { conversationId: selectedConversationId },
   } = useUrlParams<ConversationRouteParams>();
   const contextMenuHandler = useContextMenuHandler();
   const callContext = useCallContext(true);
   const { callData } = useContext(CallManagerContext);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const conversationId = conversationSummary.id;
@@ -58,9 +62,41 @@ export default function ConversationListItem({ conversationSummary }: Conversati
     }
   }, [navigate, conversationId]);
 
-  const secondaryText = useMemo(() => {
+  const timeIndicator = useMemo(() => {
+    const message = conversationSummary.lastMessage;
+    const time = dayjs.unix(Number(message.timestamp));
+    if (time.isToday()) {
+      return formatTime(time, i18n);
+    } else {
+      return formatRelativeDate(time, i18n);
+    }
+  }, [conversationSummary, i18n]);
+
+  const lastMessageText = useMemo(() => {
     if (!callContext || !callData || callData.conversationId !== conversationSummary.id) {
-      return conversationSummary.lastMessage.body;
+      const message = conversationSummary.lastMessage;
+      switch (message.type) {
+        case 'initial': {
+          return t('message_swarm_created');
+        }
+        case 'application/data-transfer+json': {
+          return message.fileId;
+        }
+        case 'application/call-history+json': {
+          const isAccountMessage = message.author === account.getUri();
+          return getMessageCallText(isAccountMessage, message, i18n);
+        }
+        case 'member': {
+          return getMessageMemberText(message, i18n);
+        }
+        case 'text/plain': {
+          return message.body;
+        }
+        default: {
+          console.error(`${ConversationListItem.name} received an unexpected lastMessage type: ${message.type}`);
+          return '';
+        }
+      }
     }
 
     if (callContext.callStatus === CallStatus.InCall) {
@@ -72,11 +108,11 @@ export default function ConversationListItem({ conversationSummary }: Conversati
     }
 
     return callContext.callRole === 'caller' ? t('outgoing_call') : t('incoming_call');
-  }, [conversationSummary, callContext, callData, t]);
+  }, [account, conversationSummary, callContext, callData, t, i18n]);
 
   const conversationName = useMemo(
-    () => conversationSummary.title ?? conversationSummary.membersNames.join(', '),
-    [conversationSummary]
+    () => conversationSummary.title || conversationSummary.membersNames.join(', ') || account.getDisplayName(),
+    [account, conversationSummary]
   );
 
   return (
@@ -88,18 +124,20 @@ export default function ConversationListItem({ conversationSummary }: Conversati
         isSelected={isSelected}
         contextMenuProps={contextMenuHandler.props}
       />
-      <ListItem
-        button
-        alignItems="flex-start"
-        selected={isSelected}
-        onClick={onClick}
-        onContextMenu={contextMenuHandler.handleAnchorPosition}
-      >
-        <ListItemAvatar>
+      <ListItemButton alignItems="flex-start" selected={isSelected} onClick={onClick}>
+        <Stack direction="row" spacing="10px">
           <ConversationAvatar displayName={conversationName} />
-        </ListItemAvatar>
-        <ListItemText primary={conversationName} secondary={secondaryText} />
-      </ListItem>
+          <Stack>
+            <Typography variant="body1">{conversationName}</Typography>
+            <Stack direction="row" spacing="5px">
+              <Typography variant="body2" fontWeight={isSelected ? 'bold' : 'normal'}>
+                {timeIndicator}
+              </Typography>
+              <Typography variant="body2">{lastMessageText}</Typography>
+            </Stack>
+          </Stack>
+        </Stack>
+      </ListItemButton>
     </Box>
   );
 }

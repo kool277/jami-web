@@ -23,6 +23,7 @@ import {
   HttpStatusCode,
   IConversationMember,
   IConversationSummary,
+  Message,
   NewConversationRequestBody,
   NewMessageRequestBody,
 } from 'jami-web-common';
@@ -54,10 +55,17 @@ async function createConversationSummary(
 
     // Add usernames for conversation members
     const { username } = await jamid.lookupAddress(member.uri, accountId);
-    membersNames.push(username ?? member.uri);
+    membersNames.push(username || member.uri);
   }
 
-  const lastMessage = (await jamid.getConversationMessages(accountId, conversationId, '', 1))[0];
+  let lastMessage: Message | undefined;
+  // Skip "merge" type since they are of no interest for the user
+  // Should we add some protection to prevent infinite loop?
+  while (!lastMessage || lastMessage.type === 'merge') {
+    lastMessage = (
+      await jamid.getConversationMessages(accountId, conversationId, lastMessage?.linearizedParent || '', 1)
+    )[0];
+  }
 
   return {
     id: conversationId,

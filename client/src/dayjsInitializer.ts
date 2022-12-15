@@ -32,5 +32,3 @@ dayjs.extend(isBetween);
 dayjs.extend(isToday);
 dayjs.extend(isYesterday);
 dayjs.extend(localizedFormat);
-
-export default dayjs;

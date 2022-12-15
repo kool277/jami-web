@@ -16,6 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, Card, Grid, Stack, Typography } from '@mui/material';
+import dayjs from 'dayjs';
+import { Duration } from 'dayjs/plugin/duration';
 import {
   ComponentType,
   Fragment,
@@ -49,6 +51,7 @@ import VideoStream from '../components/VideoStream';
 import { CallStatus, useCallContext, VideoStatus } from '../contexts/CallProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
 import { useWebRtcContext } from '../contexts/WebRtcProvider';
+import { formatCallDuration } from '../utils/dates&times';
 import { VideoElementWithSinkId } from '../utils/utils';
 import { CallPending } from './CallPending';
 import CallPermissionDenied from './CallPermissionDenied';
@@ -151,38 +154,23 @@ const CallInterface = () => {
   );
 };
 
-const formatElapsedSeconds = (elapsedSeconds: number): string => {
-  const seconds = Math.floor(elapsedSeconds % 60);
-  elapsedSeconds = Math.floor(elapsedSeconds / 60);
-  const minutes = elapsedSeconds % 60;
-  elapsedSeconds = Math.floor(elapsedSeconds / 60);
-  const hours = elapsedSeconds % 24;
-
-  const times: string[] = [];
-  if (hours > 0) {
-    times.push(hours.toString().padStart(2, '0'));
-  }
-  times.push(minutes.toString().padStart(2, '0'));
-  times.push(seconds.toString().padStart(2, '0'));
-
-  return times.join(':');
-};
-
 const CallInterfaceInformation = () => {
   const { callStartTime } = useCallContext();
   const { conversationDisplayName } = useConversationContext();
-  const [elapsedTime, setElapsedTime] = useState(callStartTime ? (Date.now() - callStartTime) / 1000 : 0);
+  const [elapsedTime, setElapsedTime] = useState<Duration>(
+    dayjs.duration(callStartTime ? Date.now() - callStartTime : 0)
+  );
 
   useEffect(() => {
     if (callStartTime) {
       const interval = setInterval(() => {
-        setElapsedTime((Date.now() - callStartTime) / 1000);
+        setElapsedTime(dayjs.duration(Date.now() - callStartTime));
       }, 1000);
       return () => clearInterval(interval);
     }
   }, [callStartTime]);
 
-  const elapsedTimerString = formatElapsedSeconds(elapsedTime);
+  const elapsedTimerString = formatCallDuration(elapsedTime);
 
   return (
     <Stack direction="row" justifyContent="space-between" alignItems="center">

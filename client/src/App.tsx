@@ -15,6 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import './dayjsInitializer'; // Initialized once and globally to ensure available locales are always imported
+
 import axios from 'axios';
 import { useState } from 'react';
 import { json, LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom';

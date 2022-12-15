@@ -25,9 +25,8 @@ import { translateEnumeration, TranslateEnumerationOptions } from '../utils/tran
 
 export const useConversationDisplayName = (
   account: Account,
-  conversationId: string | undefined,
   conversationInfos: ConversationInfos | undefined,
-  members: ConversationMember[] | undefined
+  members: ConversationMember[] | undefined = []
 ) => {
   const { t } = useTranslation();
 
@@ -36,10 +35,6 @@ export const useConversationDisplayName = (
   return useMemo(() => {
     if (adminTitle) {
       return adminTitle;
-    }
-
-    if (!members) {
-      return conversationId;
     }
 
     const options: TranslateEnumerationOptions<ConversationMember> = {
@@ -58,5 +53,5 @@ export const useConversationDisplayName = (
     };
 
     return translateEnumeration<ConversationMember>(members, options);
-  }, [account, adminTitle, conversationId, members, t]);
+  }, [account, adminTitle, members, t]);
 };

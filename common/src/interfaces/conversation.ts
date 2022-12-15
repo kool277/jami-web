@@ -39,10 +39,12 @@ export interface Message {
     | 'vote';
   linearizedParent: string;
   parents: string;
+  action?: 'add' | 'join' | 'remove' | 'ban' | 'unban';
   body?: string;
   duration?: string;
   to?: string;
   invited?: string;
+  fileId?: string;
 }
 
 export interface ConversationInfos {

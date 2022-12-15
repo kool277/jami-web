@@ -482,7 +482,7 @@ export class Jamid {
     this.events.onConversationLoaded.subscribe(({ id, accountId, conversationId }) => {
       log.debug(
         `Received ConversationLoaded: {"id":"${id}","accountId":"${accountId}",` +
-          `"conversationId":"${conversationId}","messages":[...]}`
+          `"conversationId":"${conversationId}"}`
       );
     });
 

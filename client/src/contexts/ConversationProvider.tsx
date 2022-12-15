@@ -63,7 +63,7 @@ export default ({ children }: WithChildren) => {
   const conversationInfos = conversationInfosQuery.data;
   const members = membersQuery.data;
 
-  const conversationDisplayName = useConversationDisplayName(account, conversationId, conversationInfos, members);
+  const conversationDisplayName = useConversationDisplayName(account, conversationInfos, members);
 
   useEffect(() => {
     if (!conversationInfos || !conversationId || !webSocket) {

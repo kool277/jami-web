@@ -17,14 +17,15 @@
  */
 import { Box, Chip, Divider, Stack, Tooltip, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { Message } from 'jami-web-common';
 import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import dayjs from '../dayjsInitializer';
 import { Account } from '../models/account';
 import { Contact } from '../models/contact';
+import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages';
+import { formatRelativeDate, formatTime } from '../utils/dates&times';
 import { EmojiButton, MoreButton, ReplyMessageButton } from './Button';
 import ConversationAvatar from './ConversationAvatar';
 import PopoverList, { PopoverListItemData } from './PopoverList';
@@ -93,48 +94,44 @@ interface MessageCallProps {
 const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup }: MessageCallProps) => {
   const position = isAccountMessage ? 'end' : 'start';
 
-  const { t } = useTranslation();
+  const { i18n } = useTranslation();
   const { bubbleColor, Icon, text, textColor } = useMemo(() => {
+    const text = getMessageCallText(isAccountMessage, message, i18n);
     const callDuration = dayjs.duration(parseInt(message?.duration || ''));
     if (callDuration.asSeconds() === 0) {
       if (isAccountMessage) {
         return {
-          text: t('message_call_outgoing_missed'),
+          text,
           Icon: ArrowLeftCurved,
           textColor: 'white',
           bubbleColor: '#005699' + '80', // opacity 50%
         };
       } else {
         return {
-          text: t('message_call_incoming_missed'),
+          text,
           Icon: ArrowLeftCurved,
           textColor: 'black',
           bubbleColor: '#C6C6C6',
         };
       }
     } else {
-      const minutes = Math.floor(callDuration.asMinutes()).toString().padStart(2, '0');
-      const seconds = callDuration.format('ss');
-      const interpolations = {
-        duration: `${minutes}:${seconds}`,
-      };
       if (isAccountMessage) {
         return {
-          text: t('message_call_outgoing', interpolations),
+          text,
           Icon: ArrowRightUp,
           textColor: 'white',
           bubbleColor: '#005699',
         };
       } else {
         return {
-          text: t('message_call_incoming', interpolations),
+          text,
           Icon: ArrowLeftDown,
           textcolor: 'black',
           bubbleColor: '#E5E5E5',
         };
       }
     }
-  }, [isAccountMessage, message, t]);
+  }, [isAccountMessage, message, i18n]);
 
   return (
     <Bubble position={position} isFirstOfGroup={isFirstOfGroup} isLastOfGroup={isLastOfGroup} bubbleColor={bubbleColor}>
@@ -174,13 +171,15 @@ interface MessageMemberProps {
 }
 
 const MessageMember = ({ message }: MessageMemberProps) => {
-  const { t } = useTranslation();
+  const { i18n } = useTranslation();
+
+  const text = getMessageMemberText(message, i18n);
   return (
     <Chip
       sx={{
         width: 'fit-content',
       }}
-      label={t('message_user_joined', { user: message.author })}
+      label={text}
     />
   );
 };
@@ -218,16 +217,7 @@ interface DateIndicatorProps {
 
 const DateIndicator = ({ time }: DateIndicatorProps) => {
   const { i18n } = useTranslation();
-
-  const textDate = useMemo(() => {
-    if (time.isToday()) {
-      return new Intl.RelativeTimeFormat(i18n.language, { numeric: 'auto' }).format(0, 'day');
-    } else if (time.isYesterday()) {
-      return new Intl.RelativeTimeFormat(i18n.language, { numeric: 'auto' }).format(-1, 'day');
-    } else {
-      return dayjs(time).locale(i18n.language).format('L');
-    }
-  }, [i18n, time]);
+  const textDate = useMemo(() => formatRelativeDate(time, i18n), [time, i18n]);
 
   return (
     <Box marginTop="30px">
@@ -267,10 +257,7 @@ interface TimeIndicatorProps {
 
 const TimeIndicator = ({ time, hasDateOnTop }: TimeIndicatorProps) => {
   const { i18n } = useTranslation();
-
-  const textTime = useMemo(() => {
-    return dayjs(time).locale(i18n.language).format('LT');
-  }, [i18n, time]);
+  const textTime = useMemo(() => formatTime(time, i18n), [time, i18n]);
 
   return (
     <Stack direction="row" justifyContent="center" marginTop={hasDateOnTop ? '20px' : '30px'}>

@@ -392,6 +392,24 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
           },
         },
       },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            '&.Mui-selected': {
+              backgroundColor: '#cccccc',
+              opacity: 1,
+              '&:hover': {
+                backgroundColor: '#cccccc',
+                opacity: 1,
+              },
+            },
+            '&:hover': {
+              backgroundColor: '#d5d5d5',
+              opacity: 1,
+            },
+          },
+        },
+      },
     },
   });
 };
