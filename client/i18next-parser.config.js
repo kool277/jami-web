@@ -20,4 +20,5 @@ export default {
   locales: ['fr', 'en'],
   output: 'src/locale/$LOCALE/$NAMESPACE.json',
   input: ['src/**/*.{ts,tsx,js,jsx}'],
+  sort: true,
 };

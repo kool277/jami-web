@@ -43,11 +43,11 @@ export const useConversationDisplayName = (
       translaters: [
         () =>
           // The user is chatting with themself
-          t('conversation_title_one', { member0: account?.getDisplayName() }),
-        (interpolations) => t('conversation_title_one', interpolations),
-        (interpolations) => t('conversation_title_two', interpolations),
-        (interpolations) => t('conversation_title_three', interpolations),
-        (interpolations) => t('conversation_title_four', interpolations),
+          t('conversation_title_1', { member0: account?.getDisplayName() }),
+        (interpolations) => t('conversation_title_1', interpolations),
+        (interpolations) => t('conversation_title_2', interpolations),
+        (interpolations) => t('conversation_title_3', interpolations),
+        (interpolations) => t('conversation_title_4', interpolations),
         (interpolations) => t('conversation_title_more', interpolations),
       ],
     };

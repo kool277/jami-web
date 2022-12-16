@@ -288,23 +288,23 @@ const PasswordRules = () => {
     () => [
       {
         Icon: GppMaybe,
-        value: t('password_rule_one'),
+        value: t('password_rule_1'),
       },
       {
         Icon: GppMaybe,
-        value: t('password_rule_two'),
+        value: t('password_rule_2'),
       },
       {
         Icon: GppMaybe,
-        value: t('password_rule_three'),
+        value: t('password_rule_3'),
       },
       {
         Icon: GppMaybe,
-        value: t('password_rule_four'),
+        value: t('password_rule_4'),
       },
       {
         Icon: GppMaybe,
-        value: t('password_rule_five'),
+        value: t('password_rule_5'),
       },
     ],
     [t]
@@ -318,19 +318,19 @@ const UsernameRules = () => {
     () => [
       {
         Icon: Warning,
-        value: t('username_rule_one'),
+        value: t('username_rule_1'),
       },
       {
         Icon: Warning,
-        value: t('username_rule_two'),
+        value: t('username_rule_2'),
       },
       {
         Icon: Warning,
-        value: t('username_rule_three'),
+        value: t('username_rule_3'),
       },
       {
         Icon: Warning,
-        value: t('username_rule_four'),
+        value: t('username_rule_4'),
       },
     ],
     [t]

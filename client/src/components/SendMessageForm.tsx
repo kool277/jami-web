@@ -102,11 +102,11 @@ const usePlaceholder = (members: ConversationMember[]) => {
       translaters: [
         () =>
           // The user is chatting with themself
-          t('message_input_placeholder_one', { member0: account?.getDisplayName() }),
-        (interpolations) => t('message_input_placeholder_one', interpolations),
-        (interpolations) => t('message_input_placeholder_two', interpolations),
-        (interpolations) => t('message_input_placeholder_three', interpolations),
-        (interpolations) => t('message_input_placeholder_four', interpolations),
+          t('message_input_placeholder_1', { member0: account?.getDisplayName() }),
+        (interpolations) => t('message_input_placeholder_1', interpolations),
+        (interpolations) => t('message_input_placeholder_2', interpolations),
+        (interpolations) => t('message_input_placeholder_3', interpolations),
+        (interpolations) => t('message_input_placeholder_4', interpolations),
         (interpolations) => t('message_input_placeholder_more', interpolations),
       ],
     };
