@@ -392,6 +392,13 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
           },
         },
       },
+      MuiLink: {
+        styleOverrides: {
+          root: {
+            color: '#005699',
+          },
+        },
+      },
       MuiListItemButton: {
         styleOverrides: {
           root: {

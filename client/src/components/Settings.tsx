@@ -85,7 +85,7 @@ export const SettingSwitch = ({ checked, onChange, ...settingBaseProps }: Settin
 
 interface SettingGroupProps {
   label: string;
-  children: ReactElement[];
+  children: ReactElement[] | ReactElement;
 }
 
 export const SettingsGroup = ({ label, children }: SettingGroupProps) => {

@@ -15,19 +15,23 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Chip, Divider, Stack, Tooltip, Typography } from '@mui/material';
+import { Box, Chip, Divider, Link, Stack, Tooltip, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import dayjs, { Dayjs } from 'dayjs';
 import { Message } from 'jami-web-common';
+import Linkify from 'linkify-react';
+import * as linkify from 'linkifyjs';
 import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Account } from '../models/account';
 import { Contact } from '../models/contact';
+import { useLinkPreviewQuery } from '../services/linkPreviewQueries';
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages';
 import { formatRelativeDate, formatTime } from '../utils/dates&times';
 import { EmojiButton, MoreButton, ReplyMessageButton } from './Button';
 import ConversationAvatar from './ConversationAvatar';
+import LoadingPage from './Loading';
 import PopoverList, { PopoverListItemData } from './PopoverList';
 import {
   ArrowLeftCurved,
@@ -184,6 +188,68 @@ const MessageMember = ({ message }: MessageMemberProps) => {
   );
 };
 
+type LinkPreviewProps = {
+  isAccountMessage: boolean;
+  link: string;
+};
+
+const LinkPreview = ({ isAccountMessage, link }: LinkPreviewProps) => {
+  const [imageIsWorking, setImageIsWorking] = useState(true);
+  const linkPreviewQuery = useLinkPreviewQuery(link);
+  if (linkPreviewQuery.isLoading) {
+    return <LoadingPage />;
+  }
+  if (!linkPreviewQuery.isSuccess) {
+    return null;
+  }
+  const linkPreview = linkPreviewQuery.data;
+
+  return (
+    <a href={link} style={{ textDecorationLine: 'none' }}>
+      <Stack>
+        {imageIsWorking && linkPreview.image && (
+          <img
+            style={{
+              padding: '15px 0',
+            }}
+            alt={linkPreview.title}
+            src={linkPreview.image}
+            onError={() => setImageIsWorking(false)}
+          />
+        )}
+        <Typography variant="body1" color={isAccountMessage ? '#cccccc' : 'black'}>
+          {linkPreview.title}
+        </Typography>
+        {linkPreview.description && (
+          <Typography variant="body1" sx={{ color: isAccountMessage ? '#ffffff' : '#005699' }}>
+            {linkPreview.description}
+          </Typography>
+        )}
+        <Typography variant="body1" color={isAccountMessage ? '#cccccc' : 'black'}>
+          {new URL(link).hostname}
+        </Typography>
+      </Stack>
+    </a>
+  );
+};
+
+type RenderLinkProps = {
+  attributes: {
+    isAccountMessage: boolean;
+    href: string;
+  };
+  content: ReactNode;
+};
+
+const RenderLink = ({ attributes, content }: RenderLinkProps) => {
+  const { href, isAccountMessage, ...props } = attributes;
+  return (
+    <Link href={href} {...props} variant="body1" color={isAccountMessage ? '#ffffff' : undefined}>
+      {content}
+    </Link>
+  );
+};
+
 interface MessageTextProps {
   message: Message;
   isAccountMessage: boolean;
@@ -195,6 +261,9 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup 
   const position = isAccountMessage ? 'end' : 'start';
   const bubbleColor = isAccountMessage ? '#005699' : '#E5E5E5';
   const textColor = isAccountMessage ? 'white' : 'black';
+
+  const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message]);
+
   return (
     <MessageTooltip position={position}>
       <Bubble
@@ -202,10 +271,12 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup 
         position={position}
         isFirstOfGroup={isFirstOfGroup}
         isLastOfGroup={isLastOfGroup}
+        maxWidth={link ? '400px' : undefined}
       >
         <Typography variant="body1" color={textColor} textAlign={position}>
-          {message.body}
+          <Linkify options={{ render: RenderLink as any, attributes: { isAccountMessage } }}>{message.body}</Linkify>
         </Typography>
+        {link && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}
       </Bubble>
     </MessageTooltip>
   );
@@ -471,10 +542,11 @@ interface BubbleProps {
   isFirstOfGroup: boolean;
   isLastOfGroup: boolean;
   bubbleColor: string;
+  maxWidth?: string;
   children: ReactNode;
 }
 
-const Bubble = ({ position, isFirstOfGroup, isLastOfGroup, bubbleColor, children }: BubbleProps) => {
+const Bubble = ({ position, isFirstOfGroup, isLastOfGroup, bubbleColor, maxWidth, children }: BubbleProps) => {
   const largeRadius = '20px';
   const smallRadius = '5px';
   const radius = useMemo(() => {
@@ -498,8 +570,11 @@ const Bubble = ({ position, isFirstOfGroup, isLastOfGroup, bubbleColor, children
     <Box
       sx={{
         width: 'fit-content',
+        maxWidth,
         backgroundColor: bubbleColor,
         padding: bubblePadding,
+        overflow: 'hidden',
+        wordWrap: 'break-word',
         ...radius,
       }}
     >

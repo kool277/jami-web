@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Stack, Typography } from '@mui/material';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { SettingSelect, SettingSelectProps, SettingsGroup, SettingSwitch } from '../components/Settings';
@@ -32,6 +32,9 @@ export default function GeneralPreferences() {
       <SettingsGroup label={t('settings_title_system')}>
         <SettingTheme />
         <SettingLanguage />
+      </SettingsGroup>
+      <SettingsGroup label={t('settings_title_chat')}>
+        <SettingLinkPreview />
       </SettingsGroup>
     </Stack>
   );
@@ -71,4 +74,12 @@ const SettingLanguage = () => {
   return (
     <SettingSelect label={t('setting_language')} option={option} options={settingLanguageOptions} onChange={onChange} />
   );
+};
+
+const SettingLinkPreview = () => {
+  const { t } = useTranslation();
+
+  const [isOn, setIsOn] = useState<boolean>(true);
+
+  return <SettingSwitch label={t('setting_link_preview')} onChange={() => setIsOn((isOn) => !isOn)} checked={isOn} />;
 };

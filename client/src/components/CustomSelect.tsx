@@ -64,7 +64,7 @@ const Listbox = styled('ul')(({ theme }) => ({
   padding: 0,
   paddingTop: '5px',
   paddingBottom: '8.5px',
-  zIndex: 1,
+  zIndex: 100,
   position: 'absolute',
   top: '-5px',
   listStyle: 'none',

@@ -29,6 +29,7 @@ import { callRouter } from './routers/call-router.js';
 import { contactsRouter } from './routers/contacts-router.js';
 import { conversationRouter } from './routers/conversation-router.js';
 import { defaultModeratorsRouter } from './routers/default-moderators-router.js';
+import { linkPreviewRouter } from './routers/link-preview-router.js';
 import { nameserverRouter } from './routers/nameserver-router.js';
 import { setupRouter } from './routers/setup-router.js';
 import { bindWebRtcCallbacks } from './websocket/webrtc-handler.js';
@@ -54,6 +55,7 @@ export class App {
     this.app.use('/default-moderators', defaultModeratorsRouter);
     this.app.use('/conversations', conversationRouter);
     this.app.use('/calls', callRouter);
+    this.app.use('/link-preview', linkPreviewRouter);
     this.app.use('/ns', nameserverRouter);
 
     // Setup WebSocket callbacks

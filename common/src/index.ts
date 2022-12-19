@@ -21,6 +21,7 @@ export * from './interfaces/account.js';
 export * from './interfaces/auth-interfaces.js';
 export * from './interfaces/contact.js';
 export * from './interfaces/conversation.js';
+export * from './interfaces/link-preview.js';
 export * from './interfaces/lookup-result.js';
 export * from './interfaces/websocket-interfaces.js';
 export * from './interfaces/websocket-message.js';
