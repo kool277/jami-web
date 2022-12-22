@@ -124,7 +124,12 @@ export default function ConversationListItem({ conversationSummary }: Conversati
         isSelected={isSelected}
         contextMenuProps={contextMenuHandler.props}
       />
-      <ListItemButton alignItems="flex-start" selected={isSelected} onClick={onClick}>
+      <ListItemButton
+        alignItems="flex-start"
+        selected={isSelected}
+        onClick={onClick}
+        onContextMenu={contextMenuHandler.handleAnchorPosition}
+      >
         <Stack direction="row" spacing="10px">
           <ConversationAvatar displayName={conversationName} />
           <Stack>
