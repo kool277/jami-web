@@ -85,6 +85,8 @@ export interface JamiSwig {
   init(args: Record<string, unknown>): void;
   fini(): void;
 
+  monitor(continuous: boolean): void;
+
   getAccountDetails(accountId: string): StringMap;
   getVolatileAccountDetails(accountId: string): StringMap;
   setAccountDetails(accountId: string, details: StringMap): void;

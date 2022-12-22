@@ -190,6 +190,10 @@ export class Jamid {
 
     this.setupSignalHandlers();
 
+    if (process.env.JAMI_WEB_MONITOR === 'true') {
+      this.jamiSwig.monitor(true);
+    }
+
     // RxJS Subjects are used as signal handlers for the following reasons:
     // 1. You cannot change event handlers after calling jamiSwig.init()
     // 2. You cannot specify multiple handlers for the same event
