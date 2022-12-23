@@ -19,6 +19,7 @@ import { WebSocketMessageType } from '../enums/websocket-message-type.js';
 import {
   CallAction,
   CallBegin,
+  ComposingStatus,
   ConversationMessage,
   ConversationView,
   WebRtcIceCandidate,
@@ -28,6 +29,8 @@ import {
 export interface WebSocketMessageTable {
   [WebSocketMessageType.ConversationMessage]: ConversationMessage;
   [WebSocketMessageType.ConversationView]: ConversationView;
+  [WebSocketMessageType.OnComposingStatusChanged]: ComposingStatus;
+  [WebSocketMessageType.SetIsComposing]: ComposingStatus;
   [WebSocketMessageType.CallBegin]: CallBegin;
   [WebSocketMessageType.CallAccept]: CallAction;
   [WebSocketMessageType.CallEnd]: CallAction;

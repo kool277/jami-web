@@ -19,6 +19,7 @@ import { createRequire } from 'node:module';
 
 import {
   AccountDetails,
+  ComposingStatus,
   ContactDetails,
   ConversationInfos,
   ConversationMessage,
@@ -41,6 +42,7 @@ import { JamiSignal } from './jami-signal.js';
 import {
   AccountDetailsChanged,
   AccountMessageStatusChanged,
+  ComposingStatusChanged,
   ContactAdded,
   ContactRemoved,
   ConversationLoaded,
@@ -167,6 +169,10 @@ export class Jamid {
     handlers.MessageReceived = (accountId: string, conversationId: string, message: Message) =>
       onMessageReceived.next({ accountId, conversationId, message });
 
+    const onComposingStatusChanged = new Subject<ComposingStatusChanged>();
+    handlers.ComposingStatusChanged = (accountId: string, conversationId: string, from: string, status: number) =>
+      onComposingStatusChanged.next({ accountId, conversationId, from, status });
+
     // Expose all signals in an events object to allow other handlers to subscribe after jamiSwig.init()
     this.events = {
       onAccountsChanged: onAccountsChanged.asObservable(),
@@ -186,6 +192,7 @@ export class Jamid {
       onConversationLoaded: onConversationLoaded.asObservable(),
       onConversationMemberEvent: onConversationMemberEvent.asObservable(),
       onMessageReceived: onMessageReceived.asObservable(),
+      onComposingStatusChanged: onComposingStatusChanged.asObservable(),
     };
 
     this.setupSignalHandlers();
@@ -378,6 +385,10 @@ export class Jamid {
     this.jamiSwig.sendMessage(accountId, conversationId, message, replyTo ?? '', flag ?? 0);
   }
 
+  setIsComposing(accountId: string, conversationId: string, isWriting: boolean) {
+    this.jamiSwig.setIsComposing(accountId, conversationId, isWriting);
+  }
+
   getCallIds(accountId: string): string[] {
     return stringVectToArray(this.jamiSwig.getCallList(accountId));
   }
@@ -502,6 +513,17 @@ export class Jamid {
         message: signal.message,
       };
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationMessage, data);
+    });
+
+    this.events.onComposingStatusChanged.subscribe((signal) => {
+      log.debug('Received ComposingStatusChanged:', JSON.stringify(signal));
+
+      const data: ComposingStatus = {
+        contactId: signal.from,
+        conversationId: signal.conversationId,
+        isWriting: signal.status === 1,
+      };
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.OnComposingStatusChanged, data);
     });
   }
 }

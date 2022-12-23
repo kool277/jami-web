@@ -25,6 +25,7 @@ export enum JamiSignal {
   AccountsChanged = 'AccountsChanged',
   AccountDetailsChanged = 'AccountDetailsChanged',
   RegistrationStateChanged = 'RegistrationStateChanged',
+  ComposingStatusChanged = 'ComposingStatusChanged',
   IncomingTrustRequest = 'IncomingTrustRequest',
   ContactAdded = 'ContactAdded',
   ContactRemoved = 'ContactRemoved',

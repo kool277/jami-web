@@ -15,10 +15,12 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Divider, Stack } from '@mui/material';
+import { Box, Divider, Fade, Stack, Typography } from '@mui/material';
+import { motion } from 'framer-motion';
 import { ConversationMessage, Message, WebSocketMessageType } from 'jami-web-common';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { useTranslation } from 'react-i18next';
 
 import { FilePreviewRemovable } from '../components/FilePreview';
 import LoadingPage from '../components/Loading';
@@ -27,8 +29,10 @@ import { FileDragOverlay } from '../components/Overlay';
 import SendMessageForm from '../components/SendMessageForm';
 import { useConversationContext } from '../contexts/ConversationProvider';
 import { WebSocketContext } from '../contexts/WebSocketProvider';
+import { ConversationMember } from '../models/conversation-member';
 import { useMessagesQuery, useSendMessageMutation } from '../services/conversationQueries';
 import { FileHandler } from '../utils/files';
+import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations';
 
 const ChatInterface = () => {
   const webSocket = useContext(WebSocketContext);
@@ -111,9 +115,10 @@ const ChatInterface = () => {
       {isDragActive && <FileDragOverlay />}
       <input {...getInputProps()} />
       <MessageList messages={messages} />
+      <ComposingMembersIndicator />
       <Divider
         sx={{
-          margin: '30px 16px 0px 16px',
+          marginX: '16px',
           borderTop: '1px solid #E5E5E5',
         }}
       />
@@ -148,6 +153,74 @@ const FilePreviewsList = ({ fileHandlers, removeFile }: FilePreviewsListProps) =
           borderColor={'#005699' /* Should be same color as message bubble */}
         />
       ))}
+    </Stack>
+  );
+};
+
+export const ComposingMembersIndicator = () => {
+  const { t } = useTranslation();
+  const { composingMembers } = useConversationContext();
+
+  const text = useMemo(() => {
+    const options: TranslateEnumerationOptions<ConversationMember> = {
+      elementPartialKey: 'member',
+      getElementValue: (member) => member.getDisplayName(),
+      translaters: [
+        () => '',
+        (interpolations) => t('are_composing_1', interpolations),
+        (interpolations) => t('are_composing_2', interpolations),
+        (interpolations) => t('are_composing_3', interpolations),
+        (interpolations) => t('are_composing_more', interpolations),
+      ],
+    };
+
+    return translateEnumeration<ConversationMember>(composingMembers, options);
+  }, [composingMembers, t]);
+
+  return (
+    <Stack height="30px" padding="0 16px" justifyContent="center">
+      <Fade in={composingMembers.length !== 0}>
+        <Stack
+          alignItems="center"
+          direction="row"
+          spacing="8.5px"
+          sx={(theme: any) => ({
+            height: theme.typography.caption.lineHeight,
+          })}
+        >
+          <WaitingDots />
+          <Typography variant="caption">{text}</Typography>
+        </Stack>
+      </Fade>
+    </Stack>
+  );
+};
+
+const SingleDot = ({ delay }: { delay: number }) => (
+  <Box
+    width="8px"
+    height="8px"
+    borderRadius="100%"
+    sx={{ backgroundColor: '#000000' }}
+    component={motion.div}
+    animate={{ scale: [0.75, 1, 0.75] }}
+    transition={{
+      delay,
+      duration: 0.5,
+      repeatDelay: 1,
+      repeatType: 'loop',
+      repeat: Infinity,
+      ease: 'easeInOut',
+    }}
+  />
+);
+
+const WaitingDots = () => {
+  return (
+    <Stack direction="row" spacing="5px">
+      <SingleDot delay={0} />
+      <SingleDot delay={0.5} />
+      <SingleDot delay={1} />
     </Stack>
   );
 };

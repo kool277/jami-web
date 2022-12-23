@@ -30,6 +30,12 @@ export interface ConversationView {
   conversationId: string;
 }
 
+export interface ComposingStatus {
+  contactId?: string; // optional (ignored) when is about the user sending it
+  conversationId: string;
+  isWriting: boolean;
+}
+
 export interface CallAction extends ContactMessage {
   conversationId: string;
 }

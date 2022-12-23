@@ -15,8 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationInfos, ConversationView, WebSocketMessageType } from 'jami-web-common';
-import { useContext, useEffect, useMemo } from 'react';
+import { ComposingStatus, ConversationInfos, ConversationView, WebSocketMessageType } from 'jami-web-common';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import LoadingPage from '../components/Loading';
 import { createOptionalContext } from '../hooks/createOptionalContext';
@@ -34,6 +34,7 @@ interface IConversationContext {
   conversationDisplayName: string;
   conversationInfos: ConversationInfos;
   members: ConversationMember[];
+  composingMembers: ConversationMember[];
 }
 
 const optionalConversationContext = createOptionalContext<IConversationContext>('ConversationContext');
@@ -46,6 +47,7 @@ export default ({ children }: WithChildren) => {
   } = useUrlParams<ConversationRouteParams>();
   const { accountId, account } = useAuthContext();
   const webSocket = useContext(WebSocketContext);
+  const [composingMembers, setComposingMembers] = useState<ConversationMember[]>([]);
 
   const conversationInfosQuery = useConversationInfosQuery(conversationId!);
   const membersQuery = useMembersQuery(conversationId!);
@@ -65,6 +67,34 @@ export default ({ children }: WithChildren) => {
 
   const conversationDisplayName = useConversationDisplayName(account, conversationInfos, members);
 
+  const onComposingStatusChanged = useCallback(
+    (data: ComposingStatus) => {
+      // FIXME: data.conversationId is an empty string. Don't know why. Should not be.
+      // Good enough for now, but will be a problem if the user has more than one conversation with the same contact.
+      // if (data.conversationId === conversationId)
+      {
+        setComposingMembers((composingMembers) => {
+          if (!data.isWriting) {
+            return composingMembers.filter(({ contact }) => contact.uri !== data.contactId);
+          }
+
+          const isAlreadyIncluded = composingMembers.find((member) => member.contact.uri === data.contactId);
+          if (isAlreadyIncluded) {
+            return composingMembers;
+          }
+
+          const member = members?.find((member) => member.contact.uri === data.contactId);
+          if (!member) {
+            return composingMembers;
+          }
+
+          return [...composingMembers, member];
+        });
+      }
+    },
+    [/*conversationId,*/ members]
+  );
+
   useEffect(() => {
     if (!conversationInfos || !conversationId || !webSocket) {
       return;
@@ -75,7 +105,10 @@ export default ({ children }: WithChildren) => {
     };
 
     webSocket.send(WebSocketMessageType.ConversationView, conversationView);
-  }, [accountId, conversationInfos, conversationId, webSocket]);
+    webSocket.bind(WebSocketMessageType.OnComposingStatusChanged, onComposingStatusChanged);
+
+    return () => webSocket.unbind(WebSocketMessageType.OnComposingStatusChanged, onComposingStatusChanged);
+  }, [accountId, conversationInfos, conversationId, onComposingStatusChanged, webSocket]);
 
   const value = useMemo(() => {
     if (!conversationId || !conversationDisplayName || !conversationInfos || !members) {
@@ -87,8 +120,9 @@ export default ({ children }: WithChildren) => {
       conversationDisplayName,
       conversationInfos,
       members,
+      composingMembers,
     };
-  }, [conversationId, conversationDisplayName, conversationInfos, members]);
+  }, [conversationId, conversationDisplayName, conversationInfos, members, composingMembers]);
 
   if (isLoading) {
     return <LoadingPage />;

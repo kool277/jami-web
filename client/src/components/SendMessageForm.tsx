@@ -17,11 +17,13 @@
  */
 import { InputBase } from '@mui/material';
 import { Stack } from '@mui/system';
-import { ChangeEvent, FormEvent, useCallback, useMemo, useState } from 'react';
+import { WebSocketMessageType } from 'jami-web-common';
+import { ChangeEvent, FormEvent, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useAuthContext } from '../contexts/AuthProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
+import { WebSocketContext } from '../contexts/WebSocketProvider';
 import { ConversationMember } from '../models/conversation-member';
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations';
 import {
@@ -38,18 +40,46 @@ type SendMessageFormProps = {
 };
 
 export default function SendMessageForm({ onSend, openFilePicker }: SendMessageFormProps) {
-  const { members } = useConversationContext();
+  const webSocket = useContext(WebSocketContext);
+  const { members, conversationId } = useConversationContext();
   const [currentMessage, setCurrentMessage] = useState('');
+  const composingNotificationTimeRef = useRef(0);
   const placeholder = usePlaceholder(members);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (currentMessage) {
-      onSend(currentMessage);
-      setCurrentMessage('');
+  const notifyComposing = useCallback(() => {
+    const currentTime = new Date().getTime();
+    // The daemon automatically turns off "isComposing" after 12 seconds
+    // We ensure it will stay on at least 4 seconds after the last typed character
+    if (currentTime - composingNotificationTimeRef.current > 8000) {
+      composingNotificationTimeRef.current = currentTime;
+      webSocket?.send(WebSocketMessageType.SetIsComposing, { conversationId, isWriting: true });
     }
-  };
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => setCurrentMessage(event.target.value);
+  }, [webSocket, conversationId]);
+
+  const notifyStopcomposing = useCallback(() => {
+    composingNotificationTimeRef.current = 0;
+    webSocket?.send(WebSocketMessageType.SetIsComposing, { conversationId, isWriting: false });
+  }, [webSocket, conversationId]);
+
+  const handleSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (currentMessage) {
+        onSend(currentMessage);
+        setCurrentMessage('');
+        notifyStopcomposing();
+      }
+    },
+    [currentMessage, onSend, notifyStopcomposing]
+  );
+
+  const handleInputChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setCurrentMessage(event.target.value);
+      notifyComposing();
+    },
+    [notifyComposing]
+  );
 
   const onEmojiSelected = useCallback(
     (emoji: string) => setCurrentMessage((currentMessage) => currentMessage + emoji),

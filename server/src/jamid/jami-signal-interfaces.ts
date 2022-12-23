@@ -133,3 +133,10 @@ export interface MessageReceived {
   conversationId: string;
   message: Message;
 }
+
+export interface ComposingStatusChanged {
+  accountId: string;
+  conversationId: string;
+  from: string;
+  status: number;
+}

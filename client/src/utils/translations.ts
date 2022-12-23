@@ -40,9 +40,9 @@ export const translateEnumeration = <T>(list: T[], options: TranslateEnumeration
     interpolations[elementKey] = options.getElementValue(list[i]);
   }
 
-  interpolations.excess = (max - quantity + 1).toString();
+  interpolations.excess = (quantity - max + 2).toString();
 
-  const translaterIndex = quantity <= max ? quantity : max;
+  const translaterIndex = quantity < max ? quantity : max - 1;
 
   return options.translaters[translaterIndex](interpolations);
 };
