@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, ListItemButton, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import { IConversationSummary } from 'jami-web-common';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -34,6 +34,7 @@ import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
 import { formatRelativeDate, formatTime } from '../utils/dates&times';
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu';
 import ConversationAvatar from './ConversationAvatar';
+import { CustomListItemButton } from './CustomListItemButton';
 import { ConfirmationDialog, DialogContentList, InfosDialog, useDialogHandler } from './Dialog';
 import { PopoverListItemData } from './PopoverList';
 import { AudioCallIcon, CancelIcon, MessageIcon, PersonIcon, VideoCallIcon } from './SvgIcon';
@@ -48,9 +49,6 @@ export default function ConversationListItem({ conversationSummary }: Conversati
     urlParams: { conversationId: selectedConversationId },
   } = useUrlParams<ConversationRouteParams>();
   const contextMenuHandler = useContextMenuHandler();
-  const callContext = useCallContext(true);
-  const { callData } = useContext(CallManagerContext);
-  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const conversationId = conversationSummary.id;
@@ -61,6 +59,43 @@ export default function ConversationListItem({ conversationSummary }: Conversati
       navigate(`/conversation/${conversationId}`);
     }
   }, [navigate, conversationId]);
+
+  const conversationName = useMemo(
+    () => conversationSummary.title || conversationSummary.membersNames.join(', ') || account.getDisplayName(),
+    [account, conversationSummary]
+  );
+
+  return (
+    <Box>
+      <ConversationMenu
+        conversationId={conversationId}
+        conversationName={conversationName}
+        onMessageClick={onClick}
+        isSelected={isSelected}
+        contextMenuProps={contextMenuHandler.props}
+      />
+      <CustomListItemButton
+        selected={isSelected}
+        onClick={onClick}
+        onContextMenu={contextMenuHandler.handleAnchorPosition}
+        icon={<ConversationAvatar displayName={conversationName} />}
+        primaryText={<Typography variant="body1">{conversationName}</Typography>}
+        secondaryText={<SecondaryText conversationSummary={conversationSummary} isSelected={isSelected} />}
+      />
+    </Box>
+  );
+}
+
+type SecondaryTextProps = {
+  conversationSummary: IConversationSummary;
+  isSelected: boolean;
+};
+
+const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) => {
+  const { account } = useAuthContext();
+  const callContext = useCallContext(true);
+  const { callData } = useContext(CallManagerContext);
+  const { t, i18n } = useTranslation();
 
   const timeIndicator = useMemo(() => {
     const message = conversationSummary.lastMessage;
@@ -110,42 +145,15 @@ export default function ConversationListItem({ conversationSummary }: Conversati
     return callContext.callRole === 'caller' ? t('outgoing_call') : t('incoming_call');
   }, [account, conversationSummary, callContext, callData, t, i18n]);
 
-  const conversationName = useMemo(
-    () => conversationSummary.title || conversationSummary.membersNames.join(', ') || account.getDisplayName(),
-    [account, conversationSummary]
-  );
-
   return (
-    <Box>
-      <ConversationMenu
-        conversationId={conversationId}
-        conversationName={conversationName}
-        onMessageClick={onClick}
-        isSelected={isSelected}
-        contextMenuProps={contextMenuHandler.props}
-      />
-      <ListItemButton
-        alignItems="flex-start"
-        selected={isSelected}
-        onClick={onClick}
-        onContextMenu={contextMenuHandler.handleAnchorPosition}
-      >
-        <Stack direction="row" spacing="10px">
-          <ConversationAvatar displayName={conversationName} />
-          <Stack>
-            <Typography variant="body1">{conversationName}</Typography>
-            <Stack direction="row" spacing="5px">
-              <Typography variant="body2" fontWeight={isSelected ? 'bold' : 'normal'}>
-                {timeIndicator}
-              </Typography>
-              <Typography variant="body2">{lastMessageText}</Typography>
-            </Stack>
-          </Stack>
-        </Stack>
-      </ListItemButton>
-    </Box>
+    <Stack direction="row" spacing="5px">
+      <Typography variant="body2" fontWeight={isSelected ? 'bold' : 'normal'}>
+        {timeIndicator}
+      </Typography>
+      <Typography variant="body2">{lastMessageText}</Typography>
+    </Stack>
   );
-}
+};
 
 interface ConversationMenuProps {
   conversationId: string;

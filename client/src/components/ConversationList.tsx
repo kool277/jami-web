@@ -15,46 +15,74 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { GroupRounded as GroupIcon } from '@mui/icons-material';
+import { GroupRounded as GroupIcon, SearchRounded } from '@mui/icons-material';
+import { InputBase } from '@mui/material';
 import List from '@mui/material/List';
 import ListSubheader from '@mui/material/ListSubheader';
 import Typography from '@mui/material/Typography';
-import { useContext } from 'react';
+import { Stack } from '@mui/system';
+import { ChangeEvent, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-import { MessengerContext } from '../contexts/MessengerProvider';
+import { useContactsSearchQuery } from '../services/contactQueries';
+import { useConversationsSummariesQuery } from '../services/conversationQueries';
+import { SquareButton } from './Button';
 import ContactSearchResultList from './ContactSearchResultList';
 import ConversationListItem from './ConversationListItem';
 import LoadingPage from './Loading';
+import { PeopleGroupIcon } from './SvgIcon';
 
 export default function ConversationList() {
-  const { searchResult, conversationsSummaries } = useContext(MessengerContext);
+  const { t } = useTranslation();
+
+  const [searchFilter, setSearchFilter] = useState('');
+
+  const conversationsSummariesQuery = useConversationsSummariesQuery();
+  const contactsSearchQuery = useContactsSearchQuery(searchFilter);
+
+  const conversationsSummaries = conversationsSummariesQuery.data;
+  const contactsSearchResult = contactsSearchQuery.data;
+
+  const handleInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setSearchFilter(event.target.value);
+  }, []);
 
   if (!conversationsSummaries) {
     return <LoadingPage />;
   }
 
   return (
-    <div className="rooms-list">
+    <Stack>
+      <Stack direction="row">
+        <InputBase
+          type="search"
+          placeholder={t('find_users_and_conversations')}
+          onChange={handleInputChange}
+          startAdornment={<SearchRounded />}
+          sx={{
+            flexGrow: 1,
+          }}
+        />
+        <SquareButton aria-label="start swarm" Icon={PeopleGroupIcon} />
+      </Stack>
       <List>
-        {searchResult && (
-          <div>
-            <ListSubheader>Public directory</ListSubheader>
-            <ContactSearchResultList contacts={searchResult} />
-            <ListSubheader>Conversations</ListSubheader>
-          </div>
+        {contactsSearchResult && contactsSearchResult.length > 0 && (
+          <>
+            <ListSubheader>{t('search_results')}</ListSubheader>
+            <ContactSearchResultList contacts={contactsSearchResult} />
+            <ListSubheader>{t('conversations')}</ListSubheader>
+          </>
         )}
         {conversationsSummaries.map((conversationSummary) => (
           <ConversationListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
         ))}
         {conversationsSummaries.length === 0 && (
-          <div className="list-placeholder">
+          <Stack>
             <GroupIcon color="disabled" fontSize="large" />
-            <Typography className="subtitle" variant="subtitle2">
-              No conversation yet
-            </Typography>
-          </div>
+            <Typography variant="subtitle2">{t('no_conversations')}</Typography>
+          </Stack>
         )}
       </List>
-    </div>
+    </Stack>
   );
 }

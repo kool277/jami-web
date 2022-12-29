@@ -351,7 +351,7 @@ export const ToggleVisibilityButton = styled(({ visible, ...props }: ToggleVisib
   },
 }));
 
-const SquareButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
+export const SquareButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
   <IconButton {...props} disableRipple={true}>
     <Icon fontSize="inherit" />
   </IconButton>

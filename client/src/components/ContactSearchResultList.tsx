@@ -15,12 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-
-import { Dialog, DialogProps, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import { GroupAddRounded } from '@mui/icons-material';
+import { Box, Dialog, DialogProps, Fab, List, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 import { Contact } from '../models/contact';
-import AddContactPage from '../pages/AddContactPage';
+import { useAddContactMutation } from '../services/contactQueries';
 import ConversationAvatar from './ConversationAvatar';
+import { CustomListItemButton } from './CustomListItemButton';
 import { useDialogHandler } from './Dialog';
 
 type ContactSearchResultListProps = {
@@ -47,19 +50,14 @@ const ContactSearchResultListItem = ({ contact }: ContactSearchResultListItemPro
   return (
     <>
       <AddContactDialog {...dialogHandler.props} contactId={contact.uri} />
-      <ListItem
-        button
-        alignItems="flex-start"
+      <CustomListItemButton
         key={contact.uri}
         onClick={() => {
           dialogHandler.openDialog();
         }}
-      >
-        <ListItemAvatar>
-          <ConversationAvatar />
-        </ListItemAvatar>
-        <ListItemText primary={contact.getDisplayName()} secondary={contact.uri} />
-      </ListItem>
+        icon={<ConversationAvatar displayName={contact.getDisplayName()} />}
+        primaryText={<Typography variant="body1">{contact.getDisplayName()}</Typography>}
+      />
     </>
   );
 };
@@ -69,9 +67,27 @@ type AddContactDialogProps = DialogProps & {
 };
 
 const AddContactDialog = ({ contactId, ...props }: AddContactDialogProps) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const addContactMutation = useAddContactMutation();
+
+  const handleClick = async () => {
+    addContactMutation.mutate(contactId, {
+      onSuccess: (data) => navigate(`/conversation/${data.conversationId}`),
+      onSettled: () => props.onClose?.({}, 'escapeKeyDown'), // dummy arguments for 'onClose'
+    });
+  };
+
   return (
     <Dialog {...props}>
-      <AddContactPage contactId={contactId} />
+      <Typography variant="h6">{t('jami_user_id')}</Typography>
+      <Typography variant="body1">{contactId}</Typography>
+      <Box style={{ textAlign: 'center', marginTop: 16 }}>
+        <Fab variant="extended" color="primary" onClick={handleClick}>
+          <GroupAddRounded />
+          {t('conversation_add_contact')}
+        </Fab>
+      </Box>
     </Dialog>
   );
 };
