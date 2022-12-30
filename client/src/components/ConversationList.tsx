@@ -15,41 +15,25 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { GroupRounded as GroupIcon, SearchRounded } from '@mui/icons-material';
-import { InputBase } from '@mui/material';
-import List from '@mui/material/List';
-import ListSubheader from '@mui/material/ListSubheader';
-import Typography from '@mui/material/Typography';
-import { Stack } from '@mui/system';
+import { SearchRounded } from '@mui/icons-material';
+import { InputBase, List, Stack } from '@mui/material';
 import { ChangeEvent, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useContactsSearchQuery } from '../services/contactQueries';
 import { useConversationsSummariesQuery } from '../services/conversationQueries';
 import { SquareButton } from './Button';
 import ContactSearchResultList from './ContactSearchResultList';
 import ConversationListItem from './ConversationListItem';
-import LoadingPage from './Loading';
 import { PeopleGroupIcon } from './SvgIcon';
+import { Tab, TabPanel, Tabs, TabsList } from './Tabs';
 
 export default function ConversationList() {
   const { t } = useTranslation();
-
   const [searchFilter, setSearchFilter] = useState('');
-
-  const conversationsSummariesQuery = useConversationsSummariesQuery();
-  const contactsSearchQuery = useContactsSearchQuery(searchFilter);
-
-  const conversationsSummaries = conversationsSummariesQuery.data;
-  const contactsSearchResult = contactsSearchQuery.data;
 
   const handleInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setSearchFilter(event.target.value);
   }, []);
-
-  if (!conversationsSummaries) {
-    return <LoadingPage />;
-  }
 
   return (
     <Stack>
@@ -65,24 +49,46 @@ export default function ConversationList() {
         />
         <SquareButton aria-label="start swarm" Icon={PeopleGroupIcon} />
       </Stack>
-      <List>
-        {contactsSearchResult && contactsSearchResult.length > 0 && (
-          <>
-            <ListSubheader>{t('search_results')}</ListSubheader>
-            <ContactSearchResultList contacts={contactsSearchResult} />
-            <ListSubheader>{t('conversations')}</ListSubheader>
-          </>
-        )}
-        {conversationsSummaries.map((conversationSummary) => (
-          <ConversationListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
-        ))}
-        {conversationsSummaries.length === 0 && (
-          <Stack>
-            <GroupIcon color="disabled" fontSize="large" />
-            <Typography variant="subtitle2">{t('no_conversations')}</Typography>
-          </Stack>
-        )}
-      </List>
+      {searchFilter ? <ContactSearchResultList searchFilter={searchFilter} /> : <ConversationTabs />}
     </Stack>
   );
 }
+
+const ConversationTabs = () => {
+  const { t } = useTranslation();
+  const invitations = [];
+
+  return (
+    <Tabs defaultValue={0}>
+      {invitations.length !== 0 && (
+        <TabsList>
+          <Tab>{t('conversations')}</Tab>
+          <Tab>{t('invitations')}</Tab>
+        </TabsList>
+      )}
+      <ConversationsTabPanel />
+      <InvitationsTabPanel />
+    </Tabs>
+  );
+};
+
+const ConversationsTabPanel = () => {
+  const conversationsSummariesQuery = useConversationsSummariesQuery();
+  const conversationsSummaries = conversationsSummariesQuery.data;
+
+  return (
+    <TabPanel value={0}>
+      <List>
+        {conversationsSummaries?.map((conversationSummary) => (
+          <ConversationListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
+        ))}
+      </List>
+    </TabPanel>
+  );
+};
+
+const InvitationsTabPanel = () => {
+  const { t } = useTranslation();
+
+  return <TabPanel value={1}>{t('invitations')}</TabPanel>;
+};

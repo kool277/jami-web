@@ -16,26 +16,58 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { GroupAddRounded } from '@mui/icons-material';
-import { Box, Dialog, DialogProps, Fab, List, Typography } from '@mui/material';
+import { Box, Dialog, DialogProps, Fab, List, ListSubheader, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { Contact } from '../models/contact';
-import { useAddContactMutation } from '../services/contactQueries';
+import { useAddContactMutation, useContactsSearchQuery } from '../services/contactQueries';
+import { useConversationsSummariesQuery } from '../services/conversationQueries';
 import ConversationAvatar from './ConversationAvatar';
+import ConversationListItem from './ConversationListItem';
 import { CustomListItemButton } from './CustomListItemButton';
 import { useDialogHandler } from './Dialog';
+import LoadingPage from './Loading';
 
 type ContactSearchResultListProps = {
-  contacts: Contact[];
+  searchFilter: string;
 };
 
-export default ({ contacts }: ContactSearchResultListProps) => {
+export default ({ searchFilter }: ContactSearchResultListProps) => {
+  const { t } = useTranslation();
+
+  const contactsSearchQuery = useContactsSearchQuery(searchFilter);
+  // TODO: Filter conversations
+  const conversationsSummariesQuery = useConversationsSummariesQuery();
+
+  const isLoading = contactsSearchQuery.isLoading && conversationsSummariesQuery.isLoading;
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  const conversationsSummaries = conversationsSummariesQuery.data;
+  const contactsSearchResult = contactsSearchQuery.data;
+
   return (
     <List>
-      {contacts?.map((contact) => (
-        <ContactSearchResultListItem key={contact.uri} contact={contact} />
-      ))}
+      {contactsSearchResult && contactsSearchResult.length > 0 && (
+        <>
+          <ListSubheader>{t('search_results')}</ListSubheader>
+          {contactsSearchResult?.map((contact) => (
+            <ContactSearchResultListItem key={contact.uri} contact={contact} />
+          ))}
+        </>
+      )}
+
+      {conversationsSummaries && conversationsSummaries.length > 0 && (
+        <>
+          <ListSubheader>{t('conversations')}</ListSubheader>
+          {conversationsSummaries.map((conversationSummary) => (
+            <ConversationListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
+          ))}
+        </>
+      )}
     </List>
   );
 };

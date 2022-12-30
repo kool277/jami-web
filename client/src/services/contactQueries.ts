@@ -25,7 +25,7 @@ import { useRefreshConversationsSummaries } from './conversationQueries';
 export const useContactsSearchQuery = (searchQuery: string) => {
   const { axiosInstance } = useAuthContext();
   return useQuery({
-    queryKey: ['nameserver', searchQuery],
+    queryKey: ['ns', 'username', searchQuery],
     queryFn: async () => {
       const { data } = await axiosInstance.get<LookupResult>(`/ns/username/${searchQuery}`);
       return data ? [new Contact(data.address, data.username)] : [];
