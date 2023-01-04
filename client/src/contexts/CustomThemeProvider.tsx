@@ -33,12 +33,23 @@ export default ({ children }: WithChildren) => {
   const [mode, setMode] = useState<PaletteMode>('light');
 
   useEffect(() => {
-    const browserIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    // TODO: Check if account saved a preference and use it
-    setMode(browserIsDark ? 'dark' : 'light');
+    const themeModeInStorage = localStorage.getItem('themeMode');
+    let themeModeValue = 'light';
+    // localStorage returns null if no value is found for the given key
+    if (typeof themeModeInStorage === 'string') {
+      themeModeValue = JSON.parse(themeModeInStorage);
+    }
+    //can't set it directly with the value because of the type check
+    setMode(themeModeValue === 'dark' ? 'dark' : 'light');
   }, []);
 
-  const toggleMode = useCallback(() => setMode((mode) => (mode === 'light' ? 'dark' : 'light')), [setMode]);
+  const toggleMode = useCallback(() => {
+    setMode((mode) => {
+      const newMode = mode === 'light' ? 'dark' : 'light';
+      localStorage.setItem('themeMode', JSON.stringify(newMode));
+      return newMode;
+    });
+  }, [setMode]);
 
   const theme = useMemo(() => buildDefaultTheme(mode), [mode]);
 
