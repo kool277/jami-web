@@ -17,6 +17,7 @@
  */
 import { PaletteMode } from '@mui/material';
 import { ThemeProvider } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { buildDefaultTheme } from '../themes/Default';
@@ -31,6 +32,7 @@ export const CustomThemeContext = createContext<ICustomThemeContext>(undefined!)
 
 export default ({ children }: WithChildren) => {
   const [mode, setMode] = useState<PaletteMode>('light');
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
   useEffect(() => {
     const themeModeInStorage = localStorage.getItem('themeMode');
@@ -38,10 +40,12 @@ export default ({ children }: WithChildren) => {
     // localStorage returns null if no value is found for the given key
     if (typeof themeModeInStorage === 'string') {
       themeModeValue = JSON.parse(themeModeInStorage);
+      setMode(themeModeValue === 'dark' ? 'dark' : 'light');
+    } else {
+      //when there is no theme mode stored in the localStorage, use the mode in OS preference
+      setMode(prefersDarkMode ? 'dark' : 'light');
     }
-    //can't set it directly with the value because of the type check
-    setMode(themeModeValue === 'dark' ? 'dark' : 'light');
-  }, []);
+  }, [prefersDarkMode]);
 
   const toggleMode = useCallback(() => {
     setMode((mode) => {
