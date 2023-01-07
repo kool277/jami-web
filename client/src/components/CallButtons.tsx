@@ -16,16 +16,16 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { IconButton, IconButtonProps, PaletteColor } from '@mui/material';
-import { styled, Theme } from '@mui/material/styles';
+import { IconButtonProps } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import { ChangeEvent, useMemo } from 'react';
 
 import { CallStatus, useCallContext, VideoStatus } from '../contexts/CallProvider';
 import {
+  ColoredRoundButton,
   ExpandableButton,
   ExpandableButtonProps,
   ExpandMenuRadioOption,
-  ShapedButtonProps,
   ToggleIconButton,
 } from './Button';
 import {
@@ -56,37 +56,6 @@ const CallButton = styled((props: ExpandableButtonProps) => {
   },
 });
 
-const ColoredCallButton = styled(
-  ({
-    paletteColor,
-    Icon,
-    ...props
-  }: ShapedButtonProps & {
-    paletteColor?: PaletteColor | ((theme: Theme) => PaletteColor);
-  }) => {
-    return (
-      <IconButton {...props} disableRipple={true}>
-        <Icon fontSize="inherit" />
-      </IconButton>
-    );
-  }
-)(({ theme, paletteColor = theme.palette.primary }) => {
-  if (typeof paletteColor === 'function') {
-    paletteColor = paletteColor(theme);
-  }
-
-  return {
-    color: paletteColor.contrastText,
-    backgroundColor: paletteColor.dark,
-    '&:hover': {
-      backgroundColor: paletteColor.main,
-    },
-    '&:disabled': {
-      backgroundColor: theme.palette.action.disabled,
-    },
-  };
-});
-
 export const CallingChatButton = (props: ExpandableButtonProps) => {
   const { setIsChatShown } = useCallContext();
   return (
@@ -104,7 +73,7 @@ export const CallingChatButton = (props: ExpandableButtonProps) => {
 export const CallingEndButton = (props: ExpandableButtonProps) => {
   const { endCall } = useCallContext();
   return (
-    <ColoredCallButton
+    <ColoredRoundButton
       paletteColor={(theme) => theme.palette.error}
       onClick={() => {
         endCall();
@@ -269,7 +238,7 @@ export const CallingCancelButton = (props: IconButtonProps) => {
   const { endCall } = useCallContext();
 
   return (
-    <ColoredCallButton
+    <ColoredRoundButton
       aria-label="cancel call"
       onClick={() => {
         endCall();
@@ -285,7 +254,7 @@ export const CallingAnswerAudioButton = (props: IconButtonProps) => {
   const { acceptCall, callStatus } = useCallContext();
 
   return (
-    <ColoredCallButton
+    <ColoredRoundButton
       disabled={callStatus === CallStatus.Loading || callStatus === CallStatus.Connecting}
       aria-label="answer call audio"
       onClick={() => {
@@ -301,7 +270,7 @@ export const CallingAnswerAudioButton = (props: IconButtonProps) => {
 export const CallingAnswerVideoButton = (props: IconButtonProps) => {
   const { acceptCall, callStatus } = useCallContext();
   return (
-    <ColoredCallButton
+    <ColoredRoundButton
       disabled={callStatus === CallStatus.Connecting || callStatus === CallStatus.Loading}
       aria-label="answer call video"
       onClick={() => {
@@ -317,7 +286,7 @@ export const CallingAnswerVideoButton = (props: IconButtonProps) => {
 export const CallingRefuseButton = (props: IconButtonProps) => {
   const { endCall } = useCallContext();
   return (
-    <ColoredCallButton
+    <ColoredRoundButton
       aria-label="refuse call"
       onClick={() => {
         endCall();

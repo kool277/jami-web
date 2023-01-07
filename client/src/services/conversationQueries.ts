@@ -16,11 +16,19 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ConversationInfos, IConversationMember, IConversationSummary, Message } from 'jami-web-common';
+import { AxiosResponse } from 'axios';
+import {
+  ConversationInfos,
+  IConversationMember,
+  IConversationRequest,
+  IConversationSummary,
+  Message,
+} from 'jami-web-common';
 import { useCallback } from 'react';
 
 import { useAuthContext } from '../contexts/AuthProvider';
 import { ConversationMember } from '../models/conversation-member';
+import { useAddToCache, useRemoveFromCache } from '../utils/reactquery';
 
 export const useConversationInfosQuery = (conversationId?: string) => {
   const { axiosInstance } = useAuthContext();
@@ -42,6 +50,31 @@ export const useConversationsSummariesQuery = () => {
     const { data } = await axiosInstance.get<IConversationSummary[]>(`/conversations`);
     return data;
   });
+};
+
+const checkConversationSummariesAreEqual = (
+  conversationSummary1: IConversationSummary,
+  conversationSummary2: IConversationSummary
+) => conversationSummary1.id === conversationSummary2.id;
+const checkIsConversationSummaryFn = (conversationSummary: IConversationSummary, conversationId: string) =>
+  conversationSummary.id === conversationId;
+
+export const useAddConversationSummaryToCache = () =>
+  useAddToCache(['conversations', 'summaries'], checkConversationSummariesAreEqual);
+export const useRemoveConversationSummaryFromCache = () =>
+  useRemoveFromCache(['conversations', 'summaries'], checkIsConversationSummaryFn);
+
+export const useRemoveConversationMutation = () => {
+  const { axiosInstance } = useAuthContext();
+  const removeConversationSummaryFromCache = useRemoveConversationSummaryFromCache();
+  return useMutation(
+    ({ conversationId }: { conversationId: string }) => axiosInstance.delete(`/conversations/${conversationId}`),
+    {
+      onSuccess: (_data, { conversationId }) => {
+        removeConversationSummaryFromCache(conversationId);
+      },
+    }
+  );
 };
 
 export const useRefreshConversationsSummaries = () => {
@@ -86,6 +119,77 @@ export const useSendMessageMutation = (conversationId: string) => {
     (message: string) => axiosInstance.post(`/conversations/${conversationId}/messages`, { message }),
     {
       onSuccess: () => queryClient.invalidateQueries(['messages', conversationId]),
+    }
+  );
+};
+
+const CheckConversationRequestsAreEqual = (
+  conversationRequest1: IConversationRequest,
+  conversationRequest2: IConversationRequest
+) => conversationRequest1.conversationId === conversationRequest2.conversationId;
+const checkIsConversationRequestFn = (conversationRequest: IConversationRequest, conversationId: string) =>
+  conversationRequest.conversationId === conversationId;
+
+export const useAddConversationRequestToCache = () =>
+  useAddToCache(['conversationsRequests'], CheckConversationRequestsAreEqual);
+export const useRemoveConversationRequestFromCache = () =>
+  useRemoveFromCache(['conversationsRequests'], checkIsConversationRequestFn);
+
+export const useConversationRequestsQuery = () => {
+  const { axiosInstance } = useAuthContext();
+  return useQuery({
+    queryKey: ['conversationRequests'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<IConversationRequest[]>('/conversation-requests/');
+      return data;
+    },
+  });
+};
+
+export const useAcceptConversationRequestMutation = () => {
+  const { axiosInstance } = useAuthContext();
+  const addConversationSummaryToCache = useAddConversationSummaryToCache();
+  const removeConversationRequestFromCache = useRemoveConversationRequestFromCache();
+  return useMutation(
+    async (variables: { conversationId: string }) => {
+      const { data } = await axiosInstance.post<undefined, AxiosResponse<IConversationSummary>>(
+        `/conversation-requests/${variables.conversationId}`
+      );
+      return data;
+    },
+    {
+      onSuccess: (data, { conversationId }) => {
+        addConversationSummaryToCache(data);
+        removeConversationRequestFromCache(conversationId);
+      },
+    }
+  );
+};
+
+export const useBlockConversationRequestMutation = () => {
+  const { axiosInstance } = useAuthContext();
+  const removeConversationRequestFromCache = useRemoveConversationRequestFromCache();
+  return useMutation(
+    ({ conversationId }: { conversationId: string }) =>
+      axiosInstance.post(`/conversation-requests/${conversationId}/block`),
+    {
+      onSuccess: (_data, { conversationId }) => {
+        removeConversationRequestFromCache(conversationId);
+      },
+    }
+  );
+};
+
+export const useDeclineConversationRequestMutation = () => {
+  const { axiosInstance } = useAuthContext();
+  const removeConversationRequestFromCache = useRemoveConversationRequestFromCache();
+  return useMutation(
+    ({ conversationId }: { conversationId: string }) =>
+      axiosInstance.delete(`/conversation-requests/${conversationId}`),
+    {
+      onSuccess: (_data, { conversationId }) => {
+        removeConversationRequestFromCache(conversationId);
+      },
     }
   );
 };

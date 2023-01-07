@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { WebSocketMessageType } from '../enums/websocket-message-type.js';
+import { IConversationRequest } from './conversation.js';
 import {
   CallAction,
   CallBegin,
@@ -28,6 +29,7 @@ import {
 
 export interface WebSocketMessageTable {
   [WebSocketMessageType.ConversationMessage]: ConversationMessage;
+  [WebSocketMessageType.ConversationRequest]: IConversationRequest;
   [WebSocketMessageType.ConversationView]: ConversationView;
   [WebSocketMessageType.OnComposingStatusChanged]: ComposingStatus;
   [WebSocketMessageType.SetIsComposing]: ComposingStatus;

@@ -55,3 +55,29 @@ export const useConversationDisplayName = (
     return translateEnumeration<ConversationMember>(members, options);
   }, [account, adminTitle, members, t]);
 };
+
+export const useConversationDisplayNameShort = (
+  account: Account | null,
+  title: string | undefined,
+  membersNames: string[]
+): string => {
+  return useMemo(() => {
+    if (title) {
+      return title;
+    }
+
+    if (membersNames.length === 0) {
+      return account?.getDisplayName() || '';
+    }
+
+    const twoFirstMembers = membersNames.slice(0, 2);
+    const baseName = twoFirstMembers.join(', ');
+    const excess = membersNames.length - twoFirstMembers.length;
+
+    if (excess > 0) {
+      return baseName + ' +' + excess;
+    } else {
+      return baseName;
+    }
+  }, [account, title, membersNames]);
+};

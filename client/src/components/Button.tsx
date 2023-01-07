@@ -31,8 +31,9 @@ import {
   RadioGroup,
   RadioGroupProps,
   SvgIconProps,
+  Theme,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { PaletteColor, styled } from '@mui/material/styles';
 import EmojiPicker, { IEmojiData } from 'emoji-picker-react';
 import { ComponentType, MouseEvent, ReactNode, useCallback, useState } from 'react';
 
@@ -507,4 +508,35 @@ export const CornerCloseButton = styled(({ ...props }: IconButtonProps) => (
   zIndex: 200,
   color: 'white',
   fontSize: '10px',
+});
+
+export const ColoredRoundButton = styled(
+  ({
+    paletteColor,
+    Icon,
+    ...props
+  }: ShapedButtonProps & {
+    paletteColor?: PaletteColor | ((theme: Theme) => PaletteColor);
+  }) => {
+    return (
+      <IconButton {...props} disableRipple={true}>
+        <Icon fontSize="inherit" />
+      </IconButton>
+    );
+  }
+)(({ theme, paletteColor = theme.palette.primary }) => {
+  if (typeof paletteColor === 'function') {
+    paletteColor = paletteColor(theme);
+  }
+
+  return {
+    color: paletteColor.contrastText,
+    backgroundColor: paletteColor.dark,
+    '&:hover': {
+      backgroundColor: paletteColor.main,
+    },
+    '&:disabled': {
+      backgroundColor: theme.palette.action.disabled,
+    },
+  };
 });

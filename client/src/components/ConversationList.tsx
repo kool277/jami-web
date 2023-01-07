@@ -17,15 +17,16 @@
  */
 import { SearchRounded } from '@mui/icons-material';
 import { InputBase, List, Stack } from '@mui/material';
-import { ChangeEvent, useCallback, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useConversationsSummariesQuery } from '../services/conversationQueries';
+import { useConversationRequestsQuery, useConversationsSummariesQuery } from '../services/conversationQueries';
 import { SquareButton } from './Button';
 import ContactSearchResultList from './ContactSearchResultList';
 import ConversationListItem from './ConversationListItem';
+import { ConversationRequestList } from './ConversationRequestList';
 import { PeopleGroupIcon } from './SvgIcon';
-import { Tab, TabPanel, Tabs, TabsList } from './Tabs';
+import { Tab, TabPanel, TabPanelProps, Tabs, TabsList, TabsProps } from './Tabs';
 
 export default function ConversationList() {
   const { t } = useTranslation();
@@ -55,29 +56,51 @@ export default function ConversationList() {
 }
 
 const ConversationTabs = () => {
+  const conversationsTabIndex = 0;
+  const invitationsTabIndex = 1;
   const { t } = useTranslation();
-  const invitations = [];
+  const conversationRequestsQuery = useConversationRequestsQuery();
+  const conversationRequestsLength = conversationRequestsQuery.data?.length;
+
+  const [isShowingTabMenu, setIsShowingTabMenu] = useState(false);
+  const [tabIndex, setTabIndex] = useState(conversationsTabIndex);
+
+  useEffect(() => {
+    const newIsShowingTabMenu = !!conversationRequestsLength;
+    setIsShowingTabMenu(newIsShowingTabMenu);
+    if (!newIsShowingTabMenu) {
+      setTabIndex(conversationsTabIndex);
+    }
+  }, [conversationRequestsLength]);
+
+  const onChange = useCallback<NonNullable<TabsProps['onChange']>>((_event, value) => {
+    if (typeof value === 'number') {
+      setTabIndex(value);
+    }
+  }, []);
 
   return (
-    <Tabs defaultValue={0}>
-      {invitations.length !== 0 && (
+    <Tabs defaultValue={conversationsTabIndex} value={tabIndex} onChange={onChange}>
+      {isShowingTabMenu && (
         <TabsList>
           <Tab>{t('conversations')}</Tab>
-          <Tab>{t('invitations')}</Tab>
+          <Tab>
+            {t('invitations')} {conversationRequestsLength}
+          </Tab>
         </TabsList>
       )}
-      <ConversationsTabPanel />
-      <InvitationsTabPanel />
+      <ConversationsTabPanel value={conversationsTabIndex} />
+      <InvitationsTabPanel value={invitationsTabIndex} />
     </Tabs>
   );
 };
 
-const ConversationsTabPanel = () => {
+const ConversationsTabPanel = (props: TabPanelProps) => {
   const conversationsSummariesQuery = useConversationsSummariesQuery();
   const conversationsSummaries = conversationsSummariesQuery.data;
 
   return (
-    <TabPanel value={0}>
+    <TabPanel {...props}>
       <List>
         {conversationsSummaries?.map((conversationSummary) => (
           <ConversationListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
@@ -87,8 +110,10 @@ const ConversationsTabPanel = () => {
   );
 };
 
-const InvitationsTabPanel = () => {
-  const { t } = useTranslation();
-
-  return <TabPanel value={1}>{t('invitations')}</TabPanel>;
+const InvitationsTabPanel = (props: TabPanelProps) => {
+  return (
+    <TabPanel {...props}>
+      <ConversationRequestList />
+    </TabPanel>
+  );
 };

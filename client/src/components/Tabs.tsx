@@ -15,7 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { TabPanelUnstyled, TabsListUnstyled, TabsUnstyled, TabUnstyled, TabUnstyledProps } from '@mui/base';
+import {
+  TabPanelUnstyled,
+  TabPanelUnstyledProps,
+  TabsListUnstyled,
+  TabsUnstyled,
+  TabsUnstyledProps,
+  TabUnstyled,
+  TabUnstyledProps,
+} from '@mui/base';
 import { Theme } from '@mui/material/styles';
 import { styled } from '@mui/system';
 
@@ -58,6 +66,8 @@ export const Tab = styled(TabUnstyled)<TabProps>(({ theme }) => ({
   },
 }));
 
+export type TabPanelProps = TabPanelUnstyledProps;
+
 export const TabPanel = styled(TabPanelUnstyled)(() => ({
   width: '100%',
 }));
@@ -68,5 +78,7 @@ export const TabsList = styled(TabsListUnstyled)(() => ({
   placeContent: 'space-evenly',
   borderBottom: '1px solid #bfbfbf',
 }));
+
+export type TabsProps = TabsUnstyledProps;
 
 export const Tabs = TabsUnstyled;

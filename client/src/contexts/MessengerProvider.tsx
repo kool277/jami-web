@@ -15,10 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationMessage, WebSocketMessageType } from 'jami-web-common';
+import { ConversationMessage, IConversationRequest, WebSocketMessageType } from 'jami-web-common';
 import { createContext, ReactNode, useContext, useEffect, useMemo } from 'react';
 
-import { useRefreshConversationsSummaries } from '../services/conversationQueries';
+import { useAddConversationRequestToCache, useRefreshConversationsSummaries } from '../services/conversationQueries';
 import { WebSocketContext } from './WebSocketProvider';
 
 // It is not sure yet we want this context to have no value
@@ -33,6 +33,7 @@ export default ({ children }: { children: ReactNode }) => {
   const webSocket = useContext(WebSocketContext);
 
   const refreshConversationsSummaries = useRefreshConversationsSummaries();
+  const addConversationRequestToCache = useAddConversationRequestToCache();
 
   useEffect(() => {
     if (!webSocket) {
@@ -43,12 +44,18 @@ export default ({ children }: { children: ReactNode }) => {
       refreshConversationsSummaries();
     };
 
+    const conversationRequestListener = (conversationRequest: IConversationRequest) => {
+      addConversationRequestToCache(conversationRequest);
+    };
+
     webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener);
+    webSocket.bind(WebSocketMessageType.ConversationRequest, conversationRequestListener);
 
     return () => {
       webSocket.unbind(WebSocketMessageType.ConversationMessage, conversationMessageListener);
+      webSocket.unbind(WebSocketMessageType.ConversationRequest, conversationRequestListener);
     };
-  }, [refreshConversationsSummaries, webSocket]);
+  }, [addConversationRequestToCache, refreshConversationsSummaries, webSocket]);
 
   const value = useMemo<IMessengerContext>(() => ({}), []);
 

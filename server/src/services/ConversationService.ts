@@ -1,0 +1,119 @@
+/*
+ * Copyright (C) 2022 Savoir-faire Linux Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public
+ * License along with this program.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ */
+
+import { IConversationRequest, IConversationSummary, Message, WebSocketMessageType } from 'jami-web-common';
+import { Container, Service } from 'typedi';
+
+import { ConversationRequestMetadata } from '../jamid/conversation-request-metadata.js';
+import { Jamid } from '../jamid/jamid.js';
+import { WebSocketServer } from '../websocket/websocket-server.js';
+import { ContactService } from './ContactService.js';
+
+const jamid = Container.get(Jamid);
+const webSocketServer = Container.get(WebSocketServer);
+const contactService = Container.get(ContactService);
+
+@Service()
+export class ConversationService {
+  constructor() {
+    jamid.events.onConversationRequestReceived.subscribe(async (signal) => {
+      const conversationRequest = await this.createConversationRequest(signal.accountId, signal.metadata);
+      webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationRequest, conversationRequest);
+    });
+  }
+
+  async createConversationRequest(
+    accountId: string,
+    jamidRequest: ConversationRequestMetadata
+  ): Promise<IConversationRequest> {
+    const contact = await contactService.getContactFromUri(accountId, jamidRequest.from);
+    const membersNames = await this.getMembersNames(accountId, jamidRequest.id);
+
+    // Currently, this does not actually works.
+    // It seems the members can't be accessed yet. Same on jami-android
+    if (membersNames.length === 0) {
+      membersNames.push(contact.registeredName || contact.uri);
+    }
+
+    return {
+      conversationId: jamidRequest.id,
+      received: jamidRequest.received,
+      from: contact,
+      infos: {
+        // Build a dataUrl from the avatar
+        // TODO: Host the image and use a "normal" url instead
+        avatar: `data:image/jpeg;base64,${jamidRequest.avatar}`,
+        description: jamidRequest.description,
+        mode: jamidRequest.mode,
+        title: jamidRequest.title,
+      },
+      membersNames,
+    };
+  }
+
+  async createConversationSummary(
+    accountId: string,
+    conversationId: string
+  ): Promise<IConversationSummary | undefined> {
+    const infos = jamid.getConversationInfos(accountId, conversationId);
+    if (Object.keys(infos).length === 0) {
+      return undefined;
+    }
+    // Build a dataUrl from the avatar
+    // TODO: Host the image and use a "normal" url instead
+    infos.avatar = `data:image/jpeg;base64,${infos.avatar}`;
+
+    const membersNames = await this.getMembersNames(accountId, conversationId);
+    let lastMessage: Message | undefined;
+    // Skip "merge" type since they are of no interest for the user
+    // Should we add some protection to prevent infinite loop?
+    while (!lastMessage || lastMessage.type === 'merge') {
+      lastMessage = (
+        await jamid.getConversationMessages(accountId, conversationId, lastMessage?.linearizedParent || '', 1)
+      )[0];
+    }
+
+    return {
+      id: conversationId,
+      avatar: infos.avatar,
+      title: infos.title,
+      membersNames,
+      lastMessage,
+    };
+  }
+
+  async getMembersNames(accountId: string, conversationId: string): Promise<string[]> {
+    // Retrieve the URI of the current account (Account.username actually stores the URI rather than the username)
+    const accountUri = jamid.getAccountDetails(accountId)['Account.username'];
+
+    const members = jamid.getConversationMembers(accountId, conversationId);
+    const membersNames: string[] = [];
+    for (const member of members) {
+      // Exclude current user from returned conversation members
+      if (member.uri === accountUri) {
+        continue;
+      }
+
+      // Add usernames for conversation members
+      const { username } = await jamid.lookupAddress(member.uri, accountId);
+      membersNames.push(username || member.uri);
+    }
+
+    return membersNames;
+  }
+}

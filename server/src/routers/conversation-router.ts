@@ -22,8 +22,6 @@ import {
   ContactDetails,
   HttpStatusCode,
   IConversationMember,
-  IConversationSummary,
-  Message,
   NewConversationRequestBody,
   NewMessageRequestBody,
 } from 'jami-web-common';
@@ -31,50 +29,10 @@ import { Container } from 'typedi';
 
 import { Jamid } from '../jamid/jamid.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { ConversationService } from '../services/ConversationService.js';
 
 const jamid = Container.get(Jamid);
-
-async function createConversationSummary(
-  accountId: string,
-  accountUri: string,
-  conversationId: string
-): Promise<IConversationSummary | undefined> {
-  const infos = jamid.getConversationInfos(accountId, conversationId);
-  if (Object.keys(infos).length === 0) {
-    return undefined;
-  }
-
-  const members = jamid.getConversationMembers(accountId, conversationId);
-
-  const membersNames = [];
-  for (const member of members) {
-    // Exclude current user from returned conversation members
-    if (member.uri === accountUri) {
-      continue;
-    }
-
-    // Add usernames for conversation members
-    const { username } = await jamid.lookupAddress(member.uri, accountId);
-    membersNames.push(username || member.uri);
-  }
-
-  let lastMessage: Message | undefined;
-  // Skip "merge" type since they are of no interest for the user
-  // Should we add some protection to prevent infinite loop?
-  while (!lastMessage || lastMessage.type === 'merge') {
-    lastMessage = (
-      await jamid.getConversationMessages(accountId, conversationId, lastMessage?.linearizedParent || '', 1)
-    )[0];
-  }
-
-  return {
-    id: conversationId,
-    avatar: infos.avatar,
-    title: infos.title,
-    membersNames,
-    lastMessage,
-  };
-}
+const conversationService = Container.get(ConversationService);
 
 export const conversationRouter = Router();
 
@@ -85,14 +43,11 @@ conversationRouter.get(
   asyncHandler(async (_req, res) => {
     const accountId = res.locals.accountId;
 
-    // Retrieve the URI of the current account (Account.username actually stores the URI rather than the username)
-    const accountUri = jamid.getAccountDetails(accountId)['Account.username'];
-
     const conversationIds = jamid.getConversationIds(accountId);
 
     const conversationsSummaries = [];
     for (const conversationId of conversationIds) {
-      const conversationSummary = await createConversationSummary(accountId, accountUri, conversationId);
+      const conversationSummary = await conversationService.createConversationSummary(accountId, conversationId);
       conversationsSummaries.push(conversationSummary);
     }
 
@@ -132,10 +87,7 @@ conversationRouter.get(
     const accountId = res.locals.accountId;
     const conversationId = req.params.conversationId;
 
-    // Retrieve the URI of the current account (Account.username actually stores the URI rather than the username)
-    const accountUri = jamid.getAccountDetails(accountId)['Account.username'];
-
-    const conversationSummary = await createConversationSummary(accountId, accountUri, conversationId);
+    const conversationSummary = await conversationService.createConversationSummary(accountId, conversationId);
     if (conversationSummary === undefined) {
       res.status(HttpStatusCode.NotFound).send('No such conversation found');
       return;
@@ -204,13 +156,11 @@ conversationRouter.get(
   asyncHandler(async (req, res) => {
     const accountId = res.locals.accountId;
     const conversationId = req.params.conversationId;
-
     const infos = jamid.getConversationInfos(accountId, conversationId);
     if (Object.keys(infos).length === 0) {
       res.status(HttpStatusCode.NotFound).send('No such conversation found');
       return;
     }
-
     const messages = await jamid.getConversationMessages(accountId, conversationId);
     res.send(messages);
   })

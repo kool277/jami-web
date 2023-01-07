@@ -19,4 +19,8 @@ export interface ConversationRequestMetadata {
   id: string;
   from: string;
   received: string;
+  avatar: string;
+  description: string;
+  title: string;
+  mode: string;
 }

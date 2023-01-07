@@ -32,10 +32,10 @@ export class Contact implements IContact {
   }
 
   getDisplayName() {
-    return this.getDisplayNameNoFallback() ?? this.uri;
+    return this.getDisplayNameNoFallback() || this.uri;
   }
 
   getDisplayNameNoFallback() {
-    return this.displayName ?? this.registeredName;
+    return this.displayName || this.registeredName;
   }
 }

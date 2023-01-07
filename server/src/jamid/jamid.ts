@@ -72,7 +72,7 @@ const require = createRequire(import.meta.url);
 export class Jamid {
   private jamiSwig: JamiSwig;
   private usernamesToAccountIds = new Map<string, string>();
-  private readonly events;
+  readonly events;
 
   constructor(private webSocketServer: WebSocketServer) {
     this.jamiSwig = require('../../jamid.node') as JamiSwig;
@@ -276,6 +276,7 @@ export class Jamid {
 
   async lookupAddress(address: string, accountId?: string): Promise<LookupResult> {
     const hasRingNs = this.jamiSwig.lookupAddress(accountId || '', '', address);
+
     if (!hasRingNs) {
       throw new Error('Jami does not have a nameserver');
     }
@@ -373,6 +374,26 @@ export class Jamid {
 
   removeConversation(accountId: string, conversationId: string) {
     this.jamiSwig.removeConversation(accountId, conversationId);
+  }
+
+  getConversationRequests(accountId: string): ConversationRequestMetadata[] {
+    return vectMapToRecordArray(
+      this.jamiSwig.getConversationRequests(accountId)
+    ) as unknown as ConversationRequestMetadata[];
+  }
+
+  acceptConversationRequest(accountId: string, conversationId: string): Promise<ConversationReady> {
+    this.jamiSwig.acceptConversationRequest(accountId, conversationId);
+    return firstValueFrom(
+      this.events.onConversationReady.pipe(
+        filter((value) => value.accountId === accountId),
+        filter((value) => value.conversationId === conversationId)
+      )
+    );
+  }
+
+  declineConversationRequest(accountId: string, conversationId: string): void {
+    this.jamiSwig.declineConversationRequest(accountId, conversationId);
   }
 
   sendConversationMessage(
@@ -477,13 +498,7 @@ export class Jamid {
 
     this.events.onConversationRequestReceived.subscribe((signal) => {
       log.debug('Received ConversationRequestReceived:', JSON.stringify(signal));
-
-      // TODO: Prompt user to accept conversation request on client
-      // Currently, we auto-accept all incoming conversation requests. In future, we
-      // need to ask the user if they accept the conversation request or not. Part of
-      // it can be done by sending a WebSocket event.
-      // See other implementations e.g. block contact / decline request / accept request.
-      this.jamiSwig.acceptConversationRequest(signal.accountId, signal.conversationId);
+      //this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationRequest, data);
     });
 
     this.events.onConversationReady.subscribe((signal) => {

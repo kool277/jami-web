@@ -34,6 +34,19 @@ export const useContactsSearchQuery = (searchQuery: string) => {
   });
 };
 
+export const useContactQuery = (contactId?: string) => {
+  const { axiosInstance } = useAuthContext();
+
+  return useQuery({
+    queryKey: ['contacts', contactId],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<ContactDetails>(`/contacts/${contactId}`);
+      return data;
+    },
+    enabled: !!contactId,
+  });
+};
+
 export const useAddContactMutation = () => {
   const { axiosInstance } = useAuthContext();
 

@@ -69,3 +69,11 @@ export interface IConversationSummary {
   membersNames: string[];
   lastMessage: Message;
 }
+
+export interface IConversationRequest {
+  conversationId: string;
+  infos: ConversationInfos;
+  from: IContact;
+  received: string;
+  membersNames: string[];
+}

@@ -26,10 +26,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../contexts/AuthProvider';
 import { CallManagerContext } from '../contexts/CallManagerProvider';
 import { CallStatus, useCallContext } from '../contexts/CallProvider';
+import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName';
 import { useUrlParams } from '../hooks/useUrlParams';
-import { setRefreshFromSlice } from '../redux/appSlice';
-import { useAppDispatch } from '../redux/hooks';
 import { ConversationRouteParams } from '../router';
+import { useRemoveConversationMutation } from '../services/conversationQueries';
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages';
 import { formatRelativeDate, formatTime } from '../utils/dates&times';
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu';
@@ -60,9 +60,10 @@ export default function ConversationListItem({ conversationSummary }: Conversati
     }
   }, [navigate, conversationId]);
 
-  const conversationName = useMemo(
-    () => conversationSummary.title || conversationSummary.membersNames.join(', ') || account.getDisplayName(),
-    [account, conversationSummary]
+  const conversationName = useConversationDisplayNameShort(
+    account,
+    conversationSummary.title,
+    conversationSummary.membersNames
   );
 
   return (
@@ -78,7 +79,7 @@ export default function ConversationListItem({ conversationSummary }: Conversati
         selected={isSelected}
         onClick={onClick}
         onContextMenu={contextMenuHandler.handleAnchorPosition}
-        icon={<ConversationAvatar displayName={conversationName} />}
+        icon={<ConversationAvatar displayName={conversationName} src={conversationSummary.avatar} />}
         primaryText={<Typography variant="body1">{conversationName}</Typography>}
         secondaryText={<SecondaryText conversationSummary={conversationSummary} isSelected={isSelected} />}
       />
@@ -260,7 +261,11 @@ const ConversationMenu = ({
         isSwarm={isSwarm}
       />
 
-      <RemoveConversationDialog {...RemoveConversationDialogHandler.props} conversationId={conversationId} />
+      <RemoveConversationDialog
+        {...RemoveConversationDialogHandler.props}
+        conversationId={conversationId}
+        isSelected={isSelected}
+      />
     </>
   );
 };
@@ -309,28 +314,34 @@ const DetailsDialog = ({ conversationId, conversationName, open, onClose, isSwar
 
 interface RemoveConversationDialogProps {
   conversationId: string;
+  isSelected: boolean;
   open: boolean;
   onClose: () => void;
 }
 
-const RemoveConversationDialog = ({ conversationId, open, onClose }: RemoveConversationDialogProps) => {
-  const { axiosInstance } = useAuthContext();
+const RemoveConversationDialog = ({ conversationId, isSelected, open, onClose }: RemoveConversationDialogProps) => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const removeConversationMutation = useRemoveConversationMutation();
 
-  const remove = async () => {
-    const controller = new AbortController();
-    try {
-      await axiosInstance.delete(`/conversations/${conversationId}`, {
-        signal: controller.signal,
-      });
-      dispatch(setRefreshFromSlice());
-    } catch (e) {
-      console.error(`Error removing conversation : `, e);
-      dispatch(setRefreshFromSlice());
-    }
-    onClose();
-  };
+  const remove = useCallback(async () => {
+    removeConversationMutation.mutate(
+      { conversationId },
+      {
+        onSuccess: () => {
+          if (isSelected) {
+            navigate('/conversation/');
+          }
+        },
+        onError: (e) => {
+          console.error(`Error removing conversation : `, e);
+        },
+        onSettled: () => {
+          onClose();
+        },
+      }
+    );
+  }, [conversationId, isSelected, navigate, onClose, removeConversationMutation]);
 
   return (
     <ConfirmationDialog
