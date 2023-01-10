@@ -54,7 +54,7 @@ export default function ContactList() {
   const openChildModal = () => setChildModalOpen(true);
   const closeChildModal = () => setChildModalOpen(false);
 
-  const handleClickContact = (id: string) => {
+  const handleClickContact = (id: string): void => {
     setCurrentContactId(id);
     setParentModalOpen(true);
   };
@@ -83,37 +83,61 @@ export default function ContactList() {
   //       });
   //   };
 
-  const removeOrBlock = () => {
-    console.log('remove or block');
-    const controller = new AbortController();
+  const removeContact = (): void => {
+    console.log('Removing contact');
 
     //Not sure if the server handles empty contact id
     if (currentContactId === '') {
       throw 'currentContactId is empty';
     }
 
-    let url = `/contacts/${currentContactId}`;
-    if (isBlocking) {
-      url += '/block';
-    }
-
-    // try {
-    //   await axiosInstance(url, {
-    //     signal: controller.signal,
-    //     method: block ? 'POST' : 'DELETE',
-    //   });
-    // } catch (e) {
-    //   console.log(`ERROR ${block ? 'blocking' : 'removing'} CONTACT : `, e);
-    // }
+    //TODO: put all urls in a single file that can be imported and referenced later
+    const url = `/contacts/${currentContactId}`;
 
     axiosInstance(url, {
-      signal: controller.signal,
-      method: isBlocking ? 'POST' : 'DELETE',
-    }).catch((err) => {
-      console.log(`ERROR ${isBlocking ? 'blocking' : 'removing'} CONTACT : `, err);
-    });
+      method: 'DELETE',
+    })
+      .then((res) => {
+        if (res.status === 204) {
+          //removes the contact from UI, but does not make another request to fetch all contacts
+          setContacts((prev) => {
+            return prev.filter((contact) => contact.id !== currentContactId);
+          });
+          //TODO: show notification of success
+        }
+      })
+      .catch((err) => {
+        console.log(`ERROR removing CONTACT : ${currentContactId} `, err);
+      });
 
     closeChildModal();
+    closeParentModal();
+  };
+
+  const blockContact = (): void => {
+    console.log('remove or block');
+
+    //Not sure if the server handles empty contact id
+    if (currentContactId === '') {
+      throw 'currentContactId is empty';
+    }
+
+    const url = `/contacts/${currentContactId}/block`;
+
+    axiosInstance(url, {
+      method: 'POST',
+    })
+      .then((res) => {
+        if (res.status === 204) {
+          //TODO: Integrate behaviours after blocking a contact
+        }
+      })
+      .catch((err) => {
+        console.log(`ERROR blocking CONTACT : ${currentContactId} `, err);
+      });
+
+    closeChildModal();
+    closeParentModal();
   };
 
   useEffect(() => {
@@ -144,7 +168,6 @@ export default function ContactList() {
             onClick={() => {
               console.log('open dialog Supprimer: ');
               setIsBlocking(false);
-              closeParentModal();
               openChildModal();
             }}
           >
@@ -155,7 +178,6 @@ export default function ContactList() {
             onClick={() => {
               console.log('open dialog BLOCK: ');
               setIsBlocking(true);
-              closeParentModal();
               openChildModal();
             }}
           >
@@ -182,10 +204,12 @@ export default function ContactList() {
         contentLabel="Merci de confirmer"
       >
         <Box>
-          <div>Voulez vous vraiment {isBlocking ? 'bloquer' : 'supprimer'} ce contact?</div>
+          <div>
+            Voulez vous vraiment {isBlocking ? 'bloquer' : 'supprimer'} ce contact {currentContactId}?
+          </div>
           <br />
 
-          <button onClick={() => removeOrBlock()}>{isBlocking ? 'bloquer' : 'supprimer'}</button>
+          <button onClick={isBlocking ? blockContact : removeContact}>{isBlocking ? 'bloquer' : 'supprimer'}</button>
 
           <button onClick={closeChildModal}>Annuler</button>
         </Box>
@@ -193,18 +217,9 @@ export default function ContactList() {
 
       <List>
         {contacts?.map((contact) => (
-          <ListItem
-            button
-            alignItems="flex-start"
-            key={contact.id}
-            // selected={isSelected}
-            onClick={() => handleClickContact(contact.id)}
-          >
+          <ListItem alignItems="flex-start" key={contact.id} onClick={() => handleClickContact(contact.id)}>
             <ListItemAvatar>
-              <ConversationAvatar
-              // displayName={conversation.getDisplayNameNoFallback()}
-              // displayName={`${contact.id}`}
-              />
+              <ConversationAvatar />
             </ListItemAvatar>
             <ListItemText primary={contact.id} secondary={contact.id} />
           </ListItem>
