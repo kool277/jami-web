@@ -19,11 +19,12 @@
 import { Person } from '@mui/icons-material';
 import { Box, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import List from '@mui/material/List';
-import { useEffect, useState } from 'react';
-// import Modal from '@mui/material/Modal';
+import { ContactDetails as ContactDetailType } from 'jami-web-common';
+import { useEffect, useMemo, useState } from 'react';
 import Modal from 'react-modal';
 
 import { useAuthContext } from '../contexts/AuthProvider';
+import ContactDetailDialog from './ContactDetailDialog';
 import ConversationAvatar from './ConversationAvatar';
 
 const customStyles = {
@@ -43,45 +44,38 @@ export default function ContactList() {
   // const { accountId } = useAppSelector((state) => state.userInfo);
   // const dispatch = useAppDispatch();
 
-  const [contacts, setContacts] = useState<Array<any>>([]);
+  const [contacts, setContacts] = useState<Array<ContactDetailType>>([]);
   const [currentContactId, setCurrentContactId] = useState<string>('');
   const [parentModalOpen, setParentModalOpen] = useState<boolean>(false);
   const [childModalOpen, setChildModalOpen] = useState<boolean>(false);
   const [isBlocking, setIsBlocking] = useState(true);
-  // const [modalDetailsIsOpen, setModalDetailsIsOpen] = useState(false);
-
+  const [contactDetail, setContactDetail] = useState<ContactDetailType>({
+    added: '',
+    confirmed: '',
+    conversationId: '',
+    id: '',
+  });
   const closeParentModal = () => setParentModalOpen(false);
   const openChildModal = () => setChildModalOpen(true);
   const closeChildModal = () => setChildModalOpen(false);
+
+  const [contactDetailDialogOpen, setContactDetailDialogOpen] = useState<boolean>(false);
 
   const handleClickContact = (id: string): void => {
     setCurrentContactId(id);
     setParentModalOpen(true);
   };
-  // const openModalDetails = () => setModalDetailsIsOpen(true);
 
-  //   const getContactDetails = () => {
-  //     const controller = new AbortController();
-  //     // try {
-  //     //     const { data } = await axiosInstance.get(`/contacts/${currentContactId}`, {
-  //     //         signal: controller.signal,
-  //     //     });
-  //     //     console.log('CONTACT LIST - DETAILS: ', data);
-  //     // } catch (e) {
-  //     //     console.log('ERROR GET CONTACT DETAILS: ', e);
-  //     // }
-
-  //     axiosInstance
-  //       .get(`/contacts/${currentContactId}`, {
-  //         signal: controller.signal,
-  //       })
-  //       .then((data) => {
-  //         console.log('CONTACT LIST - DETAILS: ', data);
-  //       })
-  //       .catch((err) => {
-  //         console.log('ERROR GET CONTACT DETAILS: ', err);
-  //       });
-  //   };
+  const getContactDetails = () => {
+    axiosInstance
+      .get<ContactDetailType>(`/contacts/${currentContactId}`)
+      .then(({ data }) => {
+        setContactDetail(data);
+      })
+      .catch((err) => {
+        console.log('ERROR GET CONTACT DETAILS: ', err);
+      });
+  };
 
   const removeContact = (): void => {
     console.log('Removing contact');
@@ -140,6 +134,18 @@ export default function ContactList() {
     closeParentModal();
   };
 
+  const ContactDetailDialogElement = useMemo(() => {
+    const onClosingContactDetailDialog = () => setContactDetailDialogOpen(false);
+
+    return (
+      <ContactDetailDialog
+        contactDetail={contactDetail}
+        open={contactDetailDialogOpen}
+        onClose={onClosingContactDetailDialog}
+      />
+    );
+  }, [contactDetail, contactDetailDialogOpen]);
+
   useEffect(() => {
     const controller = new AbortController();
     axiosInstance
@@ -188,8 +194,8 @@ export default function ContactList() {
             onClick={() => {
               console.log('open details contact for: ');
               closeParentModal();
-              // openModalDetails();
-              // getContactDetails();
+              setContactDetailDialogOpen(true);
+              getContactDetails();
             }}
           >
             <Person /> Détails du contact
@@ -214,6 +220,8 @@ export default function ContactList() {
           <button onClick={closeChildModal}>Annuler</button>
         </Box>
       </Modal>
+
+      {ContactDetailDialogElement}
 
       <List>
         {contacts?.map((contact) => (
