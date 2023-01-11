@@ -16,15 +16,15 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { SearchRounded } from '@mui/icons-material';
-import { InputBase, List, Stack } from '@mui/material';
+import { InputBase, Stack } from '@mui/material';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useConversationRequestsQuery, useConversationsSummariesQuery } from '../services/conversationQueries';
 import { SquareButton } from './Button';
 import ContactSearchResultList from './ContactSearchResultList';
-import ConversationListItem from './ConversationListItem';
 import { ConversationRequestList } from './ConversationRequestList';
+import { ConversationSummaryList } from './ConversationSummaryList';
 import { PeopleGroupIcon } from './SvgIcon';
 import { Tab, TabPanel, TabPanelProps, Tabs, TabsList, TabsProps } from './Tabs';
 
@@ -56,20 +56,20 @@ export default function ConversationList() {
 }
 
 const ConversationTabs = () => {
-  const conversationsTabIndex = 0;
+  const summariesTabIndex = 0;
   const invitationsTabIndex = 1;
   const { t } = useTranslation();
   const conversationRequestsQuery = useConversationRequestsQuery();
   const conversationRequestsLength = conversationRequestsQuery.data?.length;
 
   const [isShowingTabMenu, setIsShowingTabMenu] = useState(false);
-  const [tabIndex, setTabIndex] = useState(conversationsTabIndex);
+  const [tabIndex, setTabIndex] = useState(summariesTabIndex);
 
   useEffect(() => {
     const newIsShowingTabMenu = !!conversationRequestsLength;
     setIsShowingTabMenu(newIsShowingTabMenu);
     if (!newIsShowingTabMenu) {
-      setTabIndex(conversationsTabIndex);
+      setTabIndex(summariesTabIndex);
     }
   }, [conversationRequestsLength]);
 
@@ -80,7 +80,7 @@ const ConversationTabs = () => {
   }, []);
 
   return (
-    <Tabs defaultValue={conversationsTabIndex} value={tabIndex} onChange={onChange}>
+    <Tabs defaultValue={summariesTabIndex} value={tabIndex} onChange={onChange}>
       {isShowingTabMenu && (
         <TabsList>
           <Tab>{t('conversations')}</Tab>
@@ -89,23 +89,19 @@ const ConversationTabs = () => {
           </Tab>
         </TabsList>
       )}
-      <ConversationsTabPanel value={conversationsTabIndex} />
+      <SummariesTabPanel value={summariesTabIndex} />
       <InvitationsTabPanel value={invitationsTabIndex} />
     </Tabs>
   );
 };
 
-const ConversationsTabPanel = (props: TabPanelProps) => {
+const SummariesTabPanel = (props: TabPanelProps) => {
   const conversationsSummariesQuery = useConversationsSummariesQuery();
-  const conversationsSummaries = conversationsSummariesQuery.data;
+  const conversationsSummaries = conversationsSummariesQuery.data || [];
 
   return (
     <TabPanel {...props}>
-      <List>
-        {conversationsSummaries?.map((conversationSummary) => (
-          <ConversationListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
-        ))}
-      </List>
+      <ConversationSummaryList conversationsSummaries={conversationsSummaries} />
     </TabPanel>
   );
 };

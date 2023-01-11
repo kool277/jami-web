@@ -24,7 +24,7 @@ import { Contact } from '../models/contact';
 import { useAddContactMutation, useContactsSearchQuery } from '../services/contactQueries';
 import { useConversationsSummariesQuery } from '../services/conversationQueries';
 import ConversationAvatar from './ConversationAvatar';
-import ConversationListItem from './ConversationListItem';
+import { ConversationSummaryList } from './ConversationSummaryList';
 import { CustomListItemButton } from './CustomListItemButton';
 import { useDialogHandler } from './Dialog';
 import LoadingPage from './Loading';
@@ -63,9 +63,7 @@ export default ({ searchFilter }: ContactSearchResultListProps) => {
       {conversationsSummaries && conversationsSummaries.length > 0 && (
         <>
           <ListSubheader>{t('conversations')}</ListSubheader>
-          {conversationsSummaries.map((conversationSummary) => (
-            <ConversationListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
-          ))}
+          <ConversationSummaryList conversationsSummaries={conversationsSummaries} />
         </>
       )}
     </List>

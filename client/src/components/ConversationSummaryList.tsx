@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, List, Stack, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import { IConversationSummary } from 'jami-web-common';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -39,11 +39,25 @@ import { ConfirmationDialog, DialogContentList, InfosDialog, useDialogHandler } 
 import { PopoverListItemData } from './PopoverList';
 import { AudioCallIcon, CancelIcon, MessageIcon, PersonIcon, VideoCallIcon } from './SvgIcon';
 
-type ConversationListItemProps = {
+type ConversationSummaryListProps = {
+  conversationsSummaries: IConversationSummary[];
+};
+
+export const ConversationSummaryList = ({ conversationsSummaries }: ConversationSummaryListProps) => {
+  return (
+    <List>
+      {conversationsSummaries?.map((conversationSummary) => (
+        <ConversationSummaryListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
+      ))}
+    </List>
+  );
+};
+
+type ConversationSummaryListItemProps = {
   conversationSummary: IConversationSummary;
 };
 
-export default function ConversationListItem({ conversationSummary }: ConversationListItemProps) {
+const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummaryListItemProps) => {
   const { account } = useAuthContext();
   const {
     urlParams: { conversationId: selectedConversationId },
@@ -85,7 +99,7 @@ export default function ConversationListItem({ conversationSummary }: Conversati
       />
     </Box>
   );
-}
+};
 
 type SecondaryTextProps = {
   conversationSummary: IConversationSummary;
@@ -129,7 +143,7 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
           return message.body;
         }
         default: {
-          console.error(`${ConversationListItem.name} received an unexpected lastMessage type: ${message.type}`);
+          console.error(`${ConversationSummaryListItem.name} received an unexpected lastMessage type: ${message.type}`);
           return '';
         }
       }
