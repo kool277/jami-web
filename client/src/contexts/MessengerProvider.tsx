@@ -15,40 +15,23 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationMessage, IConversationSummary, LookupResult, WebSocketMessageType } from 'jami-web-common';
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { ConversationMessage, WebSocketMessageType } from 'jami-web-common';
+import { createContext, ReactNode, useContext, useEffect, useMemo } from 'react';
 
-import { Contact } from '../models/contact';
-import { useConversationsSummariesQuery, useRefreshConversationsSummaries } from '../services/conversationQueries';
-import { SetState } from '../utils/utils';
-import { useAuthContext } from './AuthProvider';
+import { useRefreshConversationsSummaries } from '../services/conversationQueries';
 import { WebSocketContext } from './WebSocketProvider';
 
-export interface IMessengerContext {
-  conversationsSummaries: IConversationSummary[] | undefined;
+// It is not sure yet we want this context to have no value
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IMessengerContext {}
 
-  setSearchQuery: SetState<string | undefined>;
-
-  searchResult: Contact[] | undefined;
-}
-
-const defaultMessengerContext: IMessengerContext = {
-  conversationsSummaries: undefined,
-  setSearchQuery: () => {},
-  searchResult: undefined,
-};
+const defaultMessengerContext: IMessengerContext = {};
 
 export const MessengerContext = createContext<IMessengerContext>(defaultMessengerContext);
 
 export default ({ children }: { children: ReactNode }) => {
-  const { accountId, axiosInstance } = useAuthContext();
   const webSocket = useContext(WebSocketContext);
 
-  const [searchQuery, setSearchQuery] = useState<string>();
-  const [searchResult, setSearchResults] = useState<Contact[] | undefined>(undefined);
-
-  const conversationsSummariesQuery = useConversationsSummariesQuery();
-  const conversationsSummaries = conversationsSummariesQuery.data;
   const refreshConversationsSummaries = useRefreshConversationsSummaries();
 
   useEffect(() => {
@@ -67,31 +50,7 @@ export default ({ children }: { children: ReactNode }) => {
     };
   }, [refreshConversationsSummaries, webSocket]);
 
-  useEffect(() => {
-    if (!searchQuery) return;
-    const controller = new AbortController();
-    axiosInstance
-      .get<LookupResult>(`/ns/username/${searchQuery}`, {
-        signal: controller.signal,
-      })
-      .then(({ data }) => {
-        const contact = new Contact(data.address, data.username);
-        setSearchResults([contact]);
-      })
-      .catch(() => {
-        setSearchResults(undefined);
-      });
-    // return () => controller.abort() // crash on React18
-  }, [accountId, searchQuery, axiosInstance]);
-
-  const value = useMemo<IMessengerContext>(
-    () => ({
-      conversationsSummaries,
-      setSearchQuery,
-      searchResult,
-    }),
-    [conversationsSummaries, setSearchQuery, searchResult]
-  );
+  const value = useMemo<IMessengerContext>(() => ({}), []);
 
   return <MessengerContext.Provider value={value}>{children}</MessengerContext.Provider>;
 };
