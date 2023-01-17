@@ -24,7 +24,7 @@ import { InfosDialog } from './Dialog';
 import { DialogContentList } from './Dialog';
 
 interface ContactDetailDialogProps {
-  contactDetail: ContactDetailType;
+  contactDetail: ContactDetailType | undefined;
   open: boolean;
   onClose: () => void;
 }
@@ -34,15 +34,15 @@ const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDial
   const items = [
     {
       label: t('contact_details_name'),
-      value: contactDetail.id,
+      value: contactDetail?.id,
     },
     {
       label: t('contact_details_identifier'),
-      value: contactDetail.id,
+      value: contactDetail?.id,
     },
     {
       label: t('contact_details_qr_code'),
-      value: <QRCodeCanvas size={80} value={`${contactDetail.id}`} />,
+      value: <QRCodeCanvas size={80} value={`${contactDetail?.id}`} />,
     },
   ];
 
@@ -53,10 +53,10 @@ const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDial
       icon={
         <ConversationAvatar
           sx={{ width: 'inherit', height: 'inherit' }}
-          displayName={contactDetail.id || contactDetail.id}
+          displayName={contactDetail?.id || contactDetail?.id}
         />
       }
-      title={contactDetail.id}
+      title={contactDetail?.id || 'No contact selected'}
       content={<DialogContentList title={t('contact_details_dialog_title')} items={items} />}
     />
   );

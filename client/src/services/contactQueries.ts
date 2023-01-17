@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { ContactDetails, LookupResult } from 'jami-web-common';
 
 import { useAuthContext } from '../contexts/AuthProvider';
@@ -59,6 +60,54 @@ export const useAddContactMutation = () => {
     },
     onSuccess: () => {
       refreshConversationsSummaries();
+    },
+  });
+};
+export const useContactListQuery = () => {
+  const { axiosInstance } = useAuthContext();
+  return useQuery({
+    queryKey: ['contact', 'list'],
+    queryFn: async ({ signal }) => {
+      const { data } = await axiosInstance.get<ContactDetails[]>(`/contacts`, { signal });
+      return data;
+    },
+  });
+};
+
+export const useRemoveContactMutation = () => {
+  const queryClient = useQueryClient();
+  const { axiosInstance } = useAuthContext();
+  return useMutation({
+    mutationKey: ['contact', 'remove'],
+    mutationFn: async (contactId: string) => {
+      const { data } = await axiosInstance.delete(`/contacts/${contactId}`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contact', 'list'] });
+    },
+    onError: () => {
+      console.log(`Error deleting contact`);
+      queryClient.invalidateQueries({ queryKey: ['contact', 'list'] });
+    },
+  });
+};
+
+export const useBlockContactMutation = () => {
+  const queryClient = useQueryClient();
+  const { axiosInstance } = useAuthContext();
+  return useMutation({
+    mutationKey: ['contact', 'block'],
+    mutationFn: async (contactId: string) => {
+      const { data } = await axiosInstance.post(`/contacts/${contactId}/block`);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contact', 'list'] });
+    },
+    onError: () => {
+      console.log(`Error blocking contact`);
+      queryClient.invalidateQueries({ queryKey: ['contact', 'list'] });
     },
   });
 };

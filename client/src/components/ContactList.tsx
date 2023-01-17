@@ -19,13 +19,18 @@
 import { Person } from '@mui/icons-material';
 import { Box, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import List from '@mui/material/List';
-import { ContactDetails as ContactDetailType } from 'jami-web-common';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Modal from 'react-modal';
 
-import { useAuthContext } from '../contexts/AuthProvider';
+import {
+  useBlockContactMutation,
+  useContactListQuery,
+  useContactQuery,
+  useRemoveContactMutation,
+} from '../services/contactQueries';
 import ContactDetailDialog from './ContactDetailDialog';
 import ConversationAvatar from './ConversationAvatar';
+import LoadingPage from './Loading';
 
 const customStyles = {
   content: {
@@ -39,96 +44,44 @@ const customStyles = {
 };
 
 export default function ContactList() {
-  const { axiosInstance } = useAuthContext();
-
-  // const { accountId } = useAppSelector((state) => state.userInfo);
-  // const dispatch = useAppDispatch();
-
-  const [contacts, setContacts] = useState<Array<ContactDetailType>>([]);
   const [currentContactId, setCurrentContactId] = useState<string>('');
   const [parentModalOpen, setParentModalOpen] = useState<boolean>(false);
   const [childModalOpen, setChildModalOpen] = useState<boolean>(false);
   const [isBlocking, setIsBlocking] = useState(true);
-  const [contactDetail, setContactDetail] = useState<ContactDetailType>({
-    added: '',
-    confirmed: '',
-    conversationId: '',
-    id: '',
-  });
+
   const closeParentModal = () => setParentModalOpen(false);
   const openChildModal = () => setChildModalOpen(true);
   const closeChildModal = () => setChildModalOpen(false);
 
   const [contactDetailDialogOpen, setContactDetailDialogOpen] = useState<boolean>(false);
 
+  const contactListQuery = useContactListQuery();
+  const { isLoading, data: contacts } = contactListQuery;
+
+  const removeContactMutation = useRemoveContactMutation();
+  const blockContactMutation = useBlockContactMutation();
+
+  const singleContactQuery = useContactQuery(currentContactId);
+  const { data: contactDetail } = singleContactQuery;
+
   const handleClickContact = (id: string): void => {
     setCurrentContactId(id);
     setParentModalOpen(true);
   };
 
-  const getContactDetails = () => {
-    axiosInstance
-      .get<ContactDetailType>(`/contacts/${currentContactId}`)
-      .then(({ data }) => {
-        setContactDetail(data);
-      })
-      .catch((err) => {
-        console.log('ERROR GET CONTACT DETAILS: ', err);
-      });
-  };
-
   const removeContact = (): void => {
-    console.log('Removing contact');
-
     //Not sure if the server handles empty contact id
-    if (currentContactId === '') {
-      throw 'currentContactId is empty';
-    }
 
-    //TODO: put all urls in a single file that can be imported and referenced later
-    const url = `/contacts/${currentContactId}`;
-
-    axiosInstance(url, {
-      method: 'DELETE',
-    })
-      .then((res) => {
-        if (res.status === 204) {
-          //removes the contact from UI, but does not make another request to fetch all contacts
-          setContacts((prev) => {
-            return prev.filter((contact) => contact.id !== currentContactId);
-          });
-          //TODO: show notification of success
-        }
-      })
-      .catch((err) => {
-        console.log(`ERROR removing CONTACT : ${currentContactId} `, err);
-      });
+    removeContactMutation.mutate(currentContactId);
 
     closeChildModal();
     closeParentModal();
   };
 
   const blockContact = (): void => {
-    console.log('remove or block');
-
     //Not sure if the server handles empty contact id
-    if (currentContactId === '') {
-      throw 'currentContactId is empty';
-    }
 
-    const url = `/contacts/${currentContactId}/block`;
-
-    axiosInstance(url, {
-      method: 'POST',
-    })
-      .then((res) => {
-        if (res.status === 204) {
-          //TODO: Integrate behaviours after blocking a contact
-        }
-      })
-      .catch((err) => {
-        console.log(`ERROR blocking CONTACT : ${currentContactId} `, err);
-      });
+    blockContactMutation.mutate(currentContactId);
 
     closeChildModal();
     closeParentModal();
@@ -146,19 +99,9 @@ export default function ContactList() {
     );
   }, [contactDetail, contactDetailDialogOpen]);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    axiosInstance
-      .get(`/contacts`, {
-        signal: controller.signal,
-      })
-      .then(({ data }) => {
-        console.log('CONTACTS: ', data);
-        setContacts(data);
-      });
-    return () => controller.abort();
-  }, [axiosInstance]);
-
+  if (isLoading) {
+    return <LoadingPage />;
+  }
   return (
     <>
       <Modal
@@ -195,7 +138,6 @@ export default function ContactList() {
               console.log('open details contact for: ');
               closeParentModal();
               setContactDetailDialogOpen(true);
-              getContactDetails();
             }}
           >
             <Person /> Détails du contact
