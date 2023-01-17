@@ -20,6 +20,7 @@ import './index.scss';
 import './i18n';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
@@ -48,6 +49,7 @@ root.render(
     <QueryClientProvider client={queryClient}>
       <CustomThemeProvider>
         <RouterProvider router={router} />
+        <ReactQueryDevtools initialIsOpen={false} />
       </CustomThemeProvider>
     </QueryClientProvider>
     {/* </StrictMode> */}
