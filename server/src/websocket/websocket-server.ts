@@ -32,6 +32,16 @@ type WebSocketCallbacks = {
   [key in WebSocketMessageType]: Set<WebSocketCallback<key>>;
 };
 
+const buildWebSocketCallbacks = (): WebSocketCallbacks => {
+  const webSocketCallback = {} as WebSocketCallbacks;
+  for (const messageType of Object.values(WebSocketMessageType)) {
+    // TODO: type this properly to prevent mistakes
+    // The end result of the function is still typed properly
+    webSocketCallback[messageType] = new Set() as any;
+  }
+  return webSocketCallback;
+};
+
 @Service()
 export class WebSocketServer {
   private wss = new WebSocket.WebSocketServer({ noServer: true });
@@ -39,10 +49,7 @@ export class WebSocketServer {
   private callbacks: WebSocketCallbacks;
 
   constructor() {
-    this.callbacks = {} as WebSocketCallbacks;
-    for (const messageType of Object.values(WebSocketMessageType)) {
-      this.callbacks[messageType] = new Set<WebSocketCallback<typeof messageType>>();
-    }
+    this.callbacks = buildWebSocketCallbacks();
 
     this.wss.on('connection', (ws: WebSocket.WebSocket, _request: IncomingMessage, accountId: string) => {
       log.info('New connection for account', accountId);
