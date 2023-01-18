@@ -16,11 +16,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Person } from '@mui/icons-material';
-import { Box, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import { ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import List from '@mui/material/List';
-import { useMemo, useState } from 'react';
-import Modal from 'react-modal';
+import { memo, SetStateAction, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import {
   useBlockContactMutation,
@@ -29,67 +28,34 @@ import {
   useRemoveContactMutation,
 } from '../services/contactQueries';
 import ContactDetailDialog from './ContactDetailDialog';
+import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu';
 import ConversationAvatar from './ConversationAvatar';
+import { ConfirmationDialog, useDialogHandler } from './Dialog';
 import LoadingPage from './Loading';
-
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-  },
-};
+import { PopoverListItemData } from './PopoverList';
+import { BlockContactIcon, CancelIcon, PersonIcon } from './SvgIcon';
 
 export default function ContactList() {
   const [currentContactId, setCurrentContactId] = useState<string>('');
-  const [parentModalOpen, setParentModalOpen] = useState<boolean>(false);
-  const [childModalOpen, setChildModalOpen] = useState<boolean>(false);
   const [isBlocking, setIsBlocking] = useState(true);
-
-  const closeParentModal = () => setParentModalOpen(false);
-  const openChildModal = () => setChildModalOpen(true);
-  const closeChildModal = () => setChildModalOpen(false);
 
   const [contactDetailDialogOpen, setContactDetailDialogOpen] = useState<boolean>(false);
 
   const contactListQuery = useContactListQuery();
   const { isLoading, data: contacts } = contactListQuery;
 
-  const removeContactMutation = useRemoveContactMutation();
-  const blockContactMutation = useBlockContactMutation();
-
   const singleContactQuery = useContactQuery(currentContactId);
   const { data: contactDetail } = singleContactQuery;
 
-  const handleClickContact = (id: string): void => {
-    setCurrentContactId(id);
-    setParentModalOpen(true);
-  };
+  const contextMenuHandler = useContextMenuHandler();
 
-  const removeContact = (): void => {
-    //Not sure if the server handles empty contact id
-
-    removeContactMutation.mutate(currentContactId);
-
-    closeChildModal();
-    closeParentModal();
-  };
-
-  const blockContact = (): void => {
-    //Not sure if the server handles empty contact id
-
-    blockContactMutation.mutate(currentContactId);
-
-    closeChildModal();
-    closeParentModal();
-  };
+  const {
+    props: { open: dialogOpen, onClose: closeContactDialog },
+    openDialog: openContactDialog,
+  } = useDialogHandler();
 
   const ContactDetailDialogElement = useMemo(() => {
     const onClosingContactDetailDialog = () => setContactDetailDialogOpen(false);
-
     return (
       <ContactDetailDialog
         contactDetail={contactDetail}
@@ -102,72 +68,34 @@ export default function ContactList() {
   if (isLoading) {
     return <LoadingPage />;
   }
+
   return (
     <>
-      <Modal
-        isOpen={parentModalOpen}
-        onRequestClose={closeParentModal}
-        style={customStyles}
-        contentLabel="Example Modal"
-      >
-        <button onClick={closeParentModal}>close</button>
-
-        <div style={{ display: 'flex', flexDirection: 'column', rowGap: '10px' }}>
-          <button
-            onClick={() => {
-              console.log('open dialog Supprimer: ');
-              setIsBlocking(false);
-              openChildModal();
-            }}
-          >
-            <Person /> Supprimer contact
-          </button>
-
-          <button
-            onClick={() => {
-              console.log('open dialog BLOCK: ');
-              setIsBlocking(true);
-              openChildModal();
-            }}
-          >
-            <Person /> Bloquer le contact
-          </button>
-
-          <button
-            onClick={() => {
-              console.log('open details contact for: ');
-              closeParentModal();
-              setContactDetailDialogOpen(true);
-            }}
-          >
-            <Person /> Détails du contact
-          </button>
-        </div>
-      </Modal>
-
-      <Modal
-        isOpen={childModalOpen}
-        onRequestClose={closeChildModal}
-        style={customStyles}
-        contentLabel="Merci de confirmer"
-      >
-        <Box>
-          <div>
-            Voulez vous vraiment {isBlocking ? 'bloquer' : 'supprimer'} ce contact {currentContactId}?
-          </div>
-          <br />
-
-          <button onClick={isBlocking ? blockContact : removeContact}>{isBlocking ? 'bloquer' : 'supprimer'}</button>
-
-          <button onClick={closeChildModal}>Annuler</button>
-        </Box>
-      </Modal>
-
+      <ContactDialog
+        isBlocking={isBlocking}
+        open={dialogOpen}
+        closeContactDialog={closeContactDialog}
+        currentContactId={currentContactId}
+      />
       {ContactDetailDialogElement}
+
+      <ContactMenu
+        contextMenuProps={contextMenuHandler.props}
+        openContactDialog={openContactDialog}
+        setIsBlocking={setIsBlocking}
+        setContactDetailDialogOpen={setContactDetailDialogOpen}
+      />
 
       <List>
         {contacts?.map((contact) => (
-          <ListItem alignItems="flex-start" key={contact.id} onClick={() => handleClickContact(contact.id)}>
+          <ListItem
+            alignItems="flex-start"
+            key={contact.id}
+            onContextMenu={(e) => {
+              setCurrentContactId(contact.id);
+              contextMenuHandler.handleAnchorPosition(e);
+            }}
+          >
             <ListItemAvatar>
               <ConversationAvatar />
             </ListItemAvatar>
@@ -178,3 +106,82 @@ export default function ContactList() {
     </>
   );
 }
+
+interface ContactMenuProps {
+  contextMenuProps: ContextMenuHandler['props'];
+  openContactDialog: () => void;
+  setIsBlocking: React.Dispatch<SetStateAction<boolean>>;
+  setContactDetailDialogOpen: React.Dispatch<SetStateAction<boolean>>;
+}
+
+const ContactMenu = ({
+  contextMenuProps,
+  openContactDialog,
+  setIsBlocking,
+  setContactDetailDialogOpen,
+}: ContactMenuProps) => {
+  const { t } = useTranslation();
+  const menuOptions: PopoverListItemData[] = useMemo(
+    () => [
+      {
+        label: t('contact_details_text'),
+        Icon: PersonIcon,
+        onClick: () => {
+          setContactDetailDialogOpen(true);
+        },
+      },
+      {
+        label: t('contact_block'),
+        Icon: BlockContactIcon,
+        onClick: () => {
+          openContactDialog();
+          setIsBlocking(true);
+        },
+      },
+      {
+        label: t('contact_remove'),
+        Icon: CancelIcon,
+        onClick: () => {
+          openContactDialog();
+          setIsBlocking(false);
+        },
+      },
+    ],
+    [t, setIsBlocking, setContactDetailDialogOpen, openContactDialog]
+  );
+  return <ContextMenu {...contextMenuProps} items={menuOptions} />;
+};
+
+interface ContactDialogProps {
+  isBlocking: boolean;
+  open: boolean;
+  closeContactDialog: () => void;
+  currentContactId: string;
+}
+
+const ContactDialog = memo(({ isBlocking, open, closeContactDialog, currentContactId }: ContactDialogProps) => {
+  const removeContactMutation = useRemoveContactMutation();
+  const blockContactMutation = useBlockContactMutation();
+
+  const removeContact = (): void => {
+    removeContactMutation.mutate(currentContactId);
+    closeContactDialog();
+  };
+
+  const blockContact = (): void => {
+    blockContactMutation.mutate(currentContactId);
+    closeContactDialog();
+  };
+
+  const { t } = useTranslation();
+  return (
+    <ConfirmationDialog
+      open={open}
+      onClose={closeContactDialog}
+      title={t('dialog_confirm_title_default')}
+      content={isBlocking ? t('contact_ask_confirm_block') : t('contact_ask_confirm_remove')}
+      onConfirm={isBlocking ? blockContact : removeContact}
+      confirmButtonText={isBlocking ? t('contact_confirm_block') : t('contact_confirm_remove')}
+    />
+  );
+});
