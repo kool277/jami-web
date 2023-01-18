@@ -27,10 +27,10 @@ const webSocketServer = Container.get(WebSocketServer);
 
 export function bindChatCallbacks() {
   webSocketServer.bind(
-    WebSocketMessageType.SetIsComposing,
+    WebSocketMessageType.ComposingStatus,
     (accountId, { contactId, conversationId, isWriting }: ComposingStatus) => {
       if (contactId !== undefined) {
-        log.warn('SetIsComposing expects contactId to be undefined');
+        log.warn('ComposingStatus expects contactId to be undefined');
         return;
       }
 

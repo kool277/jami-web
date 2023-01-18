@@ -538,7 +538,7 @@ export class Jamid {
         conversationId: signal.conversationId,
         isWriting: signal.status === 1,
       };
-      this.webSocketServer.send(signal.accountId, WebSocketMessageType.OnComposingStatusChanged, data);
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.ComposingStatus, data);
     });
   }
 }

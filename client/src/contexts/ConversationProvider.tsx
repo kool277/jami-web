@@ -105,9 +105,9 @@ export default ({ children }: WithChildren) => {
     };
 
     webSocket.send(WebSocketMessageType.ConversationView, conversationView);
-    webSocket.bind(WebSocketMessageType.OnComposingStatusChanged, onComposingStatusChanged);
+    webSocket.bind(WebSocketMessageType.ComposingStatus, onComposingStatusChanged);
 
-    return () => webSocket.unbind(WebSocketMessageType.OnComposingStatusChanged, onComposingStatusChanged);
+    return () => webSocket.unbind(WebSocketMessageType.ComposingStatus, onComposingStatusChanged);
   }, [accountId, conversationInfos, conversationId, onComposingStatusChanged, webSocket]);
 
   const value = useMemo(() => {

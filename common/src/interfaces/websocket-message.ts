@@ -28,14 +28,13 @@ import {
 } from './websocket-interfaces.js';
 
 export interface WebSocketMessageTable {
+  [WebSocketMessageType.CallAccept]: CallAction;
+  [WebSocketMessageType.CallBegin]: CallBegin;
+  [WebSocketMessageType.CallEnd]: CallAction;
+  [WebSocketMessageType.ComposingStatus]: ComposingStatus;
   [WebSocketMessageType.ConversationMessage]: ConversationMessage;
   [WebSocketMessageType.ConversationRequest]: IConversationRequest;
   [WebSocketMessageType.ConversationView]: ConversationView;
-  [WebSocketMessageType.OnComposingStatusChanged]: ComposingStatus;
-  [WebSocketMessageType.SetIsComposing]: ComposingStatus;
-  [WebSocketMessageType.CallBegin]: CallBegin;
-  [WebSocketMessageType.CallAccept]: CallAction;
-  [WebSocketMessageType.CallEnd]: CallAction;
   [WebSocketMessageType.WebRtcOffer]: WebRtcSdp;
   [WebSocketMessageType.WebRtcAnswer]: WebRtcSdp;
   [WebSocketMessageType.WebRtcIceCandidate]: WebRtcIceCandidate;

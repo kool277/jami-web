@@ -52,13 +52,13 @@ export default function SendMessageForm({ onSend, openFilePicker }: SendMessageF
     // We ensure it will stay on at least 4 seconds after the last typed character
     if (currentTime - composingNotificationTimeRef.current > 8000) {
       composingNotificationTimeRef.current = currentTime;
-      webSocket?.send(WebSocketMessageType.SetIsComposing, { conversationId, isWriting: true });
+      webSocket?.send(WebSocketMessageType.ComposingStatus, { conversationId, isWriting: true });
     }
   }, [webSocket, conversationId]);
 
   const notifyStopcomposing = useCallback(() => {
     composingNotificationTimeRef.current = 0;
-    webSocket?.send(WebSocketMessageType.SetIsComposing, { conversationId, isWriting: false });
+    webSocket?.send(WebSocketMessageType.ComposingStatus, { conversationId, isWriting: false });
   }, [webSocket, conversationId]);
 
   const handleSubmit = useCallback(

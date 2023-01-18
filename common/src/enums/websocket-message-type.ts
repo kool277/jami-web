@@ -19,8 +19,7 @@ export enum WebSocketMessageType {
   ConversationMessage = 'conversation-message',
   ConversationRequest = 'conversation-request',
   ConversationView = 'conversation-view',
-  OnComposingStatusChanged = 'on-composing-status-changed', // Sent by server to indicate who is composing a message or not
-  SetIsComposing = 'set-is-composing', // Sent by user to indicate whether they are composing a message or not
+  ComposingStatus = 'composing-status',
   CallBegin = 'call-begin',
   CallAccept = 'call-accept',
   CallEnd = 'call-end',
