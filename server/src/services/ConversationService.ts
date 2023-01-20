@@ -57,7 +57,7 @@ export class ConversationService {
       infos: {
         // Build a dataUrl from the avatar
         // TODO: Host the image and use a "normal" url instead
-        avatar: `data:image/jpeg;base64,${jamidRequest.avatar}`,
+        avatar: jamidRequest.avatar ? `data:image/jpeg;base64,${jamidRequest.avatar}` : undefined,
         description: jamidRequest.description,
         mode: jamidRequest.mode,
         title: jamidRequest.title,
@@ -76,7 +76,7 @@ export class ConversationService {
     }
     // Build a dataUrl from the avatar
     // TODO: Host the image and use a "normal" url instead
-    infos.avatar = `data:image/jpeg;base64,${infos.avatar}`;
+    infos.avatar = infos.avatar ? `data:image/jpeg;base64,${infos.avatar}` : undefined;
 
     const membersNames = await this.getMembersNames(accountId, conversationId);
     let lastMessage: Message | undefined;
