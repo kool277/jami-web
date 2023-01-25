@@ -35,10 +35,10 @@ The repo is structured as 4 subprojects:
 
 1. Install the required dependencies: <https://docs.jami.net/build/dependencies.html>
 
-   > Note: for Ubuntu, the minimally needed dependencies are:
+   > Note: for Ubuntu, the needed dependencies are:
 
    ```
-   sudo apt install git build-essential cmake automake autoconf autopoint libtool pkg-config libdbus-1-dev libva-dev libvdpau-dev libasound2-dev libpulse-dev libudev-dev libexpat1-dev ssnasm yasm yasm nasm
+   sudo apt install autoconf automake autopoint bison build-essential cmake curl git libarchive-dev libasio-dev libasound2-dev libdbus-1-dev libdbus-c++-dev libexpat1-dev libfmt-dev libgmp-dev nettle-dev libgnutls28-dev libjsoncpp-dev libmsgpack-dev libnatpmp-dev libopus-dev libpulse-dev libspeex-dev libspeexdsp-dev libssl-dev libtool libudev-dev libupnp-dev libva-dev libvdpau-dev libvpx-dev libx264-dev libyaml-cpp-dev libhttp-parser-dev libwebrtc-audio-processing-dev libsecp256k1-dev guile-3.0-dev nasm pkg-config yasm
    ```
 
 2. Compile the dependencies:
@@ -100,6 +100,8 @@ LD_LIBRARY_PATH="${PWD}/daemon/src/.libs" npm start --workspace server
 ```
 
 Open <http://localhost:3000> in your browser to view the app.
+
+> Note: Many people experience a problem with the calls to the nameserver. For example, this problem prevents the registration of new users (and other issues): jami-web will not be able to validate whether the new username is available or not. If you experience this problem, you can try to launch the server this way: `LD_LIBRARY_PATH="${PWD}/daemon/src/.libs" HOME=/tmp npm start --workspace server`. This is a temporary solution. It brings other problems related to the fact it makes the data non-persistent. For example, the users you created will be deleted after a certain amount of time.
 
 ### Build for production
 
