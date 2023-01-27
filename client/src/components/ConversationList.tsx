@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { SearchRounded } from '@mui/icons-material';
+import SearchRounded from '@mui/icons-material/SearchRounded';
 import { InputBase, Stack } from '@mui/material';
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';

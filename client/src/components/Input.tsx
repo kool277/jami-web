@@ -15,7 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { GppMaybe, Warning } from '@mui/icons-material';
+import GppMaybe from '@mui/icons-material/GppMaybe';
+import Warning from '@mui/icons-material/Warning';
 import { IconButtonProps, Stack, TextField, TextFieldProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { ChangeEvent, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';

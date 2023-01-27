@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { SearchRounded } from '@mui/icons-material';
+import SearchRounded from '@mui/icons-material/SearchRounded';
 import { InputAdornment, TextField } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';

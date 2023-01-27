@@ -15,7 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { QuestionMark, RadioButtonChecked, RadioButtonUnchecked } from '@mui/icons-material';
+import QuestionMark from '@mui/icons-material/AddCircle';
+import RadioButtonChecked from '@mui/icons-material/AddCircle';
+import RadioButtonUnchecked from '@mui/icons-material/AddCircle';
 import {
   Box,
   ClickAwayListener,

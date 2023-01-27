@@ -15,7 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { AddCircle, DeleteRounded, GroupRounded, PhoneCallbackRounded } from '@mui/icons-material';
+import AddCircle from '@mui/icons-material/AddCircle';
+import DeleteRounded from '@mui/icons-material/AddCircle';
+import GroupRounded from '@mui/icons-material/AddCircle';
+import PhoneCallbackRounded from '@mui/icons-material/AddCircle';
 import {
   Card,
   CardContent,

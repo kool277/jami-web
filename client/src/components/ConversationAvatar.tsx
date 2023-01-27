@@ -15,7 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Check, RefreshOutlined } from '@mui/icons-material';
+import Check from '@mui/icons-material/Check';
+import RefreshOutlined from '@mui/icons-material/RefreshOutlined';
 import { Avatar, AvatarProps, Box, Dialog, Stack, Typography } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';

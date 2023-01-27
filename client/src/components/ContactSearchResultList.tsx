@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { GroupAddRounded } from '@mui/icons-material';
+import GroupAddRounded from '@mui/icons-material/GroupAddRounded';
 import { Box, Dialog, DialogProps, Fab, List, ListSubheader, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';

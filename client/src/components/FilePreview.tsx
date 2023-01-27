@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { AttachFile } from '@mui/icons-material';
+import AttachFile from '@mui/icons-material/AttachFile';
 import { IconButton, IconButtonProps, Stack, Typography } from '@mui/material';
 import * as mime from 'mime';
 import { useRef } from 'react';
