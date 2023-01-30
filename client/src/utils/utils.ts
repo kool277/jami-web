@@ -43,3 +43,5 @@ export type PartialNotOptional<T> = {
 export const isRequired = <T>(obj: Partial<T>): obj is T => {
   return Object.values(obj).every((v) => v !== undefined);
 };
+
+export type Listener = () => void;

@@ -16,14 +16,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { WebRtcIceCandidate, WebRtcSdp, WebSocketMessageType } from 'jami-web-common';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { createOptionalContext } from '../hooks/createOptionalContext';
 import { ConversationMember } from '../models/conversation-member';
 import { WithChildren } from '../utils/utils';
+import { useWebRtcManager } from '../webrtc/WebRtcManager';
 import { useAuthContext } from './AuthProvider';
-import { CallManagerContext } from './CallManagerProvider';
+import { CallData, CallManagerContext } from './CallManagerProvider';
 import ConditionalContextProvider from './ConditionalContextProvider';
 import { IWebSocketContext, WebSocketContext } from './WebSocketProvider';
 
@@ -36,7 +36,7 @@ export interface IWebRtcContext {
 
   localStream: MediaStream | undefined;
   screenShareLocalStream: MediaStream | undefined;
-  remoteStreams: readonly MediaStream[] | undefined;
+  remoteStreams: readonly MediaStream[];
   getMediaDevices: () => Promise<MediaDevicesInfo>;
   updateLocalStream: (mediaDeviceIds?: MediaInputIds) => Promise<void>;
   updateScreenShare: (active: boolean) => Promise<MediaStream | undefined>;
@@ -49,47 +49,17 @@ const optionalWebRtcContext = createOptionalContext<IWebRtcContext>('WebRtcConte
 export const useWebRtcContext = optionalWebRtcContext.useOptionalContext;
 
 export default ({ children }: WithChildren) => {
-  const { account } = useAuthContext();
-  const [webRtcConnection, setWebRtcConnection] = useState<RTCPeerConnection | undefined>();
   const webSocket = useContext(WebSocketContext);
   const { callConversationInfos, callMembers, callData } = useContext(CallManagerContext);
 
-  useEffect(() => {
-    if (webRtcConnection && !callData) {
-      setWebRtcConnection(undefined);
-      return;
-    }
-
-    if (!webRtcConnection && account && callData) {
-      const iceServers: RTCIceServer[] = [];
-
-      if (account.details['TURN.enable'] === 'true') {
-        iceServers.push({
-          urls: 'turn:' + account.details['TURN.server'],
-          username: account.details['TURN.username'],
-          credential: account.details['TURN.password'],
-        });
-      }
-
-      if (account.details['STUN.enable'] === 'true') {
-        iceServers.push({
-          urls: 'stun:' + account.details['STUN.server'],
-        });
-      }
-
-      setWebRtcConnection(new RTCPeerConnection({ iceServers }));
-    }
-  }, [account, webRtcConnection, callData]);
-
   const dependencies = useMemo(
     () => ({
-      webRtcConnection,
       webSocket,
       conversationInfos: callConversationInfos,
       members: callMembers,
-      conversationId: callData?.conversationId,
+      callData: callData,
     }),
-    [webRtcConnection, webSocket, callConversationInfos, callMembers, callData?.conversationId]
+    [webSocket, callConversationInfos, callMembers, callData]
   );
 
   return (
@@ -106,35 +76,30 @@ export default ({ children }: WithChildren) => {
 
 const useWebRtcContextValue = ({
   members,
-  conversationId,
-  webRtcConnection,
+  callData,
   webSocket,
 }: {
-  webRtcConnection: RTCPeerConnection;
   webSocket: IWebSocketContext;
   members: ConversationMember[];
-  conversationId: string;
+  callData: CallData;
 }) => {
   const [localStream, setLocalStream] = useState<MediaStream>();
   const [screenShareLocalStream, setScreenShareLocalStream] = useState<MediaStream>();
-  const [remoteStreams, setRemoteStreams] = useState<readonly MediaStream[]>();
-  const [iceConnectionState, setIceConnectionState] = useState<RTCIceConnectionState | undefined>();
-
-  const [audioRtcRtpSenders, setAudioRtcRtpSenders] = useState<RTCRtpSender[]>();
-  const [videoRtcRtpSenders, setVideoRtcRtpSenders] = useState<RTCRtpSender[]>();
-
-  // TODO: The ICE candidate queue is used to cache candidates that were received before `setRemoteDescription` was
-  //       called. This is currently necessary, because the jami-daemon is unreliable as a WebRTC signaling channel,
-  //       because messages can be received with a delay or out of order. This queue is a temporary workaround that
-  //       should be replaced if there is a better way to send messages with the daemon.
-  //       Relevant links:
-  //       - https://github.com/w3c/webrtc-pc/issues/2519#issuecomment-622055440
-  //       - https://stackoverflow.com/questions/57256828/how-to-fix-invalidstateerror-cannot-add-ice-candidate-when-there-is-no-remote-s
-  const [isReadyForIceCandidates, setIsReadyForIceCandidates] = useState(false);
-  const [iceCandidateQueue, setIceCandidateQueue] = useState<RTCIceCandidate[]>([]);
+  const { account } = useAuthContext();
+  const webRtcManager = useWebRtcManager();
 
   // TODO: This logic will have to change to support multiple people in a call
-  const contactUri = useMemo(() => members[0]?.contact.uri, [members]);
+  const contactUri = members[0]?.contact.uri;
+  const connectionInfos = webRtcManager.connectionsInfos[contactUri];
+  const remoteStreams = connectionInfos?.remoteStreams;
+  const iceConnectionState = connectionInfos?.iceConnectionState;
+
+  // TODO: Replace this by a callback
+  useEffect(() => {
+    if (callData.role === 'receiver' && contactUri && localStream) {
+      webRtcManager.addConnection(webSocket, account, contactUri, callData, localStream, screenShareLocalStream);
+    }
+  }, [account, callData, contactUri, localStream, screenShareLocalStream, webRtcManager, webSocket]);
 
   const getMediaDevices = useCallback(async (): Promise<MediaDevicesInfo> => {
     try {
@@ -222,202 +187,21 @@ const useWebRtcContextValue = ({
     [screenShareLocalStream]
   );
 
+  // TODO: Transform the effect into a callback
+  const updateLocalStreams = webRtcManager.updateLocalStreams;
   useEffect(() => {
-    if ((!localStream && !screenShareLocalStream) || !webRtcConnection) {
+    if ((!localStream && !screenShareLocalStream) || !updateLocalStreams) {
       return;
     }
 
-    const updateTracks = async (stream: MediaStream, kind: 'audio' | 'video') => {
-      const senders = kind === 'audio' ? audioRtcRtpSenders : videoRtcRtpSenders;
-      const tracks = kind === 'audio' ? stream.getAudioTracks() : stream.getVideoTracks();
-      if (senders) {
-        const promises: Promise<void>[] = [];
-        for (let i = 0; i < senders.length; i++) {
-          // TODO: There is a bug where calling multiple times `addTrack` when changing an input device doesn't work.
-          //       Calling `addTrack` doesn't trigger the `track` event listener for the other user.
-          //       This workaround makes it possible to replace a track, but it could be improved by figuring out the
-          //       proper way of changing a track.
-          promises.push(
-            senders[i].replaceTrack(tracks[i]).catch((e) => {
-              console.error('Error replacing track:', e);
-            })
-          );
-        }
-        return Promise.all(promises);
-      }
-
-      // TODO: Currently, we do not support adding new devices. To enable this feature, we would need to implement
-      //       the "Perfect negotiation" pattern to renegotiate after `addTrack`.
-      //       https://blog.mozilla.org/webrtc/perfect-negotiation-in-webrtc/
-      const newSenders = tracks.map((track) => webRtcConnection.addTrack(track, stream));
-      if (kind === 'audio') {
-        setAudioRtcRtpSenders(newSenders);
-      } else {
-        setVideoRtcRtpSenders(newSenders);
-      }
-    };
-
-    if (localStream) {
-      updateTracks(localStream, 'audio');
-      updateTracks(localStream, 'video');
-    }
-
-    if (screenShareLocalStream) {
-      updateTracks(screenShareLocalStream, 'video');
-    }
-  }, [localStream, screenShareLocalStream, webRtcConnection, audioRtcRtpSenders, videoRtcRtpSenders]);
+    updateLocalStreams(localStream, screenShareLocalStream);
+  }, [localStream, screenShareLocalStream, updateLocalStreams]);
 
   const sendWebRtcOffer = useCallback(async () => {
-    const sdp = await webRtcConnection.createOffer({
-      offerToReceiveAudio: true,
-      offerToReceiveVideo: true,
-    });
-
-    const webRtcOffer: WebRtcSdp = {
-      contactId: contactUri,
-      conversationId: conversationId,
-      sdp,
-    };
-
-    await webRtcConnection.setLocalDescription(new RTCSessionDescription(sdp));
-    console.info('Sending WebRtcOffer', webRtcOffer);
-    webSocket.send(WebSocketMessageType.WebRtcOffer, webRtcOffer);
-  }, [webRtcConnection, webSocket, conversationId, contactUri]);
-
-  const sendWebRtcAnswer = useCallback(async () => {
-    const sdp = await webRtcConnection.createAnswer({
-      offerToReceiveAudio: true,
-      offerToReceiveVideo: true,
-    });
-
-    const webRtcAnswer: WebRtcSdp = {
-      contactId: contactUri,
-      conversationId: conversationId,
-      sdp,
-    };
-
-    await webRtcConnection.setLocalDescription(new RTCSessionDescription(sdp));
-    console.info('Sending WebRtcAnswer', webRtcAnswer);
-    webSocket.send(WebSocketMessageType.WebRtcAnswer, webRtcAnswer);
-  }, [contactUri, conversationId, webRtcConnection, webSocket]);
-
-  /* WebSocket Listeners */
-
-  useEffect(() => {
-    const addQueuedIceCandidates = async () => {
-      console.info('WebRTC remote description has been set. Ready to receive ICE candidates');
-      setIsReadyForIceCandidates(true);
-      if (iceCandidateQueue.length !== 0) {
-        console.warn(
-          'Found queued ICE candidates that were added before `setRemoteDescription` was called. ' +
-            'Adding queued ICE candidates...',
-          iceCandidateQueue
-        );
-
-        await Promise.all(iceCandidateQueue.map((iceCandidate) => webRtcConnection.addIceCandidate(iceCandidate)));
-      }
-    };
-
-    const webRtcOfferListener = async (data: WebRtcSdp) => {
-      console.info('Received event on WebRtcOffer', data);
-      if (data.conversationId !== conversationId) {
-        console.warn('Wrong incoming conversationId, ignoring action');
-        return;
-      }
-
-      await webRtcConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
-      await sendWebRtcAnswer();
-      await addQueuedIceCandidates();
-    };
-
-    const webRtcAnswerListener = async (data: WebRtcSdp) => {
-      console.info('Received event on WebRtcAnswer', data);
-      if (data.conversationId !== conversationId) {
-        console.warn('Wrong incoming conversationId, ignoring action');
-        return;
-      }
-
-      await webRtcConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
-      await addQueuedIceCandidates();
-    };
-
-    webSocket.bind(WebSocketMessageType.WebRtcOffer, webRtcOfferListener);
-    webSocket.bind(WebSocketMessageType.WebRtcAnswer, webRtcAnswerListener);
-
-    return () => {
-      webSocket.unbind(WebSocketMessageType.WebRtcOffer, webRtcOfferListener);
-      webSocket.unbind(WebSocketMessageType.WebRtcAnswer, webRtcAnswerListener);
-    };
-  }, [webSocket, webRtcConnection, sendWebRtcAnswer, conversationId, iceCandidateQueue]);
-
-  useEffect(() => {
-    const webRtcIceCandidateListener = async (data: WebRtcIceCandidate) => {
-      if (data.conversationId !== conversationId) {
-        console.warn('Wrong incoming conversationId, ignoring action');
-        return;
-      }
-
-      if (!data.candidate) {
-        return;
-      }
-
-      if (isReadyForIceCandidates) {
-        await webRtcConnection.addIceCandidate(data.candidate);
-      } else {
-        setIceCandidateQueue((v) => {
-          v.push(data.candidate);
-          return v;
-        });
-      }
-    };
-
-    webSocket.bind(WebSocketMessageType.WebRtcIceCandidate, webRtcIceCandidateListener);
-
-    return () => {
-      webSocket.unbind(WebSocketMessageType.WebRtcIceCandidate, webRtcIceCandidateListener);
-    };
-  }, [webRtcConnection, webSocket, conversationId, isReadyForIceCandidates]);
-
-  /* WebRTC Listeners */
-
-  useEffect(() => {
-    const iceCandidateEventListener = (event: RTCPeerConnectionIceEvent) => {
-      if (event.candidate) {
-        const webRtcIceCandidate: WebRtcIceCandidate = {
-          contactId: contactUri,
-          conversationId: conversationId,
-          candidate: event.candidate,
-        };
-
-        webSocket.send(WebSocketMessageType.WebRtcIceCandidate, webRtcIceCandidate);
-      }
-    };
-    webRtcConnection.addEventListener('icecandidate', iceCandidateEventListener);
-
-    return () => {
-      webRtcConnection.removeEventListener('icecandidate', iceCandidateEventListener);
-    };
-  }, [webRtcConnection, webSocket, contactUri, conversationId]);
-
-  useEffect(() => {
-    const trackEventListener = (event: RTCTrackEvent) => {
-      console.info('Received WebRTC event on track', event);
-      setRemoteStreams(event.streams);
-    };
-
-    const iceConnectionStateChangeEventListener = (event: Event) => {
-      console.info(`Received WebRTC event on iceconnectionstatechange: ${webRtcConnection.iceConnectionState}`, event);
-      setIceConnectionState(webRtcConnection.iceConnectionState);
-    };
-
-    webRtcConnection.addEventListener('track', trackEventListener);
-    webRtcConnection.addEventListener('iceconnectionstatechange', iceConnectionStateChangeEventListener);
-
-    return () => {
-      webRtcConnection.removeEventListener('track', trackEventListener);
-      webRtcConnection.removeEventListener('iceconnectionstatechange', iceConnectionStateChangeEventListener);
-    };
-  }, [webRtcConnection]);
+    if (contactUri) {
+      webRtcManager.addConnection(webSocket, account, contactUri, callData, localStream, screenShareLocalStream);
+    }
+  }, [account, callData, contactUri, localStream, screenShareLocalStream, webRtcManager, webSocket]);
 
   const closeConnection = useCallback(() => {
     const stopStream = (stream: MediaStream) => {
@@ -436,8 +220,8 @@ const useWebRtcContextValue = ({
       stopStream(screenShareLocalStream);
     }
 
-    webRtcConnection.close();
-  }, [webRtcConnection, localStream, screenShareLocalStream]);
+    webRtcManager.clean();
+  }, [localStream, screenShareLocalStream, webRtcManager]);
 
   return useMemo(
     () => ({
