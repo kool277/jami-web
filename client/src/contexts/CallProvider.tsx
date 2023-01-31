@@ -22,9 +22,10 @@ import { createOptionalContext } from '../hooks/createOptionalContext';
 import { ConversationMember } from '../models/conversation-member';
 import { callTimeoutMs } from '../utils/constants';
 import { AsyncSetState, SetState, WithChildren } from '../utils/utils';
+import { useWebRtcManager } from '../webrtc/WebRtcManager';
+import { useAuthContext } from './AuthProvider';
 import { CallData, CallManagerContext } from './CallManagerProvider';
 import ConditionalContextProvider from './ConditionalContextProvider';
-import { IWebRtcContext, MediaDevicesInfo, MediaInputKind, useWebRtcContext } from './WebRtcProvider';
 import { IWebSocketContext, WebSocketContext } from './WebSocketProvider';
 
 export type CallRole = 'caller' | 'receiver';
@@ -50,7 +51,15 @@ type MediaDeviceIdState = {
 };
 type CurrentMediaDeviceIds = Record<MediaDeviceKind, MediaDeviceIdState>;
 
+export type MediaDevicesInfo = Record<MediaDeviceKind, MediaDeviceInfo[]>;
+export type MediaInputKind = 'audio' | 'video';
+export type MediaInputIds = Record<MediaInputKind, string | false | undefined>;
+
 export interface ICallContext {
+  localStream: MediaStream | undefined;
+  screenShareLocalStream: MediaStream | undefined;
+  remoteStreams: readonly MediaStream[];
+
   mediaDevices: MediaDevicesInfo;
   currentMediaDeviceIds: CurrentMediaDeviceIds;
 
@@ -76,18 +85,16 @@ export const useCallContext = optionalCallContext.useOptionalContext;
 export default ({ children }: WithChildren) => {
   const webSocket = useContext(WebSocketContext);
   const { callMembers, callData, exitCall } = useContext(CallManagerContext);
-  const webRtcContext = useWebRtcContext(true);
 
   const dependencies = useMemo(
     () => ({
       webSocket,
-      webRtcContext,
       callMembers,
       callData,
       exitCall,
       conversationId: callData?.conversationId,
     }),
-    [webSocket, webRtcContext, callMembers, callData, exitCall]
+    [webSocket, callMembers, callData, exitCall]
   );
 
   return (
@@ -103,7 +110,6 @@ export default ({ children }: WithChildren) => {
 };
 
 const CallProvider = ({
-  webRtcContext,
   callMembers,
   callData,
   exitCall,
@@ -111,21 +117,23 @@ const CallProvider = ({
   webSocket,
 }: {
   webSocket: IWebSocketContext;
-  webRtcContext: IWebRtcContext;
   callMembers: ConversationMember[];
   callData: CallData;
   exitCall: () => void;
   conversationId: string;
 }): ICallContext => {
-  const {
-    localStream,
-    updateScreenShare,
-    sendWebRtcOffer,
-    iceConnectionState,
-    closeConnection,
-    getMediaDevices,
-    updateLocalStream,
-  } = webRtcContext;
+  const [localStream, setLocalStream] = useState<MediaStream>();
+  const [screenShareLocalStream, setScreenShareLocalStream] = useState<MediaStream>();
+  const { account } = useAuthContext();
+  const webRtcManager = useWebRtcManager();
+
+  // TODO: This logic will have to change to support multiple people in a call. Could we move this logic to the server?
+  //       The client could make a single request with the conversationId, and the server would be tasked with sending
+  //       all the individual requests to the members of the conversation.
+  const contactUri = callMembers[0]?.contact.uri;
+  const connectionInfos = webRtcManager.connectionsInfos[contactUri];
+  const remoteStreams = connectionInfos?.remoteStreams;
+  const iceConnectionState = connectionInfos?.iceConnectionState;
 
   const [mediaDevices, setMediaDevices] = useState<MediaDevicesInfo>({
     audioinput: [],
@@ -144,10 +152,134 @@ const CallProvider = ({
   const [callRole] = useState(callData?.role);
   const [callStartTime, setCallStartTime] = useState<number | undefined>(undefined);
 
-  // TODO: This logic will have to change to support multiple people in a call. Could we move this logic to the server?
-  //       The client could make a single request with the conversationId, and the server would be tasked with sending
-  //       all the individual requests to the members of the conversation.
-  const contactUri = useMemo(() => callMembers[0].contact.uri, [callMembers]);
+  // TODO: Replace this by a callback
+  useEffect(() => {
+    if (callData.role === 'receiver' && contactUri && localStream) {
+      webRtcManager.addConnection(webSocket, account, contactUri, callData, localStream, screenShareLocalStream);
+    }
+  }, [account, callData, contactUri, localStream, screenShareLocalStream, webRtcManager, webSocket]);
+
+  const getMediaDevices = useCallback(async (): Promise<MediaDevicesInfo> => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+
+      // TODO: On Firefox, some devices can sometime be duplicated (2 devices can share the same deviceId). Using a map
+      //       and then converting it to an array makes it so that there is no duplicate. If we find a way to prevent
+      //       Firefox from listing 2 devices with the same deviceId, we can remove this logic.
+      const newMediaDevices: Record<MediaDeviceKind, Record<string, MediaDeviceInfo>> = {
+        audioinput: {},
+        audiooutput: {},
+        videoinput: {},
+      };
+
+      for (const device of devices) {
+        newMediaDevices[device.kind][device.deviceId] = device;
+      }
+
+      return {
+        audioinput: Object.values(newMediaDevices.audioinput),
+        audiooutput: Object.values(newMediaDevices.audiooutput),
+        videoinput: Object.values(newMediaDevices.videoinput),
+      };
+    } catch (e) {
+      throw new Error('Could not get media devices', { cause: e });
+    }
+  }, []);
+
+  const updateLocalStream = useCallback(
+    async (mediaDeviceIds?: MediaInputIds) => {
+      const devices = await getMediaDevices();
+
+      let audioConstraint: MediaTrackConstraints | boolean = devices.audioinput.length !== 0;
+      let videoConstraint: MediaTrackConstraints | boolean = devices.videoinput.length !== 0;
+
+      if (!audioConstraint && !videoConstraint) {
+        return;
+      }
+
+      if (mediaDeviceIds?.audio !== undefined) {
+        audioConstraint = mediaDeviceIds.audio !== false ? { deviceId: mediaDeviceIds.audio } : false;
+      }
+      if (mediaDeviceIds?.video !== undefined) {
+        videoConstraint = mediaDeviceIds.video !== false ? { deviceId: mediaDeviceIds.video } : false;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: audioConstraint,
+          video: videoConstraint,
+        });
+
+        for (const track of stream.getTracks()) {
+          track.enabled = false;
+        }
+
+        setLocalStream(stream);
+      } catch (e) {
+        throw new Error('Could not get media devices', { cause: e });
+      }
+    },
+    [getMediaDevices]
+  );
+
+  const updateScreenShare = useCallback(
+    async (isOn: boolean) => {
+      if (isOn) {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+          video: true,
+          audio: false,
+        });
+
+        setScreenShareLocalStream(stream);
+        return stream;
+      } else {
+        if (screenShareLocalStream) {
+          for (const track of screenShareLocalStream.getTracks()) {
+            track.stop();
+          }
+        }
+
+        setScreenShareLocalStream(undefined);
+      }
+    },
+    [screenShareLocalStream]
+  );
+
+  // TODO: Transform the effect into a callback
+  const updateLocalStreams = webRtcManager.updateLocalStreams;
+  useEffect(() => {
+    if ((!localStream && !screenShareLocalStream) || !updateLocalStreams) {
+      return;
+    }
+
+    updateLocalStreams(localStream, screenShareLocalStream);
+  }, [localStream, screenShareLocalStream, updateLocalStreams]);
+
+  const sendWebRtcOffer = useCallback(async () => {
+    if (contactUri) {
+      webRtcManager.addConnection(webSocket, account, contactUri, callData, localStream, screenShareLocalStream);
+    }
+  }, [account, callData, contactUri, localStream, screenShareLocalStream, webRtcManager, webSocket]);
+
+  const closeConnection = useCallback(() => {
+    const stopStream = (stream: MediaStream) => {
+      const localTracks = stream.getTracks();
+      if (localTracks) {
+        for (const track of localTracks) {
+          track.stop();
+        }
+      }
+    };
+
+    if (localStream) {
+      stopStream(localStream);
+    }
+    if (screenShareLocalStream) {
+      stopStream(screenShareLocalStream);
+    }
+
+    webRtcManager.clean();
+  }, [localStream, screenShareLocalStream, webRtcManager]);
 
   useEffect(() => {
     if (callStatus !== CallStatus.InCall) {
@@ -394,6 +526,9 @@ const CallProvider = ({
 
   return useMemo(
     () => ({
+      localStream,
+      screenShareLocalStream,
+      remoteStreams,
       mediaDevices,
       currentMediaDeviceIds,
       isAudioOn,
@@ -411,6 +546,9 @@ const CallProvider = ({
       endCall,
     }),
     [
+      localStream,
+      screenShareLocalStream,
+      remoteStreams,
       mediaDevices,
       currentMediaDeviceIds,
       isAudioOn,

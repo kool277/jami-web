@@ -21,18 +21,16 @@ import { useContext } from 'react';
 import { CallManagerContext } from '../contexts/CallManagerProvider';
 import { useCallContext } from '../contexts/CallProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
-import { useWebRtcContext } from '../contexts/WebRtcProvider';
 import CallInterface from '../pages/CallInterface';
 import ChatInterface from '../pages/ChatInterface';
 import { AddParticipantButton, ShowOptionsMenuButton, StartAudioCallButton, StartVideoCallButton } from './Button';
 
 const ConversationView = () => {
   const { conversationId } = useConversationContext();
-  const webRtcContext = useWebRtcContext(true);
   const callContext = useCallContext(true);
   const { callData } = useContext(CallManagerContext);
 
-  if (webRtcContext && callContext && callData?.conversationId === conversationId) {
+  if (callContext && callData?.conversationId === conversationId) {
     return <CallInterface />;
   }
 

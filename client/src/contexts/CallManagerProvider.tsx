@@ -28,7 +28,6 @@ import { useConversationInfosQuery, useMembersQuery } from '../services/conversa
 import { SetState, WithChildren } from '../utils/utils';
 import { AlertSnackbarContext } from './AlertSnackbarProvider';
 import CallProvider, { CallRole } from './CallProvider';
-import WebRtcProvider from './WebRtcProvider';
 import { WebSocketContext } from './WebSocketProvider';
 
 export type CallData = {
@@ -124,14 +123,12 @@ export default ({ children }: WithChildren) => {
   return (
     <>
       <CallManagerContext.Provider value={value}>
-        <WebRtcProvider>
-          <CallProvider>
-            {callData && callData.conversationId !== urlParams.conversationId && (
-              <RemoteVideoOverlay callConversationId={callData.conversationId} />
-            )}
-            {children}
-          </CallProvider>
-        </WebRtcProvider>
+        <CallProvider>
+          {callData && callData.conversationId !== urlParams.conversationId && (
+            <RemoteVideoOverlay callConversationId={callData.conversationId} />
+          )}
+          {children}
+        </CallProvider>
       </CallManagerContext.Provider>
     </>
   );

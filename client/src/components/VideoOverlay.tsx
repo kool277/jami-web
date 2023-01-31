@@ -21,7 +21,6 @@ import Draggable, { DraggableEventHandler } from 'react-draggable';
 import { useNavigate } from 'react-router-dom';
 
 import { useCallContext } from '../contexts/CallProvider';
-import { useWebRtcContext } from '../contexts/WebRtcProvider';
 import { VideoElementWithSinkId } from '../utils/utils';
 import VideoStream, { VideoStreamProps } from './VideoStream';
 
@@ -75,7 +74,7 @@ const VideoOverlay = ({ onClick, size = 'medium', ...props }: VideoOverlayProps)
 };
 
 export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId: string }) => {
-  const { remoteStreams } = useWebRtcContext();
+  const { remoteStreams } = useCallContext();
   const {
     currentMediaDeviceIds: {
       audiooutput: { id: audioOutDeviceId },

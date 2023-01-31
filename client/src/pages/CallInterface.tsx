@@ -50,7 +50,6 @@ import VideoOverlay from '../components/VideoOverlay';
 import VideoStream from '../components/VideoStream';
 import { CallStatus, useCallContext, VideoStatus } from '../contexts/CallProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
-import { useWebRtcContext } from '../contexts/WebRtcProvider';
 import { formatCallDuration } from '../utils/dates&times';
 import { VideoElementWithSinkId } from '../utils/utils';
 import { CallPending } from './CallPending';
@@ -92,7 +91,7 @@ interface Props {
 }
 
 const CallInterface = () => {
-  const { localStream, screenShareLocalStream, remoteStreams } = useWebRtcContext();
+  const { localStream, screenShareLocalStream, remoteStreams } = useCallContext();
   const {
     currentMediaDeviceIds: {
       audiooutput: { id: audioOutDeviceId },
