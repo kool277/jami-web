@@ -15,8 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { createContext, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
+import { createOptionalContext } from '../hooks/createOptionalContext';
 import { WebSocketClient } from '../services/WebSocketClient';
 import { apiUrl } from '../utils/constants';
 import { WithChildren } from '../utils/utils';
@@ -28,7 +29,8 @@ export interface IWebSocketContext {
   send: WebSocketClient['send'];
 }
 
-export const WebSocketContext = createContext<IWebSocketContext | undefined>(undefined);
+const optionalWebSocketContext = createOptionalContext<IWebSocketContext>('WebSocketContext');
+export const useWebSocketContext = optionalWebSocketContext.useOptionalContext;
 
 export default ({ children }: WithChildren) => {
   const webSocketClientRef = useRef<WebSocketClient>(new WebSocketClient());
@@ -39,7 +41,7 @@ export default ({ children }: WithChildren) => {
     webSocketClientRef.current.connect(apiUrl, accessToken);
   }, [accessToken]);
 
-  const value: IWebSocketContext = useMemo(
+  const value = useMemo(
     () => ({
       bind: webSocketClientRef.current.bind.bind(webSocketClientRef.current),
       unbind: webSocketClientRef.current.unbind.bind(webSocketClientRef.current),
@@ -48,5 +50,7 @@ export default ({ children }: WithChildren) => {
     []
   );
 
-  return <WebSocketContext.Provider value={value}>{children}</WebSocketContext.Provider>;
+  return (
+    <optionalWebSocketContext.Context.Provider value={value}>{children}</optionalWebSocketContext.Context.Provider>
+  );
 };

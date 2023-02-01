@@ -16,10 +16,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ConversationMessage, IConversationRequest, WebSocketMessageType } from 'jami-web-common';
-import { createContext, ReactNode, useContext, useEffect, useMemo } from 'react';
+import { createContext, ReactNode, useEffect, useMemo } from 'react';
 
 import { useAddConversationRequestToCache, useRefreshConversationsSummaries } from '../services/conversationQueries';
-import { WebSocketContext } from './WebSocketProvider';
+import { useWebSocketContext } from './WebSocketProvider';
 
 // It is not sure yet we want this context to have no value
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -30,16 +30,12 @@ const defaultMessengerContext: IMessengerContext = {};
 export const MessengerContext = createContext<IMessengerContext>(defaultMessengerContext);
 
 export default ({ children }: { children: ReactNode }) => {
-  const webSocket = useContext(WebSocketContext);
+  const webSocket = useWebSocketContext();
 
   const refreshConversationsSummaries = useRefreshConversationsSummaries();
   const addConversationRequestToCache = useAddConversationRequestToCache();
 
   useEffect(() => {
-    if (!webSocket) {
-      return;
-    }
-
     const conversationMessageListener = (_data: ConversationMessage) => {
       refreshConversationsSummaries();
     };

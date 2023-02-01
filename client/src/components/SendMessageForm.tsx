@@ -18,12 +18,12 @@
 import { InputBase } from '@mui/material';
 import { Stack } from '@mui/system';
 import { WebSocketMessageType } from 'jami-web-common';
-import { ChangeEvent, FormEvent, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { ChangeEvent, FormEvent, useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useAuthContext } from '../contexts/AuthProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
-import { WebSocketContext } from '../contexts/WebSocketProvider';
+import { useWebSocketContext } from '../contexts/WebSocketProvider';
 import { ConversationMember } from '../models/conversation-member';
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations';
 import {
@@ -40,7 +40,7 @@ type SendMessageFormProps = {
 };
 
 export default function SendMessageForm({ onSend, openFilePicker }: SendMessageFormProps) {
-  const webSocket = useContext(WebSocketContext);
+  const webSocket = useWebSocketContext();
   const { members, conversationId } = useConversationContext();
   const [currentMessage, setCurrentMessage] = useState('');
   const composingNotificationTimeRef = useRef(0);
@@ -52,7 +52,7 @@ export default function SendMessageForm({ onSend, openFilePicker }: SendMessageF
     // We ensure it will stay on at least 4 seconds after the last typed character
     if (currentTime - composingNotificationTimeRef.current > 8000) {
       composingNotificationTimeRef.current = currentTime;
-      webSocket?.send(WebSocketMessageType.ComposingStatus, { conversationId, isWriting: true });
+      webSocket.send(WebSocketMessageType.ComposingStatus, { conversationId, isWriting: true });
     }
   }, [webSocket, conversationId]);
 

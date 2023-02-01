@@ -18,7 +18,7 @@
 import { Box, Divider, Fade, Stack, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { ConversationMessage, Message, WebSocketMessageType } from 'jami-web-common';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
 
@@ -28,14 +28,14 @@ import MessageList from '../components/MessageList';
 import { FileDragOverlay } from '../components/Overlay';
 import SendMessageForm from '../components/SendMessageForm';
 import { useConversationContext } from '../contexts/ConversationProvider';
-import { WebSocketContext } from '../contexts/WebSocketProvider';
+import { useWebSocketContext } from '../contexts/WebSocketProvider';
 import { ConversationMember } from '../models/conversation-member';
 import { useMessagesQuery, useSendMessageMutation } from '../services/conversationQueries';
 import { FileHandler } from '../utils/files';
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations';
 
 const ChatInterface = () => {
-  const webSocket = useContext(WebSocketContext);
+  const webSocket = useWebSocketContext();
   const { conversationId } = useConversationContext();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -90,18 +90,16 @@ const ChatInterface = () => {
   const sendMessage = useCallback((message: string) => sendMessageMutation.mutate(message), [sendMessageMutation]);
 
   useEffect(() => {
-    if (webSocket) {
-      const conversationMessageListener = (data: ConversationMessage) => {
-        console.log('newMessage');
-        setMessages((messages) => addMessage(messages, data.message));
-      };
+    const conversationMessageListener = (data: ConversationMessage) => {
+      console.log('newMessage');
+      setMessages((messages) => addMessage(messages, data.message));
+    };
 
-      webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener);
+    webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener);
 
-      return () => {
-        webSocket.unbind(WebSocketMessageType.ConversationMessage, conversationMessageListener);
-      };
-    }
+    return () => {
+      webSocket.unbind(WebSocketMessageType.ConversationMessage, conversationMessageListener);
+    };
   }, [webSocket]);
 
   if (isLoading) {

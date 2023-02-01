@@ -28,7 +28,7 @@ import { useConversationInfosQuery, useMembersQuery } from '../services/conversa
 import { SetState, WithChildren } from '../utils/utils';
 import { AlertSnackbarContext } from './AlertSnackbarProvider';
 import CallProvider, { CallRole } from './CallProvider';
-import { WebSocketContext } from './WebSocketProvider';
+import { useWebSocketContext } from './WebSocketProvider';
 
 export type CallData = {
   conversationId: string;
@@ -57,8 +57,8 @@ CallManagerContext.displayName = 'CallManagerContext';
 
 export default ({ children }: WithChildren) => {
   const [callData, setCallData] = useState<CallData>();
-  const webSocket = useContext(WebSocketContext);
   const { setAlertContent } = useContext(AlertSnackbarContext);
+  const webSocket = useWebSocketContext();
   const navigate = useNavigate();
   const { data: conversationInfos } = useConversationInfosQuery(callData?.conversationId);
   const { data: members } = useMembersQuery(callData?.conversationId);
@@ -81,10 +81,6 @@ export default ({ children }: WithChildren) => {
   }, [callData]);
 
   useEffect(() => {
-    if (!webSocket) {
-      return;
-    }
-
     const callBeginListener = ({ conversationId, withVideoOn }: CallBegin) => {
       if (callData) {
         // TODO: Currently, we display a notification if already in a call.

@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ComposingStatus, ConversationInfos, ConversationView, WebSocketMessageType } from 'jami-web-common';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import LoadingPage from '../components/Loading';
 import { createOptionalContext } from '../hooks/createOptionalContext';
@@ -27,7 +27,7 @@ import { ConversationRouteParams } from '../router';
 import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries';
 import { WithChildren } from '../utils/utils';
 import { useAuthContext } from './AuthProvider';
-import { WebSocketContext } from './WebSocketProvider';
+import { useWebSocketContext } from './WebSocketProvider';
 
 interface IConversationContext {
   conversationId: string;
@@ -46,7 +46,7 @@ export default ({ children }: WithChildren) => {
     urlParams: { conversationId },
   } = useUrlParams<ConversationRouteParams>();
   const { accountId, account } = useAuthContext();
-  const webSocket = useContext(WebSocketContext);
+  const webSocket = useWebSocketContext();
   const [composingMembers, setComposingMembers] = useState<ConversationMember[]>([]);
 
   const conversationInfosQuery = useConversationInfosQuery(conversationId!);
@@ -96,7 +96,7 @@ export default ({ children }: WithChildren) => {
   );
 
   useEffect(() => {
-    if (!conversationInfos || !conversationId || !webSocket) {
+    if (!conversationInfos || !conversationId) {
       return;
     }
 

@@ -26,7 +26,7 @@ import { useWebRtcManager } from '../webrtc/WebRtcManager';
 import { useAuthContext } from './AuthProvider';
 import { CallData, CallManagerContext } from './CallManagerProvider';
 import ConditionalContextProvider from './ConditionalContextProvider';
-import { IWebSocketContext, WebSocketContext } from './WebSocketProvider';
+import { IWebSocketContext, useWebSocketContext } from './WebSocketProvider';
 
 export type CallRole = 'caller' | 'receiver';
 
@@ -83,7 +83,7 @@ const optionalCallContext = createOptionalContext<ICallContext>('CallContext');
 export const useCallContext = optionalCallContext.useOptionalContext;
 
 export default ({ children }: WithChildren) => {
-  const webSocket = useContext(WebSocketContext);
+  const webSocket = useWebSocketContext();
   const { callMembers, callData, exitCall } = useContext(CallManagerContext);
 
   const dependencies = useMemo(
