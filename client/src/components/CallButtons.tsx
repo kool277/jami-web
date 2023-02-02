@@ -21,6 +21,7 @@ import { styled } from '@mui/material/styles';
 import { ChangeEvent, useMemo } from 'react';
 
 import { CallStatus, useCallContext, VideoStatus } from '../contexts/CallProvider';
+import { useUserMediaContext } from '../contexts/UserMediaProvider';
 import {
   ColoredRoundButton,
   ExpandableButton,
@@ -138,7 +139,7 @@ const ToggleScreenShareIconButton = (props: IconButtonProps) => {
 };
 
 const useMediaDeviceExpandMenuOptions = (kind: MediaDeviceKind): ExpandMenuRadioOption[] | undefined => {
-  const { currentMediaDeviceIds, mediaDevices } = useCallContext();
+  const { currentMediaDeviceIds, mediaDevices } = useUserMediaContext();
 
   const options = useMemo(
     () =>

@@ -24,6 +24,7 @@ import AuthProvider from './contexts/AuthProvider';
 import CallManagerProvider from './contexts/CallManagerProvider';
 import ConversationProvider from './contexts/ConversationProvider';
 import MessengerProvider from './contexts/MessengerProvider';
+import UserMediaProvider from './contexts/UserMediaProvider';
 import WebSocketProvider from './contexts/WebSocketProvider';
 import { RouteParams } from './hooks/useUrlParams';
 import AccountSettings from './pages/AccountSettings';
@@ -46,9 +47,11 @@ export const router = createBrowserRouter(
         element={
           <AuthProvider>
             <WebSocketProvider>
-              <CallManagerProvider>
-                <Outlet />
-              </CallManagerProvider>
+              <UserMediaProvider>
+                <CallManagerProvider>
+                  <Outlet />
+                </CallManagerProvider>
+              </UserMediaProvider>
             </WebSocketProvider>
           </AuthProvider>
         }

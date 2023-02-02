@@ -26,6 +26,7 @@ import { useWebRtcManager } from '../webrtc/WebRtcManager';
 import { useAuthContext } from './AuthProvider';
 import { CallData, CallManagerContext } from './CallManagerProvider';
 import ConditionalContextProvider from './ConditionalContextProvider';
+import { useUserMediaContext } from './UserMediaProvider';
 import { IWebSocketContext, useWebSocketContext } from './WebSocketProvider';
 
 export type CallRole = 'caller' | 'receiver';
@@ -45,23 +46,8 @@ export enum VideoStatus {
   ScreenShare,
 }
 
-type MediaDeviceIdState = {
-  id: string | undefined;
-  setId: (id: string | undefined) => void | Promise<void>;
-};
-type CurrentMediaDeviceIds = Record<MediaDeviceKind, MediaDeviceIdState>;
-
-export type MediaDevicesInfo = Record<MediaDeviceKind, MediaDeviceInfo[]>;
-export type MediaInputKind = 'audio' | 'video';
-export type MediaInputIds = Record<MediaInputKind, string | false | undefined>;
-
 export interface ICallContext {
-  localStream: MediaStream | undefined;
-  screenShareLocalStream: MediaStream | undefined;
   remoteStreams: readonly MediaStream[];
-
-  mediaDevices: MediaDevicesInfo;
-  currentMediaDeviceIds: CurrentMediaDeviceIds;
 
   isAudioOn: boolean;
   setIsAudioOn: SetState<boolean>;
@@ -122,8 +108,15 @@ const CallProvider = ({
   exitCall: () => void;
   conversationId: string;
 }): ICallContext => {
-  const [localStream, setLocalStream] = useState<MediaStream>();
-  const [screenShareLocalStream, setScreenShareLocalStream] = useState<MediaStream>();
+  const {
+    localStream,
+    updateLocalStream,
+    screenShareLocalStream,
+    updateScreenShare,
+    setAudioInputDeviceId,
+    setVideoDeviceId,
+    stopMedias,
+  } = useUserMediaContext();
   const { account } = useAuthContext();
   const webRtcManager = useWebRtcManager();
 
@@ -134,15 +127,6 @@ const CallProvider = ({
   const connectionInfos = webRtcManager.connectionsInfos[contactUri];
   const remoteStreams = connectionInfos?.remoteStreams;
   const iceConnectionState = connectionInfos?.iceConnectionState;
-
-  const [mediaDevices, setMediaDevices] = useState<MediaDevicesInfo>({
-    audioinput: [],
-    audiooutput: [],
-    videoinput: [],
-  });
-  const [audioInputDeviceId, setAudioInputDeviceId] = useState<string>();
-  const [audioOutputDeviceId, setAudioOutputDeviceId] = useState<string>();
-  const [videoDeviceId, setVideoDeviceId] = useState<string>();
 
   const [isAudioOn, setIsAudioOn] = useState(false);
   const [videoStatus, setVideoStatus] = useState(VideoStatus.Off);
@@ -158,92 +142,6 @@ const CallProvider = ({
       webRtcManager.addConnection(webSocket, account, contactUri, callData, localStream, screenShareLocalStream);
     }
   }, [account, callData, contactUri, localStream, screenShareLocalStream, webRtcManager, webSocket]);
-
-  const getMediaDevices = useCallback(async (): Promise<MediaDevicesInfo> => {
-    try {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-
-      // TODO: On Firefox, some devices can sometime be duplicated (2 devices can share the same deviceId). Using a map
-      //       and then converting it to an array makes it so that there is no duplicate. If we find a way to prevent
-      //       Firefox from listing 2 devices with the same deviceId, we can remove this logic.
-      const newMediaDevices: Record<MediaDeviceKind, Record<string, MediaDeviceInfo>> = {
-        audioinput: {},
-        audiooutput: {},
-        videoinput: {},
-      };
-
-      for (const device of devices) {
-        newMediaDevices[device.kind][device.deviceId] = device;
-      }
-
-      return {
-        audioinput: Object.values(newMediaDevices.audioinput),
-        audiooutput: Object.values(newMediaDevices.audiooutput),
-        videoinput: Object.values(newMediaDevices.videoinput),
-      };
-    } catch (e) {
-      throw new Error('Could not get media devices', { cause: e });
-    }
-  }, []);
-
-  const updateLocalStream = useCallback(
-    async (mediaDeviceIds?: MediaInputIds) => {
-      const devices = await getMediaDevices();
-
-      let audioConstraint: MediaTrackConstraints | boolean = devices.audioinput.length !== 0;
-      let videoConstraint: MediaTrackConstraints | boolean = devices.videoinput.length !== 0;
-
-      if (!audioConstraint && !videoConstraint) {
-        return;
-      }
-
-      if (mediaDeviceIds?.audio !== undefined) {
-        audioConstraint = mediaDeviceIds.audio !== false ? { deviceId: mediaDeviceIds.audio } : false;
-      }
-      if (mediaDeviceIds?.video !== undefined) {
-        videoConstraint = mediaDeviceIds.video !== false ? { deviceId: mediaDeviceIds.video } : false;
-      }
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: audioConstraint,
-          video: videoConstraint,
-        });
-
-        for (const track of stream.getTracks()) {
-          track.enabled = false;
-        }
-
-        setLocalStream(stream);
-      } catch (e) {
-        throw new Error('Could not get media devices', { cause: e });
-      }
-    },
-    [getMediaDevices]
-  );
-
-  const updateScreenShare = useCallback(
-    async (isOn: boolean) => {
-      if (isOn) {
-        const stream = await navigator.mediaDevices.getDisplayMedia({
-          video: true,
-          audio: false,
-        });
-
-        setScreenShareLocalStream(stream);
-        return stream;
-      } else {
-        if (screenShareLocalStream) {
-          for (const track of screenShareLocalStream.getTracks()) {
-            track.stop();
-          }
-        }
-
-        setScreenShareLocalStream(undefined);
-      }
-    },
-    [screenShareLocalStream]
-  );
 
   // TODO: Transform the effect into a callback
   const updateLocalStreams = webRtcManager.updateLocalStreams;
@@ -262,52 +160,11 @@ const CallProvider = ({
   }, [account, callData, contactUri, localStream, screenShareLocalStream, webRtcManager, webSocket]);
 
   const closeConnection = useCallback(() => {
-    const stopStream = (stream: MediaStream) => {
-      const localTracks = stream.getTracks();
-      if (localTracks) {
-        for (const track of localTracks) {
-          track.stop();
-        }
-      }
-    };
-
-    if (localStream) {
-      stopStream(localStream);
-    }
-    if (screenShareLocalStream) {
-      stopStream(screenShareLocalStream);
-    }
-
+    stopMedias();
     webRtcManager.clean();
-  }, [localStream, screenShareLocalStream, webRtcManager]);
+  }, [stopMedias, webRtcManager]);
 
-  useEffect(() => {
-    if (callStatus !== CallStatus.InCall) {
-      return;
-    }
-
-    const updateMediaDevices = async () => {
-      try {
-        const newMediaDevices = await getMediaDevices();
-
-        if (newMediaDevices.audiooutput.length !== 0 && !audioOutputDeviceId) {
-          setAudioOutputDeviceId(newMediaDevices.audiooutput[0].deviceId);
-        }
-
-        setMediaDevices(newMediaDevices);
-      } catch (e) {
-        console.error('Could not update media devices:', e);
-      }
-    };
-
-    navigator.mediaDevices.addEventListener('devicechange', updateMediaDevices);
-    updateMediaDevices();
-
-    return () => {
-      navigator.mediaDevices.removeEventListener('devicechange', updateMediaDevices);
-    };
-  }, [callStatus, getMediaDevices, audioOutputDeviceId]);
-
+  // Tracks logic should be moved into UserMediaProvider
   useEffect(() => {
     if (localStream) {
       for (const track of localStream.getAudioTracks()) {
@@ -318,8 +175,9 @@ const CallProvider = ({
         }
       }
     }
-  }, [isAudioOn, localStream]);
+  }, [isAudioOn, localStream, setAudioInputDeviceId]);
 
+  // Tracks logic should be moved into UserMediaProvider
   useEffect(() => {
     if (localStream) {
       for (const track of localStream.getVideoTracks()) {
@@ -330,8 +188,9 @@ const CallProvider = ({
         }
       }
     }
-  }, [videoStatus, localStream]);
+  }, [videoStatus, localStream, setVideoDeviceId]);
 
+  // Track logic should be moved into UserMediaProvider
   const updateVideoStatus = useCallback(
     async (newStatus: ((prevState: VideoStatus) => VideoStatus) | VideoStatus) => {
       if (typeof newStatus === 'function') {
@@ -496,41 +355,9 @@ const CallProvider = ({
     };
   }, [callStatus, endCall]);
 
-  const currentMediaDeviceIds: CurrentMediaDeviceIds = useMemo(() => {
-    const createSetIdForDeviceKind = (mediaInputKind: MediaInputKind) => async (id: string | undefined) => {
-      const mediaDeviceIds = {
-        audio: audioInputDeviceId,
-        video: videoDeviceId,
-      };
-
-      mediaDeviceIds[mediaInputKind] = id;
-
-      await updateLocalStream(mediaDeviceIds);
-    };
-
-    return {
-      audioinput: {
-        id: audioInputDeviceId,
-        setId: createSetIdForDeviceKind('audio'),
-      },
-      audiooutput: {
-        id: audioOutputDeviceId,
-        setId: setAudioOutputDeviceId,
-      },
-      videoinput: {
-        id: videoDeviceId,
-        setId: createSetIdForDeviceKind('video'),
-      },
-    };
-  }, [updateLocalStream, audioInputDeviceId, audioOutputDeviceId, videoDeviceId]);
-
   return useMemo(
     () => ({
-      localStream,
-      screenShareLocalStream,
       remoteStreams,
-      mediaDevices,
-      currentMediaDeviceIds,
       isAudioOn,
       setIsAudioOn,
       videoStatus,
@@ -546,16 +373,15 @@ const CallProvider = ({
       endCall,
     }),
     [
-      localStream,
-      screenShareLocalStream,
       remoteStreams,
-      mediaDevices,
-      currentMediaDeviceIds,
       isAudioOn,
       videoStatus,
+      setIsAudioOn,
       updateVideoStatus,
       isChatShown,
+      setIsChatShown,
       isFullscreen,
+      setIsFullscreen,
       callRole,
       callStatus,
       callStartTime,

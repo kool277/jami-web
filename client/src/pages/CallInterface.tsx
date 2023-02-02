@@ -50,6 +50,7 @@ import VideoOverlay from '../components/VideoOverlay';
 import VideoStream from '../components/VideoStream';
 import { CallStatus, useCallContext, VideoStatus } from '../contexts/CallProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
+import { useUserMediaContext } from '../contexts/UserMediaProvider';
 import { formatCallDuration } from '../utils/dates&times';
 import { VideoElementWithSinkId } from '../utils/utils';
 import { CallPending } from './CallPending';
@@ -91,13 +92,14 @@ interface Props {
 }
 
 const CallInterface = () => {
-  const { localStream, screenShareLocalStream, remoteStreams } = useCallContext();
   const {
+    localStream,
+    screenShareLocalStream,
     currentMediaDeviceIds: {
       audiooutput: { id: audioOutDeviceId },
     },
-    videoStatus,
-  } = useCallContext();
+  } = useUserMediaContext();
+  const { remoteStreams, videoStatus } = useCallContext();
   const remoteVideoRef = useRef<VideoElementWithSinkId | null>(null);
   const gridItemRef = useRef<HTMLDivElement | null>(null);
   const [isLocalVideoZoomed, setIsLocalVideoZoomed] = useState(false);

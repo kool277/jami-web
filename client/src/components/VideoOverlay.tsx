@@ -21,6 +21,7 @@ import Draggable, { DraggableEventHandler } from 'react-draggable';
 import { useNavigate } from 'react-router-dom';
 
 import { useCallContext } from '../contexts/CallProvider';
+import { useUserMediaContext } from '../contexts/UserMediaProvider';
 import { VideoElementWithSinkId } from '../utils/utils';
 import VideoStream, { VideoStreamProps } from './VideoStream';
 
@@ -79,7 +80,7 @@ export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId:
     currentMediaDeviceIds: {
       audiooutput: { id: audioOutDeviceId },
     },
-  } = useCallContext();
+  } = useUserMediaContext();
   const navigate = useNavigate();
 
   // TODO: For now, `remoteStream` is the first remote stream in the array.

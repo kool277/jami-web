@@ -30,11 +30,13 @@ import {
 import ConversationAvatar from '../components/ConversationAvatar';
 import { CallStatus, useCallContext } from '../contexts/CallProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
+import { useUserMediaContext } from '../contexts/UserMediaProvider';
 import { VideoElementWithSinkId } from '../utils/utils';
 
 export const CallPending = () => {
   const { conversationDisplayName } = useConversationContext();
-  const { callRole, localStream } = useCallContext();
+  const { localStream } = useUserMediaContext();
+  const { callRole } = useCallContext();
   const localVideoRef = useRef<VideoElementWithSinkId | null>(null);
 
   useEffect(() => {
