@@ -21,7 +21,7 @@ import axios from 'axios';
 import { useState } from 'react';
 import { json, LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom';
 
-import WelcomeAnimation from './components/welcome';
+import WelcomeAnimation from './components/WelcomeAnimation';
 import { getAccessToken } from './utils/auth';
 import { apiUrl } from './utils/constants';
 
