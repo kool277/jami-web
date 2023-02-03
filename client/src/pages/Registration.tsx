@@ -89,7 +89,7 @@ function RegistrationForm() {
       } else if (e instanceof InvalidPassword) {
         setErrorAlertContent(t('login_invalid_password'));
       } else {
-        throw e;
+        setErrorAlertContent(t('unknown_error_alert'));
       }
     }
   };
@@ -108,7 +108,7 @@ function RegistrationForm() {
       } else if (e instanceof InvalidCredentials) {
         setErrorAlertContent(t('login_invalid_credentials'));
       } else {
-        throw e;
+        setErrorAlertContent(t('unknown_error_alert'));
       }
     }
   };

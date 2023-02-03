@@ -78,7 +78,7 @@ function LoginForm() {
         } else if (e instanceof InvalidPassword) {
           setErrorAlertContent(t('login_invalid_password'));
         } else {
-          throw e;
+          setErrorAlertContent(t('unknown_error_alert'));
         }
       }
     }
