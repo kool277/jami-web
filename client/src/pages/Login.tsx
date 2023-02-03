@@ -27,22 +27,19 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { Theme, useTheme } from '@mui/material/styles';
-import { ChangeEvent, FormEvent, MouseEvent, ReactNode, useState } from 'react';
+import { ChangeEvent, FormEvent, ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Form, useNavigate } from 'react-router-dom';
+import { Form, Link, useNavigate } from 'react-router-dom';
 
 import { AlertSnackbar } from '../components/AlertSnackbar';
 import { PasswordInput, UsernameInput } from '../components/Input';
 import ProcessingRequest from '../components/ProcessingRequest';
+import withAuthUI from '../components/WithAuthUI';
 import { loginUser, setAccessToken } from '../utils/auth';
 import { inputWidth } from '../utils/constants';
 import { InvalidPassword, UsernameNotFound } from '../utils/errors';
 
-type JamiLoginProps = {
-  register: () => void;
-};
-
-export default function JamiLogin(props: JamiLoginProps) {
+function LoginForm() {
   const theme: Theme = useTheme();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -63,11 +60,6 @@ export default function JamiLogin(props: JamiLoginProps) {
 
   const handleIsJams = (event: ChangeEvent<HTMLInputElement>) => {
     setIsJams(event.target.value === 'true');
-  };
-
-  const register = (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    props.register();
   };
 
   const authenticateUser = async (event: FormEvent) => {
@@ -159,12 +151,12 @@ export default function JamiLogin(props: JamiLoginProps) {
         <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(50) }}>
           <Typography variant="body1">
             {t('login_form_to_registration_text')} &nbsp;
-            <a href="" onClick={register}>
-              {t('login_form_to_registration_link')}
-            </a>
+            <Link to={'/register'}>{t('login_form_to_registration_link')}</Link>
           </Typography>
         </Box>
       </Stack>
     </>
   );
 }
+
+export default withAuthUI(LoginForm);

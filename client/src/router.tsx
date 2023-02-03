@@ -28,17 +28,18 @@ import WebSocketProvider from './contexts/WebSocketProvider';
 import { RouteParams } from './hooks/useUrlParams';
 import AccountSettings from './pages/AccountSettings';
 import GeneralSettings from './pages/GeneralSettings';
+import Login from './pages/Login';
 import Messenger from './pages/Messenger';
+import Registration from './pages/Registration';
 import Setup from './pages/Setup';
 import SetupLogin from './pages/SetupLogin';
-import Welcome from './pages/Welcome';
-
 export type ConversationRouteParams = RouteParams<{ conversationId?: string }, Record<string, never>>;
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />} loader={appLoader}>
-      <Route path="login" element={<Welcome />} />
+      <Route path="login" element={<Login />} />
+      <Route path="register" element={<Registration />} />
       <Route path="setup/login" element={<SetupLogin />} />
       <Route path="setup" element={<Setup />} />
       <Route

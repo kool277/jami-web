@@ -27,22 +27,19 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { Theme, useTheme } from '@mui/material/styles';
-import { ChangeEvent, FormEvent, MouseEvent, ReactNode, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Form, useNavigate } from 'react-router-dom';
+import { Form, Link, useNavigate } from 'react-router-dom';
 
 import { AlertSnackbar } from '../components/AlertSnackbar';
 import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input';
 import ProcessingRequest from '../components/ProcessingRequest';
+import withAuthUI from '../components/WithAuthUI';
 import { checkPasswordStrength, isNameRegistered, loginUser, registerUser, setAccessToken } from '../utils/auth';
 import { inputWidth, jamiUsernamePattern } from '../utils/constants';
 import { InvalidCredentials, InvalidPassword, UsernameNotFound } from '../utils/errors';
 
-type JamiRegistrationProps = {
-  login: () => void;
-};
-
-export default function JamiRegistration(props: JamiRegistrationProps) {
+function RegistrationForm() {
   const theme: Theme = useTheme();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -141,11 +138,6 @@ export default function JamiRegistration(props: JamiRegistrationProps) {
 
   const handleIsJams = (event: ChangeEvent<HTMLInputElement>) => {
     setIsJams(event.target.value === 'true');
-  };
-
-  const login = (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    props.login();
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -248,12 +240,12 @@ export default function JamiRegistration(props: JamiRegistrationProps) {
         <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(50) }}>
           <Typography variant="body1">
             {t('registration_form_to_login_text')} &nbsp;
-            <a href="" onClick={login}>
-              {t('registration_form_to_login_link')}
-            </a>
+            <Link to={'/login'}>{t('registration_form_to_login_link')}</Link>
           </Typography>
         </Box>
       </Stack>
     </>
   );
 }
+
+export default withAuthUI(RegistrationForm);
