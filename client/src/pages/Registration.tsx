@@ -27,6 +27,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { Theme, useTheme } from '@mui/material/styles';
+import { HttpStatusCode } from 'jami-web-common';
 import { ChangeEvent, FormEvent, ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Link, useNavigate } from 'react-router-dom';
@@ -35,20 +36,24 @@ import { AlertSnackbar } from '../components/AlertSnackbar';
 import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input';
 import ProcessingRequest from '../components/ProcessingRequest';
 import withAuthUI from '../components/WithAuthUI';
-import { checkPasswordStrength, isNameRegistered, loginUser, registerUser, setAccessToken } from '../utils/auth';
+import {
+  checkIfUserameIsRegistered,
+  checkPasswordStrength,
+  loginUser,
+  registerUser,
+  setAccessToken,
+} from '../utils/auth';
 import { inputWidth, jamiUsernamePattern } from '../utils/constants';
-import { InvalidCredentials, InvalidPassword, UsernameNotFound } from '../utils/errors';
-
 function RegistrationForm() {
   const theme: Theme = useTheme();
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [isJams, setIsJams] = useState(false);
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [isJams, setIsJams] = useState<boolean>(false);
 
   const [usernameStatus, setUsernameStatus] = useState<NameStatus>('default');
   const [passwordStatus, setPasswordStatus] = useState<PasswordStatus>('default');
@@ -56,72 +61,120 @@ function RegistrationForm() {
   const [errorAlertContent, setErrorAlertContent] = useState<ReactNode>(undefined);
   const [successAlertContent, setSuccessAlertContent] = useState<ReactNode>(undefined);
 
-  const usernameError = usernameStatus !== 'success' && usernameStatus !== 'default';
-  const usernameSuccess = usernameStatus === 'success';
-  const passwordError = passwordStatus !== 'strong' && passwordStatus !== 'default';
-  const passwordSuccess = passwordStatus === 'strong';
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'));
 
   useEffect(() => {
-    // To prevent lookup if field is empty, in error state or lookup already done
-    if (username.length > 0 && usernameStatus === 'default') {
-      const validateUsername = async () => {
-        if (await isNameRegistered(username)) {
-          setUsernameStatus('taken');
-        } else {
-          setUsernameStatus('success');
+    let timetoutId: ReturnType<typeof setTimeout>;
+    if (usernameStatus === 'valid') {
+      timetoutId = setTimeout(() => {
+        // useCheckIfUsernameIsRegisteredMutation.mutate(username);
+        checkIfUserameIsRegistered(username)
+          .then((response) => {
+            //server responds 200 if name IS found
+            if (response.status === HttpStatusCode.Ok) {
+              setUsernameStatus('taken');
+            }
+          })
+          .catch((e) => {
+            // console.log(e.response.data);
+            const { status } = e.response;
+            if (status === HttpStatusCode.BadRequest) {
+              //TODO: server sends invalid username as the message, add it to the locale
+              // console.log(e.response.data);
+              setUsernameStatus('invalid');
+            } else if (status === HttpStatusCode.NotFound) {
+              //TODO: server didn't find this username, therefore it can be registered, add the message to the locale
+              // console.log(e.response.data);
+              setUsernameStatus('success');
+            } else {
+              setErrorAlertContent(t('unknown_error_alert'));
+            }
+          });
+      }, 1000);
+    }
+
+    return () => {
+      clearTimeout(timetoutId);
+    };
+  }, [t, username, usernameStatus]);
+
+  const login = async () => {
+    setLoading(true);
+    loginUser(username, password, isJams)
+      .then((response) => {
+        if (response.status === HttpStatusCode.Ok) {
+          setAccessToken(response.data.accessToken);
+          navigate('/conversation', { replace: true });
         }
-      };
-      const timeout = setTimeout(validateUsername, 1000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [username, usernameStatus]);
-
-  const firstUserLogin = async () => {
-    try {
-      const accessToken = await loginUser(username, password, isJams);
-      setAccessToken(accessToken);
-      navigate('/conversation', { replace: true });
-    } catch (e) {
-      setIsCreatingUser(false);
-      if (e instanceof UsernameNotFound) {
-        setErrorAlertContent(t('login_username_not_found'));
-      } else if (e instanceof InvalidPassword) {
-        setErrorAlertContent(t('login_invalid_password'));
-      } else {
-        setErrorAlertContent(t('unknown_error_alert'));
-      }
-    }
+      })
+      .catch((e) => {
+        console.log(e);
+        const { status } = e.response;
+        if (status === HttpStatusCode.BadRequest) {
+          //TODO: the only bad request response defined in the server is missing credentials. add the response message to the locale.
+          console.log(e.response.data);
+          setErrorAlertContent(t('unknown_error_alert'));
+        } else if (status === HttpStatusCode.NotFound) {
+          //TODO: there are two different not found responses that could be returned by the server, use message to differentiate them?
+          console.log(e.response.data);
+          // setErrorAlertContent(t('login_username_not_found'));
+        } else if (status === HttpStatusCode.Unauthorized) {
+          setErrorAlertContent(t('login_invalid_password'));
+        } else {
+          setErrorAlertContent(t('unknown_error_alert'));
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
-  const createAccount = async () => {
-    try {
-      await registerUser(username, password, isJams);
-      setSuccessAlertContent(t('registration_success'));
-      await firstUserLogin();
-    } catch (e) {
-      setIsCreatingUser(false);
-      if (e instanceof UsernameNotFound) {
-        setErrorAlertContent(t('login_username_not_found'));
-      } else if (e instanceof InvalidPassword) {
-        setErrorAlertContent(t('login_invalid_password'));
-      } else if (e instanceof InvalidCredentials) {
-        setErrorAlertContent(t('login_invalid_credentials'));
-      } else {
-        setErrorAlertContent(t('unknown_error_alert'));
-      }
-    }
+  const createAccount = () => {
+    setLoading(true);
+    registerUser(username, password, isJams)
+      .then((response) => {
+        if (response.status === HttpStatusCode.Created) {
+          setSuccessAlertContent(t('registration_success'));
+          login();
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+        const { status } = e.response;
+        if (status === HttpStatusCode.BadRequest) {
+          //TODO: more than one bad request response defined in the server is missing credentials. add the response message to the locale.
+          console.log(e.response.data);
+          // setErrorAlertContent(t('unknown_error_alert'));
+        } else if (status === HttpStatusCode.Conflict) {
+          //TODO: there are two different conflict responses that could be returned by the server, use message to differentiate them?
+          console.log(e.response.data);
+          // setErrorAlertContent(t('login_username_not_found'));
+        } else if (status === HttpStatusCode.Unauthorized) {
+          //TODO: this is a response for JAMS, add message to the locale
+        } else {
+          setErrorAlertContent(t('unknown_error_alert'));
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   const handleUsername = async (event: ChangeEvent<HTMLInputElement>) => {
     const usernameValue: string = event.target.value;
     setUsername(usernameValue);
 
-    if (usernameValue.length > 0 && !jamiUsernamePattern.test(usernameValue)) {
-      setUsernameStatus('invalid');
-    } else {
+    if (usernameValue === '') {
       setUsernameStatus('default');
+      return;
     }
+
+    if (!jamiUsernamePattern.test(usernameValue)) {
+      setUsernameStatus('invalid');
+      return;
+    }
+    //The valid state is when the username passes the Regex test and is ready for availability check.
+    setUsernameStatus('valid');
   };
 
   const handlePassword = (event: ChangeEvent<HTMLInputElement>) => {
@@ -137,31 +190,31 @@ function RegistrationForm() {
   };
 
   const handleIsJams = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsJams(event.target.value === 'true');
+    setIsJams(event.target.value === 'jams');
   };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    const canCreate = usernameSuccess && passwordSuccess;
+    const usernameOk = usernameStatus === 'success';
+    const passwordOk = passwordStatus === 'strong';
+
+    const canCreate = usernameOk && passwordOk;
 
     if (canCreate) {
-      setIsCreatingUser(true);
-      await createAccount();
+      createAccount();
     } else {
-      if (usernameError || username.length === 0) {
+      if (!usernameOk) {
         setUsernameStatus('registration_failed');
       }
-      if (!passwordSuccess) {
+      if (!passwordOk) {
         setPasswordStatus('registration_failed');
       }
     }
   };
 
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'));
-
   return (
     <>
-      <ProcessingRequest open={isCreatingUser} />
+      <ProcessingRequest open={loading} />
 
       <AlertSnackbar
         severity={'success'}
@@ -194,22 +247,18 @@ function RegistrationForm() {
             <UsernameInput
               value={username}
               onChange={handleUsername}
-              error={usernameError}
-              success={usernameSuccess}
               status={usernameStatus}
-              sx={{ width: theme.typography.pxToRem(inputWidth) }}
               tooltipTitle={t('registration_form_username_tooltip')}
+              sx={{ width: theme.typography.pxToRem(inputWidth) }}
             />
           </div>
           <div>
             <PasswordInput
               value={password}
               onChange={handlePassword}
-              error={passwordError}
-              success={passwordSuccess}
               status={passwordStatus}
-              sx={{ width: theme.typography.pxToRem(inputWidth) }}
               tooltipTitle={t('registration_form_password_tooltip')}
+              sx={{ width: theme.typography.pxToRem(inputWidth) }}
             />
           </div>
           <div>
@@ -220,9 +269,9 @@ function RegistrationForm() {
                 justifyContent: 'space-between',
               }}
             >
-              <RadioGroup row onChange={handleIsJams} value={isJams}>
-                <FormControlLabel value="false" control={<Radio />} label={t('jami')} />
-                <FormControlLabel value="true" control={<Radio />} label={t('jams')} />
+              <RadioGroup row onChange={handleIsJams} defaultValue="jami">
+                <FormControlLabel value="jami" control={<Radio />} label={t('jami')} />
+                <FormControlLabel value="jams" control={<Radio />} label={t('jams')} />
               </RadioGroup>
             </FormControl>
           </div>

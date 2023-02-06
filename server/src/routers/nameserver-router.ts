@@ -35,7 +35,7 @@ nameserverRouter.get(
     const result = await jamid.lookupUsername(req.params.username, res.locals.accountId);
     switch (result.state) {
       case RegisteredNameFoundState.Found:
-        res.send(result);
+        res.status(HttpStatusCode.Ok).send(result);
         break;
       case RegisteredNameFoundState.InvalidResponse:
         res.status(HttpStatusCode.BadRequest).send('Invalid username');

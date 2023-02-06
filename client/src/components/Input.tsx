@@ -19,7 +19,7 @@ import GppMaybe from '@mui/icons-material/GppMaybe';
 import Warning from '@mui/icons-material/Warning';
 import { IconButtonProps, Stack, TextField, TextFieldProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { ChangeEvent, ReactElement, useCallback, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { StrengthValueCode } from '../utils/auth';
@@ -41,51 +41,37 @@ const StyledPenIconDark = styled(PenIcon)(({ theme }) => ({ height: iconsHeight,
 const StyledPersonIconLight = styled(PersonIcon)({ height: iconsHeight, color: '#03B9E9' });
 const StyledLockIcon = styled(LockIcon)({ height: iconsHeight, color: '#03B9E9' });
 
-export type NameStatus = 'default' | 'success' | 'taken' | 'invalid' | 'registration_failed';
+export type NameStatus = 'default' | 'success' | 'taken' | 'valid' | 'invalid' | 'registration_failed';
 export type PasswordStatus = StrengthValueCode | 'registration_failed';
 
 export type InputProps<StatusType extends NameStatus | PasswordStatus> = TextFieldProps & {
   status?: StatusType;
   infoButtonProps?: IconButtonProps;
-  success?: boolean;
   tooltipTitle: string;
 };
 
 export const UsernameInput = ({
   infoButtonProps,
-  onChange: _onChange,
-  success,
   status = 'default',
   tooltipTitle,
   ...props
 }: InputProps<NameStatus>) => {
   const { t } = useTranslation();
   const [isSelected, setIsSelected] = useState(false);
-  const [input, setInput] = useState(props.defaultValue);
-  const [startAdornment, setStartAdornment] = useState<ReactElement | undefined>();
   const dialogHandler = useDialogHandler();
 
-  const onChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      setInput(event.target.value);
-      _onChange?.(event);
-    },
-    [_onChange]
-  );
+  const usernameError = status === 'taken' || status === 'invalid' || status === 'registration_failed';
+  const usernameSuccess = status === 'success';
 
-  useEffect(() => {
-    /* Handle startAdornment */
-    let Icon = StyledPersonIconLight;
-    let visibility = 'visible';
-    if (props.error) {
-      Icon = StyledRoundSaltireIconError;
-    } else if (success) {
-      Icon = StyledCheckedIconSuccess;
-    } else if (!isSelected && !input) {
-      visibility = 'hidden'; // keep icon's space so text does not move
-    }
-    setStartAdornment(<Icon sx={{ visibility }} />);
-  }, [props.error, success, isSelected, input]);
+  let StartAdornmentIcon = StyledPersonIconLight;
+  let visibility = 'visible';
+  if (usernameError) {
+    StartAdornmentIcon = StyledRoundSaltireIconError;
+  } else if (usernameSuccess) {
+    StartAdornmentIcon = StyledCheckedIconSuccess;
+  } else if (!isSelected && !props.value) {
+    visibility = 'hidden'; // keep icon's space so text does not move
+  }
 
   /*
   t('username_input_helper_text_success')
@@ -99,20 +85,20 @@ export const UsernameInput = ({
     <>
       <InfosDialog {...dialogHandler.props} title={t('username_rules_dialog_title')} content={<UsernameRules />} />
       <TextField
-        color={inputColor(props.error, success)}
+        required
+        error={usernameError}
         label={t('username_input_label')}
         variant="standard"
         helperText={status !== 'default' ? helperText : ''}
-        onChange={onChange}
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}
         InputLabelProps={{
-          shrink: !!(isSelected || input),
+          shrink: !!(isSelected || props.value),
           ...props.InputLabelProps,
         }}
         InputProps={{
-          startAdornment,
+          startAdornment: <StartAdornmentIcon sx={{ visibility }} />,
           endAdornment: (
             <InfoButton
               tabIndex={-1}
@@ -130,44 +116,31 @@ export const UsernameInput = ({
 
 export const PasswordInput = ({
   infoButtonProps,
-  onChange: _onChange,
-  success,
-  tooltipTitle,
   status = 'default',
+  tooltipTitle,
   ...props
 }: InputProps<PasswordStatus>) => {
   const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
-  const [input, setInput] = useState(props.defaultValue);
-  const [startAdornment, setStartAdornment] = useState<ReactElement | undefined>();
   const dialogHandler = useDialogHandler();
+
+  const passwordError = status !== 'strong' && status !== 'default';
+  const passwordSuccess = status === 'strong';
 
   const toggleShowPassword = () => {
     setShowPassword((showPassword) => !showPassword);
   };
 
-  const onChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      setInput(event.target.value);
-      _onChange?.(event);
-    },
-    [_onChange]
-  );
-
-  useEffect(() => {
-    /* Handle startAdornment */
-    let Icon = StyledLockIcon;
-    let visibility = 'visible';
-    if (props.error) {
-      Icon = StyledRoundSaltireIconError;
-    } else if (success) {
-      Icon = StyledCheckedIconSuccess;
-    } else if (!isSelected && !input) {
-      visibility = 'hidden'; // keep icon's space so text does not move
-    }
-    setStartAdornment(<Icon sx={{ visibility }} />);
-  }, [props.error, success, isSelected, input]);
+  let StartAdornmentIcon = StyledLockIcon;
+  let StartAdornmentIconVisibility = 'visible';
+  if (passwordError) {
+    StartAdornmentIcon = StyledRoundSaltireIconError;
+  } else if (passwordSuccess) {
+    StartAdornmentIcon = StyledCheckedIconSuccess;
+  } else if (!isSelected && !props.value) {
+    StartAdornmentIconVisibility = 'hidden'; // keep icon's space so text does not move
+  }
 
   /*
   t('password_input_helper_text_too_weak')
@@ -182,19 +155,18 @@ export const PasswordInput = ({
     <>
       <InfosDialog {...dialogHandler.props} title={t('password_rules_dialog_title')} content={<PasswordRules />} />
       <TextField
-        color={inputColor(props.error, success)}
+        required
         label={t('password_input_label')}
         type={showPassword ? 'text' : 'password'}
         variant="standard"
         autoComplete="current-password"
         helperText={status !== 'default' ? helperText : ''}
-        onChange={onChange}
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}
-        InputLabelProps={{ shrink: !!(isSelected || input), ...props.InputLabelProps }}
+        InputLabelProps={{ shrink: !!(isSelected || props.value), ...props.InputLabelProps }}
         InputProps={{
-          startAdornment,
+          startAdornment: <StartAdornmentIcon sx={{ visibility: StartAdornmentIconVisibility }} />,
           endAdornment: (
             <Stack direction="row" spacing="14px" alignItems="center">
               <InfoButton tooltipTitle={tooltipTitle} {...infoButtonProps} onClick={dialogHandler.openDialog} />
@@ -208,6 +180,7 @@ export const PasswordInput = ({
   );
 };
 
+//this component is not used anywhere
 export const NickNameInput = ({ onChange: _onChange, ...props }: TextFieldProps) => {
   const [isSelected, setIsSelected] = useState(false);
   const [input, setInput] = useState(props.defaultValue);
@@ -241,6 +214,7 @@ export const NickNameInput = ({ onChange: _onChange, ...props }: TextFieldProps)
   );
 };
 
+//this component is not used anywhere
 export const RegularInput = ({ onChange: _onChange, ...props }: TextFieldProps) => {
   const [isSelected, setIsSelected] = useState(false);
   const [input, setInput] = useState(props.defaultValue);
@@ -276,12 +250,13 @@ export const RegularInput = ({ onChange: _onChange, ...props }: TextFieldProps) 
   );
 };
 
-function inputColor(
-  error?: boolean,
-  success?: boolean
-): 'success' | 'error' | 'primary' | 'secondary' | 'info' | 'warning' | undefined {
-  return error ? 'error' : success ? 'success' : 'primary';
-}
+//this was used for altering the color of input fields, but somehow it didn't work at all. Only the `error` prop of the input is taking effect
+// function inputColor(
+//   error?: boolean,
+//   success?: boolean
+// ): 'success' | 'error' | 'primary' | 'secondary' | 'info' | 'warning' | undefined {
+//   return error ? 'error' : success ? 'success' : 'primary';
+// }
 
 const PasswordRules = () => {
   const { t } = useTranslation();

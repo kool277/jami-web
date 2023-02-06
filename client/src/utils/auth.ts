@@ -17,11 +17,10 @@
  */
 import axios from 'axios';
 import { passwordStrength } from 'check-password-strength';
-import { AccessToken, HttpStatusCode } from 'jami-web-common';
+import { AccessToken } from 'jami-web-common';
 
 import { PasswordStrength } from '../enums/passwordStrength';
 import { apiUrl } from './constants';
-import { InvalidCredentials, InvalidPassword, UsernameNotFound } from './errors';
 
 interface PasswordStrengthResult {
   id: number;
@@ -40,16 +39,8 @@ export type LoginMethod = 'Jami' | 'JAMS';
 
 const idToStrengthValueCode: StrengthValueCode[] = ['too_weak', 'weak', 'medium', 'strong'];
 
-export async function isNameRegistered(name: string): Promise<boolean> {
-  try {
-    await axios.get(`/ns/username/${name}`, { baseURL: apiUrl });
-    return true;
-  } catch (e: any) {
-    if (e.response?.status !== HttpStatusCode.NotFound) {
-      throw e;
-    }
-    return false;
-  }
+export function checkIfUserameIsRegistered(username: string) {
+  return axios.get(`/ns/username/${username}`, { baseURL: apiUrl });
 }
 
 export function checkPasswordStrength(password: string): PasswordCheckResult {
@@ -61,32 +52,12 @@ export function checkPasswordStrength(password: string): PasswordCheckResult {
   };
 }
 
-export async function registerUser(username: string, password: string, isJams: boolean): Promise<void> {
-  try {
-    await axios.post('/auth/new-account', { username, password, isJams }, { baseURL: apiUrl });
-  } catch (e: any) {
-    if (e.response?.status === HttpStatusCode.Unauthorized) {
-      throw new InvalidCredentials();
-    } else {
-      throw e;
-    }
-  }
+export async function registerUser(username: string, password: string, isJams: boolean) {
+  return axios.post('/auth/new-account', { username, password, isJams }, { baseURL: apiUrl });
 }
 
-export async function loginUser(username: string, password: string, isJams: boolean): Promise<string> {
-  try {
-    const { data } = await axios.post<AccessToken>('/auth/login', { username, password, isJams }, { baseURL: apiUrl });
-    return data.accessToken;
-  } catch (e: any) {
-    switch (e.response?.status) {
-      case HttpStatusCode.NotFound:
-        throw new UsernameNotFound();
-      case HttpStatusCode.Unauthorized:
-        throw new InvalidPassword();
-      default:
-        throw e;
-    }
-  }
+export async function loginUser(username: string, password: string, isJams: boolean) {
+  return axios.post<AccessToken>('/auth/login', { username, password, isJams }, { baseURL: apiUrl });
 }
 
 export function getAccessToken(): string | undefined {

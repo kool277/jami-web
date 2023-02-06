@@ -27,6 +27,7 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { Theme, useTheme } from '@mui/material/styles';
+import { HttpStatusCode } from 'jami-web-common';
 import { ChangeEvent, FormEvent, ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Link, useNavigate } from 'react-router-dom';
@@ -37,8 +38,6 @@ import ProcessingRequest from '../components/ProcessingRequest';
 import withAuthUI from '../components/WithAuthUI';
 import { loginUser, setAccessToken } from '../utils/auth';
 import { inputWidth } from '../utils/constants';
-import { InvalidPassword, UsernameNotFound } from '../utils/errors';
-
 function LoginForm() {
   const theme: Theme = useTheme();
   const navigate = useNavigate();
@@ -47,8 +46,9 @@ function LoginForm() {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isJams, setIsJams] = useState<boolean>(false);
-  const [isLoggingInUser, setIsLoggingInUser] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [errorAlertContent, setErrorAlertContent] = useState<ReactNode>(undefined);
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'));
 
   const handleUsername = (event: ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value);
@@ -62,33 +62,49 @@ function LoginForm() {
     setIsJams(event.target.value === 'true');
   };
 
-  const authenticateUser = async (event: FormEvent) => {
+  const login = async (event: FormEvent) => {
     event.preventDefault();
-    if (username.length > 0 && password.length > 0) {
-      setIsLoggingInUser(true);
 
-      try {
-        const accessToken = await loginUser(username, password, isJams);
-        setAccessToken(accessToken);
-        navigate('/conversation', { replace: true });
-      } catch (e) {
-        setIsLoggingInUser(false);
-        if (e instanceof UsernameNotFound) {
-          setErrorAlertContent(t('login_username_not_found'));
-        } else if (e instanceof InvalidPassword) {
+    if (!(username.length > 0) || !(password.length > 0)) {
+      //TODO: set alert message
+      console.log('Empty Credentials');
+      return;
+    }
+
+    setLoading(true);
+
+    loginUser(username, password, isJams)
+      .then((response) => {
+        if (response.status === HttpStatusCode.Ok) {
+          setAccessToken(response.data.accessToken);
+          navigate('/conversation', { replace: true });
+        }
+      })
+      .catch((e) => {
+        console.log(e);
+        const { status } = e.response;
+        if (status === HttpStatusCode.BadRequest) {
+          //TODO: the only bad request response defined in the server is missing credentials. add the response message to the locale.
+          console.log(e.response.data);
+          // setErrorAlertContent(t('unknown_error_alert'));
+        } else if (status === HttpStatusCode.NotFound) {
+          //TODO: there are two different not found responses that could be returned by the server, use message to differentiate them?
+          console.log(e.response.data);
+          // setErrorAlertContent(t('login_username_not_found'));
+        } else if (status === HttpStatusCode.Unauthorized) {
           setErrorAlertContent(t('login_invalid_password'));
         } else {
           setErrorAlertContent(t('unknown_error_alert'));
         }
-      }
-    }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
-
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'));
 
   return (
     <>
-      <ProcessingRequest open={isLoggingInUser} />
+      <ProcessingRequest open={loading} />
 
       <AlertSnackbar severity={'error'} open={!!errorAlertContent} onClose={() => setErrorAlertContent(undefined)}>
         {errorAlertContent}
@@ -111,6 +127,7 @@ function LoginForm() {
         <Form method="post" id="login-form">
           <div>
             <UsernameInput
+              value={username}
               onChange={handleUsername}
               tooltipTitle={t('login_form_username_tooltip')}
               sx={{ width: theme.typography.pxToRem(inputWidth) }}
@@ -118,6 +135,7 @@ function LoginForm() {
           </div>
           <div>
             <PasswordInput
+              value={password}
               onChange={handlePassword}
               tooltipTitle={t('login_form_password_tooltip')}
               sx={{ width: theme.typography.pxToRem(inputWidth) }}
@@ -141,7 +159,7 @@ function LoginForm() {
           <Button
             variant="contained"
             type="submit"
-            onClick={authenticateUser}
+            onClick={login}
             sx={{ width: theme.typography.pxToRem(inputWidth), mt: theme.typography.pxToRem(20) }}
           >
             {t('login_form_submit_button')}

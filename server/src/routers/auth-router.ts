@@ -104,7 +104,7 @@ authRouter.post(
       return;
     }
 
-    // Check if the account is stored stored on this daemon instance
+    // Check if the account is stored on this daemon instance
     const accountId = jamid.getAccountIdFromUsername(username);
     if (accountId === undefined) {
       res.status(HttpStatusCode.NotFound).send('Username not found');
@@ -126,6 +126,6 @@ authRouter.post(
     }
 
     const jwt = await signJwt(accountId);
-    res.send({ accessToken: jwt });
+    res.status(HttpStatusCode.Ok).send({ accessToken: jwt });
   })
 );
