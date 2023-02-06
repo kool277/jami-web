@@ -28,7 +28,8 @@ import {
   CallingRefuseButton,
 } from '../components/CallButtons';
 import ConversationAvatar from '../components/ConversationAvatar';
-import { CallStatus, useCallContext } from '../contexts/CallProvider';
+import { useCallManagerContext } from '../contexts/CallManagerProvider';
+import { CallStatus } from '../contexts/CallProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
 import { useUserMediaContext } from '../contexts/UserMediaProvider';
 import { VideoElementWithSinkId } from '../utils/utils';
@@ -36,7 +37,7 @@ import { VideoElementWithSinkId } from '../utils/utils';
 export const CallPending = () => {
   const { conversationDisplayName } = useConversationContext();
   const { localStream } = useUserMediaContext();
-  const { callRole } = useCallContext();
+  const { callData } = useCallManagerContext();
   const localVideoRef = useRef<VideoElementWithSinkId | null>(null);
 
   useEffect(() => {
@@ -107,7 +108,7 @@ export const CallPending = () => {
           />
         </Box>
       </Box>
-      {callRole === 'caller' ? <CallPendingCallerInterface /> : <CallPendingReceiverInterface />}
+      {callData?.role === 'caller' ? <CallPendingCallerInterface /> : <CallPendingReceiverInterface />}
     </Stack>
   );
 };
@@ -146,7 +147,7 @@ const CallPendingDetails = ({
 };
 
 export const CallPendingCallerInterface = () => {
-  const { callStatus } = useCallContext();
+  const { callStatus } = useCallManagerContext();
   const { t } = useTranslation();
   const { members } = useConversationContext();
   const memberName = useMemo(() => members[0].getDisplayName(), [members]);
@@ -179,7 +180,7 @@ export const CallPendingCallerInterface = () => {
 
 export const CallPendingReceiverInterface = () => {
   const { state } = useLocation();
-  const { callStatus } = useCallContext();
+  const { callStatus } = useCallManagerContext();
 
   const { t } = useTranslation();
   const { members } = useConversationContext();

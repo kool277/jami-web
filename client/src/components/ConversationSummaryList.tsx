@@ -19,13 +19,13 @@ import { Box, List, Stack, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import { IConversationSummary } from 'jami-web-common';
 import { QRCodeCanvas } from 'qrcode.react';
-import { useCallback, useContext, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuthContext } from '../contexts/AuthProvider';
-import { CallManagerContext } from '../contexts/CallManagerProvider';
-import { CallStatus, useCallContext } from '../contexts/CallProvider';
+import { useCallManagerContext } from '../contexts/CallManagerProvider';
+import { CallStatus } from '../contexts/CallProvider';
 import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName';
 import { useUrlParams } from '../hooks/useUrlParams';
 import { ConversationRouteParams } from '../router';
@@ -108,8 +108,7 @@ type SecondaryTextProps = {
 
 const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) => {
   const { account } = useAuthContext();
-  const callContext = useCallContext(true);
-  const { callData } = useContext(CallManagerContext);
+  const { callData, callStatus, isAudioOn } = useCallManagerContext();
   const { t, i18n } = useTranslation();
 
   const timeIndicator = useMemo(() => {
@@ -123,7 +122,7 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
   }, [conversationSummary, i18n]);
 
   const lastMessageText = useMemo(() => {
-    if (!callContext || !callData || callData.conversationId !== conversationSummary.id) {
+    if (!callData || callData.conversationId !== conversationSummary.id) {
       const message = conversationSummary.lastMessage;
       switch (message.type) {
         case 'initial': {
@@ -149,16 +148,16 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
       }
     }
 
-    if (callContext.callStatus === CallStatus.InCall) {
-      return callContext.isAudioOn ? t('ongoing_call_unmuted') : t('ongoing_call_muted');
+    if (callStatus === CallStatus.InCall) {
+      return isAudioOn ? t('ongoing_call_unmuted') : t('ongoing_call_muted');
     }
 
-    if (callContext.callStatus === CallStatus.Connecting) {
+    if (callStatus === CallStatus.Connecting) {
       return t('connecting_call');
     }
 
-    return callContext.callRole === 'caller' ? t('outgoing_call') : t('incoming_call');
-  }, [account, conversationSummary, callContext, callData, t, i18n]);
+    return callData.role === 'caller' ? t('outgoing_call') : t('incoming_call');
+  }, [account, conversationSummary, callData, callStatus, isAudioOn, t, i18n]);
 
   return (
     <Stack direction="row" spacing="5px">
@@ -186,7 +185,7 @@ const ConversationMenu = ({
   contextMenuProps,
 }: ConversationMenuProps) => {
   const { t } = useTranslation();
-  const { startCall } = useContext(CallManagerContext);
+  const { startCall } = useCallManagerContext();
   const [isSwarm] = useState(true);
 
   const detailsDialogHandler = useDialogHandler();
@@ -206,10 +205,7 @@ const ConversationMenu = ({
         Icon: AudioCallIcon,
         onClick: () => {
           if (conversationId) {
-            startCall({
-              conversationId,
-              role: 'caller',
-            });
+            startCall(conversationId);
           }
         },
       },
@@ -218,11 +214,7 @@ const ConversationMenu = ({
         Icon: VideoCallIcon,
         onClick: () => {
           if (conversationId) {
-            startCall({
-              conversationId,
-              role: 'caller',
-              withVideoOn: true,
-            });
+            startCall(conversationId, true);
           }
         },
       },

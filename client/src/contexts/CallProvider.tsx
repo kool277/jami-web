@@ -15,21 +15,27 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { CallAction, CallBegin, WebSocketMessageType } from 'jami-web-common';
+import { ConversationInfos, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { createOptionalContext } from '../hooks/createOptionalContext';
 import { ConversationMember } from '../models/conversation-member';
+import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries';
 import { callTimeoutMs } from '../utils/constants';
-import { AsyncSetState, SetState, WithChildren } from '../utils/utils';
+import { AsyncSetState, SetState } from '../utils/utils';
 import { useWebRtcManager } from '../webrtc/WebRtcManager';
+import { AlertSnackbarContext } from './AlertSnackbarProvider';
 import { useAuthContext } from './AuthProvider';
-import { CallData, CallManagerContext } from './CallManagerProvider';
-import ConditionalContextProvider from './ConditionalContextProvider';
 import { useUserMediaContext } from './UserMediaProvider';
-import { IWebSocketContext, useWebSocketContext } from './WebSocketProvider';
+import { useWebSocketContext } from './WebSocketProvider';
 
-export type CallRole = 'caller' | 'receiver';
+export type CallRole = 'caller' | 'receiver' | undefined;
+
+export type CallData = {
+  conversationId: string;
+  role: CallRole;
+  withVideoOn?: boolean;
+};
 
 export enum CallStatus {
   Default,
@@ -46,7 +52,11 @@ export enum VideoStatus {
   ScreenShare,
 }
 
-export interface ICallContext {
+export interface ICallManager {
+  callData: CallData | undefined;
+  callConversationInfos: ConversationInfos | undefined;
+  callMembers: ConversationMember[] | undefined;
+
   remoteStreams: readonly MediaStream[];
 
   isAudioOn: boolean;
@@ -57,57 +67,22 @@ export interface ICallContext {
   setIsChatShown: SetState<boolean>;
   isFullscreen: boolean;
   setIsFullscreen: SetState<boolean>;
-  callRole: CallRole;
   callStatus: CallStatus;
   callStartTime: number | undefined;
 
+  startCall: (conversationId: string, withVideoOn?: boolean) => void;
   acceptCall: (withVideoOn: boolean) => void;
   endCall: () => void;
 }
 
-const optionalCallContext = createOptionalContext<ICallContext>('CallContext');
-export const useCallContext = optionalCallContext.useOptionalContext;
-
-export default ({ children }: WithChildren) => {
+export const useCallManager = () => {
+  const { setAlertContent } = useContext(AlertSnackbarContext);
+  const [callData, setCallData] = useState<CallData>();
   const webSocket = useWebSocketContext();
-  const { callMembers, callData, exitCall } = useContext(CallManagerContext);
+  const navigate = useNavigate();
+  const { data: callConversationInfos } = useConversationInfosQuery(callData?.conversationId);
+  const { data: callMembers } = useMembersQuery(callData?.conversationId);
 
-  const dependencies = useMemo(
-    () => ({
-      webSocket,
-      callMembers,
-      callData,
-      exitCall,
-      conversationId: callData?.conversationId,
-    }),
-    [webSocket, callMembers, callData, exitCall]
-  );
-
-  return (
-    <ConditionalContextProvider
-      Context={optionalCallContext.Context}
-      initialValue={undefined}
-      dependencies={dependencies}
-      useProviderValue={CallProvider}
-    >
-      {children}
-    </ConditionalContextProvider>
-  );
-};
-
-const CallProvider = ({
-  callMembers,
-  callData,
-  exitCall,
-  conversationId,
-  webSocket,
-}: {
-  webSocket: IWebSocketContext;
-  callMembers: ConversationMember[];
-  callData: CallData;
-  exitCall: () => void;
-  conversationId: string;
-}): ICallContext => {
   const {
     localStream,
     updateLocalStream,
@@ -120,28 +95,43 @@ const CallProvider = ({
   const { account } = useAuthContext();
   const webRtcManager = useWebRtcManager();
 
-  // TODO: This logic will have to change to support multiple people in a call. Could we move this logic to the server?
-  //       The client could make a single request with the conversationId, and the server would be tasked with sending
-  //       all the individual requests to the members of the conversation.
-  const contactUri = callMembers[0]?.contact.uri;
-  const connectionInfos = webRtcManager.connectionsInfos[contactUri];
-  const remoteStreams = connectionInfos?.remoteStreams;
-  const iceConnectionState = connectionInfos?.iceConnectionState;
-
   const [isAudioOn, setIsAudioOn] = useState(false);
   const [videoStatus, setVideoStatus] = useState(VideoStatus.Off);
   const [isChatShown, setIsChatShown] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [callStatus, setCallStatus] = useState(CallStatus.Default);
-  const [callRole] = useState(callData?.role);
   const [callStartTime, setCallStartTime] = useState<number | undefined>(undefined);
 
-  // TODO: Replace this by a callback
   useEffect(() => {
-    if (callData.role === 'receiver' && contactUri && localStream) {
-      webRtcManager.addConnection(webSocket, account, contactUri, callData, localStream, screenShareLocalStream);
-    }
-  }, [account, callData, contactUri, localStream, screenShareLocalStream, webRtcManager, webSocket]);
+    const callInviteListener = ({ conversationId, withVideoOn }: WebSocketMessageTable['onCallInvite']) => {
+      if (callData) {
+        // TODO: Currently, we display a notification if already in a call.
+        //       In the future, we should handle receiving a call while already in another.
+        setAlertContent({
+          messageI18nKey: 'missed_incoming_call',
+          messageI18nContext: { conversationId },
+          severity: 'info',
+          alertOpen: true,
+        });
+        return;
+      }
+
+      setCallData({ conversationId: conversationId, role: 'receiver', withVideoOn });
+      navigate(`/conversation/${conversationId}`);
+    };
+
+    webSocket.bind(WebSocketMessageType.onCallInvite, callInviteListener);
+
+    return () => {
+      webSocket.unbind(WebSocketMessageType.onCallInvite, callInviteListener);
+    };
+  }, [webSocket, navigate, callData, setAlertContent]);
+
+  const conversationId = callData?.conversationId;
+  const contactUri = callMembers?.[0]?.contact.uri;
+  const connectionInfos = contactUri ? webRtcManager.connectionsInfos[contactUri] : undefined;
+  const remoteStreams = useMemo(() => connectionInfos?.remoteStreams || [], [connectionInfos]);
+  const iceConnectionState = connectionInfos?.iceConnectionState;
 
   // TODO: Transform the effect into a callback
   const updateLocalStreams = webRtcManager.updateLocalStreams;
@@ -152,12 +142,6 @@ const CallProvider = ({
 
     updateLocalStreams(localStream, screenShareLocalStream);
   }, [localStream, screenShareLocalStream, updateLocalStreams]);
-
-  const sendWebRtcOffer = useCallback(async () => {
-    if (contactUri) {
-      webRtcManager.addConnection(webSocket, account, contactUri, callData, localStream, screenShareLocalStream);
-    }
-  }, [account, callData, contactUri, localStream, screenShareLocalStream, webRtcManager, webSocket]);
 
   const closeConnection = useCallback(() => {
     stopMedias();
@@ -223,57 +207,82 @@ const CallProvider = ({
     };
   }, []);
 
-  useEffect(() => {
-    if (callRole === 'caller' && callStatus === CallStatus.Default) {
-      const withVideoOn = callData?.withVideoOn ?? false;
-      setCallStatus(CallStatus.Loading);
-      updateLocalStream()
-        .then(() => {
-          const callBegin: CallBegin = {
-            contactId: contactUri,
-            conversationId,
-            withVideoOn,
-          };
+  const startCall = useCallback(
+    (conversationId: string, withVideoOn = false) => {
+      setCallData({ conversationId, withVideoOn, role: 'caller' });
+      if (callStatus === CallStatus.Default) {
+        setCallStatus(CallStatus.Loading);
+        updateLocalStream()
+          .then(() => {
+            const callInvite: WebSocketMessageTable['sendCallInvite'] = {
+              conversationId: conversationId,
+              withVideoOn,
+            };
 
-          setCallStatus(CallStatus.Ringing);
-          setVideoStatus(withVideoOn ? VideoStatus.Camera : VideoStatus.Off);
-          console.info('Sending CallBegin', callBegin);
-          webSocket.send(WebSocketMessageType.CallBegin, callBegin);
-        })
-        .catch((e) => {
-          console.error(e);
-          setCallStatus(CallStatus.PermissionsDenied);
-        });
-    }
-  }, [webSocket, updateLocalStream, callRole, callStatus, contactUri, conversationId, callData]);
+            setCallStatus(CallStatus.Ringing);
+            setVideoStatus(withVideoOn ? VideoStatus.Camera : VideoStatus.Off);
+            webSocket.send(WebSocketMessageType.sendCallInvite, callInvite);
+          })
+          .catch((e) => {
+            console.error(e);
+            setCallStatus(CallStatus.PermissionsDenied);
+          });
+      }
+    },
+    [webSocket, updateLocalStream, callStatus]
+  );
 
   const acceptCall = useCallback(
     (withVideoOn: boolean) => {
+      if (!callMembers || !conversationId) {
+        console.warn('acceptCall without callMembers or conversationId');
+        return;
+      }
       setCallStatus(CallStatus.Loading);
       updateLocalStream()
         .then(() => {
-          const callAccept: CallAction = {
-            contactId: contactUri,
+          const callAccept: WebSocketMessageTable['sendCallJoin'] = {
             conversationId,
           };
 
           setVideoStatus(withVideoOn ? VideoStatus.Camera : VideoStatus.Off);
           setCallStatus(CallStatus.Connecting);
-          console.info('Sending CallAccept', callAccept);
-          webSocket.send(WebSocketMessageType.CallAccept, callAccept);
+          console.info('Sending CallJoin', callAccept);
+          webSocket.send(WebSocketMessageType.sendCallJoin, callAccept);
+          // TODO: move this to "onWebRtcOffer" listener so we don't add connections for non-connected members
+          callMembers.forEach((member) =>
+            webRtcManager.addConnection(
+              webSocket,
+              account,
+              member.contact.uri,
+              callData,
+              localStream,
+              screenShareLocalStream
+            )
+          );
         })
         .catch((e) => {
           console.error(e);
           setCallStatus(CallStatus.PermissionsDenied);
         });
     },
-    [webSocket, updateLocalStream, contactUri, conversationId]
+    [
+      account,
+      callData,
+      conversationId,
+      localStream,
+      callMembers,
+      screenShareLocalStream,
+      updateLocalStream,
+      webRtcManager,
+      webSocket,
+    ]
   );
 
   useEffect(() => {
-    if (callRole === 'caller' && callStatus === CallStatus.Ringing) {
-      const callAcceptListener = (data: CallAction) => {
-        console.info('Received event on CallAccept', data);
+    if (callData?.role === 'caller' && callStatus === CallStatus.Ringing) {
+      const callJoinListener = (data: WebSocketMessageTable['onCallJoin']) => {
+        console.info('Received event on CallJoin', data, callData);
         if (data.conversationId !== conversationId) {
           console.warn('Wrong incoming conversationId, ignoring action');
           return;
@@ -281,48 +290,51 @@ const CallProvider = ({
 
         setCallStatus(CallStatus.Connecting);
 
-        sendWebRtcOffer();
+        webRtcManager.addConnection(webSocket, account, data.senderId, callData, localStream, screenShareLocalStream);
       };
 
-      webSocket.bind(WebSocketMessageType.CallAccept, callAcceptListener);
+      webSocket.bind(WebSocketMessageType.onCallJoin, callJoinListener);
 
       return () => {
-        webSocket.unbind(WebSocketMessageType.CallAccept, callAcceptListener);
+        webSocket.unbind(WebSocketMessageType.onCallJoin, callJoinListener);
       };
     }
-  }, [callRole, webSocket, sendWebRtcOffer, callStatus, conversationId]);
+  }, [account, callData, callStatus, conversationId, localStream, screenShareLocalStream, webRtcManager, webSocket]);
 
   const endCall = useCallback(() => {
-    const callEnd: CallAction = {
-      contactId: contactUri,
+    if (!conversationId) {
+      return;
+    }
+
+    const callExit: WebSocketMessageTable['sendCallExit'] = {
       conversationId,
     };
 
-    console.info('Sending CallEnd', callEnd);
+    console.info('Sending CallExit', callExit);
     closeConnection();
-    webSocket.send(WebSocketMessageType.CallEnd, callEnd);
-    exitCall();
+    webSocket.send(WebSocketMessageType.sendCallExit, callExit);
+    setCallData(undefined);
+    setCallStatus(CallStatus.Default);
     // TODO: write in chat that the call ended
-  }, [webSocket, contactUri, conversationId, closeConnection, exitCall]);
+  }, [webSocket, conversationId, closeConnection]);
 
   useEffect(() => {
-    const callEndListener = (data: CallAction) => {
-      console.info('Received event on CallEnd', data);
+    const callExitListener = (data: WebSocketMessageTable['onCallExit']) => {
+      console.info('Received event on CallExit', data);
       if (data.conversationId !== conversationId) {
         console.warn('Wrong incoming conversationId, ignoring action');
         return;
       }
 
-      closeConnection();
-      exitCall();
+      endCall();
       // TODO: write in chat that the call ended
     };
 
-    webSocket.bind(WebSocketMessageType.CallEnd, callEndListener);
+    webSocket.bind(WebSocketMessageType.onCallExit, callExitListener);
     return () => {
-      webSocket.unbind(WebSocketMessageType.CallEnd, callEndListener);
+      webSocket.unbind(WebSocketMessageType.onCallExit, callExitListener);
     };
-  }, [webSocket, exitCall, conversationId, closeConnection]);
+  }, [webSocket, endCall, conversationId]);
 
   useEffect(() => {
     if (
@@ -357,6 +369,9 @@ const CallProvider = ({
 
   return useMemo(
     () => ({
+      callData,
+      callConversationInfos,
+      callMembers,
       remoteStreams,
       isAudioOn,
       setIsAudioOn,
@@ -366,13 +381,16 @@ const CallProvider = ({
       setIsChatShown,
       isFullscreen,
       setIsFullscreen,
-      callRole,
       callStatus,
       callStartTime,
+      startCall,
       acceptCall,
       endCall,
     }),
     [
+      callData,
+      callConversationInfos,
+      callMembers,
       remoteStreams,
       isAudioOn,
       videoStatus,
@@ -382,9 +400,9 @@ const CallProvider = ({
       setIsChatShown,
       isFullscreen,
       setIsFullscreen,
-      callRole,
       callStatus,
       callStartTime,
+      startCall,
       acceptCall,
       endCall,
     ]

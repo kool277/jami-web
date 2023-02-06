@@ -20,7 +20,7 @@ import { useRef, useState } from 'react';
 import Draggable, { DraggableEventHandler } from 'react-draggable';
 import { useNavigate } from 'react-router-dom';
 
-import { useCallContext } from '../contexts/CallProvider';
+import { useCallManagerContext } from '../contexts/CallManagerProvider';
 import { useUserMediaContext } from '../contexts/UserMediaProvider';
 import { VideoElementWithSinkId } from '../utils/utils';
 import VideoStream, { VideoStreamProps } from './VideoStream';
@@ -75,7 +75,7 @@ const VideoOverlay = ({ onClick, size = 'medium', ...props }: VideoOverlayProps)
 };
 
 export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId: string }) => {
-  const { remoteStreams } = useCallContext();
+  const { remoteStreams } = useCallManagerContext();
   const {
     currentMediaDeviceIds: {
       audiooutput: { id: audioOutDeviceId },

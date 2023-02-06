@@ -16,10 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Divider, Stack, Typography } from '@mui/material';
-import { useContext } from 'react';
 
-import { CallManagerContext } from '../contexts/CallManagerProvider';
-import { useCallContext } from '../contexts/CallProvider';
+import { useCallManagerContext } from '../contexts/CallManagerProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
 import CallInterface from '../pages/CallInterface';
 import ChatInterface from '../pages/ChatInterface';
@@ -27,10 +25,9 @@ import { AddParticipantButton, ShowOptionsMenuButton, StartAudioCallButton, Star
 
 const ConversationView = () => {
   const { conversationId } = useConversationContext();
-  const callContext = useCallContext(true);
-  const { callData } = useContext(CallManagerContext);
+  const { callData } = useCallManagerContext();
 
-  if (callContext && callData?.conversationId === conversationId) {
+  if (callData?.conversationId === conversationId) {
     return <CallInterface />;
   }
 
@@ -49,7 +46,7 @@ const ConversationView = () => {
 
 const ConversationHeader = () => {
   const { conversationId, conversationDisplayName } = useConversationContext();
-  const { startCall } = useContext(CallManagerContext);
+  const { startCall } = useCallManagerContext();
 
   return (
     <Stack direction="row" padding="16px" overflow="hidden">
@@ -59,8 +56,8 @@ const ConversationHeader = () => {
         </Typography>
       </Stack>
       <Stack direction="row" spacing="20px">
-        <StartAudioCallButton onClick={() => startCall({ conversationId, role: 'caller' })} />
-        <StartVideoCallButton onClick={() => startCall({ conversationId, role: 'caller', withVideoOn: true })} />
+        <StartAudioCallButton onClick={() => startCall(conversationId)} />
+        <StartVideoCallButton onClick={() => startCall(conversationId, true)} />
         <AddParticipantButton />
         <ShowOptionsMenuButton />
       </Stack>

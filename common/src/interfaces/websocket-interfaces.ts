@@ -18,7 +18,7 @@
 import { Message } from './conversation.js';
 
 export interface ContactMessage {
-  contactId: string;
+  senderContactId: string;
 }
 
 export interface ConversationMessage {
@@ -36,12 +36,27 @@ export interface ComposingStatus {
   isWriting: boolean;
 }
 
-export interface CallAction extends ContactMessage {
+export interface WithSender {
+  senderId: string;
+}
+
+export interface WithReceiver {
+  receiverId: string;
+}
+
+export interface CallAction {
   conversationId: string;
 }
 
-export interface CallBegin extends CallAction {
+export interface CallInvite extends CallAction {
   withVideoOn: boolean;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface CallJoin extends CallAction {}
+
+export interface CallExit {
+  conversationId: string;
 }
 
 export interface WebRtcSdp extends CallAction {

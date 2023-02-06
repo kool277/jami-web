@@ -20,7 +20,8 @@ import { IconButtonProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { ChangeEvent, useMemo } from 'react';
 
-import { CallStatus, useCallContext, VideoStatus } from '../contexts/CallProvider';
+import { useCallManagerContext } from '../contexts/CallManagerProvider';
+import { CallStatus, VideoStatus } from '../contexts/CallProvider';
 import { useUserMediaContext } from '../contexts/UserMediaProvider';
 import {
   ColoredRoundButton,
@@ -58,7 +59,7 @@ const CallButton = styled((props: ExpandableButtonProps) => {
 });
 
 export const CallingChatButton = (props: ExpandableButtonProps) => {
-  const { setIsChatShown } = useCallContext();
+  const { setIsChatShown } = useCallManagerContext();
   return (
     <CallButton
       aria-label="chat"
@@ -72,7 +73,7 @@ export const CallingChatButton = (props: ExpandableButtonProps) => {
 };
 
 export const CallingEndButton = (props: ExpandableButtonProps) => {
-  const { endCall } = useCallContext();
+  const { endCall } = useCallManagerContext();
   return (
     <ColoredRoundButton
       paletteColor={(theme) => theme.palette.error}
@@ -91,7 +92,7 @@ export const CallingExtensionButton = (props: ExpandableButtonProps) => {
 };
 
 export const CallingFullScreenButton = (props: ExpandableButtonProps) => {
-  const { setIsFullscreen } = useCallContext();
+  const { setIsFullscreen } = useCallManagerContext();
   return (
     <CallButton
       aria-label="full screen"
@@ -123,7 +124,7 @@ export const CallingScreenShareButton = (props: ExpandableButtonProps) => {
 };
 
 const ToggleScreenShareIconButton = (props: IconButtonProps) => {
-  const { videoStatus, updateVideoStatus } = useCallContext();
+  const { videoStatus, updateVideoStatus } = useCallManagerContext();
 
   return (
     <ToggleIconButton
@@ -194,7 +195,7 @@ export const CallingMicButton = (props: ExpandableButtonProps) => {
 };
 
 const ToggleAudioCameraIconButton = (props: IconButtonProps) => {
-  const { isAudioOn, setIsAudioOn } = useCallContext();
+  const { isAudioOn, setIsAudioOn } = useCallManagerContext();
   return (
     <ToggleIconButton
       IconOn={MicroIcon}
@@ -220,7 +221,7 @@ export const CallingVideoCameraButton = (props: ExpandableButtonProps) => {
 };
 
 const ToggleVideoCameraIconButton = (props: IconButtonProps) => {
-  const { videoStatus, updateVideoStatus } = useCallContext();
+  const { videoStatus, updateVideoStatus } = useCallManagerContext();
   return (
     <ToggleIconButton
       IconOn={VideoCameraIcon}
@@ -236,7 +237,7 @@ const ToggleVideoCameraIconButton = (props: IconButtonProps) => {
 
 // Calling pending/receiving interface
 export const CallingCancelButton = (props: IconButtonProps) => {
-  const { endCall } = useCallContext();
+  const { endCall } = useCallManagerContext();
 
   return (
     <ColoredRoundButton
@@ -252,7 +253,7 @@ export const CallingCancelButton = (props: IconButtonProps) => {
 };
 
 export const CallingAnswerAudioButton = (props: IconButtonProps) => {
-  const { acceptCall, callStatus } = useCallContext();
+  const { acceptCall, callStatus } = useCallManagerContext();
 
   return (
     <ColoredRoundButton
@@ -269,7 +270,7 @@ export const CallingAnswerAudioButton = (props: IconButtonProps) => {
 };
 
 export const CallingAnswerVideoButton = (props: IconButtonProps) => {
-  const { acceptCall, callStatus } = useCallContext();
+  const { acceptCall, callStatus } = useCallManagerContext();
   return (
     <ColoredRoundButton
       disabled={callStatus === CallStatus.Connecting || callStatus === CallStatus.Loading}
@@ -285,7 +286,7 @@ export const CallingAnswerVideoButton = (props: IconButtonProps) => {
 };
 
 export const CallingRefuseButton = (props: IconButtonProps) => {
-  const { endCall } = useCallContext();
+  const { endCall } = useCallManagerContext();
   return (
     <ColoredRoundButton
       aria-label="refuse call"

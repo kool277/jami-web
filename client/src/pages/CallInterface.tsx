@@ -48,7 +48,8 @@ import {
 import CallChatDrawer from '../components/CallChatDrawer';
 import VideoOverlay from '../components/VideoOverlay';
 import VideoStream from '../components/VideoStream';
-import { CallStatus, useCallContext, VideoStatus } from '../contexts/CallProvider';
+import { useCallManagerContext } from '../contexts/CallManagerProvider';
+import { CallStatus, VideoStatus } from '../contexts/CallProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
 import { useUserMediaContext } from '../contexts/UserMediaProvider';
 import { formatCallDuration } from '../utils/dates&times';
@@ -57,7 +58,7 @@ import { CallPending } from './CallPending';
 import CallPermissionDenied from './CallPermissionDenied';
 
 export default () => {
-  const { callStatus, isChatShown, isFullscreen } = useCallContext();
+  const { callStatus, isChatShown, isFullscreen } = useCallManagerContext();
   const callInterfaceRef = useRef<HTMLDivElement>();
 
   useEffect(() => {
@@ -99,7 +100,7 @@ const CallInterface = () => {
       audiooutput: { id: audioOutDeviceId },
     },
   } = useUserMediaContext();
-  const { remoteStreams, videoStatus } = useCallContext();
+  const { remoteStreams, videoStatus } = useCallManagerContext();
   const remoteVideoRef = useRef<VideoElementWithSinkId | null>(null);
   const gridItemRef = useRef<HTMLDivElement | null>(null);
   const [isLocalVideoZoomed, setIsLocalVideoZoomed] = useState(false);
@@ -156,7 +157,7 @@ const CallInterface = () => {
 };
 
 const CallInterfaceInformation = () => {
-  const { callStartTime } = useCallContext();
+  const { callStartTime } = useCallManagerContext();
   const { conversationDisplayName } = useConversationContext();
   const [elapsedTime, setElapsedTime] = useState<Duration>(
     dayjs.duration(callStartTime ? Date.now() - callStartTime : 0)

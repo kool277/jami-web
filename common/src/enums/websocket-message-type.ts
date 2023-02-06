@@ -20,10 +20,18 @@ export enum WebSocketMessageType {
   ConversationRequest = 'conversation-request',
   ConversationView = 'conversation-view',
   ComposingStatus = 'composing-status',
-  CallBegin = 'call-begin',
-  CallAccept = 'call-accept',
-  CallEnd = 'call-end',
-  WebRtcOffer = 'webrtc-offer',
-  WebRtcAnswer = 'webrtc-answer',
-  WebRtcIceCandidate = 'webrtc-ice-candidate',
+
+  // calls (in the order they should be sent)
+  sendCallInvite = 'sendCallInvite',
+  onCallInvite = 'onCallInvite',
+  sendCallExit = 'sendCallExit', // can be sent anytime after invite
+  onCallExit = 'onCallExit',
+  sendCallJoin = 'sendCallJoin',
+  onCallJoin = 'onCallJoin',
+  sendWebRtcOffer = 'sendWebRtcOffer',
+  onWebRtcOffer = 'onWebRtcOffer',
+  sendWebRtcAnswer = 'sendWebRtcAnswer',
+  onWebRtcAnswer = 'onWebRtcAnswer',
+  sendWebRtcIceCandidate = 'sendWebRtcIceCandidate',
+  onWebRtcIceCandidate = 'onWebRtcIceCandidate',
 }

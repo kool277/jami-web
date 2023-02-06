@@ -16,9 +16,9 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { WebRtcIceCandidate, WebRtcSdp, WebSocketMessageType } from 'jami-web-common';
+import { WebRtcIceCandidate, WebRtcSdp, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common';
 
-import { CallData } from '../contexts/CallManagerProvider';
+import { CallData } from '../contexts/CallProvider';
 import { IWebSocketContext } from '../contexts/WebSocketProvider';
 import { Account } from '../models/account';
 import { Listener } from '../utils/utils';
@@ -65,6 +65,7 @@ export class RTCPeerConnectionHandler {
     screenShareLocalStream: MediaStream | undefined,
     listener: Listener
   ) {
+    console.log('constructor', callData);
     this.listener = listener;
     const iceServers = this.getIceServers(account);
     this.connection = new RTCPeerConnection({ iceServers });
@@ -159,15 +160,15 @@ export class RTCPeerConnectionHandler {
       offerToReceiveVideo: true,
     });
 
-    const webRtcOffer: WebRtcSdp = {
-      contactId: contactUri,
+    const webRtcOffer: WebSocketMessageTable['sendWebRtcOffer'] = {
+      receiverId: contactUri,
       conversationId: conversationId,
       sdp,
     };
 
     await this.connection.setLocalDescription(new RTCSessionDescription(sdp));
     console.info('Sending WebRtcOffer', webRtcOffer);
-    webSocket.send(WebSocketMessageType.WebRtcOffer, webRtcOffer);
+    webSocket.send(WebSocketMessageType.sendWebRtcOffer, webRtcOffer);
   }
 
   private setWebSocketListeners(webSocket: IWebSocketContext, conversationId: string, contactUri: string) {
@@ -177,15 +178,15 @@ export class RTCPeerConnectionHandler {
         offerToReceiveVideo: true,
       });
 
-      const webRtcAnswer: WebRtcSdp = {
-        contactId: contactUri,
+      const webRtcAnswer: WebSocketMessageTable['sendWebRtcAnswer'] = {
+        receiverId: contactUri,
         conversationId: conversationId,
         sdp,
       };
 
       await this.connection.setLocalDescription(new RTCSessionDescription(sdp));
       console.info('Sending WebRtcAnswer', webRtcAnswer);
-      webSocket.send(WebSocketMessageType.WebRtcAnswer, webRtcAnswer);
+      webSocket.send(WebSocketMessageType.sendWebRtcAnswer, webRtcAnswer);
     };
 
     const addQueuedIceCandidates = async () => {
@@ -243,28 +244,28 @@ export class RTCPeerConnectionHandler {
       }
     };
 
-    webSocket.bind(WebSocketMessageType.WebRtcOffer, webRtcOfferListener);
-    webSocket.bind(WebSocketMessageType.WebRtcAnswer, webRtcAnswerListener);
-    webSocket.bind(WebSocketMessageType.WebRtcIceCandidate, webRtcIceCandidateListener);
+    webSocket.bind(WebSocketMessageType.onWebRtcOffer, webRtcOfferListener);
+    webSocket.bind(WebSocketMessageType.onWebRtcAnswer, webRtcAnswerListener);
+    webSocket.bind(WebSocketMessageType.onWebRtcIceCandidate, webRtcIceCandidateListener);
 
     this.cleaningFunctions.push(() => {
-      webSocket.unbind(WebSocketMessageType.WebRtcOffer, webRtcOfferListener);
-      webSocket.unbind(WebSocketMessageType.WebRtcAnswer, webRtcAnswerListener);
-      webSocket.unbind(WebSocketMessageType.WebRtcIceCandidate, webRtcIceCandidateListener);
+      webSocket.unbind(WebSocketMessageType.onWebRtcOffer, webRtcOfferListener);
+      webSocket.unbind(WebSocketMessageType.onWebRtcAnswer, webRtcAnswerListener);
+      webSocket.unbind(WebSocketMessageType.onWebRtcIceCandidate, webRtcIceCandidateListener);
     });
   }
 
   private setConnectionListeners(webSocket: IWebSocketContext, conversationId: string, contactUri: string) {
     this.connection.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
       if (event.candidate) {
-        const webRtcIceCandidate: WebRtcIceCandidate = {
-          contactId: contactUri,
+        const webRtcIceCandidate: WebSocketMessageTable['sendWebRtcIceCandidate'] = {
+          receiverId: contactUri,
           conversationId: conversationId,
           candidate: event.candidate,
         };
 
         // Send ice candidates as soon as they're found. This is called "trickle ice"
-        webSocket.send(WebSocketMessageType.WebRtcIceCandidate, webRtcIceCandidate);
+        webSocket.send(WebSocketMessageType.sendWebRtcIceCandidate, webRtcIceCandidate);
       }
     };
 

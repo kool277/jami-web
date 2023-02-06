@@ -15,38 +15,69 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ContactMessage, WebSocketMessageType } from 'jami-web-common';
-import log from 'loglevel';
+import { WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common';
 import { Container } from 'typedi';
 
 import { Jamid } from '../jamid/jamid.js';
 import { WebSocketServer } from './websocket-server.js';
 
-const webRtcWebSocketMessageTypes = [
-  WebSocketMessageType.CallBegin,
-  WebSocketMessageType.CallAccept,
-  WebSocketMessageType.CallEnd,
-  WebSocketMessageType.WebRtcOffer,
-  WebSocketMessageType.WebRtcAnswer,
-  WebSocketMessageType.WebRtcIceCandidate,
-] as const;
-
 const jamid = Container.get(Jamid);
 const webSocketServer = Container.get(WebSocketServer);
 
 export function bindWebRtcCallbacks() {
-  for (const messageType of webRtcWebSocketMessageTypes) {
-    webSocketServer.bind(messageType, (accountId, data) => {
-      sendWebRtcData(messageType, accountId, data);
+  webSocketServer.bind(WebSocketMessageType.sendCallInvite, (accountId, data) => {
+    const members = jamid.getConversationMembers(accountId, data.conversationId);
+    members.forEach((member) => {
+      sendWebRtcData(WebSocketMessageType.onCallInvite, data, accountId, member.uri);
     });
-  }
+  });
+
+  webSocketServer.bind(WebSocketMessageType.sendCallExit, (accountId, data) => {
+    const members = jamid.getConversationMembers(accountId, data.conversationId);
+    members.forEach((member) => {
+      sendWebRtcData(WebSocketMessageType.onCallExit, data, accountId, member.uri);
+    });
+  });
+
+  webSocketServer.bind(WebSocketMessageType.sendCallJoin, (accountId, data) => {
+    const members = jamid.getConversationMembers(accountId, data.conversationId);
+    members.forEach((member) => {
+      sendWebRtcData(WebSocketMessageType.onCallJoin, data, accountId, member.uri);
+    });
+  });
+
+  webSocketServer.bind(WebSocketMessageType.sendWebRtcOffer, (accountId, data) => {
+    const { receiverId, ...partialData } = data;
+    sendWebRtcData(WebSocketMessageType.onWebRtcOffer, partialData, accountId, receiverId);
+  });
+
+  webSocketServer.bind(WebSocketMessageType.sendWebRtcAnswer, (accountId, data) => {
+    const { receiverId, ...partialData } = data;
+    sendWebRtcData(WebSocketMessageType.onWebRtcAnswer, partialData, accountId, receiverId);
+  });
+
+  webSocketServer.bind(WebSocketMessageType.sendWebRtcIceCandidate, (accountId, data) => {
+    const { receiverId, ...partialData } = data;
+    sendWebRtcData(WebSocketMessageType.onWebRtcIceCandidate, partialData, accountId, receiverId);
+  });
 }
 
-function sendWebRtcData(type: WebSocketMessageType, accountId: string, data: Partial<ContactMessage>) {
-  if (data.contactId === undefined) {
-    log.warn('Message is not a valid ContactMessage (missing contactId field)');
+function sendWebRtcData<T extends WebSocketMessageType>(
+  type: T,
+  // TODO: Guarantee WebSocketMessageTable[T] has WithSender Properties
+  partialData: Omit<WebSocketMessageTable[T], 'senderId'>,
+  accountId: string,
+  receiverId: string
+) {
+  const account = jamid.getAccountDetails(accountId);
+  const senderId = account['Account.username'];
+  if (senderId === receiverId) {
     return;
   }
-
-  jamid.sendAccountTextMessage(accountId, data.contactId, JSON.stringify({ type, data }));
+  // TODO: Guarantee newData is of WebSocketMessageTable[T] type
+  const data = {
+    ...partialData,
+    senderId,
+  };
+  jamid.sendAccountTextMessage(accountId, receiverId, JSON.stringify({ type, data }));
 }

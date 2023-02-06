@@ -17,7 +17,7 @@
  */
 import { Divider, Stack, Typography } from '@mui/material';
 
-import { useCallContext } from '../contexts/CallProvider';
+import { useCallManagerContext } from '../contexts/CallManagerProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
 import ChatInterface from '../pages/ChatInterface';
 import { CloseButton } from './Button';
@@ -43,7 +43,7 @@ export default () => {
 };
 
 const CallChatDrawerHeader = () => {
-  const { setIsChatShown } = useCallContext();
+  const { setIsChatShown } = useCallManagerContext();
   const { conversationDisplayName } = useConversationContext();
 
   return (

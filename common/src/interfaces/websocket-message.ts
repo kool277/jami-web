@@ -18,26 +18,37 @@
 import { WebSocketMessageType } from '../enums/websocket-message-type.js';
 import { IConversationRequest } from './conversation.js';
 import {
-  CallAction,
-  CallBegin,
+  CallExit,
+  CallInvite,
+  CallJoin,
   ComposingStatus,
   ConversationMessage,
   ConversationView,
   WebRtcIceCandidate,
   WebRtcSdp,
+  WithReceiver,
+  WithSender,
 } from './websocket-interfaces.js';
 
 export interface WebSocketMessageTable {
-  [WebSocketMessageType.CallAccept]: CallAction;
-  [WebSocketMessageType.CallBegin]: CallBegin;
-  [WebSocketMessageType.CallEnd]: CallAction;
   [WebSocketMessageType.ComposingStatus]: ComposingStatus;
   [WebSocketMessageType.ConversationMessage]: ConversationMessage;
   [WebSocketMessageType.ConversationRequest]: IConversationRequest;
   [WebSocketMessageType.ConversationView]: ConversationView;
-  [WebSocketMessageType.WebRtcOffer]: WebRtcSdp;
-  [WebSocketMessageType.WebRtcAnswer]: WebRtcSdp;
-  [WebSocketMessageType.WebRtcIceCandidate]: WebRtcIceCandidate;
+
+  // calls (in the order they should be sent)
+  [WebSocketMessageType.sendCallInvite]: CallInvite;
+  [WebSocketMessageType.onCallInvite]: CallInvite & WithSender;
+  [WebSocketMessageType.sendCallExit]: CallExit; // can be sent any time after invite
+  [WebSocketMessageType.onCallExit]: CallExit & WithSender;
+  [WebSocketMessageType.sendCallJoin]: CallJoin;
+  [WebSocketMessageType.onCallJoin]: CallJoin & WithSender;
+  [WebSocketMessageType.sendWebRtcOffer]: WebRtcSdp & WithReceiver;
+  [WebSocketMessageType.onWebRtcOffer]: WebRtcSdp & WithSender;
+  [WebSocketMessageType.sendWebRtcAnswer]: WebRtcSdp & WithReceiver;
+  [WebSocketMessageType.onWebRtcAnswer]: WebRtcSdp & WithSender;
+  [WebSocketMessageType.sendWebRtcIceCandidate]: WebRtcIceCandidate & WithReceiver;
+  [WebSocketMessageType.onWebRtcIceCandidate]: WebRtcIceCandidate & WithSender;
 }
 
 export interface WebSocketMessage<T extends WebSocketMessageType> {

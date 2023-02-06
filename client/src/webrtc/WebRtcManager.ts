@@ -17,7 +17,7 @@
  */
 import { useMemo, useRef, useSyncExternalStore } from 'react';
 
-import { CallData } from '../contexts/CallManagerProvider';
+import { CallData } from '../contexts/CallProvider';
 import { IWebSocketContext } from '../contexts/WebSocketProvider';
 import { Account } from '../models/account';
 import { Listener } from '../utils/utils';
@@ -107,5 +107,7 @@ class WebRtcManager {
 
   clean() {
     Object.values(this.connections).forEach((connection) => connection.disconnect());
+    this.connections = {};
+    this.emitChange();
   }
 }
