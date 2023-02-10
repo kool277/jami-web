@@ -17,9 +17,9 @@
  */
 import { useMemo, useRef, useSyncExternalStore } from 'react';
 
-import { CallData } from '../contexts/CallProvider';
 import { IWebSocketContext } from '../contexts/WebSocketProvider';
 import { Account } from '../models/account';
+import { CallData } from '../services/CallManager';
 import { Listener } from '../utils/utils';
 import { RTCPeerConnectionHandler, RTCPeerConnectionInfos } from './RtcPeerConnectionHandler';
 

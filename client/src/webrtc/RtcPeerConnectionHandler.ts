@@ -18,9 +18,9 @@
 
 import { WebRtcIceCandidate, WebRtcSdp, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common';
 
-import { CallData } from '../contexts/CallProvider';
 import { IWebSocketContext } from '../contexts/WebSocketProvider';
 import { Account } from '../models/account';
+import { CallData } from '../services/CallManager';
 import { Listener } from '../utils/utils';
 
 export type RTCPeerConnectionInfos = {

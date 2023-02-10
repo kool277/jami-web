@@ -21,8 +21,8 @@ import { styled } from '@mui/material/styles';
 import { ChangeEvent, useMemo } from 'react';
 
 import { useCallManagerContext } from '../contexts/CallManagerProvider';
-import { CallStatus, VideoStatus } from '../contexts/CallProvider';
 import { useUserMediaContext } from '../contexts/UserMediaProvider';
+import { CallStatus, VideoStatus } from '../services/CallManager';
 import {
   ColoredRoundButton,
   ExpandableButton,

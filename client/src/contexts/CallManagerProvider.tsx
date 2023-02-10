@@ -19,8 +19,8 @@ import { RemoteVideoOverlay } from '../components/VideoOverlay';
 import { createOptionalContext } from '../hooks/createOptionalContext';
 import { useUrlParams } from '../hooks/useUrlParams';
 import { ConversationRouteParams } from '../router';
+import { ICallManager, useCallManager } from '../services/CallManager';
 import { WithChildren } from '../utils/utils';
-import { ICallManager, useCallManager } from './CallProvider';
 
 const optionalCallManagerContext = createOptionalContext<ICallManager>('CallManagerContext');
 export const useCallManagerContext = optionalCallManagerContext.useOptionalContext;

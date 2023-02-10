@@ -25,10 +25,10 @@ import { useNavigate } from 'react-router-dom';
 
 import { useAuthContext } from '../contexts/AuthProvider';
 import { useCallManagerContext } from '../contexts/CallManagerProvider';
-import { CallStatus } from '../contexts/CallProvider';
 import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName';
 import { useUrlParams } from '../hooks/useUrlParams';
 import { ConversationRouteParams } from '../router';
+import { CallStatus } from '../services/CallManager';
 import { useRemoveConversationMutation } from '../services/conversationQueries';
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages';
 import { formatRelativeDate, formatTime } from '../utils/dates&times';

@@ -29,9 +29,9 @@ import {
 } from '../components/CallButtons';
 import ConversationAvatar from '../components/ConversationAvatar';
 import { useCallManagerContext } from '../contexts/CallManagerProvider';
-import { CallStatus } from '../contexts/CallProvider';
 import { useConversationContext } from '../contexts/ConversationProvider';
 import { useUserMediaContext } from '../contexts/UserMediaProvider';
+import { CallStatus } from '../services/CallManager';
 import { VideoElementWithSinkId } from '../utils/utils';
 
 export const CallPending = () => {

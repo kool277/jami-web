@@ -19,15 +19,15 @@ import { ConversationInfos, WebSocketMessageTable, WebSocketMessageType } from '
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
+import { useAuthContext } from '../contexts/AuthProvider';
+import { useUserMediaContext } from '../contexts/UserMediaProvider';
+import { useWebSocketContext } from '../contexts/WebSocketProvider';
 import { ConversationMember } from '../models/conversation-member';
 import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries';
 import { callTimeoutMs } from '../utils/constants';
 import { AsyncSetState, SetState } from '../utils/utils';
 import { useWebRtcManager } from '../webrtc/WebRtcManager';
-import { AlertSnackbarContext } from './AlertSnackbarProvider';
-import { useAuthContext } from './AuthProvider';
-import { useUserMediaContext } from './UserMediaProvider';
-import { useWebSocketContext } from './WebSocketProvider';
 
 export type CallRole = 'caller' | 'receiver' | undefined;
 
