@@ -25,6 +25,7 @@ import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { RouterProvider } from 'react-router-dom';
 
+import AlertSnackbarProvider from './contexts/AlertSnackbarProvider';
 import CustomThemeProvider from './contexts/CustomThemeProvider';
 import { store } from './redux/store';
 import { router } from './router';
@@ -48,8 +49,10 @@ root.render(
     {/* <StrictMode> */}
     <QueryClientProvider client={queryClient}>
       <CustomThemeProvider>
-        <RouterProvider router={router} />
-        <ReactQueryDevtools initialIsOpen={false} />
+        <AlertSnackbarProvider>
+          <RouterProvider router={router} />
+          <ReactQueryDevtools initialIsOpen={false} />
+        </AlertSnackbarProvider>
       </CustomThemeProvider>
     </QueryClientProvider>
     {/* </StrictMode> */}

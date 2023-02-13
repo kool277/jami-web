@@ -28,14 +28,14 @@ import {
 } from '@mui/material';
 import { Theme, useTheme } from '@mui/material/styles';
 import { HttpStatusCode } from 'jami-web-common';
-import { ChangeEvent, FormEvent, ReactNode, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Link, useNavigate } from 'react-router-dom';
 
-import { AlertSnackbar } from '../components/AlertSnackbar';
 import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input';
 import ProcessingRequest from '../components/ProcessingRequest';
 import withAuthUI from '../components/WithAuthUI';
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
 import {
   checkIfUserameIsRegistered,
   checkPasswordStrength,
@@ -58,8 +58,7 @@ function RegistrationForm() {
   const [usernameStatus, setUsernameStatus] = useState<NameStatus>('default');
   const [passwordStatus, setPasswordStatus] = useState<PasswordStatus>('default');
 
-  const [errorAlertContent, setErrorAlertContent] = useState<ReactNode>(undefined);
-  const [successAlertContent, setSuccessAlertContent] = useState<ReactNode>(undefined);
+  const { setAlertContent } = useContext(AlertSnackbarContext);
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'));
 
@@ -87,7 +86,7 @@ function RegistrationForm() {
               // console.log(e.response.data);
               setUsernameStatus('success');
             } else {
-              setErrorAlertContent(t('unknown_error_alert'));
+              setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
             }
           });
       }, 1000);
@@ -96,10 +95,11 @@ function RegistrationForm() {
     return () => {
       clearTimeout(timetoutId);
     };
-  }, [t, username, usernameStatus]);
+  }, [t, username, usernameStatus, setAlertContent]);
 
-  const login = async () => {
+  const login = () => {
     setLoading(true);
+
     loginUser(username, password, isJams)
       .then((response) => {
         if (response.status === HttpStatusCode.Ok) {
@@ -113,15 +113,15 @@ function RegistrationForm() {
         if (status === HttpStatusCode.BadRequest) {
           //TODO: the only bad request response defined in the server is missing credentials. add the response message to the locale.
           console.log(e.response.data);
-          setErrorAlertContent(t('unknown_error_alert'));
+          // setAlertContent(t('unknown_error_alert'));
         } else if (status === HttpStatusCode.NotFound) {
           //TODO: there are two different not found responses that could be returned by the server, use message to differentiate them?
           console.log(e.response.data);
-          // setErrorAlertContent(t('login_username_not_found'));
+          // setAlertContent(t('login_username_not_found'));
         } else if (status === HttpStatusCode.Unauthorized) {
-          setErrorAlertContent(t('login_invalid_password'));
+          setAlertContent({ messageI18nKey: 'login_invalid_password', severity: 'error', alertOpen: true });
         } else {
-          setErrorAlertContent(t('unknown_error_alert'));
+          setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
         }
       })
       .finally(() => {
@@ -134,7 +134,7 @@ function RegistrationForm() {
     registerUser(username, password, isJams)
       .then((response) => {
         if (response.status === HttpStatusCode.Created) {
-          setSuccessAlertContent(t('registration_success'));
+          setAlertContent({ messageI18nKey: 'registration_success', severity: 'success', alertOpen: true });
           login();
         }
       })
@@ -144,15 +144,15 @@ function RegistrationForm() {
         if (status === HttpStatusCode.BadRequest) {
           //TODO: more than one bad request response defined in the server is missing credentials. add the response message to the locale.
           console.log(e.response.data);
-          // setErrorAlertContent(t('unknown_error_alert'));
+          // setAlertContent(t('unknown_error_alert'));
         } else if (status === HttpStatusCode.Conflict) {
           //TODO: there are two different conflict responses that could be returned by the server, use message to differentiate them?
           console.log(e.response.data);
-          // setErrorAlertContent(t('login_username_not_found'));
+          // setAlertContent(t('login_username_not_found'));
         } else if (status === HttpStatusCode.Unauthorized) {
           //TODO: this is a response for JAMS, add message to the locale
         } else {
-          setErrorAlertContent(t('unknown_error_alert'));
+          setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
         }
       })
       .finally(() => {
@@ -215,18 +215,6 @@ function RegistrationForm() {
   return (
     <>
       <ProcessingRequest open={loading} />
-
-      <AlertSnackbar
-        severity={'success'}
-        open={!!successAlertContent}
-        onClose={() => setSuccessAlertContent(undefined)}
-      >
-        {successAlertContent}
-      </AlertSnackbar>
-
-      <AlertSnackbar severity={'error'} open={!!errorAlertContent} onClose={() => setErrorAlertContent(undefined)}>
-        {errorAlertContent}
-      </AlertSnackbar>
 
       <Stack
         sx={{

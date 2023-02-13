@@ -156,6 +156,7 @@ export const PasswordInput = ({
       <InfosDialog {...dialogHandler.props} title={t('password_rules_dialog_title')} content={<PasswordRules />} />
       <TextField
         required
+        error={passwordError}
         label={t('password_input_label')}
         type={showPassword ? 'text' : 'password'}
         variant="standard"

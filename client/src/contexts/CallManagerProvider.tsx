@@ -20,13 +20,13 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-import { AlertSnackbar } from '../components/AlertSnackbar';
 import { RemoteVideoOverlay } from '../components/VideoOverlay';
 import { useUrlParams } from '../hooks/useUrlParams';
 import { ConversationMember } from '../models/conversation-member';
 import { ConversationRouteParams } from '../router';
 import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries';
 import { SetState, WithChildren } from '../utils/utils';
+import { AlertSnackbarContext } from './AlertSnackbarProvider';
 import CallProvider, { CallRole } from './CallProvider';
 import WebRtcProvider from './WebRtcProvider';
 import { WebSocketContext } from './WebSocketProvider';
@@ -59,11 +59,11 @@ CallManagerContext.displayName = 'CallManagerContext';
 export default ({ children }: WithChildren) => {
   const [callData, setCallData] = useState<CallData>();
   const webSocket = useContext(WebSocketContext);
+  const { setAlertContent } = useContext(AlertSnackbarContext);
   const navigate = useNavigate();
   const { data: conversationInfos } = useConversationInfosQuery(callData?.conversationId);
   const { data: members } = useMembersQuery(callData?.conversationId);
   const { urlParams } = useUrlParams<ConversationRouteParams>();
-  const [missedCallConversationId, setMissedCallConversationId] = useState<string>();
   const { t } = useTranslation();
 
   const failStartCall = useCallback(() => {
@@ -90,7 +90,12 @@ export default ({ children }: WithChildren) => {
       if (callData) {
         // TODO: Currently, we display a notification if already in a call.
         //       In the future, we should handle receiving a call while already in another.
-        setMissedCallConversationId(conversationId);
+        setAlertContent({
+          messageI18nKey: 'missed_incoming_call',
+          messageI18nContext: { conversationId },
+          severity: 'info',
+          alertOpen: true,
+        });
         return;
       }
 
@@ -103,7 +108,7 @@ export default ({ children }: WithChildren) => {
     return () => {
       webSocket.unbind(WebSocketMessageType.CallBegin, callBeginListener);
     };
-  }, [webSocket, navigate, startCall, callData]);
+  }, [webSocket, navigate, startCall, callData, setAlertContent, t]);
 
   const value = useMemo(
     () => ({
@@ -118,13 +123,6 @@ export default ({ children }: WithChildren) => {
 
   return (
     <>
-      <AlertSnackbar
-        severity={'info'}
-        open={missedCallConversationId !== undefined}
-        onClose={() => setMissedCallConversationId(undefined)}
-      >
-        {t('missed_incoming_call', { conversationId: missedCallConversationId })}
-      </AlertSnackbar>
       <CallManagerContext.Provider value={value}>
         <WebRtcProvider>
           <CallProvider>

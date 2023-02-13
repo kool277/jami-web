@@ -28,14 +28,14 @@ import {
 } from '@mui/material';
 import { Theme, useTheme } from '@mui/material/styles';
 import { HttpStatusCode } from 'jami-web-common';
-import { ChangeEvent, FormEvent, ReactNode, useState } from 'react';
+import { ChangeEvent, FormEvent, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Link, useNavigate } from 'react-router-dom';
 
-import { AlertSnackbar } from '../components/AlertSnackbar';
 import { PasswordInput, UsernameInput } from '../components/Input';
 import ProcessingRequest from '../components/ProcessingRequest';
 import withAuthUI from '../components/WithAuthUI';
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
 import { loginUser, setAccessToken } from '../utils/auth';
 import { inputWidth } from '../utils/constants';
 function LoginForm() {
@@ -47,7 +47,9 @@ function LoginForm() {
   const [password, setPassword] = useState<string>('');
   const [isJams, setIsJams] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [errorAlertContent, setErrorAlertContent] = useState<ReactNode>(undefined);
+
+  const { setAlertContent } = useContext(AlertSnackbarContext);
+
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'));
 
   const handleUsername = (event: ChangeEvent<HTMLInputElement>) => {
@@ -62,12 +64,16 @@ function LoginForm() {
     setIsJams(event.target.value === 'true');
   };
 
-  const login = async (event: FormEvent) => {
+  const login = (event: FormEvent) => {
     event.preventDefault();
 
-    if (!(username.length > 0) || !(password.length > 0)) {
-      //TODO: set alert message
-      console.log('Empty Credentials');
+    if (username === '') {
+      setAlertContent({ messageI18nKey: 'username_input_helper_text_empty', severity: 'error', alertOpen: true });
+      return;
+    }
+
+    if (password === '') {
+      setAlertContent({ messageI18nKey: 'password_input_helper_text_empty', severity: 'error', alertOpen: true });
       return;
     }
 
@@ -92,9 +98,9 @@ function LoginForm() {
           console.log(e.response.data);
           // setErrorAlertContent(t('login_username_not_found'));
         } else if (status === HttpStatusCode.Unauthorized) {
-          setErrorAlertContent(t('login_invalid_password'));
+          setAlertContent({ messageI18nKey: 'login_invalid_password', severity: 'error', alertOpen: true });
         } else {
-          setErrorAlertContent(t('unknown_error_alert'));
+          setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
         }
       })
       .finally(() => {
@@ -105,10 +111,6 @@ function LoginForm() {
   return (
     <>
       <ProcessingRequest open={loading} />
-
-      <AlertSnackbar severity={'error'} open={!!errorAlertContent} onClose={() => setErrorAlertContent(undefined)}>
-        {errorAlertContent}
-      </AlertSnackbar>
 
       <Stack
         sx={{
