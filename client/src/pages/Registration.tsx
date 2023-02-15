@@ -69,22 +69,19 @@ function RegistrationForm() {
         // useCheckIfUsernameIsRegisteredMutation.mutate(username);
         checkIfUserameIsRegistered(username)
           .then((response) => {
-            //server responds 200 if name IS found
-            if (response.status === HttpStatusCode.Ok) {
-              setUsernameStatus('taken');
+            const { status, data } = response;
+            if (status === HttpStatusCode.Ok) {
+              if (data === 'taken') {
+                setUsernameStatus('taken');
+              } else {
+                setUsernameStatus('success');
+              }
             }
           })
           .catch((e) => {
-            // console.log(e.response.data);
             const { status } = e.response;
             if (status === HttpStatusCode.BadRequest) {
-              //TODO: server sends invalid username as the message, add it to the locale
-              // console.log(e.response.data);
               setUsernameStatus('invalid');
-            } else if (status === HttpStatusCode.NotFound) {
-              //TODO: server didn't find this username, therefore it can be registered, add the message to the locale
-              // console.log(e.response.data);
-              setUsernameStatus('success');
             } else {
               setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
             }

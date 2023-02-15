@@ -40,7 +40,7 @@ export type LoginMethod = 'Jami' | 'JAMS';
 const idToStrengthValueCode: StrengthValueCode[] = ['too_weak', 'weak', 'medium', 'strong'];
 
 export function checkIfUserameIsRegistered(username: string) {
-  return axios.get(`/ns/username/${username}`, { baseURL: apiUrl });
+  return axios.get(`/ns/username/availability/${username}`, { baseURL: apiUrl });
 }
 
 export function checkPasswordStrength(password: string): PasswordCheckResult {

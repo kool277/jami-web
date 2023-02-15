@@ -47,6 +47,26 @@ nameserverRouter.get(
   })
 );
 
+//Check if the username provided exists or not, if it doesn't exist, it is allowed for registration
+nameserverRouter.get(
+  '/username/availability/:username', //
+  asyncHandler(async (req, res) => {
+    //This is using the same jamid service as the route /username/:username, except the responses are handled different
+    const result = await jamid.lookupUsername(req.params.username, res.locals.accountId);
+    switch (result.state) {
+      case RegisteredNameFoundState.Found:
+        res.status(HttpStatusCode.Ok).send('taken');
+        break;
+      case RegisteredNameFoundState.InvalidResponse:
+        res.status(HttpStatusCode.BadRequest).send('Invalid username');
+        break;
+      default:
+        res.status(HttpStatusCode.Ok).send('available');
+        break;
+    }
+  })
+);
+
 nameserverRouter.get(
   '/address/:address',
   asyncHandler(async (req, res) => {
