@@ -57,6 +57,7 @@ export function AlertSnackbar({ severity, open, snackBarProps, children, ...aler
 type IAlertSnackbarContext = {
   alertContent: AlertContent;
   setAlertContent: SetState<AlertContent>;
+  closeAlert: () => void;
 };
 
 const defaultAlertSnackbarContext: IAlertSnackbarContext = {
@@ -67,6 +68,7 @@ const defaultAlertSnackbarContext: IAlertSnackbarContext = {
     alertOpen: false,
   },
   setAlertContent: () => {},
+  closeAlert: () => {},
 };
 
 type AlertMessageKeys =
@@ -118,6 +120,7 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
   const value = {
     alertContent,
     setAlertContent,
+    closeAlert,
   };
 
   return (

@@ -45,3 +45,13 @@ export const isRequired = <T>(obj: Partial<T>): obj is T => {
 };
 
 export type Listener = () => void;
+
+export function debounce<T extends any[]>(fn: (...args: T) => void, timeout = 1000) {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return (...args: T) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      fn(...args);
+    }, timeout);
+  };
+}

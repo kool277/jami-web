@@ -22,7 +22,7 @@ import { styled } from '@mui/material/styles';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { StrengthValueCode } from '../utils/auth';
+import { StrengthValueCode } from '../services/authQueries';
 import { InfoButton, ToggleVisibilityButton } from './Button';
 import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog';
 import { CheckedIcon, LockIcon, PenIcon, PersonIcon, RoundSaltireIcon } from './SvgIcon';

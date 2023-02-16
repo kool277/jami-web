@@ -58,10 +58,10 @@ nameserverRouter.get(
         res.status(HttpStatusCode.Ok).send('taken');
         break;
       case RegisteredNameFoundState.InvalidResponse:
-        res.status(HttpStatusCode.BadRequest).send('Invalid username');
+        res.status(HttpStatusCode.BadRequest).send('invalid');
         break;
       default:
-        res.status(HttpStatusCode.Ok).send('available');
+        res.status(HttpStatusCode.Ok).send('success');
         break;
     }
   })

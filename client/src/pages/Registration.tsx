@@ -15,146 +15,76 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import {
-  Box,
-  Button,
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-  Typography,
-  useMediaQuery,
-} from '@mui/material';
+import { Box, Button, Stack, Typography, useMediaQuery } from '@mui/material';
 import { Theme, useTheme } from '@mui/material/styles';
 import { HttpStatusCode } from 'jami-web-common';
-import { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Form, Link, useNavigate } from 'react-router-dom';
+import { Form, Link } from 'react-router-dom';
 
 import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input';
 import ProcessingRequest from '../components/ProcessingRequest';
 import withAuthUI from '../components/WithAuthUI';
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
 import {
-  checkIfUserameIsRegistered,
   checkPasswordStrength,
-  loginUser,
-  registerUser,
-  setAccessToken,
-} from '../utils/auth';
+  useCheckIfUsernameIsRegisteredQuery,
+  useLoginMutation,
+  useRegisterMutation,
+} from '../services/authQueries';
 import { inputWidth, jamiUsernamePattern } from '../utils/constants';
 function RegistrationForm() {
   const theme: Theme = useTheme();
-  const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [loading, setLoading] = useState(false);
-
   const [username, setUsername] = useState<string>('');
+  const [debouncedUsername, setDebouncedUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [isJams, setIsJams] = useState<boolean>(false);
 
   const [usernameStatus, setUsernameStatus] = useState<NameStatus>('default');
   const [passwordStatus, setPasswordStatus] = useState<PasswordStatus>('default');
 
-  const { setAlertContent } = useContext(AlertSnackbarContext);
+  const registerMutation = useRegisterMutation();
+  const loginMutation = useLoginMutation();
+
+  const { isLoading: isRegisterLoading } = registerMutation;
+  const { isLoading: isLoginLoading } = loginMutation;
+
+  const isLoading = isRegisterLoading || isLoginLoading;
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'));
 
+  const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername);
+
   useEffect(() => {
-    let timetoutId: ReturnType<typeof setTimeout>;
-    if (usernameStatus === 'valid') {
-      timetoutId = setTimeout(() => {
-        // useCheckIfUsernameIsRegisteredMutation.mutate(username);
-        checkIfUserameIsRegistered(username)
-          .then((response) => {
-            const { status, data } = response;
-            if (status === HttpStatusCode.Ok) {
-              if (data === 'taken') {
-                setUsernameStatus('taken');
-              } else {
-                setUsernameStatus('success');
-              }
-            }
-          })
-          .catch((e) => {
-            const { status } = e.response;
-            if (status === HttpStatusCode.BadRequest) {
-              setUsernameStatus('invalid');
-            } else {
-              setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
-            }
-          });
-      }, 1000);
+    if (response !== undefined) {
+      const { responseMessage } = response;
+      setUsernameStatus(responseMessage);
     }
+    if (isError) {
+      setUsernameStatus('invalid');
+    }
+  }, [response, isError]);
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setDebouncedUsername(username);
+    }, 500);
     return () => {
-      clearTimeout(timetoutId);
+      clearTimeout(timeoutId);
     };
-  }, [t, username, usernameStatus, setAlertContent]);
-
-  const login = () => {
-    setLoading(true);
-
-    loginUser(username, password, isJams)
-      .then((response) => {
-        if (response.status === HttpStatusCode.Ok) {
-          setAccessToken(response.data.accessToken);
-          navigate('/conversation', { replace: true });
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-        const { status } = e.response;
-        if (status === HttpStatusCode.BadRequest) {
-          //TODO: the only bad request response defined in the server is missing credentials. add the response message to the locale.
-          console.log(e.response.data);
-          // setAlertContent(t('unknown_error_alert'));
-        } else if (status === HttpStatusCode.NotFound) {
-          //TODO: there are two different not found responses that could be returned by the server, use message to differentiate them?
-          console.log(e.response.data);
-          // setAlertContent(t('login_username_not_found'));
-        } else if (status === HttpStatusCode.Unauthorized) {
-          setAlertContent({ messageI18nKey: 'login_invalid_password', severity: 'error', alertOpen: true });
-        } else {
-          setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  }, [username]);
 
   const createAccount = () => {
-    setLoading(true);
-    registerUser(username, password, isJams)
-      .then((response) => {
-        if (response.status === HttpStatusCode.Created) {
-          setAlertContent({ messageI18nKey: 'registration_success', severity: 'success', alertOpen: true });
-          login();
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-        const { status } = e.response;
-        if (status === HttpStatusCode.BadRequest) {
-          //TODO: more than one bad request response defined in the server is missing credentials. add the response message to the locale.
-          console.log(e.response.data);
-          // setAlertContent(t('unknown_error_alert'));
-        } else if (status === HttpStatusCode.Conflict) {
-          //TODO: there are two different conflict responses that could be returned by the server, use message to differentiate them?
-          console.log(e.response.data);
-          // setAlertContent(t('login_username_not_found'));
-        } else if (status === HttpStatusCode.Unauthorized) {
-          //TODO: this is a response for JAMS, add message to the locale
-        } else {
-          setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    registerMutation.mutate(
+      { username, password },
+      {
+        onSuccess: (response) => {
+          if (response.status === HttpStatusCode.Created) {
+            loginMutation.mutate({ username, password, isJams: false });
+          }
+        },
+      }
+    );
   };
 
   const handleUsername = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -186,10 +116,6 @@ function RegistrationForm() {
     }
   };
 
-  const handleIsJams = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsJams(event.target.value === 'jams');
-  };
-
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const usernameOk = usernameStatus === 'success';
@@ -211,7 +137,7 @@ function RegistrationForm() {
 
   return (
     <>
-      <ProcessingRequest open={loading} />
+      <ProcessingRequest open={isLoading} />
 
       <Stack
         sx={{
@@ -245,20 +171,6 @@ function RegistrationForm() {
               tooltipTitle={t('registration_form_password_tooltip')}
               sx={{ width: theme.typography.pxToRem(inputWidth) }}
             />
-          </div>
-          <div>
-            <FormControl
-              sx={{
-                width: theme.typography.pxToRem(inputWidth),
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <RadioGroup row onChange={handleIsJams} defaultValue="jami">
-                <FormControlLabel value="jami" control={<Radio />} label={t('jami')} />
-                <FormControlLabel value="jams" control={<Radio />} label={t('jams')} />
-              </RadioGroup>
-            </FormControl>
           </div>
 
           <Button

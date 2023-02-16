@@ -20,7 +20,7 @@ import { Theme, useTheme } from '@mui/material/styles';
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 
-import { getAccessToken } from '../utils/auth';
+import { getAccessToken } from '../services/authQueries';
 import JamiWelcomeLogo from './JamiWelcomeLogo';
 
 export default function withAuthUI(WrappedComponent: React.FunctionComponent): React.FunctionComponent {

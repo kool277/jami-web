@@ -27,28 +27,28 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { Theme, useTheme } from '@mui/material/styles';
-import { HttpStatusCode } from 'jami-web-common';
 import { ChangeEvent, FormEvent, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Form, Link, useNavigate } from 'react-router-dom';
+import { Form, Link } from 'react-router-dom';
 
 import { PasswordInput, UsernameInput } from '../components/Input';
 import ProcessingRequest from '../components/ProcessingRequest';
 import withAuthUI from '../components/WithAuthUI';
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
-import { loginUser, setAccessToken } from '../utils/auth';
+import { useLoginMutation } from '../services/authQueries';
 import { inputWidth } from '../utils/constants';
 function LoginForm() {
   const theme: Theme = useTheme();
-  const navigate = useNavigate();
   const { t } = useTranslation();
 
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isJams, setIsJams] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
 
   const { setAlertContent } = useContext(AlertSnackbarContext);
+
+  const loginMutation = useLoginMutation();
+  const { isLoading } = loginMutation;
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'));
 
@@ -66,51 +66,21 @@ function LoginForm() {
 
   const login = (event: FormEvent) => {
     event.preventDefault();
-
     if (username === '') {
       setAlertContent({ messageI18nKey: 'username_input_helper_text_empty', severity: 'error', alertOpen: true });
       return;
     }
-
     if (password === '') {
       setAlertContent({ messageI18nKey: 'password_input_helper_text_empty', severity: 'error', alertOpen: true });
       return;
     }
 
-    setLoading(true);
-
-    loginUser(username, password, isJams)
-      .then((response) => {
-        if (response.status === HttpStatusCode.Ok) {
-          setAccessToken(response.data.accessToken);
-          navigate('/conversation', { replace: true });
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-        const { status } = e.response;
-        if (status === HttpStatusCode.BadRequest) {
-          //TODO: the only bad request response defined in the server is missing credentials. add the response message to the locale.
-          console.log(e.response.data);
-          // setErrorAlertContent(t('unknown_error_alert'));
-        } else if (status === HttpStatusCode.NotFound) {
-          //TODO: there are two different not found responses that could be returned by the server, use message to differentiate them?
-          console.log(e.response.data);
-          // setErrorAlertContent(t('login_username_not_found'));
-        } else if (status === HttpStatusCode.Unauthorized) {
-          setAlertContent({ messageI18nKey: 'login_invalid_password', severity: 'error', alertOpen: true });
-        } else {
-          setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    loginMutation.mutate({ username, password, isJams });
   };
 
   return (
     <>
-      <ProcessingRequest open={loading} />
+      <ProcessingRequest open={isLoading} />
 
       <Stack
         sx={{
