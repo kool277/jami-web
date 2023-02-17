@@ -18,13 +18,11 @@
 import { Container } from '@mui/material';
 
 import AccountPreferences from '../components/AccountPreferences';
-import Header from '../components/Header';
 
 export default function AccountSettings() {
   // TODO: Improve component and sub-components UI.
   return (
     <Container maxWidth="sm">
-      <Header />
       <AccountPreferences />
     </Container>
   );

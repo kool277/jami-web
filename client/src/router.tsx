@@ -20,6 +20,7 @@ import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 're
 import App, { appLoader } from './App';
 import ContactList from './components/ContactList';
 import ConversationView from './components/ConversationView';
+import Header from './components/Header';
 import AuthProvider from './contexts/AuthProvider';
 import CallManagerProvider from './contexts/CallManagerProvider';
 import ConversationProvider from './contexts/ConversationProvider';
@@ -49,6 +50,7 @@ export const router = createBrowserRouter(
             <WebSocketProvider>
               <UserMediaProvider>
                 <CallManagerProvider>
+                  <Header />
                   <Outlet />
                 </CallManagerProvider>
               </UserMediaProvider>

@@ -19,13 +19,11 @@ import { Box, Stack } from '@mui/material';
 import { ReactNode } from 'react';
 
 import ConversationList from '../components/ConversationList';
-import Header from '../components/Header';
 
 const Messenger = ({ children }: { children?: ReactNode }) => {
   return (
     <Box display="flex" height="100%">
       <Stack flexGrow={0} flexShrink={0} overflow="auto">
-        <Header />
         <ConversationList />
       </Stack>
       <Box flexGrow={1} display="flex" position="relative">
