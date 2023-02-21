@@ -71,7 +71,13 @@ const defaultAlertSnackbarContext: IAlertSnackbarContext = {
   closeAlert: () => {},
 };
 
+//Don't forget to add the cases in the switch statement below
 type AlertMessageKeys =
+  | 'redirect_admin_setup_complete'
+  | 'password_input_helper_text_invalid'
+  | 'password_input_helper_text_not_match'
+  | 'admin_page_setup_not_complete'
+  | 'admin_page_setup_complete'
   | 'missed_incoming_call'
   | 'unknown_error_alert'
   | 'username_input_helper_text_empty'
@@ -110,6 +116,16 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('login_invalid_password');
         case 'registration_success':
           return t('registration_success');
+        case 'redirect_admin_setup_complete':
+          return t('redirect_admin_setup_complete');
+        case 'password_input_helper_text_invalid':
+          return t('password_input_helper_text_invalid');
+        case 'password_input_helper_text_not_match':
+          return t('password_input_helper_text_not_match');
+        case 'admin_page_setup_not_complete':
+          return t('admin_page_setup_not_complete');
+        case 'admin_page_setup_complete':
+          return t('admin_page_setup_complete');
         default:
           return t('unknown_error_alert');
       }

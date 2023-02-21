@@ -39,28 +39,17 @@ setupRouter.post(
   '/admin/create',
   asyncHandler(async (req: Request<ParamsDictionary, string, Partial<AdminCredentials>>, res) => {
     const { password } = req.body;
-    if (password === undefined) {
-      res.status(HttpStatusCode.BadRequest).send('Missing password in body');
+    if (password) {
+      const hashedPassword = await argon2.hash(password, { type: argon2.argon2id });
+
+      adminAccount.set(hashedPassword);
+      await adminAccount.save();
+
+      res.sendStatus(HttpStatusCode.Created);
       return;
     }
 
-    if (password === '') {
-      res.status(HttpStatusCode.BadRequest).send('Password may not be empty');
-      return;
-    }
-
-    const isAdminCreated = adminAccount.get() !== undefined;
-    if (isAdminCreated) {
-      res.status(HttpStatusCode.Conflict).send('Admin already exists');
-      return;
-    }
-
-    const hashedPassword = await argon2.hash(password, { type: argon2.argon2id });
-
-    adminAccount.set(hashedPassword);
-    await adminAccount.save();
-
-    res.sendStatus(HttpStatusCode.Created);
+    res.status(HttpStatusCode.BadRequest).send('Invalid password');
   })
 );
 
@@ -86,7 +75,7 @@ setupRouter.post(
 
     const isPasswordVerified = await argon2.verify(hashedPassword, password);
     if (!isPasswordVerified) {
-      res.status(HttpStatusCode.Forbidden).send('Incorrect password');
+      res.status(HttpStatusCode.Unauthorized).send('Incorrect password');
       return;
     }
 

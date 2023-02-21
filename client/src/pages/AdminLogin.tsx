@@ -19,38 +19,27 @@ import GroupAddRounded from '@mui/icons-material/GroupAddRounded';
 import { Box, Card, CardContent, Container, Fab, Input, Typography } from '@mui/material';
 import { FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 import { useLoginAdminMutation } from '../services/adminQueries';
+
 export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const loginAdminMutation = useLoginAdminMutation();
-  const { data, isSuccess, isLoading } = loginAdminMutation;
-
-  if (isSuccess) {
-    localStorage.setItem('adminAccessToken', data.accessToken);
-  }
-
-  /*
-  TODO: handle following errors (not all of them should cause redirection)
-    res.status(HttpStatusCode.BadRequest).send('Missing password in body');
-    res.status(HttpStatusCode.InternalServerError).send('Admin password not found');
-    res.status(HttpStatusCode.Forbidden).send('Incorrect password');
-  */
+  const { isLoading } = loginAdminMutation;
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    loginAdminMutation.mutate(password, {
-      onSuccess: () => {
-        navigate('/admin');
-      },
-      onError: () => {
-        navigate('/login');
-      },
-    });
+
+    if (password === '') return;
+
+    loginAdminMutation.mutate(password);
   };
+
+  if (localStorage.getItem('adminAccessToken')) {
+    return <Navigate to={'/admin'} />;
+  }
   //TODO: refactor translations
   return (
     <>
@@ -58,12 +47,8 @@ export default function AdminLogin() {
         <Card>
           <CardContent component="form" onSubmit={handleSubmit}>
             <Typography gutterBottom variant="h5" component="h2">
-              {t('setup_login_title')}
+              {t('admin_page_login_title')}
             </Typography>
-            <Typography variant="body2" color="textSecondary" component="p">
-              {t('setup_login_welcome')}
-            </Typography>
-
             <Box style={{ textAlign: 'center', marginTop: 8, marginBottom: 16 }}>
               <div>
                 <Input value="admin" name="username" autoComplete="username" disabled />
@@ -76,6 +61,7 @@ export default function AdminLogin() {
                   type="password"
                   placeholder={t('password_placeholder')}
                   autoComplete="new-password"
+                  required
                   disabled={isLoading}
                 />
               </div>

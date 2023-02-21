@@ -16,37 +16,109 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { AccessToken } from 'jami-web-common';
+import { HttpStatusCode } from 'jami-web-common';
+import { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
 import { apiUrl } from '../utils/constants';
-
 export const useSetupAdminMutation = () => {
+  const navigate = useNavigate();
+  const { setAlertContent } = useContext(AlertSnackbarContext);
+
   return useMutation({
     mutationKey: ['admin', 'setup'],
     mutationFn: async (password: string) => {
       const { data } = await axios.post('/setup/admin/create', { password }, { baseURL: apiUrl });
       return data;
     },
+    onSuccess: () => {
+      //TODO: Do not login the admin for now in case we need to implement multi-factor authentication
+      navigate('/admin/login');
+    },
+    onError: (e: any) => {
+      if (e.response?.status === HttpStatusCode.BadRequest) {
+        setAlertContent({
+          messageI18nKey: 'login_invalid_password',
+          severity: 'error',
+          alertOpen: true,
+        });
+      } else {
+        setAlertContent({
+          messageI18nKey: 'unknown_error_alert',
+          severity: 'error',
+          alertOpen: true,
+        });
+      }
+    },
   });
 };
 
 export const useLoginAdminMutation = () => {
+  const navigate = useNavigate();
+  const { setAlertContent } = useContext(AlertSnackbarContext);
+
   return useMutation({
     mutationKey: ['admin', 'login'],
     mutationFn: async (password: string) => {
       const { data } = await axios.post<AccessToken>('/setup/admin/login', { password }, { baseURL: apiUrl });
       return data;
     },
+    onSuccess: (data) => {
+      localStorage.setItem('adminAccessToken', data.accessToken);
+      navigate('/admin');
+    },
+    onError: (e: any) => {
+      if (e.response?.status === HttpStatusCode.Forbidden) {
+        setAlertContent({
+          messageI18nKey: 'admin_page_setup_not_complete',
+          severity: 'error',
+          alertOpen: true,
+        });
+      } else if (e.response?.status === HttpStatusCode.BadRequest) {
+        setAlertContent({
+          messageI18nKey: 'password_input_helper_text_empty',
+          severity: 'error',
+          alertOpen: true,
+        });
+      } else if (e.response?.status === HttpStatusCode.Unauthorized) {
+        setAlertContent({
+          messageI18nKey: 'login_invalid_password',
+          severity: 'error',
+          alertOpen: true,
+        });
+      } else {
+        setAlertContent({
+          messageI18nKey: 'unknown_error_alert',
+          severity: 'error',
+          alertOpen: true,
+        });
+      }
+    },
   });
 };
 
-export async function checkAdminSetupStatus(): Promise<boolean> {
+//For non-react components that need to get the admin setup status
+export const checkAdminSetupStatus = async () => {
   try {
     const { data } = await axios.get<{ isSetupComplete: boolean }>('/setup/check', { baseURL: apiUrl });
     return data.isSetupComplete;
   } catch (e) {
-    throw new Error('Cannot connect to server', { cause: e });
+    console.log(e);
+    //TODO: error handling
   }
-}
+};
+
+//For react components that can invoke hooks
+export const useCheckAdminSetupStatusQuery = () => {
+  return useQuery({
+    queryKey: ['admin', 'status'],
+    queryFn: async () => {
+      const { data } = await axios.get<{ isSetupComplete: boolean }>('/setup/check', { baseURL: apiUrl });
+      return data.isSetupComplete;
+    },
+  });
+};

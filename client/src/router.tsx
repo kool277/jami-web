@@ -31,6 +31,7 @@ import { RouteParams } from './hooks/useUrlParams';
 import AccountSettings from './pages/AccountSettings';
 import AdminLogin from './pages/AdminLogin';
 import AdminPanel from './pages/AdminPanel';
+import AdminSetup from './pages/AdminSetup';
 import GeneralSettings from './pages/GeneralSettings';
 import Login from './pages/Login';
 import Messenger from './pages/Messenger';
@@ -44,6 +45,7 @@ export const router = createBrowserRouter(
       <Route path="register" element={<Registration />} />
       <Route path="admin" element={<AdminPanel />} />
       <Route path="admin/login" element={<AdminLogin />} />
+      <Route path="admin/setup" element={<AdminSetup />} />
       <Route
         element={
           <AuthProvider>
