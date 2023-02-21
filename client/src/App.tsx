@@ -17,29 +17,19 @@
  */
 import './dayjsInitializer'; // Initialized once and globally to ensure available locales are always imported
 
-import axios from 'axios';
 import { useState } from 'react';
 import { json, LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom';
 
 import WelcomeAnimation from './components/WelcomeAnimation';
+import { checkAdminSetupStatus } from './services/adminQueries';
 import { getAccessToken } from './services/authQueries';
-import { apiUrl } from './utils/constants';
-
-export async function checkSetupStatus(): Promise<boolean> {
-  try {
-    const { data } = await axios.get<{ isSetupComplete: boolean }>('/setup/check', { baseURL: apiUrl });
-    return data.isSetupComplete;
-  } catch (e) {
-    throw new Error('Cannot connect to server', { cause: e });
-  }
-}
 
 export async function appLoader({ request }: LoaderFunctionArgs) {
   const initialUrl = new URL(request.url);
-  const isSetupComplete = await checkSetupStatus();
+  const isSetupComplete = await checkAdminSetupStatus();
 
-  if (!isSetupComplete && initialUrl.pathname !== '/setup/login') {
-    return redirect('/setup/login');
+  if (!isSetupComplete && initialUrl.pathname !== '/admin/setup') {
+    return redirect('/admin/setup');
   }
   return json({ isSetupComplete }, { status: 200 });
 }

@@ -17,118 +17,78 @@
  */
 import GroupAddRounded from '@mui/icons-material/GroupAddRounded';
 import { Box, Card, CardContent, Container, Fab, Input, Typography } from '@mui/material';
-import axios from 'axios';
-import { AccessToken, HttpStatusCode } from 'jami-web-common';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
-import { checkSetupStatus } from '../App';
-import { apiUrl } from '../utils/constants';
-import { InvalidPassword } from '../utils/errors';
-
+import { useLoginAdminMutation } from '../services/adminQueries';
 export default function AdminLogin() {
-  const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [password, setPassword] = useState('');
-  const [passwordRepeat, setPasswordRepeat] = useState('');
-  const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const loginAdminMutation = useLoginAdminMutation();
+  const { data, isSuccess, isLoading } = loginAdminMutation;
 
-  useEffect(() => {
-    checkSetupStatus().then(setIsSetupComplete);
-  }, []);
+  if (isSuccess) {
+    localStorage.setItem('adminAccessToken', data.accessToken);
+  }
 
-  const registerAdmin = async (password: string) => {
-    await axios.post('/setup/admin/create', { password }, { baseURL: apiUrl });
-  };
+  /*
+  TODO: handle following errors (not all of them should cause redirection)
+    res.status(HttpStatusCode.BadRequest).send('Missing password in body');
+    res.status(HttpStatusCode.InternalServerError).send('Admin password not found');
+    res.status(HttpStatusCode.Forbidden).send('Incorrect password');
+  */
 
-  const loginAdmin = async (password: string) => {
-    try {
-      const { data } = await axios.post<AccessToken>('/setup/admin/login', { password }, { baseURL: apiUrl });
-      localStorage.setItem('adminAccessToken', data.accessToken);
-    } catch (e: any) {
-      if (e.response?.status === HttpStatusCode.Forbidden) {
-        throw new InvalidPassword();
-      } else {
-        throw e;
-      }
-    }
-  };
-
-  const isValid = isSetupComplete || (password && password === passwordRepeat);
-
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    if (!isValid) return;
-
-    try {
-      if (!isSetupComplete) {
-        await registerAdmin(password);
-      }
-      await loginAdmin(password);
-    } catch (e) {
-      console.error(e);
-      navigate('/login');
-      return;
-    }
-    navigate('/setup');
+    loginAdminMutation.mutate(password, {
+      onSuccess: () => {
+        navigate('/admin');
+      },
+      onError: () => {
+        navigate('/login');
+      },
+    });
   };
-
+  //TODO: refactor translations
   return (
-    <Container className="message-list">
-      <Card>
-        <CardContent component="form" onSubmit={handleSubmit}>
-          <Typography gutterBottom variant="h5" component="h2">
-            {t('setup_login_title')}
-          </Typography>
-          <Typography variant="body2" color="textSecondary" component="p">
-            {t('setup_login_welcome')}
-            <br />
-            {isSetupComplete ? '' : t('setup_login_admin_creation')}
-          </Typography>
+    <>
+      <Container className="message-list">
+        <Card>
+          <CardContent component="form" onSubmit={handleSubmit}>
+            <Typography gutterBottom variant="h5" component="h2">
+              {t('setup_login_title')}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" component="p">
+              {t('setup_login_welcome')}
+            </Typography>
 
-          <Box style={{ textAlign: 'center', marginTop: 8, marginBottom: 16 }}>
-            <div>
-              <Input value="admin" name="username" autoComplete="username" disabled />
-            </div>
-            <div>
-              <Input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                name="password"
-                type="password"
-                placeholder={
-                  isSetupComplete ? t('password_placeholder') : t('setup_login_password_placeholder_creation')
-                }
-                autoComplete="new-password"
-                disabled={loading}
-              />
-            </div>
-            {!isSetupComplete && (
+            <Box style={{ textAlign: 'center', marginTop: 8, marginBottom: 16 }}>
+              <div>
+                <Input value="admin" name="username" autoComplete="username" disabled />
+              </div>
               <div>
                 <Input
-                  value={passwordRepeat}
-                  onChange={(e) => setPasswordRepeat(e.target.value)}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   name="password"
-                  error={!!passwordRepeat && !isValid}
                   type="password"
-                  placeholder={t('setup_login_password_placeholder_repeat')}
+                  placeholder={t('password_placeholder')}
                   autoComplete="new-password"
-                  disabled={loading}
+                  disabled={isLoading}
                 />
               </div>
-            )}
-          </Box>
-          <Box style={{ textAlign: 'center', marginTop: 24 }}>
-            <Fab variant="extended" color="primary" type="submit" disabled={!isValid || loading}>
-              <GroupAddRounded />
-              {isSetupComplete ? t('login_form_submit_button') : t('admin_creation_submit_button')}
-            </Fab>
-          </Box>
-        </CardContent>
-      </Card>
-    </Container>
+            </Box>
+            <Box style={{ textAlign: 'center', marginTop: 24 }}>
+              <Fab variant="extended" color="primary" type="submit" disabled={isLoading}>
+                <GroupAddRounded />
+                {t('login_form_submit_button')}
+              </Fab>
+            </Box>
+          </CardContent>
+        </Card>
+      </Container>
+    </>
   );
 }
