@@ -21,7 +21,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 
 import LoadingPage from '../components/Loading';
 
-export default function Setup() {
+export default function AdminPanel() {
   const { t } = useTranslation();
   const navigate = useNavigate();
 

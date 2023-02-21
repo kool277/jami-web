@@ -27,7 +27,7 @@ import { checkSetupStatus } from '../App';
 import { apiUrl } from '../utils/constants';
 import { InvalidPassword } from '../utils/errors';
 
-export default function SetupLogin() {
+export default function AdminLogin() {
   const [isSetupComplete, setIsSetupComplete] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordRepeat, setPasswordRepeat] = useState('');
