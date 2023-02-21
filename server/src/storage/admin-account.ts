@@ -18,34 +18,64 @@
 import { readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 
+import { IAdminAccount, IAdminConfigState } from 'jami-web-common';
 import { Service } from 'typedi';
 
 @Service()
 export class AdminAccount {
   private readonly filename = 'admin.json';
-  private account: { admin: string };
+  private adminAccount: IAdminAccount;
 
   constructor() {
     let buffer: Buffer;
 
+    //1. when admin.json exists, assign what is in it to the adminAccount variable
+    //2. when admin.json exists but there is no config (or anything that is required before accessing the admin panel), initialize it with the default settings and save everything to the admin.json
+    //3. when admin.json does not exist, an empty object buffer is created and assgined to the adminAccount, and initialize it with the default configs.
     try {
       buffer = readFileSync(this.filename);
+      this.adminAccount = JSON.parse(buffer.toString());
+      if (this.adminAccount.config === undefined) {
+        this.init();
+        this.save();
+      }
     } catch (e) {
       buffer = Buffer.from('{}');
+      this.adminAccount = JSON.parse(buffer.toString());
+      this.init();
+      this.save();
     }
-
-    this.account = JSON.parse(buffer.toString());
   }
 
-  get(): string | undefined {
-    return this.account.admin;
+  init() {
+    this.adminAccount.config = {
+      localAuthEnabled: true,
+      jamsAuthEnabled: true,
+      guestAccessEnabled: false,
+      openIdAuthEnabled: false,
+    };
   }
 
-  set(password: string): void {
-    this.account.admin = password;
+  getPasswordHash(): string | undefined {
+    return this.adminAccount.admin;
+  }
+
+  setPasswordHash(hashedPassword: string): void {
+    this.adminAccount.admin = hashedPassword;
+  }
+
+  getConfig(): IAdminConfigState {
+    return this.adminAccount.config;
+  }
+
+  updateConfig(config: Partial<IAdminConfigState>) {
+    this.adminAccount.config = {
+      ...this.adminAccount.config,
+      ...config,
+    };
   }
 
   async save(): Promise<void> {
-    await writeFile(this.filename, JSON.stringify(this.account, null, 2) + '\n');
+    await writeFile(this.filename, JSON.stringify(this.adminAccount, null, 2) + '\n');
   }
 }

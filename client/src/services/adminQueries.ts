@@ -16,15 +16,16 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { AccessToken } from 'jami-web-common';
+import { AccessToken, IAdminConfigState } from 'jami-web-common';
 import { HttpStatusCode } from 'jami-web-common';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
 import { apiUrl } from '../utils/constants';
+
 export const useSetupAdminMutation = () => {
   const navigate = useNavigate();
   const { setAlertContent } = useContext(AlertSnackbarContext);
@@ -108,7 +109,6 @@ export const checkAdminSetupStatus = async () => {
     return data.isSetupComplete;
   } catch (e) {
     console.log(e);
-    //TODO: error handling
   }
 };
 
@@ -119,6 +119,72 @@ export const useCheckAdminSetupStatusQuery = () => {
     queryFn: async () => {
       const { data } = await axios.get<{ isSetupComplete: boolean }>('/admin/check', { baseURL: apiUrl });
       return data.isSetupComplete;
+    },
+  });
+};
+
+export const useGetAdminConfigQuery = () => {
+  const token = localStorage.getItem('adminAccessToken');
+  const navigate = useNavigate();
+  const { setAlertContent } = useContext(AlertSnackbarContext);
+
+  return useQuery({
+    queryKey: ['admin', 'config'],
+    queryFn: async () => {
+      const { data } = await axios.get('/admin/config', {
+        baseURL: apiUrl,
+        //TODO: create a intercepted axios instance for auth-required requests
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return data;
+    },
+    onError: (e: any) => {
+      if (e.response.status === HttpStatusCode.Unauthorized) {
+        localStorage.removeItem('adminAccessToken');
+        navigate('/admin/login');
+      } else {
+        setAlertContent({
+          messageI18nKey: 'unknown_error_alert',
+          severity: 'error',
+          alertOpen: true,
+        });
+      }
+    },
+  });
+};
+
+export const useUpdateAdminConfigMutation = () => {
+  const token = localStorage.getItem('adminAccessToken');
+  const navigate = useNavigate();
+  const { setAlertContent } = useContext(AlertSnackbarContext);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (adminConfig: Partial<IAdminConfigState>) => {
+      const response = await axios.patch('/admin/config', adminConfig, {
+        baseURL: apiUrl,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'config'] });
+    },
+    onError: (e: any) => {
+      if (e.repsponse.status === HttpStatusCode.Unauthorized) {
+        localStorage.removeItem('adminAccessToken');
+        navigate('/admin/login');
+      } else {
+        setAlertContent({
+          messageI18nKey: 'unknown_error_alert',
+          severity: 'error',
+          alertOpen: true,
+        });
+      }
     },
   });
 };

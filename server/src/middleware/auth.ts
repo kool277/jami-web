@@ -53,3 +53,26 @@ function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
 export const authenticateToken = createAuthenticationMiddleware(true);
 
 export const authenticateOptionalToken = createAuthenticationMiddleware(false);
+
+export const adminAuthenticationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+  const authorizationHeader = req.headers.authorization;
+  if (!authorizationHeader) {
+    res.sendStatus(HttpStatusCode.Unauthorized);
+    return;
+  }
+  const token = authorizationHeader.split(' ')[1];
+  if (token === undefined) {
+    res.status(HttpStatusCode.Unauthorized).send('Missing JSON web token');
+    return;
+  }
+
+  try {
+    const { payload } = await verifyJwt(token);
+    //TODO: use a more secure way to only grant access to the real admin, using accountId might pose a risk since 'admin' could be a valid regular username
+    if (payload.accountId === 'admin') {
+      next();
+    }
+  } catch (e) {
+    res.status(HttpStatusCode.Unauthorized).send('Invalid access token');
+  }
+};

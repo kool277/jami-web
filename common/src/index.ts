@@ -18,6 +18,7 @@
 export * from './enums/http-status-code.js';
 export * from './enums/websocket-message-type.js';
 export * from './interfaces/account.js';
+export * from './interfaces/admin.js';
 export * from './interfaces/auth-interfaces.js';
 export * from './interfaces/contact.js';
 export * from './interfaces/conversation.js';

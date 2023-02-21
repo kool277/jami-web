@@ -24,7 +24,7 @@ import { AdminAccount } from '../storage/admin-account.js';
 const adminAccount = Container.get(AdminAccount);
 
 export async function checkAdminSetup(_req: Request, res: Response, next: NextFunction) {
-  const isSetupComplete = adminAccount.get() !== undefined;
+  const isSetupComplete = adminAccount.getPasswordHash() !== undefined;
 
   if (!isSetupComplete) {
     res.status(HttpStatusCode.Forbidden).send('Setup not complete');
