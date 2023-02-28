@@ -24,6 +24,7 @@ import { Service } from 'typedi';
 
 import { checkAdminSetup } from './middleware/setup.js';
 import { accountRouter } from './routers/account-router.js';
+import { adminRouter } from './routers/admin-router.js';
 import { authRouter } from './routers/auth-router.js';
 import { callRouter } from './routers/call-router.js';
 import { contactsRouter } from './routers/contacts-router.js';
@@ -32,7 +33,6 @@ import { conversationRouter } from './routers/conversation-router.js';
 import { defaultModeratorsRouter } from './routers/default-moderators-router.js';
 import { linkPreviewRouter } from './routers/link-preview-router.js';
 import { nameserverRouter } from './routers/nameserver-router.js';
-import { setupRouter } from './routers/setup-router.js';
 import { bindChatCallbacks } from './websocket/chat-handler.js';
 import { bindWebRtcCallbacks } from './websocket/webrtc-handler.js';
 
@@ -47,7 +47,7 @@ export class App {
     this.app.use(json());
 
     // Enforce admin setup
-    this.app.use('/setup', setupRouter);
+    this.app.use('/admin', adminRouter);
     this.app.use(checkAdminSetup);
 
     // Setup routing

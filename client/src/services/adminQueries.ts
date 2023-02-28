@@ -32,7 +32,7 @@ export const useSetupAdminMutation = () => {
   return useMutation({
     mutationKey: ['admin', 'setup'],
     mutationFn: async (password: string) => {
-      const { data } = await axios.post('/setup/admin/create', { password }, { baseURL: apiUrl });
+      const { data } = await axios.post('/admin/create', { password }, { baseURL: apiUrl });
       return data;
     },
     onSuccess: () => {
@@ -64,7 +64,7 @@ export const useLoginAdminMutation = () => {
   return useMutation({
     mutationKey: ['admin', 'login'],
     mutationFn: async (password: string) => {
-      const { data } = await axios.post<AccessToken>('/setup/admin/login', { password }, { baseURL: apiUrl });
+      const { data } = await axios.post<AccessToken>('/admin/login', { password }, { baseURL: apiUrl });
       return data;
     },
     onSuccess: (data) => {
@@ -104,7 +104,7 @@ export const useLoginAdminMutation = () => {
 //For non-react components that need to get the admin setup status
 export const checkAdminSetupStatus = async () => {
   try {
-    const { data } = await axios.get<{ isSetupComplete: boolean }>('/setup/check', { baseURL: apiUrl });
+    const { data } = await axios.get<{ isSetupComplete: boolean }>('/admin/check', { baseURL: apiUrl });
     return data.isSetupComplete;
   } catch (e) {
     console.log(e);
@@ -117,7 +117,7 @@ export const useCheckAdminSetupStatusQuery = () => {
   return useQuery({
     queryKey: ['admin', 'status'],
     queryFn: async () => {
-      const { data } = await axios.get<{ isSetupComplete: boolean }>('/setup/check', { baseURL: apiUrl });
+      const { data } = await axios.get<{ isSetupComplete: boolean }>('/admin/check', { baseURL: apiUrl });
       return data.isSetupComplete;
     },
   });

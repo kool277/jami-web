@@ -28,15 +28,15 @@ import { signJwt } from '../utils/jwt.js';
 
 const adminAccount = Container.get(AdminAccount);
 
-export const setupRouter = Router();
+export const adminRouter = Router();
 
-setupRouter.get('/check', (_req, res) => {
+adminRouter.get('/check', (_req, res) => {
   const isSetupComplete = adminAccount.get() !== undefined;
   res.send({ isSetupComplete });
 });
 
-setupRouter.post(
-  '/admin/create',
+adminRouter.post(
+  '/create',
   asyncHandler(async (req: Request<ParamsDictionary, string, Partial<AdminCredentials>>, res) => {
     const { password } = req.body;
     if (password) {
@@ -56,10 +56,10 @@ setupRouter.post(
 // Every request handler after this line will be submitted to this middleware
 // in order to ensure that the admin account is set up before proceeding with
 // setup-related requests
-setupRouter.use(checkAdminSetup);
+adminRouter.use(checkAdminSetup);
 
-setupRouter.post(
-  '/admin/login',
+adminRouter.post(
+  '/login',
   asyncHandler(async (req: Request<ParamsDictionary, AccessToken | string, Partial<AdminCredentials>>, res) => {
     const { password } = req.body;
     if (password === undefined) {
