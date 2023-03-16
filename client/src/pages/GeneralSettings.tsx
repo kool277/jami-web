@@ -45,7 +45,7 @@ const SettingTheme = () => {
 
   const { mode, toggleMode } = useContext(CustomThemeContext);
 
-  return <SettingSwitch label={t('setting_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />;
+  return <SettingSwitch label={t('settings_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />;
 };
 
 const settingLanguageOptions = languagesInfos.map(({ tag, fullName }) => ({
@@ -72,7 +72,12 @@ const SettingLanguage = () => {
   );
 
   return (
-    <SettingSelect label={t('setting_language')} option={option} options={settingLanguageOptions} onChange={onChange} />
+    <SettingSelect
+      label={t('settings_language')}
+      option={option}
+      options={settingLanguageOptions}
+      onChange={onChange}
+    />
   );
 };
 
@@ -81,5 +86,5 @@ const SettingLinkPreview = () => {
 
   const [isOn, setIsOn] = useState<boolean>(true);
 
-  return <SettingSwitch label={t('setting_link_preview')} onChange={() => setIsOn((isOn) => !isOn)} checked={isOn} />;
+  return <SettingSwitch label={t('settings_link_preview')} onChange={() => setIsOn((isOn) => !isOn)} checked={isOn} />;
 };

@@ -18,9 +18,13 @@
 import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 'react-router-dom';
 
 import App, { appLoader } from './App';
+import CustomizeProfile from './components/AccountSettings/CustomizeProfile';
+import LinkedDevices from './components/AccountSettings/LinkedDevices';
+import ManageAccount from './components/AccountSettings/ManageAccount';
 import ContactList from './components/ContactList';
 import ConversationView from './components/ConversationView';
 import Header from './components/Header';
+import SettingSidebar from './components/SettingSidebar';
 import AuthProvider from './contexts/AuthProvider';
 import CallManagerProvider from './contexts/CallManagerProvider';
 import ConversationProvider from './contexts/ConversationProvider';
@@ -80,8 +84,15 @@ export const router = createBrowserRouter(
             }
           />
         </Route>
-        <Route path="settings-account" element={<AccountSettings />} />
-        <Route path="settings-general" element={<GeneralSettings />} />
+        <Route element={<SettingSidebar />}>
+          <Route path="settings/account/manage-account" element={<ManageAccount />} />
+          <Route path="settings/account/customize-profile" element={<CustomizeProfile />} />
+          <Route path="settings/account/linked-devices" element={<LinkedDevices />} />
+          <Route path="settings/general/appearance" element={<GeneralSettings />} />
+
+          <Route path="settings-account" element={<AccountSettings />} />
+          <Route path="settings-general" element={<GeneralSettings />} />
+        </Route>
         <Route path="contacts" element={<ContactList />} />
       </Route>
     </Route>
