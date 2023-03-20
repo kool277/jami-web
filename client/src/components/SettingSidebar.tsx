@@ -78,8 +78,14 @@ function SettingSidebar() {
         icon: null,
         title: t('settings_title_general'),
         highlightKey: 'general',
-        link: '/settings/general/appearance',
+        link: '/settings/general/system',
         submenuItems: [
+          {
+            highlightKey: 'system',
+            icon: null,
+            title: t('settings_title_system'),
+            link: '/settings/general/system',
+          },
           {
             highlightKey: 'appearance',
             icon: null,

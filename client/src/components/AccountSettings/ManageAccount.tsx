@@ -18,11 +18,13 @@
 
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
+import { useTranslation } from 'react-i18next';
 
 import { useAuthContext } from '../../contexts/AuthProvider';
 import JamiIdCard from '../JamiIdCard';
 
 function ManageAccount() {
+  const { t } = useTranslation();
   const { account } = useAuthContext();
 
   const devices: string[][] = [];
@@ -32,12 +34,11 @@ function ManageAccount() {
   console.log(devices);
 
   const isJamiAccount = account.getType() === 'RING';
-  const alias = isJamiAccount ? 'Jami account' : 'SIP account';
 
   return (
     <>
       <Typography variant="h2" component="h2" gutterBottom>
-        {alias}
+        {t('jami_account')}
       </Typography>
       <Grid container spacing={3} style={{ marginBottom: 16 }}>
         {isJamiAccount && (

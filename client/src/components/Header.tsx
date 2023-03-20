@@ -22,8 +22,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { useAuthContext } from '../contexts/AuthProvider';
-
-type NavigateURL = '/' | '/contacts' | '/settings-account' | '/settings-general';
+//TODO:  remove 'settings-account' and 'settings-general' when migration is finished
+type NavigateURL = '/' | '/contacts' | '/settings-account' | '/settings-general' | '/settings/account/manage-account';
 
 export default function Header() {
   const { t } = useTranslation();
@@ -51,6 +51,7 @@ export default function Header() {
         <MenuItem onClick={() => closeMenuAndNavigate(`/contacts`)}>{t('settings_menu_item_contacts')}</MenuItem>
         <MenuItem onClick={() => closeMenuAndNavigate('/settings-account')}>{t('settings_menu_item_account')}</MenuItem>
         <MenuItem onClick={() => closeMenuAndNavigate('/settings-general')}>{t('settings_menu_item_general')}</MenuItem>
+        <MenuItem onClick={() => closeMenuAndNavigate('/settings/account/manage-account')}>{t('settings')}</MenuItem>
         <MenuItem onClick={logout}>{t('logout')}</MenuItem>
       </Menu>
     </Box>
