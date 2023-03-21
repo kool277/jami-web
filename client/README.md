@@ -30,12 +30,6 @@ npm run start:prod
 
 ### Run tests
 
-Run Jest tests:
-
-```
-npm test
-```
-
 Run Cypress tests:
 
 ```
