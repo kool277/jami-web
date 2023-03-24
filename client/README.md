@@ -33,13 +33,13 @@ npm run start:prod
 Run Cypress tests headlessly:
 
 ```
-npm run cypress
+npm run cy
 ```
 
 Run Cypress tests with the browser:
 
 ```
-npm run cypress:open
+npm run cy:open
 ```
 
 To overide configurations without modifying the existing config file:
