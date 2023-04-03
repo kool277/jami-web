@@ -19,7 +19,15 @@
 describe('authentication', () => {
   beforeEach(() => {});
 
-  it('log in and log out successfully', () => {
+  it('log in and log out successfully with UI', () => {
+    cy.loginViaUI();
+
+    cy.logoutViaUI();
+  });
+
+  it('login failed with invalid password', () => {
+    const wrongPassword = Date.now();
+
     cy.visit(Cypress.env('CLIENT_URL'));
 
     cy.url().should('include', '/login');
@@ -30,24 +38,18 @@ describe('authentication', () => {
       .should('have.value', Cypress.env('TEST_USERNAME'));
 
     cy.get('[data-cy = "password-input"]')
-      .type(Cypress.env('TEST_USER_PASSWORD'))
+      .type(wrongPassword.toString())
       .find('input')
-      .should('have.value', Cypress.env('TEST_USER_PASSWORD'));
+      .should('have.value', wrongPassword.toString());
 
     cy.get('[data-cy="login-button"]').contains('Log in').click();
 
-    cy.url().should('include', '/conversation');
+    cy.get('.MuiAlert-message').contains('Incorrect password');
+  });
 
-    cy.get('[data-cy = "menu-button"]').should('exist');
+  it('log in without UI', () => {
+    cy.loginWithoutUI();
 
-    cy.get('[data-cy = "menu-button"]')
-      .click()
-      .then(() => {
-        cy.get('[data-cy = "logout-button"]').contains('Log out').click();
-
-        cy.url().should('include', '/login');
-
-        cy.get('[data-cy="login-button"]').should('exist');
-      });
+    cy.logoutViaUI();
   });
 });
