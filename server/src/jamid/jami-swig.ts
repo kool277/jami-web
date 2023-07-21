@@ -96,7 +96,7 @@ export interface JamiSwig {
 
   getAccountList(): StringVect;
 
-  sendAccountTextMessage(accountId: string, contactId: string, message: StringMap): void;
+  sendAccountTextMessage(accountId: string, contactId: string, message: StringMap, flag: number): void;
 
   lookupName(accountId: string, nameserver: string, username: string): boolean;
   lookupAddress(accountId: string, nameserver: string, address: string): boolean;

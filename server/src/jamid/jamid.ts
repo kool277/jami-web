@@ -258,7 +258,7 @@ export class Jamid {
   sendAccountTextMessage(accountId: string, contactId: string, message: string): void {
     const messageStringMap: StringMap = new this.jamiSwig.StringMap();
     messageStringMap.set('application/json', message);
-    this.jamiSwig.sendAccountTextMessage(accountId, contactId, messageStringMap);
+    this.jamiSwig.sendAccountTextMessage(accountId, contactId, messageStringMap, 0);
   }
 
   async lookupUsername(username: string, accountId?: string): Promise<LookupResult> {
