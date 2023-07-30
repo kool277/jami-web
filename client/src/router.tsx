@@ -15,6 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+
+import { Stack } from '@mui/material';
 import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 'react-router-dom';
 
 import App, { appLoader } from './App';
@@ -58,7 +60,6 @@ export const router = createBrowserRouter(
             <WebSocketProvider>
               <UserMediaProvider>
                 <CallManagerProvider>
-                  <Header />
                   <Outlet />
                 </CallManagerProvider>
               </UserMediaProvider>
@@ -86,7 +87,14 @@ export const router = createBrowserRouter(
             }
           />
         </Route>
-        <Route element={<SettingSidebar />}>
+        <Route
+          element={
+            <Stack>
+              <Header />
+              <SettingSidebar />
+            </Stack>
+          }
+        >
           <Route path="settings/account/manage-account" element={<ManageAccount />} />
           <Route path="settings/account/customize-profile" element={<CustomizeProfile />} />
           <Route path="settings/account/linked-devices" element={<LinkedDevices />} />
