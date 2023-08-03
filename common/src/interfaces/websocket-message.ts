@@ -43,10 +43,8 @@ export interface WebSocketMessageTable {
   [WebSocketMessageType.onCallExit]: CallExit & WithSender;
   [WebSocketMessageType.sendCallJoin]: CallJoin;
   [WebSocketMessageType.onCallJoin]: CallJoin & WithSender;
-  [WebSocketMessageType.sendWebRtcOffer]: WebRtcSdp & WithReceiver;
-  [WebSocketMessageType.onWebRtcOffer]: WebRtcSdp & WithSender;
-  [WebSocketMessageType.sendWebRtcAnswer]: WebRtcSdp & WithReceiver;
-  [WebSocketMessageType.onWebRtcAnswer]: WebRtcSdp & WithSender;
+  [WebSocketMessageType.sendWebRtcDescription]: WebRtcSdp & WithReceiver;
+  [WebSocketMessageType.onWebRtcDescription]: WebRtcSdp & WithSender;
   [WebSocketMessageType.sendWebRtcIceCandidate]: WebRtcIceCandidate & WithReceiver;
   [WebSocketMessageType.onWebRtcIceCandidate]: WebRtcIceCandidate & WithSender;
 }

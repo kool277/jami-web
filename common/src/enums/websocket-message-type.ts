@@ -28,10 +28,8 @@ export enum WebSocketMessageType {
   onCallExit = 'onCallExit',
   sendCallJoin = 'sendCallJoin',
   onCallJoin = 'onCallJoin',
-  sendWebRtcOffer = 'sendWebRtcOffer',
-  onWebRtcOffer = 'onWebRtcOffer',
-  sendWebRtcAnswer = 'sendWebRtcAnswer',
-  onWebRtcAnswer = 'onWebRtcAnswer',
+  sendWebRtcDescription = 'sendWebRtcDescription',
+  onWebRtcDescription = 'onWebRtcDescription',
   sendWebRtcIceCandidate = 'sendWebRtcIceCandidate',
   onWebRtcIceCandidate = 'onWebRtcIceCandidate',
 }

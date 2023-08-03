@@ -34,6 +34,10 @@ export class RTCPeerConnectionHandler {
   private iceConnectionState: RTCIceConnectionState = 'new';
   private isReadyForIceCandidates = false;
 
+  private isPolite = false; // Implementing "perfect negotiation" pattern
+  private makingOffer = false;
+  private ignoreOffer = false;
+
   private audioRtcRtpSenders: RTCRtpSender[] | null = null;
   private videoRtcRtpSenders: RTCRtpSender[] | null = null;
 
@@ -65,17 +69,13 @@ export class RTCPeerConnectionHandler {
     screenShareLocalStream: MediaStream | undefined,
     listener: Listener
   ) {
-    console.log('constructor', callData);
+    this.isPolite = account.getUri() < contactUri;
     this.listener = listener;
     const iceServers = this.getIceServers(account);
     this.connection = new RTCPeerConnection({ iceServers });
     this.setConnectionListeners(webSocket, callData.conversationId, contactUri);
     this.setWebSocketListeners(webSocket, callData.conversationId, contactUri);
     this.updateLocalStreams(localStream, screenShareLocalStream);
-
-    if (callData.role === 'caller') {
-      this.startNegociation(webSocket, contactUri, callData.conversationId);
-    }
   }
 
   updateLocalStreams(localStream: MediaStream | undefined, screenShareLocalStream: MediaStream | undefined) {
@@ -150,45 +150,21 @@ export class RTCPeerConnectionHandler {
     return iceServers;
   }
 
-  private startNegociation(webSocket: IWebSocketContext, contactUri: string, conversationId: string) {
-    this.sendWebRtcOffer(webSocket, contactUri, conversationId);
-  }
-
-  private async sendWebRtcOffer(webSocket: IWebSocketContext, contactUri: string, conversationId: string) {
-    const sdp = await this.connection.createOffer({
-      offerToReceiveAudio: true,
-      offerToReceiveVideo: true,
-    });
-
-    const webRtcOffer: WebSocketMessageTable['sendWebRtcOffer'] = {
-      receiverId: contactUri,
-      conversationId: conversationId,
-      sdp,
-    };
-
-    await this.connection.setLocalDescription(new RTCSessionDescription(sdp));
-    console.info('Sending WebRtcOffer', webRtcOffer);
-    webSocket.send(WebSocketMessageType.sendWebRtcOffer, webRtcOffer);
-  }
-
-  private setWebSocketListeners(webSocket: IWebSocketContext, conversationId: string, contactUri: string) {
-    const sendWebRtcAnswer = async () => {
-      const sdp = await this.connection.createAnswer({
-        offerToReceiveAudio: true,
-        offerToReceiveVideo: true,
-      });
-
-      const webRtcAnswer: WebSocketMessageTable['sendWebRtcAnswer'] = {
+  private async sendLocalDescription(webSocket: IWebSocketContext, conversationId: string, contactUri: string) {
+    await this.connection.setLocalDescription();
+    const sdp = this.connection.localDescription;
+    if (sdp) {
+      const webRtcDescription: WebSocketMessageTable['sendWebRtcDescription'] = {
         receiverId: contactUri,
         conversationId: conversationId,
         sdp,
       };
+      webSocket.send(WebSocketMessageType.sendWebRtcDescription, webRtcDescription);
+      console.info('Sending webRtcDescription', webRtcDescription);
+    }
+  }
 
-      await this.connection.setLocalDescription(new RTCSessionDescription(sdp));
-      console.info('Sending WebRtcAnswer', webRtcAnswer);
-      webSocket.send(WebSocketMessageType.sendWebRtcAnswer, webRtcAnswer);
-    };
-
+  private setWebSocketListeners(webSocket: IWebSocketContext, conversationId: string, contactUri: string) {
     const addQueuedIceCandidates = async () => {
       console.info('WebRTC remote description has been set. Ready to receive ICE candidates');
       this.isReadyForIceCandidates = true;
@@ -199,31 +175,36 @@ export class RTCPeerConnectionHandler {
           this.iceCandidateQueue
         );
 
-        await Promise.all(this.iceCandidateQueue.map((iceCandidate) => this.connection.addIceCandidate(iceCandidate)));
+        await Promise.all(
+          this.iceCandidateQueue.map((iceCandidate) => this.connection.addIceCandidate(iceCandidate))
+        ).catch((err) => {
+          if (!this.ignoreOffer) {
+            console.error(err);
+          }
+        });
       }
     };
 
-    const webRtcOfferListener = async (data: WebRtcSdp) => {
-      console.debug('receive webrtcoffer');
-      console.info('Received event on WebRtcOffer', data);
-      if (data.conversationId !== conversationId) {
-        console.warn('Wrong incoming conversationId, ignoring action');
-        return;
-      }
-
-      await this.connection.setRemoteDescription(new RTCSessionDescription(data.sdp));
-      await sendWebRtcAnswer();
-      await addQueuedIceCandidates();
-    };
-
-    const webRtcAnswerListener = async (data: WebRtcSdp) => {
+    const webRtcDescriptionListener = async (data: WebRtcSdp) => {
       console.info('Received event on WebRtcAnswer', data);
       if (data.conversationId !== conversationId) {
         console.warn('Wrong incoming conversationId, ignoring action');
         return;
       }
 
-      await this.connection.setRemoteDescription(new RTCSessionDescription(data.sdp));
+      const remoteDescription = data.sdp;
+      const offerCollision =
+        remoteDescription.type === 'offer' && (this.makingOffer || this.connection.signalingState !== 'stable');
+
+      this.ignoreOffer = !this.isPolite && offerCollision;
+      if (this.ignoreOffer) {
+        return;
+      }
+
+      await this.connection.setRemoteDescription(remoteDescription);
+      if (remoteDescription.type === 'offer') {
+        await this.sendLocalDescription(webSocket, conversationId, contactUri);
+      }
       await addQueuedIceCandidates();
     };
 
@@ -238,24 +219,48 @@ export class RTCPeerConnectionHandler {
       }
 
       if (this.isReadyForIceCandidates) {
-        await this.connection.addIceCandidate(data.candidate);
+        try {
+          await this.connection.addIceCandidate(data.candidate);
+        } catch (err) {
+          if (!this.ignoreOffer) {
+            console.error(err);
+          }
+        }
       } else {
         this.iceCandidateQueue.push(data.candidate);
       }
     };
 
-    webSocket.bind(WebSocketMessageType.onWebRtcOffer, webRtcOfferListener);
-    webSocket.bind(WebSocketMessageType.onWebRtcAnswer, webRtcAnswerListener);
+    webSocket.bind(WebSocketMessageType.onWebRtcDescription, webRtcDescriptionListener);
     webSocket.bind(WebSocketMessageType.onWebRtcIceCandidate, webRtcIceCandidateListener);
 
     this.cleaningFunctions.push(() => {
-      webSocket.unbind(WebSocketMessageType.onWebRtcOffer, webRtcOfferListener);
-      webSocket.unbind(WebSocketMessageType.onWebRtcAnswer, webRtcAnswerListener);
+      webSocket.unbind(WebSocketMessageType.onWebRtcDescription, webRtcDescriptionListener);
       webSocket.unbind(WebSocketMessageType.onWebRtcIceCandidate, webRtcIceCandidateListener);
     });
   }
 
   private setConnectionListeners(webSocket: IWebSocketContext, conversationId: string, contactUri: string) {
+    this.connection.onnegotiationneeded = async () => {
+      try {
+        this.makingOffer = true;
+        await this.sendLocalDescription(webSocket, conversationId, contactUri);
+      } catch (err) {
+        // This is not an error if there was a collision
+        console.warn(err);
+      } finally {
+        this.makingOffer = false;
+      }
+    };
+
+    this.connection.oniceconnectionstatechange = () => {
+      if (this.connection.iceConnectionState === 'failed') {
+        // This is not an error if there was a collision
+        console.warn('ICE connection failed, restarting ICE');
+        this.connection.restartIce();
+      }
+    };
+
     this.connection.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
       if (event.candidate) {
         const webRtcIceCandidate: WebSocketMessageTable['sendWebRtcIceCandidate'] = {

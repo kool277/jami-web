@@ -46,14 +46,9 @@ export function bindWebRtcCallbacks() {
     });
   });
 
-  webSocketServer.bind(WebSocketMessageType.sendWebRtcOffer, (accountId, data) => {
+  webSocketServer.bind(WebSocketMessageType.sendWebRtcDescription, (accountId, data) => {
     const { receiverId, ...partialData } = data;
-    sendWebRtcData(WebSocketMessageType.onWebRtcOffer, partialData, accountId, receiverId);
-  });
-
-  webSocketServer.bind(WebSocketMessageType.sendWebRtcAnswer, (accountId, data) => {
-    const { receiverId, ...partialData } = data;
-    sendWebRtcData(WebSocketMessageType.onWebRtcAnswer, partialData, accountId, receiverId);
+    sendWebRtcData(WebSocketMessageType.onWebRtcDescription, partialData, accountId, receiverId);
   });
 
   webSocketServer.bind(WebSocketMessageType.sendWebRtcIceCandidate, (accountId, data) => {

@@ -249,7 +249,7 @@ export const useCallManager = () => {
           setCallStatus(CallStatus.Connecting);
           console.info('Sending CallJoin', callAccept);
           webSocket.send(WebSocketMessageType.sendCallJoin, callAccept);
-          // TODO: move this to "onWebRtcOffer" listener so we don't add connections for non-connected members
+          // TODO: move this to "onWebRtcDescription" listener so we don't add connections for non-connected members
           callMembers.forEach((member) =>
             webRtcManager.addConnection(
               webSocket,
