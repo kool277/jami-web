@@ -31,13 +31,7 @@ import CustomThemeProvider from './contexts/CustomThemeProvider';
 import { store } from './redux/store';
 import { router } from './router';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      cacheTime: Infinity, // websocket is responsible to tell when data needs to be updated
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 const container = document.getElementById('root');
 if (!container) {
