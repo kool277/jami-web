@@ -43,11 +43,11 @@ export class Accounts {
   }
 
   get(username: string, isJams = false): string | undefined {
-    return this.accounts[isJams ? 'jams' : 'local'][username];
+    return this.accounts[isJams ? 'jams' : 'local'][username.toLowerCase()];
   }
 
   set(username: string, password: string, isJams = false): void {
-    this.accounts[isJams ? 'jams' : 'local'][username] = password;
+    this.accounts[isJams ? 'jams' : 'local'][username.toLowerCase()] = password;
   }
 
   async save(): Promise<void> {

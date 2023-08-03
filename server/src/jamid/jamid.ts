@@ -235,7 +235,6 @@ export class Jamid {
     for (const [key, value] of Object.entries(accountDetails)) {
       accountDetailsStringMap.set(key, value.toString());
     }
-
     const accountId = this.jamiSwig.addAccount(accountDetailsStringMap);
     return firstValueFrom(
       this.events.onRegistrationStateChanged.pipe(
@@ -420,7 +419,7 @@ export class Jamid {
   }
 
   getAccountIdFromUsername(username: string): string | undefined {
-    return this.usernamesToAccountIds.get(username);
+    return this.usernamesToAccountIds.get(username.toLowerCase());
   }
 
   private setupSignalHandlers(): void {
@@ -441,7 +440,7 @@ export class Jamid {
 
       if (username) {
         // Keep map of usernames to account IDs
-        this.usernamesToAccountIds.set(username, accountId);
+        this.usernamesToAccountIds.set(username.toLowerCase(), accountId);
       }
     });
 
