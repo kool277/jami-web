@@ -136,6 +136,7 @@ function LoginForm() {
             type="submit"
             onClick={login}
             sx={{ width: theme.typography.pxToRem(inputWidth), mt: theme.typography.pxToRem(20) }}
+            disabled={username === '' || password === ''}
           >
             {t('login_form_submit_button')}
           </Button>
