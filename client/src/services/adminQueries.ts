@@ -43,7 +43,7 @@ export const useSetupAdminMutation = () => {
     onError: (e: any) => {
       if (e.response?.status === HttpStatusCode.BadRequest) {
         setAlertContent({
-          messageI18nKey: 'login_invalid_password',
+          messageI18nKey: 'login_invalid_credentials',
           severity: 'error',
           alertOpen: true,
         });
@@ -87,7 +87,7 @@ export const useLoginAdminMutation = () => {
         });
       } else if (e.response?.status === HttpStatusCode.Unauthorized) {
         setAlertContent({
-          messageI18nKey: 'login_invalid_password',
+          messageI18nKey: 'login_invalid_credentials',
           severity: 'error',
           alertOpen: true,
         });

@@ -44,7 +44,7 @@ describe('authentication', () => {
 
     cy.get('[data-cy="login-button"]').contains('Log in').click();
 
-    cy.get('.MuiAlert-message').contains('Incorrect password');
+    cy.get('.MuiAlert-message').contains('Invalid credentials');
   });
 
   it('log in without UI', () => {

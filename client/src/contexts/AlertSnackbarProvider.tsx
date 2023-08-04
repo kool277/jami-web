@@ -81,7 +81,7 @@ type AlertMessageKeys =
   | 'unknown_error_alert'
   | 'username_input_helper_text_empty'
   | 'password_input_helper_text_empty'
-  | 'login_invalid_password'
+  | 'login_invalid_credentials'
   | 'registration_success'
   | '';
 
@@ -111,8 +111,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('username_input_helper_text_empty');
         case 'password_input_helper_text_empty':
           return t('password_input_helper_text_empty');
-        case 'login_invalid_password':
-          return t('login_invalid_password');
+        case 'login_invalid_credentials':
+          return t('login_invalid_credentials');
         case 'registration_success':
           return t('registration_success');
         case 'redirect_admin_setup_complete':

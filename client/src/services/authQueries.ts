@@ -140,7 +140,7 @@ export const useLoginMutation = () => {
         //TODO: there are two different not found responses that could be returned by the server, use message to differentiate them?
         //continue when the auth flow is clear
       } else if (status === HttpStatusCode.Unauthorized) {
-        setAlertContent({ messageI18nKey: 'login_invalid_password', severity: 'error', alertOpen: true });
+        setAlertContent({ messageI18nKey: 'login_invalid_credentials', severity: 'error', alertOpen: true });
       } else {
         setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
       }

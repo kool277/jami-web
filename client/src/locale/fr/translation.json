@@ -80,8 +80,6 @@
   "login_form_to_registration_text": "Besoin d'un compte?",
   "login_form_username_tooltip": "Le nom d'utilisateur avec lequel vous vous êtes inscrit(e)",
   "login_invalid_credentials": "Identifiants incorrects",
-  "login_invalid_password": "Mot de passe incorrect",
-  "login_username_not_found": "Nom d'utilisateur introuvable",
   "logout": "Se déconnecter",
   "Menu": "Menu",
   "message_call_incoming": "Appel sortant - {{duration}}",

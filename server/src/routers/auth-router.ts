@@ -107,14 +107,14 @@ authRouter.post(
     // Check if the account is stored on this daemon instance
     const accountId = jamid.getAccountIdFromUsername(username);
     if (accountId === undefined) {
-      res.status(HttpStatusCode.NotFound).send('Username not found');
+      res.status(HttpStatusCode.Unauthorized).send('Username not found');
       return;
     }
 
     const hashedPassword = accounts.get(username, isJams);
     if (hashedPassword === undefined) {
       res
-        .status(HttpStatusCode.NotFound)
+        .status(HttpStatusCode.Unauthorized)
         .send('Password not found (the account does not have a password set on the server)');
       return;
     }

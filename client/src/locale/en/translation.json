@@ -80,8 +80,6 @@
   "login_form_to_registration_text": "Need an account?",
   "login_form_username_tooltip": "The username you registered with",
   "login_invalid_credentials": "Invalid credentials",
-  "login_invalid_password": "Incorrect password",
-  "login_username_not_found": "Username not found",
   "logout": "Log out",
   "Menu": "Menu",
   "message_call_incoming": "Incoming call - {{duration}}",
