@@ -16,22 +16,22 @@
  * <https://www.gnu.org/licenses/>.
  */
 import {
-  TabPanelUnstyled,
-  TabPanelUnstyledProps,
-  TabsListUnstyled,
-  TabsUnstyled,
-  TabsUnstyledProps,
-  TabUnstyled,
-  TabUnstyledProps,
+  Tab as MuiTab,
+  TabPanel as MuiTabPanel,
+  TabPanelProps as MuiTabPanelProps,
+  TabProps as MuiTabProps,
+  Tabs as MuiTabs,
+  TabsList as MuiTabsList,
+  TabsProps as MuiTabsProps,
 } from '@mui/base';
 import { Theme } from '@mui/material/styles';
 import { styled } from '@mui/system';
 
-type TabProps = TabUnstyledProps & {
+type TabProps = MuiTabProps & {
   theme?: Theme;
 };
 
-export const Tab = styled(TabUnstyled)<TabProps>(({ theme }) => ({
+export const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   fontFamily: theme.typography.fontFamily,
   ...theme.typography.body1,
   color: '#666666',
@@ -66,19 +66,19 @@ export const Tab = styled(TabUnstyled)<TabProps>(({ theme }) => ({
   },
 }));
 
-export type TabPanelProps = TabPanelUnstyledProps;
+export type TabPanelProps = MuiTabPanelProps;
 
-export const TabPanel = styled(TabPanelUnstyled)(() => ({
+export const TabPanel = styled(MuiTabPanel)(() => ({
   width: '100%',
 }));
 
-export const TabsList = styled(TabsListUnstyled)(() => ({
+export const TabsList = styled(MuiTabsList)(() => ({
   display: 'flex',
   alignItems: 'center',
   placeContent: 'space-evenly',
   borderBottom: '1px solid #bfbfbf',
 }));
 
-export type TabsProps = TabsUnstyledProps;
+export type TabsProps = MuiTabsProps;
 
-export const Tabs = TabsUnstyled;
+export const Tabs = MuiTabs;
