@@ -25,6 +25,7 @@ import { Form, Link } from 'react-router-dom';
 import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input';
 import ProcessingRequest from '../components/ProcessingRequest';
 import withAuthUI from '../components/WithAuthUI';
+import { PasswordStrength } from '../enums/passwordStrength';
 import {
   checkPasswordStrength,
   useCheckIfUsernameIsRegisteredQuery,
@@ -55,8 +56,8 @@ function RegistrationForm() {
 
   const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername);
 
-  const usernameOk = usernameStatus === 'success';
-  const passwordOk = passwordStatus === 'strong';
+  const usernameOk = usernameStatus === 'valid';
+  const passwordOk = passwordStatus !== PasswordStrength.TooWeak;
 
   useEffect(() => {
     if (response !== undefined) {

@@ -40,6 +40,7 @@ authRouter.post(
       res.status(HttpStatusCode.BadRequest).send('Missing username or password in body');
       return;
     }
+    console.log('Creating new account', username, password, isJams);
 
     const isAccountAlreadyCreated = accounts.get(username, isJams) !== undefined;
     if (isAccountAlreadyCreated) {
@@ -47,12 +48,12 @@ authRouter.post(
       return;
     }
 
-    if (password === '') {
+    /*if (password === '') {
       res.status(HttpStatusCode.BadRequest).send('Password may not be empty');
       return;
-    }
+    }*/
 
-    const hashedPassword = await argon2.hash(password, { type: argon2.argon2id });
+    const hashedPassword = password ? await argon2.hash(password, { type: argon2.argon2id }) : '';
 
     const accountDetails: Partial<AccountDetails> = {
       // TODO: Enable encrypted archives

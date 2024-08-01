@@ -22,7 +22,7 @@ import { styled } from '@mui/material/styles';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { StrengthValueCode } from '../services/authQueries';
+import { PasswordStrength } from '../enums/passwordStrength';
 import { InfoButton, ToggleVisibilityButton } from './Button';
 import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog';
 import { CheckedIcon, LockIcon, PenIcon, PersonIcon, RoundSaltireIcon } from './SvgIcon';
@@ -42,7 +42,7 @@ const StyledPersonIconLight = styled(PersonIcon)({ height: iconsHeight, color: '
 const StyledLockIcon = styled(LockIcon)({ height: iconsHeight, color: '#03B9E9' });
 
 export type NameStatus = 'default' | 'success' | 'taken' | 'valid' | 'invalid' | 'registration_failed';
-export type PasswordStatus = StrengthValueCode | 'registration_failed';
+export type PasswordStatus = 'default' | PasswordStrength | 'registration_failed';
 
 export type InputProps<StatusType extends NameStatus | PasswordStatus> = TextFieldProps & {
   status?: StatusType;
@@ -125,8 +125,8 @@ export const PasswordInput = ({
   const [isSelected, setIsSelected] = useState(false);
   const dialogHandler = useDialogHandler();
 
-  const passwordError = status !== 'strong' && status !== 'default';
-  const passwordSuccess = status === 'strong';
+  const passwordError = status === PasswordStrength.TooWeak;
+  const passwordSuccess = status !== 'default' && !passwordError;
 
   const toggleShowPassword = () => {
     setShowPassword((showPassword) => !showPassword);
@@ -161,7 +161,7 @@ export const PasswordInput = ({
         type={showPassword ? 'text' : 'password'}
         variant="standard"
         autoComplete="current-password"
-        helperText={status !== 'default' ? helperText : ''}
+        helperText={status === PasswordStrength.TooWeak ? helperText : ''}
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}

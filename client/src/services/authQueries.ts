@@ -48,13 +48,10 @@ interface RegisterData {
 
 export interface PasswordCheckResult {
   strong: boolean;
-  valueCode: StrengthValueCode;
+  valueCode: PasswordStrength;
 }
 
-export type StrengthValueCode = 'default' | 'too_weak' | 'weak' | 'medium' | 'strong';
 export type LoginMethod = 'Jami' | 'JAMS';
-
-const idToStrengthValueCode: StrengthValueCode[] = ['too_weak', 'weak', 'medium', 'strong'];
 
 export const useCheckIfUsernameIsRegisteredQuery = (username: string) => {
   return useQuery({
@@ -70,11 +67,37 @@ export const useCheckIfUsernameIsRegisteredQuery = (username: string) => {
 };
 
 export function checkPasswordStrength(password: string): PasswordCheckResult {
-  const strengthResult: PasswordStrengthResult = passwordStrength(password);
+  const strengthResult: PasswordStrengthResult = passwordStrength(password, [
+    {
+      id: PasswordStrength.TooWeak,
+      value: 'Too weak',
+      minDiversity: 0,
+      minLength: 0,
+    },
+    {
+      id: PasswordStrength.Weak,
+      value: 'Weak',
+      minDiversity: 2,
+      minLength: 6,
+    },
+    {
+      id: PasswordStrength.Medium,
+      value: 'Medium',
+      minDiversity: 4,
+      minLength: 8,
+    },
+    {
+      id: PasswordStrength.Strong,
+      value: 'Strong',
+      minDiversity: 4,
+      minLength: 10,
+    },
+  ]);
+  console.log(strengthResult);
 
   return {
-    strong: strengthResult.id === PasswordStrength.Strong.valueOf(),
-    valueCode: idToStrengthValueCode[strengthResult.id] ?? 'default',
+    strong: strengthResult.id !== PasswordStrength.TooWeak,
+    valueCode: strengthResult.id,
   };
 }
 
