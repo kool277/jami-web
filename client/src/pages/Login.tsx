@@ -25,58 +25,58 @@ import {
   Stack,
   Typography,
   useMediaQuery,
-} from '@mui/material';
-import { Theme, useTheme } from '@mui/material/styles';
-import { ChangeEvent, FormEvent, useContext, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Form, Link } from 'react-router-dom';
+} from '@mui/material'
+import { Theme, useTheme } from '@mui/material/styles'
+import { ChangeEvent, FormEvent, useContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Form, Link } from 'react-router-dom'
 
-import { PasswordInput, UsernameInput } from '../components/Input';
-import ProcessingRequest from '../components/ProcessingRequest';
-import withAuthUI from '../components/WithAuthUI';
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
-import { useLoginMutation } from '../services/authQueries';
-import { inputWidth } from '../utils/constants';
+import { PasswordInput, UsernameInput } from '../components/Input'
+import ProcessingRequest from '../components/ProcessingRequest'
+import withAuthUI from '../components/WithAuthUI'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
+import { useLoginMutation } from '../services/authQueries'
+import { inputWidth } from '../utils/constants'
 function LoginForm() {
-  const theme: Theme = useTheme();
-  const { t } = useTranslation();
+  const theme: Theme = useTheme()
+  const { t } = useTranslation()
 
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [isJams, setIsJams] = useState<boolean>(false);
+  const [username, setUsername] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [isJams, setIsJams] = useState<boolean>(false)
 
-  const { setAlertContent } = useContext(AlertSnackbarContext);
+  const { setAlertContent } = useContext(AlertSnackbarContext)
 
-  const loginMutation = useLoginMutation();
-  const { isLoading } = loginMutation;
+  const loginMutation = useLoginMutation()
+  const { isLoading } = loginMutation
 
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'));
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
   const handleUsername = (event: ChangeEvent<HTMLInputElement>) => {
-    setUsername(event.target.value);
-  };
+    setUsername(event.target.value)
+  }
 
   const handlePassword = (event: ChangeEvent<HTMLInputElement>) => {
-    setPassword(event.target.value);
-  };
+    setPassword(event.target.value)
+  }
 
   const handleIsJams = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsJams(event.target.value === 'true');
-  };
+    setIsJams(event.target.value === 'true')
+  }
 
   const login = (event: FormEvent) => {
-    event.preventDefault();
+    event.preventDefault()
     if (username === '') {
-      setAlertContent({ messageI18nKey: 'username_input_helper_text_empty', severity: 'error', alertOpen: true });
-      return;
+      setAlertContent({ messageI18nKey: 'username_input_helper_text_empty', severity: 'error', alertOpen: true })
+      return
     }
     if (password === '') {
-      setAlertContent({ messageI18nKey: 'password_input_helper_text_empty', severity: 'error', alertOpen: true });
-      return;
+      setAlertContent({ messageI18nKey: 'password_input_helper_text_empty', severity: 'error', alertOpen: true })
+      return
     }
 
-    loginMutation.mutate({ username, password, isJams });
-  };
+    loginMutation.mutate({ username, password, isJams })
+  }
 
   return (
     <>
@@ -152,7 +152,7 @@ function LoginForm() {
         </Box>
       </Stack>
     </>
-  );
+  )
 }
 
-export default withAuthUI(LoginForm);
+export default withAuthUI(LoginForm)

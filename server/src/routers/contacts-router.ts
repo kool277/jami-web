@@ -15,58 +15,58 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Router } from 'express';
-import { HttpStatusCode } from 'jami-web-common';
-import { Container } from 'typedi';
+import { Router } from 'express'
+import { HttpStatusCode } from 'jami-web-common'
+import { Container } from 'typedi'
 
-import { Jamid } from '../jamid/jamid.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { Jamid } from '../jamid/jamid.js'
+import { authenticateToken } from '../middleware/auth.js'
 
-const jamid = Container.get(Jamid);
+const jamid = Container.get(Jamid)
 
-export const contactsRouter = Router();
+export const contactsRouter = Router()
 
-contactsRouter.use(authenticateToken);
+contactsRouter.use(authenticateToken)
 
 contactsRouter.get('/', (_req, res) => {
-  const contacts = jamid.getContacts(res.locals.accountId);
-  res.send(contacts);
-});
+  const contacts = jamid.getContacts(res.locals.accountId)
+  res.send(contacts)
+})
 
 contactsRouter.get('/:contactId', (req, res) => {
-  const contactDetails = jamid.getContactDetails(res.locals.accountId, req.params.contactId);
+  const contactDetails = jamid.getContactDetails(res.locals.accountId, req.params.contactId)
 
   if (Object.keys(contactDetails).length === 0) {
-    res.status(HttpStatusCode.NotFound).send('No such contact found');
-    return;
+    res.status(HttpStatusCode.NotFound).send('No such contact found')
+    return
   }
 
-  res.send(contactDetails);
-});
+  res.send(contactDetails)
+})
 
 contactsRouter.put('/:contactId', (req, res) => {
-  const accountId = res.locals.accountId;
-  const contactId = req.params.contactId;
+  const accountId = res.locals.accountId
+  const contactId = req.params.contactId
 
-  jamid.addContact(accountId, contactId);
+  jamid.addContact(accountId, contactId)
   // We need to manually send a conversation request
-  jamid.sendTrustRequest(accountId, contactId);
+  jamid.sendTrustRequest(accountId, contactId)
 
-  const contactDetails = jamid.getContactDetails(accountId, contactId);
+  const contactDetails = jamid.getContactDetails(accountId, contactId)
   if (Object.keys(contactDetails).length === 0) {
-    res.status(HttpStatusCode.NotFound).send('No such contact found');
-    return;
+    res.status(HttpStatusCode.NotFound).send('No such contact found')
+    return
   }
 
-  res.send(contactDetails);
-});
+  res.send(contactDetails)
+})
 
 contactsRouter.delete('/:contactId', (req, res) => {
-  jamid.removeContact(res.locals.accountId, req.params.contactId);
-  res.sendStatus(HttpStatusCode.NoContent);
-});
+  jamid.removeContact(res.locals.accountId, req.params.contactId)
+  res.sendStatus(HttpStatusCode.NoContent)
+})
 
 contactsRouter.post('/:contactId/block', (req, res) => {
-  jamid.blockContact(res.locals.accountId, req.params.contactId);
-  res.sendStatus(HttpStatusCode.NoContent);
-});
+  jamid.blockContact(res.locals.accountId, req.params.contactId)
+  res.sendStatus(HttpStatusCode.NoContent)
+})

@@ -15,32 +15,32 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, List, ListItem, ListItemIcon, Stack, SvgIconProps, Typography } from '@mui/material';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import { ComponentType, ReactNode, useCallback, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Box, Button, List, ListItem, ListItemIcon, Stack, SvgIconProps, Typography } from '@mui/material'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogTitle from '@mui/material/DialogTitle'
+import { ComponentType, ReactNode, useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface DialogHandler {
   props: {
-    open: boolean;
-    onClose: () => void;
-  };
-  openDialog: () => void;
+    open: boolean
+    onClose: () => void
+  }
+  openDialog: () => void
 }
 
 export const useDialogHandler = (): DialogHandler => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   const onClose = useCallback(() => {
-    setOpen(false);
-  }, []);
+    setOpen(false)
+  }, [])
 
   const openDialog = useCallback(() => {
-    setOpen(true);
-  }, []);
+    setOpen(true)
+  }, [])
 
   return useMemo(
     () => ({
@@ -48,16 +48,16 @@ export const useDialogHandler = (): DialogHandler => {
       openDialog,
     }),
     [open, onClose, openDialog]
-  );
-};
+  )
+}
 
 interface BaseDialogProps {
-  open: boolean;
-  onClose: () => void;
-  icon?: ReactNode;
-  title: string;
-  content: ReactNode;
-  actions: ReactNode;
+  open: boolean
+  onClose: () => void
+  icon?: ReactNode
+  title: string
+  content: ReactNode
+  actions: ReactNode
 }
 
 export const BaseDialog = ({ open, onClose, icon, title, content, actions }: BaseDialogProps) => {
@@ -78,13 +78,13 @@ export const BaseDialog = ({ open, onClose, icon, title, content, actions }: Bas
       <DialogContent>{content}</DialogContent>
       <DialogActions>{actions}</DialogActions>
     </Dialog>
-  );
-};
+  )
+}
 
-type InfosDialogProps = Omit<BaseDialogProps, 'actions'>;
+type InfosDialogProps = Omit<BaseDialogProps, 'actions'>
 
 export const InfosDialog = (props: InfosDialogProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <BaseDialog
       {...props}
@@ -94,18 +94,18 @@ export const InfosDialog = (props: InfosDialogProps) => {
         </Button>
       }
     />
-  );
-};
+  )
+}
 
 interface ConfirmationDialogProps extends Omit<BaseDialogProps, 'actions'> {
-  onConfirm: () => void;
-  confirmButtonText: string;
-  content: string;
+  onConfirm: () => void
+  confirmButtonText: string
+  content: string
 }
 
 export const ConfirmationDialog = ({ onConfirm, confirmButtonText, ...props }: ConfirmationDialogProps) => {
-  const { t } = useTranslation();
-  props.title = props.title || t('dialog_confirm_title_default');
+  const { t } = useTranslation()
+  props.title = props.title || t('dialog_confirm_title_default')
 
   return (
     <BaseDialog
@@ -118,18 +118,18 @@ export const ConfirmationDialog = ({ onConfirm, confirmButtonText, ...props }: C
         </>
       }
     />
-  );
-};
+  )
+}
 
 interface DialogContentListItem {
-  Icon?: ComponentType<SvgIconProps>;
-  label?: string;
-  value: ReactNode;
+  Icon?: ComponentType<SvgIconProps>
+  label?: string
+  value: ReactNode
 }
 
 interface DialogContentListProps {
-  title?: string;
-  items: DialogContentListItem[];
+  title?: string
+  items: DialogContentListItem[]
 }
 
 export const DialogContentList = ({ title, items }: DialogContentListProps) => {
@@ -159,5 +159,5 @@ export const DialogContentList = ({ title, items }: DialogContentListProps) => {
         </ListItem>
       ))}
     </List>
-  );
-};
+  )
+}

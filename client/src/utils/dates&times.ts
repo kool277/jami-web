@@ -15,26 +15,26 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import dayjs, { Dayjs } from 'dayjs';
-import { Duration } from 'dayjs/plugin/duration';
-import { i18n } from 'i18next';
+import dayjs, { Dayjs } from 'dayjs'
+import { Duration } from 'dayjs/plugin/duration'
+import { i18n } from 'i18next'
 
 export const formatTime = (time: Dayjs, i18n: i18n) => {
-  return dayjs(time).locale(i18n.language).format('LT');
-};
+  return dayjs(time).locale(i18n.language).format('LT')
+}
 
 export const formatRelativeDate = (time: Dayjs, i18n: i18n) => {
   if (time.isToday()) {
-    return new Intl.RelativeTimeFormat(i18n.language, { numeric: 'auto' }).format(0, 'day');
+    return new Intl.RelativeTimeFormat(i18n.language, { numeric: 'auto' }).format(0, 'day')
   } else if (time.isYesterday()) {
-    return new Intl.RelativeTimeFormat(i18n.language, { numeric: 'auto' }).format(-1, 'day');
+    return new Intl.RelativeTimeFormat(i18n.language, { numeric: 'auto' }).format(-1, 'day')
   } else {
-    return dayjs(time).locale(i18n.language).format('L');
+    return dayjs(time).locale(i18n.language).format('L')
   }
-};
+}
 
 export const formatCallDuration = (duration: Duration) => {
-  const minutes = Math.floor(duration.asMinutes()).toString().padStart(2, '0');
-  const seconds = duration.format('ss');
-  return `${minutes}:${seconds}`;
-};
+  const minutes = Math.floor(duration.asMinutes()).toString().padStart(2, '0')
+  const seconds = duration.format('ss')
+  return `${minutes}:${seconds}`
+}

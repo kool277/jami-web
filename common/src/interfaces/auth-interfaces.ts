@@ -16,15 +16,15 @@
  * <https://www.gnu.org/licenses/>.
  */
 export interface UserCredentials {
-  username: string;
-  password: string;
-  isJams: boolean;
+  username: string
+  password: string
+  isJams: boolean
 }
 
 export interface AdminCredentials {
-  password: string;
+  password: string
 }
 
 export interface AccessToken {
-  accessToken: string;
+  accessToken: string
 }

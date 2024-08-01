@@ -15,9 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Variants } from 'framer-motion';
+import { Variants } from 'framer-motion'
 
-export const transition = { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] };
+export const transition = { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }
 
 export const thumbnailVariants: Variants = {
   initial: { scale: 0.9, opacity: 0 },
@@ -27,4 +27,4 @@ export const thumbnailVariants: Variants = {
     opacity: 0,
     transition: { ...transition, duration: 1.5 },
   },
-};
+}

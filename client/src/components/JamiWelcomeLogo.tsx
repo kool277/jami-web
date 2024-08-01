@@ -15,19 +15,19 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Stack, StackProps, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { Stack, StackProps, Typography } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 
-import { ReactComponent as JamiLogo } from '../icons/jamiLogoIcon.svg';
-import { jamiLogoDefaultSize } from '../utils/constants';
+import { ReactComponent as JamiLogo } from '../icons/jamiLogoIcon.svg'
+import { jamiLogoDefaultSize } from '../utils/constants'
 
 interface WelcomeLogoProps extends StackProps {
-  logoWidth?: string;
-  logoHeight?: string;
+  logoWidth?: string
+  logoHeight?: string
 }
 
 export default function JamiWelcomeLogo({ logoWidth, logoHeight, ...stackProps }: WelcomeLogoProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return (
     <Stack
@@ -42,5 +42,5 @@ export default function JamiWelcomeLogo({ logoWidth, logoHeight, ...stackProps }
       <JamiLogo width={logoWidth ?? jamiLogoDefaultSize} height={logoHeight ?? jamiLogoDefaultSize} />
       <Typography variant="h1">{t('welcome_text')}</Typography>
     </Stack>
-  );
+  )
 }

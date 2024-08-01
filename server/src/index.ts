@@ -15,75 +15,75 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import 'reflect-metadata';
+import 'reflect-metadata'
 
-import * as dotenv from 'dotenv';
-dotenv.config();
+import * as dotenv from 'dotenv'
+dotenv.config()
 
-import { createServer } from 'node:http';
+import { createServer } from 'node:http'
 
-import log from 'loglevel';
-import { Container } from 'typedi';
+import log from 'loglevel'
+import { Container } from 'typedi'
 
-import { App } from './app.js';
-import { Jamid } from './jamid/jamid.js';
-import { SigningKeys } from './storage/signing-keys.js';
-import { WebSocketServer } from './websocket/websocket-server.js';
+import { App } from './app.js'
+import { Jamid } from './jamid/jamid.js'
+import { SigningKeys } from './storage/signing-keys.js'
+import { WebSocketServer } from './websocket/websocket-server.js'
 
-log.setLevel(process.env.NODE_ENV === 'production' ? 'error' : 'trace');
+log.setLevel(process.env.NODE_ENV === 'production' ? 'error' : 'trace')
 
-const port: string | number = 5000;
+const port: string | number = 5000
 
-await Container.get(SigningKeys).build();
-const jamid = Container.get(Jamid);
-const app = Container.get(App);
-const webSocketServer = Container.get(WebSocketServer);
+await Container.get(SigningKeys).build()
+const jamid = Container.get(Jamid)
+const app = Container.get(App)
+const webSocketServer = Container.get(WebSocketServer)
 
-const server = createServer();
+const server = createServer()
 
-server.on('request', app.app);
-server.on('upgrade', webSocketServer.upgrade.bind(webSocketServer));
+server.on('request', app.app)
+server.on('upgrade', webSocketServer.upgrade.bind(webSocketServer))
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+server.listen(port)
+server.on('error', onError)
+server.on('listening', onListening)
 
-process.once('SIGTERM', shutdown);
-process.once('SIGINT', shutdown);
+process.once('SIGTERM', shutdown)
+process.once('SIGINT', shutdown)
 
 function onError(error: NodeJS.ErrnoException) {
   if (error.syscall !== 'listen') {
-    throw error;
+    throw error
   }
 
-  const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`;
+  const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`
 
   switch (error.code) {
     case 'EACCESS':
-      log.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
+      log.error(bind + ' requires elevated privileges')
+      process.exit(1)
+      break
     case 'EADDRINUSE':
-      log.error(bind + ' is already in use');
-      process.exit(1);
-      break;
+      log.error(bind + ' is already in use')
+      process.exit(1)
+      break
     default:
-      throw error;
+      throw error
   }
 }
 
 function onListening() {
-  const address = server.address();
-  const bind = typeof address === 'string' ? `pipe ${address}` : `port ${address?.port}`;
-  log.debug('Listening on ' + bind);
+  const address = server.address()
+  const bind = typeof address === 'string' ? `pipe ${address}` : `port ${address?.port}`
+  log.debug('Listening on ' + bind)
 }
 
 function shutdown(signal: NodeJS.Signals) {
-  log.debug(`${signal} received: shutting down server`);
-  jamid.stop();
+  log.debug(`${signal} received: shutting down server`)
+  jamid.stop()
   server.close(() => {
-    log.debug('Server shut down');
+    log.debug('Server shut down')
     // Needed in order to actually exit the process as its shutdown is blocked by something else
-    process.exit();
-  });
+    process.exit()
+  })
 }

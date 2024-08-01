@@ -15,23 +15,23 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, InputBase, InputBaseProps, styled, useAutocomplete } from '@mui/material';
-import { MUIStyledCommonProps } from '@mui/system';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Box, InputBase, InputBaseProps, styled, useAutocomplete } from '@mui/material'
+import { MUIStyledCommonProps } from '@mui/system'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { ArrowHeadDown, ArrowHeadUp } from './SvgIcon';
+import { ArrowHeadDown, ArrowHeadUp } from './SvgIcon'
 
 export interface SelectOption<Payload> {
-  label: string;
-  payload: Payload;
+  label: string
+  payload: Payload
 }
 
-const width = '250px';
+const width = '250px'
 
 type InputProps = InputBaseProps & {
-  popupOpen: boolean; // Sometimes the popover is opened but the Input is not focused
-};
+  popupOpen: boolean // Sometimes the popover is opened but the Input is not focused
+}
 
 const Input = styled(({ popupOpen, ...props }: InputProps) => <InputBase {...props} />)(({ theme, popupOpen }) => ({
   width,
@@ -54,7 +54,7 @@ const Input = styled(({ popupOpen, ...props }: InputProps) => <InputBase {...pro
   '&.MuiInputBase-sizeSmall': {
     height: '36px',
   },
-}));
+}))
 
 const Listbox = styled('ul')(({ theme }) => ({
   width,
@@ -74,7 +74,7 @@ const Listbox = styled('ul')(({ theme }) => ({
   borderEndEndRadius: '5px',
   borderEndStartRadius: '5px',
   borderTop: 'none',
-}));
+}))
 
 const Option = styled('li')(({ theme }) => ({
   paddingLeft: '16px',
@@ -87,7 +87,7 @@ const Option = styled('li')(({ theme }) => ({
     color: theme.palette.primary.dark,
     cursor: 'pointer',
   },
-}));
+}))
 
 const getArrowStyles = ({ theme }: MUIStyledCommonProps) => ({
   height: '6px',
@@ -95,21 +95,21 @@ const getArrowStyles = ({ theme }: MUIStyledCommonProps) => ({
   '&:hover': {
     cursor: 'pointer',
   },
-});
-const StyledArrowHeadUp = styled(ArrowHeadUp)(getArrowStyles);
-const StyledArrowHeadDown = styled(ArrowHeadDown)(getArrowStyles);
+})
+const StyledArrowHeadUp = styled(ArrowHeadUp)(getArrowStyles)
+const StyledArrowHeadDown = styled(ArrowHeadDown)(getArrowStyles)
 
 export type CustomSelectProps<OptionPayload> = {
-  option?: SelectOption<OptionPayload>;
-  options: SelectOption<OptionPayload>[];
-  onChange: (newValue: SelectOption<OptionPayload> | null) => void;
-  size?: 'small' | 'medium';
-};
+  option?: SelectOption<OptionPayload>
+  options: SelectOption<OptionPayload>[]
+  onChange: (newValue: SelectOption<OptionPayload> | null) => void
+  size?: 'small' | 'medium'
+}
 
 export const CustomSelect = <OptionPayload,>({ option, options, onChange, size }: CustomSelectProps<OptionPayload>) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   const { getRootProps, getInputProps, getListboxProps, getOptionProps, groupedOptions, popupOpen } = useAutocomplete<
     SelectOption<OptionPayload>
@@ -122,7 +122,7 @@ export const CustomSelect = <OptionPayload,>({ option, options, onChange, size }
     open,
     onOpen: () => setOpen(true),
     onClose: () => setOpen(false),
-  });
+  })
 
   return (
     <div>
@@ -149,5 +149,5 @@ export const CustomSelect = <OptionPayload,>({ option, options, onChange, size }
         ) : null}
       </Box>
     </div>
-  );
-};
+  )
+}

@@ -15,68 +15,68 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Stack, Typography, useMediaQuery } from '@mui/material';
-import { Theme, useTheme } from '@mui/material/styles';
-import { HttpStatusCode } from 'jami-web-common';
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Form, Link } from 'react-router-dom';
+import { Box, Button, Stack, Typography, useMediaQuery } from '@mui/material'
+import { Theme, useTheme } from '@mui/material/styles'
+import { HttpStatusCode } from 'jami-web-common'
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Form, Link } from 'react-router-dom'
 
-import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input';
-import ProcessingRequest from '../components/ProcessingRequest';
-import withAuthUI from '../components/WithAuthUI';
-import { PasswordStrength } from '../enums/passwordStrength';
+import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input'
+import ProcessingRequest from '../components/ProcessingRequest'
+import withAuthUI from '../components/WithAuthUI'
+import { PasswordStrength } from '../enums/passwordStrength'
 import {
   checkPasswordStrength,
   useCheckIfUsernameIsRegisteredQuery,
   useLoginMutation,
   useRegisterMutation,
-} from '../services/authQueries';
-import { inputWidth, jamiUsernamePattern } from '../utils/constants';
+} from '../services/authQueries'
+import { inputWidth, jamiUsernamePattern } from '../utils/constants'
 function RegistrationForm() {
-  const theme: Theme = useTheme();
-  const { t } = useTranslation();
+  const theme: Theme = useTheme()
+  const { t } = useTranslation()
 
-  const [username, setUsername] = useState<string>('');
-  const [debouncedUsername, setDebouncedUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [username, setUsername] = useState<string>('')
+  const [debouncedUsername, setDebouncedUsername] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
 
-  const [usernameStatus, setUsernameStatus] = useState<NameStatus>('default');
-  const [passwordStatus, setPasswordStatus] = useState<PasswordStatus>('default');
+  const [usernameStatus, setUsernameStatus] = useState<NameStatus>('default')
+  const [passwordStatus, setPasswordStatus] = useState<PasswordStatus>('default')
 
-  const registerMutation = useRegisterMutation();
-  const loginMutation = useLoginMutation();
+  const registerMutation = useRegisterMutation()
+  const loginMutation = useLoginMutation()
 
-  const { isLoading: isRegisterLoading } = registerMutation;
-  const { isLoading: isLoginLoading } = loginMutation;
+  const { isLoading: isRegisterLoading } = registerMutation
+  const { isLoading: isLoginLoading } = loginMutation
 
-  const isLoading = isRegisterLoading || isLoginLoading;
+  const isLoading = isRegisterLoading || isLoginLoading
 
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'));
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
-  const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername);
+  const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername)
 
-  const usernameOk = usernameStatus === 'valid';
-  const passwordOk = passwordStatus !== PasswordStrength.TooWeak;
+  const usernameOk = usernameStatus === 'valid'
+  const passwordOk = passwordStatus !== PasswordStrength.TooWeak
 
   useEffect(() => {
     if (response !== undefined) {
-      const { responseMessage } = response;
-      setUsernameStatus(responseMessage);
+      const { responseMessage } = response
+      setUsernameStatus(responseMessage)
     }
     if (isError) {
-      setUsernameStatus('invalid');
+      setUsernameStatus('invalid')
     }
-  }, [response, isError]);
+  }, [response, isError])
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      setDebouncedUsername(username);
-    }, 500);
+      setDebouncedUsername(username)
+    }, 500)
     return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [username]);
+      clearTimeout(timeoutId)
+    }
+  }, [username])
 
   const createAccount = () => {
     registerMutation.mutate(
@@ -84,58 +84,58 @@ function RegistrationForm() {
       {
         onSuccess: (response) => {
           if (response.status === HttpStatusCode.Created) {
-            loginMutation.mutate({ username, password, isJams: false });
+            loginMutation.mutate({ username, password, isJams: false })
           }
         },
       }
-    );
-  };
+    )
+  }
 
   const handleUsername = async (event: ChangeEvent<HTMLInputElement>) => {
-    const usernameValue: string = event.target.value;
-    setUsername(usernameValue);
+    const usernameValue: string = event.target.value
+    setUsername(usernameValue)
 
     if (usernameValue === '') {
-      setUsernameStatus('default');
-      return;
+      setUsernameStatus('default')
+      return
     }
 
     if (!jamiUsernamePattern.test(usernameValue)) {
-      setUsernameStatus('invalid');
-      return;
+      setUsernameStatus('invalid')
+      return
     }
     //The valid state is when the username passes the Regex test and is ready for availability check.
-    setUsernameStatus('valid');
-  };
+    setUsernameStatus('valid')
+  }
 
   const handlePassword = (event: ChangeEvent<HTMLInputElement>) => {
-    const passwordValue: string = event.target.value;
-    setPassword(passwordValue);
+    const passwordValue: string = event.target.value
+    setPassword(passwordValue)
 
     if (passwordValue.length > 0) {
-      const checkResult = checkPasswordStrength(passwordValue);
-      setPasswordStatus(checkResult.valueCode);
+      const checkResult = checkPasswordStrength(passwordValue)
+      setPasswordStatus(checkResult.valueCode)
     } else {
-      setPasswordStatus('default');
+      setPasswordStatus('default')
     }
-  };
+  }
 
   const handleSubmit = async (event: FormEvent) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    const canCreate = usernameOk && passwordOk;
+    const canCreate = usernameOk && passwordOk
 
     if (canCreate) {
-      createAccount();
+      createAccount()
     } else {
       if (!usernameOk) {
-        setUsernameStatus('registration_failed');
+        setUsernameStatus('registration_failed')
       }
       if (!passwordOk) {
-        setPasswordStatus('registration_failed');
+        setPasswordStatus('registration_failed')
       }
     }
-  };
+  }
 
   return (
     <>
@@ -199,7 +199,7 @@ function RegistrationForm() {
         </Box>
       </Stack>
     </>
-  );
+  )
 }
 
-export default withAuthUI(RegistrationForm);
+export default withAuthUI(RegistrationForm)

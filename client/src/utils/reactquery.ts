@@ -16,52 +16,52 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { QueryKey, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { QueryKey, useQueryClient } from '@tanstack/react-query'
+import { useCallback } from 'react'
 
 // Test whether two elements are equals or not
 // Return 'true' if they are equal, 'false' otherwise
-export type CheckElementsAreEqual<ElementType> = (element1: ElementType, element2: ElementType) => boolean;
+export type CheckElementsAreEqual<ElementType> = (element1: ElementType, element2: ElementType) => boolean
 
-type AddToCacheFn<ElementType> = (element: ElementType) => void;
+type AddToCacheFn<ElementType> = (element: ElementType) => void
 
 export const useAddToCache = <ElementType>(
   queryKey: QueryKey,
   CheckElementsAreEqual: CheckElementsAreEqual<ElementType>
 ): AddToCacheFn<ElementType> => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
   return useCallback(
     (newElement: ElementType) => {
       // Make sure the element is not already in the cache
       // This is expected to happen all the time on strict mode
-      const data = queryClient.getQueryData<ElementType[]>(queryKey);
+      const data = queryClient.getQueryData<ElementType[]>(queryKey)
       if (data?.find((element) => CheckElementsAreEqual(element, newElement))) {
-        return;
+        return
       }
 
       // Add the element
-      queryClient.setQueryData<ElementType[]>(queryKey, (elements) => [...(elements || []), newElement]);
+      queryClient.setQueryData<ElementType[]>(queryKey, (elements) => [...(elements || []), newElement])
     },
     [CheckElementsAreEqual, queryClient, queryKey]
-  );
-};
+  )
+}
 
 // Check whether the passed element is the one we are looking for or not
-type CheckIsElementFn<ElementType, IdentifierType> = (element: ElementType, identifier: IdentifierType) => boolean;
+type CheckIsElementFn<ElementType, IdentifierType> = (element: ElementType, identifier: IdentifierType) => boolean
 
-type RemoveFromCacheFn<IdentifierType> = (element: IdentifierType) => void;
+type RemoveFromCacheFn<IdentifierType> = (element: IdentifierType) => void
 
 export const useRemoveFromCache = <ElementType, IdentifierType>(
   queryKey: QueryKey,
   checkIsElementFn: CheckIsElementFn<ElementType, IdentifierType>
 ): RemoveFromCacheFn<IdentifierType> => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
   return useCallback(
     (identifier: IdentifierType) => {
       queryClient.setQueryData<ElementType[]>(queryKey, (elements) =>
         elements?.filter((element) => !checkIsElementFn(element, identifier))
-      );
+      )
     },
     [checkIsElementFn, queryClient, queryKey]
-  );
-};
+  )
+}

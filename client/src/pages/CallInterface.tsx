@@ -15,9 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Card, Grid, Stack, Typography } from '@mui/material';
-import dayjs from 'dayjs';
-import { Duration } from 'dayjs/plugin/duration';
+import { Box, Card, Grid, Stack, Typography } from '@mui/material'
+import dayjs from 'dayjs'
+import { Duration } from 'dayjs/plugin/duration'
 import {
   ComponentType,
   Fragment,
@@ -29,9 +29,9 @@ import {
   useMemo,
   useRef,
   useState,
-} from 'react';
+} from 'react'
 
-import { ExpandableButtonProps } from '../components/Button';
+import { ExpandableButtonProps } from '../components/Button'
 import {
   CallingChatButton,
   CallingEndButton,
@@ -44,40 +44,40 @@ import {
   CallingScreenShareButton,
   CallingVideoCameraButton,
   CallingVolumeButton,
-} from '../components/CallButtons';
-import CallChatDrawer from '../components/CallChatDrawer';
-import VideoOverlay from '../components/VideoOverlay';
-import VideoStream from '../components/VideoStream';
-import { useCallManagerContext } from '../contexts/CallManagerProvider';
-import { useConversationContext } from '../contexts/ConversationProvider';
-import { useUserMediaContext } from '../contexts/UserMediaProvider';
-import { CallStatus, VideoStatus } from '../services/CallManager';
-import { formatCallDuration } from '../utils/dates&times';
-import { VideoElementWithSinkId } from '../utils/utils';
-import { CallPending } from './CallPending';
-import CallPermissionDenied from './CallPermissionDenied';
+} from '../components/CallButtons'
+import CallChatDrawer from '../components/CallChatDrawer'
+import VideoOverlay from '../components/VideoOverlay'
+import VideoStream from '../components/VideoStream'
+import { useCallManagerContext } from '../contexts/CallManagerProvider'
+import { useConversationContext } from '../contexts/ConversationProvider'
+import { useUserMediaContext } from '../contexts/UserMediaProvider'
+import { CallStatus, VideoStatus } from '../services/CallManager'
+import { formatCallDuration } from '../utils/dates&times'
+import { VideoElementWithSinkId } from '../utils/utils'
+import { CallPending } from './CallPending'
+import CallPermissionDenied from './CallPermissionDenied'
 
 export default () => {
-  const { callStatus, isChatShown, isFullscreen } = useCallManagerContext();
-  const callInterfaceRef = useRef<HTMLDivElement>();
+  const { callStatus, isChatShown, isFullscreen } = useCallManagerContext()
+  const callInterfaceRef = useRef<HTMLDivElement>()
 
   useEffect(() => {
     if (!callInterfaceRef.current) {
-      return;
+      return
     }
 
     if (isFullscreen && document.fullscreenElement === null) {
-      callInterfaceRef.current.requestFullscreen();
+      callInterfaceRef.current.requestFullscreen()
     } else if (!isFullscreen && document.fullscreenElement !== null) {
-      document.exitFullscreen();
+      document.exitFullscreen()
     }
-  }, [isFullscreen]);
+  }, [isFullscreen])
 
   if (callStatus === CallStatus.PermissionsDenied) {
-    return <CallPermissionDenied />;
+    return <CallPermissionDenied />
   }
   if (callStatus !== CallStatus.InCall) {
-    return <CallPending />;
+    return <CallPending />
   }
 
   return (
@@ -85,11 +85,11 @@ export default () => {
       <CallInterface />
       {isChatShown && <CallChatDrawer />}
     </Box>
-  );
-};
+  )
+}
 
 interface Props {
-  children?: ReactNode;
+  children?: ReactNode
 }
 
 const CallInterface = () => {
@@ -99,26 +99,26 @@ const CallInterface = () => {
     currentMediaDeviceIds: {
       audiooutput: { id: audioOutDeviceId },
     },
-  } = useUserMediaContext();
-  const { remoteStreams, videoStatus } = useCallManagerContext();
-  const remoteVideoRef = useRef<VideoElementWithSinkId | null>(null);
-  const gridItemRef = useRef<HTMLDivElement | null>(null);
-  const [isLocalVideoZoomed, setIsLocalVideoZoomed] = useState(false);
+  } = useUserMediaContext()
+  const { remoteStreams, videoStatus } = useCallManagerContext()
+  const remoteVideoRef = useRef<VideoElementWithSinkId | null>(null)
+  const gridItemRef = useRef<HTMLDivElement | null>(null)
+  const [isLocalVideoZoomed, setIsLocalVideoZoomed] = useState(false)
 
   const stream = useMemo(() => {
     switch (videoStatus) {
       case VideoStatus.Camera:
-        return localStream;
+        return localStream
       case VideoStatus.ScreenShare:
-        return screenShareLocalStream;
+        return screenShareLocalStream
     }
-  }, [videoStatus, localStream, screenShareLocalStream]);
+  }, [videoStatus, localStream, screenShareLocalStream])
 
-  const hasSetSinkId = remoteVideoRef.current?.setSinkId != null;
+  const hasSetSinkId = remoteVideoRef.current?.setSinkId != null
 
   // TODO: For now, `remoteStream` is the first remote stream in the array.
   //       There should only be one in the array, but we should make sure this is right.
-  const remoteStream = remoteStreams?.at(0);
+  const remoteStream = remoteStreams?.at(0)
 
   return (
     <Box display="flex" flexGrow={1}>
@@ -153,26 +153,26 @@ const CallInterface = () => {
         </Grid>
       </Box>
     </Box>
-  );
-};
+  )
+}
 
 const CallInterfaceInformation = () => {
-  const { callStartTime } = useCallManagerContext();
-  const { conversationDisplayName } = useConversationContext();
+  const { callStartTime } = useCallManagerContext()
+  const { conversationDisplayName } = useConversationContext()
   const [elapsedTime, setElapsedTime] = useState<Duration>(
     dayjs.duration(callStartTime ? Date.now() - callStartTime : 0)
-  );
+  )
 
   useEffect(() => {
     if (callStartTime) {
       const interval = setInterval(() => {
-        setElapsedTime(dayjs.duration(Date.now() - callStartTime));
-      }, 1000);
-      return () => clearInterval(interval);
+        setElapsedTime(dayjs.duration(Date.now() - callStartTime))
+      }, 1000)
+      return () => clearInterval(interval)
     }
-  }, [callStartTime]);
+  }, [callStartTime])
 
-  const elapsedTimerString = formatCallDuration(elapsedTime);
+  const elapsedTimerString = formatCallDuration(elapsedTime)
 
   return (
     <Stack direction="row" justifyContent="space-between" alignItems="center">
@@ -183,8 +183,8 @@ const CallInterfaceInformation = () => {
         {elapsedTimerString}
       </Typography>
     </Stack>
-  );
-};
+  )
+}
 
 const CallInterfacePrimaryButtons = () => {
   return (
@@ -195,8 +195,8 @@ const CallInterfacePrimaryButtons = () => {
         <CallingVideoCameraButton />
       </Stack>
     </Card>
-  );
-};
+  )
+}
 
 const SECONDARY_BUTTONS = [
   CallingVolumeButton,
@@ -206,70 +206,70 @@ const SECONDARY_BUTTONS = [
   CallingRecordButton,
   CallingExtensionButton,
   CallingFullScreenButton,
-];
+]
 
 const CallInterfaceSecondaryButtons = ({
   gridItemRef,
   showVolumeButton,
 }: Props & { showVolumeButton: boolean; gridItemRef: RefObject<HTMLElement> }) => {
-  const stackRef = useRef<HTMLElement>(null);
+  const stackRef = useRef<HTMLElement>(null)
 
-  const [initialMeasurementDone, setInitialMeasurementDone] = useState(false);
-  const [hiddenStackCount, setHiddenStackCount] = useState(0);
-  const [hiddenMenuVisible, setHiddenMenuVisible] = useState(false);
+  const [initialMeasurementDone, setInitialMeasurementDone] = useState(false)
+  const [hiddenStackCount, setHiddenStackCount] = useState(0)
+  const [hiddenMenuVisible, setHiddenMenuVisible] = useState(false)
 
   // Audio out options are only available on Chrome and other browsers that support `setSinkId`.
   // This removes the `CallingVolumeButton` if `setSinkId` is not defined.
   // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/setSinkId#browser_compatibility
   const secondaryButtons = useMemo(() => {
-    return showVolumeButton ? SECONDARY_BUTTONS : SECONDARY_BUTTONS.slice(1);
-  }, [showVolumeButton]);
+    return showVolumeButton ? SECONDARY_BUTTONS : SECONDARY_BUTTONS.slice(1)
+  }, [showVolumeButton])
 
   const calculateStackCount = useCallback(() => {
     if (stackRef?.current && gridItemRef?.current) {
-      const buttonWidth = stackRef.current.children[0].clientWidth;
-      const availableSpace = gridItemRef.current.clientWidth;
-      let availableButtons = Math.floor((availableSpace - 1) / buttonWidth);
+      const buttonWidth = stackRef.current.children[0].clientWidth
+      const availableSpace = gridItemRef.current.clientWidth
+      let availableButtons = Math.floor((availableSpace - 1) / buttonWidth)
       if (availableButtons < secondaryButtons.length) {
-        availableButtons -= 1; // Leave room for CallingMoreVerticalButton
+        availableButtons -= 1 // Leave room for CallingMoreVerticalButton
       }
-      setHiddenStackCount(secondaryButtons.length - availableButtons);
+      setHiddenStackCount(secondaryButtons.length - availableButtons)
     }
-  }, [gridItemRef, secondaryButtons]);
+  }, [gridItemRef, secondaryButtons])
 
   useLayoutEffect(() => {
     // Run once, at the beginning, for initial measurements
     if (!initialMeasurementDone) {
-      calculateStackCount();
-      setInitialMeasurementDone(true);
+      calculateStackCount()
+      setInitialMeasurementDone(true)
     }
 
     const onResize = () => {
-      calculateStackCount();
-    };
-    window.addEventListener('resize', onResize);
+      calculateStackCount()
+    }
+    window.addEventListener('resize', onResize)
     return () => {
-      window.removeEventListener('resize', onResize);
-    };
-  }, [calculateStackCount, initialMeasurementDone]);
+      window.removeEventListener('resize', onResize)
+    }
+  }, [calculateStackCount, initialMeasurementDone])
 
   const { displayedButtons, hiddenButtons } = useMemo(() => {
-    const displayedButtons: ComponentType<ExpandableButtonProps>[] = [];
-    const hiddenButtons: ComponentType<ExpandableButtonProps>[] = [];
+    const displayedButtons: ComponentType<ExpandableButtonProps>[] = []
+    const hiddenButtons: ComponentType<ExpandableButtonProps>[] = []
     for (let i = 0; i < secondaryButtons.length; i++) {
-      const button = secondaryButtons[i];
+      const button = secondaryButtons[i]
       if (i < secondaryButtons.length - hiddenStackCount) {
-        displayedButtons.push(button);
+        displayedButtons.push(button)
       } else {
-        hiddenButtons.push(button);
+        hiddenButtons.push(button)
       }
     }
 
     return {
       displayedButtons,
       hiddenButtons,
-    };
-  }, [hiddenStackCount, secondaryButtons]);
+    }
+  }, [hiddenStackCount, secondaryButtons])
 
   return (
     <Card sx={{ backgroundColor: '#00000088', overflow: 'visible', height: '100%' }}>
@@ -304,5 +304,5 @@ const CallInterfaceSecondaryButtons = ({
         </Box>
       )}
     </Card>
-  );
-};
+  )
+}

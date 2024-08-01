@@ -15,8 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { WebSocketMessageType } from '../enums/websocket-message-type.js';
-import { IConversationRequest } from './conversation.js';
+import { WebSocketMessageType } from '../enums/websocket-message-type.js'
+import { IConversationRequest } from './conversation.js'
 import {
   CallExit,
   CallInvite,
@@ -28,28 +28,28 @@ import {
   WebRtcSdp,
   WithReceiver,
   WithSender,
-} from './websocket-interfaces.js';
+} from './websocket-interfaces.js'
 
 export interface WebSocketMessageTable {
-  [WebSocketMessageType.ComposingStatus]: ComposingStatus;
-  [WebSocketMessageType.ConversationMessage]: ConversationMessage;
-  [WebSocketMessageType.ConversationRequest]: IConversationRequest;
-  [WebSocketMessageType.ConversationView]: ConversationView;
+  [WebSocketMessageType.ComposingStatus]: ComposingStatus
+  [WebSocketMessageType.ConversationMessage]: ConversationMessage
+  [WebSocketMessageType.ConversationRequest]: IConversationRequest
+  [WebSocketMessageType.ConversationView]: ConversationView
 
   // calls (in the order they should be sent)
-  [WebSocketMessageType.sendCallInvite]: CallInvite;
-  [WebSocketMessageType.onCallInvite]: CallInvite & WithSender;
-  [WebSocketMessageType.sendCallExit]: CallExit; // can be sent any time after invite
-  [WebSocketMessageType.onCallExit]: CallExit & WithSender;
-  [WebSocketMessageType.sendCallJoin]: CallJoin;
-  [WebSocketMessageType.onCallJoin]: CallJoin & WithSender;
-  [WebSocketMessageType.sendWebRtcDescription]: WebRtcSdp & WithReceiver;
-  [WebSocketMessageType.onWebRtcDescription]: WebRtcSdp & WithSender;
-  [WebSocketMessageType.sendWebRtcIceCandidate]: WebRtcIceCandidate & WithReceiver;
-  [WebSocketMessageType.onWebRtcIceCandidate]: WebRtcIceCandidate & WithSender;
+  [WebSocketMessageType.sendCallInvite]: CallInvite
+  [WebSocketMessageType.onCallInvite]: CallInvite & WithSender
+  [WebSocketMessageType.sendCallExit]: CallExit // can be sent any time after invite
+  [WebSocketMessageType.onCallExit]: CallExit & WithSender
+  [WebSocketMessageType.sendCallJoin]: CallJoin
+  [WebSocketMessageType.onCallJoin]: CallJoin & WithSender
+  [WebSocketMessageType.sendWebRtcDescription]: WebRtcSdp & WithReceiver
+  [WebSocketMessageType.onWebRtcDescription]: WebRtcSdp & WithSender
+  [WebSocketMessageType.sendWebRtcIceCandidate]: WebRtcIceCandidate & WithReceiver
+  [WebSocketMessageType.onWebRtcIceCandidate]: WebRtcIceCandidate & WithSender
 }
 
 export interface WebSocketMessage<T extends WebSocketMessageType> {
-  type: T;
-  data: WebSocketMessageTable[T];
+  type: T
+  data: WebSocketMessageTable[T]
 }

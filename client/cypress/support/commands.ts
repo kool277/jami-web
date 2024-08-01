@@ -60,24 +60,24 @@
 */
 
 Cypress.Commands.add('loginViaUI', () => {
-  cy.visit(Cypress.env('CLIENT_URL'));
+  cy.visit(Cypress.env('CLIENT_URL'))
 
-  cy.url().should('include', '/login');
+  cy.url().should('include', '/login')
 
   cy.get('[data-cy = "username-input"]')
     .type(Cypress.env('TEST_USERNAME'))
     .find('input')
-    .should('have.value', Cypress.env('TEST_USERNAME'));
+    .should('have.value', Cypress.env('TEST_USERNAME'))
 
   cy.get('[data-cy = "password-input"]')
     .type(Cypress.env('TEST_USER_PASSWORD'))
     .find('input')
-    .should('have.value', Cypress.env('TEST_USER_PASSWORD'));
+    .should('have.value', Cypress.env('TEST_USER_PASSWORD'))
 
-  cy.get('[data-cy="login-button"]').contains('Log in').click();
+  cy.get('[data-cy="login-button"]').contains('Log in').click()
 
-  cy.url().should('include', '/conversation');
-});
+  cy.url().should('include', '/conversation')
+})
 
 Cypress.Commands.add('loginWithoutUI', () => {
   cy.request({
@@ -89,32 +89,32 @@ Cypress.Commands.add('loginWithoutUI', () => {
       isJams: false,
     },
   }).then((response) => {
-    const accessToken = response.body.accessToken;
+    const accessToken = response.body.accessToken
 
     cy.window().then((win) => {
-      win.localStorage.setItem('accessToken', accessToken);
-      cy.log(accessToken);
-    });
-  });
+      win.localStorage.setItem('accessToken', accessToken)
+      cy.log(accessToken)
+    })
+  })
 
-  cy.visit(`${Cypress.env('CLIENT_URL')}/conversation`);
+  cy.visit(`${Cypress.env('CLIENT_URL')}/conversation`)
 
-  cy.get('[data-cy = "menu-button"]').should('exist');
-});
+  cy.get('[data-cy = "menu-button"]').should('exist')
+})
 
 Cypress.Commands.add('logoutViaUI', () => {
   cy.window().then((win) => {
-    expect(win.localStorage.getItem('accessToken')).to.not.equal(null);
-    cy.log('Access token exists');
-  });
+    expect(win.localStorage.getItem('accessToken')).to.not.equal(null)
+    cy.log('Access token exists')
+  })
 
   cy.get('[data-cy = "menu-button"]')
     .click()
     .then(() => {
-      cy.get('[data-cy = "logout-button"]').contains('Log out').click();
+      cy.get('[data-cy = "logout-button"]').contains('Log out').click()
 
-      cy.url().should('include', '/login');
+      cy.url().should('include', '/login')
 
-      cy.get('[data-cy="login-button"]').should('exist');
-    });
-});
+      cy.get('[data-cy="login-button"]').should('exist')
+    })
+})

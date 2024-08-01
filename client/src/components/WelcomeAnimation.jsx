@@ -15,12 +15,12 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Container } from '@mui/material';
-import { AnimatePresence, motion } from 'framer-motion';
-import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Container } from '@mui/material'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { ReactComponent as JamiLogo } from '../icons/jamiLogoIcon.svg';
+import { ReactComponent as JamiLogo } from '../icons/jamiLogoIcon.svg'
 
 const list = {
   hidden: { opacity: 0 },
@@ -31,15 +31,15 @@ const list = {
       staggerChildren: 0.3,
     },
   },
-};
+}
 const item = {
   visible: { opacity: 1, x: 0 },
   hidden: { opacity: 0, x: 0 },
-};
+}
 
 export default function WelcomeAnimation(props) {
-  const { t } = useTranslation();
-  const [visible, setVisible] = useState(true);
+  const { t } = useTranslation()
+  const [visible, setVisible] = useState(true)
 
   return (
     <Container style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -52,9 +52,9 @@ export default function WelcomeAnimation(props) {
             variants={list}
             onAnimationComplete={(a) => {
               if (a === 'hidden') {
-                props.onComplete();
+                props.onComplete()
               } else {
-                setVisible(false);
+                setVisible(false)
               }
             }}
           >
@@ -66,5 +66,5 @@ export default function WelcomeAnimation(props) {
         )}
       </AnimatePresence>
     </Container>
-  );
+  )
 }

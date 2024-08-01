@@ -15,22 +15,22 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useQuery } from '@tanstack/react-query';
-import { LinkPreview } from 'jami-web-common';
-import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query'
+import { LinkPreview } from 'jami-web-common'
+import { useState } from 'react'
 
-import { useAuthContext } from '../contexts/AuthProvider';
+import { useAuthContext } from '../contexts/AuthProvider'
 
 export const useLinkPreviewQuery = (url: string) => {
-  const { axiosInstance } = useAuthContext();
-  const [hasFailed, setHasFailed] = useState(false); // Prevent reloading of links that have failed
+  const { axiosInstance } = useAuthContext()
+  const [hasFailed, setHasFailed] = useState(false) // Prevent reloading of links that have failed
   return useQuery({
     queryKey: ['link-preview', url],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<LinkPreview>(`/link-preview/?url=${url}`);
-      return data;
+      const { data } = await axiosInstance.get<LinkPreview>(`/link-preview/?url=${url}`)
+      return data
     },
     onError: () => setHasFailed(true),
     enabled: !!url && !hasFailed,
-  });
-};
+  })
+}

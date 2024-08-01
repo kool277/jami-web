@@ -18,8 +18,8 @@
 
 declare namespace Cypress {
   interface Chainable {
-    loginViaUI(): Chainable<Element>;
-    loginWithoutUI(): Chainable<Element>;
-    logoutViaUI(): Chainable<Element>;
+    loginViaUI(): Chainable<Element>
+    loginWithoutUI(): Chainable<Element>
+    logoutViaUI(): Chainable<Element>
   }
 }

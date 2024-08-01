@@ -15,37 +15,37 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Request, Router } from 'express';
-import asyncHandler from 'express-async-handler';
-import { ParamsDictionary } from 'express-serve-static-core';
-import { AccountDetails, HttpStatusCode, IAccount, IContact } from 'jami-web-common';
-import { Container } from 'typedi';
+import { Request, Router } from 'express'
+import asyncHandler from 'express-async-handler'
+import { ParamsDictionary } from 'express-serve-static-core'
+import { AccountDetails, HttpStatusCode, IAccount, IContact } from 'jami-web-common'
+import { Container } from 'typedi'
 
-import { Jamid } from '../jamid/jamid.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { Jamid } from '../jamid/jamid.js'
+import { authenticateToken } from '../middleware/auth.js'
 
-const jamid = Container.get(Jamid);
+const jamid = Container.get(Jamid)
 
-export const accountRouter = Router();
+export const accountRouter = Router()
 
-accountRouter.use(authenticateToken);
+accountRouter.use(authenticateToken)
 
 // TODO: Do we really need this route to return the default moderators?
 // It would be cleaner just to GET /default-moderators for this
 accountRouter.get(
   '/',
   asyncHandler(async (_req, res) => {
-    const accountId = res.locals.accountId;
+    const accountId = res.locals.accountId
 
     // Add usernames for default moderators
-    const defaultModeratorUris = jamid.getDefaultModeratorUris(accountId);
-    const namedDefaultModerators: IContact[] = [];
+    const defaultModeratorUris = jamid.getDefaultModeratorUris(accountId)
+    const namedDefaultModerators: IContact[] = []
     for (const defaultModeratorUri of defaultModeratorUris) {
-      const { username } = await jamid.lookupAddress(defaultModeratorUri, accountId);
+      const { username } = await jamid.lookupAddress(defaultModeratorUri, accountId)
       namedDefaultModerators.push({
         uri: defaultModeratorUri,
         registeredName: username,
-      });
+      })
     }
 
     const account: IAccount = {
@@ -54,17 +54,17 @@ accountRouter.get(
       volatileDetails: jamid.getVolatileAccountDetails(accountId),
       defaultModerators: namedDefaultModerators,
       devices: jamid.getDevices(accountId),
-    };
-    res.send(account);
+    }
+    res.send(account)
   })
-);
+)
 
 accountRouter.patch('/', (req: Request<ParamsDictionary, string, Partial<AccountDetails>>, res) => {
-  const accountId = res.locals.accountId;
+  const accountId = res.locals.accountId
 
-  const currentAccountDetails = jamid.getAccountDetails(accountId);
-  const newAccountDetails: AccountDetails = { ...currentAccountDetails, ...req.body };
-  jamid.setAccountDetails(accountId, newAccountDetails);
+  const currentAccountDetails = jamid.getAccountDetails(accountId)
+  const newAccountDetails: AccountDetails = { ...currentAccountDetails, ...req.body }
+  jamid.setAccountDetails(accountId, newAccountDetails)
 
-  res.sendStatus(HttpStatusCode.NoContent);
-});
+  res.sendStatus(HttpStatusCode.NoContent)
+})

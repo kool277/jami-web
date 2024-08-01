@@ -15,11 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Stack, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { Stack, Typography } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 
 export default () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   // TODO: The UI of this page needs to be improved
   return (
@@ -41,5 +41,5 @@ export default () => {
         {t('permission_denied_details')}
       </Typography>
     </Stack>
-  );
-};
+  )
+}

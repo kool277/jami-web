@@ -15,8 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Link } from '@mui/material';
-import Typography from '@mui/material/Typography';
+import { Link } from '@mui/material'
+import Typography from '@mui/material/Typography'
 
 // TODO: Choose on which pages to put this.
 export default function Copyright() {
@@ -30,5 +30,5 @@ export default function Copyright() {
       </Link>{' '}
       {'.'}
     </Typography>
-  );
+  )
 }

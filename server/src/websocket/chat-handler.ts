@@ -15,26 +15,26 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ComposingStatus, WebSocketMessageType } from 'jami-web-common';
-import log from 'loglevel';
-import { Container } from 'typedi';
+import { ComposingStatus, WebSocketMessageType } from 'jami-web-common'
+import log from 'loglevel'
+import { Container } from 'typedi'
 
-import { Jamid } from '../jamid/jamid.js';
-import { WebSocketServer } from './websocket-server.js';
+import { Jamid } from '../jamid/jamid.js'
+import { WebSocketServer } from './websocket-server.js'
 
-const jamid = Container.get(Jamid);
-const webSocketServer = Container.get(WebSocketServer);
+const jamid = Container.get(Jamid)
+const webSocketServer = Container.get(WebSocketServer)
 
 export function bindChatCallbacks() {
   webSocketServer.bind(
     WebSocketMessageType.ComposingStatus,
     (accountId, { contactId, conversationId, isWriting }: ComposingStatus) => {
       if (contactId !== undefined) {
-        log.warn('ComposingStatus expects contactId to be undefined');
-        return;
+        log.warn('ComposingStatus expects contactId to be undefined')
+        return
       }
 
-      jamid.setIsComposing(accountId, conversationId, isWriting);
+      jamid.setIsComposing(accountId, conversationId, isWriting)
     }
-  );
+  )
 }

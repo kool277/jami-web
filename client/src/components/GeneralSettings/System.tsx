@@ -15,44 +15,44 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useCallback, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { languagesInfos, LanguageTag } from '../../i18n';
-import { SettingSelect, SettingSelectProps, SettingsGroup, SettingSwitch } from '../Settings';
+import { languagesInfos, LanguageTag } from '../../i18n'
+import { SettingSelect, SettingSelectProps, SettingsGroup, SettingSwitch } from '../Settings'
 
 function System() {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <SettingsGroup label={t('settings_title_system')}>
       <SettingLanguage />
       <SettingLinkPreview />
     </SettingsGroup>
-  );
+  )
 }
 
 const settingLanguageOptions = languagesInfos.map(({ tag, fullName }) => ({
   label: fullName,
   payload: tag,
-}));
+}))
 
 const SettingLanguage = () => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation()
 
   const option = useMemo(
     // TODO: Tell Typescript the result can't be undefined
     () => settingLanguageOptions.find((option) => option.payload === i18n.language),
     [i18n.language]
-  );
+  )
 
   const onChange = useCallback<SettingSelectProps<LanguageTag>['onChange']>(
     (newValue) => {
       if (newValue) {
-        i18n.changeLanguage(newValue.payload);
+        i18n.changeLanguage(newValue.payload)
       }
     },
     [i18n]
-  );
+  )
 
   return (
     <SettingSelect
@@ -61,15 +61,15 @@ const SettingLanguage = () => {
       options={settingLanguageOptions}
       onChange={onChange}
     />
-  );
-};
+  )
+}
 
 const SettingLinkPreview = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const [isOn, setIsOn] = useState<boolean>(true);
+  const [isOn, setIsOn] = useState<boolean>(true)
 
-  return <SettingSwitch label={t('settings_link_preview')} onChange={() => setIsOn((isOn) => !isOn)} checked={isOn} />;
-};
+  return <SettingSwitch label={t('settings_link_preview')} onChange={() => setIsOn((isOn) => !isOn)} checked={isOn} />
+}
 
-export default System;
+export default System

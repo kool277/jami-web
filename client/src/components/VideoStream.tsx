@@ -15,50 +15,50 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { forwardRef, useEffect, useRef, VideoHTMLAttributes } from 'react';
+import { forwardRef, useEffect, useRef, VideoHTMLAttributes } from 'react'
 
-import { VideoElementWithSinkId } from '../utils/utils';
+import { VideoElementWithSinkId } from '../utils/utils'
 
 export type VideoStreamProps = Partial<VideoHTMLAttributes<VideoElementWithSinkId>> & {
-  stream: MediaStream | undefined;
-  audioOutDeviceId?: string;
-};
+  stream: MediaStream | undefined
+  audioOutDeviceId?: string
+}
 
 const VideoStream = forwardRef<VideoElementWithSinkId, VideoStreamProps>(
   ({ stream, audioOutDeviceId, ...props }, ref) => {
-    const videoRef = useRef<VideoElementWithSinkId | null>(null);
+    const videoRef = useRef<VideoElementWithSinkId | null>(null)
 
     useEffect(() => {
       if (!ref) {
-        return;
+        return
       }
 
       if (typeof ref === 'function') {
-        ref(videoRef.current);
+        ref(videoRef.current)
       } else {
-        ref.current = videoRef.current;
+        ref.current = videoRef.current
       }
-    }, [ref]);
+    }, [ref])
 
     useEffect(() => {
       if (stream && videoRef.current) {
-        videoRef.current.srcObject = stream;
+        videoRef.current.srcObject = stream
       }
-    }, [stream, videoRef]);
+    }, [stream, videoRef])
 
     useEffect(() => {
       if (!audioOutDeviceId) {
-        return;
+        return
       }
 
       if (videoRef.current?.setSinkId) {
         // This only work on chrome and other browsers that support `setSinkId`
         // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/setSinkId#browser_compatibility
-        videoRef.current.setSinkId(audioOutDeviceId);
+        videoRef.current.setSinkId(audioOutDeviceId)
       }
-    }, [audioOutDeviceId, videoRef]);
+    }, [audioOutDeviceId, videoRef])
 
-    return <video ref={videoRef} autoPlay {...props} />;
+    return <video ref={videoRef} autoPlay {...props} />
   }
-);
-export default VideoStream;
+)
+export default VideoStream

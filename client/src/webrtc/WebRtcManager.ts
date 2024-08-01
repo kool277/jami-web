@@ -15,20 +15,20 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useMemo, useRef, useSyncExternalStore } from 'react';
+import { useMemo, useRef, useSyncExternalStore } from 'react'
 
-import { IWebSocketContext } from '../contexts/WebSocketProvider';
-import { Account } from '../models/account';
-import { CallData } from '../services/CallManager';
-import { Listener } from '../utils/utils';
-import { RTCPeerConnectionHandler, RTCPeerConnectionInfos } from './RtcPeerConnectionHandler';
+import { IWebSocketContext } from '../contexts/WebSocketProvider'
+import { Account } from '../models/account'
+import { CallData } from '../services/CallManager'
+import { Listener } from '../utils/utils'
+import { RTCPeerConnectionHandler, RTCPeerConnectionInfos } from './RtcPeerConnectionHandler'
 
 export const useWebRtcManager = () => {
-  const webRtcManagerRef = useRef(new WebRtcManager());
+  const webRtcManagerRef = useRef(new WebRtcManager())
   const connectionsInfos = useSyncExternalStore(
     webRtcManagerRef.current.subscribe.bind(webRtcManagerRef.current),
     webRtcManagerRef.current.getSnapshot.bind(webRtcManagerRef.current)
-  );
+  )
 
   return useMemo(
     () => ({
@@ -39,14 +39,14 @@ export const useWebRtcManager = () => {
       connectionsInfos: connectionsInfos,
     }),
     [connectionsInfos]
-  );
-};
+  )
+}
 
 class WebRtcManager {
-  private connections: Record<string, RTCPeerConnectionHandler> = {}; // key is contactUri
+  private connections: Record<string, RTCPeerConnectionHandler> = {} // key is contactUri
 
-  private listeners: Listener[] = [];
-  private snapshot: Record<string, RTCPeerConnectionInfos> = {}; // key is contactUri
+  private listeners: Listener[] = []
+  private snapshot: Record<string, RTCPeerConnectionInfos> = {} // key is contactUri
 
   addConnection(
     webSocket: IWebSocketContext,
@@ -57,8 +57,8 @@ class WebRtcManager {
     screenShareLocalStream: MediaStream | undefined
   ) {
     if (this.connections[contactUri]) {
-      console.debug('Attempted to establish an WebRTC connection with the same peer more than once');
-      return;
+      console.debug('Attempted to establish an WebRTC connection with the same peer more than once')
+      return
     }
 
     const connection = new RTCPeerConnectionHandler(
@@ -69,45 +69,45 @@ class WebRtcManager {
       localStream,
       screenShareLocalStream,
       this.emitChange.bind(this)
-    );
-    this.connections[contactUri] = connection;
+    )
+    this.connections[contactUri] = connection
   }
 
   removeConnection(contactUri: string) {
-    const connection = this.connections[contactUri];
-    connection.disconnect();
-    delete this.connections[contactUri];
+    const connection = this.connections[contactUri]
+    connection.disconnect()
+    delete this.connections[contactUri]
   }
 
   updateLocalStreams(localStream: MediaStream | undefined, screenShareLocalStream: MediaStream | undefined) {
     Object.values(this.connections).forEach((connection) =>
       connection.updateLocalStreams(localStream, screenShareLocalStream)
-    );
+    )
   }
 
   subscribe(listener: Listener) {
-    this.listeners.push(listener);
+    this.listeners.push(listener)
     return () => {
-      this.listeners.filter((otherListener) => otherListener !== listener);
-    };
+      this.listeners.filter((otherListener) => otherListener !== listener)
+    }
   }
 
   getSnapshot(): Record<string, RTCPeerConnectionInfos> {
-    return this.snapshot;
+    return this.snapshot
   }
 
   emitChange() {
     this.snapshot = Object.entries(this.connections).reduce((acc, [contactUri, connection]) => {
-      acc[contactUri] = connection.getInfos();
-      return acc;
-    }, {} as Record<string, RTCPeerConnectionInfos>);
+      acc[contactUri] = connection.getInfos()
+      return acc
+    }, {} as Record<string, RTCPeerConnectionInfos>)
 
-    this.listeners.forEach((listener) => listener());
+    this.listeners.forEach((listener) => listener())
   }
 
   clean() {
-    Object.values(this.connections).forEach((connection) => connection.disconnect());
-    this.connections = {};
-    this.emitChange();
+    Object.values(this.connections).forEach((connection) => connection.disconnect())
+    this.connections = {}
+    this.emitChange()
   }
 }

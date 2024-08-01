@@ -16,26 +16,26 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { useContext } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { CustomThemeContext } from '../../contexts/CustomThemeProvider';
-import { SettingsGroup, SettingSwitch } from '../Settings';
+import { CustomThemeContext } from '../../contexts/CustomThemeProvider'
+import { SettingsGroup, SettingSwitch } from '../Settings'
 function Appearance() {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <SettingsGroup label={t('settings_theme')}>
       <SettingTheme />
     </SettingsGroup>
-  );
+  )
 }
 
 const SettingTheme = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const { mode, toggleMode } = useContext(CustomThemeContext);
+  const { mode, toggleMode } = useContext(CustomThemeContext)
 
-  return <SettingSwitch label={t('settings_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />;
-};
+  return <SettingSwitch label={t('settings_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />
+}
 
-export default Appearance;
+export default Appearance

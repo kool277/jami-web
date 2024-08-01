@@ -26,27 +26,27 @@ import {
   Stack,
   styled,
   SvgIconProps,
-} from '@mui/material';
-import { ComponentType } from 'react';
+} from '@mui/material'
+import { ComponentType } from 'react'
 
 export type PopoverListItemData = {
-  label: string;
-  Icon: ComponentType<SvgIconProps>;
-  onClick: () => void;
-};
+  label: string
+  Icon: ComponentType<SvgIconProps>
+  onClick: () => void
+}
 
 interface ListIconProps extends SvgIconProps {
-  Icon: ComponentType<SvgIconProps>;
+  Icon: ComponentType<SvgIconProps>
 }
 
 const ListIcon = styled(({ Icon, ...props }: ListIconProps) => <Icon {...props} />)(({ theme }) => ({
   height: '16px',
   fontSize: '16px',
   color: theme?.palette?.primary?.dark,
-}));
+}))
 
 interface ListLabelProps extends ListItemTextProps {
-  label: string;
+  label: string
 }
 
 const ListLabel = styled(({ label, ...props }: ListLabelProps) => (
@@ -60,19 +60,19 @@ const ListLabel = styled(({ label, ...props }: ListLabelProps) => (
   />
 ))(() => ({
   height: '16px',
-}));
+}))
 
 interface PopoverListItemProps extends MenuItemProps {
-  item: PopoverListItemData;
-  closeMenu?: MenuProps['onClose'];
+  item: PopoverListItemData
+  closeMenu?: MenuProps['onClose']
 }
 
 const PopoverListItem = styled(({ item, closeMenu, ...props }: PopoverListItemProps) => (
   <MenuItem
     {...props}
     onClick={() => {
-      item.onClick();
-      closeMenu?.({}, 'backdropClick');
+      item.onClick()
+      closeMenu?.({}, 'backdropClick')
     }}
     sx={{
       paddingY: '11px',
@@ -86,11 +86,11 @@ const PopoverListItem = styled(({ item, closeMenu, ...props }: PopoverListItemPr
   </MenuItem>
 ))(() => ({
   // Failed to modify the styles from here
-}));
+}))
 
 interface PopoverListProps extends MenuListProps {
-  items: PopoverListItemData[];
-  onClose?: MenuProps['onClose'];
+  items: PopoverListItemData[]
+  onClose?: MenuProps['onClose']
 }
 
 // A list intended to be used as a menu into a popover
@@ -102,6 +102,6 @@ const PopoverList = styled(({ items, onClose, ...props }: PopoverListProps) => (
   </MenuList>
 ))(() => ({
   padding: '3px 0px',
-}));
+}))
 
-export default PopoverList;
+export default PopoverList

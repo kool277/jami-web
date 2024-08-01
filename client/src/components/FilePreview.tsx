@@ -15,18 +15,18 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import AttachFile from '@mui/icons-material/AttachFile';
-import { IconButton, IconButtonProps, Stack, Typography } from '@mui/material';
-import * as mime from 'mime';
-import { useRef } from 'react';
+import AttachFile from '@mui/icons-material/AttachFile'
+import { IconButton, IconButtonProps, Stack, Typography } from '@mui/material'
+import * as mime from 'mime'
+import { useRef } from 'react'
 
-import { FileHandler } from '../utils/files';
-import { useDataSizeUnits } from '../utils/units';
-import { SaltireIcon } from './SvgIcon';
+import { FileHandler } from '../utils/files'
+import { useDataSizeUnits } from '../utils/units'
+import { SaltireIcon } from './SvgIcon'
 
 interface FilePreviewIconProps {
-  fileHandler: FileHandler;
-  size: string;
+  fileHandler: FileHandler
+  size: string
 }
 
 const FilePreviewIcon = ({ fileHandler, size }: FilePreviewIconProps) => {
@@ -37,21 +37,21 @@ const FilePreviewIcon = ({ fileHandler, size }: FilePreviewIconProps) => {
         alt={fileHandler.file.name}
         style={{ height: size, width: size, objectFit: 'cover' }}
       />
-    );
+    )
   }
 
-  const paddedSize = parseInt(size) * 0.8 + 'px';
-  return <AttachFile sx={{ fontSize: paddedSize }} />;
-};
+  const paddedSize = parseInt(size) * 0.8 + 'px'
+  return <AttachFile sx={{ fontSize: paddedSize }} />
+}
 
 interface FilePreviewInfosProps {
-  fileHandler: FileHandler;
+  fileHandler: FileHandler
 }
 
 const FilePreviewInfos = ({ fileHandler }: FilePreviewInfosProps) => {
-  const file = fileHandler.file;
-  const fileSize = useDataSizeUnits(file.size);
-  const fileType = mime.getExtension(file.type)?.toUpperCase() || '';
+  const file = fileHandler.file
+  const fileSize = useDataSizeUnits(file.size)
+  const fileType = mime.getExtension(file.type)?.toUpperCase() || ''
   return (
     <Stack overflow="hidden">
       <Typography variant="body1" fontWeight="bold" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
@@ -59,12 +59,12 @@ const FilePreviewInfos = ({ fileHandler }: FilePreviewInfosProps) => {
       </Typography>
       <Typography variant="body1">{`${fileType} ${fileSize}`}</Typography>
     </Stack>
-  );
-};
+  )
+}
 
 const RemoveButton = (props: IconButtonProps) => {
-  const removeButtonSize = '24px';
-  const paddingPart = 0.25;
+  const removeButtonSize = '24px'
+  const paddingPart = 0.25
   return (
     <IconButton
       {...props}
@@ -88,18 +88,18 @@ const RemoveButton = (props: IconButtonProps) => {
     >
       <SaltireIcon fontSize="inherit" />
     </IconButton>
-  );
-};
+  )
+}
 
 interface FilePreviewDeletableProps {
-  fileHandler: FileHandler;
-  remove: () => void;
-  borderColor: string;
+  fileHandler: FileHandler
+  remove: () => void
+  borderColor: string
 }
 
 export const FilePreviewRemovable = ({ fileHandler, remove, borderColor }: FilePreviewDeletableProps) => {
-  const linkRef = useRef<HTMLAnchorElement>(null);
-  const iconSize = '57px';
+  const linkRef = useRef<HTMLAnchorElement>(null)
+  const iconSize = '57px'
 
   return (
     <Stack
@@ -131,14 +131,14 @@ export const FilePreviewRemovable = ({ fileHandler, remove, borderColor }: FileP
         <RemoveButton
           onClick={(e) => {
             // Prevent the parent's link to be triggered
-            e.preventDefault();
-            e.stopPropagation();
-            remove();
+            e.preventDefault()
+            e.stopPropagation()
+            remove()
           }}
         />
         <FilePreviewIcon fileHandler={fileHandler} size={iconSize} />
       </Stack>
       <FilePreviewInfos fileHandler={fileHandler} />
     </Stack>
-  );
-};
+  )
+}

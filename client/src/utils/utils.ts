@@ -15,15 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Dispatch, ReactNode, SetStateAction } from 'react';
+import { Dispatch, ReactNode, SetStateAction } from 'react'
 
 export type WithChildren = {
-  children: ReactNode;
-};
+  children: ReactNode
+}
 
-type AsyncDispatch<A> = (value: A) => Promise<void>;
-export type SetState<T> = Dispatch<SetStateAction<T>>;
-export type AsyncSetState<T> = AsyncDispatch<SetStateAction<T>>;
+type AsyncDispatch<A> = (value: A) => Promise<void>
+export type SetState<T> = Dispatch<SetStateAction<T>>
+export type AsyncSetState<T> = AsyncDispatch<SetStateAction<T>>
 
 /**
  * HTMLVideoElement with the `sinkId` and `setSinkId` optional properties.
@@ -32,26 +32,26 @@ export type AsyncSetState<T> = AsyncDispatch<SetStateAction<T>>;
  * https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/setSinkId#browser_compatibility
  */
 export interface VideoElementWithSinkId extends HTMLVideoElement {
-  sinkId?: string;
-  setSinkId?: (deviceId: string) => void;
+  sinkId?: string
+  setSinkId?: (deviceId: string) => void
 }
 
 export type PartialNotOptional<T> = {
-  [P in keyof T]: T[P] | undefined;
-};
+  [P in keyof T]: T[P] | undefined
+}
 
 export const isRequired = <T>(obj: Partial<T>): obj is T => {
-  return Object.values(obj).every((v) => v !== undefined);
-};
+  return Object.values(obj).every((v) => v !== undefined)
+}
 
-export type Listener = () => void;
+export type Listener = () => void
 
 export function debounce<T extends any[]>(fn: (...args: T) => void, timeout = 1000) {
-  let timeoutId: ReturnType<typeof setTimeout>;
+  let timeoutId: ReturnType<typeof setTimeout>
   return (...args: T) => {
-    clearTimeout(timeoutId);
+    clearTimeout(timeoutId)
     timeoutId = setTimeout(() => {
-      fn(...args);
-    }, timeout);
-  };
+      fn(...args)
+    }, timeout)
+  }
 }

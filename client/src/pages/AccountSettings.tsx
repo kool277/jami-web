@@ -15,9 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Container } from '@mui/material';
+import { Container } from '@mui/material'
 
-import AccountPreferences from '../components/AccountPreferences';
+import AccountPreferences from '../components/AccountPreferences'
 
 export default function AccountSettings() {
   // TODO: Improve component and sub-components UI.
@@ -25,5 +25,5 @@ export default function AccountSettings() {
     <Container maxWidth="sm">
       <AccountPreferences />
     </Container>
-  );
+  )
 }

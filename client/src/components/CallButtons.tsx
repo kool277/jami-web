@@ -16,20 +16,20 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { IconButtonProps } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { ChangeEvent, useMemo } from 'react';
+import { IconButtonProps } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { ChangeEvent, useMemo } from 'react'
 
-import { useCallManagerContext } from '../contexts/CallManagerProvider';
-import { useUserMediaContext } from '../contexts/UserMediaProvider';
-import { CallStatus, VideoStatus } from '../services/CallManager';
+import { useCallManagerContext } from '../contexts/CallManagerProvider'
+import { useUserMediaContext } from '../contexts/UserMediaProvider'
+import { CallStatus, VideoStatus } from '../services/CallManager'
 import {
   ColoredRoundButton,
   ExpandableButton,
   ExpandableButtonProps,
   ExpandMenuRadioOption,
   ToggleIconButton,
-} from './Button';
+} from './Button'
 import {
   CallEndIcon,
   ChatBubbleIcon,
@@ -47,84 +47,84 @@ import {
   VideoCameraIcon,
   VideoCameraOffIcon,
   VolumeIcon,
-} from './SvgIcon';
+} from './SvgIcon'
 
 const CallButton = styled((props: ExpandableButtonProps) => {
-  return <ExpandableButton {...props} />;
+  return <ExpandableButton {...props} />
 })({
   color: 'white',
   '&:hover': {
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
-});
+})
 
 export const CallingChatButton = (props: ExpandableButtonProps) => {
-  const { setIsChatShown } = useCallManagerContext();
+  const { setIsChatShown } = useCallManagerContext()
   return (
     <CallButton
       aria-label="chat"
       Icon={ChatBubbleIcon}
       onClick={() => {
-        setIsChatShown((v) => !v);
+        setIsChatShown((v) => !v)
       }}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const CallingEndButton = (props: ExpandableButtonProps) => {
-  const { endCall } = useCallManagerContext();
+  const { endCall } = useCallManagerContext()
   return (
     <ColoredRoundButton
       paletteColor={(theme) => theme.palette.error}
       onClick={() => {
-        endCall();
+        endCall()
       }}
       aria-label="call end"
       Icon={CallEndIcon}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const CallingExtensionButton = (props: ExpandableButtonProps) => {
-  return <CallButton aria-label="extensions" Icon={ExtensionIcon} {...props} />;
-};
+  return <CallButton aria-label="extensions" Icon={ExtensionIcon} {...props} />
+}
 
 export const CallingFullScreenButton = (props: ExpandableButtonProps) => {
-  const { setIsFullscreen } = useCallManagerContext();
+  const { setIsFullscreen } = useCallManagerContext()
   return (
     <CallButton
       aria-label="full screen"
       Icon={FullScreenIcon}
       onClick={() => {
-        setIsFullscreen((v) => !v);
+        setIsFullscreen((v) => !v)
       }}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const CallingGroupButton = (props: ExpandableButtonProps) => {
-  return <CallButton aria-label="group options" Icon={GroupAddIcon} {...props} />;
-};
+  return <CallButton aria-label="group options" Icon={GroupAddIcon} {...props} />
+}
 
 export const CallingMoreVerticalButton = (props: ExpandableButtonProps) => {
-  return <CallButton aria-label="more vertical" Icon={MoreVerticalIcon} {...props} />;
-};
+  return <CallButton aria-label="more vertical" Icon={MoreVerticalIcon} {...props} />
+}
 
 export const CallingRecordButton = (props: ExpandableButtonProps) => {
-  return <CallButton aria-label="recording options" Icon={RecordingIcon} {...props} />;
-};
+  return <CallButton aria-label="recording options" Icon={RecordingIcon} {...props} />
+}
 
 export const CallingScreenShareButton = (props: ExpandableButtonProps) => {
   return (
     <CallButton aria-label="screen share" expandMenuOnClick IconButtonComp={ToggleScreenShareIconButton} {...props} />
-  );
-};
+  )
+}
 
 const ToggleScreenShareIconButton = (props: IconButtonProps) => {
-  const { videoStatus, updateVideoStatus } = useCallManagerContext();
+  const { videoStatus, updateVideoStatus } = useCallManagerContext()
 
   return (
     <ToggleIconButton
@@ -132,15 +132,15 @@ const ToggleScreenShareIconButton = (props: IconButtonProps) => {
       IconOn={ScreenShareStopIcon}
       selected={videoStatus === VideoStatus.ScreenShare}
       toggle={() => {
-        updateVideoStatus((v) => (v !== VideoStatus.ScreenShare ? VideoStatus.ScreenShare : VideoStatus.Off));
+        updateVideoStatus((v) => (v !== VideoStatus.ScreenShare ? VideoStatus.ScreenShare : VideoStatus.Off))
       }}
       {...props}
     />
-  );
-};
+  )
+}
 
 const useMediaDeviceExpandMenuOptions = (kind: MediaDeviceKind): ExpandMenuRadioOption[] | undefined => {
-  const { currentMediaDeviceIds, mediaDevices } = useUserMediaContext();
+  const { currentMediaDeviceIds, mediaDevices } = useUserMediaContext()
 
   const options = useMemo(
     () =>
@@ -149,26 +149,26 @@ const useMediaDeviceExpandMenuOptions = (kind: MediaDeviceKind): ExpandMenuRadio
         description: device.label,
       })),
     [mediaDevices, kind]
-  );
+  )
 
-  const currentDevice = currentMediaDeviceIds[kind];
+  const currentDevice = currentMediaDeviceIds[kind]
 
   if (options.length === 0) {
-    return undefined;
+    return undefined
   }
   return [
     {
       options,
       value: currentDevice.id ?? '',
       onChange: (e: ChangeEvent<HTMLInputElement>) => {
-        currentDevice.setId(e.target.value);
+        currentDevice.setId(e.target.value)
       },
     },
-  ];
-};
+  ]
+}
 
 export const CallingVolumeButton = (props: ExpandableButtonProps) => {
-  const options = useMediaDeviceExpandMenuOptions('audiooutput');
+  const options = useMediaDeviceExpandMenuOptions('audiooutput')
 
   return (
     <CallButton
@@ -178,11 +178,11 @@ export const CallingVolumeButton = (props: ExpandableButtonProps) => {
       expandMenuOptions={options}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const CallingMicButton = (props: ExpandableButtonProps) => {
-  const options = useMediaDeviceExpandMenuOptions('audioinput');
+  const options = useMediaDeviceExpandMenuOptions('audioinput')
 
   return (
     <CallButton
@@ -191,11 +191,11 @@ export const CallingMicButton = (props: ExpandableButtonProps) => {
       IconButtonComp={ToggleAudioCameraIconButton}
       {...props}
     />
-  );
-};
+  )
+}
 
 const ToggleAudioCameraIconButton = (props: IconButtonProps) => {
-  const { isAudioOn, setIsAudioOn } = useCallManagerContext();
+  const { isAudioOn, setIsAudioOn } = useCallManagerContext()
   return (
     <ToggleIconButton
       IconOn={MicroIcon}
@@ -204,11 +204,11 @@ const ToggleAudioCameraIconButton = (props: IconButtonProps) => {
       toggle={() => setIsAudioOn((v) => !v)}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const CallingVideoCameraButton = (props: ExpandableButtonProps) => {
-  const options = useMediaDeviceExpandMenuOptions('videoinput');
+  const options = useMediaDeviceExpandMenuOptions('videoinput')
 
   return (
     <CallButton
@@ -217,85 +217,85 @@ export const CallingVideoCameraButton = (props: ExpandableButtonProps) => {
       IconButtonComp={ToggleVideoCameraIconButton}
       {...props}
     />
-  );
-};
+  )
+}
 
 const ToggleVideoCameraIconButton = (props: IconButtonProps) => {
-  const { videoStatus, updateVideoStatus } = useCallManagerContext();
+  const { videoStatus, updateVideoStatus } = useCallManagerContext()
   return (
     <ToggleIconButton
       IconOn={VideoCameraIcon}
       IconOff={VideoCameraOffIcon}
       selected={videoStatus === VideoStatus.Camera}
       toggle={() => {
-        updateVideoStatus((v) => (v !== VideoStatus.Camera ? VideoStatus.Camera : VideoStatus.Off));
+        updateVideoStatus((v) => (v !== VideoStatus.Camera ? VideoStatus.Camera : VideoStatus.Off))
       }}
       {...props}
     />
-  );
-};
+  )
+}
 
 // Calling pending/receiving interface
 export const CallingCancelButton = (props: IconButtonProps) => {
-  const { endCall } = useCallManagerContext();
+  const { endCall } = useCallManagerContext()
 
   return (
     <ColoredRoundButton
       aria-label="cancel call"
       onClick={() => {
-        endCall();
+        endCall()
       }}
       Icon={CallEndIcon}
       paletteColor={(theme) => theme.palette.error}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const CallingAnswerAudioButton = (props: IconButtonProps) => {
-  const { acceptCall, callStatus } = useCallManagerContext();
+  const { acceptCall, callStatus } = useCallManagerContext()
 
   return (
     <ColoredRoundButton
       disabled={callStatus === CallStatus.Loading || callStatus === CallStatus.Connecting}
       aria-label="answer call audio"
       onClick={() => {
-        acceptCall(false);
+        acceptCall(false)
       }}
       Icon={PlaceAudioCallIcon}
       paletteColor={(theme) => theme.palette.success}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const CallingAnswerVideoButton = (props: IconButtonProps) => {
-  const { acceptCall, callStatus } = useCallManagerContext();
+  const { acceptCall, callStatus } = useCallManagerContext()
   return (
     <ColoredRoundButton
       disabled={callStatus === CallStatus.Connecting || callStatus === CallStatus.Loading}
       aria-label="answer call video"
       onClick={() => {
-        acceptCall(true);
+        acceptCall(true)
       }}
       paletteColor={(theme) => theme.palette.success}
       Icon={VideoCameraIcon}
       {...props}
     />
-  );
-};
+  )
+}
 
 export const CallingRefuseButton = (props: IconButtonProps) => {
-  const { endCall } = useCallManagerContext();
+  const { endCall } = useCallManagerContext()
   return (
     <ColoredRoundButton
       aria-label="refuse call"
       onClick={() => {
-        endCall();
+        endCall()
       }}
       paletteColor={(theme) => theme.palette.error}
       Icon={RoundCloseIcon}
       {...props}
     />
-  );
-};
+  )
+}

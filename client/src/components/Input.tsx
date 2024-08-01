@@ -15,40 +15,40 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import GppMaybe from '@mui/icons-material/GppMaybe';
-import Warning from '@mui/icons-material/Warning';
-import { IconButtonProps, Stack, TextField, TextFieldProps } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import GppMaybe from '@mui/icons-material/GppMaybe'
+import Warning from '@mui/icons-material/Warning'
+import { IconButtonProps, Stack, TextField, TextFieldProps } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { PasswordStrength } from '../enums/passwordStrength';
-import { InfoButton, ToggleVisibilityButton } from './Button';
-import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog';
-import { CheckedIcon, LockIcon, PenIcon, PersonIcon, RoundSaltireIcon } from './SvgIcon';
+import { PasswordStrength } from '../enums/passwordStrength'
+import { InfoButton, ToggleVisibilityButton } from './Button'
+import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog'
+import { CheckedIcon, LockIcon, PenIcon, PersonIcon, RoundSaltireIcon } from './SvgIcon'
 
-const iconsHeight = '16px';
+const iconsHeight = '16px'
 const StyledCheckedIconSuccess = styled(CheckedIcon)(({ theme }) => ({
   height: iconsHeight,
   color: theme.palette.success.main,
-}));
+}))
 const StyledRoundSaltireIconError = styled(RoundSaltireIcon)(({ theme }) => ({
   height: iconsHeight,
   color: theme.palette.error.main,
-}));
-const StyledPenIconLight = styled(PenIcon)({ height: iconsHeight, color: '#03B9E9' });
-const StyledPenIconDark = styled(PenIcon)(({ theme }) => ({ height: iconsHeight, color: theme.palette.primary.dark }));
-const StyledPersonIconLight = styled(PersonIcon)({ height: iconsHeight, color: '#03B9E9' });
-const StyledLockIcon = styled(LockIcon)({ height: iconsHeight, color: '#03B9E9' });
+}))
+const StyledPenIconLight = styled(PenIcon)({ height: iconsHeight, color: '#03B9E9' })
+const StyledPenIconDark = styled(PenIcon)(({ theme }) => ({ height: iconsHeight, color: theme.palette.primary.dark }))
+const StyledPersonIconLight = styled(PersonIcon)({ height: iconsHeight, color: '#03B9E9' })
+const StyledLockIcon = styled(LockIcon)({ height: iconsHeight, color: '#03B9E9' })
 
-export type NameStatus = 'default' | 'success' | 'taken' | 'valid' | 'invalid' | 'registration_failed';
-export type PasswordStatus = 'default' | PasswordStrength | 'registration_failed';
+export type NameStatus = 'default' | 'success' | 'taken' | 'valid' | 'invalid' | 'registration_failed'
+export type PasswordStatus = 'default' | PasswordStrength | 'registration_failed'
 
 export type InputProps<StatusType extends NameStatus | PasswordStatus> = TextFieldProps & {
-  status?: StatusType;
-  infoButtonProps?: IconButtonProps;
-  tooltipTitle: string;
-};
+  status?: StatusType
+  infoButtonProps?: IconButtonProps
+  tooltipTitle: string
+}
 
 export const UsernameInput = ({
   infoButtonProps,
@@ -56,21 +56,21 @@ export const UsernameInput = ({
   tooltipTitle,
   ...props
 }: InputProps<NameStatus>) => {
-  const { t } = useTranslation();
-  const [isSelected, setIsSelected] = useState(false);
-  const dialogHandler = useDialogHandler();
+  const { t } = useTranslation()
+  const [isSelected, setIsSelected] = useState(false)
+  const dialogHandler = useDialogHandler()
 
-  const usernameError = status === 'taken' || status === 'invalid' || status === 'registration_failed';
-  const usernameSuccess = status === 'success';
+  const usernameError = status === 'taken' || status === 'invalid' || status === 'registration_failed'
+  const usernameSuccess = status === 'success'
 
-  let StartAdornmentIcon = StyledPersonIconLight;
-  let visibility = 'visible';
+  let StartAdornmentIcon = StyledPersonIconLight
+  let visibility = 'visible'
   if (usernameError) {
-    StartAdornmentIcon = StyledRoundSaltireIconError;
+    StartAdornmentIcon = StyledRoundSaltireIconError
   } else if (usernameSuccess) {
-    StartAdornmentIcon = StyledCheckedIconSuccess;
+    StartAdornmentIcon = StyledCheckedIconSuccess
   } else if (!isSelected && !props.value) {
-    visibility = 'hidden'; // keep icon's space so text does not move
+    visibility = 'hidden' // keep icon's space so text does not move
   }
 
   /*
@@ -79,7 +79,7 @@ export const UsernameInput = ({
   t('username_input_helper_text_invalid')
   t('username_input_helper_text_registration_failed')
  */
-  const helperText = t('username_input_helper_text', { context: `${status}` });
+  const helperText = t('username_input_helper_text', { context: `${status}` })
 
   return (
     <>
@@ -111,8 +111,8 @@ export const UsernameInput = ({
         }}
       />
     </>
-  );
-};
+  )
+}
 
 export const PasswordInput = ({
   infoButtonProps,
@@ -120,26 +120,26 @@ export const PasswordInput = ({
   tooltipTitle,
   ...props
 }: InputProps<PasswordStatus>) => {
-  const { t } = useTranslation();
-  const [showPassword, setShowPassword] = useState(false);
-  const [isSelected, setIsSelected] = useState(false);
-  const dialogHandler = useDialogHandler();
+  const { t } = useTranslation()
+  const [showPassword, setShowPassword] = useState(false)
+  const [isSelected, setIsSelected] = useState(false)
+  const dialogHandler = useDialogHandler()
 
-  const passwordError = status === PasswordStrength.TooWeak;
-  const passwordSuccess = status !== 'default' && !passwordError;
+  const passwordError = status === PasswordStrength.TooWeak
+  const passwordSuccess = status !== 'default' && !passwordError
 
   const toggleShowPassword = () => {
-    setShowPassword((showPassword) => !showPassword);
-  };
+    setShowPassword((showPassword) => !showPassword)
+  }
 
-  let StartAdornmentIcon = StyledLockIcon;
-  let StartAdornmentIconVisibility = 'visible';
+  let StartAdornmentIcon = StyledLockIcon
+  let StartAdornmentIconVisibility = 'visible'
   if (passwordError) {
-    StartAdornmentIcon = StyledRoundSaltireIconError;
+    StartAdornmentIcon = StyledRoundSaltireIconError
   } else if (passwordSuccess) {
-    StartAdornmentIcon = StyledCheckedIconSuccess;
+    StartAdornmentIcon = StyledCheckedIconSuccess
   } else if (!isSelected && !props.value) {
-    StartAdornmentIconVisibility = 'hidden'; // keep icon's space so text does not move
+    StartAdornmentIconVisibility = 'hidden' // keep icon's space so text does not move
   }
 
   /*
@@ -149,7 +149,7 @@ export const PasswordInput = ({
   t('password_input_helper_text_strong')
   t('password_input_helper_text_registration_failed')
    */
-  const helperText = t('password_input_helper_text', { context: `${status}` });
+  const helperText = t('password_input_helper_text', { context: `${status}` })
 
   return (
     <>
@@ -178,26 +178,26 @@ export const PasswordInput = ({
         }}
       />
     </>
-  );
-};
+  )
+}
 
 //this component is not used anywhere
 export const NickNameInput = ({ onChange: _onChange, ...props }: TextFieldProps) => {
-  const [isSelected, setIsSelected] = useState(false);
-  const [input, setInput] = useState(props.defaultValue);
-  const [startAdornmentVisibility, setStartAdornmentVisibility] = useState<'visible' | 'hidden'>('hidden');
+  const [isSelected, setIsSelected] = useState(false)
+  const [input, setInput] = useState(props.defaultValue)
+  const [startAdornmentVisibility, setStartAdornmentVisibility] = useState<'visible' | 'hidden'>('hidden')
 
   const onChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      setInput(event.target.value);
-      _onChange?.(event);
+      setInput(event.target.value)
+      _onChange?.(event)
     },
     [_onChange]
-  );
+  )
 
   useEffect(() => {
-    setStartAdornmentVisibility(isSelected || input ? 'visible' : 'hidden');
-  }, [isSelected, input]);
+    setStartAdornmentVisibility(isSelected || input ? 'visible' : 'hidden')
+  }, [isSelected, input])
 
   return (
     <TextField
@@ -212,28 +212,28 @@ export const NickNameInput = ({ onChange: _onChange, ...props }: TextFieldProps)
       onFocus={() => setIsSelected(true)}
       onBlur={() => setIsSelected(false)}
     />
-  );
-};
+  )
+}
 
 //this component is not used anywhere
 export const RegularInput = ({ onChange: _onChange, ...props }: TextFieldProps) => {
-  const [isSelected, setIsSelected] = useState(false);
-  const [input, setInput] = useState(props.defaultValue);
-  const [startAdornmentVisibility, setStartAdornmentVisibility] = useState<'visible' | 'hidden'>('hidden');
-  const [endAdornmentVisibility, setEndAdornmentVisibility] = useState<'visible' | 'hidden'>('visible');
+  const [isSelected, setIsSelected] = useState(false)
+  const [input, setInput] = useState(props.defaultValue)
+  const [startAdornmentVisibility, setStartAdornmentVisibility] = useState<'visible' | 'hidden'>('hidden')
+  const [endAdornmentVisibility, setEndAdornmentVisibility] = useState<'visible' | 'hidden'>('visible')
 
   const onChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      setInput(event.target.value);
-      _onChange?.(event);
+      setInput(event.target.value)
+      _onChange?.(event)
     },
     [_onChange]
-  );
+  )
 
   useEffect(() => {
-    setStartAdornmentVisibility(isSelected || input ? 'visible' : 'hidden');
-    setEndAdornmentVisibility(isSelected || input ? 'hidden' : 'visible');
-  }, [isSelected, input]);
+    setStartAdornmentVisibility(isSelected || input ? 'visible' : 'hidden')
+    setEndAdornmentVisibility(isSelected || input ? 'hidden' : 'visible')
+  }, [isSelected, input])
 
   return (
     <TextField
@@ -248,8 +248,8 @@ export const RegularInput = ({ onChange: _onChange, ...props }: TextFieldProps) 
       onFocus={() => setIsSelected(true)}
       onBlur={() => setIsSelected(false)}
     />
-  );
-};
+  )
+}
 
 //this was used for altering the color of input fields, but somehow it didn't work at all. Only the `error` prop of the input is taking effect
 // function inputColor(
@@ -260,7 +260,7 @@ export const RegularInput = ({ onChange: _onChange, ...props }: TextFieldProps) 
 // }
 
 const PasswordRules = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   const items = useMemo(
     () => [
       {
@@ -285,12 +285,12 @@ const PasswordRules = () => {
       },
     ],
     [t]
-  );
-  return <DialogContentList items={items} />;
-};
+  )
+  return <DialogContentList items={items} />
+}
 
 const UsernameRules = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   const items = useMemo(
     () => [
       {
@@ -311,6 +311,6 @@ const UsernameRules = () => {
       },
     ],
     [t]
-  );
-  return <DialogContentList items={items} />;
-};
+  )
+  return <DialogContentList items={items} />
+}

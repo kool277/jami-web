@@ -15,35 +15,35 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import './dayjsInitializer'; // Initialized once and globally to ensure available locales are always imported
+import './dayjsInitializer' // Initialized once and globally to ensure available locales are always imported
 
-import { useState } from 'react';
-import { json, LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom';
+import { useState } from 'react'
+import { json, LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
 
-import WelcomeAnimation from './components/WelcomeAnimation';
-import { checkAdminSetupStatus } from './services/adminQueries';
-import { getAccessToken } from './services/authQueries';
+import WelcomeAnimation from './components/WelcomeAnimation'
+import { checkAdminSetupStatus } from './services/adminQueries'
+import { getAccessToken } from './services/authQueries'
 
 export async function appLoader({ request }: LoaderFunctionArgs) {
-  const initialUrl = new URL(request.url);
-  const isSetupComplete = await checkAdminSetupStatus();
+  const initialUrl = new URL(request.url)
+  const isSetupComplete = await checkAdminSetupStatus()
 
   if (!isSetupComplete && initialUrl.pathname !== '/admin/setup') {
-    return redirect('/admin/setup');
+    return redirect('/admin/setup')
   }
-  return json({ isSetupComplete }, { status: 200 });
+  return json({ isSetupComplete }, { status: 200 })
 }
 
 const App = () => {
-  const [displayWelcome, setDisplayWelcome] = useState<boolean>(getAccessToken() === undefined);
+  const [displayWelcome, setDisplayWelcome] = useState<boolean>(getAccessToken() === undefined)
 
-  console.log('App render');
+  console.log('App render')
 
   if (displayWelcome) {
-    return <WelcomeAnimation onComplete={() => setDisplayWelcome(false)} />;
+    return <WelcomeAnimation onComplete={() => setDisplayWelcome(false)} />
   }
 
-  return <Outlet />;
-};
+  return <Outlet />
+}
 
-export default App;
+export default App

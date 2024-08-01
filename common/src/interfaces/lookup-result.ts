@@ -16,9 +16,9 @@
  * <https://www.gnu.org/licenses/>.
  */
 export interface LookupResult {
-  state: RegisteredNameFoundState;
-  address: string;
-  username: string;
+  state: RegisteredNameFoundState
+  address: string
+  username: string
 }
 
 export enum RegisteredNameFoundState {

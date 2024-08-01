@@ -16,21 +16,21 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { IContact } from 'jami-web-common';
-import { Container, Service } from 'typedi';
+import { IContact } from 'jami-web-common'
+import { Container, Service } from 'typedi'
 
-import { Jamid } from '../jamid/jamid.js';
+import { Jamid } from '../jamid/jamid.js'
 
-const jamid = Container.get(Jamid);
+const jamid = Container.get(Jamid)
 
 @Service()
 export class ContactService {
   async getContactFromUri(accountId: string, contactUri: string): Promise<IContact> {
-    const { username } = await jamid.lookupAddress(contactUri, accountId);
+    const { username } = await jamid.lookupAddress(contactUri, accountId)
 
     return {
       uri: contactUri,
       registeredName: username,
-    };
+    }
   }
 }

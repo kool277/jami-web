@@ -16,5 +16,5 @@
  * <https://www.gnu.org/licenses/>.
  */
 export interface Constructable<T> {
-  new (): T;
+  new (): T
 }

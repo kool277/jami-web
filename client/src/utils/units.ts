@@ -15,9 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { filesize } from 'filesize';
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { filesize } from 'filesize'
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
 // 'filesize.js' library requires us to define the symbols ourselves for localization:
 // https://github.com/avoidwork/filesize.js/issues/64
@@ -27,15 +27,15 @@ const dataSizeSymbols: Record<string, Record<string, string>> = {
   fr: { B: 'o', kB: 'ko', MB: 'Mo', GB: 'Go', TB: 'To', PB: 'Po', EB: 'Eo', ZB: 'Zo', YB: 'Yo' },
   ru: { B: 'Б', kB: 'кБ', MB: 'МБ', GB: 'ГБ', TB: 'ТБ', PB: 'ПБ', EB: 'ЭБ', ZB: 'ЗБ', YB: 'ЙБ' },
   default: { B: 'B', kB: 'kB', MB: 'MB', GB: 'GB', TB: 'TB', PB: 'PB', EB: 'EB', ZB: 'ZB', YB: 'YB' },
-};
+}
 
 export const useDataSizeUnits = (nbBytes: number) => {
-  const { i18n } = useTranslation();
+  const { i18n } = useTranslation()
   return useMemo(() => {
     const options = {
       symbols: dataSizeSymbols[i18n.language] || dataSizeSymbols['default'], // undefined is not supported
       locale: i18n.language,
-    };
-    return filesize(nbBytes, options);
-  }, [i18n, nbBytes]);
-};
+    }
+    return filesize(nbBytes, options)
+  }, [i18n, nbBytes])
+}

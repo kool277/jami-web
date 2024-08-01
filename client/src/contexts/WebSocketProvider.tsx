@@ -15,31 +15,31 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react'
 
-import { createOptionalContext } from '../hooks/createOptionalContext';
-import { WebSocketClient } from '../services/WebSocketClient';
-import { apiUrl } from '../utils/constants';
-import { WithChildren } from '../utils/utils';
-import { useAuthContext } from './AuthProvider';
+import { createOptionalContext } from '../hooks/createOptionalContext'
+import { WebSocketClient } from '../services/WebSocketClient'
+import { apiUrl } from '../utils/constants'
+import { WithChildren } from '../utils/utils'
+import { useAuthContext } from './AuthProvider'
 
 export interface IWebSocketContext {
-  bind: WebSocketClient['bind'];
-  unbind: WebSocketClient['unbind'];
-  send: WebSocketClient['send'];
+  bind: WebSocketClient['bind']
+  unbind: WebSocketClient['unbind']
+  send: WebSocketClient['send']
 }
 
-const optionalWebSocketContext = createOptionalContext<IWebSocketContext>('WebSocketContext');
-export const useWebSocketContext = optionalWebSocketContext.useOptionalContext;
+const optionalWebSocketContext = createOptionalContext<IWebSocketContext>('WebSocketContext')
+export const useWebSocketContext = optionalWebSocketContext.useOptionalContext
 
 export default ({ children }: WithChildren) => {
-  const webSocketClientRef = useRef<WebSocketClient>(new WebSocketClient());
+  const webSocketClientRef = useRef<WebSocketClient>(new WebSocketClient())
 
-  const { token: accessToken } = useAuthContext();
+  const { token: accessToken } = useAuthContext()
 
   useEffect(() => {
-    webSocketClientRef.current.connect(apiUrl, accessToken);
-  }, [accessToken]);
+    webSocketClientRef.current.connect(apiUrl, accessToken)
+  }, [accessToken])
 
   const value = useMemo(
     () => ({
@@ -48,9 +48,7 @@ export default ({ children }: WithChildren) => {
       send: webSocketClientRef.current.send.bind(webSocketClientRef.current),
     }),
     []
-  );
+  )
 
-  return (
-    <optionalWebSocketContext.Context.Provider value={value}>{children}</optionalWebSocketContext.Context.Provider>
-  );
-};
+  return <optionalWebSocketContext.Context.Provider value={value}>{children}</optionalWebSocketContext.Context.Provider>
+}

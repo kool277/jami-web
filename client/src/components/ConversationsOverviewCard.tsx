@@ -15,15 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Card, CardActionArea, CardContent, CircularProgress, Typography } from '@mui/material';
-import { useNavigate } from 'react-router';
+import { Card, CardActionArea, CardContent, CircularProgress, Typography } from '@mui/material'
+import { useNavigate } from 'react-router'
 
-import { useConversationsSummariesQuery } from '../services/conversationQueries';
+import { useConversationsSummariesQuery } from '../services/conversationQueries'
 
 export default function ConversationsOverviewCard() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const conversationSummariesQuery = useConversationsSummariesQuery();
+  const conversationSummariesQuery = useConversationsSummariesQuery()
 
   return (
     <Card onClick={() => navigate(`/`)}>
@@ -38,5 +38,5 @@ export default function ConversationsOverviewCard() {
         </CardContent>
       </CardActionArea>
     </Card>
-  );
+  )
 }

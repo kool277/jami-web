@@ -15,43 +15,43 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useMutation, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { passwordStrength } from 'check-password-strength';
-import { AccessToken } from 'jami-web-common';
-import { HttpStatusCode } from 'jami-web-common';
-import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMutation, useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import { passwordStrength } from 'check-password-strength'
+import { AccessToken } from 'jami-web-common'
+import { HttpStatusCode } from 'jami-web-common'
+import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import { NameStatus } from '../components/Input';
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
-import { PasswordStrength } from '../enums/passwordStrength';
-import { apiUrl } from '../utils/constants';
-import { jamiUsernamePattern } from '../utils/constants';
+import { NameStatus } from '../components/Input'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
+import { PasswordStrength } from '../enums/passwordStrength'
+import { apiUrl } from '../utils/constants'
+import { jamiUsernamePattern } from '../utils/constants'
 interface PasswordStrengthResult {
-  id: number;
-  value: string;
-  contains: string[];
-  length: number;
+  id: number
+  value: string
+  contains: string[]
+  length: number
 }
 
 interface LoginData {
-  username: string;
-  password: string;
-  isJams: boolean;
+  username: string
+  password: string
+  isJams: boolean
 }
 
 interface RegisterData {
-  username: string;
-  password: string;
+  username: string
+  password: string
 }
 
 export interface PasswordCheckResult {
-  strong: boolean;
-  valueCode: PasswordStrength;
+  strong: boolean
+  valueCode: PasswordStrength
 }
 
-export type LoginMethod = 'Jami' | 'JAMS';
+export type LoginMethod = 'Jami' | 'JAMS'
 
 export const useCheckIfUsernameIsRegisteredQuery = (username: string) => {
   return useQuery({
@@ -59,12 +59,12 @@ export const useCheckIfUsernameIsRegisteredQuery = (username: string) => {
     queryFn: async () => {
       const res = await axios.get<NameStatus>(`/ns/username/availability/${username}`, {
         baseURL: apiUrl,
-      });
-      return { responseMessage: res.data, statusCode: res.status };
+      })
+      return { responseMessage: res.data, statusCode: res.status }
     },
     enabled: jamiUsernamePattern.test(username),
-  });
-};
+  })
+}
 
 export function checkPasswordStrength(password: string): PasswordCheckResult {
   const strengthResult: PasswordStrengthResult = passwordStrength(password, [
@@ -92,17 +92,17 @@ export function checkPasswordStrength(password: string): PasswordCheckResult {
       minDiversity: 4,
       minLength: 10,
     },
-  ]);
-  console.log(strengthResult);
+  ])
+  console.log(strengthResult)
 
   return {
     strong: strengthResult.id !== PasswordStrength.TooWeak,
     valueCode: strengthResult.id,
-  };
+  }
 }
 
 export const useRegisterMutation = () => {
-  const { setAlertContent } = useContext(AlertSnackbarContext);
+  const { setAlertContent } = useContext(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['user', 'register'],
     mutationFn: async (registerData: RegisterData) => {
@@ -110,16 +110,16 @@ export const useRegisterMutation = () => {
         '/auth/new-account',
         { username: registerData.username, password: registerData.password },
         { baseURL: apiUrl }
-      );
-      return response;
+      )
+      return response
     },
     onSuccess: (response) => {
       if (response.status === HttpStatusCode.Created) {
-        setAlertContent({ messageI18nKey: 'registration_success', severity: 'success', alertOpen: true });
+        setAlertContent({ messageI18nKey: 'registration_success', severity: 'success', alertOpen: true })
       }
     },
     onError: (e: any) => {
-      const { status } = e.response;
+      const { status } = e.response
       if (status === HttpStatusCode.BadRequest) {
         //TODO: more than one bad request response defined in the server is missing credentials. add the response message to the locale.
       } else if (status === HttpStatusCode.Conflict) {
@@ -127,15 +127,15 @@ export const useRegisterMutation = () => {
       } else if (status === HttpStatusCode.Unauthorized) {
         //TODO: this is a response for JAMS, add message to the locale
       } else {
-        setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
+        setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true })
       }
     },
-  });
-};
+  })
+}
 
 export const useLoginMutation = () => {
-  const navigate = useNavigate();
-  const { setAlertContent, closeAlert } = useContext(AlertSnackbarContext);
+  const navigate = useNavigate()
+  const { setAlertContent, closeAlert } = useContext(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['user', 'login'],
     mutationFn: async (loginData: LoginData) => {
@@ -143,19 +143,19 @@ export const useLoginMutation = () => {
         '/auth/login',
         { username: loginData.username, password: loginData.password, isJams: loginData.isJams },
         { baseURL: apiUrl }
-      );
-      return data;
+      )
+      return data
     },
     onMutate: () => {
-      closeAlert();
+      closeAlert()
     },
     onSuccess: (response) => {
-      setAccessToken(response.accessToken);
-      navigate('/conversation', { replace: true });
+      setAccessToken(response.accessToken)
+      navigate('/conversation', { replace: true })
     },
     onError: (e: any) => {
       //e: any is a simple workaround for type check since the error is of type unknown and we can't reference a property on an unknown
-      const { status } = e.response;
+      const { status } = e.response
       if (status === HttpStatusCode.BadRequest) {
         //TODO: the only bad request response defined in the server is missing credentials. add the response message to the locale.
         //continue when the auth flow is clear
@@ -163,18 +163,18 @@ export const useLoginMutation = () => {
         //TODO: there are two different not found responses that could be returned by the server, use message to differentiate them?
         //continue when the auth flow is clear
       } else if (status === HttpStatusCode.Unauthorized) {
-        setAlertContent({ messageI18nKey: 'login_invalid_credentials', severity: 'error', alertOpen: true });
+        setAlertContent({ messageI18nKey: 'login_invalid_credentials', severity: 'error', alertOpen: true })
       } else {
-        setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true });
+        setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true })
       }
     },
-  });
-};
+  })
+}
 
 export function getAccessToken(): string | undefined {
-  return localStorage.getItem('accessToken') ?? undefined;
+  return localStorage.getItem('accessToken') ?? undefined
 }
 
 export function setAccessToken(accessToken: string): void {
-  localStorage.setItem('accessToken', accessToken);
+  localStorage.setItem('accessToken', accessToken)
 }

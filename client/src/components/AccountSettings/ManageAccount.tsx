@@ -16,24 +16,24 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import { useTranslation } from 'react-i18next';
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 
-import { useAuthContext } from '../../contexts/AuthProvider';
-import JamiIdCard from '../JamiIdCard';
+import { useAuthContext } from '../../contexts/AuthProvider'
+import JamiIdCard from '../JamiIdCard'
 
 function ManageAccount() {
-  const { t } = useTranslation();
-  const { account } = useAuthContext();
+  const { t } = useTranslation()
+  const { account } = useAuthContext()
 
-  const devices: string[][] = [];
-  const accountDevices = account.devices;
-  for (const i in accountDevices) devices.push([i, accountDevices[i]]);
+  const devices: string[][] = []
+  const accountDevices = account.devices
+  for (const i in accountDevices) devices.push([i, accountDevices[i]])
 
-  console.log(devices);
+  console.log(devices)
 
-  const isJamiAccount = account.getType() === 'RING';
+  const isJamiAccount = account.getType() === 'RING'
 
   return (
     <>
@@ -48,7 +48,7 @@ function ManageAccount() {
         )}
       </Grid>
     </>
-  );
+  )
 }
 
-export default ManageAccount;
+export default ManageAccount

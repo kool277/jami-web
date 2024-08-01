@@ -23,13 +23,13 @@ import {
   Tabs as MuiTabs,
   TabsList as MuiTabsList,
   TabsProps as MuiTabsProps,
-} from '@mui/base';
-import { Theme } from '@mui/material/styles';
-import { styled } from '@mui/system';
+} from '@mui/base'
+import { Theme } from '@mui/material/styles'
+import { styled } from '@mui/system'
 
 type TabProps = MuiTabProps & {
-  theme?: Theme;
-};
+  theme?: Theme
+}
 
 export const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   fontFamily: theme.typography.fontFamily,
@@ -64,21 +64,21 @@ export const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
     overflow: 'hidden',
     visibility: 'hidden',
   },
-}));
+}))
 
-export type TabPanelProps = MuiTabPanelProps;
+export type TabPanelProps = MuiTabPanelProps
 
 export const TabPanel = styled(MuiTabPanel)(() => ({
   width: '100%',
-}));
+}))
 
 export const TabsList = styled(MuiTabsList)(() => ({
   display: 'flex',
   alignItems: 'center',
   placeContent: 'space-evenly',
   borderBottom: '1px solid #bfbfbf',
-}));
+}))
 
-export type TabsProps = MuiTabsProps;
+export type TabsProps = MuiTabsProps
 
-export const Tabs = MuiTabs;
+export const Tabs = MuiTabs

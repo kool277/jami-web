@@ -15,35 +15,35 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Menu, MenuProps, PopoverPosition, PopoverReference, styled } from '@mui/material';
-import { MouseEventHandler, useCallback, useMemo, useState } from 'react';
+import { Menu, MenuProps, PopoverPosition, PopoverReference, styled } from '@mui/material'
+import { MouseEventHandler, useCallback, useMemo, useState } from 'react'
 
-import PopoverList, { PopoverListItemData } from './PopoverList';
+import PopoverList, { PopoverListItemData } from './PopoverList'
 
 export interface ContextMenuHandler {
   props: {
-    open: boolean;
-    onClose: () => void;
-    anchorPosition: PopoverPosition | undefined;
-    anchorReference: PopoverReference | undefined;
-  };
-  handleAnchorPosition: MouseEventHandler;
+    open: boolean
+    onClose: () => void
+    anchorPosition: PopoverPosition | undefined
+    anchorReference: PopoverReference | undefined
+  }
+  handleAnchorPosition: MouseEventHandler
 }
 
 export const useContextMenuHandler = (): ContextMenuHandler => {
-  const [anchorPosition, setAnchorPosition] = useState<PopoverPosition | undefined>(undefined);
+  const [anchorPosition, setAnchorPosition] = useState<PopoverPosition | undefined>(undefined)
 
   const handleAnchorPosition = useCallback<MouseEventHandler>(
     (event) => {
-      event.preventDefault();
+      event.preventDefault()
       setAnchorPosition((anchorPosition) =>
         anchorPosition === undefined ? { top: event.clientY, left: event.clientX } : undefined
-      );
+      )
     },
     [setAnchorPosition]
-  );
+  )
 
-  const onClose = useCallback(() => setAnchorPosition(undefined), [setAnchorPosition]);
+  const onClose = useCallback(() => setAnchorPosition(undefined), [setAnchorPosition])
 
   return useMemo(
     () => ({
@@ -56,11 +56,11 @@ export const useContextMenuHandler = (): ContextMenuHandler => {
       handleAnchorPosition,
     }),
     [anchorPosition, handleAnchorPosition, onClose]
-  );
-};
+  )
+}
 
 interface ContextMenuProps extends MenuProps {
-  items: PopoverListItemData[];
+  items: PopoverListItemData[]
 }
 
 const ContextMenu = styled(({ items, ...props }: ContextMenuProps) => (
@@ -75,6 +75,6 @@ const ContextMenu = styled(({ items, ...props }: ContextMenuProps) => (
   '& .MuiMenu-list': {
     padding: '0px',
   },
-}));
+}))
 
-export default ContextMenu;
+export default ContextMenu

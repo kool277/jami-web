@@ -17,19 +17,19 @@
  */
 
 export class FileHandler {
-  private static lastId = 0;
+  private static lastId = 0
 
   private static getNewId() {
-    return ++this.lastId;
+    return ++this.lastId
   }
 
-  readonly id: number;
-  readonly file: File;
-  readonly url: string;
+  readonly id: number
+  readonly file: File
+  readonly url: string
 
   constructor(file: File) {
-    this.id = FileHandler.getNewId();
-    this.file = file;
-    this.url = URL.createObjectURL(file);
+    this.id = FileHandler.getNewId()
+    this.file = file
+    this.url = URL.createObjectURL(file)
   }
 }

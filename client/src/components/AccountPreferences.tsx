@@ -15,10 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import AddCircle from '@mui/icons-material/AddCircle';
-import DeleteRounded from '@mui/icons-material/AddCircle';
-import GroupRounded from '@mui/icons-material/AddCircle';
-import PhoneCallbackRounded from '@mui/icons-material/AddCircle';
+import AddCircle from '@mui/icons-material/AddCircle'
+import DeleteRounded from '@mui/icons-material/AddCircle'
+import GroupRounded from '@mui/icons-material/AddCircle'
+import PhoneCallbackRounded from '@mui/icons-material/AddCircle'
 import {
   Card,
   CardContent,
@@ -36,17 +36,17 @@ import {
   TextField,
   Toolbar,
   Typography,
-} from '@mui/material';
-import { motion } from 'framer-motion';
-import { AccountDetails } from 'jami-web-common';
-import { useState } from 'react';
+} from '@mui/material'
+import { motion } from 'framer-motion'
+import { AccountDetails } from 'jami-web-common'
+import { useState } from 'react'
 
-import { useAuthContext } from '../contexts/AuthProvider';
-import ConversationAvatar, { AvatarEditor } from './ConversationAvatar';
-import ConversationsOverviewCard from './ConversationsOverviewCard';
-import JamiIdCard from './JamiIdCard';
+import { useAuthContext } from '../contexts/AuthProvider'
+import ConversationAvatar, { AvatarEditor } from './ConversationAvatar'
+import ConversationsOverviewCard from './ConversationsOverviewCard'
+import JamiIdCard from './JamiIdCard'
 
-const transition = { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] };
+const transition = { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }
 
 const thumbnailVariants = {
   initial: { scale: 0.9, opacity: 0 },
@@ -56,42 +56,42 @@ const thumbnailVariants = {
     opacity: 0,
     transition: { ...transition, duration: 1.5 },
   },
-};
+}
 
 export default function AccountPreferences() {
-  const { account, axiosInstance } = useAuthContext();
+  const { account, axiosInstance } = useAuthContext()
 
-  const devices: string[][] = [];
-  const accountDevices = account.devices;
-  for (const i in accountDevices) devices.push([i, accountDevices[i]]);
+  const devices: string[][] = []
+  const accountDevices = account.devices
+  for (const i in accountDevices) devices.push([i, accountDevices[i]])
 
-  console.log(devices);
+  console.log(devices)
 
-  const isJamiAccount = account.getType() === 'RING';
-  const alias = isJamiAccount ? 'Jami account' : 'SIP account';
-  const moderators = account.defaultModerators;
-  const [defaultModeratorUri, setDefaultModeratorUri] = useState('');
+  const isJamiAccount = account.getType() === 'RING'
+  const alias = isJamiAccount ? 'Jami account' : 'SIP account'
+  const moderators = account.defaultModerators
+  const [defaultModeratorUri, setDefaultModeratorUri] = useState('')
 
-  const [details, setDetails] = useState(account.details);
+  const [details, setDetails] = useState(account.details)
 
   const addModerator = async () => {
     if (defaultModeratorUri) {
-      await axiosInstance.put(`/default-moderators/${defaultModeratorUri}`);
-      setDefaultModeratorUri('');
+      await axiosInstance.put(`/default-moderators/${defaultModeratorUri}`)
+      setDefaultModeratorUri('')
     }
-  };
+  }
 
-  const removeModerator = async (uri: string) => await axiosInstance.delete(`/default-moderators/${uri}`);
+  const removeModerator = async (uri: string) => await axiosInstance.delete(`/default-moderators/${uri}`)
 
   const handleToggle = async (key: keyof AccountDetails, value: boolean) => {
-    console.log(`handleToggle ${key} ${value}`);
-    const newDetails: Partial<AccountDetails> = {};
-    newDetails[key] = value ? 'true' : 'false';
-    console.log(newDetails);
-    await axiosInstance.patch('/account', newDetails);
-    account.updateDetails(newDetails);
-    setDetails(account.details);
-  };
+    console.log(`handleToggle ${key} ${value}`)
+    const newDetails: Partial<AccountDetails> = {}
+    newDetails[key] = value ? 'true' : 'false'
+    console.log(newDetails)
+    await axiosInstance.patch('/account', newDetails)
+    account.updateDetails(newDetails)
+    setDetails(account.details)
+  }
 
   return (
     <motion.div
@@ -247,5 +247,5 @@ export default function AccountPreferences() {
         </motion.div>
       </List>
     </motion.div>
-  );
+  )
 }

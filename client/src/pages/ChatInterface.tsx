@@ -15,51 +15,51 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Divider, Fade, Stack, Typography } from '@mui/material';
-import { motion } from 'framer-motion';
-import { ConversationMessage, Message, WebSocketMessageType } from 'jami-web-common';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { useTranslation } from 'react-i18next';
+import { Box, Divider, Fade, Stack, Typography } from '@mui/material'
+import { motion } from 'framer-motion'
+import { ConversationMessage, Message, WebSocketMessageType } from 'jami-web-common'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useDropzone } from 'react-dropzone'
+import { useTranslation } from 'react-i18next'
 
-import { FilePreviewRemovable } from '../components/FilePreview';
-import LoadingPage from '../components/Loading';
-import MessageList from '../components/MessageList';
-import { FileDragOverlay } from '../components/Overlay';
-import SendMessageForm from '../components/SendMessageForm';
-import { useConversationContext } from '../contexts/ConversationProvider';
-import { useWebSocketContext } from '../contexts/WebSocketProvider';
-import { ConversationMember } from '../models/conversation-member';
-import { useMessagesQuery, useSendMessageMutation } from '../services/conversationQueries';
-import { FileHandler } from '../utils/files';
-import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations';
+import { FilePreviewRemovable } from '../components/FilePreview'
+import LoadingPage from '../components/Loading'
+import MessageList from '../components/MessageList'
+import { FileDragOverlay } from '../components/Overlay'
+import SendMessageForm from '../components/SendMessageForm'
+import { useConversationContext } from '../contexts/ConversationProvider'
+import { useWebSocketContext } from '../contexts/WebSocketProvider'
+import { ConversationMember } from '../models/conversation-member'
+import { useMessagesQuery, useSendMessageMutation } from '../services/conversationQueries'
+import { FileHandler } from '../utils/files'
+import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
 
 const ChatInterface = () => {
-  const webSocket = useWebSocketContext();
-  const { conversationId } = useConversationContext();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const webSocket = useWebSocketContext()
+  const { conversationId } = useConversationContext()
+  const [messages, setMessages] = useState<Message[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(false)
 
-  const messagesQuery = useMessagesQuery(conversationId);
-  const sendMessageMutation = useSendMessageMutation(conversationId);
+  const messagesQuery = useMessagesQuery(conversationId)
+  const sendMessageMutation = useSendMessageMutation(conversationId)
 
-  const [fileHandlers, setFileHandlers] = useState<FileHandler[]>([]);
+  const [fileHandlers, setFileHandlers] = useState<FileHandler[]>([])
 
   const onFilesDrop = useCallback(
     (acceptedFiles: File[]) => {
-      const newFileHandlers = acceptedFiles.map((file) => new FileHandler(file));
-      setFileHandlers((oldFileHandlers) => [...oldFileHandlers, ...newFileHandlers]);
+      const newFileHandlers = acceptedFiles.map((file) => new FileHandler(file))
+      setFileHandlers((oldFileHandlers) => [...oldFileHandlers, ...newFileHandlers])
     },
     [setFileHandlers]
-  );
+  )
 
   const removeFile = useCallback(
     (fileId: string | number) => {
-      setFileHandlers((fileHandlers) => fileHandlers.filter((fileHandler) => fileHandler.id !== fileId));
+      setFileHandlers((fileHandlers) => fileHandlers.filter((fileHandler) => fileHandler.id !== fileId))
     },
     [setFileHandlers]
-  );
+  )
 
   const {
     getRootProps,
@@ -70,42 +70,42 @@ const ChatInterface = () => {
     onDrop: onFilesDrop,
     noClick: true,
     noKeyboard: true,
-  });
+  })
 
   useEffect(() => {
     if (messagesQuery.isSuccess) {
-      const sortedMessages = sortMessages(messagesQuery.data);
-      setMessages(sortedMessages);
+      const sortedMessages = sortMessages(messagesQuery.data)
+      setMessages(sortedMessages)
     }
-  }, [messagesQuery.isSuccess, messagesQuery.data]);
+  }, [messagesQuery.isSuccess, messagesQuery.data])
 
   useEffect(() => {
-    setIsLoading(messagesQuery.isLoading);
-  }, [messagesQuery.isLoading]);
+    setIsLoading(messagesQuery.isLoading)
+  }, [messagesQuery.isLoading])
 
   useEffect(() => {
-    setError(messagesQuery.isError);
-  }, [messagesQuery.isError]);
+    setError(messagesQuery.isError)
+  }, [messagesQuery.isError])
 
-  const sendMessage = useCallback((message: string) => sendMessageMutation.mutate(message), [sendMessageMutation]);
+  const sendMessage = useCallback((message: string) => sendMessageMutation.mutate(message), [sendMessageMutation])
 
   useEffect(() => {
     const conversationMessageListener = (data: ConversationMessage) => {
-      console.log('newMessage');
-      setMessages((messages) => addMessage(messages, data.message));
-    };
+      console.log('newMessage')
+      setMessages((messages) => addMessage(messages, data.message))
+    }
 
-    webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener);
+    webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
 
     return () => {
-      webSocket.unbind(WebSocketMessageType.ConversationMessage, conversationMessageListener);
-    };
-  }, [webSocket]);
+      webSocket.unbind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
+    }
+  }, [webSocket])
 
   if (isLoading) {
-    return <LoadingPage />;
+    return <LoadingPage />
   } else if (error) {
-    return <div>Error loading {conversationId}</div>;
+    return <div>Error loading {conversationId}</div>
   }
 
   return (
@@ -123,12 +123,12 @@ const ChatInterface = () => {
       <SendMessageForm onSend={sendMessage} openFilePicker={openFilePicker} />
       {fileHandlers.length > 0 && <FilePreviewsList fileHandlers={fileHandlers} removeFile={removeFile} />}
     </Stack>
-  );
-};
+  )
+}
 
 interface FilePreviewsListProps {
-  fileHandlers: FileHandler[];
-  removeFile: (fileId: string | number) => void;
+  fileHandlers: FileHandler[]
+  removeFile: (fileId: string | number) => void
 }
 
 const FilePreviewsList = ({ fileHandlers, removeFile }: FilePreviewsListProps) => {
@@ -152,12 +152,12 @@ const FilePreviewsList = ({ fileHandlers, removeFile }: FilePreviewsListProps) =
         />
       ))}
     </Stack>
-  );
-};
+  )
+}
 
 export const ComposingMembersIndicator = () => {
-  const { t } = useTranslation();
-  const { composingMembers } = useConversationContext();
+  const { t } = useTranslation()
+  const { composingMembers } = useConversationContext()
 
   const text = useMemo(() => {
     const options: TranslateEnumerationOptions<ConversationMember> = {
@@ -170,10 +170,10 @@ export const ComposingMembersIndicator = () => {
         (interpolations) => t('are_composing_3', interpolations),
         (interpolations) => t('are_composing_more', interpolations),
       ],
-    };
+    }
 
-    return translateEnumeration<ConversationMember>(composingMembers, options);
-  }, [composingMembers, t]);
+    return translateEnumeration<ConversationMember>(composingMembers, options)
+  }, [composingMembers, t])
 
   return (
     <Stack height="30px" padding="0 16px" justifyContent="center">
@@ -191,8 +191,8 @@ export const ComposingMembersIndicator = () => {
         </Stack>
       </Fade>
     </Stack>
-  );
-};
+  )
+}
 
 const SingleDot = ({ delay }: { delay: number }) => (
   <Box
@@ -211,7 +211,7 @@ const SingleDot = ({ delay }: { delay: number }) => (
       ease: 'easeInOut',
     }}
   />
-);
+)
 
 const WaitingDots = () => {
   return (
@@ -220,26 +220,26 @@ const WaitingDots = () => {
       <SingleDot delay={0.5} />
       <SingleDot delay={1} />
     </Stack>
-  );
-};
+  )
+}
 
 const addMessage = (sortedMessages: Message[], message: Message) => {
   if (sortedMessages.length === 0) {
-    return [message];
+    return [message]
   } else if (message.id === sortedMessages[sortedMessages.length - 1].linearizedParent) {
-    return [...sortedMessages, message];
+    return [...sortedMessages, message]
   } else if (message.linearizedParent === sortedMessages[0].id) {
-    return [message, ...sortedMessages];
+    return [message, ...sortedMessages]
   } else {
-    console.error("Can't insert message " + message.id);
-    return sortedMessages;
+    console.error("Can't insert message " + message.id)
+    return sortedMessages
   }
-};
+}
 
 const sortMessages = (messages: Message[]) => {
-  let sortedMessages: Message[] = [];
-  messages.forEach((message) => (sortedMessages = addMessage(sortedMessages, message)));
-  return sortedMessages;
-};
+  let sortedMessages: Message[] = []
+  messages.forEach((message) => (sortedMessages = addMessage(sortedMessages, message)))
+  return sortedMessages
+}
 
-export default ChatInterface;
+export default ChatInterface

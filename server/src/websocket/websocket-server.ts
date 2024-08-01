@@ -15,125 +15,125 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { IncomingMessage } from 'node:http';
-import { Duplex } from 'node:stream';
+import { IncomingMessage } from 'node:http'
+import { Duplex } from 'node:stream'
 
-import { WebSocketMessage, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common';
-import log from 'loglevel';
-import { Service } from 'typedi';
-import { URL } from 'whatwg-url';
-import * as WebSocket from 'ws';
+import { WebSocketMessage, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common'
+import log from 'loglevel'
+import { Service } from 'typedi'
+import { URL } from 'whatwg-url'
+import * as WebSocket from 'ws'
 
-import { verifyJwt } from '../utils/jwt.js';
+import { verifyJwt } from '../utils/jwt.js'
 
-type WebSocketCallback<T extends WebSocketMessageType> = (accountId: string, data: WebSocketMessageTable[T]) => void;
+type WebSocketCallback<T extends WebSocketMessageType> = (accountId: string, data: WebSocketMessageTable[T]) => void
 
 type WebSocketCallbacks = {
-  [key in WebSocketMessageType]: Set<WebSocketCallback<key>>;
-};
+  [key in WebSocketMessageType]: Set<WebSocketCallback<key>>
+}
 
 const buildWebSocketCallbacks = (): WebSocketCallbacks => {
-  const webSocketCallback = {} as WebSocketCallbacks;
+  const webSocketCallback = {} as WebSocketCallbacks
   for (const messageType of Object.values(WebSocketMessageType)) {
     // TODO: type this properly to prevent mistakes
     // The end result of the function is still typed properly
-    webSocketCallback[messageType] = new Set() as any;
+    webSocketCallback[messageType] = new Set() as any
   }
-  return webSocketCallback;
-};
+  return webSocketCallback
+}
 
 @Service()
 export class WebSocketServer {
-  private wss = new WebSocket.WebSocketServer({ noServer: true });
-  private sockets = new Map<string, WebSocket.WebSocket[]>();
-  private callbacks: WebSocketCallbacks;
+  private wss = new WebSocket.WebSocketServer({ noServer: true })
+  private sockets = new Map<string, WebSocket.WebSocket[]>()
+  private callbacks: WebSocketCallbacks
 
   constructor() {
-    this.callbacks = buildWebSocketCallbacks();
+    this.callbacks = buildWebSocketCallbacks()
 
     this.wss.on('connection', (ws: WebSocket.WebSocket, _request: IncomingMessage, accountId: string) => {
-      log.info('New connection for account', accountId);
-      const accountSockets = this.sockets.get(accountId);
+      log.info('New connection for account', accountId)
+      const accountSockets = this.sockets.get(accountId)
       if (accountSockets) {
-        accountSockets.push(ws);
+        accountSockets.push(ws)
       } else {
-        this.sockets.set(accountId, [ws]);
+        this.sockets.set(accountId, [ws])
       }
 
       ws.on('message', <T extends WebSocketMessageType>(messageString: string) => {
-        const message: WebSocketMessage<T> = JSON.parse(messageString);
+        const message: WebSocketMessage<T> = JSON.parse(messageString)
         if (message.type === undefined || message.data === undefined) {
-          log.warn('WebSocket message is not a valid WebSocketMessage (missing type or data fields)');
-          return;
+          log.warn('WebSocket message is not a valid WebSocketMessage (missing type or data fields)')
+          return
         }
 
         if (!Object.values(WebSocketMessageType).includes(message.type)) {
-          log.warn(`Invalid WebSocket message type: ${message.type}`);
-          return;
+          log.warn(`Invalid WebSocket message type: ${message.type}`)
+          return
         }
 
-        const callbacks = this.callbacks[message.type];
+        const callbacks = this.callbacks[message.type]
         for (const callback of callbacks) {
-          callback(accountId, message.data);
+          callback(accountId, message.data)
         }
-      });
+      })
 
       ws.on('close', () => {
-        log.info('Closing connection for account', accountId);
-        const accountSockets = this.sockets.get(accountId);
+        log.info('Closing connection for account', accountId)
+        const accountSockets = this.sockets.get(accountId)
         if (accountSockets === undefined) {
-          return;
+          return
         }
 
-        const index = accountSockets.indexOf(ws);
+        const index = accountSockets.indexOf(ws)
         if (index !== -1) {
-          accountSockets.splice(index, 1);
+          accountSockets.splice(index, 1)
           if (accountSockets.length === 0) {
-            this.sockets.delete(accountId);
+            this.sockets.delete(accountId)
           }
         }
-      });
-    });
+      })
+    })
   }
 
   async upgrade(request: IncomingMessage, socket: Duplex, head: Buffer): Promise<void> {
     // Do not use parseURL because it returns a URLRecord and not a URL
-    const url = new URL(request.url ?? '/', 'http://localhost/');
-    const token = url.searchParams.get('accessToken') ?? undefined;
+    const url = new URL(request.url ?? '/', 'http://localhost/')
+    const token = url.searchParams.get('accessToken') ?? undefined
     if (token === undefined) {
-      socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-      socket.destroy();
-      return;
+      socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
+      socket.destroy()
+      return
     }
 
     try {
-      const { payload } = await verifyJwt(token);
-      const accountId = payload.accountId as string;
-      log.info('Authentication successful for account', accountId);
+      const { payload } = await verifyJwt(token)
+      const accountId = payload.accountId as string
+      log.info('Authentication successful for account', accountId)
       this.wss.handleUpgrade(request, socket, head, (ws) => {
-        this.wss.emit('connection', ws, request, accountId);
-      });
+        this.wss.emit('connection', ws, request, accountId)
+      })
     } catch (e) {
-      log.debug('Authentication failed:', e);
-      socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-      socket.destroy();
+      log.debug('Authentication failed:', e)
+      socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
+      socket.destroy()
     }
   }
 
   bind<T extends WebSocketMessageType>(type: T, callback: WebSocketCallback<T>): void {
-    this.callbacks[type].add(callback);
+    this.callbacks[type].add(callback)
   }
 
   send<T extends WebSocketMessageType>(accountId: string, type: T, data: WebSocketMessageTable[T]): boolean {
-    const accountSockets = this.sockets.get(accountId);
+    const accountSockets = this.sockets.get(accountId)
     if (accountSockets === undefined) {
-      return false;
+      return false
     }
 
-    const webSocketMessageString = JSON.stringify({ type, data });
+    const webSocketMessageString = JSON.stringify({ type, data })
     for (const accountSocket of accountSockets) {
-      accountSocket.send(webSocketMessageString);
+      accountSocket.send(webSocketMessageString)
     }
-    return true;
+    return true
   }
 }

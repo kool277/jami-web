@@ -15,42 +15,42 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import axios, { AxiosInstance } from 'axios';
-import { HttpStatusCode, IAccount } from 'jami-web-common';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import axios, { AxiosInstance } from 'axios'
+import { HttpStatusCode, IAccount } from 'jami-web-common'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import ProcessingRequest from '../components/ProcessingRequest';
-import { createOptionalContext } from '../hooks/createOptionalContext';
-import { Account } from '../models/account';
-import { apiUrl } from '../utils/constants';
-import { WithChildren } from '../utils/utils';
+import ProcessingRequest from '../components/ProcessingRequest'
+import { createOptionalContext } from '../hooks/createOptionalContext'
+import { Account } from '../models/account'
+import { apiUrl } from '../utils/constants'
+import { WithChildren } from '../utils/utils'
 
 interface IAuthContext {
-  token: string;
-  account: Account;
-  accountId: string;
-  logout: () => void;
-  axiosInstance: AxiosInstance;
+  token: string
+  account: Account
+  accountId: string
+  logout: () => void
+  axiosInstance: AxiosInstance
 }
 
-const optionalAuthContext = createOptionalContext<IAuthContext>('AuthContext');
-const AuthContext = optionalAuthContext.Context;
-export const useAuthContext = optionalAuthContext.useOptionalContext;
+const optionalAuthContext = createOptionalContext<IAuthContext>('AuthContext')
+const AuthContext = optionalAuthContext.Context
+export const useAuthContext = optionalAuthContext.useOptionalContext
 
 export default ({ children }: WithChildren) => {
-  const [token, setToken] = useState<string | undefined>();
-  const [account, setAccount] = useState<Account | undefined>();
-  const navigate = useNavigate();
+  const [token, setToken] = useState<string | undefined>()
+  const [account, setAccount] = useState<Account | undefined>()
+  const navigate = useNavigate()
 
   const logout = useCallback(() => {
-    localStorage.removeItem('accessToken');
-    navigate('/login');
-  }, [navigate]);
+    localStorage.removeItem('accessToken')
+    navigate('/login')
+  }, [navigate])
 
   const axiosInstance = useMemo(() => {
     if (!token) {
-      return;
+      return
     }
 
     const instance = axios.create({
@@ -58,45 +58,45 @@ export default ({ children }: WithChildren) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    });
+    })
 
     instance.interceptors.response.use(
       (res) => res,
       (e) => {
         switch (e.response?.status) {
           case HttpStatusCode.Unauthorized:
-            logout();
-            break;
+            logout()
+            break
         }
-        throw e;
+        throw e
       }
-    );
+    )
 
-    return instance;
-  }, [token, logout]);
+    return instance
+  }, [token, logout])
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem('accessToken')
 
     if (!accessToken) {
-      console.warn('Missing authentication JWT. Redirecting to login page...');
-      logout();
+      console.warn('Missing authentication JWT. Redirecting to login page...')
+      logout()
     } else {
-      setToken(accessToken);
+      setToken(accessToken)
     }
-  }, [logout]);
+  }, [logout])
 
   useEffect(() => {
     if (!axiosInstance) {
-      return;
+      return
     }
 
-    axiosInstance.get<IAccount>('/account').then(({ data }) => setAccount(Account.fromInterface(data)));
-  }, [axiosInstance, logout]);
+    axiosInstance.get<IAccount>('/account').then(({ data }) => setAccount(Account.fromInterface(data)))
+  }, [axiosInstance, logout])
 
   const value = useMemo(() => {
     if (!token || !account || !axiosInstance) {
-      return;
+      return
     }
 
     return {
@@ -105,12 +105,12 @@ export default ({ children }: WithChildren) => {
       account,
       accountId: account.id,
       axiosInstance,
-    };
-  }, [token, logout, account, axiosInstance]);
+    }
+  }, [token, logout, account, axiosInstance])
 
   if (!value) {
-    return <ProcessingRequest open />;
+    return <ProcessingRequest open />
   }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}

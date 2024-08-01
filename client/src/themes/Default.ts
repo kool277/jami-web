@@ -15,21 +15,21 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { createTheme, PaletteMode, SimplePaletteColorOptions } from '@mui/material';
+import { createTheme, PaletteMode, SimplePaletteColorOptions } from '@mui/material'
 
 declare module '@mui/material/styles' {
   interface Theme {
     InfoTooltip: {
-      backgroundColor: SimplePaletteColorOptions;
-      color: SimplePaletteColorOptions;
-    };
+      backgroundColor: SimplePaletteColorOptions
+      color: SimplePaletteColorOptions
+    }
   }
 
   interface ThemeOptions {
     InfoTooltip: {
-      backgroundColor: SimplePaletteColorOptions;
-      color: SimplePaletteColorOptions;
-    };
+      backgroundColor: SimplePaletteColorOptions
+      color: SimplePaletteColorOptions
+    }
   }
 }
 
@@ -140,7 +140,7 @@ const fonts = {
       `,
     },
   },
-};
+}
 
 const palettes = {
   light: {
@@ -207,12 +207,12 @@ const palettes = {
       },
     },
   },
-};
+}
 
 export const buildDefaultTheme = (mode: PaletteMode) => {
   // Attemps to set the fonts on the second "createTheme" has resulted with wrong font-families
-  const partialTheme = createTheme({ ...palettes[mode], ...fonts });
-  const palette = partialTheme.palette;
+  const partialTheme = createTheme({ ...palettes[mode], ...fonts })
+  const palette = partialTheme.palette
 
   return createTheme(partialTheme, {
     components: {
@@ -418,5 +418,5 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
         },
       },
     },
-  });
-};
+  })
+}

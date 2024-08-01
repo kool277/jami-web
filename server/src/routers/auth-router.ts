@@ -15,37 +15,37 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import argon2 from 'argon2';
-import { Router } from 'express';
-import asyncHandler from 'express-async-handler';
-import { ParamsDictionary, Request } from 'express-serve-static-core';
-import { AccessToken, AccountDetails, HttpStatusCode, UserCredentials } from 'jami-web-common';
-import { Container } from 'typedi';
+import argon2 from 'argon2'
+import { Router } from 'express'
+import asyncHandler from 'express-async-handler'
+import { ParamsDictionary, Request } from 'express-serve-static-core'
+import { AccessToken, AccountDetails, HttpStatusCode, UserCredentials } from 'jami-web-common'
+import { Container } from 'typedi'
 
-import { Jamid } from '../jamid/jamid.js';
-import { NameRegistrationEndedState, RegistrationState } from '../jamid/state-enums.js';
-import { Accounts } from '../storage/accounts.js';
-import { signJwt } from '../utils/jwt.js';
+import { Jamid } from '../jamid/jamid.js'
+import { NameRegistrationEndedState, RegistrationState } from '../jamid/state-enums.js'
+import { Accounts } from '../storage/accounts.js'
+import { signJwt } from '../utils/jwt.js'
 
-const jamid = Container.get(Jamid);
-const accounts = Container.get(Accounts);
+const jamid = Container.get(Jamid)
+const accounts = Container.get(Accounts)
 
-export const authRouter = Router();
+export const authRouter = Router()
 
 authRouter.post(
   '/new-account',
   asyncHandler(async (req: Request<ParamsDictionary, string, Partial<UserCredentials>>, res) => {
-    const { username, password, isJams } = req.body;
+    const { username, password, isJams } = req.body
     if (username === undefined || password === undefined) {
-      res.status(HttpStatusCode.BadRequest).send('Missing username or password in body');
-      return;
+      res.status(HttpStatusCode.BadRequest).send('Missing username or password in body')
+      return
     }
-    console.log('Creating new account', username, password, isJams);
+    console.log('Creating new account', username, password, isJams)
 
-    const isAccountAlreadyCreated = accounts.get(username, isJams) !== undefined;
+    const isAccountAlreadyCreated = accounts.get(username, isJams) !== undefined
     if (isAccountAlreadyCreated) {
-      res.status(HttpStatusCode.Conflict).send('Username already exists locally');
-      return;
+      res.status(HttpStatusCode.Conflict).send('Username already exists locally')
+      return
     }
 
     /*if (password === '') {
@@ -53,80 +53,80 @@ authRouter.post(
       return;
     }*/
 
-    const hashedPassword = password ? await argon2.hash(password, { type: argon2.argon2id }) : '';
+    const hashedPassword = password ? await argon2.hash(password, { type: argon2.argon2id }) : ''
 
     const accountDetails: Partial<AccountDetails> = {
       // TODO: Enable encrypted archives
       // 'Account.archivePassword': password
-    };
-    if (isJams) {
-      accountDetails['Account.managerUri'] = 'https://jams.savoirfairelinux.com/';
-      accountDetails['Account.managerUsername'] = username;
     }
-    const { accountId, state } = await jamid.addAccount(accountDetails);
+    if (isJams) {
+      accountDetails['Account.managerUri'] = 'https://jams.savoirfairelinux.com/'
+      accountDetails['Account.managerUsername'] = username
+    }
+    const { accountId, state } = await jamid.addAccount(accountDetails)
 
     if (isJams) {
       if (state === RegistrationState.ErrorGeneric) {
-        jamid.removeAccount(accountId);
-        res.status(HttpStatusCode.Unauthorized).send('Invalid JAMS credentials');
-        return;
+        jamid.removeAccount(accountId)
+        res.status(HttpStatusCode.Unauthorized).send('Invalid JAMS credentials')
+        return
       }
     } else {
-      const state = await jamid.registerUsername(accountId, username, '');
+      const state = await jamid.registerUsername(accountId, username, '')
       if (state !== NameRegistrationEndedState.Success) {
-        jamid.removeAccount(accountId);
+        jamid.removeAccount(accountId)
         switch (state) {
           case NameRegistrationEndedState.InvalidName:
-            res.status(HttpStatusCode.BadRequest).send('Invalid username or password');
-            break;
+            res.status(HttpStatusCode.BadRequest).send('Invalid username or password')
+            break
           case NameRegistrationEndedState.AlreadyTaken:
-            res.status(HttpStatusCode.Conflict).send('Username already exists');
-            break;
+            res.status(HttpStatusCode.Conflict).send('Username already exists')
+            break
           default:
-            throw new Error(`Unhandled state ${state}`);
+            throw new Error(`Unhandled state ${state}`)
         }
-        return;
+        return
       }
     }
 
-    accounts.set(username, hashedPassword, isJams);
-    await accounts.save();
+    accounts.set(username, hashedPassword, isJams)
+    await accounts.save()
 
-    res.sendStatus(HttpStatusCode.Created);
+    res.sendStatus(HttpStatusCode.Created)
   })
-);
+)
 
 authRouter.post(
   '/login',
   asyncHandler(async (req: Request<ParamsDictionary, AccessToken | string, Partial<UserCredentials>>, res) => {
-    const { username, password, isJams } = req.body;
+    const { username, password, isJams } = req.body
     if (username === undefined || password === undefined) {
-      res.status(HttpStatusCode.BadRequest).send('Missing username or password in body');
-      return;
+      res.status(HttpStatusCode.BadRequest).send('Missing username or password in body')
+      return
     }
 
     // Check if the account is stored on this daemon instance
-    const accountId = jamid.getAccountIdFromUsername(username);
+    const accountId = jamid.getAccountIdFromUsername(username)
     if (accountId === undefined) {
-      res.status(HttpStatusCode.Unauthorized).send('Username not found');
-      return;
+      res.status(HttpStatusCode.Unauthorized).send('Username not found')
+      return
     }
 
-    const hashedPassword = accounts.get(username, isJams);
+    const hashedPassword = accounts.get(username, isJams)
     if (hashedPassword === undefined) {
       res
         .status(HttpStatusCode.Unauthorized)
-        .send('Password not found (the account does not have a password set on the server)');
-      return;
+        .send('Password not found (the account does not have a password set on the server)')
+      return
     }
 
-    const isPasswordVerified = await argon2.verify(hashedPassword, password);
+    const isPasswordVerified = await argon2.verify(hashedPassword, password)
     if (!isPasswordVerified) {
-      res.status(HttpStatusCode.Unauthorized).send('Incorrect password');
-      return;
+      res.status(HttpStatusCode.Unauthorized).send('Incorrect password')
+      return
     }
 
-    const jwt = await signJwt(accountId);
-    res.status(HttpStatusCode.Ok).send({ accessToken: jwt });
+    const jwt = await signJwt(accountId)
+    res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
   })
-);
+)

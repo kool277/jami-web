@@ -15,14 +15,14 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ListItemButton, ListItemButtonProps, Stack } from '@mui/material';
-import { ReactNode } from 'react';
+import { ListItemButton, ListItemButtonProps, Stack } from '@mui/material'
+import { ReactNode } from 'react'
 
 type CustomListItemButtonProps = ListItemButtonProps & {
-  icon: ReactNode;
-  primaryText: ReactNode;
-  secondaryText?: ReactNode;
-};
+  icon: ReactNode
+  primaryText: ReactNode
+  secondaryText?: ReactNode
+}
 
 // The spacings between the elements of ListItemButton have been too hard to customize in the theme,
 // plus 'primary' and 'secondary' props on ListItemText do not accept block elements such as div.
@@ -38,5 +38,5 @@ export const CustomListItemButton = ({ icon, primaryText, secondaryText, ...prop
         </Stack>
       </Stack>
     </ListItemButton>
-  );
-};
+  )
+}

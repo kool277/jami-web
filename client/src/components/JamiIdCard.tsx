@@ -15,17 +15,17 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Card, CardContent, Typography } from '@mui/material';
+import { Box, Card, CardContent, Typography } from '@mui/material'
 
-import { Account } from '../models/account';
+import { Account } from '../models/account'
 
 type JamiIdCardProps = {
-  account: Account;
-};
+  account: Account
+}
 
 export default function JamiIdCard(props: JamiIdCardProps) {
-  const account = props.account;
-  const registeredName = account.getRegisteredName();
+  const account = props.account
+  const registeredName = account.getRegisteredName()
   return (
     <Card style={{ marginBottom: 16 }}>
       <CardContent>
@@ -45,5 +45,5 @@ export default function JamiIdCard(props: JamiIdCardProps) {
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

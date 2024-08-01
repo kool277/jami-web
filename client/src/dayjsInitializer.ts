@@ -15,20 +15,20 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import 'dayjs/locale/en';
-import 'dayjs/locale/fr';
+import 'dayjs/locale/en'
+import 'dayjs/locale/fr'
 
-import dayjs from 'dayjs';
-import dayOfYear from 'dayjs/plugin/dayOfYear';
-import duration from 'dayjs/plugin/duration';
-import isBetween from 'dayjs/plugin/isBetween';
-import isToday from 'dayjs/plugin/isToday';
-import isYesterday from 'dayjs/plugin/isYesterday';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
+import dayjs from 'dayjs'
+import dayOfYear from 'dayjs/plugin/dayOfYear'
+import duration from 'dayjs/plugin/duration'
+import isBetween from 'dayjs/plugin/isBetween'
+import isToday from 'dayjs/plugin/isToday'
+import isYesterday from 'dayjs/plugin/isYesterday'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
 
-dayjs.extend(dayOfYear);
-dayjs.extend(duration);
-dayjs.extend(isBetween);
-dayjs.extend(isToday);
-dayjs.extend(isYesterday);
-dayjs.extend(localizedFormat);
+dayjs.extend(dayOfYear)
+dayjs.extend(duration)
+dayjs.extend(isBetween)
+dayjs.extend(isToday)
+dayjs.extend(isYesterday)
+dayjs.extend(localizedFormat)

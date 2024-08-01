@@ -15,13 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import Backdrop from '@mui/material/Backdrop';
-import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop'
+import CircularProgress from '@mui/material/CircularProgress'
 
 export default function ProcessingRequest(props: { open: boolean }) {
   return (
     <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={props.open} onClick={() => {}}>
       <CircularProgress color="inherit" />
     </Backdrop>
-  );
+  )
 }

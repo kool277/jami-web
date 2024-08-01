@@ -15,72 +15,72 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Router } from 'express';
-import asyncHandler from 'express-async-handler';
-import { HttpStatusCode, RegisteredNameFoundState } from 'jami-web-common';
-import { Container } from 'typedi';
+import { Router } from 'express'
+import asyncHandler from 'express-async-handler'
+import { HttpStatusCode, RegisteredNameFoundState } from 'jami-web-common'
+import { Container } from 'typedi'
 
-import { Jamid } from '../jamid/jamid.js';
-import { authenticateOptionalToken } from '../middleware/auth.js';
+import { Jamid } from '../jamid/jamid.js'
+import { authenticateOptionalToken } from '../middleware/auth.js'
 
-const jamid = Container.get(Jamid);
+const jamid = Container.get(Jamid)
 
-export const nameserverRouter = Router();
+export const nameserverRouter = Router()
 
-nameserverRouter.use(authenticateOptionalToken);
+nameserverRouter.use(authenticateOptionalToken)
 
 nameserverRouter.get(
   '/username/:username',
   asyncHandler(async (req, res) => {
-    const result = await jamid.lookupUsername(req.params.username, res.locals.accountId);
+    const result = await jamid.lookupUsername(req.params.username, res.locals.accountId)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
-        res.status(HttpStatusCode.Ok).send(result);
-        break;
+        res.status(HttpStatusCode.Ok).send(result)
+        break
       case RegisteredNameFoundState.InvalidResponse:
-        res.status(HttpStatusCode.BadRequest).send('Invalid username');
-        break;
+        res.status(HttpStatusCode.BadRequest).send('Invalid username')
+        break
       default:
-        res.status(HttpStatusCode.NotFound).send('No such username found');
-        break;
+        res.status(HttpStatusCode.NotFound).send('No such username found')
+        break
     }
   })
-);
+)
 
 //Check if the username provided exists or not, if it doesn't exist, it is allowed for registration
 nameserverRouter.get(
   '/username/availability/:username', //
   asyncHandler(async (req, res) => {
     //This is using the same jamid service as the route /username/:username, except the responses are handled different
-    const result = await jamid.lookupUsername(req.params.username, res.locals.accountId);
+    const result = await jamid.lookupUsername(req.params.username, res.locals.accountId)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
-        res.status(HttpStatusCode.Ok).send('taken');
-        break;
+        res.status(HttpStatusCode.Ok).send('taken')
+        break
       case RegisteredNameFoundState.InvalidResponse:
-        res.status(HttpStatusCode.BadRequest).send('invalid');
-        break;
+        res.status(HttpStatusCode.BadRequest).send('invalid')
+        break
       default:
-        res.status(HttpStatusCode.Ok).send('success');
-        break;
+        res.status(HttpStatusCode.Ok).send('success')
+        break
     }
   })
-);
+)
 
 nameserverRouter.get(
   '/address/:address',
   asyncHandler(async (req, res) => {
-    const result = await jamid.lookupAddress(req.params.address, res.locals.accountId);
+    const result = await jamid.lookupAddress(req.params.address, res.locals.accountId)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
-        res.send(result);
-        break;
+        res.send(result)
+        break
       case RegisteredNameFoundState.InvalidResponse:
-        res.status(HttpStatusCode.BadRequest).send('Invalid address');
-        break;
+        res.status(HttpStatusCode.BadRequest).send('Invalid address')
+        break
       default:
-        res.status(HttpStatusCode.NotFound).send('No such address found');
-        break;
+        res.status(HttpStatusCode.NotFound).send('No such address found')
+        break
     }
   })
-);
+)

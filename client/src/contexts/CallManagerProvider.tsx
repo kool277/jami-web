@@ -15,21 +15,21 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { RemoteVideoOverlay } from '../components/VideoOverlay';
-import { createOptionalContext } from '../hooks/createOptionalContext';
-import { useUrlParams } from '../hooks/useUrlParams';
-import { ConversationRouteParams } from '../router';
-import { ICallManager, useCallManager } from '../services/CallManager';
-import { WithChildren } from '../utils/utils';
+import { RemoteVideoOverlay } from '../components/VideoOverlay'
+import { createOptionalContext } from '../hooks/createOptionalContext'
+import { useUrlParams } from '../hooks/useUrlParams'
+import { ConversationRouteParams } from '../router'
+import { ICallManager, useCallManager } from '../services/CallManager'
+import { WithChildren } from '../utils/utils'
 
-const optionalCallManagerContext = createOptionalContext<ICallManager>('CallManagerContext');
-export const useCallManagerContext = optionalCallManagerContext.useOptionalContext;
+const optionalCallManagerContext = createOptionalContext<ICallManager>('CallManagerContext')
+export const useCallManagerContext = optionalCallManagerContext.useOptionalContext
 
 export default ({ children }: WithChildren) => {
-  const { urlParams } = useUrlParams<ConversationRouteParams>();
-  const callManager = useCallManager();
+  const { urlParams } = useUrlParams<ConversationRouteParams>()
+  const callManager = useCallManager()
 
-  const { callData } = callManager;
+  const { callData } = callManager
 
   return (
     <optionalCallManagerContext.Context.Provider value={callManager}>
@@ -38,5 +38,5 @@ export default ({ children }: WithChildren) => {
       )}
       {children}
     </optionalCallManagerContext.Context.Provider>
-  );
-};
+  )
+}

@@ -16,57 +16,57 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { ListItem, ListItemAvatar, ListItemText } from '@mui/material';
-import List from '@mui/material/List';
-import { memo, SetStateAction, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { ListItem, ListItemAvatar, ListItemText } from '@mui/material'
+import List from '@mui/material/List'
+import { memo, SetStateAction, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   useBlockContactMutation,
   useContactListQuery,
   useContactQuery,
   useRemoveContactMutation,
-} from '../services/contactQueries';
-import ContactDetailDialog from './ContactDetailDialog';
-import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu';
-import ConversationAvatar from './ConversationAvatar';
-import { ConfirmationDialog, useDialogHandler } from './Dialog';
-import LoadingPage from './Loading';
-import { PopoverListItemData } from './PopoverList';
-import { BlockContactIcon, CancelIcon, PersonIcon } from './SvgIcon';
+} from '../services/contactQueries'
+import ContactDetailDialog from './ContactDetailDialog'
+import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
+import ConversationAvatar from './ConversationAvatar'
+import { ConfirmationDialog, useDialogHandler } from './Dialog'
+import LoadingPage from './Loading'
+import { PopoverListItemData } from './PopoverList'
+import { BlockContactIcon, CancelIcon, PersonIcon } from './SvgIcon'
 
 export default function ContactList() {
-  const [currentContactId, setCurrentContactId] = useState<string>('');
-  const [isBlocking, setIsBlocking] = useState(true);
+  const [currentContactId, setCurrentContactId] = useState<string>('')
+  const [isBlocking, setIsBlocking] = useState(true)
 
-  const [contactDetailDialogOpen, setContactDetailDialogOpen] = useState<boolean>(false);
+  const [contactDetailDialogOpen, setContactDetailDialogOpen] = useState<boolean>(false)
 
-  const contactListQuery = useContactListQuery();
-  const { isLoading, data: contacts } = contactListQuery;
+  const contactListQuery = useContactListQuery()
+  const { isLoading, data: contacts } = contactListQuery
 
-  const singleContactQuery = useContactQuery(currentContactId);
-  const { data: contactDetail } = singleContactQuery;
+  const singleContactQuery = useContactQuery(currentContactId)
+  const { data: contactDetail } = singleContactQuery
 
-  const contextMenuHandler = useContextMenuHandler();
+  const contextMenuHandler = useContextMenuHandler()
 
   const {
     props: { open: dialogOpen, onClose: closeContactDialog },
     openDialog: openContactDialog,
-  } = useDialogHandler();
+  } = useDialogHandler()
 
   const ContactDetailDialogElement = useMemo(() => {
-    const onClosingContactDetailDialog = () => setContactDetailDialogOpen(false);
+    const onClosingContactDetailDialog = () => setContactDetailDialogOpen(false)
     return (
       <ContactDetailDialog
         contactDetail={contactDetail}
         open={contactDetailDialogOpen}
         onClose={onClosingContactDetailDialog}
       />
-    );
-  }, [contactDetail, contactDetailDialogOpen]);
+    )
+  }, [contactDetail, contactDetailDialogOpen])
 
   if (isLoading) {
-    return <LoadingPage />;
+    return <LoadingPage />
   }
 
   return (
@@ -92,8 +92,8 @@ export default function ContactList() {
             alignItems="flex-start"
             key={contact.id}
             onContextMenu={(e) => {
-              setCurrentContactId(contact.id);
-              contextMenuHandler.handleAnchorPosition(e);
+              setCurrentContactId(contact.id)
+              contextMenuHandler.handleAnchorPosition(e)
             }}
           >
             <ListItemAvatar>
@@ -104,14 +104,14 @@ export default function ContactList() {
         ))}
       </List>
     </>
-  );
+  )
 }
 
 interface ContactMenuProps {
-  contextMenuProps: ContextMenuHandler['props'];
-  openContactDialog: () => void;
-  setIsBlocking: React.Dispatch<SetStateAction<boolean>>;
-  setContactDetailDialogOpen: React.Dispatch<SetStateAction<boolean>>;
+  contextMenuProps: ContextMenuHandler['props']
+  openContactDialog: () => void
+  setIsBlocking: React.Dispatch<SetStateAction<boolean>>
+  setContactDetailDialogOpen: React.Dispatch<SetStateAction<boolean>>
 }
 
 const ContactMenu = ({
@@ -120,60 +120,60 @@ const ContactMenu = ({
   setIsBlocking,
   setContactDetailDialogOpen,
 }: ContactMenuProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   const menuOptions: PopoverListItemData[] = useMemo(
     () => [
       {
         label: t('contact_details_text'),
         Icon: PersonIcon,
         onClick: () => {
-          setContactDetailDialogOpen(true);
+          setContactDetailDialogOpen(true)
         },
       },
       {
         label: t('contact_block'),
         Icon: BlockContactIcon,
         onClick: () => {
-          openContactDialog();
-          setIsBlocking(true);
+          openContactDialog()
+          setIsBlocking(true)
         },
       },
       {
         label: t('contact_remove'),
         Icon: CancelIcon,
         onClick: () => {
-          openContactDialog();
-          setIsBlocking(false);
+          openContactDialog()
+          setIsBlocking(false)
         },
       },
     ],
     [t, setIsBlocking, setContactDetailDialogOpen, openContactDialog]
-  );
-  return <ContextMenu {...contextMenuProps} items={menuOptions} />;
-};
+  )
+  return <ContextMenu {...contextMenuProps} items={menuOptions} />
+}
 
 interface ContactDialogProps {
-  isBlocking: boolean;
-  open: boolean;
-  closeContactDialog: () => void;
-  currentContactId: string;
+  isBlocking: boolean
+  open: boolean
+  closeContactDialog: () => void
+  currentContactId: string
 }
 
 const ContactDialog = memo(({ isBlocking, open, closeContactDialog, currentContactId }: ContactDialogProps) => {
-  const removeContactMutation = useRemoveContactMutation();
-  const blockContactMutation = useBlockContactMutation();
+  const removeContactMutation = useRemoveContactMutation()
+  const blockContactMutation = useBlockContactMutation()
 
   const removeContact = (): void => {
-    removeContactMutation.mutate(currentContactId);
-    closeContactDialog();
-  };
+    removeContactMutation.mutate(currentContactId)
+    closeContactDialog()
+  }
 
   const blockContact = (): void => {
-    blockContactMutation.mutate(currentContactId);
-    closeContactDialog();
-  };
+    blockContactMutation.mutate(currentContactId)
+    closeContactDialog()
+  }
 
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <ConfirmationDialog
       open={open}
@@ -183,5 +183,5 @@ const ContactDialog = memo(({ isBlocking, open, closeContactDialog, currentConta
       onConfirm={isBlocking ? blockContact : removeContact}
       confirmButtonText={isBlocking ? t('contact_confirm_block') : t('contact_confirm_remove')}
     />
-  );
-});
+  )
+})

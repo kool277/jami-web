@@ -15,76 +15,76 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { InputBase } from '@mui/material';
-import { Stack } from '@mui/system';
-import { WebSocketMessageType } from 'jami-web-common';
-import { ChangeEvent, FormEvent, useCallback, useMemo, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { InputBase } from '@mui/material'
+import { Stack } from '@mui/system'
+import { WebSocketMessageType } from 'jami-web-common'
+import { ChangeEvent, FormEvent, useCallback, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { useAuthContext } from '../contexts/AuthProvider';
-import { useConversationContext } from '../contexts/ConversationProvider';
-import { useWebSocketContext } from '../contexts/WebSocketProvider';
-import { ConversationMember } from '../models/conversation-member';
-import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations';
+import { useAuthContext } from '../contexts/AuthProvider'
+import { useConversationContext } from '../contexts/ConversationProvider'
+import { useWebSocketContext } from '../contexts/WebSocketProvider'
+import { ConversationMember } from '../models/conversation-member'
+import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
 import {
   RecordVideoMessageButton,
   RecordVoiceMessageButton,
   SelectEmojiButton,
   SendMessageButton,
   UploadFileButton,
-} from './Button';
+} from './Button'
 
 type SendMessageFormProps = {
-  onSend: (message: string) => void;
-  openFilePicker: () => void;
-};
+  onSend: (message: string) => void
+  openFilePicker: () => void
+}
 
 export default function SendMessageForm({ onSend, openFilePicker }: SendMessageFormProps) {
-  const webSocket = useWebSocketContext();
-  const { members, conversationId } = useConversationContext();
-  const [currentMessage, setCurrentMessage] = useState('');
-  const composingNotificationTimeRef = useRef(0);
-  const placeholder = usePlaceholder(members);
+  const webSocket = useWebSocketContext()
+  const { members, conversationId } = useConversationContext()
+  const [currentMessage, setCurrentMessage] = useState('')
+  const composingNotificationTimeRef = useRef(0)
+  const placeholder = usePlaceholder(members)
 
   const notifyComposing = useCallback(() => {
-    const currentTime = new Date().getTime();
+    const currentTime = new Date().getTime()
     // The daemon automatically turns off "isComposing" after 12 seconds
     // We ensure it will stay on at least 4 seconds after the last typed character
     if (currentTime - composingNotificationTimeRef.current > 8000) {
-      composingNotificationTimeRef.current = currentTime;
-      webSocket.send(WebSocketMessageType.ComposingStatus, { conversationId, isWriting: true });
+      composingNotificationTimeRef.current = currentTime
+      webSocket.send(WebSocketMessageType.ComposingStatus, { conversationId, isWriting: true })
     }
-  }, [webSocket, conversationId]);
+  }, [webSocket, conversationId])
 
   const notifyStopcomposing = useCallback(() => {
-    composingNotificationTimeRef.current = 0;
-    webSocket?.send(WebSocketMessageType.ComposingStatus, { conversationId, isWriting: false });
-  }, [webSocket, conversationId]);
+    composingNotificationTimeRef.current = 0
+    webSocket?.send(WebSocketMessageType.ComposingStatus, { conversationId, isWriting: false })
+  }, [webSocket, conversationId])
 
   const handleSubmit = useCallback(
     (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
+      e.preventDefault()
       if (currentMessage) {
-        onSend(currentMessage);
-        setCurrentMessage('');
-        notifyStopcomposing();
+        onSend(currentMessage)
+        setCurrentMessage('')
+        notifyStopcomposing()
       }
     },
     [currentMessage, onSend, notifyStopcomposing]
-  );
+  )
 
   const handleInputChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      setCurrentMessage(event.target.value);
-      notifyComposing();
+      setCurrentMessage(event.target.value)
+      notifyComposing()
     },
     [notifyComposing]
-  );
+  )
 
   const onEmojiSelected = useCallback(
     (emoji: string) => setCurrentMessage((currentMessage) => currentMessage + emoji),
     [setCurrentMessage]
-  );
+  )
 
   return (
     <Stack
@@ -118,12 +118,12 @@ export default function SendMessageForm({ onSend, openFilePicker }: SendMessageF
       <SelectEmojiButton onEmojiSelected={onEmojiSelected} />
       {currentMessage && <SendMessageButton type="submit" />}
     </Stack>
-  );
+  )
 }
 
 const usePlaceholder = (members: ConversationMember[]) => {
-  const { account } = useAuthContext();
-  const { t } = useTranslation();
+  const { account } = useAuthContext()
+  const { t } = useTranslation()
 
   return useMemo(() => {
     const options: TranslateEnumerationOptions<ConversationMember> = {
@@ -139,8 +139,8 @@ const usePlaceholder = (members: ConversationMember[]) => {
         (interpolations) => t('message_input_placeholder_4', interpolations),
         (interpolations) => t('message_input_placeholder_more', interpolations),
       ],
-    };
+    }
 
-    return translateEnumeration<ConversationMember>(members, options);
-  }, [account, members, t]);
-};
+    return translateEnumeration<ConversationMember>(members, options)
+  }, [account, members, t])
+}

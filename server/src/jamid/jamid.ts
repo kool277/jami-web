@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { createRequire } from 'node:module';
+import { createRequire } from 'node:module'
 
 import {
   AccountDetails,
@@ -30,15 +30,15 @@ import {
   VolatileDetails,
   WebSocketMessage,
   WebSocketMessageType,
-} from 'jami-web-common';
-import log from 'loglevel';
-import { filter, firstValueFrom, map, Subject } from 'rxjs';
-import { Service } from 'typedi';
+} from 'jami-web-common'
+import log from 'loglevel'
+import { filter, firstValueFrom, map, Subject } from 'rxjs'
+import { Service } from 'typedi'
 
-import { WebSocketServer } from '../websocket/websocket-server.js';
-import { ConversationMemberInfos } from './conversation-member-infos.js';
-import { ConversationRequestMetadata } from './conversation-request-metadata.js';
-import { JamiSignal } from './jami-signal.js';
+import { WebSocketServer } from '../websocket/websocket-server.js'
+import { ConversationMemberInfos } from './conversation-member-infos.js'
+import { ConversationRequestMetadata } from './conversation-request-metadata.js'
+import { JamiSignal } from './jami-signal.js'
 import {
   AccountDetailsChanged,
   AccountMessageStatusChanged,
@@ -57,121 +57,121 @@ import {
   RegisteredNameFound,
   RegistrationStateChanged,
   VolatileDetailsChanged,
-} from './jami-signal-interfaces.js';
-import { JamiSwig, StringMap, stringMapToRecord, stringVectToArray, vectMapToRecordArray } from './jami-swig.js';
+} from './jami-signal-interfaces.js'
+import { JamiSwig, StringMap, stringMapToRecord, stringVectToArray, vectMapToRecordArray } from './jami-swig.js'
 import {
   ConversationMemberEventType,
   MessageState,
   NameRegistrationEndedState,
   RegistrationState,
-} from './state-enums.js';
+} from './state-enums.js'
 
-const require = createRequire(import.meta.url);
+const require = createRequire(import.meta.url)
 
 @Service()
 export class Jamid {
-  private jamiSwig: JamiSwig;
-  private usernamesToAccountIds = new Map<string, string>();
-  readonly events;
+  private jamiSwig: JamiSwig
+  private usernamesToAccountIds = new Map<string, string>()
+  readonly events
 
   constructor(private webSocketServer: WebSocketServer) {
-    this.jamiSwig = require('../../jamid.node') as JamiSwig;
+    this.jamiSwig = require('../../jamid.node') as JamiSwig
 
     // Setup signal handlers
-    const handlers: Record<string, unknown> = {};
+    const handlers: Record<string, unknown> = {}
 
     // Add default handler for all signals
     const createDefaultHandler = (signal: string) => {
-      return (...args: unknown[]) => log.warn('Unhandled', signal, args);
-    };
+      return (...args: unknown[]) => log.warn('Unhandled', signal, args)
+    }
     for (const signal in JamiSignal) {
-      handlers[signal] = createDefaultHandler(signal);
+      handlers[signal] = createDefaultHandler(signal)
     }
 
     // Overwrite handlers for handled signals using RxJS Subjects, converting multiple arguments to objects
-    const onAccountsChanged = new Subject<void>();
-    handlers.AccountsChanged = () => onAccountsChanged.next();
+    const onAccountsChanged = new Subject<void>()
+    handlers.AccountsChanged = () => onAccountsChanged.next()
 
-    const onAccountDetailsChanged = new Subject<AccountDetailsChanged>();
+    const onAccountDetailsChanged = new Subject<AccountDetailsChanged>()
     handlers.AccountDetailsChanged = (accountId: string, details: AccountDetails) =>
-      onAccountDetailsChanged.next({ accountId, details });
+      onAccountDetailsChanged.next({ accountId, details })
 
-    const onVolatileDetailsChanged = new Subject<VolatileDetailsChanged>();
+    const onVolatileDetailsChanged = new Subject<VolatileDetailsChanged>()
     handlers.VolatileDetailsChanged = (accountId: string, details: VolatileDetails) =>
-      onVolatileDetailsChanged.next({ accountId, details });
+      onVolatileDetailsChanged.next({ accountId, details })
 
-    const onRegistrationStateChanged = new Subject<RegistrationStateChanged>();
+    const onRegistrationStateChanged = new Subject<RegistrationStateChanged>()
     handlers.RegistrationStateChanged = (accountId: string, state: RegistrationState, code: number, details: string) =>
-      onRegistrationStateChanged.next({ accountId, state, code, details });
+      onRegistrationStateChanged.next({ accountId, state, code, details })
 
-    const onNameRegistrationEnded = new Subject<NameRegistrationEnded>();
+    const onNameRegistrationEnded = new Subject<NameRegistrationEnded>()
     handlers.NameRegistrationEnded = (accountId: string, state: NameRegistrationEndedState, username: string) =>
-      onNameRegistrationEnded.next({ accountId, state, username });
+      onNameRegistrationEnded.next({ accountId, state, username })
 
-    const onRegisteredNameFound = new Subject<RegisteredNameFound>();
+    const onRegisteredNameFound = new Subject<RegisteredNameFound>()
     handlers.RegisteredNameFound = (
       accountId: string,
       state: RegisteredNameFoundState,
       address: string,
       username: string
-    ) => onRegisteredNameFound.next({ accountId, state, address, username });
+    ) => onRegisteredNameFound.next({ accountId, state, address, username })
 
-    const onKnownDevicesChanged = new Subject<KnownDevicesChanged>();
+    const onKnownDevicesChanged = new Subject<KnownDevicesChanged>()
     handlers.KnownDevicesChanged = (accountId: string, devices: Devices) =>
-      onKnownDevicesChanged.next({ accountId, devices });
+      onKnownDevicesChanged.next({ accountId, devices })
 
-    const onIncomingAccountMessage = new Subject<IncomingAccountMessage>();
+    const onIncomingAccountMessage = new Subject<IncomingAccountMessage>()
     handlers.IncomingAccountMessage = (accountId: string, from: string, payload: Record<string, string>) =>
-      onIncomingAccountMessage.next({ accountId, from, payload });
+      onIncomingAccountMessage.next({ accountId, from, payload })
 
-    const onAccountMessageStatusChanged = new Subject<AccountMessageStatusChanged>();
+    const onAccountMessageStatusChanged = new Subject<AccountMessageStatusChanged>()
     handlers.AccountMessageStatusChanged = (accountId: string, messageId: string, peer: string, state: MessageState) =>
-      onAccountMessageStatusChanged.next({ accountId, messageId, peer, state });
+      onAccountMessageStatusChanged.next({ accountId, messageId, peer, state })
 
-    const onContactAdded = new Subject<ContactAdded>();
+    const onContactAdded = new Subject<ContactAdded>()
     handlers.ContactAdded = (accountId: string, contactId: string, confirmed: boolean) =>
-      onContactAdded.next({ accountId, contactId, confirmed });
+      onContactAdded.next({ accountId, contactId, confirmed })
 
-    const onContactRemoved = new Subject<ContactRemoved>();
+    const onContactRemoved = new Subject<ContactRemoved>()
     handlers.ContactRemoved = (accountId: string, contactId: string, banned: boolean) =>
-      onContactRemoved.next({ accountId, contactId, banned });
+      onContactRemoved.next({ accountId, contactId, banned })
 
-    const onConversationRequestReceived = new Subject<ConversationRequestReceived>();
+    const onConversationRequestReceived = new Subject<ConversationRequestReceived>()
     handlers.ConversationRequestReceived = (
       accountId: string,
       conversationId: string,
       metadata: ConversationRequestMetadata
-    ) => onConversationRequestReceived.next({ accountId, conversationId, metadata });
+    ) => onConversationRequestReceived.next({ accountId, conversationId, metadata })
 
-    const onConversationReady = new Subject<ConversationReady>();
+    const onConversationReady = new Subject<ConversationReady>()
     handlers.ConversationReady = (accountId: string, conversationId: string) =>
-      onConversationReady.next({ accountId, conversationId });
+      onConversationReady.next({ accountId, conversationId })
 
-    const onConversationRemoved = new Subject<ConversationRemoved>();
+    const onConversationRemoved = new Subject<ConversationRemoved>()
     handlers.ConversationRemoved = (accountId: string, conversationId: string) =>
-      onConversationRemoved.next({ accountId, conversationId });
+      onConversationRemoved.next({ accountId, conversationId })
 
-    const onConversationLoaded = new Subject<ConversationLoaded>();
+    const onConversationLoaded = new Subject<ConversationLoaded>()
     handlers.ConversationLoaded = (id: number, accountId: string, conversationId: string, messages: Message[]) =>
-      onConversationLoaded.next({ id, accountId, conversationId, messages });
+      onConversationLoaded.next({ id, accountId, conversationId, messages })
 
-    const onConversationMemberEvent = new Subject<ConversationMemberEvent>();
+    const onConversationMemberEvent = new Subject<ConversationMemberEvent>()
     handlers.ConversationMemberEvent = (
       accountId: string,
       conversationId: string,
       memberUri: string,
       event: ConversationMemberEventType
     ) => {
-      onConversationMemberEvent.next({ accountId, conversationId, memberUri, event });
-    };
+      onConversationMemberEvent.next({ accountId, conversationId, memberUri, event })
+    }
 
-    const onMessageReceived = new Subject<MessageReceived>();
+    const onMessageReceived = new Subject<MessageReceived>()
     handlers.MessageReceived = (accountId: string, conversationId: string, message: Message) =>
-      onMessageReceived.next({ accountId, conversationId, message });
+      onMessageReceived.next({ accountId, conversationId, message })
 
-    const onComposingStatusChanged = new Subject<ComposingStatusChanged>();
+    const onComposingStatusChanged = new Subject<ComposingStatusChanged>()
     handlers.ComposingStatusChanged = (accountId: string, conversationId: string, from: string, status: number) =>
-      onComposingStatusChanged.next({ accountId, conversationId, from, status });
+      onComposingStatusChanged.next({ accountId, conversationId, from, status })
 
     // Expose all signals in an events object to allow other handlers to subscribe after jamiSwig.init()
     this.events = {
@@ -193,49 +193,49 @@ export class Jamid {
       onConversationMemberEvent: onConversationMemberEvent.asObservable(),
       onMessageReceived: onMessageReceived.asObservable(),
       onComposingStatusChanged: onComposingStatusChanged.asObservable(),
-    };
+    }
 
-    this.setupSignalHandlers();
+    this.setupSignalHandlers()
 
     if (process.env.JAMI_WEB_MONITOR === 'true') {
-      this.jamiSwig.monitor(true);
+      this.jamiSwig.monitor(true)
     }
 
     // RxJS Subjects are used as signal handlers for the following reasons:
     // 1. You cannot change event handlers after calling jamiSwig.init()
     // 2. You cannot specify multiple handlers for the same event
     // 3. You cannot specify a default handler
-    this.jamiSwig.init(handlers);
+    this.jamiSwig.init(handlers)
   }
 
   stop(): void {
-    this.jamiSwig.fini();
+    this.jamiSwig.fini()
   }
 
   getVolatileAccountDetails(accountId: string): VolatileDetails {
-    return stringMapToRecord(this.jamiSwig.getVolatileAccountDetails(accountId)) as unknown as VolatileDetails;
+    return stringMapToRecord(this.jamiSwig.getVolatileAccountDetails(accountId)) as unknown as VolatileDetails
   }
 
   getAccountDetails(accountId: string): AccountDetails {
-    return stringMapToRecord(this.jamiSwig.getAccountDetails(accountId)) as unknown as AccountDetails;
+    return stringMapToRecord(this.jamiSwig.getAccountDetails(accountId)) as unknown as AccountDetails
   }
 
   setAccountDetails(accountId: string, accountDetails: AccountDetails): void {
-    const accountDetailsStringMap: StringMap = new this.jamiSwig.StringMap();
+    const accountDetailsStringMap: StringMap = new this.jamiSwig.StringMap()
     for (const [key, value] of Object.entries(accountDetails)) {
-      accountDetailsStringMap.set(key, value);
+      accountDetailsStringMap.set(key, value)
     }
-    this.jamiSwig.setAccountDetails(accountId, accountDetailsStringMap);
+    this.jamiSwig.setAccountDetails(accountId, accountDetailsStringMap)
   }
 
   async addAccount(accountDetails: Partial<AccountDetails>): Promise<RegistrationStateChanged> {
-    accountDetails['Account.type'] = 'RING';
+    accountDetails['Account.type'] = 'RING'
 
-    const accountDetailsStringMap: StringMap = new this.jamiSwig.StringMap();
+    const accountDetailsStringMap: StringMap = new this.jamiSwig.StringMap()
     for (const [key, value] of Object.entries(accountDetails)) {
-      accountDetailsStringMap.set(key, value.toString());
+      accountDetailsStringMap.set(key, value.toString())
     }
-    const accountId = this.jamiSwig.addAccount(accountDetailsStringMap);
+    const accountId = this.jamiSwig.addAccount(accountDetailsStringMap)
     return firstValueFrom(
       this.events.onRegistrationStateChanged.pipe(
         filter((value) => value.accountId === accountId),
@@ -243,117 +243,115 @@ export class Jamid {
           (value) => value.state === RegistrationState.Registered || value.state === RegistrationState.ErrorGeneric
         )
       )
-    );
+    )
   }
 
   removeAccount(accountId: string): void {
-    this.jamiSwig.removeAccount(accountId);
+    this.jamiSwig.removeAccount(accountId)
   }
 
   getAccountIds(): string[] {
-    return stringVectToArray(this.jamiSwig.getAccountList());
+    return stringVectToArray(this.jamiSwig.getAccountList())
   }
 
   sendAccountTextMessage(accountId: string, contactId: string, message: string): void {
-    const messageStringMap: StringMap = new this.jamiSwig.StringMap();
-    messageStringMap.set('application/json', message);
-    this.jamiSwig.sendAccountTextMessage(accountId, contactId, messageStringMap, 0);
+    const messageStringMap: StringMap = new this.jamiSwig.StringMap()
+    messageStringMap.set('application/json', message)
+    this.jamiSwig.sendAccountTextMessage(accountId, contactId, messageStringMap, 0)
   }
 
   async lookupUsername(username: string, accountId?: string): Promise<LookupResult> {
-    const hasRingNs = this.jamiSwig.lookupName(accountId || '', '', username);
+    const hasRingNs = this.jamiSwig.lookupName(accountId || '', '', username)
     if (!hasRingNs) {
-      throw new Error('Jami does not have a nameserver');
+      throw new Error('Jami does not have a nameserver')
     }
     return firstValueFrom(
       this.events.onRegisteredNameFound.pipe(
         filter((value) => value.username === username),
         map(({ accountId: _, ...response }) => response) // Remove accountId from response
       )
-    );
+    )
   }
 
   async lookupAddress(address: string, accountId?: string): Promise<LookupResult> {
-    const hasRingNs = this.jamiSwig.lookupAddress(accountId || '', '', address);
+    const hasRingNs = this.jamiSwig.lookupAddress(accountId || '', '', address)
 
     if (!hasRingNs) {
-      throw new Error('Jami does not have a nameserver');
+      throw new Error('Jami does not have a nameserver')
     }
     return firstValueFrom(
       this.events.onRegisteredNameFound.pipe(
         filter((value) => value.address === address),
         map(({ accountId: _, ...response }) => response) // Remove accountId from response
       )
-    );
+    )
   }
 
   async registerUsername(accountId: string, username: string, password: string): Promise<NameRegistrationEndedState> {
-    const hasRingNs = this.jamiSwig.registerName(accountId, password, username);
+    const hasRingNs = this.jamiSwig.registerName(accountId, password, username)
     if (!hasRingNs) {
-      throw new Error('Jami does not have a nameserver');
+      throw new Error('Jami does not have a nameserver')
     }
     return firstValueFrom(
       this.events.onNameRegistrationEnded.pipe(
         filter((value) => value.accountId === accountId),
         map((value) => value.state)
       )
-    );
+    )
   }
 
   getDevices(accountId: string): Devices {
-    return stringMapToRecord(this.jamiSwig.getKnownRingDevices(accountId));
+    return stringMapToRecord(this.jamiSwig.getKnownRingDevices(accountId))
   }
 
   addContact(accountId: string, contactId: string): void {
-    this.jamiSwig.addContact(accountId, contactId);
+    this.jamiSwig.addContact(accountId, contactId)
   }
 
   sendTrustRequest(accountId: string, contactId: string): void {
-    this.jamiSwig.sendTrustRequest(accountId, contactId, new this.jamiSwig.Blob());
+    this.jamiSwig.sendTrustRequest(accountId, contactId, new this.jamiSwig.Blob())
   }
 
   removeContact(accountId: string, contactId: string): void {
-    this.jamiSwig.removeContact(accountId, contactId, false);
+    this.jamiSwig.removeContact(accountId, contactId, false)
   }
 
   blockContact(accountId: string, contactId: string): void {
-    this.jamiSwig.removeContact(accountId, contactId, true);
+    this.jamiSwig.removeContact(accountId, contactId, true)
   }
 
   getContacts(accountId: string): ContactDetails[] {
-    return vectMapToRecordArray(this.jamiSwig.getContacts(accountId)) as unknown as ContactDetails[];
+    return vectMapToRecordArray(this.jamiSwig.getContacts(accountId)) as unknown as ContactDetails[]
   }
 
   getContactDetails(accountId: string, contactId: string): ContactDetails {
-    return stringMapToRecord(this.jamiSwig.getContactDetails(accountId, contactId)) as unknown as ContactDetails;
+    return stringMapToRecord(this.jamiSwig.getContactDetails(accountId, contactId)) as unknown as ContactDetails
   }
 
   getDefaultModeratorUris(accountId: string): string[] {
-    return stringVectToArray(this.jamiSwig.getDefaultModerators(accountId));
+    return stringVectToArray(this.jamiSwig.getDefaultModerators(accountId))
   }
 
   addDefaultModerator(accountId: string, contactId: string): void {
-    this.jamiSwig.setDefaultModerator(accountId, contactId, true);
+    this.jamiSwig.setDefaultModerator(accountId, contactId, true)
   }
 
   removeDefaultModerator(accountId: string, contactId: string): void {
-    this.jamiSwig.setDefaultModerator(accountId, contactId, false);
+    this.jamiSwig.setDefaultModerator(accountId, contactId, false)
   }
 
   getConversationIds(accountId: string): string[] {
-    return stringVectToArray(this.jamiSwig.getConversations(accountId));
+    return stringVectToArray(this.jamiSwig.getConversations(accountId))
   }
 
   getConversationInfos(accountId: string, conversationId: string): ConversationInfos {
-    return stringMapToRecord(
-      this.jamiSwig.conversationInfos(accountId, conversationId)
-    ) as unknown as ConversationInfos;
+    return stringMapToRecord(this.jamiSwig.conversationInfos(accountId, conversationId)) as unknown as ConversationInfos
   }
 
   getConversationMembers(accountId: string, conversationId: string): ConversationMemberInfos[] {
     return vectMapToRecordArray(
       this.jamiSwig.getConversationMembers(accountId, conversationId)
-    ) as unknown as ConversationMemberInfos[];
+    ) as unknown as ConversationMemberInfos[]
   }
 
   async getConversationMessages(
@@ -362,37 +360,37 @@ export class Jamid {
     fromMessage = '',
     n = 32
   ): Promise<Message[]> {
-    const requestId = this.jamiSwig.loadConversationMessages(accountId, conversationId, fromMessage, n);
+    const requestId = this.jamiSwig.loadConversationMessages(accountId, conversationId, fromMessage, n)
     return firstValueFrom(
       this.events.onConversationLoaded.pipe(
         filter((value) => value.id === requestId),
         map((value) => value.messages)
       )
-    );
+    )
   }
 
   removeConversation(accountId: string, conversationId: string) {
-    this.jamiSwig.removeConversation(accountId, conversationId);
+    this.jamiSwig.removeConversation(accountId, conversationId)
   }
 
   getConversationRequests(accountId: string): ConversationRequestMetadata[] {
     return vectMapToRecordArray(
       this.jamiSwig.getConversationRequests(accountId)
-    ) as unknown as ConversationRequestMetadata[];
+    ) as unknown as ConversationRequestMetadata[]
   }
 
   acceptConversationRequest(accountId: string, conversationId: string): Promise<ConversationReady> {
-    this.jamiSwig.acceptConversationRequest(accountId, conversationId);
+    this.jamiSwig.acceptConversationRequest(accountId, conversationId)
     return firstValueFrom(
       this.events.onConversationReady.pipe(
         filter((value) => value.accountId === accountId),
         filter((value) => value.conversationId === conversationId)
       )
-    );
+    )
   }
 
   declineConversationRequest(accountId: string, conversationId: string): void {
-    this.jamiSwig.declineConversationRequest(accountId, conversationId);
+    this.jamiSwig.declineConversationRequest(accountId, conversationId)
   }
 
   sendConversationMessage(
@@ -402,142 +400,142 @@ export class Jamid {
     replyTo?: string,
     flag?: number
   ): void {
-    this.jamiSwig.sendMessage(accountId, conversationId, message, replyTo ?? '', flag ?? 0);
+    this.jamiSwig.sendMessage(accountId, conversationId, message, replyTo ?? '', flag ?? 0)
   }
 
   setIsComposing(accountId: string, conversationId: string, isWriting: boolean) {
-    this.jamiSwig.setIsComposing(accountId, conversationId, isWriting);
+    this.jamiSwig.setIsComposing(accountId, conversationId, isWriting)
   }
 
   getCallIds(accountId: string): string[] {
-    return stringVectToArray(this.jamiSwig.getCallList(accountId));
+    return stringVectToArray(this.jamiSwig.getCallList(accountId))
   }
 
   // TODO: Replace Record with interface
   getCallDetails(accountId: string, callId: string): Record<string, string> {
-    return stringMapToRecord(this.jamiSwig.getCallDetails(accountId, callId));
+    return stringMapToRecord(this.jamiSwig.getCallDetails(accountId, callId))
   }
 
   getAccountIdFromUsername(username: string): string | undefined {
-    return this.usernamesToAccountIds.get(username.toLowerCase());
+    return this.usernamesToAccountIds.get(username.toLowerCase())
   }
 
   private setupSignalHandlers(): void {
     this.events.onAccountsChanged.subscribe(() => {
-      log.debug('Received AccountsChanged');
-    });
+      log.debug('Received AccountsChanged')
+    })
 
     this.events.onAccountDetailsChanged.subscribe((signal) => {
-      log.debug('Received AccountsDetailsChanged', JSON.stringify(signal));
-    });
+      log.debug('Received AccountsDetailsChanged', JSON.stringify(signal))
+    })
 
     this.events.onVolatileDetailsChanged.subscribe(({ accountId, details }) => {
-      const username = details['Account.registeredName'];
+      const username = details['Account.registeredName']
       log.debug(
         `Received VolatileDetailsChanged: {"accountId":"${accountId}",` +
           `"details":{"Account.registeredName":"${username}", ...}}`
-      );
+      )
 
       if (username) {
         // Keep map of usernames to account IDs
-        this.usernamesToAccountIds.set(username.toLowerCase(), accountId);
+        this.usernamesToAccountIds.set(username.toLowerCase(), accountId)
       }
-    });
+    })
 
     this.events.onRegistrationStateChanged.subscribe((signal) => {
-      log.debug('Received RegistrationStateChanged:', JSON.stringify(signal));
-    });
+      log.debug('Received RegistrationStateChanged:', JSON.stringify(signal))
+    })
 
     this.events.onNameRegistrationEnded.subscribe((signal) => {
-      log.debug('Received NameRegistrationEnded:', JSON.stringify(signal));
-    });
+      log.debug('Received NameRegistrationEnded:', JSON.stringify(signal))
+    })
 
     this.events.onRegisteredNameFound.subscribe((signal) => {
-      log.debug('Received RegisteredNameFound:', JSON.stringify(signal));
-    });
+      log.debug('Received RegisteredNameFound:', JSON.stringify(signal))
+    })
 
     this.events.onKnownDevicesChanged.subscribe(({ accountId }) => {
-      log.debug(`Received KnownDevicesChanged: {"accountId":"${accountId}", ...}`);
-    });
+      log.debug(`Received KnownDevicesChanged: {"accountId":"${accountId}", ...}`)
+    })
 
     this.events.onIncomingAccountMessage.subscribe(<T extends WebSocketMessageType>(signal: IncomingAccountMessage) => {
-      log.debug('Received IncomingAccountMessage:', JSON.stringify(signal));
+      log.debug('Received IncomingAccountMessage:', JSON.stringify(signal))
 
-      const message: Partial<WebSocketMessage<T>> = JSON.parse(signal.payload['application/json']);
+      const message: Partial<WebSocketMessage<T>> = JSON.parse(signal.payload['application/json'])
 
       if (typeof message !== 'object' || message === null) {
-        log.warn('Account message is not an object');
-        return;
+        log.warn('Account message is not an object')
+        return
       }
 
       if (message.type === undefined || message.data === undefined) {
-        log.warn('Account message is not a valid WebSocketMessage (missing type or data fields)');
-        return;
+        log.warn('Account message is not a valid WebSocketMessage (missing type or data fields)')
+        return
       }
 
       if (!Object.values(WebSocketMessageType).includes(message.type)) {
-        log.warn(`Invalid WebSocket message type: ${message.type}`);
-        return;
+        log.warn(`Invalid WebSocket message type: ${message.type}`)
+        return
       }
 
-      this.webSocketServer.send(signal.accountId, message.type, message.data);
-    });
+      this.webSocketServer.send(signal.accountId, message.type, message.data)
+    })
 
     this.events.onAccountMessageStatusChanged.subscribe((signal) => {
-      log.debug('Received AccountMessageStatusChanged:', JSON.stringify(signal));
-    });
+      log.debug('Received AccountMessageStatusChanged:', JSON.stringify(signal))
+    })
 
     this.events.onContactAdded.subscribe((signal) => {
-      log.debug('Received ContactAdded:', JSON.stringify(signal));
-    });
+      log.debug('Received ContactAdded:', JSON.stringify(signal))
+    })
 
     this.events.onContactRemoved.subscribe((signal) => {
-      log.debug('Received ContactRemoved:', JSON.stringify(signal));
-    });
+      log.debug('Received ContactRemoved:', JSON.stringify(signal))
+    })
 
     this.events.onConversationRequestReceived.subscribe((signal) => {
-      log.debug('Received ConversationRequestReceived:', JSON.stringify(signal));
+      log.debug('Received ConversationRequestReceived:', JSON.stringify(signal))
       //this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationRequest, data);
-    });
+    })
 
     this.events.onConversationReady.subscribe((signal) => {
-      log.debug('Received ConversationReady:', JSON.stringify(signal));
-    });
+      log.debug('Received ConversationReady:', JSON.stringify(signal))
+    })
 
     this.events.onConversationRemoved.subscribe((signal) => {
-      log.debug('Received ConversationRemoved:', JSON.stringify(signal));
-    });
+      log.debug('Received ConversationRemoved:', JSON.stringify(signal))
+    })
 
     this.events.onConversationLoaded.subscribe(({ id, accountId, conversationId }) => {
       log.debug(
         `Received ConversationLoaded: {"id":"${id}","accountId":"${accountId}",` +
           `"conversationId":"${conversationId}"}`
-      );
-    });
+      )
+    })
 
     this.events.onConversationMemberEvent.subscribe((signal) => {
-      log.debug('Received onConversationMemberEvent:', JSON.stringify(signal));
-    });
+      log.debug('Received onConversationMemberEvent:', JSON.stringify(signal))
+    })
 
     this.events.onMessageReceived.subscribe((signal) => {
-      log.debug('Received MessageReceived:', JSON.stringify(signal));
+      log.debug('Received MessageReceived:', JSON.stringify(signal))
 
       const data: ConversationMessage = {
         conversationId: signal.conversationId,
         message: signal.message,
-      };
-      this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationMessage, data);
-    });
+      }
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationMessage, data)
+    })
 
     this.events.onComposingStatusChanged.subscribe((signal) => {
-      log.debug('Received ComposingStatusChanged:', JSON.stringify(signal));
+      log.debug('Received ComposingStatusChanged:', JSON.stringify(signal))
 
       const data: ComposingStatus = {
         contactId: signal.from,
         conversationId: signal.conversationId,
         isWriting: signal.status === 1,
-      };
-      this.webSocketServer.send(signal.accountId, WebSocketMessageType.ComposingStatus, data);
-    });
+      }
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.ComposingStatus, data)
+    })
   }
 }

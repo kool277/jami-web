@@ -15,14 +15,14 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useEffect } from 'react';
+import { useEffect } from 'react'
 
 export type ConditionalHookProps<T, A> = {
-  useHook: (args: A) => T;
-  args: A;
-  callback?: (value: T) => void;
-  unmountCallback?: (prevValue: T) => void;
-};
+  useHook: (args: A) => T
+  args: A
+  callback?: (value: T) => void
+  unmountCallback?: (prevValue: T) => void
+}
 
 /**
  * Component that, when mounted, calls `useHook` and passes its return value as an argument to the `callback` function.
@@ -46,17 +46,17 @@ const HookComponent = <T, A>({
   callback = () => {},
   unmountCallback = () => {},
 }: ConditionalHookProps<T, A>) => {
-  const value = useHook(args);
+  const value = useHook(args)
 
   useEffect(() => {
-    callback(value);
+    callback(value)
 
     return () => {
-      unmountCallback(value);
-    };
-  }, [value, callback, unmountCallback]);
+      unmountCallback(value)
+    }
+  }, [value, callback, unmountCallback])
 
-  return null;
-};
+  return null
+}
 
-export default HookComponent;
+export default HookComponent

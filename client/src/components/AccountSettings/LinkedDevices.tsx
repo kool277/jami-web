@@ -16,25 +16,25 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import GroupRounded from '@mui/icons-material/AddCircle';
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
-import Grid from '@mui/material/Grid';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import Typography from '@mui/material/Typography';
-import { useTranslation } from 'react-i18next';
+import GroupRounded from '@mui/icons-material/AddCircle'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Grid from '@mui/material/Grid'
+import ListItem from '@mui/material/ListItem'
+import ListItemText from '@mui/material/ListItemText'
+import Typography from '@mui/material/Typography'
+import { useTranslation } from 'react-i18next'
 
-import { useAuthContext } from '../../contexts/AuthProvider';
+import { useAuthContext } from '../../contexts/AuthProvider'
 
 function LinkedDevices() {
-  const { account } = useAuthContext();
-  const { t } = useTranslation();
-  const devices: string[][] = [];
-  const accountDevices = account.devices;
-  for (const i in accountDevices) devices.push([i, accountDevices[i]]);
+  const { account } = useAuthContext()
+  const { t } = useTranslation()
+  const devices: string[][] = []
+  const accountDevices = account.devices
+  for (const i in accountDevices) devices.push([i, accountDevices[i]])
   //TODO: reduce number of renders
-  console.log(devices);
+  console.log(devices)
 
   return (
     <>
@@ -57,7 +57,7 @@ function LinkedDevices() {
         </Card>
       </Grid>
     </>
-  );
+  )
 }
 
-export default LinkedDevices;
+export default LinkedDevices

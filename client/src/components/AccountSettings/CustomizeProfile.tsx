@@ -16,13 +16,13 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { AvatarEditor } from '../ConversationAvatar';
+import { AvatarEditor } from '../ConversationAvatar'
 function CustomizeProfile() {
   return (
     <>
       <AvatarEditor />
     </>
-  );
+  )
 }
 
-export default CustomizeProfile;
+export default CustomizeProfile

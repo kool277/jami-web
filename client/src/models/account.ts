@@ -15,65 +15,65 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { AccountDetails, Devices, IAccount, VolatileDetails } from 'jami-web-common';
+import { AccountDetails, Devices, IAccount, VolatileDetails } from 'jami-web-common'
 
-import { Contact } from './contact';
+import { Contact } from './contact'
 
-export type AccountType = 'RING' | 'SIP';
+export type AccountType = 'RING' | 'SIP'
 
 export class Account implements IAccount {
-  readonly id: string;
-  details: AccountDetails;
-  volatileDetails: VolatileDetails;
-  defaultModerators: Contact[] = [];
-  devices: Devices = {};
-  contacts: Contact[] = [];
+  readonly id: string
+  details: AccountDetails
+  volatileDetails: VolatileDetails
+  defaultModerators: Contact[] = []
+  devices: Devices = {}
+  contacts: Contact[] = []
 
   constructor(id: string, details: AccountDetails, volatileDetails: VolatileDetails) {
-    this.id = id;
-    this.details = details;
-    this.volatileDetails = volatileDetails;
+    this.id = id
+    this.details = details
+    this.volatileDetails = volatileDetails
   }
 
   static fromInterface(accountInterface: IAccount) {
-    const account = new Account(accountInterface.id, accountInterface.details, accountInterface.volatileDetails);
-    account.defaultModerators = accountInterface.defaultModerators.map(Contact.fromInterface);
-    return account;
+    const account = new Account(accountInterface.id, accountInterface.details, accountInterface.volatileDetails)
+    account.defaultModerators = accountInterface.defaultModerators.map(Contact.fromInterface)
+    return account
   }
 
   getType(): AccountType {
-    return this.details['Account.type'] as AccountType;
+    return this.details['Account.type'] as AccountType
   }
 
   getUri() {
-    return this.details['Account.username'];
+    return this.details['Account.username']
   }
 
   getRegisteredName() {
-    return this.volatileDetails['Account.registeredName'];
+    return this.volatileDetails['Account.registeredName']
   }
 
   isRendezVous() {
-    return this.details['Account.rendezVous'] === 'true';
+    return this.details['Account.rendezVous'] === 'true'
   }
 
   isPublicIn() {
-    return this.details['DHT.PublicInCalls'] === 'true';
+    return this.details['DHT.PublicInCalls'] === 'true'
   }
 
   updateDetails(details: Partial<AccountDetails>) {
-    this.details = { ...this.details, ...details };
+    this.details = { ...this.details, ...details }
   }
 
   getDisplayUri() {
-    return this.getRegisteredName() ?? this.getUri();
+    return this.getRegisteredName() ?? this.getUri()
   }
 
   getDisplayName() {
-    return this.details['Account.displayName'] || this.getDisplayUri();
+    return this.details['Account.displayName'] || this.getDisplayUri()
   }
 
   getDisplayNameNoFallback() {
-    return this.details['Account.displayName'] || this.getRegisteredName();
+    return this.details['Account.displayName'] || this.getRegisteredName()
   }
 }

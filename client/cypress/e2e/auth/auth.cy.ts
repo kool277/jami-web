@@ -17,39 +17,39 @@
  */
 
 describe('authentication', () => {
-  beforeEach(() => {});
+  beforeEach(() => {})
 
   it('log in and log out successfully with UI', () => {
-    cy.loginViaUI();
+    cy.loginViaUI()
 
-    cy.logoutViaUI();
-  });
+    cy.logoutViaUI()
+  })
 
   it('login failed with invalid password', () => {
-    const wrongPassword = Date.now();
+    const wrongPassword = Date.now()
 
-    cy.visit(Cypress.env('CLIENT_URL'));
+    cy.visit(Cypress.env('CLIENT_URL'))
 
-    cy.url().should('include', '/login');
+    cy.url().should('include', '/login')
 
     cy.get('[data-cy = "username-input"]')
       .type(Cypress.env('TEST_USERNAME'))
       .find('input')
-      .should('have.value', Cypress.env('TEST_USERNAME'));
+      .should('have.value', Cypress.env('TEST_USERNAME'))
 
     cy.get('[data-cy = "password-input"]')
       .type(wrongPassword.toString())
       .find('input')
-      .should('have.value', wrongPassword.toString());
+      .should('have.value', wrongPassword.toString())
 
-    cy.get('[data-cy="login-button"]').contains('Log in').click();
+    cy.get('[data-cy="login-button"]').contains('Log in').click()
 
-    cy.get('.MuiAlert-message').contains('Invalid credentials');
-  });
+    cy.get('.MuiAlert-message').contains('Invalid credentials')
+  })
 
   it('log in without UI', () => {
-    cy.loginWithoutUI();
+    cy.loginWithoutUI()
 
-    cy.logoutViaUI();
-  });
-});
+    cy.logoutViaUI()
+  })
+})

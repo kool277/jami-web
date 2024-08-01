@@ -15,27 +15,27 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Grid, Paper, useMediaQuery } from '@mui/material';
-import { Theme, useTheme } from '@mui/material/styles';
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Box, Grid, Paper, useMediaQuery } from '@mui/material'
+import { Theme, useTheme } from '@mui/material/styles'
+import React from 'react'
+import { Navigate } from 'react-router-dom'
 
-import { getAccessToken } from '../services/authQueries';
-import JamiWelcomeLogo from './JamiWelcomeLogo';
+import { getAccessToken } from '../services/authQueries'
+import JamiWelcomeLogo from './JamiWelcomeLogo'
 
 export default function withAuthUI(WrappedComponent: React.FunctionComponent): React.FunctionComponent {
   return function WithAuthUI() {
-    const borderRadius = 30;
+    const borderRadius = 30
 
-    const theme: Theme = useTheme();
+    const theme: Theme = useTheme()
 
-    const isDesktopOrLaptop: boolean = useMediaQuery(theme.breakpoints.up('md'));
-    const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'));
+    const isDesktopOrLaptop: boolean = useMediaQuery(theme.breakpoints.up('md'))
+    const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
-    const accessToken = getAccessToken();
+    const accessToken = getAccessToken()
 
     if (accessToken) {
-      return <Navigate to="/conversation" replace />;
+      return <Navigate to="/conversation" replace />
     }
     return (
       <Box
@@ -89,6 +89,6 @@ export default function withAuthUI(WrappedComponent: React.FunctionComponent): R
           </Grid>
         </Paper>
       </Box>
-    );
-  };
+    )
+  }
 }

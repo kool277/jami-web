@@ -15,50 +15,50 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Typography } from '@mui/material';
-import FormControl from '@mui/material/FormControl';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormGroup from '@mui/material/FormGroup';
-import FormLabel from '@mui/material/FormLabel';
-import Switch from '@mui/material/Switch';
-import { useTranslation } from 'react-i18next';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Box, Button, Typography } from '@mui/material'
+import FormControl from '@mui/material/FormControl'
+import FormControlLabel from '@mui/material/FormControlLabel'
+import FormGroup from '@mui/material/FormGroup'
+import FormLabel from '@mui/material/FormLabel'
+import Switch from '@mui/material/Switch'
+import { useTranslation } from 'react-i18next'
+import { Navigate, useNavigate } from 'react-router-dom'
 
-import ProcessingRequest from '../components/ProcessingRequest';
-import { useGetAdminConfigQuery, useUpdateAdminConfigMutation } from '../services/adminQueries';
+import ProcessingRequest from '../components/ProcessingRequest'
+import { useGetAdminConfigQuery, useUpdateAdminConfigMutation } from '../services/adminQueries'
 
 export default function AdminPanel() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { t } = useTranslation()
+  const navigate = useNavigate()
 
-  const accessToken = localStorage.getItem('adminAccessToken');
+  const accessToken = localStorage.getItem('adminAccessToken')
 
-  const { data } = useGetAdminConfigQuery();
-  const saveAdminConfigMutation = useUpdateAdminConfigMutation();
+  const { data } = useGetAdminConfigQuery()
+  const saveAdminConfigMutation = useUpdateAdminConfigMutation()
   const adminLogout = () => {
-    localStorage.removeItem('adminAccessToken');
-    navigate('/admin/login');
-  };
+    localStorage.removeItem('adminAccessToken')
+    navigate('/admin/login')
+  }
 
   const toggleJamsAuthEnabled = () => {
-    saveAdminConfigMutation.mutate({ jamsAuthEnabled: !data.jamsAuthEnabled });
-  };
+    saveAdminConfigMutation.mutate({ jamsAuthEnabled: !data.jamsAuthEnabled })
+  }
   const toggleLocalAuthEnabled = () => {
-    saveAdminConfigMutation.mutate({ localAuthEnabled: !data.localAuthEnabled });
-  };
+    saveAdminConfigMutation.mutate({ localAuthEnabled: !data.localAuthEnabled })
+  }
   const toggleGuestAccessEnabled = () => {
-    saveAdminConfigMutation.mutate({ guestAccessEnabled: !data.guestAccessEnabled });
-  };
+    saveAdminConfigMutation.mutate({ guestAccessEnabled: !data.guestAccessEnabled })
+  }
   const toggleOpenIdAuthEnabled = () => {
-    saveAdminConfigMutation.mutate({ openIdAuthEnabled: !data.openIdAuthEnabled });
-  };
+    saveAdminConfigMutation.mutate({ openIdAuthEnabled: !data.openIdAuthEnabled })
+  }
 
   if (!accessToken) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/admin/login" replace />
   }
 
   if (data === undefined) {
-    return <ProcessingRequest open />;
+    return <ProcessingRequest open />
   }
   //TODO: add translations
   return (
@@ -93,5 +93,5 @@ export default function AdminPanel() {
         </FormControl>
       </Box>
     </>
-  );
+  )
 }

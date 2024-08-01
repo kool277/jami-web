@@ -15,36 +15,36 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import Collapse from '@mui/material/Collapse';
-import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse'
+import List from '@mui/material/List'
+import ListItemButton from '@mui/material/ListItemButton'
+import ListItemText from '@mui/material/ListItemText'
 // import ListItemIcon from '@mui/material/ListItemIcon';
-import Stack from '@mui/material/Stack';
-import { Theme, useTheme } from '@mui/system';
-import Box from '@mui/system/Box';
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import Stack from '@mui/material/Stack'
+import { Theme, useTheme } from '@mui/system'
+import Box from '@mui/system/Box'
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 //Settings meta structure
 interface ISettingItem {
-  icon: unknown;
-  title: string;
-  highlightKey: string; //The string used to determine whether to highlight the title or not.
-  link: string;
-  submenuItems?: ISettingItem[];
+  icon: unknown
+  title: string
+  highlightKey: string //The string used to determine whether to highlight the title or not.
+  link: string
+  submenuItems?: ISettingItem[]
 }
 
 function SettingSidebar() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const theme: Theme = useTheme();
-  const { pathname } = useLocation();
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const theme: Theme = useTheme()
+  const { pathname } = useLocation()
 
   const isCurrentlyViewing = (text: string) => {
-    return pathname.includes(text);
-  };
+    return pathname.includes(text)
+  }
 
   const settingMeta: ISettingItem[] = useMemo(() => {
     return [
@@ -94,8 +94,8 @@ function SettingSidebar() {
           },
         ],
       },
-    ];
-  }, [t]);
+    ]
+  }, [t])
 
   return (
     <Stack direction="row">
@@ -137,7 +137,7 @@ function SettingSidebar() {
       </List>
       <Outlet />
     </Stack>
-  );
+  )
 }
 
-export default SettingSidebar;
+export default SettingSidebar

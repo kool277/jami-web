@@ -15,15 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import Check from '@mui/icons-material/Check';
-import RefreshOutlined from '@mui/icons-material/RefreshOutlined';
-import { Avatar, AvatarProps, Box, Dialog, Stack, Typography } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { useTranslation } from 'react-i18next';
+import Check from '@mui/icons-material/Check'
+import RefreshOutlined from '@mui/icons-material/RefreshOutlined'
+import { Avatar, AvatarProps, Box, Dialog, Stack, Typography } from '@mui/material'
+import { useCallback, useEffect, useState } from 'react'
+import { useDropzone } from 'react-dropzone'
+import { useTranslation } from 'react-i18next'
 
-import CallPermissionDenied from '../pages/CallPermissionDenied';
-import { FileHandler } from '../utils/files';
+import CallPermissionDenied from '../pages/CallPermissionDenied'
+import { FileHandler } from '../utils/files'
 import {
   CancelPictureButton,
   CloseButton,
@@ -33,33 +33,33 @@ import {
   RoundButton,
   TakePictureButton,
   UploadPictureButton,
-} from './Button';
-import { InfosDialog, useDialogHandler } from './Dialog';
-import { CircleMaskOverlay, FileDragOverlay } from './Overlay';
+} from './Button'
+import { InfosDialog, useDialogHandler } from './Dialog'
+import { CircleMaskOverlay, FileDragOverlay } from './Overlay'
 
 type ConversationAvatarProps = AvatarProps & {
-  displayName?: string;
-};
+  displayName?: string
+}
 export default function ConversationAvatar({ displayName, ...props }: ConversationAvatarProps) {
-  const src = props.src ?? '/broken';
-  delete props.src;
-  return <Avatar {...props} alt={displayName} src={src} />;
+  const src = props.src ?? '/broken'
+  delete props.src
+  return <Avatar {...props} alt={displayName} src={src} />
 }
 
 export const AvatarEditor = () => {
-  const { t } = useTranslation();
-  const [editionToolsIsOpen, setEditionToolsIsOpen] = useState(false);
-  const [avatarHandler, setAvatarHandler] = useState<FileHandler | null>(null);
-  const photoTakerHandler = useDialogHandler();
+  const { t } = useTranslation()
+  const [editionToolsIsOpen, setEditionToolsIsOpen] = useState(false)
+  const [avatarHandler, setAvatarHandler] = useState<FileHandler | null>(null)
+  const photoTakerHandler = useDialogHandler()
 
   const onFilesDrop = useCallback(
     (acceptedFiles: File[]) => {
-      const fileHandler = new FileHandler(acceptedFiles[0]);
-      setAvatarHandler(fileHandler);
-      setEditionToolsIsOpen(false);
+      const fileHandler = new FileHandler(acceptedFiles[0])
+      setAvatarHandler(fileHandler)
+      setEditionToolsIsOpen(false)
     },
     [setAvatarHandler, setEditionToolsIsOpen]
-  );
+  )
 
   const {
     getRootProps,
@@ -75,21 +75,21 @@ export const AvatarEditor = () => {
     noClick: true,
     noKeyboard: true,
     onDrop: onFilesDrop,
-  });
+  })
 
   const openPhotoTaker = useCallback(() => {
-    photoTakerHandler.openDialog();
-    setEditionToolsIsOpen(false);
-  }, [photoTakerHandler]);
+    photoTakerHandler.openDialog()
+    setEditionToolsIsOpen(false)
+  }, [photoTakerHandler])
 
   const removeAvatar = useCallback(() => {
-    setAvatarHandler(null);
-    setEditionToolsIsOpen(false);
-  }, []);
+    setAvatarHandler(null)
+    setEditionToolsIsOpen(false)
+  }, [])
 
   const closeTools = useCallback(() => {
-    setEditionToolsIsOpen(false);
-  }, []);
+    setEditionToolsIsOpen(false)
+  }, [])
 
   return (
     <Stack alignItems="center" position="relative" {...getRootProps()}>
@@ -126,25 +126,25 @@ export const AvatarEditor = () => {
 
       <PhotoTakerDialog {...photoTakerHandler.props} onConfirm={setAvatarHandler} />
     </Stack>
-  );
-};
+  )
+}
 
 type PhotoTakerProps = {
-  open: boolean;
-  onClose: () => void;
-  onConfirm: (photoHandler: FileHandler) => void;
-};
+  open: boolean
+  onClose: () => void
+  onConfirm: (photoHandler: FileHandler) => void
+}
 
-const circleLengthPercentage = '50%';
+const circleLengthPercentage = '50%'
 const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
-  const [isPaused, setIsPaused] = useState(false);
-  const [video, setVideo] = useState<HTMLVideoElement | null>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null); // video.srcObject is not reliable
-  const [permissionState, setPermissionState] = useState<PermissionState>('prompt');
+  const [isPaused, setIsPaused] = useState(false)
+  const [video, setVideo] = useState<HTMLVideoElement | null>(null)
+  const [stream, setStream] = useState<MediaStream | null>(null) // video.srcObject is not reliable
+  const [permissionState, setPermissionState] = useState<PermissionState>('prompt')
 
   const videoRef = useCallback((node: HTMLVideoElement) => {
-    setVideo(node);
-  }, []);
+    setVideo(node)
+  }, [])
 
   useEffect(() => {
     navigator.permissions
@@ -152,16 +152,16 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
       // Firefox can't query camera permissions. Hopefully this will work soon.
       .query({ name: 'camera' })
       .then((permissionStatus) => {
-        setPermissionState(permissionStatus.state);
+        setPermissionState(permissionStatus.state)
         permissionStatus.onchange = () => {
-          setPermissionState(permissionStatus.state);
-          setStream(null);
-        };
+          setPermissionState(permissionStatus.state)
+          setStream(null)
+        }
       })
       .catch(() => {
         // Expected behavior on Firefox
-      });
-  }, []);
+      })
+  }, [])
 
   useEffect(() => {
     // Start stream when dialog opens, stop it when dialog closes
@@ -169,74 +169,74 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
       navigator.mediaDevices
         .getUserMedia({ video: true })
         .then((stream) => {
-          setStream(stream);
+          setStream(stream)
           // This would be useless if we could query 'camera' permission on Firefox
-          setPermissionState('granted');
+          setPermissionState('granted')
         })
         .catch(() => {
-          setStream(null);
-          setPermissionState('denied');
-        });
+          setStream(null)
+          setPermissionState('denied')
+        })
     }
     if (!open) {
-      stream?.getTracks()?.forEach((track) => track.stop());
-      setStream(null);
+      stream?.getTracks()?.forEach((track) => track.stop())
+      setStream(null)
     }
-  }, [open, stream, permissionState]);
+  }, [open, stream, permissionState])
 
   useEffect(() => {
     if (video) {
       if (stream) {
-        video.srcObject = stream;
-        video.play();
-        setIsPaused(false);
+        video.srcObject = stream
+        video.play()
+        setIsPaused(false)
       } else {
-        video.srcObject = null;
+        video.srcObject = null
       }
     }
-  }, [video, stream]);
+  }, [video, stream])
 
   const takePhoto = useCallback(() => {
-    video?.pause();
-    setIsPaused(true);
-  }, [video]);
+    video?.pause()
+    setIsPaused(true)
+  }, [video])
 
   const cancelPhoto = useCallback(() => {
-    video?.play();
-    setIsPaused(false);
-  }, [video]);
+    video?.play()
+    setIsPaused(false)
+  }, [video])
 
   const savePhoto = useCallback(async () => {
     if (video) {
       // The PhotoTaker shows a circle in the middle of the camera's image.
       // We have to cut the picture, otherwise the avatar would be larger to what the user saw in boundaries of the circle
       // The circle's diameter is a percentage of the image's diagonal length
-      const diagonalLength = Math.sqrt(Math.pow(video.offsetWidth, 2) + Math.pow(video.offsetHeight, 2));
-      const avatarSize = diagonalLength * (parseInt(circleLengthPercentage) / 100);
-      const xMargin = (video.offsetWidth - avatarSize) / 2;
-      const yMargin = (video.offsetHeight - avatarSize) / 2;
+      const diagonalLength = Math.sqrt(Math.pow(video.offsetWidth, 2) + Math.pow(video.offsetHeight, 2))
+      const avatarSize = diagonalLength * (parseInt(circleLengthPercentage) / 100)
+      const xMargin = (video.offsetWidth - avatarSize) / 2
+      const yMargin = (video.offsetHeight - avatarSize) / 2
 
       // @ts-ignore
       // Seems like Typescript does not know yet about OffscreenCanvas. Lets pretend it is HTMLCanvasElement for now
-      const offscreenCanvas: HTMLCanvasElement = new OffscreenCanvas(avatarSize, avatarSize);
-      const context = offscreenCanvas.getContext('2d');
+      const offscreenCanvas: HTMLCanvasElement = new OffscreenCanvas(avatarSize, avatarSize)
+      const context = offscreenCanvas.getContext('2d')
       if (context) {
-        context.setTransform(-1, 0, 0, 1, avatarSize, 0); // mirror
-        context.drawImage(video, -xMargin, -yMargin, video.offsetWidth, video.offsetHeight);
+        context.setTransform(-1, 0, 0, 1, avatarSize, 0) // mirror
+        context.drawImage(video, -xMargin, -yMargin, video.offsetWidth, video.offsetHeight)
         // @ts-ignore
         // convertToBlob is only on OffscreenCanvas, not HTMLCanvasElement, which has "toBlob" instead
-        const blob: Blob = await offscreenCanvas.convertToBlob();
-        const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
-        const fileHandler = new FileHandler(file);
-        onConfirm(fileHandler);
-        onClose();
+        const blob: Blob = await offscreenCanvas.convertToBlob()
+        const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' })
+        const fileHandler = new FileHandler(file)
+        onConfirm(fileHandler)
+        onClose()
       }
     }
-  }, [onConfirm, onClose, video]);
+  }, [onConfirm, onClose, video])
 
   if (permissionState === 'denied') {
     // TODO: UI needs to be improved
-    return <InfosDialog title="" open={open} onClose={onClose} content={<CallPermissionDenied />} />;
+    return <InfosDialog title="" open={open} onClose={onClose} content={<CallPermissionDenied />} />
   }
 
   return (
@@ -271,5 +271,5 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
         </Stack>
       </Stack>
     </Dialog>
-  );
-};
+  )
+}

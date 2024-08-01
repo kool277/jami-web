@@ -15,20 +15,20 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Divider, Stack, Typography } from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material'
 
-import { useCallManagerContext } from '../contexts/CallManagerProvider';
-import { useConversationContext } from '../contexts/ConversationProvider';
-import CallInterface from '../pages/CallInterface';
-import ChatInterface from '../pages/ChatInterface';
-import { AddParticipantButton, ShowOptionsMenuButton, StartAudioCallButton, StartVideoCallButton } from './Button';
+import { useCallManagerContext } from '../contexts/CallManagerProvider'
+import { useConversationContext } from '../contexts/ConversationProvider'
+import CallInterface from '../pages/CallInterface'
+import ChatInterface from '../pages/ChatInterface'
+import { AddParticipantButton, ShowOptionsMenuButton, StartAudioCallButton, StartVideoCallButton } from './Button'
 
 const ConversationView = () => {
-  const { conversationId } = useConversationContext();
-  const { callData } = useCallManagerContext();
+  const { conversationId } = useConversationContext()
+  const { callData } = useCallManagerContext()
 
   if (callData?.conversationId === conversationId) {
-    return <CallInterface />;
+    return <CallInterface />
   }
 
   return (
@@ -41,12 +41,12 @@ const ConversationView = () => {
       />
       <ChatInterface />
     </Stack>
-  );
-};
+  )
+}
 
 const ConversationHeader = () => {
-  const { conversationId, conversationDisplayName } = useConversationContext();
-  const { startCall } = useCallManagerContext();
+  const { conversationId, conversationDisplayName } = useConversationContext()
+  const { startCall } = useCallManagerContext()
 
   return (
     <Stack direction="row" padding="16px" overflow="hidden">
@@ -62,7 +62,7 @@ const ConversationHeader = () => {
         <ShowOptionsMenuButton />
       </Stack>
     </Stack>
-  );
-};
+  )
+}
 
-export default ConversationView;
+export default ConversationView

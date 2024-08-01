@@ -15,12 +15,12 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Divider, Stack, Typography } from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material'
 
-import { useCallManagerContext } from '../contexts/CallManagerProvider';
-import { useConversationContext } from '../contexts/ConversationProvider';
-import ChatInterface from '../pages/ChatInterface';
-import { CloseButton } from './Button';
+import { useCallManagerContext } from '../contexts/CallManagerProvider'
+import { useConversationContext } from '../contexts/ConversationProvider'
+import ChatInterface from '../pages/ChatInterface'
+import { CloseButton } from './Button'
 
 export default () => {
   return (
@@ -39,18 +39,18 @@ export default () => {
       />
       <ChatInterface />
     </Stack>
-  );
-};
+  )
+}
 
 const CallChatDrawerHeader = () => {
-  const { setIsChatShown } = useCallManagerContext();
-  const { conversationDisplayName } = useConversationContext();
+  const { setIsChatShown } = useCallManagerContext()
+  const { conversationDisplayName } = useConversationContext()
 
   return (
     <Stack direction="row" padding={2} spacing={2} alignItems="center">
       <CloseButton
         onClick={() => {
-          setIsChatShown(false);
+          setIsChatShown(false)
         }}
       />
       <Stack direction="column">
@@ -59,5 +59,5 @@ const CallChatDrawerHeader = () => {
         </Typography>
       </Stack>
     </Stack>
-  );
-};
+  )
+}

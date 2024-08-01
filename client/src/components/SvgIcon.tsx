@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { SvgIcon, SvgIconProps } from '@mui/material';
+import { SvgIcon, SvgIconProps } from '@mui/material'
 
 /*
     We use SvgIcon so the icons can be handled more easily by Material ui components.
@@ -37,8 +37,8 @@ export const ArrowIcon = (props: SvgIconProps) => {
         ></path>
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const Arrow2Icon = (props: SvgIconProps) => {
   return (
@@ -49,8 +49,8 @@ export const Arrow2Icon = (props: SvgIconProps) => {
         transform="translate(.903 .901)"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const Arrow3Icon = (props: SvgIconProps) => {
   return (
@@ -61,8 +61,8 @@ export const Arrow3Icon = (props: SvgIconProps) => {
         style={{ fill: 'none', stroke: '#005699' }}
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ArrowDownIcon = (props: SvgIconProps) => {
   return (
@@ -72,8 +72,8 @@ export const ArrowDownIcon = (props: SvgIconProps) => {
         d="m4.353 11.43 3.441-3.5.058-.058a.564.564 0 0 0-.058-.816.62.62 0 0 0-.816.058l-2.45 2.508V.583A.551.551 0 0 0 3.945 0a.551.551 0 0 0-.581.583v9.039L.912 7.114a.613.613 0 0 0-.758 0 .621.621 0 0 0 0 .816l3.441 3.5a.452.452 0 0 0 .583.117c.058 0 .117-.058.175-.117"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ArrowLeftCurved = (props: SvgIconProps) => {
   return (
@@ -81,8 +81,8 @@ export const ArrowLeftCurved = (props: SvgIconProps) => {
       <path d="M8.184 8.813a2.761 2.761 0 0 1-1.964-.815L1.627 3.409l1.782-1.782L7.998 6.22a.268.268 0 0 0 .368 0L14.218.368 16 2.15l-5.852 5.848a2.761 2.761 0 0 1-1.964.815Z" />
       <path d="M2.518 7.555H0v-6.3A1.259 1.259 0 0 1 1.259 0h6.3v2.518H2.518Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ArrowLeftDown = (props: SvgIconProps) => {
   return (
@@ -92,8 +92,8 @@ export const ArrowLeftDown = (props: SvgIconProps) => {
         strokeWidth=".5"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ArrowRightUp = (props: SvgIconProps) => {
   return (
@@ -103,16 +103,16 @@ export const ArrowRightUp = (props: SvgIconProps) => {
         strokeWidth=".5"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ArrowHeadDown = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="6 8 12 7.5">
       <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ArrowHeadUp = (props: SvgIconProps) => {
   return (
@@ -120,8 +120,8 @@ export const ArrowHeadUp = (props: SvgIconProps) => {
       <path fill="none" d="M0 0h24v24H0z" />
       <path d="m12 8-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const AudioCallIcon = (props: SvgIconProps) => {
   return (
@@ -148,8 +148,8 @@ export const AudioCallIcon = (props: SvgIconProps) => {
       </g>
       {/* </svg> */}
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const BlockContactIcon = (props: SvgIconProps) => {
   return (
@@ -171,8 +171,8 @@ export const BlockContactIcon = (props: SvgIconProps) => {
       </g>
       {/* </svg> */}
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const CallEndIcon = (props: SvgIconProps) => {
   return (
@@ -182,16 +182,16 @@ export const CallEndIcon = (props: SvgIconProps) => {
         <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z" />
       </svg>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const CameraIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="2 3 20 19">
       <path d="M3.6 20.3c-.4 0-.8-.2-1.1-.5-.2-.2-.4-.6-.4-.9V7.7c-.1-.3.1-.7.4-1 .2-.3.5-.4.8-.5H7.9l1.2-2.5h5.7L16 6.2h4.3c.4 0 .8.2 1.1.5.2.2.4.6.4.9v11.2c0 .4-.2.8-.5 1.1-.2.2-.6.4-.9.4H3.6zm0-12.6-.1 11v.1h17.1V7.7h-5.3L14 5.2h-4L8.8 7.7H3.6zm8.4 9.7c-1.2 0-2.3-.5-3.2-1.3-.8-.8-1.3-2-1.3-3.2 0-1.2.5-2.3 1.3-3.2.8-.8 2-1.3 3.2-1.3 1.2 0 2.3.5 3.2 1.3.8.8 1.3 2 1.3 3.2s-.5 2.3-1.3 3.2c-.9.8-2 1.3-3.2 1.3zm0-7.5c-.8 0-1.6.3-2.1.9S9 12.1 9 12.9s.3 1.6.9 2.1c1.1 1.1 3.1 1.1 4.3 0 .6-.6.9-1.3.9-2.1s-.3-1.6-.9-2.1c-.6-.6-1.4-.9-2.2-.9z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const CameraInBubbleIcon = (props: SvgIconProps) => {
   return (
@@ -199,16 +199,16 @@ export const CameraInBubbleIcon = (props: SvgIconProps) => {
       <path d="M25 25H12.5A12.379 12.379 0 0 1 0 12.5 12.379 12.379 0 0 1 12.5 0 12.379 12.379 0 0 1 25 12.5ZM12.5 1.75a11 11 0 0 0-7.625 3.125 10.865 10.865 0 0 0 0 15.25A10.781 10.781 0 0 0 12.5 23.25h10.75V12.5a11 11 0 0 0-3.125-7.625A11 11 0 0 0 12.5 1.75Z" />
       <path d="M15.125 18.375H6.75a1.329 1.329 0 0 1-1.5-1.25v-8a1.465 1.465 0 0 1 1.375-1.25H15a1.286 1.286 0 0 1 1.375 1.25v.75l1.375-.75A1.146 1.146 0 0 1 19.125 9a1.034 1.034 0 0 1 .625 1v6.25a1.248 1.248 0 0 1-.625 1.125 1.479 1.479 0 0 1-1.25-.125L16.5 16.5v.75a1.276 1.276 0 0 1-1.375 1.125Zm-8.25-1.625h8v-1.625a1.08 1.08 0 0 1 .375-.75.8.8 0 0 1 .75 0l2 1.125v-4.75l-1.875 1.125a.8.8 0 0 1-.75 0 .685.685 0 0 1-.5-.75V9.5h-8Zm11.875-.875Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const CancelIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="2 2 20 20">
       <path d="M12 2C6.4771525 2 2 6.4771525 2 12s4.4771525 10 10 10 10-4.4771525 10-10S17.5228475 2 12 2Zm0 1.33333168c2.0746076-.00128199 4.079864.74684198 5.6466667 2.10666832L5.39333333 17.5933333c-2.17561675-2.5749862-2.66070945-6.17789412-1.2436087-9.23660098C5.56682538 5.29802546 8.62897124 3.33855529 12 3.33333168Zm0 17.33333502c-2.08385186-.000638-4.09692832-.7561338-5.66666667-2.1266667L18.5866667 6.38c2.1903962 2.57136307 2.6872505 6.1810635 1.2730136 9.2485834C18.4454435 18.6961032 15.3778286 20.6624553 12 20.6666667Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ChatBubbleIcon = (props: SvgIconProps) => {
   return (
@@ -228,8 +228,8 @@ export const ChatBubbleIcon = (props: SvgIconProps) => {
         </g>
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const CheckedIcon = (props: SvgIconProps) => {
   return (
@@ -237,8 +237,8 @@ export const CheckedIcon = (props: SvgIconProps) => {
       <path d="M11.138 5.152 6.802 9.486l-1.936-1.94a.64205296.64205296 0 0 0-.908.908l2.39 2.394a.642.642 0 0 0 .908 0l4.79-4.785a.6431145.6431145 0 0 0-.908-.911Z" />
       <path d="M8 16a8 8 0 1 1 8-8 8.009 8.009 0 0 1-8 8ZM8 1.284A6.716 6.716 0 1 0 14.716 8 6.723 6.723 0 0 0 8 1.284Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const CheckMarkIcon = (props: SvgIconProps) => {
   return (
@@ -268,8 +268,8 @@ export const CheckMarkIcon = (props: SvgIconProps) => {
         </g>
       </g> */}
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const CrossedEyeIcon = (props: SvgIconProps) => {
   return (
@@ -277,8 +277,8 @@ export const CrossedEyeIcon = (props: SvgIconProps) => {
       <path d="M7.933 10.41a7.081 7.081 0 0 1-3.7-1.292 12.409 12.409 0 0 1-2.874-2.717.237.237 0 0 1 0-.366 14.122 14.122 0 0 1 2.429-2.372L3 2.873a14.6 14.6 0 0 0-2.836 2.93.629.629 0 0 0 .019.87 13.62 13.62 0 0 0 4.222 3.834 7.4 7.4 0 0 0 3.547 1 7.067 7.067 0 0 0 2.948-.711l-.848-.848a5.577 5.577 0 0 1-2.119.462ZM15.74 5.784a13.154 13.154 0 0 0-4.26-3.856A7.284 7.284 0 0 0 8.145.941a6.436 6.436 0 0 0-2.892.6l.848.848a5.691 5.691 0 0 1 1.793-.348 5.788 5.788 0 0 1 2.583.617 11.437 11.437 0 0 1 3.586 2.783c.193.212.347.424.54.636a.209.209 0 0 1 .019.289 13.993 13.993 0 0 1-2.256 2.275l.79.79a14.6 14.6 0 0 0 2.6-2.737.658.658 0 0 0-.016-.91Z" />
       <path d="m9.687 5.974 1 1a3.349 3.349 0 0 0 .1-.752 2.867 2.867 0 0 0-2.835-2.848 2.576 2.576 0 0 0-.771.116l1.022 1.021a1.738 1.738 0 0 1 1.484 1.463ZM5.311 5.205a2.6 2.6 0 0 0-.193 1.022A2.867 2.867 0 0 0 7.971 9.06a3.005 3.005 0 0 0 1.022-.193l-.906-.906h-.135a1.749 1.749 0 0 1-1.734-1.773v-.077ZM2.882.173A.514.514 0 0 0 2.493 0a.659.659 0 0 0-.556.386.49.49 0 0 0 .135.578l11.007 11.007a.514.514 0 0 0 .386.173.659.659 0 0 0 .559-.386.49.49 0 0 0-.131-.577Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const CrossIcon = (props: SvgIconProps) => {
   return (
@@ -288,8 +288,8 @@ export const CrossIcon = (props: SvgIconProps) => {
         transform="translate(-27 -979.362)"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ExtensionIcon = (props: SvgIconProps) => {
   return (
@@ -305,8 +305,8 @@ export const ExtensionIcon = (props: SvgIconProps) => {
         </g>
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const EmojiIcon = (props: SvgIconProps) => {
   return (
@@ -314,16 +314,16 @@ export const EmojiIcon = (props: SvgIconProps) => {
       <path d="M12.5 0A12.5 12.5 0 1 0 25 12.5 12.537 12.537 0 0 0 12.5 0Zm0 23.25A10.75 10.75 0 1 1 23.25 12.5 10.749 10.749 0 0 1 12.5 23.25Z" />
       <path d="M18.25 14a.688.688 0 0 0-.625.25 9.558 9.558 0 0 1-5.125 1.625 7.867 7.867 0 0 1-5.125-1.625C7.25 14 6.875 14 6.75 14a1.34 1.34 0 0 0-.75.25c-.125.125-.125.5-.125.75a.853.853 0 0 0 .375.625A10.559 10.559 0 0 0 12.5 17.5a11.419 11.419 0 0 0 6.25-1.875 1.726 1.726 0 0 0 .375-.5V15a.937.937 0 0 0-.125-.625ZM7.5 10.75a1.049 1.049 0 0 0 1.125-1.125A1.049 1.049 0 0 0 7.5 8.5a1.049 1.049 0 0 0-1.125 1.125A1.049 1.049 0 0 0 7.5 10.75ZM17.5 10.75a1.049 1.049 0 0 0 1.125-1.125A1.116 1.116 0 0 0 17.5 8.5a1.208 1.208 0 0 0-1.125 1.125.994.994 0 0 0 1.125 1.125Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ExpandLessIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="0 0 25 25">
       <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const EyeIcon = (props: SvgIconProps) => {
   return (
@@ -335,8 +335,8 @@ export const EyeIcon = (props: SvgIconProps) => {
         <circle cx="3" cy="3" r="2.5" />
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const FileIcon = (props: SvgIconProps) => {
   return (
@@ -347,16 +347,16 @@ export const FileIcon = (props: SvgIconProps) => {
 	c0,0,0,0,0,0v-9.7V9.5V3.2c0,0,0,0,0,0h7.4v4.5c0,0.7,0.5,1.2,1.2,1.2h4.5v9.2V20.9z"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const FolderIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="0 0 17.504 14.812">
       <path d="M15.484 14.812H2.02a.675.675 0 0 1-.666-.578L.007 4.809a.674.674 0 0 1 .665-.769h.673V.673A.674.674 0 0 1 2.02 0h4.039a.676.676 0 0 1 .373.113l1.85 1.233h7.2a.674.674 0 0 1 .673.673v2.02h.673a.675.675 0 0 1 .667.769l-1.346 9.426a.677.677 0 0 1-.665.578ZM1.449 5.387 2.6 13.466h12.3l1.154-8.079Zm1.244-4.04v2.692h12.118V2.693H8.078A.677.677 0 0 1 7.7 2.58L5.855 1.346Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const FullScreenIcon = (props: SvgIconProps) => {
   return (
@@ -368,8 +368,8 @@ export const FullScreenIcon = (props: SvgIconProps) => {
         <polygon points="14.6,2 14.6,3.8 20.2,3.8 20.2,9.7 22,9.7 22,2  " />
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const GroupAddIcon = (props: SvgIconProps) => {
   return (
@@ -391,24 +391,24 @@ export const GroupAddIcon = (props: SvgIconProps) => {
 	C21.9,16,21.6,15.7,21.2,15.6z"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const InfoIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="2 2 20 20">
       <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ListIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="0 0 24 24">
       <path d="M3.4 5.4C2.6 5.4 2 4.8 2 4v-.1c0-.7.6-1.3 1.3-1.3h.1c.7 0 1.3.6 1.3 1.3V4c.1.8-.5 1.4-1.3 1.4zM21 3H8.9c-.5 0-1 .4-1 1 0 .5.4 1 1 1H21c.5 0 1-.4 1-1s-.4-1-1-1zM3.4 13.4c-.8 0-1.4-.6-1.4-1.4 0-.7.6-1.3 1.3-1.3h.1c.7 0 1.3.6 1.3 1.3.1.8-.5 1.4-1.3 1.4zM21 13H8.9c-.5 0-1-.4-1-1 0-.5.4-1 1-1H21c.5 0 1 .4 1 1s-.4 1-1 1zM3.4 21.4c-.8 0-1.4-.6-1.4-1.3V20c0-.7.6-1.3 1.3-1.3h.1c.7 0 1.3.6 1.3 1.3v.1c.1.7-.5 1.3-1.3 1.3zM21 21H8.9c-.5 0-1-.5-1-1s.4-1 1-1H21c.5 0 1 .4 1 1s-.4 1-1 1z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const LockIcon = (props: SvgIconProps) => {
   return (
@@ -417,8 +417,8 @@ export const LockIcon = (props: SvgIconProps) => {
       <path d="M10.363 6.546h-8A.546.546 0 0 1 1.818 6V4.181a4.048 4.048 0 0 1 1.35-2.974A4.73 4.73 0 0 1 6.364 0a4.729 4.729 0 0 1 3.195 1.207 4.048 4.048 0 0 1 1.35 2.974V6a.546.546 0 0 1-.546.546Zm-4-5.455a3.645 3.645 0 0 0-2.462.923 2.918 2.918 0 0 0-.993 2.167v1.274h6.91V4.181a2.918 2.918 0 0 0-.993-2.167 3.644 3.644 0 0 0-2.461-.923ZM6.363 11.272a1.636 1.636 0 1 1 1.636-1.636 1.638 1.638 0 0 1-1.636 1.636Zm0-2.182a.545.545 0 1 0 .545.545.546.546 0 0 0-.545-.544Z" />
       <path d="M5.818 10.727v1.819a.5455.5455 0 1 0 1.091 0v-1.819a.5455.5455 0 0 0-1.091 0Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const MessageIcon = (props: SvgIconProps) => {
   return (
@@ -445,8 +445,8 @@ export const MessageIcon = (props: SvgIconProps) => {
       </g>
       {/* </svg> */}
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const MoreVerticalIcon = (props: SvgIconProps) => {
   return (
@@ -457,8 +457,8 @@ export const MoreVerticalIcon = (props: SvgIconProps) => {
         <circle cx="12" cy="19.7" r="2.3" />
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const MicroIcon = (props: SvgIconProps) => {
   return (
@@ -477,8 +477,8 @@ export const MicroIcon = (props: SvgIconProps) => {
         />
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const MicroOffIcon = (props: SvgIconProps) => {
   return (
@@ -504,8 +504,8 @@ export const MicroOffIcon = (props: SvgIconProps) => {
         />
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const MicroInBubbleIcon = (props: SvgIconProps) => {
   return (
@@ -529,16 +529,16 @@ export const MicroInBubbleIcon = (props: SvgIconProps) => {
         </g>
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const OppositeArrowsIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="0 0 16.123 17" style={{ fill: 'none', stroke: '#005699', fillRule: 'evenodd' }}>
       <path d="M15.623 11.025a.358.358 0 0 0-.358-.358h-8.1v-1.4a.358.358 0 0 0-.537-.31l-2.972 1.717-2.977 1.72a.358.358 0 0 0 0 .62l2.977 1.718 2.975 1.719a.358.358 0 0 0 .537-.31v-1.4h8.1a.358.358 0 0 0 .358-.358v-3.36ZM.5 2.615a.358.358 0 0 1 .358-.358h8.1v-1.4a.358.358 0 0 1 .537-.31l2.976 1.718 2.977 1.72a.358.358 0 0 1 0 .62l-2.977 1.718-2.978 1.719a.358.358 0 0 1-.537-.31v-1.4h-8.1a.358.358 0 0 1-.358-.358v-3.36Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const PaperClipIcon = (props: SvgIconProps) => {
   return (
@@ -548,24 +548,24 @@ export const PaperClipIcon = (props: SvgIconProps) => {
         d="M5.729 25A5.736 5.736 0 0 1 0 19.271V4.167a4.167 4.167 0 0 1 8.333 0v13.541a2.6 2.6 0 0 1-5.208 0V5.7a.521.521 0 1 1 1.042 0v12.008a1.563 1.563 0 0 0 3.125 0V4.167a3.125 3.125 0 0 0-6.25 0v15.1a4.687 4.687 0 0 0 9.375 0V5.053a.521.521 0 0 1 1.042 0v14.218A5.736 5.736 0 0 1 5.729 25Z"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const PenIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="0 0 14.863 14.863">
       <path d="m0 14.863.025-5.4L9.49 0l5.373 5.388-3.941 3.941-.711-.715.918-.913-3.967-3.966-6.123 6.129v3.966H5l2.959-2.958.71.715L5.4 14.838ZM9.49 1.426l-1.6 1.6 3.946 3.946 1.6-1.6L9.49 1.427Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const PeopleGroupIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="0 0 24 24">
       <path d="M20 8.4c-.4-.3-.8-.5-1.2-.7.2-.2.4-.5.6-.8.4-.8.4-1.8 0-2.6-.5-.9-1.5-1.6-2.6-1.6-.7 0-1.5.3-2 .8-.6.6-1 1.6-.8 2.5.1.6.4 1.2.8 1.6-.3.1-.6.3-.9.5-.5-.4-1.2-.6-1.9-.6-.6 0-1.3.2-1.8.6-.3-.1-.7-.2-1-.4.2-.2.4-.5.6-.8.4-.8.4-1.7 0-2.5-.5-1-1.5-1.6-2.6-1.6-.7 0-1.4.3-1.9.8-.7.6-1 1.6-.9 2.5.1.6.4 1.2.8 1.6-1.8.7-3.1 2.5-3.4 4.4v1c0 .2 0 .2.1.3.1.2.4.3.6.3.3 0 .5-.2.5-.5v-.4c0-1.4.7-2.7 1.8-3.5 1.3-.9 3-1 4.4-.2 0 .1-.1.3-.2.4-.4.9-.5 2 0 3 .2.4.5.8.8 1.1-1.2.5-2.3 1.3-3 2.3-.8 1.1-1.2 2.4-1.2 3.7v.1c0 .2 0 .4.1.6.1.2.4.3.6.3.3 0 .5-.2.5-.5v-.5c0-1.5.6-2.9 1.7-3.9 1.4-1.3 3.6-1.7 5.4-1 1.7.7 2.9 2.3 3.2 4 .1.4.1.8.1 1.2v.1c0 .1.1.2.2.3.1.1.2.2.4.2h.2c.2-.1.4-.3.4-.6v-.4c0-1.4-.4-2.7-1.2-3.8-.7-1-1.8-1.8-3-2.2.3-.3.6-.7.8-1.1.4-.9.4-2 0-3-.1-.1-.1-.3-.2-.4 1.1-.6 2.4-.7 3.6-.3 1.4.5 2.4 1.9 2.6 3.4v.9c0 .2 0 .2.1.3.1.2.4.3.6.3.3 0 .5-.2.5-.5v-.4c0-1.6-.8-3.2-2.2-4.3zM8.8 5.9c-.1.6-.5 1.1-1 1.3-.6.3-1.3.1-1.7-.3-.4-.4-.6-1-.5-1.5.2-.8.9-1.4 1.6-1.4h.1c.4 0 .8.2 1.1.6.3.4.5.9.4 1.3zm5.3 5.4c-.1.7-.6 1.4-1.3 1.7-.7.3-1.7.1-2.3-.4-.5-.6-.7-1.3-.6-2 .2-.9 1.1-1.7 2-1.7.3 0 .6.1.9.2.9.4 1.4 1.3 1.3 2.2zm2.7-7.5V4c.7 0 1.4.6 1.6 1.3.1.7-.3 1.5-1 1.8-.6.2-1.3.1-1.8-.3-.4-.4-.6-1-.5-1.5.3-.7.9-1.3 1.7-1.3v-.2z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const PeopleWithPlusSignIcon = (props: SvgIconProps) => {
   return (
@@ -573,16 +573,16 @@ export const PeopleWithPlusSignIcon = (props: SvgIconProps) => {
       <path d="M16.1 11.3c1.1-.7 1.8-2 1.8-3.3 0-2.2-1.8-4-4-4s-4 1.8-4 4c0 1.3.7 2.6 1.8 3.3-.6.3-1.2.6-1.8 1.1-.3-.3-.6-.5-1-.7.6-.6 1-1.4 1-2.3 0-1.8-1.4-3.2-3.2-3.2-1.8 0-3.2 1.4-3.2 3.2 0 .9.4 1.7 1 2.3C3 12.5 2 14.1 2 15.9c0 .6.5 1.1 1.1 1.1h4.7c0 .6.5 1.1 1.1 1.1h6.5l-.3-.2c-.3-.2-.5-.6-.7-1v-.1H9.1c0-.3.1-.7.1-1 .1-.6.4-1.1.7-1.6.2-.3.4-.6.7-.8.9-.8 2.1-1.3 3.3-1.3 1.1 0 2.1.4 3 1l.1.1.1-.1c.1-.2.2-.4.4-.6l.2-.2.1-.1-.1-.1c-.5-.3-1.1-.6-1.6-.8zm.5-3.4c0 1.5-1.2 2.7-2.7 2.7-1.5 0-2.7-1.2-2.7-2.7 0-1.5 1.2-2.7 2.7-2.7 1.5 0 2.7 1.2 2.7 2.7zm-10 3.4c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm2.4 2c-.5.7-.9 1.5-1.1 2.4H3.2c.1-1.8 1.6-3.3 3.4-3.3.9 0 1.8.3 2.4.9z" />
       <path d="M21.2 15.6h-1.7v-1.7c0-.4-.3-.7-.7-.7-.2 0-.4.1-.5.2-.1.1-.2.3-.2.5v1.7h-1.7c-.2 0-.4.1-.5.2-.1.1-.2.3-.2.5 0 .4.3.7.7.7h1.7v1.7c0 .4.3.7.7.7.2 0 .4-.1.5-.2.1-.1.2-.3.2-.5V17h1.7c.2 0 .4-.1.5-.2.1-.1.2-.3.2-.5 0-.3-.3-.6-.7-.7z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const PersonIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="8.8 2 3 16">
       <path d="M11.258,9.562A3.774,3.774,0,0,0,13.965,5.9,3.79,3.79,0,0,0,10.144,2,3.871,3.871,0,0,0,8.95,9.562,7.806,7.806,0,0,0,2.9,17.443a.557.557,0,1,0,1.114,0c0-3.821,2.786-6.925,6.209-6.925s6.209,3.1,6.209,6.925a.557.557,0,0,0,1.114,0C17.388,13.463,14.681,10.119,11.258,9.562ZM7.278,5.9a2.866,2.866,0,1,1,5.731,0,2.787,2.787,0,0,1-2.866,2.786A2.838,2.838,0,0,1,7.278,5.9Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const PersonWithCrossMarkIcon = (props: SvgIconProps) => {
   return (
@@ -590,8 +590,8 @@ export const PersonWithCrossMarkIcon = (props: SvgIconProps) => {
       <path d="m14.5 13.1.7-.4c-1-.7-2.1-1.2-3.3-1.4 1.9-.6 3.2-2.3 3.2-4.4.1-2.6-2-4.6-4.5-4.6S6 4.4 6 7c0 2.1 1.4 3.8 3.2 4.4C5.1 12.1 2 16 2 20.7c0 .4.3.7.7.7s.7-.3.7-.7c0-4.5 3.3-8.2 7.4-8.2 1.3 0 2.5.4 3.6 1.1 0-.3.1-.5.1-.5zm-3.9-2.8c-1.9 0-3.4-1.5-3.4-3.3 0-1.9 1.5-3.4 3.4-3.4S14 5.1 14 7s-1.5 3.3-3.4 3.3z" />
       <path d="M16.9 11.5c-2.8 0-5.1 2.3-5.1 5.1s2.3 5.1 5.1 5.1 5.1-2.3 5.1-5.1-2.3-5.1-5.1-5.1zm3.4 6.9L18 16.3l2.2-1.9c.4.6.7 1.4.7 2.2-.1.7-.3 1.3-.6 1.8zm-1-4.9-2.2 2-2.3-2.1c.6-.4 1.4-.7 2.2-.7.8 0 1.6.3 2.3.8zm-5.4.8 2.3 2-2.5 2.3c-.3-.6-.6-1.3-.6-2 0-.9.3-1.7.8-2.3zm.5 5.2 2.7-2.4 2.5 2.3c-.7.7-1.6 1.1-2.7 1.1-.9 0-1.8-.4-2.5-1z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const PlaceAudioCallIcon = (props: SvgIconProps) => {
   return (
@@ -607,8 +607,8 @@ export const PlaceAudioCallIcon = (props: SvgIconProps) => {
         </g>
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const RecordingIcon = (props: SvgIconProps) => {
   return (
@@ -618,8 +618,8 @@ export const RecordingIcon = (props: SvgIconProps) => {
 	s8.3,3.7,8.3,8.3S16.6,20.3,12,20.3z"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const RoundCloseIcon = (props: SvgIconProps) => {
   return (
@@ -627,8 +627,8 @@ export const RoundCloseIcon = (props: SvgIconProps) => {
       <path fill="none" stroke="none" d="M0 0h24v24H0V0z" />
       <path d="M18.3 5.71c-.39-.39-1.02-.39-1.41 0L12 10.59 7.11 5.7c-.39-.39-1.02-.39-1.41 0-.39.39-.39 1.02 0 1.41L10.59 12 5.7 16.89c-.39.39-.39 1.02 0 1.41.39.39 1.02.39 1.41 0L12 13.41l4.89 4.89c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L13.41 12l4.89-4.89c.38-.38.38-1.02 0-1.4z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const RoundCrossIcon = (props: SvgIconProps) => {
   return (
@@ -636,8 +636,8 @@ export const RoundCrossIcon = (props: SvgIconProps) => {
       <path d="M8 16a8 8 0 1 1 8-8 8.009 8.009 0 0 1-8 8ZM8 .888A7.112 7.112 0 1 0 15.112 8 7.12 7.12 0 0 0 8 .888Z" />
       <path d="M10.837 5.167a.444.444 0 0 0-.628 0l-2.2 2.2-2.214-2.2a.44406306.44406306 0 0 0-.628.628l2.2 2.2-2.2 2.2a.44904009.44904009 0 0 0 .628.642l2.2-2.2 2.2 2.2a.4507918.4507918 0 1 0 .642-.633l-2.2-2.2 2.2-2.209a.445.445 0 0 0 0-.628Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const RoundSaltireIcon = (props: SvgIconProps) => {
   return (
@@ -645,16 +645,16 @@ export const RoundSaltireIcon = (props: SvgIconProps) => {
       <path d="M8 16a8 8 0 1 1 8-8 8.009 8.009 0 0 1-8 8ZM8 .888A7.112 7.112 0 1 0 15.112 8 7.12 7.12 0 0 0 8 .888Z" />
       <path d="M10.837 5.167a.444.444 0 0 0-.628 0l-2.2 2.2-2.214-2.2a.44406306.44406306 0 0 0-.628.628l2.2 2.2-2.2 2.2a.44904009.44904009 0 0 0 .628.642l2.2-2.2 2.2 2.2a.4507918.4507918 0 1 0 .642-.633l-2.2-2.2 2.2-2.209a.445.445 0 0 0 0-.628Z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const SaltireIcon = (props: SvgIconProps) => {
   return (
     <SvgIcon {...props} viewBox="5 5 14 14">
       <path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ScreenShareArrowIcon = (props: SvgIconProps) => {
   return (
@@ -678,8 +678,8 @@ export const ScreenShareArrowIcon = (props: SvgIconProps) => {
         </g>
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ScreenShareRegularIcon = (props: SvgIconProps) => {
   return (
@@ -702,8 +702,8 @@ export const ScreenShareRegularIcon = (props: SvgIconProps) => {
         </g>
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ScreenShareScreenAreaIcon = (props: SvgIconProps) => {
   return (
@@ -734,8 +734,8 @@ export const ScreenShareScreenAreaIcon = (props: SvgIconProps) => {
       C16.8,18.2,16.8,18.2,16.8,18.2L16.8,18.2z"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const ScreenShareStopIcon = (props: SvgIconProps) => {
   return (
@@ -768,8 +768,8 @@ export const ScreenShareStopIcon = (props: SvgIconProps) => {
         />
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const TrashBinIcon = (props: SvgIconProps) => {
   return (
@@ -779,8 +779,8 @@ export const TrashBinIcon = (props: SvgIconProps) => {
         transform="translate(-2.4 -2)"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const TwoSheetsIcon = (props: SvgIconProps) => {
   return (
@@ -790,8 +790,8 @@ export const TwoSheetsIcon = (props: SvgIconProps) => {
         transform="translate(-2 -2.2)"
       />
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const VideoCallIcon = (props: SvgIconProps) => {
   return (
@@ -816,8 +816,8 @@ export const VideoCallIcon = (props: SvgIconProps) => {
       </g>
       {/* </svg> */}
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const VideoCameraIcon = (props: SvgIconProps) => {
   return (
@@ -833,8 +833,8 @@ export const VideoCameraIcon = (props: SvgIconProps) => {
         </g>
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const VideoCameraOffIcon = (props: SvgIconProps) => {
   return (
@@ -851,8 +851,8 @@ export const VideoCameraOffIcon = (props: SvgIconProps) => {
         </g>
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const VolumeIcon = (props: SvgIconProps) => {
   return (
@@ -873,8 +873,8 @@ export const VolumeIcon = (props: SvgIconProps) => {
         />
       </g>
     </SvgIcon>
-  );
-};
+  )
+}
 
 export const WindowIcon = (props: SvgIconProps) => {
   return (
@@ -885,5 +885,5 @@ export const WindowIcon = (props: SvgIconProps) => {
    v15.5c0,0.7-0.6,1.3-1.3,1.3H9.1H7.7z"
       />
     </SvgIcon>
-  );
-};
+  )
+}

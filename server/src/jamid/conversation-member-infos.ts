@@ -15,10 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationMemberRole } from 'jami-web-common';
+import { ConversationMemberRole } from 'jami-web-common'
 
 export interface ConversationMemberInfos {
-  uri: string;
-  role: ConversationMemberRole;
-  lastDisplayed: string;
+  uri: string
+  role: ConversationMemberRole
+  lastDisplayed: string
 }

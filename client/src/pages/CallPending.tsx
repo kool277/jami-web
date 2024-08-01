@@ -16,35 +16,35 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, CircularProgress, Grid, IconButtonProps, Stack, Typography } from '@mui/material';
-import { ComponentType, ReactNode, useEffect, useMemo, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { Box, CircularProgress, Grid, IconButtonProps, Stack, Typography } from '@mui/material'
+import { ComponentType, ReactNode, useEffect, useMemo, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useLocation } from 'react-router-dom'
 
 import {
   CallingAnswerAudioButton,
   CallingAnswerVideoButton,
   CallingCancelButton,
   CallingRefuseButton,
-} from '../components/CallButtons';
-import ConversationAvatar from '../components/ConversationAvatar';
-import { useCallManagerContext } from '../contexts/CallManagerProvider';
-import { useConversationContext } from '../contexts/ConversationProvider';
-import { useUserMediaContext } from '../contexts/UserMediaProvider';
-import { CallStatus } from '../services/CallManager';
-import { VideoElementWithSinkId } from '../utils/utils';
+} from '../components/CallButtons'
+import ConversationAvatar from '../components/ConversationAvatar'
+import { useCallManagerContext } from '../contexts/CallManagerProvider'
+import { useConversationContext } from '../contexts/ConversationProvider'
+import { useUserMediaContext } from '../contexts/UserMediaProvider'
+import { CallStatus } from '../services/CallManager'
+import { VideoElementWithSinkId } from '../utils/utils'
 
 export const CallPending = () => {
-  const { conversationDisplayName } = useConversationContext();
-  const { localStream } = useUserMediaContext();
-  const { callData } = useCallManagerContext();
-  const localVideoRef = useRef<VideoElementWithSinkId | null>(null);
+  const { conversationDisplayName } = useConversationContext()
+  const { localStream } = useUserMediaContext()
+  const { callData } = useCallManagerContext()
+  const localVideoRef = useRef<VideoElementWithSinkId | null>(null)
 
   useEffect(() => {
     if (localStream && localVideoRef.current) {
-      localVideoRef.current.srcObject = localStream;
+      localVideoRef.current.srcObject = localStream
     }
-  }, [localStream, localVideoRef]);
+  }, [localStream, localVideoRef])
 
   return (
     <Stack
@@ -110,18 +110,18 @@ export const CallPending = () => {
       </Box>
       {callData?.role === 'caller' ? <CallPendingCallerInterface /> : <CallPendingReceiverInterface />}
     </Stack>
-  );
-};
+  )
+}
 
 const CallPendingDetails = ({
   title,
   buttons,
 }: {
-  title: ReactNode;
+  title: ReactNode
   buttons: {
-    ButtonComponent: ComponentType<IconButtonProps>;
-    title: ReactNode;
-  }[];
+    ButtonComponent: ComponentType<IconButtonProps>
+    title: ReactNode
+  }[]
 }) => {
   return (
     <>
@@ -143,26 +143,26 @@ const CallPendingDetails = ({
         </Grid>
       </Box>
     </>
-  );
-};
+  )
+}
 
 export const CallPendingCallerInterface = () => {
-  const { callStatus } = useCallManagerContext();
-  const { t } = useTranslation();
-  const { members } = useConversationContext();
-  const memberName = useMemo(() => members[0].getDisplayName(), [members]);
+  const { callStatus } = useCallManagerContext()
+  const { t } = useTranslation()
+  const { members } = useConversationContext()
+  const memberName = useMemo(() => members[0].getDisplayName(), [members])
 
-  let title = t('loading');
+  let title = t('loading')
 
   switch (callStatus) {
     case CallStatus.Ringing:
       title = t('calling', {
         member0: memberName,
-      });
-      break;
+      })
+      break
     case CallStatus.Connecting:
-      title = t('connecting');
-      break;
+      title = t('connecting')
+      break
   }
 
   return (
@@ -175,18 +175,18 @@ export const CallPendingCallerInterface = () => {
         },
       ]}
     />
-  );
-};
+  )
+}
 
 export const CallPendingReceiverInterface = () => {
-  const { state } = useLocation();
-  const { callStatus } = useCallManagerContext();
+  const { state } = useLocation()
+  const { callStatus } = useCallManagerContext()
 
-  const { t } = useTranslation();
-  const { members } = useConversationContext();
-  const memberName = useMemo(() => members[0].getDisplayName(), [members]);
+  const { t } = useTranslation()
+  const { members } = useConversationContext()
+  const memberName = useMemo(() => members[0].getDisplayName(), [members])
 
-  let title = t('loading');
+  let title = t('loading')
 
   switch (callStatus) {
     case CallStatus.Ringing:
@@ -194,11 +194,11 @@ export const CallPendingReceiverInterface = () => {
       title = t('incoming_call', {
         context: state?.isVideoOn ? 'video' : 'audio',
         member0: memberName,
-      });
-      break;
+      })
+      break
     case CallStatus.Connecting:
-      title = t('connecting');
-      break;
+      title = t('connecting')
+      break
   }
 
   return (
@@ -219,5 +219,5 @@ export const CallPendingReceiverInterface = () => {
         },
       ]}
     />
-  );
-};
+  )
+}

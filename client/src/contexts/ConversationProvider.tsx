@@ -15,57 +15,57 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ComposingStatus, ConversationInfos, ConversationView, WebSocketMessageType } from 'jami-web-common';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ComposingStatus, ConversationInfos, ConversationView, WebSocketMessageType } from 'jami-web-common'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import LoadingPage from '../components/Loading';
-import { createOptionalContext } from '../hooks/createOptionalContext';
-import { useConversationDisplayName } from '../hooks/useConversationDisplayName';
-import { useUrlParams } from '../hooks/useUrlParams';
-import { ConversationMember } from '../models/conversation-member';
-import { ConversationRouteParams } from '../router';
-import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries';
-import { WithChildren } from '../utils/utils';
-import { useAuthContext } from './AuthProvider';
-import { useWebSocketContext } from './WebSocketProvider';
+import LoadingPage from '../components/Loading'
+import { createOptionalContext } from '../hooks/createOptionalContext'
+import { useConversationDisplayName } from '../hooks/useConversationDisplayName'
+import { useUrlParams } from '../hooks/useUrlParams'
+import { ConversationMember } from '../models/conversation-member'
+import { ConversationRouteParams } from '../router'
+import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries'
+import { WithChildren } from '../utils/utils'
+import { useAuthContext } from './AuthProvider'
+import { useWebSocketContext } from './WebSocketProvider'
 
 interface IConversationContext {
-  conversationId: string;
-  conversationDisplayName: string;
-  conversationInfos: ConversationInfos;
-  members: ConversationMember[];
-  composingMembers: ConversationMember[];
+  conversationId: string
+  conversationDisplayName: string
+  conversationInfos: ConversationInfos
+  members: ConversationMember[]
+  composingMembers: ConversationMember[]
 }
 
-const optionalConversationContext = createOptionalContext<IConversationContext>('ConversationContext');
-const ConversationContext = optionalConversationContext.Context;
-export const useConversationContext = optionalConversationContext.useOptionalContext;
+const optionalConversationContext = createOptionalContext<IConversationContext>('ConversationContext')
+const ConversationContext = optionalConversationContext.Context
+export const useConversationContext = optionalConversationContext.useOptionalContext
 
 export default ({ children }: WithChildren) => {
   const {
     urlParams: { conversationId },
-  } = useUrlParams<ConversationRouteParams>();
-  const { accountId, account } = useAuthContext();
-  const webSocket = useWebSocketContext();
-  const [composingMembers, setComposingMembers] = useState<ConversationMember[]>([]);
+  } = useUrlParams<ConversationRouteParams>()
+  const { accountId, account } = useAuthContext()
+  const webSocket = useWebSocketContext()
+  const [composingMembers, setComposingMembers] = useState<ConversationMember[]>([])
 
-  const conversationInfosQuery = useConversationInfosQuery(conversationId!);
-  const membersQuery = useMembersQuery(conversationId!);
+  const conversationInfosQuery = useConversationInfosQuery(conversationId!)
+  const membersQuery = useMembersQuery(conversationId!)
 
   const isError = useMemo(
     () => conversationInfosQuery.isError || membersQuery.isError,
     [conversationInfosQuery.isError, membersQuery.isError]
-  );
+  )
 
   const isLoading = useMemo(
     () => conversationInfosQuery.isLoading || membersQuery.isLoading,
     [conversationInfosQuery.isLoading, membersQuery.isLoading]
-  );
+  )
 
-  const conversationInfos = conversationInfosQuery.data;
-  const members = membersQuery.data;
+  const conversationInfos = conversationInfosQuery.data
+  const members = membersQuery.data
 
-  const conversationDisplayName = useConversationDisplayName(account, conversationInfos, members);
+  const conversationDisplayName = useConversationDisplayName(account, conversationInfos, members)
 
   const onComposingStatusChanged = useCallback(
     (data: ComposingStatus) => {
@@ -75,44 +75,44 @@ export default ({ children }: WithChildren) => {
       {
         setComposingMembers((composingMembers) => {
           if (!data.isWriting) {
-            return composingMembers.filter(({ contact }) => contact.uri !== data.contactId);
+            return composingMembers.filter(({ contact }) => contact.uri !== data.contactId)
           }
 
-          const isAlreadyIncluded = composingMembers.find((member) => member.contact.uri === data.contactId);
+          const isAlreadyIncluded = composingMembers.find((member) => member.contact.uri === data.contactId)
           if (isAlreadyIncluded) {
-            return composingMembers;
+            return composingMembers
           }
 
-          const member = members?.find((member) => member.contact.uri === data.contactId);
+          const member = members?.find((member) => member.contact.uri === data.contactId)
           if (!member) {
-            return composingMembers;
+            return composingMembers
           }
 
-          return [...composingMembers, member];
-        });
+          return [...composingMembers, member]
+        })
       }
     },
     [/*conversationId,*/ members]
-  );
+  )
 
   useEffect(() => {
     if (!conversationInfos || !conversationId) {
-      return;
+      return
     }
 
     const conversationView: ConversationView = {
       conversationId,
-    };
+    }
 
-    webSocket.send(WebSocketMessageType.ConversationView, conversationView);
-    webSocket.bind(WebSocketMessageType.ComposingStatus, onComposingStatusChanged);
+    webSocket.send(WebSocketMessageType.ConversationView, conversationView)
+    webSocket.bind(WebSocketMessageType.ComposingStatus, onComposingStatusChanged)
 
-    return () => webSocket.unbind(WebSocketMessageType.ComposingStatus, onComposingStatusChanged);
-  }, [accountId, conversationInfos, conversationId, onComposingStatusChanged, webSocket]);
+    return () => webSocket.unbind(WebSocketMessageType.ComposingStatus, onComposingStatusChanged)
+  }, [accountId, conversationInfos, conversationId, onComposingStatusChanged, webSocket])
 
   const value = useMemo(() => {
     if (!conversationId || !conversationDisplayName || !conversationInfos || !members) {
-      return;
+      return
     }
 
     return {
@@ -121,15 +121,15 @@ export default ({ children }: WithChildren) => {
       conversationInfos,
       members,
       composingMembers,
-    };
-  }, [conversationId, conversationDisplayName, conversationInfos, members, composingMembers]);
+    }
+  }, [conversationId, conversationDisplayName, conversationInfos, members, composingMembers])
 
   if (isLoading) {
-    return <LoadingPage />;
+    return <LoadingPage />
   }
   if (isError || !value) {
-    return <div>Error loading conversation: {conversationId}</div>;
+    return <div>Error loading conversation: {conversationId}</div>
   }
 
-  return <ConversationContext.Provider value={value}>{children}</ConversationContext.Provider>;
-};
+  return <ConversationContext.Provider value={value}>{children}</ConversationContext.Provider>
+}

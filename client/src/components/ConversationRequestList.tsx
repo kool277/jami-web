@@ -16,30 +16,30 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Dialog, DialogProps, List, Stack, Typography } from '@mui/material';
-import { IConversationRequest } from 'jami-web-common';
-import { useCallback, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { Dialog, DialogProps, List, Stack, Typography } from '@mui/material'
+import { IConversationRequest } from 'jami-web-common'
+import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 
-import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName';
-import { Contact } from '../models/contact';
+import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName'
+import { Contact } from '../models/contact'
 import {
   useAcceptConversationRequestMutation,
   useBlockConversationRequestMutation,
   useConversationRequestsQuery,
   useDeclineConversationRequestMutation,
-} from '../services/conversationQueries';
-import { ColoredRoundButton } from './Button';
-import ConversationAvatar from './ConversationAvatar';
-import { CustomListItemButton } from './CustomListItemButton';
-import { useDialogHandler } from './Dialog';
-import LoadingPage from './Loading';
-import { CheckMarkIcon, PersonWithCrossMarkIcon, SaltireIcon } from './SvgIcon';
+} from '../services/conversationQueries'
+import { ColoredRoundButton } from './Button'
+import ConversationAvatar from './ConversationAvatar'
+import { CustomListItemButton } from './CustomListItemButton'
+import { useDialogHandler } from './Dialog'
+import LoadingPage from './Loading'
+import { CheckMarkIcon, PersonWithCrossMarkIcon, SaltireIcon } from './SvgIcon'
 
 export const ConversationRequestList = () => {
-  const conversationRequestsQuery = useConversationRequestsQuery();
-  const conversationRequests = conversationRequestsQuery.data;
+  const conversationRequestsQuery = useConversationRequestsQuery()
+  const conversationRequests = conversationRequestsQuery.data
 
   return (
     <List>
@@ -50,18 +50,18 @@ export const ConversationRequestList = () => {
         />
       ))}
     </List>
-  );
-};
+  )
+}
 
 type ConversationRequestListItemProps = {
-  conversationRequest: IConversationRequest;
-};
+  conversationRequest: IConversationRequest
+}
 
 const ConversationRequestListItem = ({ conversationRequest }: ConversationRequestListItemProps) => {
-  const dialogHandler = useDialogHandler();
-  const infos = conversationRequest.infos;
+  const dialogHandler = useDialogHandler()
+  const infos = conversationRequest.infos
 
-  const conversationName = useConversationDisplayNameShort(null, infos.title, conversationRequest.membersNames);
+  const conversationName = useConversationDisplayNameShort(null, infos.title, conversationRequest.membersNames)
 
   return (
     <>
@@ -72,34 +72,34 @@ const ConversationRequestListItem = ({ conversationRequest }: ConversationReques
         primaryText={<Typography variant="body1">{conversationName}</Typography>}
       />
     </>
-  );
-};
+  )
+}
 
 type HandleConversationRequestDialogProps = DialogProps & {
-  conversationRequest: IConversationRequest;
-};
+  conversationRequest: IConversationRequest
+}
 
 const HandleConversationRequestDialog = ({ conversationRequest, ...props }: HandleConversationRequestDialogProps) => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
+  const { t } = useTranslation()
+  const navigate = useNavigate()
 
   const {
     conversationId,
     infos: { avatar, title },
-  } = conversationRequest;
+  } = conversationRequest
 
   const contact = useMemo(() => {
-    return new Contact(conversationRequest.from.uri, conversationRequest.from.registeredName);
-  }, [conversationRequest]);
+    return new Contact(conversationRequest.from.uri, conversationRequest.from.registeredName)
+  }, [conversationRequest])
 
   const closeDialog = useCallback(
     () => props.onClose?.({}, 'escapeKeyDown'), // dummy arguments
     [props]
-  );
+  )
 
-  const blockConversationRequestMutation = useBlockConversationRequestMutation();
-  const acceptConversationRequestMutation = useAcceptConversationRequestMutation();
-  const declineConversationRequestMutation = useDeclineConversationRequestMutation();
+  const blockConversationRequestMutation = useBlockConversationRequestMutation()
+  const acceptConversationRequestMutation = useAcceptConversationRequestMutation()
+  const declineConversationRequestMutation = useDeclineConversationRequestMutation()
 
   const blockConversationRequest = useCallback(() => {
     blockConversationRequestMutation.mutate(
@@ -107,8 +107,8 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
       {
         onSettled: closeDialog,
       }
-    );
-  }, [blockConversationRequestMutation, conversationId, closeDialog]);
+    )
+  }, [blockConversationRequestMutation, conversationId, closeDialog])
 
   const acceptConversationRequest = useCallback(() => {
     acceptConversationRequestMutation.mutate(
@@ -117,8 +117,8 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
         onSuccess: () => navigate(`/conversation/${conversationId}`),
         onSettled: closeDialog,
       }
-    );
-  }, [acceptConversationRequestMutation, conversationId, closeDialog, navigate]);
+    )
+  }, [acceptConversationRequestMutation, conversationId, closeDialog, navigate])
 
   const declineConversationRequest = useCallback(() => {
     declineConversationRequestMutation.mutate(
@@ -126,8 +126,8 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
       {
         onSettled: closeDialog,
       }
-    );
-  }, [declineConversationRequestMutation, conversationId, closeDialog]);
+    )
+  }, [declineConversationRequestMutation, conversationId, closeDialog])
 
   return (
     <Dialog {...props}>
@@ -175,5 +175,5 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
         )}
       </Stack>
     </Dialog>
-  );
-};
+  )
+}

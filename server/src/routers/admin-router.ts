@@ -15,103 +15,103 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import argon2 from 'argon2';
-import { Router } from 'express';
-import asyncHandler from 'express-async-handler';
-import { ParamsDictionary, Request, Response } from 'express-serve-static-core';
-import { AccessToken, AdminCredentials, HttpStatusCode } from 'jami-web-common';
-import { Container } from 'typedi';
+import argon2 from 'argon2'
+import { Router } from 'express'
+import asyncHandler from 'express-async-handler'
+import { ParamsDictionary, Request, Response } from 'express-serve-static-core'
+import { AccessToken, AdminCredentials, HttpStatusCode } from 'jami-web-common'
+import { Container } from 'typedi'
 
-import { adminAuthenticationMiddleware } from '../middleware/auth.js';
-import { checkAdminSetup } from '../middleware/setup.js';
-import { AdminAccount } from '../storage/admin-account.js';
-import { isConfigValid } from '../utils/admin.js';
-import { signJwt } from '../utils/jwt.js';
-const adminAccount = Container.get(AdminAccount);
+import { adminAuthenticationMiddleware } from '../middleware/auth.js'
+import { checkAdminSetup } from '../middleware/setup.js'
+import { AdminAccount } from '../storage/admin-account.js'
+import { isConfigValid } from '../utils/admin.js'
+import { signJwt } from '../utils/jwt.js'
+const adminAccount = Container.get(AdminAccount)
 
-export const adminRouter = Router();
+export const adminRouter = Router()
 
 adminRouter.get('/check', (_req, res) => {
-  const isSetupComplete = adminAccount.getPasswordHash() !== undefined;
-  res.send({ isSetupComplete });
-});
+  const isSetupComplete = adminAccount.getPasswordHash() !== undefined
+  res.send({ isSetupComplete })
+})
 
 adminRouter.post(
   '/create',
   asyncHandler(async (req: Request<ParamsDictionary, string, Partial<AdminCredentials>>, res) => {
-    const { password } = req.body;
+    const { password } = req.body
     if (password) {
-      const hashedPassword = await argon2.hash(password, { type: argon2.argon2id });
+      const hashedPassword = await argon2.hash(password, { type: argon2.argon2id })
 
-      adminAccount.setPasswordHash(hashedPassword);
-      await adminAccount.save();
+      adminAccount.setPasswordHash(hashedPassword)
+      await adminAccount.save()
 
-      res.sendStatus(HttpStatusCode.Created);
-      return;
+      res.sendStatus(HttpStatusCode.Created)
+      return
     }
 
-    res.status(HttpStatusCode.BadRequest).send('Invalid password');
+    res.status(HttpStatusCode.BadRequest).send('Invalid password')
   })
-);
+)
 //Requests below require a successful setup
-adminRouter.use(checkAdminSetup);
+adminRouter.use(checkAdminSetup)
 
 adminRouter.post(
   '/login',
   asyncHandler(async (req: Request<ParamsDictionary, AccessToken | string, Partial<AdminCredentials>>, res) => {
-    const { password } = req.body;
+    const { password } = req.body
     if (password === undefined) {
-      res.status(HttpStatusCode.BadRequest).send('Missing password in body');
-      return;
+      res.status(HttpStatusCode.BadRequest).send('Missing password in body')
+      return
     }
 
-    const hashedPassword = adminAccount.getPasswordHash();
+    const hashedPassword = adminAccount.getPasswordHash()
     if (hashedPassword === undefined) {
-      res.status(HttpStatusCode.InternalServerError).send('Admin password not found');
-      return;
+      res.status(HttpStatusCode.InternalServerError).send('Admin password not found')
+      return
     }
 
-    const isPasswordVerified = await argon2.verify(hashedPassword, password);
+    const isPasswordVerified = await argon2.verify(hashedPassword, password)
     if (!isPasswordVerified) {
-      res.status(HttpStatusCode.Unauthorized).send('Incorrect password');
-      return;
+      res.status(HttpStatusCode.Unauthorized).send('Incorrect password')
+      return
     }
 
-    const jwt = await signJwt('admin');
-    res.send({ accessToken: jwt });
+    const jwt = await signJwt('admin')
+    res.send({ accessToken: jwt })
   })
-);
+)
 
 //Requests below require authentication
-adminRouter.use(adminAuthenticationMiddleware);
+adminRouter.use(adminAuthenticationMiddleware)
 
 adminRouter.get(
   '/config',
   asyncHandler(async (_, res: Response) => {
-    const config = adminAccount.getConfig();
+    const config = adminAccount.getConfig()
     if (config !== undefined) {
-      res.status(HttpStatusCode.Ok).send(config);
-      return;
+      res.status(HttpStatusCode.Ok).send(config)
+      return
     }
-    res.sendStatus(HttpStatusCode.InternalServerError);
+    res.sendStatus(HttpStatusCode.InternalServerError)
   })
-);
+)
 
 adminRouter.patch(
   '/config',
   asyncHandler(async (req: Request<ParamsDictionary, unknown, unknown>, res: Response) => {
-    const config = req.body;
+    const config = req.body
 
     if (!isConfigValid(config)) {
-      res.status(HttpStatusCode.BadRequest).send('Invalid config in the payload');
-      return;
+      res.status(HttpStatusCode.BadRequest).send('Invalid config in the payload')
+      return
     }
-    adminAccount.updateConfig(config);
+    adminAccount.updateConfig(config)
     try {
-      await adminAccount.save();
-      res.sendStatus(HttpStatusCode.Ok);
+      await adminAccount.save()
+      res.sendStatus(HttpStatusCode.Ok)
     } catch (e) {
-      res.sendStatus(HttpStatusCode.InternalServerError);
+      res.sendStatus(HttpStatusCode.InternalServerError)
     }
   })
-);
+)

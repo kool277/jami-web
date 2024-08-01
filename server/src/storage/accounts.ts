@@ -15,42 +15,42 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { readFileSync } from 'node:fs';
-import { writeFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs'
+import { writeFile } from 'node:fs/promises'
 
-import { Service } from 'typedi';
+import { Service } from 'typedi'
 
 interface AccountsFormat {
-  local: Record<string, string>;
-  jams: Record<string, string>;
+  local: Record<string, string>
+  jams: Record<string, string>
 }
 
 @Service()
 export class Accounts {
-  private readonly filename = 'accounts.json';
-  private accounts: AccountsFormat;
+  private readonly filename = 'accounts.json'
+  private accounts: AccountsFormat
 
   constructor() {
-    let buffer: Buffer;
+    let buffer: Buffer
 
     try {
-      buffer = readFileSync(this.filename);
+      buffer = readFileSync(this.filename)
     } catch (e) {
-      buffer = Buffer.from('{"local":{},"jams":{}}');
+      buffer = Buffer.from('{"local":{},"jams":{}}')
     }
 
-    this.accounts = JSON.parse(buffer.toString());
+    this.accounts = JSON.parse(buffer.toString())
   }
 
   get(username: string, isJams = false): string | undefined {
-    return this.accounts[isJams ? 'jams' : 'local'][username.toLowerCase()];
+    return this.accounts[isJams ? 'jams' : 'local'][username.toLowerCase()]
   }
 
   set(username: string, password: string, isJams = false): void {
-    this.accounts[isJams ? 'jams' : 'local'][username.toLowerCase()] = password;
+    this.accounts[isJams ? 'jams' : 'local'][username.toLowerCase()] = password
   }
 
   async save(): Promise<void> {
-    await writeFile(this.filename, JSON.stringify(this.accounts, null, 2) + '\n');
+    await writeFile(this.filename, JSON.stringify(this.accounts, null, 2) + '\n')
   }
 }

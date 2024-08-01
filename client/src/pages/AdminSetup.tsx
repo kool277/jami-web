@@ -15,63 +15,63 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import GroupAddRounded from '@mui/icons-material/GroupAddRounded';
-import { Box, Card, CardContent, Container, Fab, Input, Typography } from '@mui/material';
-import { FormEvent, useContext, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Navigate } from 'react-router-dom';
+import GroupAddRounded from '@mui/icons-material/GroupAddRounded'
+import { Box, Card, CardContent, Container, Fab, Input, Typography } from '@mui/material'
+import { FormEvent, useContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Navigate } from 'react-router-dom'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
-import { useCheckAdminSetupStatusQuery, useSetupAdminMutation } from '../services/adminQueries';
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
+import { useCheckAdminSetupStatusQuery, useSetupAdminMutation } from '../services/adminQueries'
 
 export default function AdminSetup() {
-  const [password, setPassword] = useState('');
-  const [passwordRepeat, setPasswordRepeat] = useState('');
-  const { t } = useTranslation();
+  const [password, setPassword] = useState('')
+  const [passwordRepeat, setPasswordRepeat] = useState('')
+  const { t } = useTranslation()
 
-  const { data: isSetupComplete } = useCheckAdminSetupStatusQuery();
-  const setupAdminMutation = useSetupAdminMutation();
-  const { isLoading } = setupAdminMutation;
-  const { setAlertContent } = useContext(AlertSnackbarContext);
+  const { data: isSetupComplete } = useCheckAdminSetupStatusQuery()
+  const setupAdminMutation = useSetupAdminMutation()
+  const { isLoading } = setupAdminMutation
+  const { setAlertContent } = useContext(AlertSnackbarContext)
 
   const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (isSetupComplete) {
       setAlertContent({
         messageI18nKey: 'admin_page_setup_complete',
         severity: 'error',
         alertOpen: true,
-      });
-      return;
+      })
+      return
     }
     if (!password) {
       setAlertContent({
         messageI18nKey: 'password_input_helper_text_empty',
         severity: 'error',
         alertOpen: true,
-      });
-      return;
+      })
+      return
     }
     if (password !== passwordRepeat) {
       setAlertContent({
         messageI18nKey: 'password_input_helper_text_not_match',
         severity: 'error',
         alertOpen: true,
-      });
-      return;
+      })
+      return
     }
 
-    setupAdminMutation.mutate(password);
-  };
+    setupAdminMutation.mutate(password)
+  }
 
   if (isSetupComplete) {
     setAlertContent({
       messageI18nKey: 'redirect_admin_setup_complete',
       severity: 'info',
       alertOpen: true,
-    });
-    return <Navigate to={'/admin/login'} />;
+    })
+    return <Navigate to={'/admin/login'} />
   }
 
   if (isSetupComplete === false) {
@@ -119,10 +119,10 @@ export default function AdminSetup() {
           </CardContent>
         </Card>
       </Container>
-    );
+    )
   }
   //when isSetupComplete is undefined
   else {
-    return <div>{t('loading')}</div>;
+    return <div>{t('loading')}</div>
   }
 }

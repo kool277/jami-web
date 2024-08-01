@@ -17,15 +17,15 @@
  */
 
 export interface IAdminConfigState {
-  localAuthEnabled: boolean;
-  jamsAuthEnabled: boolean;
-  guestAccessEnabled: boolean;
-  openIdAuthEnabled: boolean;
+  localAuthEnabled: boolean
+  jamsAuthEnabled: boolean
+  guestAccessEnabled: boolean
+  openIdAuthEnabled: boolean
 }
 
 export interface IAdminAccount {
-  admin: string;
-  config: IAdminConfigState;
+  admin: string
+  config: IAdminConfigState
 }
 
 //For runtime type check
@@ -34,4 +34,4 @@ export const adminConfigValuePair = {
   jamsAuthEnabled: 'boolean',
   guestAccessEnabled: 'boolean',
   openIdAuthEnabled: 'boolean',
-};
+}

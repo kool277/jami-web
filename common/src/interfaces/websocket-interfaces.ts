@@ -15,54 +15,54 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Message } from './conversation.js';
+import { Message } from './conversation.js'
 
 export interface ContactMessage {
-  senderContactId: string;
+  senderContactId: string
 }
 
 export interface ConversationMessage {
-  conversationId: string;
-  message: Message;
+  conversationId: string
+  message: Message
 }
 
 export interface ConversationView {
-  conversationId: string;
+  conversationId: string
 }
 
 export interface ComposingStatus {
-  contactId?: string; // optional (ignored) when is about the user sending it
-  conversationId: string;
-  isWriting: boolean;
+  contactId?: string // optional (ignored) when is about the user sending it
+  conversationId: string
+  isWriting: boolean
 }
 
 export interface WithSender {
-  senderId: string;
+  senderId: string
 }
 
 export interface WithReceiver {
-  receiverId: string;
+  receiverId: string
 }
 
 export interface CallAction {
-  conversationId: string;
+  conversationId: string
 }
 
 export interface CallInvite extends CallAction {
-  withVideoOn: boolean;
+  withVideoOn: boolean
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CallJoin extends CallAction {}
 
 export interface CallExit {
-  conversationId: string;
+  conversationId: string
 }
 
 export interface WebRtcSdp extends CallAction {
-  sdp: RTCSessionDescriptionInit;
+  sdp: RTCSessionDescriptionInit
 }
 
 export interface WebRtcIceCandidate extends CallAction {
-  candidate: RTCIceCandidate;
+  candidate: RTCIceCandidate
 }

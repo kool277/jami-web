@@ -15,31 +15,31 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box } from '@mui/material';
-import { useRef, useState } from 'react';
-import Draggable, { DraggableEventHandler } from 'react-draggable';
-import { useNavigate } from 'react-router-dom';
+import { Box } from '@mui/material'
+import { useRef, useState } from 'react'
+import Draggable, { DraggableEventHandler } from 'react-draggable'
+import { useNavigate } from 'react-router-dom'
 
-import { useCallManagerContext } from '../contexts/CallManagerProvider';
-import { useUserMediaContext } from '../contexts/UserMediaProvider';
-import { VideoElementWithSinkId } from '../utils/utils';
-import VideoStream, { VideoStreamProps } from './VideoStream';
+import { useCallManagerContext } from '../contexts/CallManagerProvider'
+import { useUserMediaContext } from '../contexts/UserMediaProvider'
+import { VideoElementWithSinkId } from '../utils/utils'
+import VideoStream, { VideoStreamProps } from './VideoStream'
 
-type Size = 'small' | 'medium' | 'large';
+type Size = 'small' | 'medium' | 'large'
 export type VideoOverlayProps = VideoStreamProps & {
-  onClick?: DraggableEventHandler;
-  size?: Size;
-};
+  onClick?: DraggableEventHandler
+  size?: Size
+}
 
 const sizeToDimentions: Record<Size, string> = {
   small: '25%',
   medium: '50%',
   large: '75%',
-};
+}
 
 const VideoOverlay = ({ onClick, size = 'medium', ...props }: VideoOverlayProps) => {
-  const videoRef = useRef<VideoElementWithSinkId | null>(null);
-  const [dragging, setDragging] = useState(false);
+  const videoRef = useRef<VideoElementWithSinkId | null>(null)
+  const [dragging, setDragging] = useState(false)
 
   return (
     <Box position="relative" width="100%" height="100%">
@@ -47,10 +47,10 @@ const VideoOverlay = ({ onClick, size = 'medium', ...props }: VideoOverlayProps)
         onDrag={() => setDragging(true)}
         onStop={(...args) => {
           if (!dragging && onClick) {
-            onClick(...args);
+            onClick(...args)
           }
 
-          setDragging(false);
+          setDragging(false)
         }}
         bounds="parent"
         nodeRef={videoRef}
@@ -71,21 +71,21 @@ const VideoOverlay = ({ onClick, size = 'medium', ...props }: VideoOverlayProps)
         />
       </Draggable>
     </Box>
-  );
-};
+  )
+}
 
 export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId: string }) => {
-  const { remoteStreams } = useCallManagerContext();
+  const { remoteStreams } = useCallManagerContext()
   const {
     currentMediaDeviceIds: {
       audiooutput: { id: audioOutDeviceId },
     },
-  } = useUserMediaContext();
-  const navigate = useNavigate();
+  } = useUserMediaContext()
+  const navigate = useNavigate()
 
   // TODO: For now, `remoteStream` is the first remote stream in the array.
   //       There should only be one in the array, but we should make sure this is right.
-  const stream = remoteStreams?.at(0);
+  const stream = remoteStreams?.at(0)
 
   return (
     <Box position="absolute" width="100%" height="100%" display="flex">
@@ -94,13 +94,13 @@ export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId:
           stream={stream}
           audioOutDeviceId={audioOutDeviceId}
           onClick={() => {
-            navigate(`/conversation/${callConversationId}`);
+            navigate(`/conversation/${callConversationId}`)
           }}
           size={'small'}
         />
       </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default VideoOverlay;
+export default VideoOverlay

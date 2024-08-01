@@ -15,29 +15,29 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-'use strict';
-import './index.scss';
-import './i18n';
+'use strict'
+import './index.scss'
+import './i18n'
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { Provider } from 'react-redux';
-import { RouterProvider } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { Provider } from 'react-redux'
+import { RouterProvider } from 'react-router-dom'
 
-import AlertSnackbarProvider from './contexts/AlertSnackbarProvider';
-import CustomThemeProvider from './contexts/CustomThemeProvider';
-import { store } from './redux/store';
-import { router } from './router';
+import AlertSnackbarProvider from './contexts/AlertSnackbarProvider'
+import CustomThemeProvider from './contexts/CustomThemeProvider'
+import { store } from './redux/store'
+import { router } from './router'
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
-const container = document.getElementById('root');
+const container = document.getElementById('root')
 if (!container) {
-  throw new Error('Failed to get the root element');
+  throw new Error('Failed to get the root element')
 }
-const root = createRoot(container);
+const root = createRoot(container)
 root.render(
   <Provider store={store}>
     <StrictMode>
@@ -51,4 +51,4 @@ root.render(
       </QueryClientProvider>
     </StrictMode>
   </Provider>
-);
+)

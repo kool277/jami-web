@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { defineConfig } from 'cypress';
+import { defineConfig } from 'cypress'
 
 export default defineConfig({
   e2e: {
@@ -31,4 +31,4 @@ export default defineConfig({
     },
     video: false,
   },
-});
+})

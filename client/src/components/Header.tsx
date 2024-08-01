@@ -16,30 +16,30 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Menu, MenuItem } from '@mui/material';
-import { MouseEvent, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { Box, Button, Menu, MenuItem } from '@mui/material'
+import { MouseEvent, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 
-import { useAuthContext } from '../contexts/AuthProvider';
+import { useAuthContext } from '../contexts/AuthProvider'
 //TODO:  remove 'settings-account' and 'settings-general' when migration is finished
-type NavigateURL = '/' | '/contacts' | '/settings-account' | '/settings-general' | '/settings/account/manage-account';
+type NavigateURL = '/' | '/contacts' | '/settings-account' | '/settings-general' | '/settings/account/manage-account'
 
 export default function Header() {
-  const { t } = useTranslation();
-  const { logout } = useAuthContext();
+  const { t } = useTranslation()
+  const { logout } = useAuthContext()
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
 
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget);
+  const handleClick = (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget)
   const closeMenuAndNavigate = (navigateUrl?: NavigateURL) => {
-    setAnchorEl(null);
+    setAnchorEl(null)
     if (navigateUrl) {
-      navigate(navigateUrl);
+      navigate(navigateUrl)
     }
-  };
+  }
 
   return (
     <Box>
@@ -57,5 +57,5 @@ export default function Header() {
         </MenuItem>
       </Menu>
     </Box>
-  );
+  )
 }

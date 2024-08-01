@@ -15,64 +15,64 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { NextFunction, Request, Response } from 'express';
-import { HttpStatusCode } from 'jami-web-common';
+import { NextFunction, Request, Response } from 'express'
+import { HttpStatusCode } from 'jami-web-common'
 
-import { verifyJwt } from '../utils/jwt.js';
+import { verifyJwt } from '../utils/jwt.js'
 
 function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const authorizationHeader = req.headers.authorization;
+    const authorizationHeader = req.headers.authorization
     if (!authorizationHeader) {
       if (isAuthenticationRequired) {
-        res.status(HttpStatusCode.Unauthorized).send('Missing Authorization header');
+        res.status(HttpStatusCode.Unauthorized).send('Missing Authorization header')
       } else {
         // Skip authentication if it is optional, in which case the Authorization header should not have been set
-        res.locals.accountId = undefined;
-        next();
+        res.locals.accountId = undefined
+        next()
       }
-      return;
+      return
     }
 
-    const token = authorizationHeader.split(' ')[1];
+    const token = authorizationHeader.split(' ')[1]
     if (token === undefined) {
-      res.status(HttpStatusCode.BadRequest).send('Missing JSON web token');
-      return;
+      res.status(HttpStatusCode.BadRequest).send('Missing JSON web token')
+      return
     }
 
     try {
-      const { payload } = await verifyJwt(token);
-      res.locals.accountId = payload.accountId;
-      next();
+      const { payload } = await verifyJwt(token)
+      res.locals.accountId = payload.accountId
+      next()
     } catch (e) {
-      res.status(HttpStatusCode.Unauthorized).send('Invalid access token');
+      res.status(HttpStatusCode.Unauthorized).send('Invalid access token')
     }
-  };
+  }
 }
 
-export const authenticateToken = createAuthenticationMiddleware(true);
+export const authenticateToken = createAuthenticationMiddleware(true)
 
-export const authenticateOptionalToken = createAuthenticationMiddleware(false);
+export const authenticateOptionalToken = createAuthenticationMiddleware(false)
 
 export const adminAuthenticationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-  const authorizationHeader = req.headers.authorization;
+  const authorizationHeader = req.headers.authorization
   if (!authorizationHeader) {
-    res.sendStatus(HttpStatusCode.Unauthorized);
-    return;
+    res.sendStatus(HttpStatusCode.Unauthorized)
+    return
   }
-  const token = authorizationHeader.split(' ')[1];
+  const token = authorizationHeader.split(' ')[1]
   if (token === undefined) {
-    res.status(HttpStatusCode.Unauthorized).send('Missing JSON web token');
-    return;
+    res.status(HttpStatusCode.Unauthorized).send('Missing JSON web token')
+    return
   }
 
   try {
-    const { payload } = await verifyJwt(token);
+    const { payload } = await verifyJwt(token)
     //TODO: use a more secure way to only grant access to the real admin, using accountId might pose a risk since 'admin' could be a valid regular username
     if (payload.accountId === 'admin') {
-      next();
+      next()
     }
   } catch (e) {
-    res.status(HttpStatusCode.Unauthorized).send('Invalid access token');
+    res.status(HttpStatusCode.Unauthorized).send('Invalid access token')
   }
-};
+}

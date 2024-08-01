@@ -15,65 +15,65 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Constructable } from '../interfaces/constructable.js';
+import { Constructable } from '../interfaces/constructable.js'
 
 interface SwigVect<T> {
-  size(): number;
-  get(index: number): T | undefined;
+  size(): number
+  get(index: number): T | undefined
 }
 
 interface SwigMap<T, U> {
-  keys(): SwigVect<T>;
-  get(key: T): U | undefined;
-  set(key: T, value: U): void;
+  keys(): SwigVect<T>
+  get(key: T): U | undefined
+  set(key: T, value: U): void
 }
 
 // export type IntVect = SwigVect<number>;
 // export type UintVect = SwigVect<number>;
 // export type FloatVect = SwigVect<number>;
-export type StringVect = SwigVect<string>;
+export type StringVect = SwigVect<string>
 // export type IntegerMap = SwigMap<string, number>;
-export type StringMap = SwigMap<string, string>;
-export type VectMap = SwigVect<StringMap>;
-export type Blob = SwigVect<number>;
+export type StringMap = SwigMap<string, string>
+export type VectMap = SwigVect<StringMap>
+export type Blob = SwigVect<number>
 
 function* swigVectToIt<T>(swigVect: SwigVect<T>) {
-  const size = swigVect.size();
+  const size = swigVect.size()
   for (let i = 0; i < size; i++) {
-    yield swigVect.get(i)!;
+    yield swigVect.get(i)!
   }
 }
 
 function* swigMapToIt<T, U>(swigMap: SwigMap<T, U>) {
-  const keys = swigVectToIt(swigMap.keys());
+  const keys = swigVectToIt(swigMap.keys())
   for (const key of keys) {
-    const value = swigMap.get(key)!;
-    yield [key, value];
+    const value = swigMap.get(key)!
+    yield [key, value]
   }
 }
 
 export function stringVectToArray(stringVect: StringVect): string[] {
-  const elements = swigVectToIt(stringVect);
-  return Array.from(elements);
+  const elements = swigVectToIt(stringVect)
+  return Array.from(elements)
 }
 
 export function stringMapToRecord(stringMap: StringMap): Record<string, string> {
-  const keyValuePairs = swigMapToIt(stringMap);
-  const record: Record<string, string> = {};
+  const keyValuePairs = swigMapToIt(stringMap)
+  const record: Record<string, string> = {}
   for (const [key, value] of keyValuePairs) {
-    record[key] = value;
+    record[key] = value
   }
-  return record;
+  return record
 }
 
 export function vectMapToRecordArray(vectMap: VectMap): Record<string, string>[] {
-  const stringMaps = swigVectToIt(vectMap);
-  const records = [];
+  const stringMaps = swigVectToIt(vectMap)
+  const records = []
   for (const stringMap of stringMaps) {
-    const record = stringMapToRecord(stringMap);
-    records.push(record);
+    const record = stringMapToRecord(stringMap)
+    records.push(record)
   }
-  return records;
+  return records
 }
 
 /**
@@ -82,62 +82,62 @@ export function vectMapToRecordArray(vectMap: VectMap): Record<string, string>[]
  * The full list of methods can be found in SWIG interface files (`.i`) in `daemon/bin/nodejs`.
  */
 export interface JamiSwig {
-  init(args: Record<string, unknown>): void;
-  fini(): void;
+  init(args: Record<string, unknown>): void
+  fini(): void
 
-  monitor(continuous: boolean): void;
+  monitor(continuous: boolean): void
 
-  getAccountDetails(accountId: string): StringMap;
-  getVolatileAccountDetails(accountId: string): StringMap;
-  setAccountDetails(accountId: string, details: StringMap): void;
+  getAccountDetails(accountId: string): StringMap
+  getVolatileAccountDetails(accountId: string): StringMap
+  setAccountDetails(accountId: string, details: StringMap): void
 
-  addAccount(details: StringMap): string;
-  removeAccount(accountId: string): void;
+  addAccount(details: StringMap): string
+  removeAccount(accountId: string): void
 
-  getAccountList(): StringVect;
+  getAccountList(): StringVect
 
-  sendAccountTextMessage(accountId: string, contactId: string, message: StringMap, flag: number): void;
+  sendAccountTextMessage(accountId: string, contactId: string, message: StringMap, flag: number): void
 
-  lookupName(accountId: string, nameserver: string, username: string): boolean;
-  lookupAddress(accountId: string, nameserver: string, address: string): boolean;
-  registerName(accountId: string, password: string, username: string): boolean;
+  lookupName(accountId: string, nameserver: string, username: string): boolean
+  lookupAddress(accountId: string, nameserver: string, address: string): boolean
+  registerName(accountId: string, password: string, username: string): boolean
 
-  getKnownRingDevices(accountId: string): StringMap;
+  getKnownRingDevices(accountId: string): StringMap
 
-  addContact(accountId: string, contactId: string): void;
-  removeContact(accountId: string, contactId: string, ban: boolean): void;
-  getContacts(accountId: string): VectMap;
-  getContactDetails(accountId: string, contactId: string): StringMap;
-  sendTrustRequest(accountId: string, to: string, payload: Blob): void;
-  acceptTrustRequest(accountId: string, from: string): boolean;
-  discardTrustRequest(accountId: string, from: string): boolean;
+  addContact(accountId: string, contactId: string): void
+  removeContact(accountId: string, contactId: string, ban: boolean): void
+  getContacts(accountId: string): VectMap
+  getContactDetails(accountId: string, contactId: string): StringMap
+  sendTrustRequest(accountId: string, to: string, payload: Blob): void
+  acceptTrustRequest(accountId: string, from: string): boolean
+  discardTrustRequest(accountId: string, from: string): boolean
 
-  getDefaultModerators(accountId: string): StringVect;
-  setDefaultModerator(accountId: string, uri: string, state: boolean): void;
+  getDefaultModerators(accountId: string): StringVect
+  setDefaultModerator(accountId: string, uri: string, state: boolean): void
 
-  getConversations(accountId: string): StringVect;
-  conversationInfos(accountId: string, conversationId: string): StringMap;
-  getConversationMembers(accountId: string, conversationId: string): VectMap;
-  removeConversation(accountId: string, conversationId: string): void;
+  getConversations(accountId: string): StringVect
+  conversationInfos(accountId: string, conversationId: string): StringMap
+  getConversationMembers(accountId: string, conversationId: string): VectMap
+  removeConversation(accountId: string, conversationId: string): void
 
-  getConversationRequests(accountId: string): VectMap;
-  acceptConversationRequest(accountId: string, conversationId: string): void;
-  declineConversationRequest(accountId: string, conversationId: string): void;
+  getConversationRequests(accountId: string): VectMap
+  acceptConversationRequest(accountId: string, conversationId: string): void
+  declineConversationRequest(accountId: string, conversationId: string): void
 
-  sendMessage(accountId: string, conversationId: string, message: string, replyTo: string, flag: number): void;
-  loadConversationMessages(accountId: string, conversationId: string, fromMessage: string, n: number): number;
-  setIsComposing(accountId: string, conversationId: string, isWriting: boolean): void;
+  sendMessage(accountId: string, conversationId: string, message: string, replyTo: string, flag: number): void
+  loadConversationMessages(accountId: string, conversationId: string, fromMessage: string, n: number): number
+  setIsComposing(accountId: string, conversationId: string, isWriting: boolean): void
 
-  getCallList(accountId: string): StringVect;
-  getCallDetails(accountId: string, callId: string): StringMap;
+  getCallList(accountId: string): StringVect
+  getCallDetails(accountId: string, callId: string): StringMap
 
   // IntVect: Constructable<IntVect>;
   // UintVect: Constructable<UintVect>;
   // FloatVect: Constructable<FloatVect>;
   // StringVect: Constructable<StringVect>;
   // IntegerMap: Constructable<IntegerMap>
-  StringMap: Constructable<StringMap>;
+  StringMap: Constructable<StringMap>
   // VectMap: Constructable<VectMap>;
   // IntegerMap: Constructable<IntegerMap>;
-  Blob: Constructable<Blob>;
+  Blob: Constructable<Blob>
 }

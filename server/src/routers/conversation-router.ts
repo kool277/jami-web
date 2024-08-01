@@ -15,181 +15,181 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Request, Router } from 'express';
-import asyncHandler from 'express-async-handler';
-import { ParamsDictionary } from 'express-serve-static-core';
+import { Request, Router } from 'express'
+import asyncHandler from 'express-async-handler'
+import { ParamsDictionary } from 'express-serve-static-core'
 import {
   ContactDetails,
   HttpStatusCode,
   IConversationMember,
   NewConversationRequestBody,
   NewMessageRequestBody,
-} from 'jami-web-common';
-import { Container } from 'typedi';
+} from 'jami-web-common'
+import { Container } from 'typedi'
 
-import { Jamid } from '../jamid/jamid.js';
-import { authenticateToken } from '../middleware/auth.js';
-import { ConversationService } from '../services/ConversationService.js';
+import { Jamid } from '../jamid/jamid.js'
+import { authenticateToken } from '../middleware/auth.js'
+import { ConversationService } from '../services/ConversationService.js'
 
-const jamid = Container.get(Jamid);
-const conversationService = Container.get(ConversationService);
+const jamid = Container.get(Jamid)
+const conversationService = Container.get(ConversationService)
 
-export const conversationRouter = Router();
+export const conversationRouter = Router()
 
-conversationRouter.use(authenticateToken);
+conversationRouter.use(authenticateToken)
 
 conversationRouter.get(
   '/',
   asyncHandler(async (_req, res) => {
-    const accountId = res.locals.accountId;
+    const accountId = res.locals.accountId
 
-    const conversationIds = jamid.getConversationIds(accountId);
+    const conversationIds = jamid.getConversationIds(accountId)
 
-    const conversationsSummaries = [];
+    const conversationsSummaries = []
     for (const conversationId of conversationIds) {
-      const conversationSummary = await conversationService.createConversationSummary(accountId, conversationId);
-      conversationsSummaries.push(conversationSummary);
+      const conversationSummary = await conversationService.createConversationSummary(accountId, conversationId)
+      conversationsSummaries.push(conversationSummary)
     }
 
-    res.send(conversationsSummaries);
+    res.send(conversationsSummaries)
   })
-);
+)
 
 conversationRouter.post(
   '/',
   (req: Request<ParamsDictionary, ContactDetails | string, Partial<NewConversationRequestBody>>, res) => {
-    const { members } = req.body;
+    const { members } = req.body
     if (members === undefined || members.length !== 1) {
-      res.status(HttpStatusCode.BadRequest).send('Missing members or more than one member in body');
-      return;
+      res.status(HttpStatusCode.BadRequest).send('Missing members or more than one member in body')
+      return
     }
 
-    const accountId = res.locals.accountId;
+    const accountId = res.locals.accountId
 
-    const contactId = members[0];
-    jamid.addContact(accountId, contactId);
+    const contactId = members[0]
+    jamid.addContact(accountId, contactId)
     // We need to manually send a conversation request
-    jamid.sendTrustRequest(accountId, contactId);
+    jamid.sendTrustRequest(accountId, contactId)
 
-    const contactDetails = jamid.getContactDetails(accountId, contactId);
+    const contactDetails = jamid.getContactDetails(accountId, contactId)
     if (Object.keys(contactDetails).length === 0) {
-      res.status(HttpStatusCode.NotFound).send('No such member found');
-      return;
+      res.status(HttpStatusCode.NotFound).send('No such member found')
+      return
     }
 
-    res.send(contactDetails);
+    res.send(contactDetails)
   }
-);
+)
 
 conversationRouter.get(
   '/:conversationId',
   asyncHandler(async (req, res) => {
-    const accountId = res.locals.accountId;
-    const conversationId = req.params.conversationId;
+    const accountId = res.locals.accountId
+    const conversationId = req.params.conversationId
 
-    const conversationSummary = await conversationService.createConversationSummary(accountId, conversationId);
+    const conversationSummary = await conversationService.createConversationSummary(accountId, conversationId)
     if (conversationSummary === undefined) {
-      res.status(HttpStatusCode.NotFound).send('No such conversation found');
-      return;
+      res.status(HttpStatusCode.NotFound).send('No such conversation found')
+      return
     }
 
-    res.send(conversationSummary);
+    res.send(conversationSummary)
   })
-);
+)
 
 conversationRouter.get(
   '/:conversationId/infos',
   asyncHandler(async (req, res) => {
-    const accountId = res.locals.accountId;
-    const conversationId = req.params.conversationId;
+    const accountId = res.locals.accountId
+    const conversationId = req.params.conversationId
 
-    const infos = jamid.getConversationInfos(accountId, conversationId);
+    const infos = jamid.getConversationInfos(accountId, conversationId)
     if (Object.keys(infos).length === 0) {
-      res.status(HttpStatusCode.NotFound).send('No such conversation found');
+      res.status(HttpStatusCode.NotFound).send('No such conversation found')
     }
 
-    res.send(infos);
+    res.send(infos)
   })
-);
+)
 
 conversationRouter.get(
   '/:conversationId/members',
   asyncHandler(async (req, res) => {
-    const accountId = res.locals.accountId;
-    const conversationId = req.params.conversationId;
+    const accountId = res.locals.accountId
+    const conversationId = req.params.conversationId
 
     // Retrieve the URI of the current account (Account.username actually stores the URI rather than the username)
-    const accountUri = jamid.getAccountDetails(accountId)['Account.username'];
+    const accountUri = jamid.getAccountDetails(accountId)['Account.username']
 
-    const infos = jamid.getConversationInfos(accountId, conversationId);
+    const infos = jamid.getConversationInfos(accountId, conversationId)
     if (Object.keys(infos).length === 0) {
-      res.status(HttpStatusCode.NotFound).send('No such conversation found');
-      return;
+      res.status(HttpStatusCode.NotFound).send('No such conversation found')
+      return
     }
 
-    const members = jamid.getConversationMembers(accountId, conversationId);
+    const members = jamid.getConversationMembers(accountId, conversationId)
 
-    const namedMembers: IConversationMember[] = [];
+    const namedMembers: IConversationMember[] = []
     for (const member of members) {
       // Exclude current user from returned conversation members
       if (member.uri === accountUri) {
-        continue;
+        continue
       }
 
       // Add usernames for conversation members
-      const { username } = await jamid.lookupAddress(member.uri, accountId);
+      const { username } = await jamid.lookupAddress(member.uri, accountId)
       namedMembers.push({
         role: member.role,
         contact: {
           uri: member.uri,
           registeredName: username,
         },
-      });
+      })
     }
 
-    res.send(namedMembers);
+    res.send(namedMembers)
   })
-);
+)
 
 conversationRouter.get(
   '/:conversationId/messages',
   asyncHandler(async (req, res) => {
-    const accountId = res.locals.accountId;
-    const conversationId = req.params.conversationId;
-    const infos = jamid.getConversationInfos(accountId, conversationId);
+    const accountId = res.locals.accountId
+    const conversationId = req.params.conversationId
+    const infos = jamid.getConversationInfos(accountId, conversationId)
     if (Object.keys(infos).length === 0) {
-      res.status(HttpStatusCode.NotFound).send('No such conversation found');
-      return;
+      res.status(HttpStatusCode.NotFound).send('No such conversation found')
+      return
     }
-    const messages = await jamid.getConversationMessages(accountId, conversationId);
-    res.send(messages);
+    const messages = await jamid.getConversationMessages(accountId, conversationId)
+    res.send(messages)
   })
-);
+)
 
 conversationRouter.post(
   '/:conversationId/messages',
   (req: Request<ParamsDictionary, string, Partial<NewMessageRequestBody>>, res) => {
-    const { message } = req.body;
+    const { message } = req.body
     if (message === undefined) {
-      res.status(HttpStatusCode.BadRequest).send('Missing message in body');
-      return;
+      res.status(HttpStatusCode.BadRequest).send('Missing message in body')
+      return
     }
 
-    const accountId = res.locals.accountId;
-    const conversationId = req.params.conversationId;
+    const accountId = res.locals.accountId
+    const conversationId = req.params.conversationId
 
-    const infos = jamid.getConversationInfos(accountId, conversationId);
+    const infos = jamid.getConversationInfos(accountId, conversationId)
     if (Object.keys(infos).length === 0) {
-      res.status(HttpStatusCode.NotFound).send('No such conversation found');
-      return;
+      res.status(HttpStatusCode.NotFound).send('No such conversation found')
+      return
     }
 
-    jamid.sendConversationMessage(accountId, conversationId, message);
-    res.sendStatus(HttpStatusCode.NoContent);
+    jamid.sendConversationMessage(accountId, conversationId, message)
+    res.sendStatus(HttpStatusCode.NoContent)
   }
-);
+)
 
 conversationRouter.delete('/:conversationId', (req, res) => {
-  jamid.removeConversation(res.locals.accountId, req.params.conversationId);
-  res.sendStatus(HttpStatusCode.NoContent);
-});
+  jamid.removeConversation(res.locals.accountId, req.params.conversationId)
+  res.sendStatus(HttpStatusCode.NoContent)
+})

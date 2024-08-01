@@ -15,27 +15,27 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Typography } from '@mui/material';
-import { Box, Stack } from '@mui/system';
-import { Message } from 'jami-web-common';
-import { MutableRefObject, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Waypoint } from 'react-waypoint';
+import { Typography } from '@mui/material'
+import { Box, Stack } from '@mui/system'
+import { Message } from 'jami-web-common'
+import { MutableRefObject, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Waypoint } from 'react-waypoint'
 
-import { useAuthContext } from '../contexts/AuthProvider';
-import { useConversationContext } from '../contexts/ConversationProvider';
-import { MessageRow } from './Message';
-import { ArrowDownIcon } from './SvgIcon';
+import { useAuthContext } from '../contexts/AuthProvider'
+import { useConversationContext } from '../contexts/ConversationProvider'
+import { MessageRow } from './Message'
+import { ArrowDownIcon } from './SvgIcon'
 
 interface MessageListProps {
-  messages: Message[];
+  messages: Message[]
 }
 
 export default function MessageList({ messages }: MessageListProps) {
-  const { account } = useAuthContext();
-  const { members } = useConversationContext();
-  const [showScrollButton, setShowScrollButton] = useState(false);
-  const listBottomRef = useRef<HTMLElement>();
+  const { account } = useAuthContext()
+  const { members } = useConversationContext()
+  const [showScrollButton, setShowScrollButton] = useState(false)
+  const listBottomRef = useRef<HTMLElement>()
 
   return (
     <>
@@ -51,24 +51,24 @@ export default function MessageList({ messages }: MessageListProps) {
           {
             // most recent messages first
             messages.map((message, index) => {
-              const isAccountMessage = message.author === account.getUri();
-              let author;
+              const isAccountMessage = message.author === account.getUri()
+              let author
               if (isAccountMessage) {
-                author = account;
+                author = account
               } else {
-                const member = members.find((member) => message.author === member.contact.uri);
-                author = member?.contact;
+                const member = members.find((member) => message.author === member.contact.uri)
+                author = member?.contact
               }
               if (!author) {
-                return null;
+                return null
               }
               const props = {
                 messageIndex: index,
                 messages,
                 isAccountMessage,
                 author,
-              };
-              return <MessageRow key={message.id} {...props} />;
+              }
+              return <MessageRow key={message.id} {...props} />
             })
           }
         </Stack>
@@ -82,16 +82,16 @@ export default function MessageList({ messages }: MessageListProps) {
         </Box>
       )}
     </>
-  );
+  )
 }
 
 interface ScrollToEndButtonProps {
-  listBottomRef: MutableRefObject<HTMLElement | undefined>;
+  listBottomRef: MutableRefObject<HTMLElement | undefined>
 }
 
 const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
-  const { t } = useTranslation();
-  const textColor = 'white';
+  const { t } = useTranslation()
+  const textColor = 'white'
   return (
     <Stack
       direction="row"
@@ -111,5 +111,5 @@ const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
         {t('messages_scroll_to_end')}
       </Typography>
     </Stack>
-  );
-};
+  )
+}

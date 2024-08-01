@@ -15,43 +15,43 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import dayjs from 'dayjs';
-import { i18n } from 'i18next';
-import { Message } from 'jami-web-common';
+import dayjs from 'dayjs'
+import { i18n } from 'i18next'
+import { Message } from 'jami-web-common'
 
-import { formatCallDuration } from './dates&times';
+import { formatCallDuration } from './dates&times'
 
 export const getMessageCallText = (isAccountMessage: boolean, message: Message, i18n: i18n) => {
-  const callDuration = dayjs.duration(parseInt(message?.duration || ''));
-  const formattedCallDuration = formatCallDuration(callDuration);
+  const callDuration = dayjs.duration(parseInt(message?.duration || ''))
+  const formattedCallDuration = formatCallDuration(callDuration)
   if (callDuration.asSeconds() === 0) {
     if (isAccountMessage) {
-      return i18n.t('message_call_outgoing_missed');
+      return i18n.t('message_call_outgoing_missed')
     } else {
-      return i18n.t('message_call_incoming_missed');
+      return i18n.t('message_call_incoming_missed')
     }
   } else {
     if (isAccountMessage) {
-      return i18n.t('message_call_outgoing', formattedCallDuration);
+      return i18n.t('message_call_outgoing', formattedCallDuration)
     } else {
-      return i18n.t('message_call_incoming', formattedCallDuration);
+      return i18n.t('message_call_incoming', formattedCallDuration)
     }
   }
-};
+}
 
 export const getMessageMemberText = (message: Message, i18n: i18n) => {
   switch (message.action) {
     case 'add':
-      return i18n.t('message_member_invited', { user: message.author });
+      return i18n.t('message_member_invited', { user: message.author })
     case 'join':
-      return i18n.t('message_member_joined', { user: message.author });
+      return i18n.t('message_member_joined', { user: message.author })
     case 'remove':
-      return i18n.t('message_member_left', { user: message.author });
+      return i18n.t('message_member_left', { user: message.author })
     case 'ban':
-      return i18n.t('message_member_banned', { user: message.author });
+      return i18n.t('message_member_banned', { user: message.author })
     case 'unban':
-      return i18n.t('message_member_unbanned', { user: message.author });
+      return i18n.t('message_member_unbanned', { user: message.author })
     default:
-      console.error(`${getMessageMemberText.name} received an unexpected message action: ${message.action}`);
+      console.error(`${getMessageMemberText.name} received an unexpected message action: ${message.action}`)
   }
-};
+}

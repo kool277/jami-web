@@ -15,27 +15,27 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationInfos, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { ConversationInfos, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
-import { useAuthContext } from '../contexts/AuthProvider';
-import { useUserMediaContext } from '../contexts/UserMediaProvider';
-import { useWebSocketContext } from '../contexts/WebSocketProvider';
-import { ConversationMember } from '../models/conversation-member';
-import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries';
-import { callTimeoutMs } from '../utils/constants';
-import { AsyncSetState, SetState } from '../utils/utils';
-import { useWebRtcManager } from '../webrtc/WebRtcManager';
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
+import { useAuthContext } from '../contexts/AuthProvider'
+import { useUserMediaContext } from '../contexts/UserMediaProvider'
+import { useWebSocketContext } from '../contexts/WebSocketProvider'
+import { ConversationMember } from '../models/conversation-member'
+import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries'
+import { callTimeoutMs } from '../utils/constants'
+import { AsyncSetState, SetState } from '../utils/utils'
+import { useWebRtcManager } from '../webrtc/WebRtcManager'
 
-export type CallRole = 'caller' | 'receiver' | undefined;
+export type CallRole = 'caller' | 'receiver' | undefined
 
 export type CallData = {
-  conversationId: string;
-  role: CallRole;
-  withVideoOn?: boolean;
-};
+  conversationId: string
+  role: CallRole
+  withVideoOn?: boolean
+}
 
 export enum CallStatus {
   Default,
@@ -53,35 +53,35 @@ export enum VideoStatus {
 }
 
 export interface ICallManager {
-  callData: CallData | undefined;
-  callConversationInfos: ConversationInfos | undefined;
-  callMembers: ConversationMember[] | undefined;
+  callData: CallData | undefined
+  callConversationInfos: ConversationInfos | undefined
+  callMembers: ConversationMember[] | undefined
 
-  remoteStreams: readonly MediaStream[];
+  remoteStreams: readonly MediaStream[]
 
-  isAudioOn: boolean;
-  setIsAudioOn: SetState<boolean>;
-  videoStatus: VideoStatus;
-  updateVideoStatus: AsyncSetState<VideoStatus>;
-  isChatShown: boolean;
-  setIsChatShown: SetState<boolean>;
-  isFullscreen: boolean;
-  setIsFullscreen: SetState<boolean>;
-  callStatus: CallStatus;
-  callStartTime: number | undefined;
+  isAudioOn: boolean
+  setIsAudioOn: SetState<boolean>
+  videoStatus: VideoStatus
+  updateVideoStatus: AsyncSetState<VideoStatus>
+  isChatShown: boolean
+  setIsChatShown: SetState<boolean>
+  isFullscreen: boolean
+  setIsFullscreen: SetState<boolean>
+  callStatus: CallStatus
+  callStartTime: number | undefined
 
-  startCall: (conversationId: string, withVideoOn?: boolean) => void;
-  acceptCall: (withVideoOn: boolean) => void;
-  endCall: () => void;
+  startCall: (conversationId: string, withVideoOn?: boolean) => void
+  acceptCall: (withVideoOn: boolean) => void
+  endCall: () => void
 }
 
 export const useCallManager = () => {
-  const { setAlertContent } = useContext(AlertSnackbarContext);
-  const [callData, setCallData] = useState<CallData>();
-  const webSocket = useWebSocketContext();
-  const navigate = useNavigate();
-  const { data: callConversationInfos } = useConversationInfosQuery(callData?.conversationId);
-  const { data: callMembers } = useMembersQuery(callData?.conversationId);
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const [callData, setCallData] = useState<CallData>()
+  const webSocket = useWebSocketContext()
+  const navigate = useNavigate()
+  const { data: callConversationInfos } = useConversationInfosQuery(callData?.conversationId)
+  const { data: callMembers } = useMembersQuery(callData?.conversationId)
 
   const {
     localStream,
@@ -91,16 +91,16 @@ export const useCallManager = () => {
     setAudioInputDeviceId,
     setVideoDeviceId,
     stopMedias,
-  } = useUserMediaContext();
-  const { account } = useAuthContext();
-  const webRtcManager = useWebRtcManager();
+  } = useUserMediaContext()
+  const { account } = useAuthContext()
+  const webRtcManager = useWebRtcManager()
 
-  const [isAudioOn, setIsAudioOn] = useState(false);
-  const [videoStatus, setVideoStatus] = useState(VideoStatus.Off);
-  const [isChatShown, setIsChatShown] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [callStatus, setCallStatus] = useState(CallStatus.Default);
-  const [callStartTime, setCallStartTime] = useState<number | undefined>(undefined);
+  const [isAudioOn, setIsAudioOn] = useState(false)
+  const [videoStatus, setVideoStatus] = useState(VideoStatus.Off)
+  const [isChatShown, setIsChatShown] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [callStatus, setCallStatus] = useState(CallStatus.Default)
+  const [callStartTime, setCallStartTime] = useState<number | undefined>(undefined)
 
   useEffect(() => {
     const callInviteListener = ({ conversationId, withVideoOn }: WebSocketMessageTable['onCallInvite']) => {
@@ -112,143 +112,143 @@ export const useCallManager = () => {
           messageI18nContext: { conversationId },
           severity: 'info',
           alertOpen: true,
-        });
-        return;
+        })
+        return
       }
 
-      setCallData({ conversationId: conversationId, role: 'receiver', withVideoOn });
-      navigate(`/conversation/${conversationId}`);
-    };
-
-    webSocket.bind(WebSocketMessageType.onCallInvite, callInviteListener);
-
-    return () => {
-      webSocket.unbind(WebSocketMessageType.onCallInvite, callInviteListener);
-    };
-  }, [webSocket, navigate, callData, setAlertContent]);
-
-  const conversationId = callData?.conversationId;
-  const contactUri = callMembers?.[0]?.contact.uri;
-  const connectionInfos = contactUri ? webRtcManager.connectionsInfos[contactUri] : undefined;
-  const remoteStreams = useMemo(() => connectionInfos?.remoteStreams || [], [connectionInfos]);
-  const iceConnectionState = connectionInfos?.iceConnectionState;
-
-  // TODO: Transform the effect into a callback
-  const updateLocalStreams = webRtcManager.updateLocalStreams;
-  useEffect(() => {
-    if ((!localStream && !screenShareLocalStream) || !updateLocalStreams) {
-      return;
+      setCallData({ conversationId: conversationId, role: 'receiver', withVideoOn })
+      navigate(`/conversation/${conversationId}`)
     }
 
-    updateLocalStreams(localStream, screenShareLocalStream);
-  }, [localStream, screenShareLocalStream, updateLocalStreams]);
+    webSocket.bind(WebSocketMessageType.onCallInvite, callInviteListener)
+
+    return () => {
+      webSocket.unbind(WebSocketMessageType.onCallInvite, callInviteListener)
+    }
+  }, [webSocket, navigate, callData, setAlertContent])
+
+  const conversationId = callData?.conversationId
+  const contactUri = callMembers?.[0]?.contact.uri
+  const connectionInfos = contactUri ? webRtcManager.connectionsInfos[contactUri] : undefined
+  const remoteStreams = useMemo(() => connectionInfos?.remoteStreams || [], [connectionInfos])
+  const iceConnectionState = connectionInfos?.iceConnectionState
+
+  // TODO: Transform the effect into a callback
+  const updateLocalStreams = webRtcManager.updateLocalStreams
+  useEffect(() => {
+    if ((!localStream && !screenShareLocalStream) || !updateLocalStreams) {
+      return
+    }
+
+    updateLocalStreams(localStream, screenShareLocalStream)
+  }, [localStream, screenShareLocalStream, updateLocalStreams])
 
   const closeConnection = useCallback(() => {
-    stopMedias();
-    webRtcManager.clean();
-  }, [stopMedias, webRtcManager]);
+    stopMedias()
+    webRtcManager.clean()
+  }, [stopMedias, webRtcManager])
 
   // Tracks logic should be moved into UserMediaProvider
   useEffect(() => {
     if (localStream) {
       for (const track of localStream.getAudioTracks()) {
-        track.enabled = isAudioOn;
-        const deviceId = track.getSettings().deviceId;
+        track.enabled = isAudioOn
+        const deviceId = track.getSettings().deviceId
         if (deviceId) {
-          setAudioInputDeviceId(deviceId);
+          setAudioInputDeviceId(deviceId)
         }
       }
     }
-  }, [isAudioOn, localStream, setAudioInputDeviceId]);
+  }, [isAudioOn, localStream, setAudioInputDeviceId])
 
   // Tracks logic should be moved into UserMediaProvider
   useEffect(() => {
     if (localStream) {
       for (const track of localStream.getVideoTracks()) {
-        track.enabled = videoStatus === VideoStatus.Camera;
-        const deviceId = track.getSettings().deviceId;
+        track.enabled = videoStatus === VideoStatus.Camera
+        const deviceId = track.getSettings().deviceId
         if (deviceId) {
-          setVideoDeviceId(deviceId);
+          setVideoDeviceId(deviceId)
         }
       }
     }
-  }, [videoStatus, localStream, setVideoDeviceId]);
+  }, [videoStatus, localStream, setVideoDeviceId])
 
   // Track logic should be moved into UserMediaProvider
   const updateVideoStatus = useCallback(
     async (newStatus: ((prevState: VideoStatus) => VideoStatus) | VideoStatus) => {
       if (typeof newStatus === 'function') {
-        newStatus = newStatus(videoStatus);
+        newStatus = newStatus(videoStatus)
       }
 
-      const stream = await updateScreenShare(newStatus === VideoStatus.ScreenShare);
+      const stream = await updateScreenShare(newStatus === VideoStatus.ScreenShare)
       if (stream) {
         for (const track of stream.getTracks()) {
           track.addEventListener('ended', () => {
-            console.warn('Browser ended screen sharing');
-            updateVideoStatus(VideoStatus.Off);
-          });
+            console.warn('Browser ended screen sharing')
+            updateVideoStatus(VideoStatus.Off)
+          })
         }
       }
 
-      setVideoStatus(newStatus);
+      setVideoStatus(newStatus)
     },
     [videoStatus, updateScreenShare]
-  );
+  )
 
   useEffect(() => {
     const onFullscreenChange = () => {
-      setIsFullscreen(document.fullscreenElement !== null);
-    };
+      setIsFullscreen(document.fullscreenElement !== null)
+    }
 
-    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('fullscreenchange', onFullscreenChange)
     return () => {
-      document.removeEventListener('fullscreenchange', onFullscreenChange);
-    };
-  }, []);
+      document.removeEventListener('fullscreenchange', onFullscreenChange)
+    }
+  }, [])
 
   const startCall = useCallback(
     (conversationId: string, withVideoOn = false) => {
-      setCallData({ conversationId, withVideoOn, role: 'caller' });
+      setCallData({ conversationId, withVideoOn, role: 'caller' })
       if (callStatus === CallStatus.Default) {
-        setCallStatus(CallStatus.Loading);
+        setCallStatus(CallStatus.Loading)
         updateLocalStream()
           .then(() => {
             const callInvite: WebSocketMessageTable['sendCallInvite'] = {
               conversationId: conversationId,
               withVideoOn,
-            };
+            }
 
-            setCallStatus(CallStatus.Ringing);
-            setVideoStatus(withVideoOn ? VideoStatus.Camera : VideoStatus.Off);
-            webSocket.send(WebSocketMessageType.sendCallInvite, callInvite);
+            setCallStatus(CallStatus.Ringing)
+            setVideoStatus(withVideoOn ? VideoStatus.Camera : VideoStatus.Off)
+            webSocket.send(WebSocketMessageType.sendCallInvite, callInvite)
           })
           .catch((e) => {
-            console.error(e);
-            setCallStatus(CallStatus.PermissionsDenied);
-          });
+            console.error(e)
+            setCallStatus(CallStatus.PermissionsDenied)
+          })
       }
     },
     [webSocket, updateLocalStream, callStatus]
-  );
+  )
 
   const acceptCall = useCallback(
     (withVideoOn: boolean) => {
       if (!callMembers || !conversationId) {
-        console.warn('acceptCall without callMembers or conversationId');
-        return;
+        console.warn('acceptCall without callMembers or conversationId')
+        return
       }
-      setCallStatus(CallStatus.Loading);
+      setCallStatus(CallStatus.Loading)
       updateLocalStream()
         .then(() => {
           const callAccept: WebSocketMessageTable['sendCallJoin'] = {
             conversationId,
-          };
+          }
 
-          setVideoStatus(withVideoOn ? VideoStatus.Camera : VideoStatus.Off);
-          setCallStatus(CallStatus.Connecting);
-          console.info('Sending CallJoin', callAccept);
-          webSocket.send(WebSocketMessageType.sendCallJoin, callAccept);
+          setVideoStatus(withVideoOn ? VideoStatus.Camera : VideoStatus.Off)
+          setCallStatus(CallStatus.Connecting)
+          console.info('Sending CallJoin', callAccept)
+          webSocket.send(WebSocketMessageType.sendCallJoin, callAccept)
           // TODO: move this to "onWebRtcDescription" listener so we don't add connections for non-connected members
           callMembers.forEach((member) =>
             webRtcManager.addConnection(
@@ -259,12 +259,12 @@ export const useCallManager = () => {
               localStream,
               screenShareLocalStream
             )
-          );
+          )
         })
         .catch((e) => {
-          console.error(e);
-          setCallStatus(CallStatus.PermissionsDenied);
-        });
+          console.error(e)
+          setCallStatus(CallStatus.PermissionsDenied)
+        })
     },
     [
       account,
@@ -277,95 +277,95 @@ export const useCallManager = () => {
       webRtcManager,
       webSocket,
     ]
-  );
+  )
 
   useEffect(() => {
     if (callData?.role === 'caller' && callStatus === CallStatus.Ringing) {
       const callJoinListener = (data: WebSocketMessageTable['onCallJoin']) => {
-        console.info('Received event on CallJoin', data, callData);
+        console.info('Received event on CallJoin', data, callData)
         if (data.conversationId !== conversationId) {
-          console.warn('Wrong incoming conversationId, ignoring action');
-          return;
+          console.warn('Wrong incoming conversationId, ignoring action')
+          return
         }
 
-        setCallStatus(CallStatus.Connecting);
+        setCallStatus(CallStatus.Connecting)
 
-        webRtcManager.addConnection(webSocket, account, data.senderId, callData, localStream, screenShareLocalStream);
-      };
+        webRtcManager.addConnection(webSocket, account, data.senderId, callData, localStream, screenShareLocalStream)
+      }
 
-      webSocket.bind(WebSocketMessageType.onCallJoin, callJoinListener);
+      webSocket.bind(WebSocketMessageType.onCallJoin, callJoinListener)
 
       return () => {
-        webSocket.unbind(WebSocketMessageType.onCallJoin, callJoinListener);
-      };
+        webSocket.unbind(WebSocketMessageType.onCallJoin, callJoinListener)
+      }
     }
-  }, [account, callData, callStatus, conversationId, localStream, screenShareLocalStream, webRtcManager, webSocket]);
+  }, [account, callData, callStatus, conversationId, localStream, screenShareLocalStream, webRtcManager, webSocket])
 
   const endCall = useCallback(() => {
     if (!conversationId) {
-      return;
+      return
     }
 
     const callExit: WebSocketMessageTable['sendCallExit'] = {
       conversationId,
-    };
+    }
 
-    console.info('Sending CallExit', callExit);
-    closeConnection();
-    webSocket.send(WebSocketMessageType.sendCallExit, callExit);
-    setCallData(undefined);
-    setCallStatus(CallStatus.Default);
+    console.info('Sending CallExit', callExit)
+    closeConnection()
+    webSocket.send(WebSocketMessageType.sendCallExit, callExit)
+    setCallData(undefined)
+    setCallStatus(CallStatus.Default)
     // TODO: write in chat that the call ended
-  }, [webSocket, conversationId, closeConnection]);
+  }, [webSocket, conversationId, closeConnection])
 
   useEffect(() => {
     const callExitListener = (data: WebSocketMessageTable['onCallExit']) => {
-      console.info('Received event on CallExit', data);
+      console.info('Received event on CallExit', data)
       if (data.conversationId !== conversationId) {
-        console.warn('Wrong incoming conversationId, ignoring action');
-        return;
+        console.warn('Wrong incoming conversationId, ignoring action')
+        return
       }
 
-      endCall();
+      endCall()
       // TODO: write in chat that the call ended
-    };
+    }
 
-    webSocket.bind(WebSocketMessageType.onCallExit, callExitListener);
+    webSocket.bind(WebSocketMessageType.onCallExit, callExitListener)
     return () => {
-      webSocket.unbind(WebSocketMessageType.onCallExit, callExitListener);
-    };
-  }, [webSocket, endCall, conversationId]);
+      webSocket.unbind(WebSocketMessageType.onCallExit, callExitListener)
+    }
+  }, [webSocket, endCall, conversationId])
 
   useEffect(() => {
     if (
       callStatus === CallStatus.Connecting &&
       (iceConnectionState === 'connected' || iceConnectionState === 'completed')
     ) {
-      console.info('Changing call status to InCall');
-      setCallStatus(CallStatus.InCall);
-      setCallStartTime(Date.now());
+      console.info('Changing call status to InCall')
+      setCallStatus(CallStatus.InCall)
+      setCallStartTime(Date.now())
     }
-  }, [iceConnectionState, callStatus]);
+  }, [iceConnectionState, callStatus])
 
   useEffect(() => {
     if (iceConnectionState === 'disconnected' || iceConnectionState === 'failed') {
-      console.info('ICE connection disconnected or failed, ending call');
-      endCall();
+      console.info('ICE connection disconnected or failed, ending call')
+      endCall()
     }
-  }, [iceConnectionState, callStatus, videoStatus, endCall]);
+  }, [iceConnectionState, callStatus, videoStatus, endCall])
 
   useEffect(() => {
     const checkStatusTimeout = () => {
       if (callStatus !== CallStatus.InCall) {
-        endCall();
+        endCall()
       }
-    };
-    const timeoutId = setTimeout(checkStatusTimeout, callTimeoutMs);
+    }
+    const timeoutId = setTimeout(checkStatusTimeout, callTimeoutMs)
 
     return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [callStatus, endCall]);
+      clearTimeout(timeoutId)
+    }
+  }, [callStatus, endCall])
 
   return useMemo(
     () => ({
@@ -406,5 +406,5 @@ export const useCallManager = () => {
       acceptCall,
       endCall,
     ]
-  );
-};
+  )
+}

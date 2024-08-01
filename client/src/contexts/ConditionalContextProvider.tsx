@@ -15,14 +15,14 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Context, useCallback, useState } from 'react';
+import { Context, useCallback, useState } from 'react'
 
-import HookComponent from '../hooks/HookComponent';
-import { isRequired, PartialNotOptional, WithChildren } from '../utils/utils';
+import HookComponent from '../hooks/HookComponent'
+import { isRequired, PartialNotOptional, WithChildren } from '../utils/utils'
 
 export type ConditionalContextProviderProps<T, B extends object> = WithChildren & {
-  Context: Context<T>;
-  initialValue: T;
+  Context: Context<T>
+  initialValue: T
 
   /**
    * Object containing the values used to get the provider value with `useProviderValue`.
@@ -31,9 +31,9 @@ export type ConditionalContextProviderProps<T, B extends object> = WithChildren 
    *
    * Should be wrapped in `useMemo` to avoid unnecessary hook calls.
    */
-  dependencies: PartialNotOptional<B>;
-  useProviderValue: (dependencies: B) => T;
-};
+  dependencies: PartialNotOptional<B>
+  useProviderValue: (dependencies: B) => T
+}
 
 /**
  * A context provider with `initialValue` as its value if not all props of the dependencies object are defined.
@@ -46,8 +46,8 @@ const ConditionalContextProvider = <T, B extends object>({
   useProviderValue,
   children,
 }: ConditionalContextProviderProps<T, B>) => {
-  const [value, setValue] = useState(initialValue);
-  const unmountCallback = useCallback(() => setValue(initialValue), [initialValue]);
+  const [value, setValue] = useState(initialValue)
+  const unmountCallback = useCallback(() => setValue(initialValue), [initialValue])
 
   return (
     <>
@@ -61,7 +61,7 @@ const ConditionalContextProvider = <T, B extends object>({
       )}
       <Context.Provider value={value}>{children}</Context.Provider>
     </>
-  );
-};
+  )
+}
 
-export default ConditionalContextProvider;
+export default ConditionalContextProvider

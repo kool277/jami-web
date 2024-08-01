@@ -15,25 +15,25 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useMemo } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useMemo } from 'react'
+import { useLocation, useParams } from 'react-router-dom'
 
 export type RouteParams<UrlParams = Record<string, string>, QueryParams = Record<string, string>, State = any> = {
-  urlParams: UrlParams;
-  queryParams: QueryParams;
-  state?: State;
-};
+  urlParams: UrlParams
+  queryParams: QueryParams
+  state?: State
+}
 
 export const useUrlParams = <T extends RouteParams>() => {
-  const { search, state } = useLocation();
-  const urlParams = useParams() as T['urlParams'];
+  const { search, state } = useLocation()
+  const urlParams = useParams() as T['urlParams']
 
   return useMemo(() => {
-    const queryParams = Object.fromEntries(new URLSearchParams(search)) as T['queryParams'];
+    const queryParams = Object.fromEntries(new URLSearchParams(search)) as T['queryParams']
     return {
       queryParams,
       urlParams,
       state: state as T['state'],
-    };
-  }, [search, urlParams, state]);
-};
+    }
+  }, [search, urlParams, state])
+}

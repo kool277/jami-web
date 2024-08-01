@@ -15,65 +15,65 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import cors from 'cors';
-import express, { json, NextFunction, Request, Response } from 'express';
-import helmet from 'helmet';
-import { HttpStatusCode } from 'jami-web-common';
-import log from 'loglevel';
-import { Service } from 'typedi';
+import cors from 'cors'
+import express, { json, NextFunction, Request, Response } from 'express'
+import helmet from 'helmet'
+import { HttpStatusCode } from 'jami-web-common'
+import log from 'loglevel'
+import { Service } from 'typedi'
 
-import { checkAdminSetup } from './middleware/setup.js';
-import { accountRouter } from './routers/account-router.js';
-import { adminRouter } from './routers/admin-router.js';
-import { authRouter } from './routers/auth-router.js';
-import { callRouter } from './routers/call-router.js';
-import { contactsRouter } from './routers/contacts-router.js';
-import { conversationRequestRouter } from './routers/conversation-request-router.js';
-import { conversationRouter } from './routers/conversation-router.js';
-import { defaultModeratorsRouter } from './routers/default-moderators-router.js';
-import { linkPreviewRouter } from './routers/link-preview-router.js';
-import { nameserverRouter } from './routers/nameserver-router.js';
-import { bindChatCallbacks } from './websocket/chat-handler.js';
-import { bindWebRtcCallbacks } from './websocket/webrtc-handler.js';
+import { checkAdminSetup } from './middleware/setup.js'
+import { accountRouter } from './routers/account-router.js'
+import { adminRouter } from './routers/admin-router.js'
+import { authRouter } from './routers/auth-router.js'
+import { callRouter } from './routers/call-router.js'
+import { contactsRouter } from './routers/contacts-router.js'
+import { conversationRequestRouter } from './routers/conversation-request-router.js'
+import { conversationRouter } from './routers/conversation-router.js'
+import { defaultModeratorsRouter } from './routers/default-moderators-router.js'
+import { linkPreviewRouter } from './routers/link-preview-router.js'
+import { nameserverRouter } from './routers/nameserver-router.js'
+import { bindChatCallbacks } from './websocket/chat-handler.js'
+import { bindWebRtcCallbacks } from './websocket/webrtc-handler.js'
 
 @Service()
 export class App {
-  app = express();
+  app = express()
 
   constructor() {
     // Setup middleware
-    this.app.use(helmet());
-    this.app.use(cors());
-    this.app.use(json());
+    this.app.use(helmet())
+    this.app.use(cors())
+    this.app.use(json())
 
     // Enforce admin setup
-    this.app.use('/admin', adminRouter);
-    this.app.use(checkAdminSetup);
+    this.app.use('/admin', adminRouter)
+    this.app.use(checkAdminSetup)
 
     // Setup routing
-    this.app.use('/auth', authRouter);
-    this.app.use('/account', accountRouter);
-    this.app.use('/contacts', contactsRouter);
-    this.app.use('/default-moderators', defaultModeratorsRouter);
-    this.app.use('/conversations', conversationRouter);
-    this.app.use('/conversation-requests', conversationRequestRouter);
-    this.app.use('/calls', callRouter);
-    this.app.use('/link-preview', linkPreviewRouter);
-    this.app.use('/ns', nameserverRouter);
+    this.app.use('/auth', authRouter)
+    this.app.use('/account', accountRouter)
+    this.app.use('/contacts', contactsRouter)
+    this.app.use('/default-moderators', defaultModeratorsRouter)
+    this.app.use('/conversations', conversationRouter)
+    this.app.use('/conversation-requests', conversationRequestRouter)
+    this.app.use('/calls', callRouter)
+    this.app.use('/link-preview', linkPreviewRouter)
+    this.app.use('/ns', nameserverRouter)
 
     // Setup WebSocket callbacks
-    bindChatCallbacks();
-    bindWebRtcCallbacks();
+    bindChatCallbacks()
+    bindWebRtcCallbacks()
 
     // Setup 404 error handling
     this.app.use((_req, res) => {
-      res.sendStatus(HttpStatusCode.NotFound);
-    });
+      res.sendStatus(HttpStatusCode.NotFound)
+    })
 
     // Setup internal error handling
     this.app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-      log.error(err);
-      res.status(HttpStatusCode.InternalServerError).send(err.message);
-    });
+      log.error(err)
+      res.status(HttpStatusCode.InternalServerError).send(err.message)
+    })
   }
 }

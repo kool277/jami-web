@@ -15,45 +15,45 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationMessage, IConversationRequest, WebSocketMessageType } from 'jami-web-common';
-import { createContext, ReactNode, useEffect, useMemo } from 'react';
+import { ConversationMessage, IConversationRequest, WebSocketMessageType } from 'jami-web-common'
+import { createContext, ReactNode, useEffect, useMemo } from 'react'
 
-import { useAddConversationRequestToCache, useRefreshConversationsSummaries } from '../services/conversationQueries';
-import { useWebSocketContext } from './WebSocketProvider';
+import { useAddConversationRequestToCache, useRefreshConversationsSummaries } from '../services/conversationQueries'
+import { useWebSocketContext } from './WebSocketProvider'
 
 // It is not sure yet we want this context to have no value
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IMessengerContext {}
 
-const defaultMessengerContext: IMessengerContext = {};
+const defaultMessengerContext: IMessengerContext = {}
 
-export const MessengerContext = createContext<IMessengerContext>(defaultMessengerContext);
+export const MessengerContext = createContext<IMessengerContext>(defaultMessengerContext)
 
 export default ({ children }: { children: ReactNode }) => {
-  const webSocket = useWebSocketContext();
+  const webSocket = useWebSocketContext()
 
-  const refreshConversationsSummaries = useRefreshConversationsSummaries();
-  const addConversationRequestToCache = useAddConversationRequestToCache();
+  const refreshConversationsSummaries = useRefreshConversationsSummaries()
+  const addConversationRequestToCache = useAddConversationRequestToCache()
 
   useEffect(() => {
     const conversationMessageListener = (_data: ConversationMessage) => {
-      refreshConversationsSummaries();
-    };
+      refreshConversationsSummaries()
+    }
 
     const conversationRequestListener = (conversationRequest: IConversationRequest) => {
-      addConversationRequestToCache(conversationRequest);
-    };
+      addConversationRequestToCache(conversationRequest)
+    }
 
-    webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener);
-    webSocket.bind(WebSocketMessageType.ConversationRequest, conversationRequestListener);
+    webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
+    webSocket.bind(WebSocketMessageType.ConversationRequest, conversationRequestListener)
 
     return () => {
-      webSocket.unbind(WebSocketMessageType.ConversationMessage, conversationMessageListener);
-      webSocket.unbind(WebSocketMessageType.ConversationRequest, conversationRequestListener);
-    };
-  }, [addConversationRequestToCache, refreshConversationsSummaries, webSocket]);
+      webSocket.unbind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
+      webSocket.unbind(WebSocketMessageType.ConversationRequest, conversationRequestListener)
+    }
+  }, [addConversationRequestToCache, refreshConversationsSummaries, webSocket])
 
-  const value = useMemo<IMessengerContext>(() => ({}), []);
+  const value = useMemo<IMessengerContext>(() => ({}), [])
 
-  return <MessengerContext.Provider value={value}>{children}</MessengerContext.Provider>;
-};
+  return <MessengerContext.Provider value={value}>{children}</MessengerContext.Provider>
+}

@@ -15,46 +15,46 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Router } from 'express';
-import asyncHandler from 'express-async-handler';
-import { HttpStatusCode, IContact } from 'jami-web-common';
-import { Container } from 'typedi';
+import { Router } from 'express'
+import asyncHandler from 'express-async-handler'
+import { HttpStatusCode, IContact } from 'jami-web-common'
+import { Container } from 'typedi'
 
-import { Jamid } from '../jamid/jamid.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { Jamid } from '../jamid/jamid.js'
+import { authenticateToken } from '../middleware/auth.js'
 
-const jamid = Container.get(Jamid);
+const jamid = Container.get(Jamid)
 
-export const defaultModeratorsRouter = Router();
+export const defaultModeratorsRouter = Router()
 
-defaultModeratorsRouter.use(authenticateToken);
+defaultModeratorsRouter.use(authenticateToken)
 
 defaultModeratorsRouter.get(
   '/',
   asyncHandler(async (_req, res) => {
-    const accountId = res.locals.accountId;
+    const accountId = res.locals.accountId
 
     // Add usernames for default moderators
-    const defaultModeratorUris = jamid.getDefaultModeratorUris(accountId);
-    const namedDefaultModerators: IContact[] = [];
+    const defaultModeratorUris = jamid.getDefaultModeratorUris(accountId)
+    const namedDefaultModerators: IContact[] = []
     for (const defaultModeratorUri of defaultModeratorUris) {
-      const { username } = await jamid.lookupAddress(defaultModeratorUri, accountId);
+      const { username } = await jamid.lookupAddress(defaultModeratorUri, accountId)
       namedDefaultModerators.push({
         uri: defaultModeratorUri,
         registeredName: username,
-      });
+      })
     }
 
-    res.send(namedDefaultModerators);
+    res.send(namedDefaultModerators)
   })
-);
+)
 
 defaultModeratorsRouter.put('/:contactId', (req, res) => {
-  jamid.addDefaultModerator(res.locals.accountId, req.params.contactId);
-  res.sendStatus(HttpStatusCode.NoContent);
-});
+  jamid.addDefaultModerator(res.locals.accountId, req.params.contactId)
+  res.sendStatus(HttpStatusCode.NoContent)
+})
 
 defaultModeratorsRouter.delete('/:contactId', (req, res) => {
-  jamid.removeDefaultModerator(res.locals.accountId, req.params.contactId);
-  res.sendStatus(HttpStatusCode.NoContent);
-});
+  jamid.removeDefaultModerator(res.locals.accountId, req.params.contactId)
+  res.sendStatus(HttpStatusCode.NoContent)
+})

@@ -15,31 +15,31 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Router } from 'express';
-import { HttpStatusCode } from 'jami-web-common';
-import { Container } from 'typedi';
+import { Router } from 'express'
+import { HttpStatusCode } from 'jami-web-common'
+import { Container } from 'typedi'
 
-import { Jamid } from '../jamid/jamid.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { Jamid } from '../jamid/jamid.js'
+import { authenticateToken } from '../middleware/auth.js'
 
-const jamid = Container.get(Jamid);
+const jamid = Container.get(Jamid)
 
-export const callRouter = Router();
+export const callRouter = Router()
 
-callRouter.use(authenticateToken);
+callRouter.use(authenticateToken)
 
 callRouter.get('/', (_req, res) => {
-  const callIds = jamid.getCallIds(res.locals.accountId);
-  res.send(callIds);
-});
+  const callIds = jamid.getCallIds(res.locals.accountId)
+  res.send(callIds)
+})
 
 callRouter.get('/:callId', (req, res) => {
-  const callDetails = jamid.getCallDetails(res.locals.accountId, req.params.callId);
+  const callDetails = jamid.getCallDetails(res.locals.accountId, req.params.callId)
 
   if (Object.keys(callDetails).length === 0) {
-    res.status(HttpStatusCode.NotFound).send('No such call found');
-    return;
+    res.status(HttpStatusCode.NotFound).send('No such call found')
+    return
   }
 
-  res.send(callDetails);
-});
+  res.send(callDetails)
+})

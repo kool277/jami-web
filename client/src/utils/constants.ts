@@ -15,18 +15,18 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-export const jamiUsernamePattern = /^[a-zA-Z0-9-_]{3,32}$/;
+export const jamiUsernamePattern = /^[a-zA-Z0-9-_]{3,32}$/
 
-export const inputWidth = 260;
+export const inputWidth = 260
 
-export const jamiLogoDefaultSize = '512px';
+export const jamiLogoDefaultSize = '512px'
 
-export const callTimeoutMs = 60_000;
+export const callTimeoutMs = 60_000
 
-const apiUrl: string = import.meta.env.VITE_API_URL;
+const apiUrl: string = import.meta.env.VITE_API_URL
 
 if (!apiUrl) {
-  throw new Error('VITE_API_URL not defined');
+  throw new Error('VITE_API_URL not defined')
 }
 
-export { apiUrl };
+export { apiUrl }

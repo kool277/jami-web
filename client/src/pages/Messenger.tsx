@@ -15,11 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Stack } from '@mui/material';
-import { ReactNode } from 'react';
+import { Box, Stack } from '@mui/material'
+import { ReactNode } from 'react'
 
-import ConversationList from '../components/ConversationList';
-import Header from '../components/Header';
+import ConversationList from '../components/ConversationList'
+import Header from '../components/Header'
 
 const Messenger = ({ children }: { children?: ReactNode }) => {
   return (
@@ -32,7 +32,7 @@ const Messenger = ({ children }: { children?: ReactNode }) => {
         {children}
       </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default Messenger;
+export default Messenger

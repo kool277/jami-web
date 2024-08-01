@@ -15,33 +15,33 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, List, Stack, Typography } from '@mui/material';
-import dayjs from 'dayjs';
-import { IConversationSummary } from 'jami-web-common';
-import { QRCodeCanvas } from 'qrcode.react';
-import { useCallback, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { Box, List, Stack, Typography } from '@mui/material'
+import dayjs from 'dayjs'
+import { IConversationSummary } from 'jami-web-common'
+import { QRCodeCanvas } from 'qrcode.react'
+import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 
-import { useAuthContext } from '../contexts/AuthProvider';
-import { useCallManagerContext } from '../contexts/CallManagerProvider';
-import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName';
-import { useUrlParams } from '../hooks/useUrlParams';
-import { ConversationRouteParams } from '../router';
-import { CallStatus } from '../services/CallManager';
-import { useRemoveConversationMutation } from '../services/conversationQueries';
-import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages';
-import { formatRelativeDate, formatTime } from '../utils/dates&times';
-import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu';
-import ConversationAvatar from './ConversationAvatar';
-import { CustomListItemButton } from './CustomListItemButton';
-import { ConfirmationDialog, DialogContentList, InfosDialog, useDialogHandler } from './Dialog';
-import { PopoverListItemData } from './PopoverList';
-import { AudioCallIcon, CancelIcon, MessageIcon, PersonIcon, VideoCallIcon } from './SvgIcon';
+import { useAuthContext } from '../contexts/AuthProvider'
+import { useCallManagerContext } from '../contexts/CallManagerProvider'
+import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName'
+import { useUrlParams } from '../hooks/useUrlParams'
+import { ConversationRouteParams } from '../router'
+import { CallStatus } from '../services/CallManager'
+import { useRemoveConversationMutation } from '../services/conversationQueries'
+import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
+import { formatRelativeDate, formatTime } from '../utils/dates&times'
+import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
+import ConversationAvatar from './ConversationAvatar'
+import { CustomListItemButton } from './CustomListItemButton'
+import { ConfirmationDialog, DialogContentList, InfosDialog, useDialogHandler } from './Dialog'
+import { PopoverListItemData } from './PopoverList'
+import { AudioCallIcon, CancelIcon, MessageIcon, PersonIcon, VideoCallIcon } from './SvgIcon'
 
 type ConversationSummaryListProps = {
-  conversationsSummaries: IConversationSummary[];
-};
+  conversationsSummaries: IConversationSummary[]
+}
 
 export const ConversationSummaryList = ({ conversationsSummaries }: ConversationSummaryListProps) => {
   return (
@@ -50,35 +50,35 @@ export const ConversationSummaryList = ({ conversationsSummaries }: Conversation
         <ConversationSummaryListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
       ))}
     </List>
-  );
-};
+  )
+}
 
 type ConversationSummaryListItemProps = {
-  conversationSummary: IConversationSummary;
-};
+  conversationSummary: IConversationSummary
+}
 
 const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummaryListItemProps) => {
-  const { account } = useAuthContext();
+  const { account } = useAuthContext()
   const {
     urlParams: { conversationId: selectedConversationId },
-  } = useUrlParams<ConversationRouteParams>();
-  const contextMenuHandler = useContextMenuHandler();
-  const navigate = useNavigate();
+  } = useUrlParams<ConversationRouteParams>()
+  const contextMenuHandler = useContextMenuHandler()
+  const navigate = useNavigate()
 
-  const conversationId = conversationSummary.id;
-  const isSelected = conversationId === selectedConversationId;
+  const conversationId = conversationSummary.id
+  const isSelected = conversationId === selectedConversationId
 
   const onClick = useCallback(() => {
     if (conversationId) {
-      navigate(`/conversation/${conversationId}`);
+      navigate(`/conversation/${conversationId}`)
     }
-  }, [navigate, conversationId]);
+  }, [navigate, conversationId])
 
   const conversationName = useConversationDisplayNameShort(
     account,
     conversationSummary.title,
     conversationSummary.membersNames
-  );
+  )
 
   return (
     <Box>
@@ -98,66 +98,66 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
         secondaryText={<SecondaryText conversationSummary={conversationSummary} isSelected={isSelected} />}
       />
     </Box>
-  );
-};
+  )
+}
 
 type SecondaryTextProps = {
-  conversationSummary: IConversationSummary;
-  isSelected: boolean;
-};
+  conversationSummary: IConversationSummary
+  isSelected: boolean
+}
 
 const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) => {
-  const { account } = useAuthContext();
-  const { callData, callStatus, isAudioOn } = useCallManagerContext();
-  const { t, i18n } = useTranslation();
+  const { account } = useAuthContext()
+  const { callData, callStatus, isAudioOn } = useCallManagerContext()
+  const { t, i18n } = useTranslation()
 
   const timeIndicator = useMemo(() => {
-    const message = conversationSummary.lastMessage;
-    const time = dayjs.unix(Number(message.timestamp));
+    const message = conversationSummary.lastMessage
+    const time = dayjs.unix(Number(message.timestamp))
     if (time.isToday()) {
-      return formatTime(time, i18n);
+      return formatTime(time, i18n)
     } else {
-      return formatRelativeDate(time, i18n);
+      return formatRelativeDate(time, i18n)
     }
-  }, [conversationSummary, i18n]);
+  }, [conversationSummary, i18n])
 
   const lastMessageText = useMemo(() => {
     if (!callData || callData.conversationId !== conversationSummary.id) {
-      const message = conversationSummary.lastMessage;
+      const message = conversationSummary.lastMessage
       switch (message.type) {
         case 'initial': {
-          return t('message_swarm_created');
+          return t('message_swarm_created')
         }
         case 'application/data-transfer+json': {
-          return message.fileId;
+          return message.fileId
         }
         case 'application/call-history+json': {
-          const isAccountMessage = message.author === account.getUri();
-          return getMessageCallText(isAccountMessage, message, i18n);
+          const isAccountMessage = message.author === account.getUri()
+          return getMessageCallText(isAccountMessage, message, i18n)
         }
         case 'member': {
-          return getMessageMemberText(message, i18n);
+          return getMessageMemberText(message, i18n)
         }
         case 'text/plain': {
-          return message.body;
+          return message.body
         }
         default: {
-          console.error(`${ConversationSummaryListItem.name} received an unexpected lastMessage type: ${message.type}`);
-          return '';
+          console.error(`${ConversationSummaryListItem.name} received an unexpected lastMessage type: ${message.type}`)
+          return ''
         }
       }
     }
 
     if (callStatus === CallStatus.InCall) {
-      return isAudioOn ? t('ongoing_call_unmuted') : t('ongoing_call_muted');
+      return isAudioOn ? t('ongoing_call_unmuted') : t('ongoing_call_muted')
     }
 
     if (callStatus === CallStatus.Connecting) {
-      return t('connecting_call');
+      return t('connecting_call')
     }
 
-    return callData.role === 'caller' ? t('outgoing_call') : t('incoming_call');
-  }, [account, conversationSummary, callData, callStatus, isAudioOn, t, i18n]);
+    return callData.role === 'caller' ? t('outgoing_call') : t('incoming_call')
+  }, [account, conversationSummary, callData, callStatus, isAudioOn, t, i18n])
 
   return (
     <Stack direction="row" spacing="5px">
@@ -166,15 +166,15 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
       </Typography>
       <Typography variant="body2">{lastMessageText}</Typography>
     </Stack>
-  );
-};
+  )
+}
 
 interface ConversationMenuProps {
-  conversationId: string;
-  conversationName: string;
-  onMessageClick: () => void;
-  isSelected: boolean;
-  contextMenuProps: ContextMenuHandler['props'];
+  conversationId: string
+  conversationName: string
+  onMessageClick: () => void
+  isSelected: boolean
+  contextMenuProps: ContextMenuHandler['props']
 }
 
 const ConversationMenu = ({
@@ -184,14 +184,14 @@ const ConversationMenu = ({
   isSelected,
   contextMenuProps,
 }: ConversationMenuProps) => {
-  const { t } = useTranslation();
-  const { startCall } = useCallManagerContext();
-  const [isSwarm] = useState(true);
+  const { t } = useTranslation()
+  const { startCall } = useCallManagerContext()
+  const [isSwarm] = useState(true)
 
-  const detailsDialogHandler = useDialogHandler();
-  const RemoveConversationDialogHandler = useDialogHandler();
+  const detailsDialogHandler = useDialogHandler()
+  const RemoveConversationDialogHandler = useDialogHandler()
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const menuOptions: PopoverListItemData[] = useMemo(
     () => [
@@ -205,7 +205,7 @@ const ConversationMenu = ({
         Icon: AudioCallIcon,
         onClick: () => {
           if (conversationId) {
-            startCall(conversationId);
+            startCall(conversationId)
           }
         },
       },
@@ -214,7 +214,7 @@ const ConversationMenu = ({
         Icon: VideoCallIcon,
         onClick: () => {
           if (conversationId) {
-            startCall(conversationId, true);
+            startCall(conversationId, true)
           }
         },
       },
@@ -224,7 +224,7 @@ const ConversationMenu = ({
               label: t('conversation_close'),
               Icon: CancelIcon,
               onClick: () => {
-                navigate(`/`);
+                navigate(`/`)
               },
             },
           ]
@@ -233,14 +233,14 @@ const ConversationMenu = ({
         label: t('conversation_details'),
         Icon: PersonIcon,
         onClick: () => {
-          detailsDialogHandler.openDialog();
+          detailsDialogHandler.openDialog()
         },
       },
       {
         label: t('conversation_delete'),
         Icon: CancelIcon,
         onClick: () => {
-          RemoveConversationDialogHandler.openDialog();
+          RemoveConversationDialogHandler.openDialog()
         },
       },
     ],
@@ -254,7 +254,7 @@ const ConversationMenu = ({
       startCall,
       conversationId,
     ]
-  );
+  )
 
   return (
     <>
@@ -273,19 +273,19 @@ const ConversationMenu = ({
         isSelected={isSelected}
       />
     </>
-  );
-};
+  )
+}
 
 interface DetailsDialogProps {
-  conversationId: string;
-  conversationName: string;
-  open: boolean;
-  onClose: () => void;
-  isSwarm: boolean;
+  conversationId: string
+  conversationName: string
+  open: boolean
+  onClose: () => void
+  isSwarm: boolean
 }
 
 const DetailsDialog = ({ conversationId, conversationName, open, onClose, isSwarm }: DetailsDialogProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   const items = useMemo(
     () => [
       {
@@ -306,7 +306,7 @@ const DetailsDialog = ({ conversationId, conversationName, open, onClose, isSwar
       },
     ],
     [conversationId, conversationName, isSwarm, t]
-  );
+  )
   return (
     <InfosDialog
       open={open}
@@ -315,20 +315,20 @@ const DetailsDialog = ({ conversationId, conversationName, open, onClose, isSwar
       title={conversationName}
       content={<DialogContentList title={t('conversation_details_informations')} items={items} />}
     />
-  );
-};
+  )
+}
 
 interface RemoveConversationDialogProps {
-  conversationId: string;
-  isSelected: boolean;
-  open: boolean;
-  onClose: () => void;
+  conversationId: string
+  isSelected: boolean
+  open: boolean
+  onClose: () => void
 }
 
 const RemoveConversationDialog = ({ conversationId, isSelected, open, onClose }: RemoveConversationDialogProps) => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const removeConversationMutation = useRemoveConversationMutation();
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const removeConversationMutation = useRemoveConversationMutation()
 
   const remove = useCallback(async () => {
     removeConversationMutation.mutate(
@@ -336,18 +336,18 @@ const RemoveConversationDialog = ({ conversationId, isSelected, open, onClose }:
       {
         onSuccess: () => {
           if (isSelected) {
-            navigate('/conversation/');
+            navigate('/conversation/')
           }
         },
         onError: (e) => {
-          console.error(`Error removing conversation : `, e);
+          console.error(`Error removing conversation : `, e)
         },
         onSettled: () => {
-          onClose();
+          onClose()
         },
       }
-    );
-  }, [conversationId, isSelected, navigate, onClose, removeConversationMutation]);
+    )
+  }, [conversationId, isSelected, navigate, onClose, removeConversationMutation])
 
   return (
     <ConfirmationDialog
@@ -358,5 +358,5 @@ const RemoveConversationDialog = ({ conversationId, isSelected, open, onClose }:
       onConfirm={remove}
       confirmButtonText={t('conversation_confirm_remove')}
     />
-  );
-};
+  )
+}

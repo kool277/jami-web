@@ -16,33 +16,33 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-export type Interpolations = Record<string, string>;
+export type Interpolations = Record<string, string>
 
 export interface TranslateEnumerationOptions<T> {
   // partial i18next interpolation key to which an index will be added
-  elementPartialKey: string;
+  elementPartialKey: string
   // function to retrieve the i18next interpolation value
-  getElementValue: (element: T) => string;
+  getElementValue: (element: T) => string
   // functions to translate the enumeration according to the number of elements
   // The index of the function corresponds to the number of elements in the enumeration
   // If the number of elements is higher than the number of functions, then the last function of the array will be used
-  translaters: ((interpolations: Interpolations) => string)[];
+  translaters: ((interpolations: Interpolations) => string)[]
 }
 
 export const translateEnumeration = <T>(list: T[], options: TranslateEnumerationOptions<T>): string => {
-  const quantity = list.length;
-  const max = options.translaters.length;
+  const quantity = list.length
+  const max = options.translaters.length
 
-  const interpolations: Interpolations = {};
+  const interpolations: Interpolations = {}
 
   for (let i = 0; i < quantity && i < max; i++) {
-    const elementKey = `${options.elementPartialKey}${i}`;
-    interpolations[elementKey] = options.getElementValue(list[i]);
+    const elementKey = `${options.elementPartialKey}${i}`
+    interpolations[elementKey] = options.getElementValue(list[i])
   }
 
-  interpolations.excess = (quantity - max + 2).toString();
+  interpolations.excess = (quantity - max + 2).toString()
 
-  const translaterIndex = quantity < max ? quantity : max - 1;
+  const translaterIndex = quantity < max ? quantity : max - 1
 
-  return options.translaters[translaterIndex](interpolations);
-};
+  return options.translaters[translaterIndex](interpolations)
+}

@@ -15,9 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Stack } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip';
+import { Stack } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import Tooltip, { tooltipClasses, TooltipProps } from '@mui/material/Tooltip'
 
 export default styled(({ className, title, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} title={<span style={{ whiteSpace: 'pre-line' }}>{title}</span>}>
@@ -32,4 +32,4 @@ export default styled(({ className, title, ...props }: TooltipProps) => (
     boxShadow: '3px 3px 7px #00000029',
     borderRadius: '5px',
   },
-}));
+}))

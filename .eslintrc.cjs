@@ -41,7 +41,7 @@ const header = [
     ' * <https://www.gnu.org/licenses/>.',
     ' ',
   ],
-];
+]
 
 module.exports = {
   env: {
@@ -91,4 +91,4 @@ module.exports = {
       { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_', ignoreRestSiblings: true },
     ],
   },
-};
+}

@@ -15,22 +15,22 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ContactDetails as ContactDetailType } from 'jami-web-common';
-import { QRCodeCanvas } from 'qrcode.react';
-import { useTranslation } from 'react-i18next';
+import { ContactDetails as ContactDetailType } from 'jami-web-common'
+import { QRCodeCanvas } from 'qrcode.react'
+import { useTranslation } from 'react-i18next'
 
-import ConversationAvatar from './ConversationAvatar';
-import { InfosDialog } from './Dialog';
-import { DialogContentList } from './Dialog';
+import ConversationAvatar from './ConversationAvatar'
+import { InfosDialog } from './Dialog'
+import { DialogContentList } from './Dialog'
 
 interface ContactDetailDialogProps {
-  contactDetail: ContactDetailType | undefined;
-  open: boolean;
-  onClose: () => void;
+  contactDetail: ContactDetailType | undefined
+  open: boolean
+  onClose: () => void
 }
 
 const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDialogProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   const items = [
     {
       label: t('contact_details_name'),
@@ -44,7 +44,7 @@ const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDial
       label: t('contact_details_qr_code'),
       value: <QRCodeCanvas size={80} value={`${contactDetail?.id}`} />,
     },
-  ];
+  ]
 
   return (
     <InfosDialog
@@ -59,7 +59,7 @@ const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDial
       title={contactDetail?.id || 'No contact selected'}
       content={<DialogContentList title={t('contact_details_dialog_title')} items={items} />}
     />
-  );
-};
+  )
+}
 
-export default ContactDetailDialog;
+export default ContactDetailDialog

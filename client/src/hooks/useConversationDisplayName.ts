@@ -15,26 +15,26 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationInfos } from 'jami-web-common';
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
+import { ConversationInfos } from 'jami-web-common'
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { Account } from '../models/account';
-import { ConversationMember } from '../models/conversation-member';
-import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations';
+import { Account } from '../models/account'
+import { ConversationMember } from '../models/conversation-member'
+import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
 
 export const useConversationDisplayName = (
   account: Account,
   conversationInfos: ConversationInfos | undefined,
   members: ConversationMember[] | undefined = []
 ) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const adminTitle = conversationInfos?.title as string;
+  const adminTitle = conversationInfos?.title as string
 
   return useMemo(() => {
     if (adminTitle) {
-      return adminTitle;
+      return adminTitle
     }
 
     const options: TranslateEnumerationOptions<ConversationMember> = {
@@ -50,11 +50,11 @@ export const useConversationDisplayName = (
         (interpolations) => t('conversation_title_4', interpolations),
         (interpolations) => t('conversation_title_more', interpolations),
       ],
-    };
+    }
 
-    return translateEnumeration<ConversationMember>(members, options);
-  }, [account, adminTitle, members, t]);
-};
+    return translateEnumeration<ConversationMember>(members, options)
+  }, [account, adminTitle, members, t])
+}
 
 export const useConversationDisplayNameShort = (
   account: Account | null,
@@ -63,21 +63,21 @@ export const useConversationDisplayNameShort = (
 ): string => {
   return useMemo(() => {
     if (title) {
-      return title;
+      return title
     }
 
     if (membersNames.length === 0) {
-      return account?.getDisplayName() || '';
+      return account?.getDisplayName() || ''
     }
 
-    const twoFirstMembers = membersNames.slice(0, 2);
-    const baseName = twoFirstMembers.join(', ');
-    const excess = membersNames.length - twoFirstMembers.length;
+    const twoFirstMembers = membersNames.slice(0, 2)
+    const baseName = twoFirstMembers.join(', ')
+    const excess = membersNames.length - twoFirstMembers.length
 
     if (excess > 0) {
-      return baseName + ' +' + excess;
+      return baseName + ' +' + excess
     } else {
-      return baseName;
+      return baseName
     }
-  }, [account, title, membersNames]);
-};
+  }, [account, title, membersNames])
+}

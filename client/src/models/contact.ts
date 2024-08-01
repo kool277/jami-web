@@ -15,27 +15,27 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { IContact } from 'jami-web-common';
+import { IContact } from 'jami-web-common'
 
 export class Contact implements IContact {
-  readonly uri: string;
-  registeredName?: string;
-  displayName?: string;
+  readonly uri: string
+  registeredName?: string
+  displayName?: string
 
   constructor(uri: string, registeredName?: string) {
-    this.uri = uri;
-    this.registeredName = registeredName;
+    this.uri = uri
+    this.registeredName = registeredName
   }
 
   static fromInterface(contactInterface: IContact) {
-    return new Contact(contactInterface.uri, contactInterface.registeredName);
+    return new Contact(contactInterface.uri, contactInterface.registeredName)
   }
 
   getDisplayName() {
-    return this.getDisplayNameNoFallback() || this.uri;
+    return this.getDisplayNameNoFallback() || this.uri
   }
 
   getDisplayNameNoFallback() {
-    return this.displayName || this.registeredName;
+    return this.displayName || this.registeredName
   }
 }

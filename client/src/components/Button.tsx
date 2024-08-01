@@ -15,9 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import QuestionMark from '@mui/icons-material/AddCircle';
-import RadioButtonChecked from '@mui/icons-material/AddCircle';
-import RadioButtonUnchecked from '@mui/icons-material/AddCircle';
+import QuestionMark from '@mui/icons-material/AddCircle'
+import RadioButtonChecked from '@mui/icons-material/AddCircle'
+import RadioButtonUnchecked from '@mui/icons-material/AddCircle'
 import {
   Box,
   ClickAwayListener,
@@ -34,10 +34,10 @@ import {
   RadioGroupProps,
   SvgIconProps,
   Theme,
-} from '@mui/material';
-import { PaletteColor, styled } from '@mui/material/styles';
-import EmojiPicker, { IEmojiData } from 'emoji-picker-react';
-import { ComponentType, MouseEvent, ReactNode, useCallback, useState } from 'react';
+} from '@mui/material'
+import { PaletteColor, styled } from '@mui/material/styles'
+import EmojiPicker, { IEmojiData } from 'emoji-picker-react'
+import { ComponentType, MouseEvent, ReactNode, useCallback, useState } from 'react'
 
 import {
   Arrow2Icon,
@@ -61,12 +61,12 @@ import {
   PeopleWithPlusSignIcon,
   SaltireIcon,
   VideoCallIcon,
-} from './SvgIcon';
-import CustomTooltip from './Tooltip';
+} from './SvgIcon'
+import CustomTooltip from './Tooltip'
 
 export type ShapedButtonProps = IconButtonProps & {
-  Icon: ComponentType<SvgIconProps>;
-};
+  Icon: ComponentType<SvgIconProps>
+}
 
 export const RoundButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
   <IconButton {...props} disableRipple={true}>
@@ -97,27 +97,27 @@ export const RoundButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
     height: '53px',
     width: '53px',
   },
-}));
+}))
 
 type ExpandMenuOption = {
-  description: ReactNode;
-  icon?: ReactNode;
-};
+  description: ReactNode
+  icon?: ReactNode
+}
 
 export type ExpandMenuRadioOption = RadioGroupProps & {
   options: {
-    key: string;
-    description: ReactNode;
-  }[];
-};
+    key: string
+    description: ReactNode
+  }[]
+}
 
 export type ExpandableButtonProps = IconButtonProps & {
-  isVertical?: boolean;
-  expandMenuOnClick?: boolean;
-  Icon?: ComponentType<SvgIconProps>;
-  expandMenuOptions?: (ExpandMenuOption | ExpandMenuRadioOption)[];
-  IconButtonComp?: ComponentType<IconButtonProps>;
-};
+  isVertical?: boolean
+  expandMenuOnClick?: boolean
+  Icon?: ComponentType<SvgIconProps>
+  expandMenuOptions?: (ExpandMenuOption | ExpandMenuRadioOption)[]
+  IconButtonComp?: ComponentType<IconButtonProps>
+}
 
 export const ExpandableButton = ({
   isVertical,
@@ -127,10 +127,10 @@ export const ExpandableButton = ({
   IconButtonComp = IconButton,
   ...props
 }: ExpandableButtonProps) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const handleClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
 
   return (
     <>
@@ -150,7 +150,7 @@ export const ExpandableButton = ({
         >
           {expandMenuOptions?.map((option, id) => {
             if ('options' in option) {
-              const { options, ...radioGroupProps } = option;
+              const { options, ...radioGroupProps } = option
               return (
                 <RadioGroup key={id} {...radioGroupProps}>
                   {options.map(({ description, key }, i) => (
@@ -166,7 +166,7 @@ export const ExpandableButton = ({
                     </MenuItem>
                   ))}
                 </RadioGroup>
-              );
+              )
             }
 
             return (
@@ -174,7 +174,7 @@ export const ExpandableButton = ({
                 <ListItemIcon>{option.icon}</ListItemIcon>
                 <ListItemText>{option.description}</ListItemText>
               </MenuItem>
-            );
+            )
           })}
         </Menu>
       )}
@@ -205,7 +205,7 @@ export const ExpandableButton = ({
           onClick={
             expandMenuOnClick
               ? (event) => {
-                  setAnchorEl(event.currentTarget);
+                  setAnchorEl(event.currentTarget)
                 }
               : undefined
           }
@@ -215,46 +215,46 @@ export const ExpandableButton = ({
         </IconButtonComp>
       </Box>
     </>
-  );
-};
+  )
+}
 
 export const CancelPictureButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="remove picture" Icon={CancelIcon} size="large" />;
-};
+  return <RoundButton {...props} aria-label="remove picture" Icon={CancelIcon} size="large" />
+}
 
 export const EditPictureButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="edit picture" Icon={PenIcon} size="medium" />;
-};
+  return <RoundButton {...props} aria-label="edit picture" Icon={PenIcon} size="medium" />
+}
 
 export const UploadPictureButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="upload picture" Icon={FolderIcon} size="large" />;
-};
+  return <RoundButton {...props} aria-label="upload picture" Icon={FolderIcon} size="large" />
+}
 
 export const TakePictureButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="take picture" Icon={CameraIcon} size="large" />;
-};
+  return <RoundButton {...props} aria-label="take picture" Icon={CameraIcon} size="large" />
+}
 
 type InfoButtonProps = IconButtonProps & {
-  tooltipTitle: string;
-};
+  tooltipTitle: string
+}
 export const InfoButton = ({ tooltipTitle, ...props }: InfoButtonProps) => {
   return (
     <CustomTooltip className="tooltip" title={tooltipTitle}>
       <RoundButton {...props} aria-label="informations" Icon={InfoIcon} size="small" />
     </CustomTooltip>
-  );
-};
+  )
+}
 
 export const TipButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="tip" Icon={QuestionMark} size="medium" />;
-};
+  return <RoundButton {...props} aria-label="tip" Icon={QuestionMark} size="medium" />
+}
 
 export const MoreButton = styled((props: IconButtonProps) => {
   return (
     <IconButton {...props} disableRipple={true} aria-label="more">
       <CrossIcon fontSize="inherit" />
     </IconButton>
-  );
+  )
 })(({ theme }) => ({
   border: `1px solid ${theme.palette.primary.dark}`,
   color: theme.palette.primary.dark,
@@ -268,14 +268,14 @@ export const MoreButton = styled((props: IconButtonProps) => {
     color: '#FFF',
     background: theme.palette.primary.dark,
   },
-}));
+}))
 
 export const BackButton = styled((props: IconButtonProps) => {
   return (
     <IconButton {...props} disableRipple={true} aria-label="back">
       <ArrowIcon fontSize="inherit" />
     </IconButton>
-  );
+  )
 })(({ theme }) => ({
   color: theme.palette.primary.dark,
   fontSize: '15px',
@@ -285,14 +285,14 @@ export const BackButton = styled((props: IconButtonProps) => {
   '&:hover': {
     background: theme.palette.primary.light,
   },
-}));
+}))
 
 export type ToggleIconButtonProps = IconButtonProps & {
-  selected: boolean;
-  toggle: () => void;
-  IconOn?: ComponentType<SvgIconProps>;
-  IconOff?: ComponentType<SvgIconProps>;
-};
+  selected: boolean
+  toggle: () => void
+  IconOn?: ComponentType<SvgIconProps>
+  IconOff?: ComponentType<SvgIconProps>
+}
 
 export const ToggleIconButton = ({
   IconOn = RadioButtonChecked,
@@ -309,20 +309,20 @@ export const ToggleIconButton = ({
         ...props.sx,
       }}
       onClick={() => {
-        toggle();
+        toggle()
       }}
     >
       {selected ? <IconOn /> : <IconOff />}
     </IconButton>
-  );
-};
+  )
+}
 
 export const CloseButton = styled((props: IconButtonProps) => {
   return (
     <IconButton {...props} disableRipple={true} aria-label="close">
       <SaltireIcon fontSize="inherit" />
     </IconButton>
-  );
+  )
 })(({ theme }) => ({
   color: theme.palette.primary.dark,
   fontSize: '15px',
@@ -332,18 +332,18 @@ export const CloseButton = styled((props: IconButtonProps) => {
   '&:hover': {
     background: theme.palette.primary.light,
   },
-}));
+}))
 
 type ToggleVisibilityButtonProps = IconButtonProps & {
-  visible: boolean;
-};
+  visible: boolean
+}
 export const ToggleVisibilityButton = styled(({ visible, ...props }: ToggleVisibilityButtonProps) => {
-  const Icon = visible ? CrossedEyeIcon : EyeIcon;
+  const Icon = visible ? CrossedEyeIcon : EyeIcon
   return (
     <IconButton {...props} disableRipple={true}>
       <Icon fontSize="inherit" />
     </IconButton>
-  );
+  )
 })(({ theme }) => ({
   color: theme.palette.primary.dark,
   fontSize: '15px',
@@ -352,7 +352,7 @@ export const ToggleVisibilityButton = styled(({ visible, ...props }: ToggleVisib
   '&:hover': {
     background: theme.palette.primary.light,
   },
-}));
+}))
 
 export const SquareButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
   <IconButton {...props} disableRipple={true}>
@@ -367,39 +367,39 @@ export const SquareButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
   '&:hover': {
     background: '#E5E5E5',
   },
-}));
+}))
 
 export const AddParticipantButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="add participant" Icon={PeopleWithPlusSignIcon} />;
-};
+  return <SquareButton {...props} aria-label="add participant" Icon={PeopleWithPlusSignIcon} />
+}
 
 export const RecordVideoMessageButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="record video message" Icon={CameraInBubbleIcon} />;
-};
+  return <SquareButton {...props} aria-label="record video message" Icon={CameraInBubbleIcon} />
+}
 
 export const RecordVoiceMessageButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="record voice message" Icon={MicroInBubbleIcon} />;
-};
+  return <SquareButton {...props} aria-label="record voice message" Icon={MicroInBubbleIcon} />
+}
 
 export const ShowOptionsMenuButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="show options menu" Icon={ListIcon} />;
-};
+  return <SquareButton {...props} aria-label="show options menu" Icon={ListIcon} />
+}
 
 export const StartVideoCallButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="start audio call" Icon={VideoCallIcon} />;
-};
+  return <SquareButton {...props} aria-label="start audio call" Icon={VideoCallIcon} />
+}
 
 export const StartAudioCallButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="start video call" Icon={AudioCallIcon} />;
-};
+  return <SquareButton {...props} aria-label="start video call" Icon={AudioCallIcon} />
+}
 
 export const UploadFileButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="upload file" Icon={PaperClipIcon} />;
-};
+  return <SquareButton {...props} aria-label="upload file" Icon={PaperClipIcon} />
+}
 
 export const SendMessageButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="send message" Icon={Arrow2Icon} />;
-};
+  return <SquareButton {...props} aria-label="send message" Icon={Arrow2Icon} />
+}
 
 export const ReplyMessageButton = styled((props: IconButtonProps) => (
   <IconButton {...props} disableRipple={true} aria-label="send message">
@@ -414,11 +414,11 @@ export const ReplyMessageButton = styled((props: IconButtonProps) => (
   '&:hover': {
     background: '#E5E5E5',
   },
-}));
+}))
 
 type EmojiButtonProps = IconButtonProps & {
-  emoji: string;
-};
+  emoji: string
+}
 export const EmojiButton = styled(({ emoji, ...props }: EmojiButtonProps) => (
   <IconButton {...props} disableRipple={true}>
     {emoji}
@@ -428,31 +428,31 @@ export const EmojiButton = styled(({ emoji, ...props }: EmojiButtonProps) => (
   fontSize: '20px',
   height: '20px',
   width: '20px',
-}));
+}))
 
 type SelectEmojiButtonProps = {
-  onEmojiSelected: (emoji: string) => void;
-};
+  onEmojiSelected: (emoji: string) => void
+}
 export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) => {
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
 
   const handleOpenEmojiPicker = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => setAnchorEl(anchorEl ? null : e.currentTarget),
     [anchorEl]
-  );
+  )
 
-  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl]);
+  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
 
   const onEmojiClick = useCallback(
     (e: MouseEvent, emojiObject: IEmojiData) => {
-      onEmojiSelected(emojiObject.emoji);
-      handleClose();
+      onEmojiSelected(emojiObject.emoji)
+      handleClose()
     },
     [handleClose, onEmojiSelected]
-  );
+  )
 
-  const open = Boolean(anchorEl);
-  const id = open ? 'simple-popover' : undefined;
+  const open = Boolean(anchorEl)
+  const id = open ? 'simple-popover' : undefined
 
   return (
     <ClickAwayListener onClickAway={handleClose}>
@@ -468,14 +468,14 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
         </Popper>
       </Box>
     </ClickAwayListener>
-  );
-};
+  )
+}
 
-const RecordButtonSize = '50px';
-const RecordButtonOutlineWidth = '1px';
-const RecordButtonOutlineOffset = '4px';
+const RecordButtonSize = '50px'
+const RecordButtonOutlineWidth = '1px'
+const RecordButtonOutlineOffset = '4px'
 const RecordButtonInnerSize =
-  parseInt(RecordButtonSize) - parseInt(RecordButtonOutlineWidth) * 2 - parseInt(RecordButtonOutlineOffset) * 2 + 'px';
+  parseInt(RecordButtonSize) - parseInt(RecordButtonOutlineWidth) * 2 - parseInt(RecordButtonOutlineOffset) * 2 + 'px'
 export const RecordButton = styled((props: IconButtonProps) => (
   <IconButton {...props} disableRipple={true}>
     <Box
@@ -497,7 +497,7 @@ export const RecordButton = styled((props: IconButtonProps) => (
   width: RecordButtonSize,
   height: RecordButtonSize,
   padding: 0,
-});
+})
 
 export const CornerCloseButton = styled(({ ...props }: IconButtonProps) => (
   <IconButton {...props}>
@@ -510,7 +510,7 @@ export const CornerCloseButton = styled(({ ...props }: IconButtonProps) => (
   zIndex: 200,
   color: 'white',
   fontSize: '10px',
-});
+})
 
 export const ColoredRoundButton = styled(
   ({
@@ -518,17 +518,17 @@ export const ColoredRoundButton = styled(
     Icon,
     ...props
   }: ShapedButtonProps & {
-    paletteColor?: PaletteColor | ((theme: Theme) => PaletteColor);
+    paletteColor?: PaletteColor | ((theme: Theme) => PaletteColor)
   }) => {
     return (
       <IconButton {...props} disableRipple={true}>
         <Icon fontSize="inherit" />
       </IconButton>
-    );
+    )
   }
 )(({ theme, paletteColor = theme.palette.primary }) => {
   if (typeof paletteColor === 'function') {
-    paletteColor = paletteColor(theme);
+    paletteColor = paletteColor(theme)
   }
 
   return {
@@ -540,5 +540,5 @@ export const ColoredRoundButton = styled(
     '&:disabled': {
       backgroundColor: theme.palette.action.disabled,
     },
-  };
-});
+  }
+})

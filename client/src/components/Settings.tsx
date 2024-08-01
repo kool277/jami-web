@@ -15,19 +15,19 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Button, FormLabel, List, ListItem, ListSubheader, Stack, Switch, SwitchProps } from '@mui/material';
-import { Box } from '@mui/system';
-import { MouseEventHandler, ReactElement } from 'react';
+import { Button, FormLabel, List, ListItem, ListSubheader, Stack, Switch, SwitchProps } from '@mui/material'
+import { Box } from '@mui/system'
+import { MouseEventHandler, ReactElement } from 'react'
 
-import { CustomSelect, CustomSelectProps } from './CustomSelect';
+import { CustomSelect, CustomSelectProps } from './CustomSelect'
 
 interface Setting {
-  label: string;
+  label: string
 }
 
 interface SettingBaseProps {
-  label: string;
-  children: ReactElement;
+  label: string
+  children: ReactElement
 }
 
 const SettingBase = ({ label, children }: SettingBaseProps) => {
@@ -40,11 +40,11 @@ const SettingBase = ({ label, children }: SettingBaseProps) => {
         </Stack>
       </FormLabel>
     </ListItem>
-  );
-};
+  )
+}
 
 interface SettingButtonProps extends Setting {
-  onClick: MouseEventHandler;
+  onClick: MouseEventHandler
 }
 
 export const SettingButton = ({ onClick, ...settingBaseProps }: SettingButtonProps) => {
@@ -52,8 +52,8 @@ export const SettingButton = ({ onClick, ...settingBaseProps }: SettingButtonPro
     <SettingBase {...settingBaseProps}>
       <Button variant="contained" size="small" onClick={onClick} />
     </SettingBase>
-  );
-};
+  )
+}
 
 export interface SettingSelectProps<OptionPayload> extends Setting, CustomSelectProps<OptionPayload> {}
 
@@ -67,12 +67,12 @@ export const SettingSelect = <OptionPayload,>({
     <SettingBase {...settingBaseProps}>
       <CustomSelect<OptionPayload> option={option} options={options} onChange={onChange} size="small" />
     </SettingBase>
-  );
-};
+  )
+}
 
 interface SettingSwitchProps extends Setting {
-  checked: SwitchProps['checked'];
-  onChange: SwitchProps['onChange'];
+  checked: SwitchProps['checked']
+  onChange: SwitchProps['onChange']
 }
 
 export const SettingSwitch = ({ checked, onChange, ...settingBaseProps }: SettingSwitchProps) => {
@@ -80,14 +80,14 @@ export const SettingSwitch = ({ checked, onChange, ...settingBaseProps }: Settin
     <SettingBase {...settingBaseProps}>
       <Switch checked={checked} onChange={onChange} />
     </SettingBase>
-  );
-};
+  )
+}
 
 interface SettingGroupProps {
-  label: string;
-  children: ReactElement[] | ReactElement;
+  label: string
+  children: ReactElement[] | ReactElement
 }
 
 export const SettingsGroup = ({ label, children }: SettingGroupProps) => {
-  return <List subheader={<ListSubheader>{label}</ListSubheader>}>{children}</List>;
-};
+  return <List subheader={<ListSubheader>{label}</ListSubheader>}>{children}</List>
+}

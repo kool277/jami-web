@@ -15,15 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { jwtVerify, JWTVerifyResult, SignJWT } from 'jose';
-import { Container } from 'typedi';
+import { jwtVerify, JWTVerifyResult, SignJWT } from 'jose'
+import { Container } from 'typedi'
 
-import { SigningKeys } from '../storage/signing-keys.js';
+import { SigningKeys } from '../storage/signing-keys.js'
 
-const jwtIssuer = 'https://jami.net/';
-const jwtAudience = 'https://jami.net/';
+const jwtIssuer = 'https://jami.net/'
+const jwtAudience = 'https://jami.net/'
 
-const signingKeys = Container.get(SigningKeys);
+const signingKeys = Container.get(SigningKeys)
 
 export async function signJwt(accountId: string): Promise<string> {
   return new SignJWT({ accountId })
@@ -32,12 +32,12 @@ export async function signJwt(accountId: string): Promise<string> {
     .setIssuer(jwtIssuer)
     .setAudience(jwtAudience)
     .setExpirationTime('2h')
-    .sign(signingKeys.privateKey);
+    .sign(signingKeys.privateKey)
 }
 
 export async function verifyJwt(token: string): Promise<JWTVerifyResult> {
   return jwtVerify(token, signingKeys.publicKey, {
     issuer: jwtIssuer,
     audience: jwtAudience,
-  });
+  })
 }

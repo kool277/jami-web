@@ -15,26 +15,26 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Alert, AlertColor, AlertProps, AlertTitle, Snackbar, SnackbarProps } from '@mui/material';
-import { createContext, useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Alert, AlertColor, AlertProps, AlertTitle, Snackbar, SnackbarProps } from '@mui/material'
+import { createContext, useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { SetState, WithChildren } from '../utils/utils';
+import { SetState, WithChildren } from '../utils/utils'
 type AlertSnackbarProps = AlertProps & {
-  severity: AlertColor;
-  open?: boolean;
-  snackBarProps?: Partial<SnackbarProps>;
-};
+  severity: AlertColor
+  open?: boolean
+  snackBarProps?: Partial<SnackbarProps>
+}
 
 export type AlertContent = {
-  messageI18nKey: AlertMessageKeys;
-  messageI18nContext?: object;
-  severity: AlertColor;
-  alertOpen: boolean;
-};
+  messageI18nKey: AlertMessageKeys
+  messageI18nContext?: object
+  severity: AlertColor
+  alertOpen: boolean
+}
 
 export function AlertSnackbar({ severity, open, snackBarProps, children, ...alertProps }: AlertSnackbarProps) {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return (
     <Snackbar
@@ -51,14 +51,14 @@ export function AlertSnackbar({ severity, open, snackBarProps, children, ...aler
         {children}
       </Alert>
     </Snackbar>
-  );
+  )
 }
 
 type IAlertSnackbarContext = {
-  alertContent: AlertContent;
-  setAlertContent: SetState<AlertContent>;
-  closeAlert: () => void;
-};
+  alertContent: AlertContent
+  setAlertContent: SetState<AlertContent>
+  closeAlert: () => void
+}
 
 const defaultAlertSnackbarContext: IAlertSnackbarContext = {
   alertContent: {
@@ -69,7 +69,7 @@ const defaultAlertSnackbarContext: IAlertSnackbarContext = {
   },
   setAlertContent: () => {},
   closeAlert: () => {},
-};
+}
 
 //Don't forget to add the cases in the switch statement below
 type AlertMessageKeys =
@@ -83,58 +83,58 @@ type AlertMessageKeys =
   | 'password_input_helper_text_empty'
   | 'login_invalid_credentials'
   | 'registration_success'
-  | '';
+  | ''
 
-export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext);
+export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
 
 const AlertSnackbarProvider = ({ children }: WithChildren) => {
-  const { t } = useTranslation();
-  const [alertContent, setAlertContent] = useState<AlertContent>(defaultAlertSnackbarContext.alertContent);
+  const { t } = useTranslation()
+  const [alertContent, setAlertContent] = useState<AlertContent>(defaultAlertSnackbarContext.alertContent)
   const closeAlert = () => {
     setAlertContent((prev) => {
       return {
         ...prev,
         alertOpen: false,
-      };
-    });
-  };
+      }
+    })
+  }
 
   //This is to explicitly let i18n know that these keys should be extracted
   const getAlertMessageText = useCallback(
     (messageI18nKey: AlertMessageKeys, messageI18nContext?: object): string => {
       switch (messageI18nKey) {
         case 'missed_incoming_call':
-          return t('missed_incoming_call', { ...messageI18nContext });
+          return t('missed_incoming_call', { ...messageI18nContext })
         case 'unknown_error_alert':
-          return t('unknown_error_alert');
+          return t('unknown_error_alert')
         case 'username_input_helper_text_empty':
-          return t('username_input_helper_text_empty');
+          return t('username_input_helper_text_empty')
         case 'password_input_helper_text_empty':
-          return t('password_input_helper_text_empty');
+          return t('password_input_helper_text_empty')
         case 'login_invalid_credentials':
-          return t('login_invalid_credentials');
+          return t('login_invalid_credentials')
         case 'registration_success':
-          return t('registration_success');
+          return t('registration_success')
         case 'redirect_admin_setup_complete':
-          return t('redirect_admin_setup_complete');
+          return t('redirect_admin_setup_complete')
         case 'password_input_helper_text_not_match':
-          return t('password_input_helper_text_not_match');
+          return t('password_input_helper_text_not_match')
         case 'admin_page_setup_not_complete':
-          return t('admin_page_setup_not_complete');
+          return t('admin_page_setup_not_complete')
         case 'admin_page_setup_complete':
-          return t('admin_page_setup_complete');
+          return t('admin_page_setup_complete')
         default:
-          return t('unknown_error_alert');
+          return t('unknown_error_alert')
       }
     },
     [t]
-  );
+  )
 
   const value = {
     alertContent,
     setAlertContent,
     closeAlert,
-  };
+  }
 
   return (
     <>
@@ -143,7 +143,7 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
       </AlertSnackbar>
       <AlertSnackbarContext.Provider value={value}>{children}</AlertSnackbarContext.Provider>
     </>
-  );
-};
+  )
+}
 
-export default AlertSnackbarProvider;
+export default AlertSnackbarProvider

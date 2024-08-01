@@ -15,25 +15,25 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { styled } from '@mui/material';
+import { styled } from '@mui/material'
 
 const OverlayBase = styled('div')({
   position: 'absolute',
   width: '100%',
   height: '100%',
   zIndex: 100,
-});
+})
 
 export const FileDragOverlay = styled(OverlayBase)({
   backgroundColor: 'black',
   opacity: '30%',
-});
+})
 
 type CircleMaskOverlayProps = {
   // Size in pixels or percentage. The percentage is relative to the length of the diagonal of the box
-  size: string;
-};
+  size: string
+}
 
 export const CircleMaskOverlay = styled(OverlayBase)<CircleMaskOverlayProps>(({ size }) => ({
   backgroundImage: `radial-gradient(circle at center, rgba(0, 0, 0, 0) ${size}, rgba(0, 0, 0, 0.5) ${size})`,
-}));
+}))

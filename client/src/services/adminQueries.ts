@@ -16,29 +16,29 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { AccessToken, IAdminConfigState } from 'jami-web-common';
-import { HttpStatusCode } from 'jami-web-common';
-import { useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
+import { AccessToken, IAdminConfigState } from 'jami-web-common'
+import { HttpStatusCode } from 'jami-web-common'
+import { useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider';
-import { apiUrl } from '../utils/constants';
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
+import { apiUrl } from '../utils/constants'
 
 export const useSetupAdminMutation = () => {
-  const navigate = useNavigate();
-  const { setAlertContent } = useContext(AlertSnackbarContext);
+  const navigate = useNavigate()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
 
   return useMutation({
     mutationKey: ['admin', 'setup'],
     mutationFn: async (password: string) => {
-      const { data } = await axios.post('/admin/create', { password }, { baseURL: apiUrl });
-      return data;
+      const { data } = await axios.post('/admin/create', { password }, { baseURL: apiUrl })
+      return data
     },
     onSuccess: () => {
       //TODO: Do not login the admin for now in case we need to implement multi-factor authentication
-      navigate('/admin/login');
+      navigate('/admin/login')
     },
     onError: (e: any) => {
       if (e.response?.status === HttpStatusCode.BadRequest) {
@@ -46,31 +46,31 @@ export const useSetupAdminMutation = () => {
           messageI18nKey: 'login_invalid_credentials',
           severity: 'error',
           alertOpen: true,
-        });
+        })
       } else {
         setAlertContent({
           messageI18nKey: 'unknown_error_alert',
           severity: 'error',
           alertOpen: true,
-        });
+        })
       }
     },
-  });
-};
+  })
+}
 
 export const useLoginAdminMutation = () => {
-  const navigate = useNavigate();
-  const { setAlertContent } = useContext(AlertSnackbarContext);
+  const navigate = useNavigate()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
 
   return useMutation({
     mutationKey: ['admin', 'login'],
     mutationFn: async (password: string) => {
-      const { data } = await axios.post<AccessToken>('/admin/login', { password }, { baseURL: apiUrl });
-      return data;
+      const { data } = await axios.post<AccessToken>('/admin/login', { password }, { baseURL: apiUrl })
+      return data
     },
     onSuccess: (data) => {
-      localStorage.setItem('adminAccessToken', data.accessToken);
-      navigate('/admin');
+      localStorage.setItem('adminAccessToken', data.accessToken)
+      navigate('/admin')
     },
     onError: (e: any) => {
       if (e.response?.status === HttpStatusCode.Forbidden) {
@@ -78,55 +78,55 @@ export const useLoginAdminMutation = () => {
           messageI18nKey: 'admin_page_setup_not_complete',
           severity: 'error',
           alertOpen: true,
-        });
+        })
       } else if (e.response?.status === HttpStatusCode.BadRequest) {
         setAlertContent({
           messageI18nKey: 'password_input_helper_text_empty',
           severity: 'error',
           alertOpen: true,
-        });
+        })
       } else if (e.response?.status === HttpStatusCode.Unauthorized) {
         setAlertContent({
           messageI18nKey: 'login_invalid_credentials',
           severity: 'error',
           alertOpen: true,
-        });
+        })
       } else {
         setAlertContent({
           messageI18nKey: 'unknown_error_alert',
           severity: 'error',
           alertOpen: true,
-        });
+        })
       }
     },
-  });
-};
+  })
+}
 
 //For non-react components that need to get the admin setup status
 export const checkAdminSetupStatus = async () => {
   try {
-    const { data } = await axios.get<{ isSetupComplete: boolean }>('/admin/check', { baseURL: apiUrl });
-    return data.isSetupComplete;
+    const { data } = await axios.get<{ isSetupComplete: boolean }>('/admin/check', { baseURL: apiUrl })
+    return data.isSetupComplete
   } catch (e) {
-    console.log(e);
+    console.log(e)
   }
-};
+}
 
 //For react components that can invoke hooks
 export const useCheckAdminSetupStatusQuery = () => {
   return useQuery({
     queryKey: ['admin', 'status'],
     queryFn: async () => {
-      const { data } = await axios.get<{ isSetupComplete: boolean }>('/admin/check', { baseURL: apiUrl });
-      return data.isSetupComplete;
+      const { data } = await axios.get<{ isSetupComplete: boolean }>('/admin/check', { baseURL: apiUrl })
+      return data.isSetupComplete
     },
-  });
-};
+  })
+}
 
 export const useGetAdminConfigQuery = () => {
-  const token = localStorage.getItem('adminAccessToken');
-  const navigate = useNavigate();
-  const { setAlertContent } = useContext(AlertSnackbarContext);
+  const token = localStorage.getItem('adminAccessToken')
+  const navigate = useNavigate()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
 
   return useQuery({
     queryKey: ['admin', 'config'],
@@ -137,29 +137,29 @@ export const useGetAdminConfigQuery = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-      return data;
+      })
+      return data
     },
     onError: (e: any) => {
       if (e.response.status === HttpStatusCode.Unauthorized) {
-        localStorage.removeItem('adminAccessToken');
-        navigate('/admin/login');
+        localStorage.removeItem('adminAccessToken')
+        navigate('/admin/login')
       } else {
         setAlertContent({
           messageI18nKey: 'unknown_error_alert',
           severity: 'error',
           alertOpen: true,
-        });
+        })
       }
     },
-  });
-};
+  })
+}
 
 export const useUpdateAdminConfigMutation = () => {
-  const token = localStorage.getItem('adminAccessToken');
-  const navigate = useNavigate();
-  const { setAlertContent } = useContext(AlertSnackbarContext);
-  const queryClient = useQueryClient();
+  const token = localStorage.getItem('adminAccessToken')
+  const navigate = useNavigate()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (adminConfig: Partial<IAdminConfigState>) => {
@@ -168,23 +168,23 @@ export const useUpdateAdminConfigMutation = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-      return response;
+      })
+      return response
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'config'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'config'] })
     },
     onError: (e: any) => {
       if (e.repsponse.status === HttpStatusCode.Unauthorized) {
-        localStorage.removeItem('adminAccessToken');
-        navigate('/admin/login');
+        localStorage.removeItem('adminAccessToken')
+        navigate('/admin/login')
       } else {
         setAlertContent({
           messageI18nKey: 'unknown_error_alert',
           severity: 'error',
           alertOpen: true,
-        });
+        })
       }
     },
-  });
-};
+  })
+}

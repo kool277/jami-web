@@ -21,4 +21,4 @@ export default {
   output: 'src/locale/$LOCALE/$NAMESPACE.json',
   input: ['src/**/*.{ts,tsx,js,jsx}'],
   sort: true,
-};
+}

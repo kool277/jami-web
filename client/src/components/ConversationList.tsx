@@ -15,26 +15,26 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import SearchRounded from '@mui/icons-material/SearchRounded';
-import { InputBase, Stack } from '@mui/material';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import SearchRounded from '@mui/icons-material/SearchRounded'
+import { InputBase, Stack } from '@mui/material'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { useConversationRequestsQuery, useConversationsSummariesQuery } from '../services/conversationQueries';
-import { SquareButton } from './Button';
-import ContactSearchResultList from './ContactSearchResultList';
-import { ConversationRequestList } from './ConversationRequestList';
-import { ConversationSummaryList } from './ConversationSummaryList';
-import { PeopleGroupIcon } from './SvgIcon';
-import { Tab, TabPanel, TabPanelProps, Tabs, TabsList, TabsProps } from './Tabs';
+import { useConversationRequestsQuery, useConversationsSummariesQuery } from '../services/conversationQueries'
+import { SquareButton } from './Button'
+import ContactSearchResultList from './ContactSearchResultList'
+import { ConversationRequestList } from './ConversationRequestList'
+import { ConversationSummaryList } from './ConversationSummaryList'
+import { PeopleGroupIcon } from './SvgIcon'
+import { Tab, TabPanel, TabPanelProps, Tabs, TabsList, TabsProps } from './Tabs'
 
 export default function ConversationList() {
-  const { t } = useTranslation();
-  const [searchFilter, setSearchFilter] = useState('');
+  const { t } = useTranslation()
+  const [searchFilter, setSearchFilter] = useState('')
 
   const handleInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setSearchFilter(event.target.value);
-  }, []);
+    setSearchFilter(event.target.value)
+  }, [])
 
   return (
     <Stack>
@@ -52,32 +52,32 @@ export default function ConversationList() {
       </Stack>
       {searchFilter ? <ContactSearchResultList searchFilter={searchFilter} /> : <ConversationTabs />}
     </Stack>
-  );
+  )
 }
 
 const ConversationTabs = () => {
-  const summariesTabIndex = 0;
-  const invitationsTabIndex = 1;
-  const { t } = useTranslation();
-  const conversationRequestsQuery = useConversationRequestsQuery();
-  const conversationRequestsLength = conversationRequestsQuery.data?.length;
+  const summariesTabIndex = 0
+  const invitationsTabIndex = 1
+  const { t } = useTranslation()
+  const conversationRequestsQuery = useConversationRequestsQuery()
+  const conversationRequestsLength = conversationRequestsQuery.data?.length
 
-  const [isShowingTabMenu, setIsShowingTabMenu] = useState(false);
-  const [tabIndex, setTabIndex] = useState(summariesTabIndex);
+  const [isShowingTabMenu, setIsShowingTabMenu] = useState(false)
+  const [tabIndex, setTabIndex] = useState(summariesTabIndex)
 
   useEffect(() => {
-    const newIsShowingTabMenu = !!conversationRequestsLength;
-    setIsShowingTabMenu(newIsShowingTabMenu);
+    const newIsShowingTabMenu = !!conversationRequestsLength
+    setIsShowingTabMenu(newIsShowingTabMenu)
     if (!newIsShowingTabMenu) {
-      setTabIndex(summariesTabIndex);
+      setTabIndex(summariesTabIndex)
     }
-  }, [conversationRequestsLength]);
+  }, [conversationRequestsLength])
 
   const onChange = useCallback<NonNullable<TabsProps['onChange']>>((_event, value) => {
     if (typeof value === 'number') {
-      setTabIndex(value);
+      setTabIndex(value)
     }
-  }, []);
+  }, [])
 
   return (
     <Tabs defaultValue={summariesTabIndex} value={tabIndex} onChange={onChange}>
@@ -92,24 +92,24 @@ const ConversationTabs = () => {
       <SummariesTabPanel value={summariesTabIndex} />
       <InvitationsTabPanel value={invitationsTabIndex} />
     </Tabs>
-  );
-};
+  )
+}
 
 const SummariesTabPanel = (props: TabPanelProps) => {
-  const conversationsSummariesQuery = useConversationsSummariesQuery();
-  const conversationsSummaries = conversationsSummariesQuery.data || [];
+  const conversationsSummariesQuery = useConversationsSummariesQuery()
+  const conversationsSummaries = conversationsSummariesQuery.data || []
 
   return (
     <TabPanel {...props}>
       <ConversationSummaryList conversationsSummaries={conversationsSummaries} />
     </TabPanel>
-  );
-};
+  )
+}
 
 const InvitationsTabPanel = (props: TabPanelProps) => {
   return (
     <TabPanel {...props}>
       <ConversationRequestList />
     </TabPanel>
-  );
-};
+  )
+}

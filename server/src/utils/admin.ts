@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { adminConfigValuePair, IAdminConfigState } from 'jami-web-common';
+import { adminConfigValuePair, IAdminConfigState } from 'jami-web-common'
 
 export const isConfigValid = (config: any): config is Partial<IAdminConfigState> => {
   //This is to ensure the config is an object with only one property and the key is a valid config key
@@ -23,23 +23,23 @@ export const isConfigValid = (config: any): config is Partial<IAdminConfigState>
     !!config &&
     typeof config === 'object' &&
     Object.keys(config).length >= 1 &&
-    Object.keys(config).every((key) => key in adminConfigValuePair);
+    Object.keys(config).every((key) => key in adminConfigValuePair)
   //This is to check if the value for the key is of the correct type
   //Thus, the checks above must pass to proceed, since Object.keys() will give error in case of passing null to it
   if (isValid) {
     switch (Object.keys(config)[0]) {
       case 'localAuthEnabled':
-        return typeof config['localAuthEnabled'] === adminConfigValuePair['localAuthEnabled'];
+        return typeof config['localAuthEnabled'] === adminConfigValuePair['localAuthEnabled']
       case 'jamsAuthEnabled':
-        return typeof config['jamsAuthEnabled'] === adminConfigValuePair['jamsAuthEnabled'];
+        return typeof config['jamsAuthEnabled'] === adminConfigValuePair['jamsAuthEnabled']
       case 'guestAccessEnabled':
-        return typeof config['guestAccessEnabled'] === adminConfigValuePair['guestAccessEnabled'];
+        return typeof config['guestAccessEnabled'] === adminConfigValuePair['guestAccessEnabled']
       case 'openIdAuthEnabled':
-        return typeof config['openIdAuthEnabled'] === adminConfigValuePair['openIdAuthEnabled'];
+        return typeof config['openIdAuthEnabled'] === adminConfigValuePair['openIdAuthEnabled']
       default:
-        return false;
+        return false
     }
   }
 
-  return isValid;
-};
+  return isValid
+}

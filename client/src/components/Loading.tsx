@@ -15,12 +15,12 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { CircularProgress, Container } from '@mui/material';
+import { CircularProgress, Container } from '@mui/material'
 
 export default function LoadingPage() {
   return (
     <Container style={{ textAlign: 'center' }}>
       <CircularProgress style={{ margin: 32 }} />
     </Container>
-  );
+  )
 }

@@ -15,30 +15,30 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import GroupAddRounded from '@mui/icons-material/GroupAddRounded';
-import { Box, Card, CardContent, Container, Fab, Input, Typography } from '@mui/material';
-import { FormEvent, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Navigate } from 'react-router-dom';
+import GroupAddRounded from '@mui/icons-material/GroupAddRounded'
+import { Box, Card, CardContent, Container, Fab, Input, Typography } from '@mui/material'
+import { FormEvent, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Navigate } from 'react-router-dom'
 
-import { useLoginAdminMutation } from '../services/adminQueries';
+import { useLoginAdminMutation } from '../services/adminQueries'
 
 export default function AdminLogin() {
-  const [password, setPassword] = useState('');
-  const { t } = useTranslation();
-  const loginAdminMutation = useLoginAdminMutation();
-  const { isLoading } = loginAdminMutation;
+  const [password, setPassword] = useState('')
+  const { t } = useTranslation()
+  const loginAdminMutation = useLoginAdminMutation()
+  const { isLoading } = loginAdminMutation
 
   const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    if (password === '') return;
+    if (password === '') return
 
-    loginAdminMutation.mutate(password);
-  };
+    loginAdminMutation.mutate(password)
+  }
 
   if (localStorage.getItem('adminAccessToken')) {
-    return <Navigate to={'/admin'} />;
+    return <Navigate to={'/admin'} />
   }
   //TODO: refactor translations
   return (
@@ -76,5 +76,5 @@ export default function AdminLogin() {
         </Card>
       </Container>
     </>
-  );
+  )
 }

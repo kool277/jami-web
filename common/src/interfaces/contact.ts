@@ -16,14 +16,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 export interface IContact {
-  uri: string;
-  registeredName?: string;
+  uri: string
+  registeredName?: string
 }
 
 export interface ContactDetails {
-  id: string;
-  conversationId: string;
-  added: string;
-  confirmed: string;
-  banned?: string;
+  id: string
+  conversationId: string
+  added: string
+  confirmed: string
+  banned?: string
 }

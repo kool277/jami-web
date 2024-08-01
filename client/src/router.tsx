@@ -16,35 +16,35 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Stack } from '@mui/material';
-import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 'react-router-dom';
+import { Stack } from '@mui/material'
+import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 'react-router-dom'
 
-import App, { appLoader } from './App';
-import CustomizeProfile from './components/AccountSettings/CustomizeProfile';
-import LinkedDevices from './components/AccountSettings/LinkedDevices';
-import ManageAccount from './components/AccountSettings/ManageAccount';
-import ContactList from './components/ContactList';
-import ConversationView from './components/ConversationView';
-import Appearance from './components/GeneralSettings/Appearance';
-import System from './components/GeneralSettings/System';
-import Header from './components/Header';
-import SettingSidebar from './components/SettingSidebar';
-import AuthProvider from './contexts/AuthProvider';
-import CallManagerProvider from './contexts/CallManagerProvider';
-import ConversationProvider from './contexts/ConversationProvider';
-import MessengerProvider from './contexts/MessengerProvider';
-import UserMediaProvider from './contexts/UserMediaProvider';
-import WebSocketProvider from './contexts/WebSocketProvider';
-import { RouteParams } from './hooks/useUrlParams';
-import AccountSettings from './pages/AccountSettings';
-import AdminLogin from './pages/AdminLogin';
-import AdminPanel from './pages/AdminPanel';
-import AdminSetup from './pages/AdminSetup';
-import GeneralSettings from './pages/GeneralSettings';
-import Login from './pages/Login';
-import Messenger from './pages/Messenger';
-import Registration from './pages/Registration';
-export type ConversationRouteParams = RouteParams<{ conversationId?: string }, Record<string, never>>;
+import App, { appLoader } from './App'
+import CustomizeProfile from './components/AccountSettings/CustomizeProfile'
+import LinkedDevices from './components/AccountSettings/LinkedDevices'
+import ManageAccount from './components/AccountSettings/ManageAccount'
+import ContactList from './components/ContactList'
+import ConversationView from './components/ConversationView'
+import Appearance from './components/GeneralSettings/Appearance'
+import System from './components/GeneralSettings/System'
+import Header from './components/Header'
+import SettingSidebar from './components/SettingSidebar'
+import AuthProvider from './contexts/AuthProvider'
+import CallManagerProvider from './contexts/CallManagerProvider'
+import ConversationProvider from './contexts/ConversationProvider'
+import MessengerProvider from './contexts/MessengerProvider'
+import UserMediaProvider from './contexts/UserMediaProvider'
+import WebSocketProvider from './contexts/WebSocketProvider'
+import { RouteParams } from './hooks/useUrlParams'
+import AccountSettings from './pages/AccountSettings'
+import AdminLogin from './pages/AdminLogin'
+import AdminPanel from './pages/AdminPanel'
+import AdminSetup from './pages/AdminSetup'
+import GeneralSettings from './pages/GeneralSettings'
+import Login from './pages/Login'
+import Messenger from './pages/Messenger'
+import Registration from './pages/Registration'
+export type ConversationRouteParams = RouteParams<{ conversationId?: string }, Record<string, never>>
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -108,4 +108,4 @@ export const router = createBrowserRouter(
       </Route>
     </Route>
   )
-);
+)

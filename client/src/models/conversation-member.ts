@@ -15,27 +15,27 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationMemberRole, IConversationMember } from 'jami-web-common';
+import { ConversationMemberRole, IConversationMember } from 'jami-web-common'
 
-import { Contact } from './contact';
+import { Contact } from './contact'
 
 export class ConversationMember implements IConversationMember {
-  readonly role;
-  readonly contact;
+  readonly role
+  readonly contact
 
   constructor(role: ConversationMemberRole | undefined, contact: Contact) {
-    this.role = role;
-    this.contact = contact;
+    this.role = role
+    this.contact = contact
   }
 
   static fromInterface(conversationMemberIterface: IConversationMember) {
     return new ConversationMember(
       conversationMemberIterface.role,
       Contact.fromInterface(conversationMemberIterface.contact)
-    );
+    )
   }
 
   getDisplayName = () => {
-    return this.contact.getDisplayName();
-  };
+    return this.contact.getDisplayName()
+  }
 }
