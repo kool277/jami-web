@@ -15,24 +15,24 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Chip, Divider, Link, Stack, Tooltip, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import dayjs, { Dayjs } from 'dayjs';
-import { Message } from 'jami-web-common';
-import Linkify from 'linkify-react';
-import * as linkify from 'linkifyjs';
-import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Box, Chip, Divider, Link, Stack, Tooltip, Typography } from '@mui/material'
+import { styled } from '@mui/material/styles'
+import dayjs, { Dayjs } from 'dayjs'
+import { Message } from 'jami-web-common'
+import Linkify from 'linkify-react'
+import * as linkify from 'linkifyjs'
+import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { Account } from '../models/account';
-import { Contact } from '../models/contact';
-import { useLinkPreviewQuery } from '../services/linkPreviewQueries';
-import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages';
-import { formatRelativeDate, formatTime } from '../utils/dates&times';
-import { EmojiButton, MoreButton, ReplyMessageButton } from './Button';
-import ConversationAvatar from './ConversationAvatar';
-import LoadingPage from './Loading';
-import PopoverList, { PopoverListItemData } from './PopoverList';
+import { Account } from '../models/account'
+import { Contact } from '../models/contact'
+import { useLinkPreviewQuery } from '../services/linkPreviewQueries'
+import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
+import { formatRelativeDate, formatTime } from '../utils/dates&times'
+import { EmojiButton, MoreButton, ReplyMessageButton } from './Button'
+import ConversationAvatar from './ConversationAvatar'
+import LoadingPage from './Loading'
+import PopoverList, { PopoverListItemData } from './PopoverList'
 import {
   ArrowLeftCurved,
   ArrowLeftDown,
@@ -40,68 +40,68 @@ import {
   OppositeArrowsIcon,
   TrashBinIcon,
   TwoSheetsIcon,
-} from './SvgIcon';
+} from './SvgIcon'
 
-type MessagePosition = 'start' | 'end';
+type MessagePosition = 'start' | 'end'
 
-const notificationMessageTypes = ['initial', 'member'] as const;
-type NotificationMessageType = typeof notificationMessageTypes[number];
+const notificationMessageTypes = ['initial', 'member'] as const
+type NotificationMessageType = (typeof notificationMessageTypes)[number]
 const checkIsNotificationMessageType = (type: Message['type'] | undefined): type is NotificationMessageType => {
-  return notificationMessageTypes.includes(type as NotificationMessageType);
-};
+  return notificationMessageTypes.includes(type as NotificationMessageType)
+}
 
-const invisibleMessageTypes = ['application/update-profile', 'merge', 'vote'] as const;
-type InvisibleMessageType = typeof invisibleMessageTypes[number];
+const invisibleMessageTypes = ['application/update-profile', 'merge', 'vote'] as const
+type InvisibleMessageType = (typeof invisibleMessageTypes)[number]
 const checkIsInvisibleMessageType = (type: Message['type'] | undefined): type is InvisibleMessageType => {
-  return invisibleMessageTypes.includes(type as InvisibleMessageType);
-};
+  return invisibleMessageTypes.includes(type as InvisibleMessageType)
+}
 
-const userMessageTypes = ['text/plain', 'application/data-transfer+json', 'application/call-history+json'] as const;
-type UserMessageType = typeof userMessageTypes[number];
+const userMessageTypes = ['text/plain', 'application/data-transfer+json', 'application/call-history+json'] as const
+type UserMessageType = (typeof userMessageTypes)[number]
 const checkIsUserMessageType = (type: Message['type'] | undefined): type is UserMessageType => {
-  return userMessageTypes.includes(type as UserMessageType);
-};
+  return userMessageTypes.includes(type as UserMessageType)
+}
 
 const checkShowsTime = (time: Dayjs, previousTime: Dayjs) => {
-  return !previousTime.isSame(time) && !time.isBetween(previousTime, previousTime?.add(1, 'minute'));
-};
+  return !previousTime.isSame(time) && !time.isBetween(previousTime, previousTime?.add(1, 'minute'))
+}
 
 const findPreviousVisibleMessage = (messages: Message[], messageIndex: number) => {
   for (let i = messageIndex + 1; i < messages.length; ++i) {
-    const message = messages[i];
+    const message = messages[i]
     if (!checkIsInvisibleMessageType(message?.type)) {
-      return message;
+      return message
     }
   }
-};
+}
 
 const findNextVisibleMessage = (messages: Message[], messageIndex: number) => {
   for (let i = messageIndex - 1; i >= 0; --i) {
-    const message = messages[i];
+    const message = messages[i]
     if (!checkIsInvisibleMessageType(message?.type)) {
-      return message;
+      return message
     }
   }
-};
+}
 
-const avatarSize = '22px';
-const spacingBetweenAvatarAndBubble = '10px';
-const bubblePadding = '16px';
+const avatarSize = '22px'
+const spacingBetweenAvatarAndBubble = '10px'
+const bubblePadding = '16px'
 
 interface MessageCallProps {
-  message: Message;
-  isAccountMessage: boolean;
-  isFirstOfGroup: boolean;
-  isLastOfGroup: boolean;
+  message: Message
+  isAccountMessage: boolean
+  isFirstOfGroup: boolean
+  isLastOfGroup: boolean
 }
 
 const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup }: MessageCallProps) => {
-  const position = isAccountMessage ? 'end' : 'start';
+  const position = isAccountMessage ? 'end' : 'start'
 
-  const { i18n } = useTranslation();
+  const { i18n } = useTranslation()
   const { bubbleColor, Icon, text, textColor } = useMemo(() => {
-    const text = getMessageCallText(isAccountMessage, message, i18n);
-    const callDuration = dayjs.duration(parseInt(message?.duration || ''));
+    const text = getMessageCallText(isAccountMessage, message, i18n)
+    const callDuration = dayjs.duration(parseInt(message?.duration || ''))
     if (callDuration.asSeconds() === 0) {
       if (isAccountMessage) {
         return {
@@ -109,14 +109,14 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup 
           Icon: ArrowLeftCurved,
           textColor: 'white',
           bubbleColor: '#005699' + '80', // opacity 50%
-        };
+        }
       } else {
         return {
           text,
           Icon: ArrowLeftCurved,
           textColor: 'black',
           bubbleColor: '#C6C6C6',
-        };
+        }
       }
     } else {
       if (isAccountMessage) {
@@ -125,17 +125,17 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup 
           Icon: ArrowRightUp,
           textColor: 'white',
           bubbleColor: '#005699',
-        };
+        }
       } else {
         return {
           text,
           Icon: ArrowLeftDown,
           textcolor: 'black',
           bubbleColor: '#E5E5E5',
-        };
+        }
       }
     }
-  }, [isAccountMessage, message, i18n]);
+  }, [isAccountMessage, message, i18n])
 
   return (
     <Bubble position={position} isFirstOfGroup={isFirstOfGroup} isLastOfGroup={isLastOfGroup} bubbleColor={bubbleColor}>
@@ -146,38 +146,38 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup 
         </Typography>
       </Stack>
     </Bubble>
-  );
-};
+  )
+}
 
 const MessageInitial = () => {
-  const { t } = useTranslation();
-  return <>{t('message_swarm_created')}</>;
-};
+  const { t } = useTranslation()
+  return <>{t('message_swarm_created')}</>
+}
 
 interface MessageDataTransferProps {
-  message: Message;
-  isAccountMessage: boolean;
-  isFirstOfGroup: boolean;
-  isLastOfGroup: boolean;
+  message: Message
+  isAccountMessage: boolean
+  isFirstOfGroup: boolean
+  isLastOfGroup: boolean
 }
 
 const MessageDataTransfer = ({ isAccountMessage, isFirstOfGroup, isLastOfGroup }: MessageDataTransferProps) => {
-  const position = isAccountMessage ? 'end' : 'start';
+  const position = isAccountMessage ? 'end' : 'start'
   return (
     <Bubble bubbleColor="#E5E5E5" position={position} isFirstOfGroup={isFirstOfGroup} isLastOfGroup={isLastOfGroup}>
       &quot;data-transfer&quot;
     </Bubble>
-  );
-};
+  )
+}
 
 interface MessageMemberProps {
-  message: Message;
+  message: Message
 }
 
 const MessageMember = ({ message }: MessageMemberProps) => {
-  const { i18n } = useTranslation();
+  const { i18n } = useTranslation()
 
-  const text = getMessageMemberText(message, i18n);
+  const text = getMessageMemberText(message, i18n)
   return (
     <Chip
       sx={{
@@ -185,24 +185,24 @@ const MessageMember = ({ message }: MessageMemberProps) => {
       }}
       label={text}
     />
-  );
-};
+  )
+}
 
 type LinkPreviewProps = {
-  isAccountMessage: boolean;
-  link: string;
-};
+  isAccountMessage: boolean
+  link: string
+}
 
 const LinkPreview = ({ isAccountMessage, link }: LinkPreviewProps) => {
-  const [imageIsWorking, setImageIsWorking] = useState(true);
-  const linkPreviewQuery = useLinkPreviewQuery(link);
+  const [imageIsWorking, setImageIsWorking] = useState(true)
+  const linkPreviewQuery = useLinkPreviewQuery(link)
   if (linkPreviewQuery.isLoading) {
-    return <LoadingPage />;
+    return <LoadingPage />
   }
   if (!linkPreviewQuery.isSuccess) {
-    return null;
+    return null
   }
-  const linkPreview = linkPreviewQuery.data;
+  const linkPreview = linkPreviewQuery.data
 
   return (
     <a href={link} style={{ textDecorationLine: 'none' }}>
@@ -230,39 +230,39 @@ const LinkPreview = ({ isAccountMessage, link }: LinkPreviewProps) => {
         </Typography>
       </Stack>
     </a>
-  );
-};
+  )
+}
 
 type RenderLinkProps = {
   attributes: {
-    isAccountMessage: boolean;
-    href: string;
-  };
-  content: ReactNode;
-};
+    isAccountMessage: boolean
+    href: string
+  }
+  content: ReactNode
+}
 
 const RenderLink = ({ attributes, content }: RenderLinkProps) => {
-  const { href, isAccountMessage, ...props } = attributes;
+  const { href, isAccountMessage, ...props } = attributes
   return (
     <Link href={href} {...props} variant="body1" color={isAccountMessage ? '#ffffff' : undefined}>
       {content}
     </Link>
-  );
-};
+  )
+}
 
 interface MessageTextProps {
-  message: Message;
-  isAccountMessage: boolean;
-  isFirstOfGroup: boolean;
-  isLastOfGroup: boolean;
+  message: Message
+  isAccountMessage: boolean
+  isFirstOfGroup: boolean
+  isLastOfGroup: boolean
 }
 
 const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup }: MessageTextProps) => {
-  const position = isAccountMessage ? 'end' : 'start';
-  const bubbleColor = isAccountMessage ? '#005699' : '#E5E5E5';
-  const textColor = isAccountMessage ? 'white' : 'black';
+  const position = isAccountMessage ? 'end' : 'start'
+  const bubbleColor = isAccountMessage ? '#005699' : '#E5E5E5'
+  const textColor = isAccountMessage ? 'white' : 'black'
 
-  const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message]);
+  const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message])
 
   return (
     <MessageTooltip position={position}>
@@ -279,16 +279,16 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup 
         {link && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}
       </Bubble>
     </MessageTooltip>
-  );
-};
+  )
+}
 
 interface DateIndicatorProps {
-  time: Dayjs;
+  time: Dayjs
 }
 
 const DateIndicator = ({ time }: DateIndicatorProps) => {
-  const { i18n } = useTranslation();
-  const textDate = useMemo(() => formatRelativeDate(time, i18n), [time, i18n]);
+  const { i18n } = useTranslation()
+  const textDate = useMemo(() => formatRelativeDate(time, i18n), [time, i18n])
 
   return (
     <Box marginTop="30px">
@@ -318,17 +318,17 @@ const DateIndicator = ({ time }: DateIndicatorProps) => {
         </Typography>
       </Divider>
     </Box>
-  );
-};
+  )
+}
 
 interface TimeIndicatorProps {
-  time: Dayjs;
-  hasDateOnTop: boolean;
+  time: Dayjs
+  hasDateOnTop: boolean
 }
 
 const TimeIndicator = ({ time, hasDateOnTop }: TimeIndicatorProps) => {
-  const { i18n } = useTranslation();
-  const textTime = useMemo(() => formatTime(time, i18n), [time, i18n]);
+  const { i18n } = useTranslation()
+  const textTime = useMemo(() => formatTime(time, i18n), [time, i18n])
 
   return (
     <Stack direction="row" justifyContent="center" marginTop={hasDateOnTop ? '20px' : '30px'}>
@@ -336,42 +336,42 @@ const TimeIndicator = ({ time, hasDateOnTop }: TimeIndicatorProps) => {
         {textTime}
       </Typography>
     </Stack>
-  );
-};
+  )
+}
 
 interface NotificationMessageRowProps {
-  message: Message;
+  message: Message
 }
 
 const NotificationMessageRow = ({ message }: NotificationMessageRowProps) => {
-  let messageComponent;
+  let messageComponent
   switch (message.type) {
     case 'initial':
-      messageComponent = <MessageInitial />;
-      break;
+      messageComponent = <MessageInitial />
+      break
     case 'member':
-      messageComponent = <MessageMember message={message} />;
-      break;
+      messageComponent = <MessageMember message={message} />
+      break
     default:
-      console.error(`${NotificationMessageRow.name} received unhandled message type: ${message.type}`);
-      return null;
+      console.error(`${NotificationMessageRow.name} received unhandled message type: ${message.type}`)
+      return null
   }
 
   return (
     <Stack paddingTop={'30px'} alignItems="center">
       {messageComponent}
     </Stack>
-  );
-};
+  )
+}
 
 interface UserMessageRowProps {
-  message: Message;
-  isAccountMessage: boolean;
-  previousMessage: Message | undefined;
-  nextMessage: Message | undefined;
-  time: Dayjs;
-  showsTime: boolean;
-  author: Account | Contact;
+  message: Message
+  isAccountMessage: boolean
+  previousMessage: Message | undefined
+  nextMessage: Message | undefined
+  time: Dayjs
+  showsTime: boolean
+  author: Account | Contact
 }
 
 const UserMessageRow = ({
@@ -383,42 +383,42 @@ const UserMessageRow = ({
   showsTime,
   author,
 }: UserMessageRowProps) => {
-  const authorName = author.getDisplayName();
-  const position = isAccountMessage ? 'end' : 'start';
+  const authorName = author.getDisplayName()
+  const position = isAccountMessage ? 'end' : 'start'
 
-  const previousIsUserMessageType = checkIsUserMessageType(previousMessage?.type);
-  const nextIsUserMessageType = checkIsUserMessageType(nextMessage?.type);
-  const nextTime = dayjs.unix(Number(nextMessage?.timestamp));
-  const nextShowsTime = checkShowsTime(nextTime, time);
-  const isFirstOfGroup = showsTime || !previousIsUserMessageType || previousMessage?.author !== message.author;
-  const isLastOfGroup = nextShowsTime || !nextIsUserMessageType || message.author !== nextMessage?.author;
+  const previousIsUserMessageType = checkIsUserMessageType(previousMessage?.type)
+  const nextIsUserMessageType = checkIsUserMessageType(nextMessage?.type)
+  const nextTime = dayjs.unix(Number(nextMessage?.timestamp))
+  const nextShowsTime = checkShowsTime(nextTime, time)
+  const isFirstOfGroup = showsTime || !previousIsUserMessageType || previousMessage?.author !== message.author
+  const isLastOfGroup = nextShowsTime || !nextIsUserMessageType || message.author !== nextMessage?.author
 
   const props = {
     message,
     isAccountMessage,
     isFirstOfGroup,
     isLastOfGroup,
-  };
+  }
 
-  let MessageComponent;
+  let MessageComponent
   switch (message.type) {
     case 'text/plain':
-      MessageComponent = MessageText;
-      break;
+      MessageComponent = MessageText
+      break
     case 'application/data-transfer+json':
-      MessageComponent = MessageDataTransfer;
-      break;
+      MessageComponent = MessageDataTransfer
+      break
     case 'application/call-history+json':
-      MessageComponent = MessageCall;
-      break;
+      MessageComponent = MessageCall
+      break
     default:
-      console.error(`${UserMessageRow.name} received unhandled message type: ${message.type}`);
-      return null;
+      console.error(`${UserMessageRow.name} received unhandled message type: ${message.type}`)
+      return null
   }
 
   const participantNamePadding = isAccountMessage
     ? bubblePadding
-    : parseInt(avatarSize) + parseInt(spacingBetweenAvatarAndBubble) + parseInt(bubblePadding) + 'px';
+    : parseInt(avatarSize) + parseInt(spacingBetweenAvatarAndBubble) + parseInt(bubblePadding) + 'px'
 
   return (
     <Stack alignItems={position}>
@@ -446,18 +446,18 @@ const UserMessageRow = ({
         <MessageComponent {...props} />
       </Stack>
     </Stack>
-  );
-};
+  )
+}
 
 interface MessageTooltipProps {
-  className?: string;
-  position: MessagePosition;
-  children: ReactElement;
+  className?: string
+  position: MessagePosition
+  children: ReactElement
 }
 
 const MessageTooltip = styled(({ className, position, children }: MessageTooltipProps) => {
-  const [open, setOpen] = useState(false);
-  const emojis = ['😎', '😄', '😍']; // Should be last three used emojis
+  const [open, setOpen] = useState(false)
+  const emojis = ['😎', '😄', '😍'] // Should be last three used emojis
   const additionalOptions: PopoverListItemData[] = [
     {
       Icon: TwoSheetsIcon,
@@ -474,13 +474,13 @@ const MessageTooltip = styled(({ className, position, children }: MessageTooltip
       label: 'Delete message',
       onClick: () => {},
     },
-  ];
+  ]
 
-  const toggleMoreMenu = useCallback(() => setOpen((open) => !open), [setOpen]);
+  const toggleMoreMenu = useCallback(() => setOpen((open) => !open), [setOpen])
 
   const onClose = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
+    setOpen(false)
+  }, [setOpen])
 
   return (
     <Tooltip
@@ -522,10 +522,10 @@ const MessageTooltip = styled(({ className, position, children }: MessageTooltip
       {/* div fixes 'Function components cannot be given refs' error */}
       <div>{children}</div>
     </Tooltip>
-  );
+  )
 })(({ position }) => {
-  const largeRadius = '20px';
-  const smallRadius = '5px';
+  const largeRadius = '20px'
+  const smallRadius = '5px'
   return {
     backgroundColor: 'white',
     padding: '0px',
@@ -534,21 +534,21 @@ const MessageTooltip = styled(({ className, position, children }: MessageTooltip
     borderStartStartRadius: position === 'start' ? smallRadius : largeRadius,
     borderStartEndRadius: position === 'end' ? smallRadius : largeRadius,
     overflow: 'hidden',
-  };
-});
+  }
+})
 
 interface BubbleProps {
-  position: MessagePosition;
-  isFirstOfGroup: boolean;
-  isLastOfGroup: boolean;
-  bubbleColor: string;
-  maxWidth?: string;
-  children: ReactNode;
+  position: MessagePosition
+  isFirstOfGroup: boolean
+  isLastOfGroup: boolean
+  bubbleColor: string
+  maxWidth?: string
+  children: ReactNode
 }
 
 const Bubble = ({ position, isFirstOfGroup, isLastOfGroup, bubbleColor, maxWidth, children }: BubbleProps) => {
-  const largeRadius = '20px';
-  const smallRadius = '5px';
+  const largeRadius = '20px'
+  const smallRadius = '5px'
   const radius = useMemo(() => {
     if (position === 'start') {
       return {
@@ -556,15 +556,15 @@ const Bubble = ({ position, isFirstOfGroup, isLastOfGroup, bubbleColor, maxWidth
         borderStartEndRadius: largeRadius,
         borderEndStartRadius: isLastOfGroup ? largeRadius : smallRadius,
         borderEndEndRadius: largeRadius,
-      };
+      }
     }
     return {
       borderStartStartRadius: largeRadius,
       borderStartEndRadius: isFirstOfGroup ? largeRadius : smallRadius,
       borderEndStartRadius: largeRadius,
       borderEndEndRadius: isLastOfGroup ? largeRadius : smallRadius,
-    };
-  }, [isFirstOfGroup, isLastOfGroup, position]);
+    }
+  }, [isFirstOfGroup, isLastOfGroup, position])
 
   return (
     <Box
@@ -580,11 +580,11 @@ const Bubble = ({ position, isFirstOfGroup, isLastOfGroup, bubbleColor, maxWidth
     >
       {children}
     </Box>
-  );
-};
+  )
+}
 
 interface ParticipantNameProps {
-  name: string;
+  name: string
 }
 
 const ParticipantName = ({ name }: ParticipantNameProps) => {
@@ -592,26 +592,26 @@ const ParticipantName = ({ name }: ParticipantNameProps) => {
     <Typography variant="caption" color="#A7A7A7" fontWeight={700}>
       {name}
     </Typography>
-  );
-};
+  )
+}
 
 interface MessageProps {
-  messageIndex: number;
-  messages: Message[];
-  isAccountMessage: boolean;
-  author: Account | Contact;
+  messageIndex: number
+  messages: Message[]
+  isAccountMessage: boolean
+  author: Account | Contact
 }
 
 export const MessageRow = ({ messageIndex, messages, isAccountMessage, author }: MessageProps) => {
-  const message = messages[messageIndex];
-  const previousMessage = findPreviousVisibleMessage(messages, messageIndex);
-  const nextMessage = findNextVisibleMessage(messages, messageIndex);
-  const time = dayjs.unix(Number(message.timestamp));
-  const previousTime = dayjs.unix(Number(previousMessage?.timestamp));
+  const message = messages[messageIndex]
+  const previousMessage = findPreviousVisibleMessage(messages, messageIndex)
+  const nextMessage = findNextVisibleMessage(messages, messageIndex)
+  const time = dayjs.unix(Number(message.timestamp))
+  const previousTime = dayjs.unix(Number(previousMessage?.timestamp))
   const showDate =
-    message?.type === 'initial' || previousTime.year() !== time.year() || previousTime.dayOfYear() !== time.dayOfYear();
-  const showTime = checkShowsTime(time, previousTime);
-  let messageComponent;
+    message?.type === 'initial' || previousTime.year() !== time.year() || previousTime.dayOfYear() !== time.dayOfYear()
+  const showTime = checkShowsTime(time, previousTime)
+  let messageComponent
   if (checkIsUserMessageType(message.type)) {
     messageComponent = (
       <UserMessageRow
@@ -623,14 +623,14 @@ export const MessageRow = ({ messageIndex, messages, isAccountMessage, author }:
         isAccountMessage={isAccountMessage}
         author={author}
       />
-    );
+    )
   } else if (checkIsNotificationMessageType(message.type)) {
-    messageComponent = <NotificationMessageRow message={message} />;
+    messageComponent = <NotificationMessageRow message={message} />
   } else if (checkIsInvisibleMessageType(message.type)) {
-    return null;
+    return null
   } else {
-    const _exhaustiveCheck: never = message.type;
-    return _exhaustiveCheck;
+    const _exhaustiveCheck: never = message.type
+    return _exhaustiveCheck
   }
 
   return (
@@ -639,5 +639,5 @@ export const MessageRow = ({ messageIndex, messages, isAccountMessage, author }:
       {showTime && <TimeIndicator time={time} hasDateOnTop={showDate} />}
       {messageComponent}
     </Stack>
-  );
-};
+  )
+}

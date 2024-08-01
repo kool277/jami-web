@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   jami-web:
@@ -13,8 +13,8 @@ services:
       - ./client/.env.development:/web-client/client/.env.development
       - ./server/.env:/web-client/server/.env
     ports:
-      - "3000:3000"
-      - "5000:5000"
+      - '3000:3000'
+      - '5000:5000'
     stdin_open: true
     depends_on:
       - jami-daemon
@@ -24,4 +24,4 @@ services:
     build:
       context: ./daemon
       args:
-        config_args: "--with-nodejs"
+        config_args: '--with-nodejs'
