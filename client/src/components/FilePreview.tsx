@@ -17,7 +17,7 @@
  */
 import AttachFile from '@mui/icons-material/AttachFile'
 import { IconButton, IconButtonProps, Stack, Typography } from '@mui/material'
-import * as mime from 'mime'
+import mime from 'mime'
 import { useRef } from 'react'
 
 import { FileHandler } from '../utils/files'
@@ -51,7 +51,7 @@ interface FilePreviewInfosProps {
 const FilePreviewInfos = ({ fileHandler }: FilePreviewInfosProps) => {
   const file = fileHandler.file
   const fileSize = useDataSizeUnits(file.size)
-  const fileType = mime.getExtension(file.type)?.toUpperCase() || ''
+  const fileType = mime.extension(file.type)?.toUpperCase() || ''
   return (
     <Stack overflow="hidden">
       <Typography variant="body1" fontWeight="bold" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">

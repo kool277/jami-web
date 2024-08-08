@@ -141,7 +141,7 @@ export const CustomSelect = <OptionPayload,>({ option, options, onChange, size }
         {groupedOptions.length > 0 ? (
           <Listbox {...getListboxProps()}>
             {(groupedOptions as SelectOption<OptionPayload>[]).map((option, index) => (
-              <Option key={option.label} {...getOptionProps({ option, index })}>
+              <Option {...getOptionProps({ option, index })} key={option.label}>
                 {option.label}
               </Option>
             ))}

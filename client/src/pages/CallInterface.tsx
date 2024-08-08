@@ -212,7 +212,7 @@ const CallInterfaceSecondaryButtons = ({
   gridItemRef,
   showVolumeButton,
 }: Props & { showVolumeButton: boolean; gridItemRef: RefObject<HTMLElement> }) => {
-  const stackRef = useRef<HTMLElement>(null)
+  const stackRef = useRef<HTMLDivElement>(null)
 
   const [initialMeasurementDone, setInitialMeasurementDone] = useState(false)
   const [hiddenStackCount, setHiddenStackCount] = useState(0)
