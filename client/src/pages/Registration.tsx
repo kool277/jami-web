@@ -56,7 +56,7 @@ function RegistrationForm() {
 
   const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername)
 
-  const usernameOk = usernameStatus === 'valid'
+  const usernameOk = usernameStatus === 'success'
   const passwordOk = passwordStatus !== PasswordStrength.TooWeak
 
   useEffect(() => {
