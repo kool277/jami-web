@@ -100,7 +100,7 @@ export interface JamiSwig {
 
   lookupName(accountId: string, nameserver: string, username: string): boolean
   lookupAddress(accountId: string, nameserver: string, address: string): boolean
-  registerName(accountId: string, password: string, username: string): boolean
+  registerName(accountId: string, username: string, scheme: string, password: string): boolean
 
   getKnownRingDevices(accountId: string): StringMap
 

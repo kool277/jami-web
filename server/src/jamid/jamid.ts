@@ -288,7 +288,7 @@ export class Jamid {
   }
 
   async registerUsername(accountId: string, username: string, password: string): Promise<NameRegistrationEndedState> {
-    const hasRingNs = this.jamiSwig.registerName(accountId, password, username)
+    const hasRingNs = this.jamiSwig.registerName(accountId, username, 'password', password)
     if (!hasRingNs) {
       throw new Error('Jami does not have a nameserver')
     }
