@@ -113,7 +113,7 @@ export class Jamid {
       accountId: string,
       state: RegisteredNameFoundState,
       address: string,
-      username: string
+      username: string,
     ) => onRegisteredNameFound.next({ accountId, state, address, username })
 
     const onKnownDevicesChanged = new Subject<KnownDevicesChanged>()
@@ -140,7 +140,7 @@ export class Jamid {
     handlers.ConversationRequestReceived = (
       accountId: string,
       conversationId: string,
-      metadata: ConversationRequestMetadata
+      metadata: ConversationRequestMetadata,
     ) => onConversationRequestReceived.next({ accountId, conversationId, metadata })
 
     const onConversationReady = new Subject<ConversationReady>()
@@ -160,7 +160,7 @@ export class Jamid {
       accountId: string,
       conversationId: string,
       memberUri: string,
-      event: ConversationMemberEventType
+      event: ConversationMemberEventType,
     ) => {
       onConversationMemberEvent.next({ accountId, conversationId, memberUri, event })
     }
@@ -240,9 +240,9 @@ export class Jamid {
       this.events.onRegistrationStateChanged.pipe(
         filter((value) => value.accountId === accountId),
         filter(
-          (value) => value.state === RegistrationState.Registered || value.state === RegistrationState.ErrorGeneric
-        )
-      )
+          (value) => value.state === RegistrationState.Registered || value.state === RegistrationState.ErrorGeneric,
+        ),
+      ),
     )
   }
 
@@ -268,8 +268,8 @@ export class Jamid {
     return firstValueFrom(
       this.events.onRegisteredNameFound.pipe(
         filter((value) => value.username === username),
-        map(({ accountId: _, ...response }) => response) // Remove accountId from response
-      )
+        map(({ accountId: _, ...response }) => response), // Remove accountId from response
+      ),
     )
   }
 
@@ -282,8 +282,8 @@ export class Jamid {
     return firstValueFrom(
       this.events.onRegisteredNameFound.pipe(
         filter((value) => value.address === address),
-        map(({ accountId: _, ...response }) => response) // Remove accountId from response
-      )
+        map(({ accountId: _, ...response }) => response), // Remove accountId from response
+      ),
     )
   }
 
@@ -295,8 +295,8 @@ export class Jamid {
     return firstValueFrom(
       this.events.onNameRegistrationEnded.pipe(
         filter((value) => value.accountId === accountId),
-        map((value) => value.state)
-      )
+        map((value) => value.state),
+      ),
     )
   }
 
@@ -350,7 +350,7 @@ export class Jamid {
 
   getConversationMembers(accountId: string, conversationId: string): ConversationMemberInfos[] {
     return vectMapToRecordArray(
-      this.jamiSwig.getConversationMembers(accountId, conversationId)
+      this.jamiSwig.getConversationMembers(accountId, conversationId),
     ) as unknown as ConversationMemberInfos[]
   }
 
@@ -358,14 +358,14 @@ export class Jamid {
     accountId: string,
     conversationId: string,
     fromMessage = '',
-    n = 32
+    n = 32,
   ): Promise<Message[]> {
     const requestId = this.jamiSwig.loadConversationMessages(accountId, conversationId, fromMessage, n)
     return firstValueFrom(
       this.events.onConversationLoaded.pipe(
         filter((value) => value.id === requestId),
-        map((value) => value.messages)
-      )
+        map((value) => value.messages),
+      ),
     )
   }
 
@@ -375,7 +375,7 @@ export class Jamid {
 
   getConversationRequests(accountId: string): ConversationRequestMetadata[] {
     return vectMapToRecordArray(
-      this.jamiSwig.getConversationRequests(accountId)
+      this.jamiSwig.getConversationRequests(accountId),
     ) as unknown as ConversationRequestMetadata[]
   }
 
@@ -384,8 +384,8 @@ export class Jamid {
     return firstValueFrom(
       this.events.onConversationReady.pipe(
         filter((value) => value.accountId === accountId),
-        filter((value) => value.conversationId === conversationId)
-      )
+        filter((value) => value.conversationId === conversationId),
+      ),
     )
   }
 
@@ -398,7 +398,7 @@ export class Jamid {
     conversationId: string,
     message: string,
     replyTo?: string,
-    flag?: number
+    flag?: number,
   ): void {
     this.jamiSwig.sendMessage(accountId, conversationId, message, replyTo ?? '', flag ?? 0)
   }
@@ -433,7 +433,7 @@ export class Jamid {
       const username = details['Account.registeredName']
       log.debug(
         `Received VolatileDetailsChanged: {"accountId":"${accountId}",` +
-          `"details":{"Account.registeredName":"${username}", ...}}`
+          `"details":{"Account.registeredName":"${username}", ...}}`,
       )
 
       if (username) {
@@ -509,7 +509,7 @@ export class Jamid {
     this.events.onConversationLoaded.subscribe(({ id, accountId, conversationId }) => {
       log.debug(
         `Received ConversationLoaded: {"id":"${id}","accountId":"${accountId}",` +
-          `"conversationId":"${conversationId}"}`
+          `"conversationId":"${conversationId}"}`,
       )
     })
 

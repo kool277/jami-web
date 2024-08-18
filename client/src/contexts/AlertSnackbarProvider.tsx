@@ -127,7 +127,7 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('unknown_error_alert')
       }
     },
-    [t]
+    [t],
   )
 
   const value = {

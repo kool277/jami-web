@@ -441,7 +441,7 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
   const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
 
   const onEmojiClick = //useCallback(
-    (emoji: EmojiClickData, event: MouseEvent) => {
+    (emoji: EmojiClickData, _: MouseEvent) => {
       onEmojiSelected(emoji.emoji)
       handleClose()
     } /*,

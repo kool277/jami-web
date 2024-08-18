@@ -42,7 +42,7 @@ const SettingLanguage = () => {
   const option = useMemo(
     // TODO: Tell Typescript the result can't be undefined
     () => settingLanguageOptions.find((option) => option.payload === i18n.language),
-    [i18n.language]
+    [i18n.language],
   )
 
   const onChange = useCallback<SettingSelectProps<LanguageTag>['onChange']>(
@@ -51,7 +51,7 @@ const SettingLanguage = () => {
         i18n.changeLanguage(newValue.payload)
       }
     },
-    [i18n]
+    [i18n],
   )
 
   return (

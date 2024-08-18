@@ -93,7 +93,7 @@ authRouter.post(
     await accounts.save()
 
     res.sendStatus(HttpStatusCode.Created)
-  })
+  }),
 )
 
 authRouter.post(
@@ -128,5 +128,5 @@ authRouter.post(
 
     const jwt = await signJwt(accountId)
     res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
-  })
+  }),
 )

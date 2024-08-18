@@ -147,7 +147,7 @@ const ContactMenu = ({
         },
       },
     ],
-    [t, setIsBlocking, setContactDetailDialogOpen, openContactDialog]
+    [t, setIsBlocking, setContactDetailDialogOpen, openContactDialog],
   )
   return <ContextMenu {...contextMenuProps} items={menuOptions} />
 }

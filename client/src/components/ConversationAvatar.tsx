@@ -58,7 +58,7 @@ export const AvatarEditor = () => {
       setAvatarHandler(fileHandler)
       setEditionToolsIsOpen(false)
     },
-    [setAvatarHandler, setEditionToolsIsOpen]
+    [setAvatarHandler, setEditionToolsIsOpen],
   )
 
   const {

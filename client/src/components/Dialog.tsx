@@ -47,7 +47,7 @@ export const useDialogHandler = (): DialogHandler => {
       props: { open, onClose },
       openDialog,
     }),
-    [open, onClose, openDialog]
+    [open, onClose, openDialog],
   )
 }
 

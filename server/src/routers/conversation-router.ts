@@ -52,7 +52,7 @@ conversationRouter.get(
     }
 
     res.send(conversationsSummaries)
-  })
+  }),
 )
 
 conversationRouter.post(
@@ -78,7 +78,7 @@ conversationRouter.post(
     }
 
     res.send(contactDetails)
-  }
+  },
 )
 
 conversationRouter.get(
@@ -94,7 +94,7 @@ conversationRouter.get(
     }
 
     res.send(conversationSummary)
-  })
+  }),
 )
 
 conversationRouter.get(
@@ -109,7 +109,7 @@ conversationRouter.get(
     }
 
     res.send(infos)
-  })
+  }),
 )
 
 conversationRouter.get(
@@ -148,7 +148,7 @@ conversationRouter.get(
     }
 
     res.send(namedMembers)
-  })
+  }),
 )
 
 conversationRouter.get(
@@ -163,7 +163,7 @@ conversationRouter.get(
     }
     const messages = await jamid.getConversationMessages(accountId, conversationId)
     res.send(messages)
-  })
+  }),
 )
 
 conversationRouter.post(
@@ -186,7 +186,7 @@ conversationRouter.post(
 
     jamid.sendConversationMessage(accountId, conversationId, message)
     res.sendStatus(HttpStatusCode.NoContent)
-  }
+  },
 )
 
 conversationRouter.delete('/:conversationId', (req, res) => {

@@ -59,6 +59,6 @@ const VideoStream = forwardRef<VideoElementWithSinkId, VideoStreamProps>(
     }, [audioOutDeviceId, videoRef])
 
     return <video ref={videoRef} autoPlay {...props} />
-  }
+  },
 )
 export default VideoStream

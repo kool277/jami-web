@@ -50,7 +50,7 @@ export function sentrySetUp(app) {
         }
         return false
       },
-    })
+    }),
   )
   // Optional fallthrough error handler
   app.use(function onError(_err, _req, res, _next) {

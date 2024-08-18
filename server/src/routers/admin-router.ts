@@ -51,7 +51,7 @@ adminRouter.post(
     }
 
     res.status(HttpStatusCode.BadRequest).send('Invalid password')
-  })
+  }),
 )
 //Requests below require a successful setup
 adminRouter.use(checkAdminSetup)
@@ -79,7 +79,7 @@ adminRouter.post(
 
     const jwt = await signJwt('admin')
     res.send({ accessToken: jwt })
-  })
+  }),
 )
 
 //Requests below require authentication
@@ -94,7 +94,7 @@ adminRouter.get(
       return
     }
     res.sendStatus(HttpStatusCode.InternalServerError)
-  })
+  }),
 )
 
 adminRouter.patch(
@@ -113,5 +113,5 @@ adminRouter.patch(
     } catch (e) {
       res.sendStatus(HttpStatusCode.InternalServerError)
     }
-  })
+  }),
 )

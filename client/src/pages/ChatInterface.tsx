@@ -51,14 +51,14 @@ const ChatInterface = () => {
       const newFileHandlers = acceptedFiles.map((file) => new FileHandler(file))
       setFileHandlers((oldFileHandlers) => [...oldFileHandlers, ...newFileHandlers])
     },
-    [setFileHandlers]
+    [setFileHandlers],
   )
 
   const removeFile = useCallback(
     (fileId: string | number) => {
       setFileHandlers((fileHandlers) => fileHandlers.filter((fileHandler) => fileHandler.id !== fileId))
     },
-    [setFileHandlers]
+    [setFileHandlers],
   )
 
   const {

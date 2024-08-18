@@ -148,7 +148,7 @@ const useMediaDeviceExpandMenuOptions = (kind: MediaDeviceKind): ExpandMenuRadio
         key: device.deviceId,
         description: device.label,
       })),
-    [mediaDevices, kind]
+    [mediaDevices, kind],
   )
 
   const currentDevice = currentMediaDeviceIds[kind]

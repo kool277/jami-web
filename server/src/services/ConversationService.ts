@@ -39,7 +39,7 @@ export class ConversationService {
 
   async createConversationRequest(
     accountId: string,
-    jamidRequest: ConversationRequestMetadata
+    jamidRequest: ConversationRequestMetadata,
   ): Promise<IConversationRequest> {
     const contact = await contactService.getContactFromUri(accountId, jamidRequest.from)
     const membersNames = await this.getMembersNames(accountId, jamidRequest.id)
@@ -68,7 +68,7 @@ export class ConversationService {
 
   async createConversationSummary(
     accountId: string,
-    conversationId: string
+    conversationId: string,
   ): Promise<IConversationSummary | undefined> {
     const infos = jamid.getConversationInfos(accountId, conversationId)
     if (Object.keys(infos).length === 0) {

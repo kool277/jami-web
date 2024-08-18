@@ -106,6 +106,6 @@ export const router = createBrowserRouter(
         </Route>
         <Route path="contacts" element={<ContactList />} />
       </Route>
-    </Route>
-  )
+    </Route>,
+  ),
 )

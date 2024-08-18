@@ -109,7 +109,7 @@ export const useRegisterMutation = () => {
       const response = await axios.post(
         '/auth/new-account',
         { username: registerData.username, password: registerData.password },
-        { baseURL: apiUrl }
+        { baseURL: apiUrl },
       )
       return response
     },
@@ -142,7 +142,7 @@ export const useLoginMutation = () => {
       const { data } = await axios.post<AccessToken>(
         '/auth/login',
         { username: loginData.username, password: loginData.password, isJams: loginData.isJams },
-        { baseURL: apiUrl }
+        { baseURL: apiUrl },
       )
       return data
     },

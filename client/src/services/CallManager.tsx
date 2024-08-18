@@ -193,7 +193,7 @@ export const useCallManager = () => {
 
       setVideoStatus(newStatus)
     },
-    [videoStatus, updateScreenShare]
+    [videoStatus, updateScreenShare],
   )
 
   useEffect(() => {
@@ -229,7 +229,7 @@ export const useCallManager = () => {
           })
       }
     },
-    [webSocket, updateLocalStream, callStatus]
+    [webSocket, updateLocalStream, callStatus],
   )
 
   const acceptCall = useCallback(
@@ -257,8 +257,8 @@ export const useCallManager = () => {
               member.contact.uri,
               callData,
               localStream,
-              screenShareLocalStream
-            )
+              screenShareLocalStream,
+            ),
           )
         })
         .catch((e) => {
@@ -276,7 +276,7 @@ export const useCallManager = () => {
       updateLocalStream,
       webRtcManager,
       webSocket,
-    ]
+    ],
   )
 
   useEffect(() => {
@@ -405,6 +405,6 @@ export const useCallManager = () => {
       startCall,
       acceptCall,
       endCall,
-    ]
+    ],
   )
 }

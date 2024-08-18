@@ -56,7 +56,7 @@ accountRouter.get(
       devices: jamid.getDevices(accountId),
     }
     res.send(account)
-  })
+  }),
 )
 
 accountRouter.patch('/', (req: Request<ParamsDictionary, string, Partial<AccountDetails>>, res) => {

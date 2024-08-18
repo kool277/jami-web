@@ -31,7 +31,7 @@ export class ConversationMember implements IConversationMember {
   static fromInterface(conversationMemberIterface: IConversationMember) {
     return new ConversationMember(
       conversationMemberIterface.role,
-      Contact.fromInterface(conversationMemberIterface.contact)
+      Contact.fromInterface(conversationMemberIterface.contact),
     )
   }
 

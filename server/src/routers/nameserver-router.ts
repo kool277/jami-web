@@ -44,7 +44,7 @@ nameserverRouter.get(
         res.status(HttpStatusCode.NotFound).send('No such username found')
         break
     }
-  })
+  }),
 )
 
 //Check if the username provided exists or not, if it doesn't exist, it is allowed for registration
@@ -64,7 +64,7 @@ nameserverRouter.get(
         res.status(HttpStatusCode.Ok).send('success')
         break
     }
-  })
+  }),
 )
 
 nameserverRouter.get(
@@ -82,5 +82,5 @@ nameserverRouter.get(
         res.status(HttpStatusCode.NotFound).send('No such address found')
         break
     }
-  })
+  }),
 )

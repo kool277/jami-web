@@ -27,7 +27,7 @@ export const useWebRtcManager = () => {
   const webRtcManagerRef = useRef(new WebRtcManager())
   const connectionsInfos = useSyncExternalStore(
     webRtcManagerRef.current.subscribe.bind(webRtcManagerRef.current),
-    webRtcManagerRef.current.getSnapshot.bind(webRtcManagerRef.current)
+    webRtcManagerRef.current.getSnapshot.bind(webRtcManagerRef.current),
   )
 
   return useMemo(
@@ -38,7 +38,7 @@ export const useWebRtcManager = () => {
       clean: webRtcManagerRef.current.clean.bind(webRtcManagerRef.current),
       connectionsInfos: connectionsInfos,
     }),
-    [connectionsInfos]
+    [connectionsInfos],
   )
 }
 
@@ -54,7 +54,7 @@ class WebRtcManager {
     contactUri: string,
     callData: CallData,
     localStream: MediaStream | undefined,
-    screenShareLocalStream: MediaStream | undefined
+    screenShareLocalStream: MediaStream | undefined,
   ) {
     if (this.connections[contactUri]) {
       console.debug('Attempted to establish an WebRTC connection with the same peer more than once')
@@ -68,7 +68,7 @@ class WebRtcManager {
       callData,
       localStream,
       screenShareLocalStream,
-      this.emitChange.bind(this)
+      this.emitChange.bind(this),
     )
     this.connections[contactUri] = connection
   }
@@ -81,7 +81,7 @@ class WebRtcManager {
 
   updateLocalStreams(localStream: MediaStream | undefined, screenShareLocalStream: MediaStream | undefined) {
     Object.values(this.connections).forEach((connection) =>
-      connection.updateLocalStreams(localStream, screenShareLocalStream)
+      connection.updateLocalStreams(localStream, screenShareLocalStream),
     )
   }
 
@@ -97,10 +97,13 @@ class WebRtcManager {
   }
 
   emitChange() {
-    this.snapshot = Object.entries(this.connections).reduce((acc, [contactUri, connection]) => {
-      acc[contactUri] = connection.getInfos()
-      return acc
-    }, {} as Record<string, RTCPeerConnectionInfos>)
+    this.snapshot = Object.entries(this.connections).reduce(
+      (acc, [contactUri, connection]) => {
+        acc[contactUri] = connection.getInfos()
+        return acc
+      },
+      {} as Record<string, RTCPeerConnectionInfos>,
+    )
 
     this.listeners.forEach((listener) => listener())
   }

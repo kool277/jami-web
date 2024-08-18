@@ -123,7 +123,7 @@ export default ({ children }: WithChildren) => {
         throw new Error('Could not get media devices', { cause: e })
       }
     },
-    [getMediaDevices]
+    [getMediaDevices],
   )
 
   const currentMediaDeviceIds: CurrentMediaDeviceIds = useMemo(() => {
@@ -174,7 +174,7 @@ export default ({ children }: WithChildren) => {
         setScreenShareLocalStream(undefined)
       }
     },
-    [screenShareLocalStream]
+    [screenShareLocalStream],
   )
 
   useEffect(() => {
@@ -242,7 +242,7 @@ export default ({ children }: WithChildren) => {
       setAudioOutputDeviceId,
       setVideoDeviceId,
       stopMedias,
-    ]
+    ],
   )
 
   return <optionalUserMediaContext.Context.Provider value={value}>{children}</optionalUserMediaContext.Context.Provider>

@@ -22,7 +22,7 @@ import { useAddConversationRequestToCache, useRefreshConversationsSummaries } fr
 import { useWebSocketContext } from './WebSocketProvider'
 
 // It is not sure yet we want this context to have no value
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface IMessengerContext {}
 
 const defaultMessengerContext: IMessengerContext = {}

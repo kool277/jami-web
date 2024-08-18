@@ -37,10 +37,10 @@ export const useContextMenuHandler = (): ContextMenuHandler => {
     (event) => {
       event.preventDefault()
       setAnchorPosition((anchorPosition) =>
-        anchorPosition === undefined ? { top: event.clientY, left: event.clientX } : undefined
+        anchorPosition === undefined ? { top: event.clientY, left: event.clientX } : undefined,
       )
     },
-    [setAnchorPosition]
+    [setAnchorPosition],
   )
 
   const onClose = useCallback(() => setAnchorPosition(undefined), [setAnchorPosition])
@@ -55,7 +55,7 @@ export const useContextMenuHandler = (): ContextMenuHandler => {
       },
       handleAnchorPosition,
     }),
-    [anchorPosition, handleAnchorPosition, onClose]
+    [anchorPosition, handleAnchorPosition, onClose],
   )
 }
 

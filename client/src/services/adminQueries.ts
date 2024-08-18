@@ -168,7 +168,7 @@ export const useGetAdminConfigQuery = () => {
         })
       }
     }
-  }, [query.error])
+  }, [query.error, navigate, setAlertContent])
 
   return query
 }

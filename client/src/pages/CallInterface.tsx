@@ -160,7 +160,7 @@ const CallInterfaceInformation = () => {
   const { callStartTime } = useCallManagerContext()
   const { conversationDisplayName } = useConversationContext()
   const [elapsedTime, setElapsedTime] = useState<Duration>(
-    dayjs.duration(callStartTime ? Date.now() - callStartTime : 0)
+    dayjs.duration(callStartTime ? Date.now() - callStartTime : 0),
   )
 
   useEffect(() => {

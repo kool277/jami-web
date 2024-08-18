@@ -62,7 +62,7 @@ function sendWebRtcData<T extends WebSocketMessageType>(
   // TODO: Guarantee WebSocketMessageTable[T] has WithSender Properties
   partialData: Omit<WebSocketMessageTable[T], 'senderId'>,
   accountId: string,
-  receiverId: string
+  receiverId: string,
 ) {
   const account = jamid.getAccountDetails(accountId)
   const senderId = account['Account.username']

@@ -67,7 +67,7 @@ export class RTCPeerConnectionHandler {
     callData: CallData,
     localStream: MediaStream | undefined,
     screenShareLocalStream: MediaStream | undefined,
-    listener: Listener
+    listener: Listener,
   ) {
     this.isPolite = account.getUri() < contactUri
     this.listener = listener
@@ -96,7 +96,7 @@ export class RTCPeerConnectionHandler {
           promises.push(
             senders[i].replaceTrack(tracks[i]).catch((e) => {
               console.error('Error replacing track:', e)
-            })
+            }),
           )
         }
         return Promise.all(promises)
@@ -172,11 +172,11 @@ export class RTCPeerConnectionHandler {
         console.warn(
           'Found queued ICE candidates that were added before `setRemoteDescription` was called. ' +
             'Adding queued ICE candidates...',
-          this.iceCandidateQueue
+          this.iceCandidateQueue,
         )
 
         await Promise.all(
-          this.iceCandidateQueue.map((iceCandidate) => this.connection.addIceCandidate(iceCandidate))
+          this.iceCandidateQueue.map((iceCandidate) => this.connection.addIceCandidate(iceCandidate)),
         ).catch((err) => {
           if (!this.ignoreOffer) {
             console.error(err)

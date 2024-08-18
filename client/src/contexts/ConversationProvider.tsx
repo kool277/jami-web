@@ -54,12 +54,12 @@ export default ({ children }: WithChildren) => {
 
   const isError = useMemo(
     () => conversationInfosQuery.isError || membersQuery.isError,
-    [conversationInfosQuery.isError, membersQuery.isError]
+    [conversationInfosQuery.isError, membersQuery.isError],
   )
 
   const isLoading = useMemo(
     () => conversationInfosQuery.isLoading || membersQuery.isLoading,
-    [conversationInfosQuery.isLoading, membersQuery.isLoading]
+    [conversationInfosQuery.isLoading, membersQuery.isLoading],
   )
 
   const conversationInfos = conversationInfosQuery.data
@@ -92,7 +92,7 @@ export default ({ children }: WithChildren) => {
         })
       }
     },
-    [/*conversationId,*/ members]
+    [/*conversationId,*/ members],
   )
 
   useEffect(() => {

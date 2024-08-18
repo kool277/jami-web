@@ -70,7 +70,7 @@ export default function SendMessageForm({ onSend, openFilePicker }: SendMessageF
         notifyStopcomposing()
       }
     },
-    [currentMessage, onSend, notifyStopcomposing]
+    [currentMessage, onSend, notifyStopcomposing],
   )
 
   const handleInputChange = useCallback(
@@ -78,12 +78,12 @@ export default function SendMessageForm({ onSend, openFilePicker }: SendMessageF
       setCurrentMessage(event.target.value)
       notifyComposing()
     },
-    [notifyComposing]
+    [notifyComposing],
   )
 
   const onEmojiSelected = useCallback(
     (emoji: string) => setCurrentMessage((currentMessage) => currentMessage + emoji),
-    [setCurrentMessage]
+    [setCurrentMessage],
   )
 
   return (

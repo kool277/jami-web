@@ -27,7 +27,7 @@ type AddToCacheFn<ElementType> = (element: ElementType) => void
 
 export const useAddToCache = <ElementType>(
   queryKey: QueryKey,
-  CheckElementsAreEqual: CheckElementsAreEqual<ElementType>
+  CheckElementsAreEqual: CheckElementsAreEqual<ElementType>,
 ): AddToCacheFn<ElementType> => {
   const queryClient = useQueryClient()
   return useCallback(
@@ -42,7 +42,7 @@ export const useAddToCache = <ElementType>(
       // Add the element
       queryClient.setQueryData<ElementType[]>(queryKey, (elements) => [...(elements || []), newElement])
     },
-    [CheckElementsAreEqual, queryClient, queryKey]
+    [CheckElementsAreEqual, queryClient, queryKey],
   )
 }
 
@@ -53,15 +53,15 @@ type RemoveFromCacheFn<IdentifierType> = (element: IdentifierType) => void
 
 export const useRemoveFromCache = <ElementType, IdentifierType>(
   queryKey: QueryKey,
-  checkIsElementFn: CheckIsElementFn<ElementType, IdentifierType>
+  checkIsElementFn: CheckIsElementFn<ElementType, IdentifierType>,
 ): RemoveFromCacheFn<IdentifierType> => {
   const queryClient = useQueryClient()
   return useCallback(
     (identifier: IdentifierType) => {
       queryClient.setQueryData<ElementType[]>(queryKey, (elements) =>
-        elements?.filter((element) => !checkIsElementFn(element, identifier))
+        elements?.filter((element) => !checkIsElementFn(element, identifier)),
       )
     },
-    [checkIsElementFn, queryClient, queryKey]
+    [checkIsElementFn, queryClient, queryKey],
   )
 }

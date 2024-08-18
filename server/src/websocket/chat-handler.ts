@@ -35,6 +35,6 @@ export function bindChatCallbacks() {
       }
 
       jamid.setIsComposing(accountId, conversationId, isWriting)
-    }
+    },
   )
 }

@@ -192,7 +192,7 @@ export const NickNameInput = ({ onChange: _onChange, ...props }: TextFieldProps)
       setInput(event.target.value)
       _onChange?.(event)
     },
-    [_onChange]
+    [_onChange],
   )
 
   useEffect(() => {
@@ -227,7 +227,7 @@ export const RegularInput = ({ onChange: _onChange, ...props }: TextFieldProps) 
       setInput(event.target.value)
       _onChange?.(event)
     },
-    [_onChange]
+    [_onChange],
   )
 
   useEffect(() => {
@@ -284,7 +284,7 @@ const PasswordRules = () => {
         value: t('password_rule_5'),
       },
     ],
-    [t]
+    [t],
   )
   return <DialogContentList items={items} />
 }
@@ -310,7 +310,7 @@ const UsernameRules = () => {
         value: t('username_rule_4'),
       },
     ],
-    [t]
+    [t],
   )
   return <DialogContentList items={items} />
 }

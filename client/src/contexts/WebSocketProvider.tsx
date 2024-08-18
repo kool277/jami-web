@@ -47,7 +47,7 @@ export default ({ children }: WithChildren) => {
       unbind: webSocketClientRef.current.unbind.bind(webSocketClientRef.current),
       send: webSocketClientRef.current.send.bind(webSocketClientRef.current),
     }),
-    []
+    [],
   )
 
   return <optionalWebSocketContext.Context.Provider value={value}>{children}</optionalWebSocketContext.Context.Provider>

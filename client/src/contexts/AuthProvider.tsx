@@ -69,7 +69,7 @@ export default ({ children }: WithChildren) => {
             break
         }
         throw e
-      }
+      },
     )
 
     return instance

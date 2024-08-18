@@ -54,9 +54,7 @@ export default ({ searchFilter }: ContactSearchResultListProps) => {
       {contactsSearchResult && contactsSearchResult.length > 0 && (
         <>
           <ListSubheader>{t('search_results')}</ListSubheader>
-          {contactsSearchResult?.map((contact) => (
-            <ContactSearchResultListItem key={contact.uri} contact={contact} />
-          ))}
+          {contactsSearchResult?.map((contact) => <ContactSearchResultListItem key={contact.uri} contact={contact} />)}
         </>
       )}
 

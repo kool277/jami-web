@@ -37,11 +37,11 @@ conversationRequestRouter.get(
     const accountId = res.locals.accountId
     const jamidRequests = jamid.getConversationRequests(accountId)
     Promise.all(
-      jamidRequests.map((jamidRequest) => conversationService.createConversationRequest(accountId, jamidRequest))
+      jamidRequests.map((jamidRequest) => conversationService.createConversationRequest(accountId, jamidRequest)),
     )
       .then((apiRequests: IConversationRequest[]) => res.send(apiRequests))
       .catch((err) => res.status(HttpStatusCode.InternalServerError).send(err.message))
-  })
+  }),
 )
 
 conversationRequestRouter.post(
@@ -56,7 +56,7 @@ conversationRequestRouter.post(
       return
     }
     res.send(conversationSummary)
-  })
+  }),
 )
 
 conversationRequestRouter.delete(
@@ -64,7 +64,7 @@ conversationRequestRouter.delete(
   asyncHandler(async (req, res) => {
     jamid.declineConversationRequest(res.locals.accountId, req.params.conversationId)
     res.sendStatus(HttpStatusCode.NoContent)
-  })
+  }),
 )
 
 conversationRequestRouter.post('/:conversationId/block', (req, res) => {

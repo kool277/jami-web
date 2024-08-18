@@ -26,7 +26,7 @@ import { translateEnumeration, TranslateEnumerationOptions } from '../utils/tran
 export const useConversationDisplayName = (
   account: Account,
   conversationInfos: ConversationInfos | undefined,
-  members: ConversationMember[] | undefined = []
+  members: ConversationMember[] | undefined = [],
 ) => {
   const { t } = useTranslation()
 
@@ -59,7 +59,7 @@ export const useConversationDisplayName = (
 export const useConversationDisplayNameShort = (
   account: Account | null,
   title: string | undefined,
-  membersNames: string[]
+  membersNames: string[],
 ): string => {
   return useMemo(() => {
     if (title) {

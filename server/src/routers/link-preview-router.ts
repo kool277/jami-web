@@ -96,5 +96,5 @@ linkPreviewRouter.get(
     } catch (e) {
       res.status(HttpStatusCode.NotFound).send('Could not access url')
     }
-  })
+  }),
 )

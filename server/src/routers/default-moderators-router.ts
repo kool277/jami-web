@@ -46,7 +46,7 @@ defaultModeratorsRouter.get(
     }
 
     res.send(namedDefaultModerators)
-  })
+  }),
 )
 
 defaultModeratorsRouter.put('/:contactId', (req, res) => {
