@@ -51,7 +51,7 @@ interface FilePreviewInfosProps {
 const FilePreviewInfos = ({ fileHandler }: FilePreviewInfosProps) => {
   const file = fileHandler.file
   const fileSize = useDataSizeUnits(file.size)
-  const fileType = mime.extension(file.type)?.toUpperCase() || ''
+  const fileType = mime.getExtension(file.type)?.toUpperCase() || ''
   return (
     <Stack overflow="hidden">
       <Typography variant="body1" fontWeight="bold" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
