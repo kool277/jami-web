@@ -17,20 +17,27 @@
  */
 import { useQuery } from '@tanstack/react-query'
 import { LinkPreview } from 'jami-web-common'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider'
 
 export const useLinkPreviewQuery = (url: string) => {
   const { axiosInstance } = useAuthContext()
   const [hasFailed, setHasFailed] = useState(false) // Prevent reloading of links that have failed
-  return useQuery({
+  const query = useQuery({
     queryKey: ['link-preview', url],
     queryFn: async () => {
       const { data } = await axiosInstance.get<LinkPreview>(`/link-preview/?url=${url}`)
       return data
     },
-    onError: () => setHasFailed(true),
     enabled: !!url && !hasFailed,
   })
+
+  useEffect(() => {
+    if (query.error) {
+      setHasFailed(true)
+    }
+  }, [query.error])
+
+  return query
 }

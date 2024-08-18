@@ -31,7 +31,7 @@ export default function AdminSetup() {
 
   const { data: isSetupComplete } = useCheckAdminSetupStatusQuery()
   const setupAdminMutation = useSetupAdminMutation()
-  const { isLoading } = setupAdminMutation
+  const { isPending } = setupAdminMutation
   const { setAlertContent } = useContext(AlertSnackbarContext)
 
   const handleSubmit = (e: FormEvent) => {
@@ -94,7 +94,7 @@ export default function AdminSetup() {
                   type="password"
                   placeholder={t('admin_page_password_placeholder')}
                   autoComplete="new-password"
-                  disabled={isLoading}
+                  disabled={isPending}
                 />
               </div>
               <div>
@@ -106,12 +106,12 @@ export default function AdminSetup() {
                   type="password"
                   placeholder={t('admin_page_password_repeat_placeholder')}
                   autoComplete="new-password"
-                  disabled={isLoading}
+                  disabled={isPending}
                 />
               </div>
             </Box>
             <Box style={{ textAlign: 'center', marginTop: 24 }}>
-              <Fab variant="extended" color="primary" type="submit" disabled={isLoading}>
+              <Fab variant="extended" color="primary" type="submit" disabled={isPending}>
                 <GroupAddRounded />
                 {t('admin_page_create_button')}
               </Fab>

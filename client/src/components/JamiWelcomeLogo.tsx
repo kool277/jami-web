@@ -40,7 +40,7 @@ export default function JamiWelcomeLogo({ logoWidth, logoHeight, ...stackProps }
       }}
     >
       <JamiLogo width={logoWidth ?? jamiLogoDefaultSize} height={logoHeight ?? jamiLogoDefaultSize} />
-      <Typography variant="h1">{t('welcome_text')}</Typography>
+      <Typography variant="h2">{t('welcome_text')}</Typography>
     </Stack>
   )
 }

@@ -17,10 +17,10 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { AccessToken, IAdminConfigState } from 'jami-web-common'
 import { HttpStatusCode } from 'jami-web-common'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
@@ -128,7 +128,7 @@ export const useGetAdminConfigQuery = () => {
   const navigate = useNavigate()
   const { setAlertContent } = useContext(AlertSnackbarContext)
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['admin', 'config'],
     queryFn: async () => {
       const { data } = await axios.get('/admin/config', {
@@ -139,7 +139,7 @@ export const useGetAdminConfigQuery = () => {
         },
       })
       return data
-    },
+    } /*,
     onError: (e: any) => {
       if (e.response.status === HttpStatusCode.Unauthorized) {
         localStorage.removeItem('adminAccessToken')
@@ -151,8 +151,26 @@ export const useGetAdminConfigQuery = () => {
           alertOpen: true,
         })
       }
-    },
+    },*/,
   })
+
+  useEffect(() => {
+    if (query.error) {
+      const response = query.error as AxiosError
+      if (response?.status === HttpStatusCode.Unauthorized) {
+        localStorage.removeItem('adminAccessToken')
+        navigate('/admin/login')
+      } else {
+        setAlertContent({
+          messageI18nKey: 'unknown_error_alert',
+          severity: 'error',
+          alertOpen: true,
+        })
+      }
+    }
+  }, [query.error])
+
+  return query
 }
 
 export const useUpdateAdminConfigMutation = () => {

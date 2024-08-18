@@ -94,7 +94,7 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
 
   const closeDialog = useCallback(
     () => props.onClose?.({}, 'escapeKeyDown'), // dummy arguments
-    [props]
+    [props],
   )
 
   const blockConversationRequestMutation = useBlockConversationRequestMutation()
@@ -106,7 +106,7 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
       { conversationId },
       {
         onSettled: closeDialog,
-      }
+      },
     )
   }, [blockConversationRequestMutation, conversationId, closeDialog])
 
@@ -116,7 +116,7 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
       {
         onSuccess: () => navigate(`/conversation/${conversationId}`),
         onSettled: closeDialog,
-      }
+      },
     )
   }, [acceptConversationRequestMutation, conversationId, closeDialog, navigate])
 
@@ -125,18 +125,18 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
       { conversationId },
       {
         onSettled: closeDialog,
-      }
+      },
     )
   }, [declineConversationRequestMutation, conversationId, closeDialog])
 
   return (
     <Dialog {...props}>
       <Stack alignItems="center" spacing="40px" position="relative">
-        <Typography variant="caption" visibility={acceptConversationRequestMutation.isLoading ? 'hidden' : 'visible'}>
+        <Typography variant="caption" visibility={acceptConversationRequestMutation.isPending ? 'hidden' : 'visible'}>
           {t('conversation_request_has_sent_request', { contact: contact.getDisplayName() })}
         </Typography>
         <ConversationAvatar displayName={title} src={avatar} sx={{ width: '112px', height: '112px' }} />
-        {acceptConversationRequestMutation.isLoading ? (
+        {acceptConversationRequestMutation.isPending ? (
           <>
             <Typography variant="h3" whiteSpace="pre-line" textAlign="center" fontWeight="bold">
               {t('conversation_request_accepted')}

@@ -32,29 +32,30 @@ import { useAddToCache, useRemoveFromCache } from '../utils/reactquery'
 
 export const useConversationInfosQuery = (conversationId?: string) => {
   const { axiosInstance } = useAuthContext()
-  return useQuery(
-    ['conversations', conversationId],
-    async () => {
+  return useQuery({
+    queryKey: ['conversations', conversationId],
+    queryFn: async () => {
       const { data } = await axiosInstance.get<ConversationInfos>(`/conversations/${conversationId}/infos`)
       return data
     },
-    {
-      enabled: !!conversationId,
-    }
-  )
+    enabled: !!conversationId,
+  })
 }
 
 export const useConversationsSummariesQuery = () => {
   const { axiosInstance } = useAuthContext()
-  return useQuery(['conversations', 'summaries'], async () => {
-    const { data } = await axiosInstance.get<IConversationSummary[]>(`/conversations`)
-    return data
+  return useQuery({
+    queryKey: ['conversations', 'summaries'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<IConversationSummary[]>(`/conversations`)
+      return data
+    },
   })
 }
 
 const checkConversationSummariesAreEqual = (
   conversationSummary1: IConversationSummary,
-  conversationSummary2: IConversationSummary
+  conversationSummary2: IConversationSummary,
 ) => conversationSummary1.id === conversationSummary2.id
 const checkIsConversationSummaryFn = (conversationSummary: IConversationSummary, conversationId: string) =>
   conversationSummary.id === conversationId
@@ -67,65 +68,59 @@ export const useRemoveConversationSummaryFromCache = () =>
 export const useRemoveConversationMutation = () => {
   const { axiosInstance } = useAuthContext()
   const removeConversationSummaryFromCache = useRemoveConversationSummaryFromCache()
-  return useMutation(
-    ({ conversationId }: { conversationId: string }) => axiosInstance.delete(`/conversations/${conversationId}`),
-    {
-      onSuccess: (_data, { conversationId }) => {
-        removeConversationSummaryFromCache(conversationId)
-      },
-    }
-  )
+
+  return useMutation({
+    mutationFn: ({ conversationId }: { conversationId: string }) =>
+      axiosInstance.delete(`/conversations/${conversationId}`),
+    onSuccess: (_data, { conversationId }) => {
+      removeConversationSummaryFromCache(conversationId)
+    },
+  })
 }
 
 export const useRefreshConversationsSummaries = () => {
   const queryClient = useQueryClient()
   return useCallback(() => {
-    queryClient.invalidateQueries(['conversations', 'summaries'])
+    queryClient.invalidateQueries({ queryKey: ['conversations', 'summaries'] })
   }, [queryClient])
 }
 
 export const useMembersQuery = (conversationId?: string) => {
   const { axiosInstance } = useAuthContext()
-  return useQuery(
-    ['conversations', conversationId, 'members'],
-    async () => {
+  return useQuery({
+    queryKey: ['conversations', conversationId, 'members'],
+    queryFn: async () => {
       const { data } = await axiosInstance.get<IConversationMember[]>(`/conversations/${conversationId}/members`)
       return data.map((item) => ConversationMember.fromInterface(item))
     },
-    {
-      enabled: !!conversationId,
-    }
-  )
+    enabled: !!conversationId,
+  })
 }
 
 export const useMessagesQuery = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
-  return useQuery(
-    ['conversations', conversationId, 'messages'],
-    async () => {
+  return useQuery({
+    queryKey: ['conversations', conversationId, 'messages'],
+    queryFn: async () => {
       const { data } = await axiosInstance.get<Message[]>(`/conversations/${conversationId}/messages`)
       return data
     },
-    {
-      enabled: !!conversationId,
-    }
-  )
+    enabled: !!conversationId,
+  })
 }
 
 export const useSendMessageMutation = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
   const queryClient = useQueryClient()
-  return useMutation(
-    (message: string) => axiosInstance.post(`/conversations/${conversationId}/messages`, { message }),
-    {
-      onSuccess: () => queryClient.invalidateQueries(['messages', conversationId]),
-    }
-  )
+  return useMutation({
+    mutationFn: (message: string) => axiosInstance.post(`/conversations/${conversationId}/messages`, { message }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
+  })
 }
 
 const CheckConversationRequestsAreEqual = (
   conversationRequest1: IConversationRequest,
-  conversationRequest2: IConversationRequest
+  conversationRequest2: IConversationRequest,
 ) => conversationRequest1.conversationId === conversationRequest2.conversationId
 const checkIsConversationRequestFn = (conversationRequest: IConversationRequest, conversationId: string) =>
   conversationRequest.conversationId === conversationId
@@ -150,46 +145,40 @@ export const useAcceptConversationRequestMutation = () => {
   const { axiosInstance } = useAuthContext()
   const addConversationSummaryToCache = useAddConversationSummaryToCache()
   const removeConversationRequestFromCache = useRemoveConversationRequestFromCache()
-  return useMutation(
-    async (variables: { conversationId: string }) => {
+  return useMutation({
+    mutationFn: async (variables: { conversationId: string }) => {
       const { data } = await axiosInstance.post<undefined, AxiosResponse<IConversationSummary>>(
-        `/conversation-requests/${variables.conversationId}`
+        `/conversation-requests/${variables.conversationId}`,
       )
       return data
     },
-    {
-      onSuccess: (data, { conversationId }) => {
-        addConversationSummaryToCache(data)
-        removeConversationRequestFromCache(conversationId)
-      },
-    }
-  )
+    onSuccess: (data, { conversationId }) => {
+      addConversationSummaryToCache(data)
+      removeConversationRequestFromCache(conversationId)
+    },
+  })
 }
 
 export const useBlockConversationRequestMutation = () => {
   const { axiosInstance } = useAuthContext()
   const removeConversationRequestFromCache = useRemoveConversationRequestFromCache()
-  return useMutation(
-    ({ conversationId }: { conversationId: string }) =>
+  return useMutation({
+    mutationFn: ({ conversationId }: { conversationId: string }) =>
       axiosInstance.post(`/conversation-requests/${conversationId}/block`),
-    {
-      onSuccess: (_data, { conversationId }) => {
-        removeConversationRequestFromCache(conversationId)
-      },
-    }
-  )
+    onSuccess: (_data, { conversationId }) => {
+      removeConversationRequestFromCache(conversationId)
+    },
+  })
 }
 
 export const useDeclineConversationRequestMutation = () => {
   const { axiosInstance } = useAuthContext()
   const removeConversationRequestFromCache = useRemoveConversationRequestFromCache()
-  return useMutation(
-    ({ conversationId }: { conversationId: string }) =>
+  return useMutation({
+    mutationFn: ({ conversationId }: { conversationId: string }) =>
       axiosInstance.delete(`/conversation-requests/${conversationId}`),
-    {
-      onSuccess: (_data, { conversationId }) => {
-        removeConversationRequestFromCache(conversationId)
-      },
-    }
-  )
+    onSuccess: (_data, { conversationId }) => {
+      removeConversationRequestFromCache(conversationId)
+    },
+  })
 }

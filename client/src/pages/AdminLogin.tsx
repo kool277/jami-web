@@ -27,7 +27,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('')
   const { t } = useTranslation()
   const loginAdminMutation = useLoginAdminMutation()
-  const { isLoading } = loginAdminMutation
+  const { isPending } = loginAdminMutation
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -62,12 +62,12 @@ export default function AdminLogin() {
                   placeholder={t('password_placeholder')}
                   autoComplete="new-password"
                   required
-                  disabled={isLoading}
+                  disabled={isPending}
                 />
               </div>
             </Box>
             <Box style={{ textAlign: 'center', marginTop: 24 }}>
-              <Fab variant="extended" color="primary" type="submit" disabled={isLoading}>
+              <Fab variant="extended" color="primary" type="submit" disabled={isPending}>
                 <GroupAddRounded />
                 {t('login_form_submit_button')}
               </Fab>

@@ -47,10 +47,10 @@ function RegistrationForm() {
   const registerMutation = useRegisterMutation()
   const loginMutation = useLoginMutation()
 
-  const { isLoading: isRegisterLoading } = registerMutation
-  const { isLoading: isLoginLoading } = loginMutation
+  const { isPending: isRegisterLoading } = registerMutation
+  const { isPending: isLoginLoading } = loginMutation
 
-  const isLoading = isRegisterLoading || isLoginLoading
+  const isPending = isRegisterLoading || isLoginLoading
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
@@ -87,7 +87,7 @@ function RegistrationForm() {
             loginMutation.mutate({ username, password, isJams: false })
           }
         },
-      }
+      },
     )
   }
 
@@ -139,7 +139,7 @@ function RegistrationForm() {
 
   return (
     <>
-      <ProcessingRequest open={isLoading} />
+      <ProcessingRequest open={isPending} />
 
       <Stack
         sx={{

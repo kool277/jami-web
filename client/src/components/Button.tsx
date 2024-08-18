@@ -36,8 +36,8 @@ import {
   Theme,
 } from '@mui/material'
 import { PaletteColor, styled } from '@mui/material/styles'
-import EmojiPicker, { IEmojiData } from 'emoji-picker-react'
-import { ComponentType, MouseEvent, ReactNode, useCallback, useState } from 'react'
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
+import { ComponentType, ReactNode, useCallback, useState } from 'react'
 
 import {
   Arrow2Icon,
@@ -436,20 +436,17 @@ type SelectEmojiButtonProps = {
 export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
 
-  const handleOpenEmojiPicker = useCallback(
-    (e: MouseEvent<HTMLButtonElement>) => setAnchorEl(anchorEl ? null : e.currentTarget),
-    [anchorEl]
-  )
+  const handleOpenEmojiPicker = useCallback((e: any) => setAnchorEl(anchorEl ? null : e.currentTarget), [anchorEl])
 
   const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
 
-  const onEmojiClick = useCallback(
-    (e: MouseEvent, emojiObject: IEmojiData) => {
-      onEmojiSelected(emojiObject.emoji)
+  const onEmojiClick = //useCallback(
+    (emoji: EmojiClickData, event: MouseEvent) => {
+      onEmojiSelected(emoji.emoji)
       handleClose()
-    },
+    } /*,
     [handleClose, onEmojiSelected]
-  )
+  )*/
 
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
@@ -464,7 +461,7 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
           onClick={handleOpenEmojiPicker}
         />
         <Popper id={id} open={open} anchorEl={anchorEl}>
-          <EmojiPicker onEmojiClick={onEmojiClick} disableAutoFocus={true} disableSkinTonePicker={true} native />
+          <EmojiPicker onEmojiClick={onEmojiClick} autoFocusSearch={false} skinTonesDisabled={true} />
         </Popper>
       </Box>
     </ClickAwayListener>
@@ -525,7 +522,7 @@ export const ColoredRoundButton = styled(
         <Icon fontSize="inherit" />
       </IconButton>
     )
-  }
+  },
 )(({ theme, paletteColor = theme.palette.primary }) => {
   if (typeof paletteColor === 'function') {
     paletteColor = paletteColor(theme)

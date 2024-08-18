@@ -61,7 +61,7 @@ export default function WelcomeAnimation(props) {
             <motion.div variants={item}>
               <JamiLogo width="95%" />
             </motion.div>
-            <motion.h1 variants={item}>{t('welcome_text')}</motion.h1>
+            <motion.h2 variants={item}>{t('welcome_text')}</motion.h2>
           </motion.div>
         )}
       </AnimatePresence>

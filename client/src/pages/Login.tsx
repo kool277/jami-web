@@ -48,7 +48,7 @@ function LoginForm() {
   const { setAlertContent } = useContext(AlertSnackbarContext)
 
   const loginMutation = useLoginMutation()
-  const { isLoading } = loginMutation
+  const { isPending } = loginMutation
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
@@ -80,7 +80,7 @@ function LoginForm() {
 
   return (
     <>
-      <ProcessingRequest open={isLoading} />
+      <ProcessingRequest open={isPending} />
 
       <Stack
         sx={{

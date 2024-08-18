@@ -20,6 +20,9 @@ import { defineConfig } from 'vite'
 import svgr from 'vite-plugin-svgr'
 
 export default defineConfig({
+  optimizeDeps: {
+    include: ['@emotion/react', '@emotion/styled', '@mui/material/Tooltip'],
+  },
   plugins: [react(), svgr()],
   server: {
     host: '0.0.0.0',

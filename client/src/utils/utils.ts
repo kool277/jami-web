@@ -32,8 +32,8 @@ export type AsyncSetState<T> = AsyncDispatch<SetStateAction<T>>
  * https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/setSinkId#browser_compatibility
  */
 export interface VideoElementWithSinkId extends HTMLVideoElement {
-  sinkId?: string
-  setSinkId?: (deviceId: string) => void
+  readonly sinkId: string
+  setSinkId(sinkId: string): Promise<void>
 }
 
 export type PartialNotOptional<T> = {
