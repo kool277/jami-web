@@ -51,7 +51,7 @@ const ConversationHeader = () => {
   return (
     <Stack direction="row" padding="16px" overflow="hidden">
       <Stack flex={1} justifyContent="center" whiteSpace="nowrap" overflow="hidden">
-        <Typography variant="h3" textOverflow="ellipsis">
+        <Typography variant="h5" textOverflow="ellipsis">
           {conversationDisplayName}
         </Typography>
       </Stack>

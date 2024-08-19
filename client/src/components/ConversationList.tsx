@@ -43,7 +43,15 @@ export default function ConversationList() {
           type="search"
           placeholder={t('find_users_and_conversations')}
           onChange={handleInputChange}
-          startAdornment={<SearchRounded />}
+          startAdornment={
+            <SearchRounded
+              sx={{
+                color: 'grey.500',
+                ml: 1,
+                mr: 0.5,
+              }}
+            />
+          }
           sx={{
             flexGrow: 1,
           }}

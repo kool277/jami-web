@@ -23,6 +23,9 @@ declare module '@mui/material/styles' {
       backgroundColor: SimplePaletteColorOptions
       color: SimplePaletteColorOptions
     }
+    ChatInterface: {
+      panelColor: string
+    }
   }
 
   interface ThemeOptions {
@@ -33,7 +36,7 @@ declare module '@mui/material/styles' {
   }
 }
 
-const fonts = {
+const _fonts = {
   typography: {
     fontFamily: 'Ubuntu',
     allVariants: {
@@ -174,6 +177,9 @@ const palettes = {
         main: '#292929',
       },
     },
+    ChatInterface: {
+      panelColor: '#f2f2f2',
+    },
   },
   dark: {
     palette: {
@@ -206,12 +212,16 @@ const palettes = {
         main: '#292929',
       },
     },
+    ChatInterface: {
+      panelColor: '#181818',
+    },
   },
 }
 
 export const buildDefaultTheme = (mode: PaletteMode) => {
+  //return createTheme({ ...palettes[mode] /*, ...fonts*/ })
   // Attemps to set the fonts on the second "createTheme" has resulted with wrong font-families
-  const partialTheme = createTheme({ ...palettes[mode], ...fonts })
+  const partialTheme = createTheme({ ...palettes[mode] /*, ...fonts*/ })
   const palette = partialTheme.palette
 
   return createTheme(partialTheme, {
@@ -337,10 +347,6 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
             },
           },
           underline: {
-            /*
-              Material UI uses "before" for the regular underline.
-              There is a second underline called "after" placed over "before"
-            */
             '&:before': {
               borderBottom: `2px solid ${palette.primary.dark}`,
             },
@@ -399,7 +405,7 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
           },
         },
       },
-      MuiListItemButton: {
+      /*MuiListItemButton: {
         styleOverrides: {
           root: {
             '&.Mui-selected': {
@@ -416,7 +422,7 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
             },
           },
         },
-      },
+      },*/
     },
   })
 }

@@ -151,7 +151,7 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup 
 
 const MessageInitial = () => {
   const { t } = useTranslation()
-  return <>{t('message_swarm_created')}</>
+  return <Typography variant="body1">{t('message_swarm_created')}</Typography>
 }
 
 interface MessageDataTransferProps {
@@ -291,7 +291,7 @@ const DateIndicator = ({ time }: DateIndicatorProps) => {
   const textDate = useMemo(() => formatRelativeDate(time, i18n), [time, i18n])
 
   return (
-    <Box marginTop="30px">
+    <Box>
       <Divider
         sx={{
           '.MuiDivider-wrapper': {
@@ -423,7 +423,7 @@ const UserMessageRow = ({
   return (
     <Stack alignItems={position}>
       {isFirstOfGroup && (
-        <Box padding={`30px ${participantNamePadding} 0 ${participantNamePadding}`}>
+        <Box padding={`0px ${participantNamePadding} 0 ${participantNamePadding}`}>
           <ParticipantName name={authorName} />
         </Box>
       )}

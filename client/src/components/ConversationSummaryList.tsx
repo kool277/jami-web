@@ -45,7 +45,13 @@ type ConversationSummaryListProps = {
 
 export const ConversationSummaryList = ({ conversationsSummaries }: ConversationSummaryListProps) => {
   return (
-    <List>
+    <List
+      sx={{
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+      }}
+    >
       {conversationsSummaries?.map((conversationSummary) => (
         <ConversationSummaryListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
       ))}
@@ -77,7 +83,7 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
   const conversationName = useConversationDisplayNameShort(
     account,
     conversationSummary.title,
-    conversationSummary.membersNames
+    conversationSummary.membersNames,
   )
 
   return (
@@ -253,7 +259,7 @@ const ConversationMenu = ({
       t,
       startCall,
       conversationId,
-    ]
+    ],
   )
 
   return (
@@ -305,7 +311,7 @@ const DetailsDialog = ({ conversationId, conversationName, open, onClose, isSwar
         value: isSwarm ? t('conversation_details_is_swarm_true') : t('conversation_details_is_swarm_false'),
       },
     ],
-    [conversationId, conversationName, isSwarm, t]
+    [conversationId, conversationName, isSwarm, t],
   )
   return (
     <InfosDialog
@@ -345,7 +351,7 @@ const RemoveConversationDialog = ({ conversationId, isSelected, open, onClose }:
         onSettled: () => {
           onClose()
         },
-      }
+      },
     )
   }, [conversationId, isSelected, navigate, onClose, removeConversationMutation])
 

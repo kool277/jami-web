@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { PaletteMode } from '@mui/material'
+import { CssBaseline, PaletteMode } from '@mui/material'
 import { ThemeProvider } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
@@ -62,12 +62,15 @@ export default ({ children }: WithChildren) => {
       mode,
       toggleMode,
     }),
-    [mode, toggleMode]
+    [mode, toggleMode],
   )
 
   return (
     <CustomThemeContext.Provider value={value}>
-      <ThemeProvider theme={theme}>{children}</ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline enableColorScheme />
+        {children}
+      </ThemeProvider>
     </CustomThemeContext.Provider>
   )
 }

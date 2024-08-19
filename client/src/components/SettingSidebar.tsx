@@ -21,7 +21,8 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 // import ListItemIcon from '@mui/material/ListItemIcon';
 import Stack from '@mui/material/Stack'
-import { Theme, useTheme } from '@mui/system'
+import { Theme } from '@mui/material/styles'
+import { useTheme } from '@mui/system'
 import Box from '@mui/system/Box'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -112,7 +113,9 @@ function SettingSidebar() {
               {/* </ListItemIcon> */}
               <ListItemText
                 primaryTypographyProps={{
-                  color: isCurrentlyViewing(settingItem.highlightKey) ? theme.palette.primary.dark : 'initial',
+                  color: isCurrentlyViewing(settingItem.highlightKey)
+                    ? theme.palette.primary.dark
+                    : theme.palette.text.primary,
                 }}
                 primary={settingItem.title}
               />
@@ -124,7 +127,9 @@ function SettingSidebar() {
                     <ListItemButton key={itemIndex} sx={{ pl: 4 }} onClick={() => navigate(submenuItem.link)}>
                       <ListItemText
                         primaryTypographyProps={{
-                          color: isCurrentlyViewing(submenuItem.highlightKey) ? theme.palette.primary.dark : 'initial',
+                          color: isCurrentlyViewing(submenuItem.highlightKey)
+                            ? theme.palette.primary.dark
+                            : theme.palette.text.primary,
                         }}
                         primary={submenuItem.title}
                       />
