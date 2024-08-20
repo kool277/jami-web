@@ -1,6 +1,7 @@
 {
   "accept_call_audio": "Accept in audio",
   "accept_call_video": "Accept in video",
+  "admin_config_auth_methods_title": "Authentication methods",
   "admin_page_create_button": "Create admin account",
   "admin_page_login_title": "Jami Web Admin Login",
   "admin_page_password_placeholder": "New password",
@@ -9,7 +10,7 @@
   "admin_page_setup_intro": "Let's start by creating a new administrator account to control access to the server configuration.",
   "admin_page_setup_not_complete": "Setup is not complete",
   "admin_page_setup_title": "Jami Web Admin Setup",
-  "admin_page_welcome": "Welcome to the Jami web node setup.",
+  "admin_page_welcome": "Welcome to the Jami web node setup",
   "are_composing_1": "{{member0}} is writing",
   "are_composing_2": "{{member0}} and {{member1}} are writing",
   "are_composing_3": "{{member0}}, {{member1}} and {{member2}} are writing",

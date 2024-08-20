@@ -63,35 +63,47 @@ export default function AdminPanel() {
   //TODO: add translations
   return (
     <>
-      <Button variant="contained" type="submit" onClick={adminLogout}>
-        {t('logout')}
-      </Button>
-      <Typography variant="h3">{/*t('admin_config_main_title')*/ 'Admin panel'}</Typography>
-      <Box sx={{ display: 'flex' }}>
-        <FormControl>
-          <FormLabel>
-            <Typography variant="h3">{/*t('admin_config_auth_methods_title')*/ 'Authentication methods'}</Typography>
-          </FormLabel>
-          <FormGroup>
-            <FormControlLabel
-              control={<Switch checked={data.localAuthEnabled} onChange={toggleLocalAuthEnabled} />}
-              label={/*t('admin_config_auth_method_checkbox_local')*/ 'Local'}
-            />
-            <FormControlLabel
-              control={<Switch checked={data.jamsAuthEnabled} onChange={toggleJamsAuthEnabled} />}
-              label={/*t('admin_config_auth_method_checkbox_local')*/ 'JAMS'}
-            />
-            <FormControlLabel
-              control={<Switch disabled checked={data.guestAccessEnabled} onChange={toggleGuestAccessEnabled} />}
-              label={/*t('admin_config_auth_method_checkbox_local')*/ 'Guest'}
-            />
-            <FormControlLabel
-              control={<Switch disabled checked={data.openIdAuthEnabled} onChange={toggleOpenIdAuthEnabled} />}
-              label={/*t('admin_config_auth_method_checkbox_local')*/ 'OpenID'}
-            />
-          </FormGroup>
-        </FormControl>
-      </Box>
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Typography variant="h3">{t('admin_page_welcome')}</Typography>
+        <Button variant="contained" type="submit" onClick={adminLogout}>
+          {t('logout')}
+        </Button>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignContent: 'center',
+          marginTop: '8%',
+        }}
+      >
+        <Box sx={{ display: 'flex' }}>
+          <FormControl>
+            <FormLabel>
+              <Typography variant="h3">{t('admin_config_auth_methods_title')}</Typography>
+            </FormLabel>
+            <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
+              <FormControlLabel
+                control={<Switch checked={data.localAuthEnabled} onChange={toggleLocalAuthEnabled} />}
+                label={/*t('admin_config_auth_method_checkbox_local')*/ 'Local'}
+              />
+              <FormControlLabel
+                control={<Switch checked={data.jamsAuthEnabled} onChange={toggleJamsAuthEnabled} />}
+                label={/*t('admin_config_auth_method_checkbox_local')*/ 'JAMS'}
+              />
+              <FormControlLabel
+                control={<Switch disabled checked={data.guestAccessEnabled} onChange={toggleGuestAccessEnabled} />}
+                label={/*t('admin_config_auth_method_checkbox_local')*/ 'Guest'}
+              />
+              <FormControlLabel
+                control={<Switch disabled checked={data.openIdAuthEnabled} onChange={toggleOpenIdAuthEnabled} />}
+                label={/*t('admin_config_auth_method_checkbox_local')*/ 'OpenID'}
+              />
+            </FormGroup>
+          </FormControl>
+        </Box>
+      </div>
     </>
   )
 }

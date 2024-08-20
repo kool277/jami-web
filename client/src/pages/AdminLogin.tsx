@@ -16,11 +16,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 import GroupAddRounded from '@mui/icons-material/GroupAddRounded'
-import { Box, Card, CardContent, Container, Fab, Input, Typography } from '@mui/material'
+import { Box, Card, CardContent, Container, Fab, Input, Typography, useMediaQuery } from '@mui/material'
+import { Theme, useTheme } from '@mui/material/styles'
+import { motion } from 'framer-motion'
 import { FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
 
+import jamiLogoIcon from '../icons/jamiLogoIcon.svg'
 import { useLoginAdminMutation } from '../services/adminQueries'
 
 export default function AdminLogin() {
@@ -28,12 +31,13 @@ export default function AdminLogin() {
   const { t } = useTranslation()
   const loginAdminMutation = useLoginAdminMutation()
   const { isPending } = loginAdminMutation
+  const theme: Theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const borderRadius = 30
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-
     if (password === '') return
-
     loginAdminMutation.mutate(password)
   }
 
@@ -43,15 +47,66 @@ export default function AdminLogin() {
   //TODO: refactor translations
   return (
     <>
-      <Container className="message-list">
-        <Card>
+      <Container
+        className="message-list"
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: 'auto',
+          width: 1,
+          borderRadius: borderRadius,
+          minHeight: `${isMobile ? 'auto' : ''}`,
+        }}
+      >
+        &nbsp;
+        <Card
+          variant="outlined"
+          sx={{
+            textAlign: 'center',
+            paddingBottom: 8,
+            marginTop: 20,
+            width: `${isMobile ? '110%' : 1 / 1.5}`,
+            background: `${isMobile ? 'white' : 'linear-gradient(200deg, #A3C2DA 50%, #FFFFFF)'}`,
+            border: `${isMobile ? 0 : 1 / 2}`,
+          }}
+        >
           <CardContent component="form" onSubmit={handleSubmit}>
-            <Typography gutterBottom variant="h5" component="h2">
+            <Typography
+              gutterBottom
+              variant="h5"
+              component="h1"
+              sx={{ textAlign: 'center', marginTop: 0, paddingBottom: 4, fontWeight: 'medium' }}
+            >
               {t('admin_page_login_title')}
             </Typography>
-            <Box style={{ textAlign: 'center', marginTop: 8, marginBottom: 16 }}>
+
+            <motion.div
+              initial={{ scale: 0.2 }}
+              animate={{ rotate: 360, scale: 1 }}
+              transition={{
+                type: 'spring',
+                stiffness: 150,
+                damping: 25,
+              }}
+              style={{ paddingBottom: 8 }}
+            >
+              <Box
+                component="img"
+                sx={{
+                  height: 233,
+                  width: 350,
+                  maxHeight: { xs: 125, md: 167 },
+                  maxWidth: { xs: 187, md: 250 },
+                }}
+                alt="Logo Savoir Faire Linux"
+                src={jamiLogoIcon}
+              />
+            </motion.div>
+
+            <Box style={{ textAlign: 'center', marginTop: 10 }}>
               <div>
-                <Input value="admin" name="username" autoComplete="username" disabled />
+                <Input value="admin" name="username" autoComplete="username" />
               </div>
               <div>
                 <Input
@@ -68,8 +123,9 @@ export default function AdminLogin() {
             </Box>
             <Box style={{ textAlign: 'center', marginTop: 24 }}>
               <Fab variant="extended" color="primary" type="submit" disabled={isPending}>
-                <GroupAddRounded />
                 {t('login_form_submit_button')}
+                &nbsp;&nbsp;
+                <GroupAddRounded />
               </Fab>
             </Box>
           </CardContent>
