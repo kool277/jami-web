@@ -35,14 +35,14 @@ export const authRouter = Router()
 authRouter.post(
   '/new-account',
   asyncHandler(async (req: Request<ParamsDictionary, string, Partial<UserCredentials>>, res) => {
-    const { username, password, isJams } = req.body
+    const { username, password, authMethod } = req.body
     if (username === undefined || password === undefined) {
       res.status(HttpStatusCode.BadRequest).send('Missing username or password in body')
       return
     }
-    console.log('Creating new account', username, password, isJams)
+    console.log('Creating new account', username, password, authMethod)
 
-    const isAccountAlreadyCreated = accounts.get(username, isJams) !== undefined
+    const isAccountAlreadyCreated = accounts.get(username, authMethod) !== undefined
     if (isAccountAlreadyCreated) {
       res.status(HttpStatusCode.Conflict).send('Username already exists locally')
       return
@@ -59,13 +59,13 @@ authRouter.post(
       // TODO: Enable encrypted archives
       // 'Account.archivePassword': password
     }
-    if (isJams) {
+    if (authMethod === 'jams') {
       accountDetails['Account.managerUri'] = 'https://jams.savoirfairelinux.com/'
       accountDetails['Account.managerUsername'] = username
     }
     const { accountId, state } = await jamid.addAccount(accountDetails)
 
-    if (isJams) {
+    if (authMethod === 'jams') {
       if (state === RegistrationState.ErrorGeneric) {
         jamid.removeAccount(accountId)
         res.status(HttpStatusCode.Unauthorized).send('Invalid JAMS credentials')
@@ -89,7 +89,7 @@ authRouter.post(
       }
     }
 
-    accounts.set(username, hashedPassword, isJams)
+    accounts.set(username, hashedPassword, authMethod)
     await accounts.save()
 
     res.sendStatus(HttpStatusCode.Created)
@@ -99,7 +99,8 @@ authRouter.post(
 authRouter.post(
   '/login',
   asyncHandler(async (req: Request<ParamsDictionary, AccessToken | string, Partial<UserCredentials>>, res) => {
-    const { username, password, isJams } = req.body
+    const { username, password, authMethod } = req.body
+
     if (username === undefined || password === undefined) {
       res.status(HttpStatusCode.BadRequest).send('Missing username or password in body')
       return
@@ -112,7 +113,8 @@ authRouter.post(
       return
     }
 
-    const hashedPassword = accounts.get(username, isJams)
+    const hashedPassword = accounts.get(username, authMethod)
+
     if (hashedPassword === undefined) {
       res
         .status(HttpStatusCode.Unauthorized)

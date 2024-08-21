@@ -84,7 +84,7 @@ function RegistrationForm() {
       {
         onSuccess: (response) => {
           if (response.status === HttpStatusCode.Created) {
-            loginMutation.mutate({ username, password, isJams: false })
+            loginMutation.mutate({ username, password, authMethod: 'local' })
           }
         },
       },

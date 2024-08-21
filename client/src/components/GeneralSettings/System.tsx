@@ -15,11 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useCallback, useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { languagesInfos, LanguageTag } from '../../i18n'
-import { SettingSelect, SettingSelectProps, SettingsGroup, SettingSwitch } from '../Settings'
+import SettingLanguage from '../SettingLanguage'
+import { SettingsGroup, SettingSwitch } from '../Settings'
 
 function System() {
   const { t } = useTranslation()
@@ -28,39 +28,6 @@ function System() {
       <SettingLanguage />
       <SettingLinkPreview />
     </SettingsGroup>
-  )
-}
-
-const settingLanguageOptions = languagesInfos.map(({ tag, fullName }) => ({
-  label: fullName,
-  payload: tag,
-}))
-
-const SettingLanguage = () => {
-  const { t, i18n } = useTranslation()
-
-  const option = useMemo(
-    // TODO: Tell Typescript the result can't be undefined
-    () => settingLanguageOptions.find((option) => option.payload === i18n.language),
-    [i18n.language],
-  )
-
-  const onChange = useCallback<SettingSelectProps<LanguageTag>['onChange']>(
-    (newValue) => {
-      if (newValue) {
-        i18n.changeLanguage(newValue.payload)
-      }
-    },
-    [i18n],
-  )
-
-  return (
-    <SettingSelect
-      label={t('settings_language')}
-      option={option}
-      options={settingLanguageOptions}
-      onChange={onChange}
-    />
   )
 }
 

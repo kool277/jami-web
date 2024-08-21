@@ -16,6 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Stack, StackProps, Typography } from '@mui/material'
+import { motion } from 'framer-motion'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import JamiLogo from '../icons/jamiLogoIcon.svg?react'
@@ -24,11 +26,15 @@ import { jamiLogoDefaultSize } from '../utils/constants'
 interface WelcomeLogoProps extends StackProps {
   logoWidth?: string
   logoHeight?: string
+  displayText?: boolean
 }
 
-export default function JamiWelcomeLogo({ logoWidth, logoHeight, ...stackProps }: WelcomeLogoProps) {
+export default function JamiWelcomeLogo({ logoWidth, logoHeight, displayText, ...stackProps }: WelcomeLogoProps) {
   const { t } = useTranslation()
-
+  const [isTextDisplayed, setIsTextDisplayed] = useState<boolean>(true)
+  if (displayText !== undefined && displayText !== isTextDisplayed) {
+    setIsTextDisplayed(displayText)
+  }
   return (
     <Stack
       {...stackProps}
@@ -36,11 +42,23 @@ export default function JamiWelcomeLogo({ logoWidth, logoHeight, ...stackProps }
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        textAlign: 'center',
         ...stackProps.sx,
       }}
     >
-      <JamiLogo width={logoWidth ?? jamiLogoDefaultSize} height={logoHeight ?? jamiLogoDefaultSize} />
-      <Typography variant="h2">{t('welcome_text')}</Typography>
+      <motion.div
+        initial={{ scale: 0.2 }}
+        animate={{ rotate: 360, scale: 1 }}
+        transition={{
+          type: 'spring',
+          stiffness: 150,
+          damping: 25,
+        }}
+        style={{ paddingBottom: 8 }}
+      >
+        <JamiLogo width={logoWidth ?? jamiLogoDefaultSize} height={logoHeight ?? jamiLogoDefaultSize} />
+      </motion.div>
+      {isTextDisplayed ? <Typography variant="h2">{t('welcome_text')}</Typography> : null}
     </Stack>
   )
 }

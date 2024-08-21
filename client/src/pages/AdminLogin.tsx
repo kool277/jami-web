@@ -18,12 +18,11 @@
 import GroupAddRounded from '@mui/icons-material/GroupAddRounded'
 import { Box, Card, CardContent, Container, Fab, Input, Typography, useMediaQuery } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
-import { motion } from 'framer-motion'
 import { FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
 
-import jamiLogoIcon from '../icons/jamiLogoIcon.svg'
+import JamiWelcomeLogo from '../components/JamiWelcomeLogo'
 import { useLoginAdminMutation } from '../services/adminQueries'
 
 export default function AdminLogin() {
@@ -74,35 +73,22 @@ export default function AdminLogin() {
           <CardContent component="form" onSubmit={handleSubmit}>
             <Typography
               gutterBottom
-              variant="h5"
+              variant="h3"
               component="h1"
               sx={{ textAlign: 'center', marginTop: 0, paddingBottom: 4, fontWeight: 'medium' }}
             >
               {t('admin_page_login_title')}
             </Typography>
 
-            <motion.div
-              initial={{ scale: 0.2 }}
-              animate={{ rotate: 360, scale: 1 }}
-              transition={{
-                type: 'spring',
-                stiffness: 150,
-                damping: 25,
+            <JamiWelcomeLogo
+              displayText={false}
+              logoWidth="50%"
+              sx={{
+                height: '10%',
+                mt: isMobile ? theme.typography.pxToRem(-200) : theme.typography.pxToRem(-100),
+                mb: isMobile ? theme.typography.pxToRem(-150) : theme.typography.pxToRem(-100),
               }}
-              style={{ paddingBottom: 8 }}
-            >
-              <Box
-                component="img"
-                sx={{
-                  height: 233,
-                  width: 350,
-                  maxHeight: { xs: 125, md: 167 },
-                  maxWidth: { xs: 187, md: 250 },
-                }}
-                alt="Logo Savoir Faire Linux"
-                src={jamiLogoIcon}
-              />
-            </motion.div>
+            />
 
             <Box style={{ textAlign: 'center', marginTop: 10 }}>
               <div>
