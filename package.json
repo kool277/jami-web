@@ -17,7 +17,8 @@
     "lint:fix": "npm run lint:fix --workspaces",
     "format": "npm run format --workspaces",
     "format:check": "npm run format:check --workspaces",
-    "prepare": "if [ -e '.git' ]; then git config core.hooksPath .hooks; fi"
+    "prepare": "if [ -e '.git' ]; then git config core.hooksPath .hooks; fi",
+    "test": "npx cypress run  --project ./client"
   },
   "lint-staged": {
     "**/*.{ts,tsx,js,jsx,cjs,html}": [
