@@ -22,12 +22,15 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { useAuthContext } from '../contexts/AuthProvider'
+import QrCodeModal from './QrCodeModal'
+
 //TODO:  remove 'settings-account' and 'settings-general' when migration is finished
 type NavigateURL = '/' | '/contacts' | '/settings-account' | '/settings-general' | '/settings/account/manage-account'
 
 export default function Header() {
   const { t } = useTranslation()
   const { logout } = useAuthContext()
+  const { account } = useAuthContext()
 
   const navigate = useNavigate()
 
@@ -43,6 +46,9 @@ export default function Header() {
 
   return (
     <Box>
+      <Button>
+        <QrCodeModal account={account} />
+      </Button>
       <Button data-cy="menu-button" aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
         {t('Menu')}
       </Button>
