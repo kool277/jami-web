@@ -12,7 +12,7 @@ The repo is structured as 4 subprojects:
 ## Prerequisites
 
 - Linux
-- [Node.js 16](https://nodejs.org/en/)
+- [Node.js 18](https://nodejs.org/en/)
 - [npm](https://www.npmjs.com/)
 - [SWIG 4.1.0:](https://www.swig.org/)
 
@@ -38,7 +38,7 @@ The repo is structured as 4 subprojects:
    > Note: for Ubuntu, the needed dependencies are:
 
    ```
-   sudo apt install autoconf automake autopoint bison build-essential cmake curl git libarchive-dev libasio-dev libasound2-dev libdbus-1-dev libdbus-c++-dev libexpat1-dev libfmt-dev libgmp-dev nettle-dev libgnutls28-dev libjsoncpp-dev libmsgpack-dev libnatpmp-dev libopus-dev libpulse-dev libspeex-dev libspeexdsp-dev libssl-dev libtool libudev-dev libupnp-dev libva-dev libvdpau-dev libvpx-dev libx264-dev libyaml-cpp-dev libhttp-parser-dev libwebrtc-audio-processing-dev libsecp256k1-dev guile-3.0-dev nasm pkg-config yasm
+   sudo apt install autoconf automake autopoint bison build-essential cmake curl git libarchive-dev libasio-dev libasound2-dev libdbus-1-dev libdbus-c++-dev libexpat1-dev libfmt-dev libgmp-dev nettle-dev libgnutls28-dev libjsoncpp-dev libmsgpack-dev libnatpmp-dev libopus-dev libpulse-dev libspeex-dev libspeexdsp-dev libssl-dev libtool libudev-dev libupnp-dev libva-dev libvdpau-dev libvpx-dev libx264-dev libyaml-cpp-dev libhttp-parser-dev libwebrtc-audio-processing-dev libsecp256k1-dev guile-3.0-dev nasm pkg-config yasm libpipewire-0.3-dev libsystemd-dev
    ```
 
 2. Compile the dependencies:
@@ -61,8 +61,8 @@ The repo is structured as 4 subprojects:
 
    ```sh
    cd ../..
-   ./autogen.sh
-   ./configure --with-nodejs
+   mkdir build && cd build
+   cmake .. -DJAMI_NODEJS=On -DBUILD_TESTING=Off
    make -j$(nproc)
    ```
 
