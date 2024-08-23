@@ -33,29 +33,22 @@ import {
   useRegisterMutation,
 } from '../services/authQueries'
 import { inputWidth, jamiUsernamePattern } from '../utils/constants'
+
 function RegistrationForm() {
   const theme: Theme = useTheme()
   const { t } = useTranslation()
-
   const [username, setUsername] = useState<string>('')
   const [debouncedUsername, setDebouncedUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-
   const [usernameStatus, setUsernameStatus] = useState<NameStatus>('default')
   const [passwordStatus, setPasswordStatus] = useState<PasswordStatus>('default')
-
   const registerMutation = useRegisterMutation()
   const loginMutation = useLoginMutation()
-
   const { isPending: isRegisterLoading } = registerMutation
   const { isPending: isLoginLoading } = loginMutation
-
   const isPending = isRegisterLoading || isLoginLoading
-
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-
   const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername)
-
   const usernameOk = usernameStatus === 'success'
   const passwordOk = passwordStatus !== PasswordStrength.TooWeak
 
@@ -84,7 +77,7 @@ function RegistrationForm() {
       {
         onSuccess: (response) => {
           if (response.status === HttpStatusCode.Created) {
-            loginMutation.mutate({ username, password, isJams: false })
+            loginMutation.mutate({ username, password, authMethod: 'local' })
           }
         },
       },
@@ -94,12 +87,10 @@ function RegistrationForm() {
   const handleUsername = async (event: ChangeEvent<HTMLInputElement>) => {
     const usernameValue: string = event.target.value
     setUsername(usernameValue)
-
     if (usernameValue === '') {
       setUsernameStatus('default')
       return
     }
-
     if (!jamiUsernamePattern.test(usernameValue)) {
       setUsernameStatus('invalid')
       return
@@ -111,7 +102,6 @@ function RegistrationForm() {
   const handlePassword = (event: ChangeEvent<HTMLInputElement>) => {
     const passwordValue: string = event.target.value
     setPassword(passwordValue)
-
     if (passwordValue.length > 0) {
       const checkResult = checkPasswordStrength(passwordValue)
       setPasswordStatus(checkResult.valueCode)
@@ -122,9 +112,7 @@ function RegistrationForm() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
-
     const canCreate = usernameOk && passwordOk
-
     if (canCreate) {
       createAccount()
     } else {
@@ -140,7 +128,6 @@ function RegistrationForm() {
   return (
     <>
       <ProcessingRequest open={isPending} />
-
       <Stack
         sx={{
           minHeight: `${isMobile ? 'auto' : '100%'}`,
@@ -154,7 +141,6 @@ function RegistrationForm() {
             {t('registration_form_title')}
           </Typography>
         </Box>
-
         <Form method="post" id="register-form">
           <div>
             <UsernameInput
@@ -176,7 +162,6 @@ function RegistrationForm() {
               sx={{ width: theme.typography.pxToRem(inputWidth) }}
             />
           </div>
-
           <Button
             disabled={!usernameOk || !passwordOk}
             data-cy="register-button"
@@ -188,7 +173,6 @@ function RegistrationForm() {
             {t('registration_form_submit_button')}
           </Button>
         </Form>
-
         <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(50) }}>
           <Typography variant="body1">
             {t('registration_form_to_login_text')} &nbsp;
@@ -201,5 +185,4 @@ function RegistrationForm() {
     </>
   )
 }
-
 export default withAuthUI(RegistrationForm)

@@ -15,95 +15,61 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Typography } from '@mui/material'
-import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormGroup from '@mui/material/FormGroup'
-import FormLabel from '@mui/material/FormLabel'
-import Switch from '@mui/material/Switch'
+import { Box, Button, Typography, useMediaQuery } from '@mui/material'
+import { Theme, useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
-import ProcessingRequest from '../components/ProcessingRequest'
-import { useGetAdminConfigQuery, useUpdateAdminConfigMutation } from '../services/adminQueries'
-
+import AuthMethods from '../components/AdminSettings/AuthMethods'
+import jamiLogoIcon from '../icons/jamiLogoIcon.svg'
 export default function AdminPanel() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-
-  const accessToken = localStorage.getItem('adminAccessToken')
-
-  const { data } = useGetAdminConfigQuery()
-  const saveAdminConfigMutation = useUpdateAdminConfigMutation()
   const adminLogout = () => {
     localStorage.removeItem('adminAccessToken')
     navigate('/admin/login')
   }
-
-  const toggleJamsAuthEnabled = () => {
-    saveAdminConfigMutation.mutate({ jamsAuthEnabled: !data.jamsAuthEnabled })
-  }
-  const toggleLocalAuthEnabled = () => {
-    saveAdminConfigMutation.mutate({ localAuthEnabled: !data.localAuthEnabled })
-  }
-  const toggleGuestAccessEnabled = () => {
-    saveAdminConfigMutation.mutate({ guestAccessEnabled: !data.guestAccessEnabled })
-  }
-  const toggleOpenIdAuthEnabled = () => {
-    saveAdminConfigMutation.mutate({ openIdAuthEnabled: !data.openIdAuthEnabled })
-  }
-
-  if (!accessToken) {
-    return <Navigate to="/admin/login" replace />
-  }
-
-  if (data === undefined) {
-    return <ProcessingRequest open />
-  }
-  //TODO: add translations
+  const theme: Theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   return (
     <>
-      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Typography variant="h3">{t('admin_page_welcome')}</Typography>
-        <Button variant="contained" type="submit" onClick={adminLogout}>
-          {t('logout')}
-        </Button>
-      </div>
       <div
         style={{
           display: 'flex',
           flexDirection: 'row',
-          justifyContent: 'center',
-          alignContent: 'center',
-          marginTop: '8%',
+          justifyContent: isMobile ? 'center' : 'space-between',
+          flexWrap: 'wrap',
+          textAlign: isMobile ? 'center' : 'inherit',
         }}
       >
-        <Box sx={{ display: 'flex' }}>
-          <FormControl>
-            <FormLabel>
-              <Typography variant="h3">{t('admin_config_auth_methods_title')}</Typography>
-            </FormLabel>
-            <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
-              <FormControlLabel
-                control={<Switch checked={data.localAuthEnabled} onChange={toggleLocalAuthEnabled} />}
-                label={/*t('admin_config_auth_method_checkbox_local')*/ 'Local'}
-              />
-              <FormControlLabel
-                control={<Switch checked={data.jamsAuthEnabled} onChange={toggleJamsAuthEnabled} />}
-                label={/*t('admin_config_auth_method_checkbox_local')*/ 'JAMS'}
-              />
-              <FormControlLabel
-                control={<Switch disabled checked={data.guestAccessEnabled} onChange={toggleGuestAccessEnabled} />}
-                label={/*t('admin_config_auth_method_checkbox_local')*/ 'Guest'}
-              />
-              <FormControlLabel
-                control={<Switch disabled checked={data.openIdAuthEnabled} onChange={toggleOpenIdAuthEnabled} />}
-                label={/*t('admin_config_auth_method_checkbox_local')*/ 'OpenID'}
-              />
-            </FormGroup>
-          </FormControl>
-        </Box>
+        <Box
+          component="img"
+          sx={{
+            height: 'auto',
+            width: 150,
+            maxHeight: { xs: 0, md: 100 },
+            maxWidth: { xs: 0, md: 150 },
+          }}
+          alt="Logo Savoir Faire Linux"
+          src={jamiLogoIcon}
+        />
+        <Typography variant={isMobile ? 'h3' : 'h2'} sx={{ mt: '1%' }}>
+          {t('admin_page_welcome')}
+        </Typography>
+        {isMobile ? null : (
+          <Button variant="contained" type="submit" onClick={adminLogout} sx={{ margin: '0.5%', mt: '1.5%' }}>
+            {t('logout')}
+          </Button>
+        )}
       </div>
+      <AuthMethods />
+      {isMobile ? (
+        <div>
+          <Button variant="contained" type="submit" onClick={adminLogout} sx={{ margin: '1%' }}>
+            {t('logout')}
+          </Button>
+        </div>
+      ) : null}
     </>
   )
 }

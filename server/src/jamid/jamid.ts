@@ -587,6 +587,16 @@ export class Jamid {
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationMessage, data)
     })
 
+    this.events.onSwarmMessageReceived.subscribe((signal) => {
+      log.debug('Received SwarmMessageReceived:', JSON.stringify(signal))
+
+      const data: ConversationMessage = {
+        conversationId: signal.conversationId,
+        message: signal.message,
+      }
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationMessage, data)
+    })
+
     this.events.onComposingStatusChanged.subscribe((signal) => {
       log.debug('Received ComposingStatusChanged:', JSON.stringify(signal))
       const data: ComposingStatus = {

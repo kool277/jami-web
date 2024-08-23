@@ -19,37 +19,31 @@ import { readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
 import { Service } from 'typedi'
-
 interface AccountsFormat {
   local: Record<string, string>
   jams: Record<string, string>
+  guest: Record<string, string>
+  openid: Record<string, string>
 }
-
 @Service()
 export class Accounts {
   private readonly filename = 'accounts.json'
   private accounts: AccountsFormat
-
   constructor() {
     let buffer: Buffer
-
     try {
       buffer = readFileSync(this.filename)
     } catch (e) {
-      buffer = Buffer.from('{"local":{},"jams":{}}')
+      buffer = Buffer.from('{"local":{},"jams":{}, "guest":{}, "openid":{}}')
     }
-
     this.accounts = JSON.parse(buffer.toString())
   }
-
-  get(username: string, isJams = false): string | undefined {
-    return this.accounts[isJams ? 'jams' : 'local'][username.toLowerCase()]
+  get(username: string, authMethod: string = 'local'): string | undefined {
+    return this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
   }
-
-  set(username: string, password: string, isJams = false): void {
-    this.accounts[isJams ? 'jams' : 'local'][username.toLowerCase()] = password
+  set(username: string, password: string, authMethod: string = 'local'): void {
+    this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()] = password
   }
-
   async save(): Promise<void> {
     await writeFile(this.filename, JSON.stringify(this.accounts, null, 2) + '\n')
   }

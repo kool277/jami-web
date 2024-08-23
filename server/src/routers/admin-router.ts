@@ -82,9 +82,6 @@ adminRouter.post(
   }),
 )
 
-//Requests below require authentication
-adminRouter.use(adminAuthenticationMiddleware)
-
 adminRouter.get(
   '/config',
   asyncHandler(async (_, res: Response) => {
@@ -93,9 +90,13 @@ adminRouter.get(
       res.status(HttpStatusCode.Ok).send(config)
       return
     }
+    console.log(config)
     res.sendStatus(HttpStatusCode.InternalServerError)
   }),
 )
+
+//Requests below require authentication
+adminRouter.use(adminAuthenticationMiddleware)
 
 adminRouter.patch(
   '/config',

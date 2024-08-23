@@ -124,19 +124,14 @@ export const useCheckAdminSetupStatusQuery = () => {
 }
 
 export const useGetAdminConfigQuery = () => {
-  const token = localStorage.getItem('adminAccessToken')
   const navigate = useNavigate()
   const { setAlertContent } = useContext(AlertSnackbarContext)
-
   const query = useQuery({
     queryKey: ['admin', 'config'],
     queryFn: async () => {
       const { data } = await axios.get('/admin/config', {
         baseURL: apiUrl,
         //TODO: create a intercepted axios instance for auth-required requests
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       })
       return data
     } /*,
@@ -205,4 +200,24 @@ export const useUpdateAdminConfigMutation = () => {
       }
     },
   })
+}
+
+export const useGetAdminAuthMethods = async () => {
+  try {
+    const token = localStorage.getItem('adminAccessToken')
+    const response = await axios.get('/admin/config', {
+      baseURL: apiUrl,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return [
+      response.data.localAuthEnabled,
+      response.data.jamsAuthEnabled,
+      response.data.guestAccessEnabled,
+      response.data.openIdAuthEnabled,
+    ]
+  } catch (e: any) {
+    console.log('Erreur ', e)
+  }
 }

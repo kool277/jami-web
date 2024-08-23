@@ -26,46 +26,38 @@ import { Jamid } from '../jamid/jamid.js'
 import { NameRegistrationEndedState, RegistrationState } from '../jamid/state-enums.js'
 import { Accounts } from '../storage/accounts.js'
 import { signJwt } from '../utils/jwt.js'
-
 const jamid = Container.get(Jamid)
 const accounts = Container.get(Accounts)
-
 export const authRouter = Router()
-
 authRouter.post(
   '/new-account',
   asyncHandler(async (req: Request<ParamsDictionary, string, Partial<UserCredentials>>, res) => {
-    const { username, password, isJams } = req.body
+    const { username, password, authMethod } = req.body
     if (username === undefined || password === undefined) {
       res.status(HttpStatusCode.BadRequest).send('Missing username or password in body')
       return
     }
-    console.log('Creating new account', username, password, isJams)
-
-    const isAccountAlreadyCreated = accounts.get(username, isJams) !== undefined
+    console.log('Creating new account', username, password, authMethod)
+    const isAccountAlreadyCreated = accounts.get(username, authMethod) !== undefined
     if (isAccountAlreadyCreated) {
       res.status(HttpStatusCode.Conflict).send('Username already exists locally')
       return
     }
-
     /*if (password === '') {
       res.status(HttpStatusCode.BadRequest).send('Password may not be empty');
       return;
     }*/
-
     const hashedPassword = password ? await argon2.hash(password, { type: argon2.argon2id }) : ''
-
     const accountDetails: Partial<AccountDetails> = {
       // TODO: Enable encrypted archives
       // 'Account.archivePassword': password
     }
-    if (isJams) {
+    if (authMethod === 'jams') {
       accountDetails['Account.managerUri'] = 'https://jams.savoirfairelinux.com/'
       accountDetails['Account.managerUsername'] = username
     }
     const { accountId, state } = await jamid.addAccount(accountDetails)
-
-    if (isJams) {
+    if (authMethod === 'jams') {
       if (state === RegistrationState.ErrorGeneric) {
         jamid.removeAccount(accountId)
         res.status(HttpStatusCode.Unauthorized).send('Invalid JAMS credentials')
@@ -88,44 +80,37 @@ authRouter.post(
         return
       }
     }
-
-    accounts.set(username, hashedPassword, isJams)
+    accounts.set(username, hashedPassword, authMethod)
     await accounts.save()
-
     res.sendStatus(HttpStatusCode.Created)
   }),
 )
-
 authRouter.post(
   '/login',
   asyncHandler(async (req: Request<ParamsDictionary, AccessToken | string, Partial<UserCredentials>>, res) => {
-    const { username, password, isJams } = req.body
+    const { username, password, authMethod } = req.body
     if (username === undefined || password === undefined) {
       res.status(HttpStatusCode.BadRequest).send('Missing username or password in body')
       return
     }
-
     // Check if the account is stored on this daemon instance
     const accountId = jamid.getAccountIdFromUsername(username)
     if (accountId === undefined) {
       res.status(HttpStatusCode.Unauthorized).send('Username not found')
       return
     }
-
-    const hashedPassword = accounts.get(username, isJams)
+    const hashedPassword = accounts.get(username, authMethod)
     if (hashedPassword === undefined) {
       res
         .status(HttpStatusCode.Unauthorized)
         .send('Password not found (the account does not have a password set on the server)')
       return
     }
-
     const isPasswordVerified = await argon2.verify(hashedPassword, password)
     if (!isPasswordVerified) {
       res.status(HttpStatusCode.Unauthorized).send('Incorrect password')
       return
     }
-
     const jwt = await signJwt(accountId)
     res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
   }),

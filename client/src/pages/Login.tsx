@@ -35,22 +35,24 @@ import { PasswordInput, UsernameInput } from '../components/Input'
 import ProcessingRequest from '../components/ProcessingRequest'
 import withAuthUI from '../components/WithAuthUI'
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
+import { useGetAdminConfigQuery } from '../services/adminQueries'
 import { useLoginMutation } from '../services/authQueries'
 import { inputWidth } from '../utils/constants'
 function LoginForm() {
   const theme: Theme = useTheme()
   const { t } = useTranslation()
-
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  const [isJams, setIsJams] = useState<boolean>(false)
-
+  const [authMethod, setAuthMethod] = useState<string>('local')
+  const { data } = useGetAdminConfigQuery()
   const { setAlertContent } = useContext(AlertSnackbarContext)
-
   const loginMutation = useLoginMutation()
   const { isPending } = loginMutation
-
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+
+  if (data === undefined) {
+    return <ProcessingRequest open />
+  }
 
   const handleUsername = (event: ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value)
@@ -60,8 +62,8 @@ function LoginForm() {
     setPassword(event.target.value)
   }
 
-  const handleIsJams = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsJams(event.target.value === 'true')
+  const handleSelectionChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setAuthMethod(event.target.value)
   }
 
   const login = (event: FormEvent) => {
@@ -74,28 +76,26 @@ function LoginForm() {
       setAlertContent({ messageI18nKey: 'password_input_helper_text_empty', severity: 'error', alertOpen: true })
       return
     }
-
-    loginMutation.mutate({ username, password, isJams })
+    loginMutation.mutate({ username, password, authMethod })
   }
 
   return (
     <>
       <ProcessingRequest open={isPending} />
-
       <Stack
         sx={{
           minHeight: `${isMobile ? 'auto' : '100%'}`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          textAlign: 'center',
         }}
       >
         <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(20) }}>
-          <Typography component={'span'} variant="h2">
+          <Typography component={'span'} variant="h2" sx={{ textAlign: 'center' }}>
             {t('login_form_title')}
           </Typography>
         </Box>
-
         <Form method="post" id="login-form">
           <div>
             <UsernameInput
@@ -123,26 +123,32 @@ function LoginForm() {
                 justifyContent: 'space-between',
               }}
             >
-              <RadioGroup row onChange={handleIsJams} value={isJams}>
-                <FormControlLabel value="false" control={<Radio />} label={t('jami')} />
-                <FormControlLabel value="true" control={<Radio />} label={t('jams')} />
+              <RadioGroup row onChange={handleSelectionChange} value={authMethod}>
+                {data.localAuthEnabled ? (
+                  <FormControlLabel value="local" control={<Radio />} label={t('jami')} />
+                ) : null}
+                {data.jamsAuthEnabled ? <FormControlLabel value="jams" control={<Radio />} label={t('jams')} /> : null}
+                {data.guestAccessEnabled ? (
+                  <FormControlLabel value="guest" control={<Radio />} label={t('guest')} />
+                ) : null}
+                {data.openIdAuthEnabled ? (
+                  <FormControlLabel value="openid" control={<Radio />} label={t('openid')} />
+                ) : null}
               </RadioGroup>
             </FormControl>
           </div>
-
           <Button
             data-cy="login-button"
             variant="contained"
             type="submit"
             onClick={login}
-            sx={{ width: theme.typography.pxToRem(inputWidth), mt: theme.typography.pxToRem(20) }}
+            sx={{ width: theme.typography.pxToRem(inputWidth), mt: theme.typography.pxToRem(5) }}
             disabled={username === '' || password === ''}
           >
             {t('login_form_submit_button')}
           </Button>
         </Form>
-
-        <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(50) }}>
+        <Box sx={{ mt: theme.typography.pxToRem(5), mb: theme.typography.pxToRem(10) }}>
           <Typography variant="body1">
             {t('login_form_to_registration_text')} &nbsp;
             <Link data-cy="register-link" to={'/register'}>
@@ -154,5 +160,4 @@ function LoginForm() {
     </>
   )
 }
-
 export default withAuthUI(LoginForm)
