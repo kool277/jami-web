@@ -118,3 +118,15 @@ Cypress.Commands.add('logoutViaUI', () => {
       cy.get('[data-cy="login-button"]').should('exist')
     })
 })
+
+Cypress.Commands.add('sendMessageWithUi', () => {
+  cy.loginViaUI()
+  cy.get('[data-cy = "conversation-summary-item"]').click() // go to first conversation
+
+  cy.get('[data-cy = "message-input"]')
+    .type('Hello, this is a test message')
+    .find('input')
+    .should('have.value', 'Hello, this is a test message')
+
+  cy.get('[type="submit"]').click()
+})

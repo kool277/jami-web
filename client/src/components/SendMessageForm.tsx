@@ -101,6 +101,7 @@ export default function SendMessageForm({ onSend, openFilePicker }: SendMessageF
       <RecordVideoMessageButton />
       <Stack flexGrow={1}>
         <InputBase
+          data-cy="message-input"
           placeholder={placeholder}
           value={currentMessage}
           onChange={handleInputChange}

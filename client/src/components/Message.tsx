@@ -93,9 +93,10 @@ interface MessageCallProps {
   isAccountMessage: boolean
   isFirstOfGroup: boolean
   isLastOfGroup: boolean
+  sentTime: Dayjs
 }
 
-const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup }: MessageCallProps) => {
+const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup, sentTime }: MessageCallProps) => {
   const position = isAccountMessage ? 'end' : 'start'
 
   const { i18n } = useTranslation()
@@ -138,7 +139,13 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup 
   }, [isAccountMessage, message, i18n])
 
   return (
-    <Bubble position={position} isFirstOfGroup={isFirstOfGroup} isLastOfGroup={isLastOfGroup} bubbleColor={bubbleColor}>
+    <Bubble
+      position={position}
+      isFirstOfGroup={isFirstOfGroup}
+      isLastOfGroup={isLastOfGroup}
+      bubbleColor={bubbleColor}
+      sentTime={sentTime}
+    >
       <Stack direction="row" spacing="10px" alignItems="center">
         <Icon sx={{ fontSize: '16px', color: textColor }} />
         <Typography variant="body1" color={textColor} textAlign={position} fontWeight="bold" textTransform="uppercase">
@@ -159,12 +166,25 @@ interface MessageDataTransferProps {
   isAccountMessage: boolean
   isFirstOfGroup: boolean
   isLastOfGroup: boolean
+  sentTime: Dayjs
 }
 
-const MessageDataTransfer = ({ isAccountMessage, isFirstOfGroup, isLastOfGroup }: MessageDataTransferProps) => {
+const MessageDataTransfer = ({
+  //message, not used for now but will be used in the future
+  isAccountMessage,
+  isFirstOfGroup,
+  isLastOfGroup,
+  sentTime,
+}: MessageDataTransferProps) => {
   const position = isAccountMessage ? 'end' : 'start'
   return (
-    <Bubble bubbleColor="#E5E5E5" position={position} isFirstOfGroup={isFirstOfGroup} isLastOfGroup={isLastOfGroup}>
+    <Bubble
+      bubbleColor="#E5E5E5"
+      position={position}
+      isFirstOfGroup={isFirstOfGroup}
+      isLastOfGroup={isLastOfGroup}
+      sentTime={sentTime}
+    >
       &quot;data-transfer&quot;
     </Bubble>
   )
@@ -255,13 +275,13 @@ interface MessageTextProps {
   isAccountMessage: boolean
   isFirstOfGroup: boolean
   isLastOfGroup: boolean
+  sentTime: Dayjs
 }
 
-const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup }: MessageTextProps) => {
+const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup, sentTime }: MessageTextProps) => {
   const position = isAccountMessage ? 'end' : 'start'
   const bubbleColor = isAccountMessage ? '#005699' : '#E5E5E5'
   const textColor = isAccountMessage ? 'white' : 'black'
-
   const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message])
 
   return (
@@ -272,6 +292,7 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup 
         isFirstOfGroup={isFirstOfGroup}
         isLastOfGroup={isLastOfGroup}
         maxWidth={link ? '400px' : undefined}
+        sentTime={sentTime}
       >
         <Typography variant="body1" color={textColor} textAlign={position}>
           <Linkify options={{ render: RenderLink as any, attributes: { isAccountMessage } }}>{message.body}</Linkify>
@@ -392,12 +413,14 @@ const UserMessageRow = ({
   const nextShowsTime = checkShowsTime(nextTime, time)
   const isFirstOfGroup = showsTime || !previousIsUserMessageType || previousMessage?.author !== message.author
   const isLastOfGroup = nextShowsTime || !nextIsUserMessageType || message.author !== nextMessage?.author
+  const sentTime = time
 
   const props = {
     message,
     isAccountMessage,
     isFirstOfGroup,
     isLastOfGroup,
+    sentTime,
   }
 
   let MessageComponent
@@ -544,9 +567,18 @@ interface BubbleProps {
   bubbleColor: string
   maxWidth?: string
   children: ReactNode
+  sentTime: Dayjs
 }
 
-const Bubble = ({ position, isFirstOfGroup, isLastOfGroup, bubbleColor, maxWidth, children }: BubbleProps) => {
+const Bubble = ({
+  position,
+  isFirstOfGroup,
+  isLastOfGroup,
+  bubbleColor,
+  maxWidth,
+  children,
+  sentTime,
+}: BubbleProps) => {
   const largeRadius = '20px'
   const smallRadius = '5px'
   const radius = useMemo(() => {
@@ -565,7 +597,6 @@ const Bubble = ({ position, isFirstOfGroup, isLastOfGroup, bubbleColor, maxWidth
       borderEndEndRadius: isLastOfGroup ? largeRadius : smallRadius,
     }
   }, [isFirstOfGroup, isLastOfGroup, position])
-
   return (
     <Box
       sx={{
@@ -579,6 +610,20 @@ const Bubble = ({ position, isFirstOfGroup, isLastOfGroup, bubbleColor, maxWidth
       }}
     >
       {children}
+      <Box
+        sx={{
+          width: 1,
+          color: '#A6948B',
+          fontSize: 11,
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          flexWrap: 'nowrap',
+          ml: '10%',
+        }}
+      >
+        <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>
+      </Box>
     </Box>
   )
 }

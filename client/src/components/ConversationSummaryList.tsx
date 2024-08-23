@@ -96,6 +96,7 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
         contextMenuProps={contextMenuHandler.props}
       />
       <CustomListItemButton
+        data-cy={`conversation-summary-item`}
         selected={isSelected}
         onClick={onClick}
         onContextMenu={contextMenuHandler.handleAnchorPosition}
