@@ -18,7 +18,7 @@
 export interface UserCredentials {
   username: string
   password: string
-  authMethod: string
+  isJams: boolean
 }
 
 export interface AdminCredentials {

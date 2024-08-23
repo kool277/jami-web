@@ -193,7 +193,7 @@ export const useUpdateAdminConfigMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'config'] })
     },
     onError: (e: any) => {
-      if (e.response.status === HttpStatusCode.Unauthorized) {
+      if (e.repsponse.status === HttpStatusCode.Unauthorized) {
         localStorage.removeItem('adminAccessToken')
         navigate('/admin/login')
       } else {
@@ -205,24 +205,4 @@ export const useUpdateAdminConfigMutation = () => {
       }
     },
   })
-}
-
-export const useGetAdminAuthMethods = async () => {
-  try {
-    const token = localStorage.getItem('adminAccessToken')
-    const response = await axios.get('/admin/config', {
-      baseURL: apiUrl,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    return [
-      response.data.localAuthEnabled,
-      response.data.jamsAuthEnabled,
-      response.data.guestAccessEnabled,
-      response.data.openIdAuthEnabled,
-    ]
-  } catch (e: any) {
-    console.log('Erreur ', e)
-  }
 }

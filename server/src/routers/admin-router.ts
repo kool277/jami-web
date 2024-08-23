@@ -101,6 +101,7 @@ adminRouter.patch(
   '/config',
   asyncHandler(async (req: Request<ParamsDictionary, unknown, unknown>, res: Response) => {
     const config = req.body
+
     if (!isConfigValid(config)) {
       res.status(HttpStatusCode.BadRequest).send('Invalid config in the payload')
       return

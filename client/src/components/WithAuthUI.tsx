@@ -79,7 +79,7 @@ export default function withAuthUI(WrappedComponent: React.FunctionComponent): R
                 <JamiWelcomeLogo
                   logoWidth={theme.typography.pxToRem(100)}
                   logoHeight={theme.typography.pxToRem(100)}
-                  sx={{ mt: theme.typography.pxToRem(30), mb: theme.typography.pxToRem(0) }}
+                  sx={{ mt: theme.typography.pxToRem(30), mb: theme.typography.pxToRem(20) }}
                 />
               )}
               <Box sx={{ height: `${isMobile ? 'auto' : '100%'}` }}>
