@@ -47,7 +47,7 @@ export enum JamiSignal {
   // libjami::ConversationSignal
   ConversationLoaded = 'ConversationLoaded',
   MessagesFound = 'MessagesFound',
-  MessageReceived = 'MessageReceived',
+  SwarmMessageReceived = 'SwarmMessageReceived',
   ConversationProfileUpdated = 'ConversationProfileUpdated',
   ConversationRequestReceived = 'ConversationRequestReceived',
   ConversationRequestDeclined = 'ConversationRequestDeclined',

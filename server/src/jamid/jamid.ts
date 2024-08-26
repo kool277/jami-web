@@ -52,10 +52,10 @@ import {
   ConversationRequestReceived,
   IncomingAccountMessage,
   KnownDevicesChanged,
-  MessageReceived,
   NameRegistrationEnded,
   RegisteredNameFound,
   RegistrationStateChanged,
+  SwarmMessageReceived,
   VolatileDetailsChanged,
 } from './jami-signal-interfaces.js'
 import { JamiSwig, StringMap, stringMapToRecord, stringVectToArray, vectMapToRecordArray } from './jami-swig.js'
@@ -165,9 +165,9 @@ export class Jamid {
       onConversationMemberEvent.next({ accountId, conversationId, memberUri, event })
     }
 
-    const onMessageReceived = new Subject<MessageReceived>()
-    handlers.MessageReceived = (accountId: string, conversationId: string, message: Message) =>
-      onMessageReceived.next({ accountId, conversationId, message })
+    const onSwarmMessageReceived = new Subject<SwarmMessageReceived>()
+    handlers.SwarmMessageReceived = (accountId: string, conversationId: string, message: Message) =>
+      onSwarmMessageReceived.next({ accountId, conversationId, message })
 
     const onComposingStatusChanged = new Subject<ComposingStatusChanged>()
     handlers.ComposingStatusChanged = (accountId: string, conversationId: string, from: string, status: number) =>
@@ -191,7 +191,7 @@ export class Jamid {
       onConversationRemoved: onConversationRemoved.asObservable(),
       onConversationLoaded: onConversationLoaded.asObservable(),
       onConversationMemberEvent: onConversationMemberEvent.asObservable(),
-      onMessageReceived: onMessageReceived.asObservable(),
+      onSwarmMessageReceived: onSwarmMessageReceived.asObservable(),
       onComposingStatusChanged: onComposingStatusChanged.asObservable(),
     }
 
@@ -517,12 +517,25 @@ export class Jamid {
       log.debug('Received onConversationMemberEvent:', JSON.stringify(signal))
     })
 
-    this.events.onMessageReceived.subscribe((signal) => {
-      log.debug('Received MessageReceived:', JSON.stringify(signal))
+    this.events.onSwarmMessageReceived.subscribe((signal) => {
+      log.debug('Received SwarmMessageReceived:', JSON.stringify(signal))
 
+      // swarmMessage and Message have a diffrent data shape
+      // it can cause errors on client side
       const data: ConversationMessage = {
         conversationId: signal.conversationId,
-        message: signal.message,
+        message: {
+          id: signal.message.id,
+          author: signal.message.body.author,
+          linearizedParent: signal.message.body.linearizedParent,
+          parents: signal.message.body.parents,
+          timestamp: signal.message.body.timestamp,
+          body: signal.message.body.body,
+          type: signal.message.body.type,
+          editions: signal.message.editions,
+          reactions: signal.message.reactions,
+          status: signal.message.status,
+        },
       }
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationMessage, data)
     })
@@ -535,6 +548,7 @@ export class Jamid {
         conversationId: signal.conversationId,
         isWriting: signal.status === 1,
       }
+
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.ComposingStatus, data)
     })
   }

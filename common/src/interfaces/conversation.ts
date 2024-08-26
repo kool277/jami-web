@@ -40,11 +40,14 @@ export interface Message {
   linearizedParent: string
   parents: string
   action?: 'add' | 'join' | 'remove' | 'ban' | 'unban'
-  body?: string
+  body: any
   duration?: string
   to?: string
   invited?: string
   fileId?: string
+  reactions?: string
+  editions?: string
+  status?: string
 }
 
 export interface ConversationInfos {

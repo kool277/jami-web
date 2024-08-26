@@ -128,7 +128,7 @@ export interface ConversationMemberEvent {
   event: ConversationMemberEventType
 }
 
-export interface MessageReceived {
+export interface SwarmMessageReceived {
   accountId: string
   conversationId: string
   message: Message
