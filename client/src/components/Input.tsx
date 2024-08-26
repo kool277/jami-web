@@ -149,7 +149,8 @@ export const PasswordInput = ({
   t('password_input_helper_text_strong')
   t('password_input_helper_text_registration_failed')
    */
-  const helperText = t('password_input_helper_text', { context: `${status}` })
+  // TODO: The status is not string anymore, hence it can't be used as a context to fetch the correct translation.
+  // const helperText = t('password_input_helper_text', { context: `${status}` })
 
   return (
     <>
@@ -161,7 +162,7 @@ export const PasswordInput = ({
         type={showPassword ? 'text' : 'password'}
         variant="standard"
         autoComplete="current-password"
-        helperText={status === PasswordStrength.TooWeak ? helperText : ''}
+        helperText={status === PasswordStrength.TooWeak ? t('password_input_helper_text_too_weak') : ''}
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}
