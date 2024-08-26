@@ -30,6 +30,11 @@ import {
 // These parameters' names and types can be found in daemon/bin/nodejs/callback.h
 // or in their relevant SWIG interface files (.i) in daemon/bin/nodejs
 
+export interface ClearCache {
+  accountId: string
+  conversationId: string
+}
+
 export interface AccountDetailsChanged {
   accountId: string
   details: AccountDetails
@@ -115,6 +120,13 @@ export interface ConversationRemoved {
 }
 
 export interface ConversationLoaded {
+  id: number
+  accountId: string
+  conversationId: string
+  messages: Message[]
+}
+
+export interface SwarmLoaded {
   id: number
   accountId: string
   conversationId: string

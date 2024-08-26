@@ -87,6 +87,8 @@ export interface JamiSwig {
 
   monitor(continuous: boolean): void
 
+  clearCache(accountId: string, conversationId: string): void
+
   getAccountDetails(accountId: string): StringMap
   getVolatileAccountDetails(accountId: string): StringMap
   setAccountDetails(accountId: string, details: StringMap): void
@@ -126,6 +128,7 @@ export interface JamiSwig {
 
   sendMessage(accountId: string, conversationId: string, message: string, replyTo: string, flag: number): void
   loadConversationMessages(accountId: string, conversationId: string, fromMessage: string, n: number): number
+  loadConversation(accountId: string, conversationId: string, fromMessage: string, n: number): number
   setIsComposing(accountId: string, conversationId: string, isWriting: boolean): void
 
   getCallList(accountId: string): StringVect

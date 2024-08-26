@@ -157,11 +157,24 @@ conversationRouter.get(
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
     const infos = jamid.getConversationInfos(accountId, conversationId)
+
+    await jamid.clearCache(accountId, conversationId)
+
     if (Object.keys(infos).length === 0) {
       res.status(HttpStatusCode.NotFound).send('No such conversation found')
       return
     }
-    const messages = await jamid.getConversationMessages(accountId, conversationId)
+    const messages = await jamid.getSwarmMessages(accountId, conversationId)
+
+    // Convert the messages to the format expected by the client
+    // swarm messages are stored in a different format
+    messages.forEach(function (element) {
+      element.action = element.body.action
+      element.author = element.body.author
+      element.parents = element.body.parents
+      element.timestamp = element.body.timestamp
+      element.body = element.body.body
+    })
     res.send(messages)
   }),
 )

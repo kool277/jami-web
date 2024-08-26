@@ -42,6 +42,7 @@ import { JamiSignal } from './jami-signal.js'
 import {
   AccountDetailsChanged,
   AccountMessageStatusChanged,
+  ClearCache,
   ComposingStatusChanged,
   ContactAdded,
   ContactRemoved,
@@ -55,6 +56,7 @@ import {
   NameRegistrationEnded,
   RegisteredNameFound,
   RegistrationStateChanged,
+  SwarmLoaded,
   SwarmMessageReceived,
   VolatileDetailsChanged,
 } from './jami-signal-interfaces.js'
@@ -89,6 +91,10 @@ export class Jamid {
     }
 
     // Overwrite handlers for handled signals using RxJS Subjects, converting multiple arguments to objects
+    const onClearCache = new Subject<ClearCache>()
+    handlers.ClearCache = (accountId: string, conversationId: string) =>
+      onClearCache.next({ accountId, conversationId })
+
     const onAccountsChanged = new Subject<void>()
     handlers.AccountsChanged = () => onAccountsChanged.next()
 
@@ -155,6 +161,10 @@ export class Jamid {
     handlers.ConversationLoaded = (id: number, accountId: string, conversationId: string, messages: Message[]) =>
       onConversationLoaded.next({ id, accountId, conversationId, messages })
 
+    const onSwarmLoaded = new Subject<SwarmLoaded>()
+    handlers.SwarmLoaded = (id: number, accountId: string, conversationId: string, messages: Message[]) =>
+      onSwarmLoaded.next({ id, accountId, conversationId, messages })
+
     const onConversationMemberEvent = new Subject<ConversationMemberEvent>()
     handlers.ConversationMemberEvent = (
       accountId: string,
@@ -184,12 +194,14 @@ export class Jamid {
       onKnownDevicesChanged: onKnownDevicesChanged.asObservable(),
       onIncomingAccountMessage: onIncomingAccountMessage.asObservable(),
       onAccountMessageStatusChanged: onAccountMessageStatusChanged.asObservable(),
+      onClearCache: onClearCache.asObservable(),
       onContactAdded: onContactAdded.asObservable(),
       onContactRemoved: onContactRemoved.asObservable(),
       onConversationRequestReceived: onConversationRequestReceived.asObservable(),
       onConversationReady: onConversationReady.asObservable(),
       onConversationRemoved: onConversationRemoved.asObservable(),
       onConversationLoaded: onConversationLoaded.asObservable(),
+      onSwarmLoaded: onSwarmLoaded.asObservable(),
       onConversationMemberEvent: onConversationMemberEvent.asObservable(),
       onSwarmMessageReceived: onSwarmMessageReceived.asObservable(),
       onComposingStatusChanged: onComposingStatusChanged.asObservable(),
@@ -300,6 +312,10 @@ export class Jamid {
     )
   }
 
+  clearCache(accountId: string, conversationId: string): void {
+    this.jamiSwig.clearCache(accountId, conversationId)
+  }
+
   getDevices(accountId: string): Devices {
     return stringMapToRecord(this.jamiSwig.getKnownRingDevices(accountId))
   }
@@ -363,6 +379,16 @@ export class Jamid {
     const requestId = this.jamiSwig.loadConversationMessages(accountId, conversationId, fromMessage, n)
     return firstValueFrom(
       this.events.onConversationLoaded.pipe(
+        filter((value) => value.id === requestId),
+        map((value) => value.messages),
+      ),
+    )
+  }
+
+  async getSwarmMessages(accountId: string, conversationId: string, fromMessage = '', n = 32): Promise<Message[]> {
+    const requestId = this.jamiSwig.loadConversation(accountId, conversationId, fromMessage, n)
+    return firstValueFrom(
+      this.events.onSwarmLoaded.pipe(
         filter((value) => value.id === requestId),
         map((value) => value.messages),
       ),
@@ -513,6 +539,12 @@ export class Jamid {
       )
     })
 
+    this.events.onSwarmLoaded.subscribe(({ id, accountId, conversationId }) => {
+      log.debug(
+        `Received SwarmLoaded: {"id":"${id}","accountId":"${accountId}",` + `"conversationId":"${conversationId}"}`,
+      )
+    })
+
     this.events.onConversationMemberEvent.subscribe((signal) => {
       log.debug('Received onConversationMemberEvent:', JSON.stringify(signal))
     })
@@ -520,8 +552,6 @@ export class Jamid {
     this.events.onSwarmMessageReceived.subscribe((signal) => {
       log.debug('Received SwarmMessageReceived:', JSON.stringify(signal))
 
-      // swarmMessage and Message have a diffrent data shape
-      // it can cause errors on client side
       const data: ConversationMessage = {
         conversationId: signal.conversationId,
         message: {
@@ -542,7 +572,6 @@ export class Jamid {
 
     this.events.onComposingStatusChanged.subscribe((signal) => {
       log.debug('Received ComposingStatusChanged:', JSON.stringify(signal))
-
       const data: ComposingStatus = {
         contactId: signal.from,
         conversationId: signal.conversationId,

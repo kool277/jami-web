@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { MessageStatusCode } from '../enums/message-status-code'
 import { IContact } from './contact'
 
 export interface IConversationMember {
@@ -23,6 +24,10 @@ export interface IConversationMember {
 }
 
 export type ConversationMemberRole = 'admin' | 'member' | 'invited' | 'banned' | 'left'
+
+interface Map<T> {
+  [key: string]: T
+}
 
 export interface Message {
   id: string
@@ -47,7 +52,8 @@ export interface Message {
   fileId?: string
   reactions?: string
   editions?: string
-  status?: string
+  status: Map<MessageStatusCode>
+  displayName?: string
 }
 
 export interface ConversationInfos {
