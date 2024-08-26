@@ -39,6 +39,11 @@ describe('registration', () => {
 
     cy.get('[data-cy = "username-input"]').find('[id$=-helper-text]').contains('Username available')
 
+    cy.get('[data-cy = "password-input"]').type('123456').find('input').should('have.value', '123456')
+
+    cy.get('[data-cy = "password-input"]').find('[id$=-helper-text]').contains('Too weak')
+
+    cy.get('[data-cy = "password-input"]').find('input').clear()
     //TODO: Make a cypress custom command that generates a valid password (that is strong determined by passwordStrength() from npm module `check-password-strength`) as well as one generating an invalid one
     cy.get('[data-cy = "password-input"]')
       .type(`Test-user-${randomId}`)
@@ -47,7 +52,7 @@ describe('registration', () => {
     //TODO: uncomment the following code when the UI implements the input field for password repeat
     // cy.get('[data-cy = "password-repeat-input"]').type(`Test/user/${randomId}`).should('have.value', `Test/user/${randomId}`);
 
-    cy.get('[data-cy = "password-input"]').find('[id$=-helper-text]').contains('Strong')
+    cy.get('[data-cy = "password-input"]').find('[id$=-helper-text]').should('not.have', 'Too weak')
 
     cy.get('[data-cy = "register-button"]')
       .click()
