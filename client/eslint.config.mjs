@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url'
 import { fixupConfigRules } from '@eslint/compat'
 import { FlatCompat } from '@eslint/eslintrc'
 import js from '@eslint/js'
+import stylisticJs from '@stylistic/eslint-plugin-js'
 
 import customConfig from '../eslint.config.mjs'
 
@@ -41,13 +42,16 @@ export default [
         version: 'detect',
       },
     },
-
+    plugins: {
+      '@stylistic/js': stylisticJs
+    },
     rules: {
       'react-hooks/exhaustive-deps': 'error',
       'react/display-name': 'off',
       'react/jsx-uses-react': 'off',
       'react/prop-types': 'off',
       'react/react-in-jsx-scope': 'off',
+      '@stylistic/js/semi': ['error', 'never'],
     },
   },
 ]
