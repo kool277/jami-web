@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { MessageStatusCode } from '../enums/message-status-code.js'
 import { Message } from './conversation.js'
 
 export interface ContactMessage {
@@ -28,6 +29,13 @@ export interface ConversationMessage {
 
 export interface ConversationView {
   conversationId: string
+}
+
+export interface AccountMessageStatus {
+  conversationId: string
+  peer: string
+  messageId: string
+  status: MessageStatusCode
 }
 
 export interface ComposingStatus {

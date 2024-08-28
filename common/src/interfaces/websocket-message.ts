@@ -18,6 +18,7 @@
 import { WebSocketMessageType } from '../enums/websocket-message-type.js'
 import { IConversationRequest } from './conversation.js'
 import {
+  AccountMessageStatus,
   CallExit,
   CallInvite,
   CallJoin,
@@ -35,6 +36,7 @@ export interface WebSocketMessageTable {
   [WebSocketMessageType.ConversationMessage]: ConversationMessage
   [WebSocketMessageType.ConversationRequest]: IConversationRequest
   [WebSocketMessageType.ConversationView]: ConversationView
+  [WebSocketMessageType.AccountMessageStatus]: AccountMessageStatus
 
   // calls (in the order they should be sent)
   [WebSocketMessageType.sendCallInvite]: CallInvite

@@ -25,10 +25,6 @@ export interface IConversationMember {
 
 export type ConversationMemberRole = 'admin' | 'member' | 'invited' | 'banned' | 'left'
 
-interface Map<T> {
-  [key: string]: T
-}
-
 export interface Message {
   id: string
   author: string
@@ -52,7 +48,7 @@ export interface Message {
   fileId?: string
   reactions?: string
   editions?: string
-  status: Map<MessageStatusCode>
+  status: Map<string, MessageStatusCode>
   displayName?: string
 }
 

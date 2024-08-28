@@ -34,6 +34,7 @@ import { defaultModeratorsRouter } from './routers/default-moderators-router.js'
 import { linkPreviewRouter } from './routers/link-preview-router.js'
 import { nameserverRouter } from './routers/nameserver-router.js'
 import { bindChatCallbacks } from './websocket/chat-handler.js'
+import { bindMessageStatusChangeCallbacks } from './websocket/message-status-handler.js'
 import { bindWebRtcCallbacks } from './websocket/webrtc-handler.js'
 
 @Service()
@@ -64,6 +65,7 @@ export class App {
     // Setup WebSocket callbacks
     bindChatCallbacks()
     bindWebRtcCallbacks()
+    bindMessageStatusChangeCallbacks()
 
     // Setup 404 error handling
     this.app.use((_req, res) => {

@@ -78,8 +78,9 @@ export interface IncomingAccountMessage {
 
 export interface AccountMessageStatusChanged {
   accountId: string
-  messageId: string
+  conversationId: string
   peer: string
+  messageId: string
   state: MessageState
 }
 

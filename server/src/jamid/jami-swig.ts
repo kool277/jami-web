@@ -130,6 +130,7 @@ export interface JamiSwig {
   loadConversationMessages(accountId: string, conversationId: string, fromMessage: string, n: number): number
   loadConversation(accountId: string, conversationId: string, fromMessage: string, n: number): number
   setIsComposing(accountId: string, conversationId: string, isWriting: boolean): void
+  setMessageDisplayed(accountId: string, conversationId: string, messageId: string, status: number): boolean
 
   getCallList(accountId: string): StringVect
   getCallDetails(accountId: string, callId: string): StringMap

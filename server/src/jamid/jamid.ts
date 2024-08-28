@@ -19,6 +19,7 @@ import { createRequire } from 'node:module'
 
 import {
   AccountDetails,
+  AccountMessageStatus,
   ComposingStatus,
   ContactDetails,
   ConversationInfos,
@@ -131,8 +132,13 @@ export class Jamid {
       onIncomingAccountMessage.next({ accountId, from, payload })
 
     const onAccountMessageStatusChanged = new Subject<AccountMessageStatusChanged>()
-    handlers.AccountMessageStatusChanged = (accountId: string, messageId: string, peer: string, state: MessageState) =>
-      onAccountMessageStatusChanged.next({ accountId, messageId, peer, state })
+    handlers.AccountMessageStatusChanged = (
+      accountId: string,
+      messageId: string,
+      peer: string,
+      state: MessageState,
+      conversationId: string,
+    ) => onAccountMessageStatusChanged.next({ accountId, messageId, peer, state, conversationId })
 
     const onContactAdded = new Subject<ContactAdded>()
     handlers.ContactAdded = (accountId: string, contactId: string, confirmed: boolean) =>
@@ -433,6 +439,10 @@ export class Jamid {
     this.jamiSwig.setIsComposing(accountId, conversationId, isWriting)
   }
 
+  setMessageDisplayed(accountId: string, conversationId: string, messageId: string, status: number): boolean {
+    return this.jamiSwig.setMessageDisplayed(accountId, conversationId, messageId, status)
+  }
+
   getCallIds(accountId: string): string[] {
     return stringVectToArray(this.jamiSwig.getCallList(accountId))
   }
@@ -509,6 +519,13 @@ export class Jamid {
 
     this.events.onAccountMessageStatusChanged.subscribe((signal) => {
       log.debug('Received AccountMessageStatusChanged:', JSON.stringify(signal))
+      const data: AccountMessageStatus = {
+        conversationId: signal.conversationId,
+        peer: signal.peer,
+        messageId: signal.messageId,
+        status: Number(signal.state),
+      }
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.AccountMessageStatus, data)
     })
 
     this.events.onContactAdded.subscribe((signal) => {
