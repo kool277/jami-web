@@ -77,44 +77,52 @@ const ChatInterface = () => {
     noKeyboard: true,
   })
 
-  const messageStatusChangeHandler = (data: AccountMessageStatus) => {
-    // handle signal
-    const messageId = data.messageId
-    const status = data.status
-    const peerId = data.peer
-    setMessages((messages) =>
-      messages.map((message) => {
-        if (message.id === messageId) {
-          return {
-            ...message,
-            status: {
-              ...message.status,
-              [peerId]: status,
-            },
-          }
-        }
-        return message
-      }),
-    )
-  }
-
   useEffect(() => {
+    const messageStatusChangeHandler = (data: AccountMessageStatus) => {
+      // handle signal
+      const messageId = data.messageId
+      const status = data.status
+      const peerId = data.peer
+      if (peerId !== account.getUri()) {
+        setMessages((messages) =>
+          messages.map((message) => {
+            if (message.id === messageId) {
+              return {
+                ...message,
+                status: {
+                  ...message.status,
+                  [peerId]: status,
+                },
+              }
+            }
+            return message
+          }),
+        )
+      }
+    }
+
     webSocket.bind(WebSocketMessageType.AccountMessageStatus, messageStatusChangeHandler)
     return () => {
       webSocket.unbind(WebSocketMessageType.AccountMessageStatus, messageStatusChangeHandler)
     }
-  }, [webSocket])
+  }, [webSocket, account, setMessages])
 
   useEffect(() => {
     const userView = new Set()
     messages.forEach((message) => {
       if (message.author === account.getUri()) {
-        for (const [peerId, status] of Object.entries(message.status)) {
-          if (peerId !== account.getUri()) {
+        for (const message of messages) {
+          if (message.author !== account.getUri()) {
+            continue
+          }
+          for (const [peerId, status] of Object.entries(message.status)) {
+            if (peerId === account.getUri()) {
+              continue
+            }
             if (userView.size === members.length) {
-              // all members have seen the message
               break
-            } else if (status === MessageStatusCode.read && !userView.has(peerId)) {
+            }
+            if (status === MessageStatusCode.read && !userView.has(peerId)) {
               setLastSeen((lastSeen) => new Map(lastSeen.set(peerId, message.id)))
               userView.add(peerId)
             }
@@ -127,10 +135,9 @@ const ChatInterface = () => {
 
       if (message.author !== account.getUri() && messageStatus[account.getUri()] !== MessageStatusCode.read) {
         const args = {
-          accountId: account.id,
           messageId: message.id,
-          conversationId: conversationId,
           peer: message.author,
+          conversationId: conversationId,
           status: MessageStatusCode.read,
         }
         webSocket.send(WebSocketMessageType.AccountMessageStatus, args)
