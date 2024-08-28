@@ -17,7 +17,7 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src", "src/client/cypress/**/*.cy.ts"],
+  "include": ["src", "cypress/**/*.{ts,tsx}"],
   "references": [
     {
       "path": "./tsconfig.node.json"
