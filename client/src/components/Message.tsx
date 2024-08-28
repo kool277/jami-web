@@ -32,6 +32,7 @@ import { formatRelativeDate, formatTime } from '../utils/dates&times'
 import { EmojiButton, MoreButton, ReplyMessageButton } from './Button'
 import ConversationAvatar from './ConversationAvatar'
 import LoadingPage from './Loading'
+import MessageStatus from './MessageStatus'
 import PopoverList, { PopoverListItemData } from './PopoverList'
 import {
   ArrowLeftCurved,
@@ -598,33 +599,35 @@ const Bubble = ({
     }
   }, [isFirstOfGroup, isLastOfGroup, position])
   return (
-    <Box
-      sx={{
-        width: 'fit-content',
-        maxWidth,
-        backgroundColor: bubbleColor,
-        padding: bubblePadding,
-        overflow: 'hidden',
-        wordWrap: 'break-word',
-        ...radius,
-      }}
-    >
-      {children}
+    <>
       <Box
         sx={{
-          width: 1,
-          color: '#A6948B',
-          fontSize: 11,
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'flex-end',
-          flexWrap: 'nowrap',
-          ml: '10%',
+          width: 'fit-content',
+          maxWidth,
+          backgroundColor: bubbleColor,
+          padding: bubblePadding,
+          overflow: 'hidden',
+          wordWrap: 'break-word',
+          ...radius,
         }}
       >
-        <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>
+        {children}
+        <Box
+          sx={{
+            width: 1,
+            color: '#A6948B',
+            fontSize: 11,
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            flexWrap: 'nowrap',
+            ml: '10%',
+          }}
+        >
+          <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>
+        </Box>
       </Box>
-    </Box>
+    </>
   )
 }
 
@@ -645,9 +648,10 @@ interface MessageProps {
   messages: Message[]
   isAccountMessage: boolean
   author: Account | Contact
+  messageStatus: Map<string, string>
 }
 
-export const MessageRow = ({ messageIndex, messages, isAccountMessage, author }: MessageProps) => {
+export const MessageRow = ({ messageIndex, messages, isAccountMessage, author, messageStatus }: MessageProps) => {
   const message = messages[messageIndex]
   const previousMessage = findPreviousVisibleMessage(messages, messageIndex)
   const nextMessage = findNextVisibleMessage(messages, messageIndex)
@@ -656,6 +660,7 @@ export const MessageRow = ({ messageIndex, messages, isAccountMessage, author }:
   const showDate =
     message?.type === 'initial' || previousTime.year() !== time.year() || previousTime.dayOfYear() !== time.dayOfYear()
   const showTime = checkShowsTime(time, previousTime)
+
   let messageComponent
   if (checkIsUserMessageType(message.type)) {
     messageComponent = (
@@ -683,6 +688,7 @@ export const MessageRow = ({ messageIndex, messages, isAccountMessage, author }:
       {showDate && <DateIndicator time={time} />}
       {showTime && <TimeIndicator time={time} hasDateOnTop={showDate} />}
       {messageComponent}
+      <MessageStatus message={message} messageStatus={messageStatus} />
     </Stack>
   )
 }

@@ -17,7 +17,8 @@
  */
 import { Box, Divider, Fade, Stack, Typography } from '@mui/material'
 import { motion } from 'framer-motion'
-import { ConversationMessage, Message, WebSocketMessageType } from 'jami-web-common'
+import { AccountMessageStatus, ConversationMessage, Message, WebSocketMessageType } from 'jami-web-common'
+import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
@@ -27,6 +28,7 @@ import LoadingPage from '../components/Loading'
 import MessageList from '../components/MessageList'
 import { FileDragOverlay } from '../components/Overlay'
 import SendMessageForm from '../components/SendMessageForm'
+import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { ConversationMember } from '../models/conversation-member'
@@ -36,7 +38,7 @@ import { translateEnumeration, TranslateEnumerationOptions } from '../utils/tran
 
 const ChatInterface = () => {
   const webSocket = useWebSocketContext()
-  const { conversationId } = useConversationContext()
+  const { conversationId, members } = useConversationContext()
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -45,6 +47,9 @@ const ChatInterface = () => {
   const sendMessageMutation = useSendMessageMutation(conversationId)
 
   const [fileHandlers, setFileHandlers] = useState<FileHandler[]>([])
+
+  const { account } = useAuthContext()
+  const [lastSeen, setLastSeen] = useState<Map<string, string>>(new Map())
 
   const onFilesDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -72,6 +77,67 @@ const ChatInterface = () => {
     noKeyboard: true,
   })
 
+  const messageStatusChangeHandler = (data: AccountMessageStatus) => {
+    // handle signal
+    const messageId = data.messageId
+    const status = data.status
+    const peerId = data.peer
+    setMessages((messages) =>
+      messages.map((message) => {
+        if (message.id === messageId) {
+          return {
+            ...message,
+            status: {
+              ...message.status,
+              [peerId]: status,
+            },
+          }
+        }
+        return message
+      }),
+    )
+  }
+
+  useEffect(() => {
+    webSocket.bind(WebSocketMessageType.AccountMessageStatus, messageStatusChangeHandler)
+    return () => {
+      webSocket.unbind(WebSocketMessageType.AccountMessageStatus, messageStatusChangeHandler)
+    }
+  }, [webSocket])
+
+  useEffect(() => {
+    const userView = new Set()
+    messages.forEach((message) => {
+      if (message.author === account.getUri()) {
+        for (const [peerId, status] of Object.entries(message.status)) {
+          if (peerId !== account.getUri()) {
+            if (userView.size === members.length) {
+              // all members have seen the message
+              break
+            } else if (status === MessageStatusCode.read && !userView.has(peerId)) {
+              setLastSeen((lastSeen) => new Map(lastSeen.set(peerId, message.id)))
+              userView.add(peerId)
+            }
+          }
+        }
+      }
+    })
+    messages.forEach((message) => {
+      const messageStatus = JSON.parse(JSON.stringify(message.status))
+
+      if (message.author !== account.getUri() && messageStatus[account.getUri()] !== MessageStatusCode.read) {
+        const args = {
+          accountId: account.id,
+          messageId: message.id,
+          conversationId: conversationId,
+          peer: message.author,
+          status: MessageStatusCode.read,
+        }
+        webSocket.send(WebSocketMessageType.AccountMessageStatus, args)
+      }
+    })
+  }, [messages, webSocket, account, conversationId, members])
+
   useEffect(() => {
     if (messagesQuery.isSuccess) {
       const sortedMessages = sortMessages(messagesQuery.data)
@@ -91,10 +157,8 @@ const ChatInterface = () => {
 
   useEffect(() => {
     const conversationMessageListener = (data: ConversationMessage) => {
-      console.log('newMessage')
       setMessages((messages) => addMessage(messages, data.message))
     }
-
     webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
 
     return () => {
@@ -112,7 +176,7 @@ const ChatInterface = () => {
     <Stack flex={1} overflow="hidden" {...getRootProps()} paddingBottom="16px">
       {isDragActive && <FileDragOverlay />}
       <input {...getInputProps()} />
-      <MessageList messages={messages} />
+      <MessageList messages={messages} messageStatus={lastSeen} />
       <ComposingMembersIndicator />
       <Divider
         sx={{

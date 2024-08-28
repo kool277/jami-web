@@ -29,9 +29,10 @@ import { ArrowDownIcon } from './SvgIcon'
 
 interface MessageListProps {
   messages: Message[]
+  messageStatus: Map<string, string>
 }
 
-export default function MessageList({ messages }: MessageListProps) {
+export default function MessageList({ messages, messageStatus }: MessageListProps) {
   const { account } = useAuthContext()
   const { members } = useConversationContext()
   const [showScrollButton, setShowScrollButton] = useState(false)
@@ -68,7 +69,7 @@ export default function MessageList({ messages }: MessageListProps) {
                 isAccountMessage,
                 author,
               }
-              return <MessageRow key={message.id} {...props} />
+              return <MessageRow key={message.id} messageStatus={messageStatus} {...props} />
             })
           }
         </Stack>

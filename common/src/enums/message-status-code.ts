@@ -16,8 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 export enum MessageStatusCode {
-  sending = 0,
-  sent = 1,
-  read = 2,
-  errored = 3,
+  sending = 1,
+  sent = 2,
+  read = 3,
 }
