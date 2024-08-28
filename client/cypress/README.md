@@ -8,6 +8,7 @@
   - [Prerequisites](#prerequisites)
   - [Test Platforms](#test-platforms)
   - [Test Environment Variables](#test-environment-variables)
+  - [Custom Commands](#custom-commands)
   - [Test Flow](#test-flow)
     - [Success Login](#success-login)
     - [Success Logout](#success-logout)
@@ -38,6 +39,10 @@
 Environment variables can be different across different machines. Machine specific variables should be defined in `cypress.env.json` whereas the shared variables should be defined in the `cypress.config.ts` because it is tracked by git. For more, See [docs](https://docs.cypress.io/guides/guides/environment-variables).
 
 Before running any tests, make sure all the variables are set correctly in `cypress.env.json`. Refer to `cypress.env.example.json` for what variables are needed.
+
+## Custom Commands
+
+Cypress allows custom commands to be added via `support/command.ts`. However, an extra step is required for a TypeScript project like this one. The Cypress interface must be extended for TypeScript to correctly infer the types when adding a custom command. See `support/cypress.d.ts` for more details.
 
 ## Test Flow
 
