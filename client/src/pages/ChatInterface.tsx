@@ -164,12 +164,14 @@ const ChatInterface = () => {
   }, [messagesQuery.isError])
 
   const sendMessage = useCallback(
-    (message: string, reply?: any) => sendMessageMutation.mutate(message, reply),
-    [sendMessageMutation],
+    (message: string) => {
+      sendMessageMutation.mutate(JSON.stringify({ message, replyTo: selectedReply?.id }))
+    },
+    [sendMessageMutation, selectedReply],
   )
 
-  function handleSendMessage(message: string, reply?: any) {
-    sendMessage(message, reply)
+  function handleSendMessage(message: string) {
+    sendMessage(message)
     setSelectedReply(undefined)
   }
 
@@ -203,7 +205,7 @@ const ChatInterface = () => {
         }}
       />
       {selectedReply !== undefined ? <ReplyToMessage /> : null}
-      <SendMessageForm onSend={handleSendMessage} openFilePicker={openFilePicker} reply={selectedReply} />
+      <SendMessageForm onSend={handleSendMessage} openFilePicker={openFilePicker} />
       {fileHandlers.length > 0 && <FilePreviewsList fileHandlers={fileHandlers} removeFile={removeFile} />}
     </Stack>
   )

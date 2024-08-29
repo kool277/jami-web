@@ -173,6 +173,9 @@ conversationRouter.get(
       element.author = element.body.author
       element.parents = element.body.parents
       element.timestamp = element.body.timestamp
+      if (element.body?.['reply-to']) {
+        element['reply-to'] = element.body['reply-to']
+      }
       element.body = element.body.body
     })
     res.send(messages)
@@ -182,12 +185,14 @@ conversationRouter.get(
 conversationRouter.post(
   '/:conversationId/messages',
   (req: Request<ParamsDictionary, string, Partial<NewMessageRequestBody>>, res) => {
-    const { message } = req.body
-    if (message === undefined) {
+    if (req.body.message === undefined) {
       res.status(HttpStatusCode.BadRequest).send('Missing message in body')
       return
     }
 
+    const data = JSON.parse(req.body.message)
+    const message = data.message
+    const replyTo = data.replyTo
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
 
@@ -197,7 +202,12 @@ conversationRouter.post(
       return
     }
 
-    jamid.sendConversationMessage(accountId, conversationId, message)
+    if (replyTo !== undefined) {
+      jamid.sendConversationMessage(accountId, conversationId, message, replyTo, 0)
+    } else {
+      jamid.sendConversationMessage(accountId, conversationId, message)
+    }
+
     res.sendStatus(HttpStatusCode.NoContent)
   },
 )

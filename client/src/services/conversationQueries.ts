@@ -113,10 +113,9 @@ export const useSendMessageMutation = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (message: string, reply?: Message) =>
+    mutationFn: (message: string) =>
       axiosInstance.post(`/conversations/${conversationId}/messages`, {
-        message: message,
-        reply: reply?.body,
+        message,
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
   })

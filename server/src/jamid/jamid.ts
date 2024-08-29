@@ -568,7 +568,6 @@ export class Jamid {
 
     this.events.onSwarmMessageReceived.subscribe((signal) => {
       log.debug('Received SwarmMessageReceived:', JSON.stringify(signal))
-
       const data: ConversationMessage = {
         conversationId: signal.conversationId,
         message: {
@@ -579,6 +578,7 @@ export class Jamid {
           timestamp: signal.message.body.timestamp,
           body: signal.message.body.body,
           type: signal.message.body.type,
+          'reply-to': signal.message.body['reply-to'],
           editions: signal.message.editions,
           reactions: signal.message.reactions,
           status: signal.message.status,

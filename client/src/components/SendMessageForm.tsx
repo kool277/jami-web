@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
+import { useReplyMessageContext } from '../contexts/ReplyMessageProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { ConversationMember } from '../models/conversation-member'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
@@ -37,15 +38,15 @@ import {
 type SendMessageFormProps = {
   onSend: (message: string, reply: Message | undefined) => void
   openFilePicker: () => void
-  reply: Message | undefined
 }
 
-export default function SendMessageForm({ onSend, openFilePicker, reply }: SendMessageFormProps) {
+export default function SendMessageForm({ onSend, openFilePicker }: SendMessageFormProps) {
   const webSocket = useWebSocketContext()
   const { members, conversationId } = useConversationContext()
   const [currentMessage, setCurrentMessage] = useState('')
   const composingNotificationTimeRef = useRef(0)
   const placeholder = usePlaceholder(members)
+  const { message: reply } = useReplyMessageContext()
 
   const notifyComposing = useCallback(() => {
     const currentTime = new Date().getTime()
@@ -71,7 +72,7 @@ export default function SendMessageForm({ onSend, openFilePicker, reply }: SendM
         notifyStopcomposing()
       }
     },
-    [currentMessage, onSend, notifyStopcomposing, reply],
+    [currentMessage, onSend, reply, notifyStopcomposing],
   )
 
   const handleInputChange = useCallback(
