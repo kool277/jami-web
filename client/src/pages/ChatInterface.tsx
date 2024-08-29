@@ -110,6 +110,15 @@ const ChatInterface = () => {
     }
   }, [webSocket, account, setMessages])
 
+  function linkMessagetoReply(messages: Message[]) {
+    const messageMap = new Map(messages.map((message) => [message.id, message]))
+    messages.forEach((message) => {
+      if (message['reply-to']) {
+        message['reply-to'] = messageMap.get(message['reply-to'] as string)
+      }
+    })
+  }
+
   useEffect(() => {
     const userView = new Set()
     messages.forEach((message) => {
@@ -151,6 +160,7 @@ const ChatInterface = () => {
   useEffect(() => {
     if (messagesQuery.isSuccess) {
       const sortedMessages = sortMessages(messagesQuery.data)
+      linkMessagetoReply(sortedMessages)
       setMessages(sortedMessages)
     }
   }, [messagesQuery.isSuccess, messagesQuery.data])

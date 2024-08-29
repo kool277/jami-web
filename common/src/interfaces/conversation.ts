@@ -49,7 +49,7 @@ export interface Message {
   reactions?: string
   editions?: string
   status: Map<string, MessageStatusCode>
-  'reply-to'?: string
+  'reply-to'?: string | Message
   displayName?: string
 }
 
