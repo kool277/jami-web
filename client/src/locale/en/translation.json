@@ -131,6 +131,7 @@
   "registration_form_username_tooltip": "Username may be from 3 to 32 chraracters long and contain a-z, A-Z, -, _\n\nClick for more details",
   "registration_success": "You've successfully registered! — Logging you in...",
   "replying_to": "Replying to",
+  "replied_to": "Replied to",
   "search_results": "Search Results",
   "select_placeholder": "Select an option",
   "settings": "Settings",

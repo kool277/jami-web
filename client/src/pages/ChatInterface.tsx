@@ -187,14 +187,21 @@ const ChatInterface = () => {
 
   useEffect(() => {
     const conversationMessageListener = (data: ConversationMessage) => {
+      if (data.message['reply-to']) {
+        for (const reply of messages) {
+          if (reply.id === data.message['reply-to']) {
+            data.message['reply-to'] = reply
+            break
+          }
+        }
+      }
       setMessages((messages) => addMessage(messages, data.message))
     }
     webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
-
     return () => {
       webSocket.unbind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
     }
-  }, [webSocket])
+  }, [messages, webSocket])
 
   if (isLoading) {
     return <LoadingPage />

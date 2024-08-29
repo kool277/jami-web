@@ -131,6 +131,7 @@
   "registration_form_username_tooltip": "Le nom d'utilisateur doit avoir de 3 à 32 caractères et contenir a-z, A-Z, -, _\n\nCliquer pour plus de détails",
   "registration_success": "Inscription réussie! — Connexion en cours...",
   "replying_to": "Répondre à",
+  "replied_to": "A répondu à",
   "search_results": "Résultats de la recherche",
   "select_placeholder": "Sélectionner une option",
   "settings": "Paramètres",

@@ -15,8 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Chip, Divider, Link, Stack, Tooltip, Typography } from '@mui/material'
+import { Box, Chip, Divider, Link, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { styled } from '@mui/material/styles'
+import { Theme, useTheme } from '@mui/material/styles'
 import dayjs, { Dayjs } from 'dayjs'
 import { Message } from 'jami-web-common'
 import Linkify from 'linkify-react'
@@ -24,6 +25,7 @@ import * as linkify from 'linkifyjs'
 import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useConversationContext } from '../contexts/ConversationProvider'
 import { useReplyMessageContext } from '../contexts/ReplyMessageProvider'
 import { Account } from '../models/account'
 import { Contact } from '../models/contact'
@@ -285,6 +287,9 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   const bubbleColor = isAccountMessage ? '#005699' : '#E5E5E5'
   const textColor = isAccountMessage ? 'white' : 'black'
   const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message])
+  const theme: Theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('md'))
 
   return (
     <MessageTooltip position={position} message={message}>
@@ -293,7 +298,7 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
         position={position}
         isFirstOfGroup={isFirstOfGroup}
         isLastOfGroup={isLastOfGroup}
-        maxWidth={link ? '400px' : undefined}
+        maxWidth={isMobile ? '200px' : isMedium ? '380px' : '600px'}
         sentTime={sentTime}
       >
         <Typography variant="body1" color={textColor} textAlign={position}>
@@ -408,13 +413,14 @@ const UserMessageRow = ({
 }: UserMessageRowProps) => {
   const authorName = author.getDisplayName()
   const position = isAccountMessage ? 'end' : 'start'
-
+  const { t } = useTranslation()
   const previousIsUserMessageType = checkIsUserMessageType(previousMessage?.type)
   const nextIsUserMessageType = checkIsUserMessageType(nextMessage?.type)
   const nextTime = dayjs.unix(Number(nextMessage?.timestamp))
   const nextShowsTime = checkShowsTime(nextTime, time)
   const isFirstOfGroup = showsTime || !previousIsUserMessageType || previousMessage?.author !== message.author
   const isLastOfGroup = nextShowsTime || !nextIsUserMessageType || message.author !== nextMessage?.author
+  const { members } = useConversationContext()
   const sentTime = time
 
   const props = {
@@ -445,6 +451,39 @@ const UserMessageRow = ({
     ? bubblePadding
     : parseInt(avatarSize) + parseInt(spacingBetweenAvatarAndBubble) + parseInt(bubblePadding) + 'px'
 
+  const replyMessage = message['reply-to']
+
+  let replyMessageComponent = <></>
+
+  if (typeof replyMessage !== 'object') {
+    console.error('reply-to is not a Message object')
+  } else {
+    const member = members.find((member) => replyMessage?.author === member.contact.uri)
+    const bubbleColorReply = '#D3D3D3'
+    const textColorReply = '#555555'
+    const name = member === undefined ? t('yourself') : member.contact.getDisplayName()
+    replyMessageComponent = (
+      <>
+        <Box sx={{ fontSize: '11px', color: 'grey', fontWeight: 'bolder', mt: 1, mr: 1.5, mb: 0 }}>
+          {t('replied_to') + ' ' + name}
+        </Box>
+        <Box sx={{ mb: -2, mr: 1.5 }}>
+          <Bubble
+            bubbleColor={bubbleColorReply}
+            position={position}
+            isFirstOfGroup={true}
+            isLastOfGroup={true}
+            maxWidth={'400px'}
+          >
+            <Typography variant="body1" color={textColorReply} textAlign={position}>
+              {replyMessage?.body}
+            </Typography>
+          </Bubble>
+        </Box>
+      </>
+    )
+  }
+
   return (
     <Stack alignItems={position}>
       {isFirstOfGroup && (
@@ -452,6 +491,7 @@ const UserMessageRow = ({
           <ParticipantName name={authorName} />
         </Box>
       )}
+      {replyMessageComponent}
       <Stack
         direction="row"
         justifyContent={position}
@@ -575,7 +615,7 @@ interface BubbleProps {
   bubbleColor: string
   maxWidth?: string
   children: ReactNode
-  sentTime: Dayjs
+  sentTime?: Dayjs
 }
 
 const Bubble = ({
@@ -619,20 +659,22 @@ const Bubble = ({
         }}
       >
         {children}
-        <Box
-          sx={{
-            width: 1,
-            color: '#A6948B',
-            fontSize: 11,
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            flexWrap: 'nowrap',
-            ml: '10%',
-          }}
-        >
-          <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>
-        </Box>
+        {sentTime && (
+          <Box
+            sx={{
+              width: 1,
+              color: '#A6948B',
+              fontSize: 11,
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'flex-end',
+              flexWrap: 'nowrap',
+              ml: '10%',
+            }}
+          >
+            <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>
+          </Box>
+        )}
       </Box>
     </>
   )
