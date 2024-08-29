@@ -1,0 +1,119 @@
+/*
+ * Copyright (C) 2022-2024 Savoir-faire Linux Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public
+ * License along with this program.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ */
+
+import { Box, Button } from '@mui/material'
+import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
+
+import { useAuthContext } from '../contexts/AuthProvider'
+import { useConversationContext } from '../contexts/ConversationProvider'
+import { useReplyMessageContext } from '../contexts/ReplyMessageProvider'
+import ReplyIcon from '../icons/replyIcon.svg?react'
+
+export default function ReplyToMessage() {
+  const { members } = useConversationContext()
+  const { t } = useTranslation()
+  const { account } = useAuthContext()
+  const { message, setMessage } = useReplyMessageContext()
+
+  function cancelHandler() {
+    setMessage(undefined)
+  }
+
+  function getName() {
+    if (!message) {
+      return
+    }
+    if (account.getUri() === message.author) {
+      return t('yourself')
+    } else {
+      const member = members.find((member) => message.author === member.contact.uri)
+      return member?.contact.getDisplayName()
+    }
+  }
+
+  return (
+    <motion.div
+      style={{
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+    >
+      <Box
+        sx={{
+          color: 'black',
+          width: '96%',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          alignContent: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexDirection: 'row',
+            flexWrap: 'nowrap',
+            alignItems: 'center',
+            alignContent: 'center',
+            width: '100%',
+          }}
+        >
+          <ReplyIcon />
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              marginLeft: '3%',
+              width: '100%',
+            }}
+          >
+            <div style={{ color: 'grey', fontSize: '13px' }}>{t('replying_to') + ' ' + getName()}</div>
+            <div style={{ backgroundColor: '#e5e5e5', borderRadius: '5px', overflow: 'hidden' }}>
+              <Box
+                sx={{
+                  padding: '5px',
+                  color: '#606060',
+                  fontStyle: 'italic',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                }}
+              >
+                {message?.body}
+              </Box>
+            </div>
+          </Box>
+        </Box>
+        <Button
+          onClick={cancelHandler}
+          sx={{
+            backgroundColor: 'inherit',
+            color: 'black',
+          }}
+        >
+          X
+        </Button>
+      </Box>
+    </motion.div>
+  )
+}

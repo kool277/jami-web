@@ -17,7 +17,7 @@
  */
 import { InputBase } from '@mui/material'
 import { Stack } from '@mui/system'
-import { WebSocketMessageType } from 'jami-web-common'
+import { Message, WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -35,11 +35,12 @@ import {
 } from './Button'
 
 type SendMessageFormProps = {
-  onSend: (message: string) => void
+  onSend: (message: string, reply: Message | undefined) => void
   openFilePicker: () => void
+  reply: Message | undefined
 }
 
-export default function SendMessageForm({ onSend, openFilePicker }: SendMessageFormProps) {
+export default function SendMessageForm({ onSend, openFilePicker, reply }: SendMessageFormProps) {
   const webSocket = useWebSocketContext()
   const { members, conversationId } = useConversationContext()
   const [currentMessage, setCurrentMessage] = useState('')
@@ -65,12 +66,12 @@ export default function SendMessageForm({ onSend, openFilePicker }: SendMessageF
     (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       if (currentMessage) {
-        onSend(currentMessage)
+        onSend(currentMessage, reply)
         setCurrentMessage('')
         notifyStopcomposing()
       }
     },
-    [currentMessage, onSend, notifyStopcomposing],
+    [currentMessage, onSend, notifyStopcomposing, reply],
   )
 
   const handleInputChange = useCallback(

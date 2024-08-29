@@ -33,6 +33,7 @@ import AuthProvider from './contexts/AuthProvider'
 import CallManagerProvider from './contexts/CallManagerProvider'
 import ConversationProvider from './contexts/ConversationProvider'
 import MessengerProvider from './contexts/MessengerProvider'
+import ReplyMessageProvider from './contexts/ReplyMessageProvider'
 import UserMediaProvider from './contexts/UserMediaProvider'
 import WebSocketProvider from './contexts/WebSocketProvider'
 import { RouteParams } from './hooks/useUrlParams'
@@ -79,11 +80,13 @@ export const router = createBrowserRouter(
           <Route
             path="conversation/:conversationId"
             element={
-              <Messenger>
-                <ConversationProvider>
-                  <ConversationView />
-                </ConversationProvider>
-              </Messenger>
+              <ReplyMessageProvider>
+                <Messenger>
+                  <ConversationProvider>
+                    <ConversationView />
+                  </ConversationProvider>
+                </Messenger>
+              </ReplyMessageProvider>
             }
           />
         </Route>

@@ -27,9 +27,11 @@ import { FilePreviewRemovable } from '../components/FilePreview'
 import LoadingPage from '../components/Loading'
 import MessageList from '../components/MessageList'
 import { FileDragOverlay } from '../components/Overlay'
+import ReplyToMessage from '../components/ReplyToMessage'
 import SendMessageForm from '../components/SendMessageForm'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
+import { useReplyMessageContext } from '../contexts/ReplyMessageProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { ConversationMember } from '../models/conversation-member'
 import { useMessagesQuery, useSendMessageMutation } from '../services/conversationQueries'
@@ -42,6 +44,7 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
+  const { message: selectedReply, setMessage: setSelectedReply } = useReplyMessageContext()
 
   const messagesQuery = useMessagesQuery(conversationId)
   const sendMessageMutation = useSendMessageMutation(conversationId)
@@ -160,7 +163,15 @@ const ChatInterface = () => {
     setError(messagesQuery.isError)
   }, [messagesQuery.isError])
 
-  const sendMessage = useCallback((message: string) => sendMessageMutation.mutate(message), [sendMessageMutation])
+  const sendMessage = useCallback(
+    (message: string, reply?: any) => sendMessageMutation.mutate(message, reply),
+    [sendMessageMutation],
+  )
+
+  function handleSendMessage(message: string, reply?: any) {
+    sendMessage(message, reply)
+    setSelectedReply(undefined)
+  }
 
   useEffect(() => {
     const conversationMessageListener = (data: ConversationMessage) => {
@@ -191,7 +202,8 @@ const ChatInterface = () => {
           borderTop: '1px solid #E5E5E5',
         }}
       />
-      <SendMessageForm onSend={sendMessage} openFilePicker={openFilePicker} />
+      {selectedReply !== undefined ? <ReplyToMessage /> : null}
+      <SendMessageForm onSend={handleSendMessage} openFilePicker={openFilePicker} reply={selectedReply} />
       {fileHandlers.length > 0 && <FilePreviewsList fileHandlers={fileHandlers} removeFile={removeFile} />}
     </Stack>
   )

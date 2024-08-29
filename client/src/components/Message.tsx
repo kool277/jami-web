@@ -24,6 +24,7 @@ import * as linkify from 'linkifyjs'
 import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useReplyMessageContext } from '../contexts/ReplyMessageProvider'
 import { Account } from '../models/account'
 import { Contact } from '../models/contact'
 import { useLinkPreviewQuery } from '../services/linkPreviewQueries'
@@ -286,7 +287,7 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message])
 
   return (
-    <MessageTooltip position={position}>
+    <MessageTooltip position={position} message={message}>
       <Bubble
         bubbleColor={bubbleColor}
         position={position}
@@ -477,10 +478,12 @@ interface MessageTooltipProps {
   className?: string
   position: MessagePosition
   children: ReactElement
+  message: Message
 }
 
-const MessageTooltip = styled(({ className, position, children }: MessageTooltipProps) => {
+const MessageTooltip = styled(({ message, className, position, children }: MessageTooltipProps) => {
   const [open, setOpen] = useState(false)
+  const { setMessage: setReplyMessage } = useReplyMessageContext()
   const emojis = ['😎', '😄', '😍'] // Should be last three used emojis
   const additionalOptions: PopoverListItemData[] = [
     {
@@ -505,6 +508,10 @@ const MessageTooltip = styled(({ className, position, children }: MessageTooltip
   const onClose = useCallback(() => {
     setOpen(false)
   }, [setOpen])
+
+  function onReply() {
+    setReplyMessage(message)
+  }
 
   return (
     <Tooltip
@@ -531,7 +538,7 @@ const MessageTooltip = styled(({ className, position, children }: MessageTooltip
             {emojis.map((emoji) => (
               <EmojiButton key={emoji} emoji={emoji} />
             ))}
-            <ReplyMessageButton />
+            <ReplyMessageButton onClick={onReply} />
             <MoreButton onClick={toggleMoreMenu} />
           </Stack>
           {open && (
