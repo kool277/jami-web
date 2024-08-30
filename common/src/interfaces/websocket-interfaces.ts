@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { MessageStatusCode } from '../enums/message-status-code.js'
-import { Message } from './conversation.js'
+import { Message, Reaction } from './conversation.js'
 
 export interface ContactMessage {
   senderContactId: string
@@ -36,6 +36,26 @@ export interface AccountMessageStatus {
   peer: string
   messageId: string
   status: MessageStatusCode
+}
+
+export interface ReactionAdded {
+  accountId: string
+  conversationId: string
+  messageId: string
+  reaction: Reaction
+}
+
+export interface AddReaction {
+  accountId: string
+  conversationId: string
+  messageId: string
+  reaction: string
+}
+
+export interface ReactionRemoved {
+  conversationId: string
+  messageId: string
+  reactionId: string
 }
 
 export interface ComposingStatus {

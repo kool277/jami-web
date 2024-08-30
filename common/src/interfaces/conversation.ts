@@ -25,6 +25,15 @@ export interface IConversationMember {
 
 export type ConversationMemberRole = 'admin' | 'member' | 'invited' | 'banned' | 'left'
 
+export interface Reaction {
+  id?: string
+  author: string
+  body: string
+  timestamp: string
+  'react-to': string
+  parents: string
+}
+
 export interface Message {
   id: string
   author: string
@@ -46,7 +55,7 @@ export interface Message {
   to?: string
   invited?: string
   fileId?: string
-  reactions?: string
+  reactions: Array<Reaction>
   editions?: string
   status: Map<string, MessageStatusCode>
   'reply-to'?: string | Message

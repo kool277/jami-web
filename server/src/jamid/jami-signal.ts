@@ -49,6 +49,8 @@ export enum JamiSignal {
   SwarmLoaded = 'SwarmLoaded',
   MessagesFound = 'MessagesFound',
   SwarmMessageReceived = 'SwarmMessageReceived',
+  ReactionAdded = 'ReactionAdded',
+  ReactionRemoved = 'ReactionRemoved',
   ConversationProfileUpdated = 'ConversationProfileUpdated',
   ConversationRequestReceived = 'ConversationRequestReceived',
   ConversationRequestDeclined = 'ConversationRequestDeclined',

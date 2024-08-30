@@ -33,7 +33,9 @@ import { conversationRouter } from './routers/conversation-router.js'
 import { defaultModeratorsRouter } from './routers/default-moderators-router.js'
 import { linkPreviewRouter } from './routers/link-preview-router.js'
 import { nameserverRouter } from './routers/nameserver-router.js'
+import { bindReactionRemovedCallBack } from './websocket/chant-reactionremoved-handler.js'
 import { bindChatCallbacks } from './websocket/chat-handler.js'
+import { bindReactionAddedCallBack } from './websocket/chat-reactionadded-handler.js'
 import { bindMessageStatusChangeCallbacks } from './websocket/message-status-handler.js'
 import { bindWebRtcCallbacks } from './websocket/webrtc-handler.js'
 
@@ -66,6 +68,8 @@ export class App {
     bindChatCallbacks()
     bindWebRtcCallbacks()
     bindMessageStatusChangeCallbacks()
+    bindReactionAddedCallBack()
+    bindReactionRemovedCallBack()
 
     // Setup 404 error handling
     this.app.use((_req, res) => {

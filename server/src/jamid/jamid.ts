@@ -27,6 +27,7 @@ import {
   Devices,
   LookupResult,
   Message,
+  Reaction,
   RegisteredNameFoundState,
   VolatileDetails,
   WebSocketMessage,
@@ -55,6 +56,8 @@ import {
   IncomingAccountMessage,
   KnownDevicesChanged,
   NameRegistrationEnded,
+  ReactionAdded,
+  ReactionRemoved,
   RegisteredNameFound,
   RegistrationStateChanged,
   SwarmLoaded,
@@ -185,6 +188,14 @@ export class Jamid {
     handlers.SwarmMessageReceived = (accountId: string, conversationId: string, message: Message) =>
       onSwarmMessageReceived.next({ accountId, conversationId, message })
 
+    const onReactionAdded = new Subject<ReactionAdded>()
+    handlers.ReactionAdded = (accountId: string, conversationId: string, messageId: string, reaction: Reaction) =>
+      onReactionAdded.next({ accountId, conversationId, messageId, reaction })
+
+    const onReactionRemoved = new Subject<ReactionRemoved>()
+    handlers.ReactionRemoved = (accountId: string, conversationId: string, messageId: string, reactionId: string) =>
+      onReactionRemoved.next({ accountId, conversationId, messageId, reactionId })
+
     const onComposingStatusChanged = new Subject<ComposingStatusChanged>()
     handlers.ComposingStatusChanged = (accountId: string, conversationId: string, from: string, status: number) =>
       onComposingStatusChanged.next({ accountId, conversationId, from, status })
@@ -211,6 +222,8 @@ export class Jamid {
       onConversationMemberEvent: onConversationMemberEvent.asObservable(),
       onSwarmMessageReceived: onSwarmMessageReceived.asObservable(),
       onComposingStatusChanged: onComposingStatusChanged.asObservable(),
+      onReactionAdded: onReactionAdded.asObservable(),
+      onReactionRemoved: onReactionRemoved.asObservable(),
     }
 
     this.setupSignalHandlers()
@@ -585,6 +598,28 @@ export class Jamid {
         },
       }
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationMessage, data)
+    })
+
+    this.events.onReactionAdded.subscribe((signal) => {
+      log.debug('Received Reaction Added ' + JSON.stringify(signal))
+      const data: ReactionAdded = {
+        accountId: signal.accountId,
+        conversationId: signal.conversationId,
+        messageId: signal.messageId,
+        reaction: signal.reaction,
+      }
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.ReactionAdded, data)
+    })
+
+    this.events.onReactionRemoved.subscribe((signal) => {
+      log.debug('Received Reaction Removed  ' + JSON.stringify(signal))
+      const data: ReactionRemoved = {
+        accountId: signal.accountId,
+        conversationId: signal.conversationId,
+        messageId: signal.messageId,
+        reactionId: signal.reactionId,
+      }
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.ReactionRemoved, data)
     })
 
     this.events.onSwarmMessageReceived.subscribe((signal) => {

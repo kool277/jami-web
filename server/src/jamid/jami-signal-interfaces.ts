@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { AccountDetails, Devices, Message, VolatileDetails } from 'jami-web-common'
+import { AccountDetails, Devices, Message, Reaction, VolatileDetails } from 'jami-web-common'
 import { RegisteredNameFoundState } from 'jami-web-common'
 
 import { ConversationRequestMetadata } from './conversation-request-metadata.js'
@@ -152,4 +152,18 @@ export interface ComposingStatusChanged {
   conversationId: string
   from: string
   status: number
+}
+
+export interface ReactionAdded {
+  accountId: string
+  conversationId: string
+  messageId: string
+  reaction: Reaction
+}
+
+export interface ReactionRemoved {
+  accountId: string
+  conversationId: string
+  messageId: string
+  reactionId: string
 }

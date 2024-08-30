@@ -21,6 +21,8 @@ export enum WebSocketMessageType {
   ConversationView = 'conversation-view',
   ComposingStatus = 'composing-status',
   AccountMessageStatus = 'account-message-status',
+  ReactionAdded = 'reaction-added',
+  ReactionRemoved = 'reaction-removed',
 
   // calls (in the order they should be sent)
   sendCallInvite = 'sendCallInvite',
