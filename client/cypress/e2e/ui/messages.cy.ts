@@ -20,6 +20,10 @@ describe('Message UI tests', () => {
   it('Time Display', () => {
     cy.sendMessageWithUi()
     const regex = new RegExp('^[0-9]{1,2}\\:[0-9]{2}\\ (am|pm)$')
-    cy.get('[data-cy="message-sent-time"]').invoke('text').should('match', regex)
+    cy.get('[data-cy="message-sent-time"]').first().invoke('text').should('match', regex)
+  })
+  it('Message Status Icon', () => {
+    cy.sendMessageWithUi()
+    cy.get('[data-cy="message-status-icon"]').should('be.visible')
   })
 })

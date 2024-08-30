@@ -121,7 +121,7 @@ Cypress.Commands.add('logoutViaUI', () => {
 
 Cypress.Commands.add('sendMessageWithUi', () => {
   cy.loginViaUI()
-  cy.get('[data-cy = "conversation-summary-item"]').click() // go to first conversation
+  cy.get('[data-cy = "conversation-summary-item"]').first().click()
 
   cy.get('[data-cy = "message-input"]')
     .type('Hello, this is a test message')

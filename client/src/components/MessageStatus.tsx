@@ -40,13 +40,13 @@ export default function MessageStatus({ message, messageStatus }: MessageStatusP
 
   useEffect(() => {
     let highest = MessageStatusCode.sending
-    for (const [_peerId, status] of Object.entries(message.status)) {
-      if (status > highest) {
+    for (const [peerId, status] of Object.entries(message.status)) {
+      if (status > highest && peerId !== account.getUri()) {
         highest = status
       }
     }
     setHighestStatus(highest)
-  }, [message, messageStatus])
+  }, [message, messageStatus, account])
 
   const DisplayedIcon = useCallback(
     (message: Message) => {
@@ -105,7 +105,13 @@ export default function MessageStatus({ message, messageStatus }: MessageStatusP
         justifyContent: 'flex-end',
       }}
     >
-      <motion.div variants={item} initial="hidden" animate="visible" transition={{ delay: 0.3 }}>
+      <motion.div
+        data-cy="message-status-icon"
+        variants={item}
+        initial="hidden"
+        animate="visible"
+        transition={{ delay: 0.3 }}
+      >
         {DisplayedIcon(message)}
       </motion.div>
     </Box>
