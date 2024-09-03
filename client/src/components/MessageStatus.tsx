@@ -20,23 +20,24 @@ import { Box } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Message } from 'jami-web-common'
 import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import SentIcon from '../icons/sentIcon.svg?react'
+import { currentLastSeenMessageContext } from '../pages/ChatInterface'
 import ConversationAvatar from './ConversationAvatar'
 
 export interface MessageStatusProps {
   message: Message
-  messageStatus: Map<string, string>
 }
 
-export default function MessageStatus({ message, messageStatus }: MessageStatusProps) {
+export default function MessageStatus({ message }: MessageStatusProps) {
   const avatarSize: string = '15px'
   const { account } = useAuthContext()
   const [highestStatus, setHighestStatus] = useState<MessageStatusCode>(MessageStatusCode.sending)
   const { members } = useConversationContext()
+  const messageStatus = useContext(currentLastSeenMessageContext)
 
   useEffect(() => {
     let highest = MessageStatusCode.sending
@@ -103,6 +104,7 @@ export default function MessageStatus({ message, messageStatus }: MessageStatusP
         flexDirection: 'row',
         flexWrap: 'nowrap',
         justifyContent: 'flex-end',
+        width: '7px',
       }}
     >
       <motion.div

@@ -24,15 +24,14 @@ import { Waypoint } from 'react-waypoint'
 
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
-import { MessageRow } from './Message'
+import { findNextVisibleMessage, findPreviousVisibleMessage, MessageRow } from './Message'
 import { ArrowDownIcon } from './SvgIcon'
 
 interface MessageListProps {
   messages: Message[]
-  messageStatus: Map<string, string>
 }
 
-export default function MessageList({ messages, messageStatus }: MessageListProps) {
+export default function MessageList({ messages }: MessageListProps) {
   const { account } = useAuthContext()
   const { members } = useConversationContext()
   const [showScrollButton, setShowScrollButton] = useState(false)
@@ -52,6 +51,8 @@ export default function MessageList({ messages, messageStatus }: MessageListProp
           {
             // most recent messages first
             messages.map((message, index) => {
+              const previousMessage = findPreviousVisibleMessage(messages, index)
+              const nextMessage = findNextVisibleMessage(messages, index)
               const isAccountMessage = message.author === account.getUri()
               let author
               if (isAccountMessage) {
@@ -64,12 +65,13 @@ export default function MessageList({ messages, messageStatus }: MessageListProp
                 return null
               }
               const props = {
-                messageIndex: index,
-                messages,
+                message,
                 isAccountMessage,
                 author,
+                previousMessage,
+                nextMessage,
               }
-              return <MessageRow key={message.id} messageStatus={messageStatus} {...props} />
+              return <MessageRow key={message.id} {...props} />
             })
           }
         </Stack>

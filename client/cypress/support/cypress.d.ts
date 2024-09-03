@@ -24,5 +24,6 @@ declare namespace Cypress {
     sendMessageWithUi(): Chainable<Element>
     deleteMessageWithUi(): Chainable<Element>
     replyToMessageWithUi(): Chainable<Element>
+    reactToMessageWithUi(): Chainable<Element>
   }
 }

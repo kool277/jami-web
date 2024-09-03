@@ -130,3 +130,10 @@ Cypress.Commands.add('sendMessageWithUi', () => {
 
   cy.get('[type="submit"]').click()
 })
+
+Cypress.Commands.add('reactToMessageWithUi', () => {
+  cy.get('[data-cy = "conversation-summary-item"]').first().click()
+  cy.get('[data-cy = "message"]').first().click()
+  cy.get('[data-cy = "emoji-reaction-button"]').click()
+  cy.get('.epr-emoji-img').first().click()
+})

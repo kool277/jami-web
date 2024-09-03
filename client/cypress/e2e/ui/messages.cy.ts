@@ -26,4 +26,9 @@ describe('Message UI tests', () => {
     cy.sendMessageWithUi()
     cy.get('[data-cy="message-status-icon"]').should('be.visible')
   })
+  it('Message Reaction', () => {
+    cy.sendMessageWithUi()
+    cy.reactToMessageWithUi()
+    cy.get('[data-cy="emoji-reaction-list"]').should('be.visible')
+  })
 })

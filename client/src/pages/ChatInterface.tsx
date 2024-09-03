@@ -17,9 +17,16 @@
  */
 import { Box, Divider, Fade, Stack, Typography } from '@mui/material'
 import { motion } from 'framer-motion'
-import { AccountMessageStatus, ConversationMessage, Message, WebSocketMessageType } from 'jami-web-common'
+import {
+  AccountMessageStatus,
+  ConversationMessage,
+  Message,
+  ReactionAdded,
+  ReactionRemoved,
+  WebSocketMessageType,
+} from 'jami-web-common'
 import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 
@@ -38,6 +45,8 @@ import { useMessagesQuery, useSendMessageMutation } from '../services/conversati
 import { FileHandler } from '../utils/files'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
 
+export const currentLastSeenMessageContext = createContext<Map<string, string>>(new Map())
+
 const ChatInterface = () => {
   const webSocket = useWebSocketContext()
   const { conversationId, members } = useConversationContext()
@@ -52,6 +61,7 @@ const ChatInterface = () => {
   const [fileHandlers, setFileHandlers] = useState<FileHandler[]>([])
 
   const { account } = useAuthContext()
+
   const [lastSeen, setLastSeen] = useState<Map<string, string>>(new Map())
 
   const onFilesDrop = useCallback(
@@ -197,8 +207,43 @@ const ChatInterface = () => {
       }
       setMessages((messages) => addMessage(messages, data.message))
     }
+    const reactionsAddedListener = (data: ReactionAdded) => {
+      console.log(data)
+      setMessages((messages) => {
+        return messages.map((message) => {
+          if (message.id === data.messageId) {
+            const updatedReactions = message.reactions ? [...message.reactions, data.reaction] : [data.reaction]
+            return { ...message, reactions: updatedReactions }
+          }
+          return message
+        })
+      })
+    }
+
+    const reactionsRemovedListener = (data: ReactionRemoved) => {
+      setMessages((messages) => {
+        const index = messages.findIndex((message) => message.id === data.messageId)
+        if (index !== -1) {
+          const updatedMessages = [...messages]
+          const message = updatedMessages[index]
+          if (message.reactions === undefined) {
+            console.log('No reactions to remove')
+          } else {
+            message.reactions = message.reactions.filter((reaction) => reaction.id !== data.reactionId)
+          }
+          return updatedMessages
+        }
+        return messages
+      })
+    }
+
+    webSocket.bind(WebSocketMessageType.ReactionAdded, reactionsAddedListener)
+    webSocket.bind(WebSocketMessageType.ReactionRemoved, reactionsRemovedListener)
     webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
+
     return () => {
+      webSocket.unbind(WebSocketMessageType.ReactionAdded, reactionsAddedListener)
+      webSocket.unbind(WebSocketMessageType.ReactionRemoved, reactionsRemovedListener)
       webSocket.unbind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
     }
   }, [messages, webSocket])
@@ -213,7 +258,9 @@ const ChatInterface = () => {
     <Stack flex={1} overflow="hidden" {...getRootProps()} paddingBottom="16px">
       {isDragActive && <FileDragOverlay />}
       <input {...getInputProps()} />
-      <MessageList messages={messages} messageStatus={lastSeen} />
+      <currentLastSeenMessageContext.Provider value={lastSeen}>
+        <MessageList messages={messages} />
+      </currentLastSeenMessageContext.Provider>
       <ComposingMembersIndicator />
       <Divider
         sx={{

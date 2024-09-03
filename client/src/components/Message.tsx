@@ -19,14 +19,17 @@ import { Box, Chip, Divider, Link, Stack, Tooltip, Typography, useMediaQuery } f
 import { styled } from '@mui/material/styles'
 import { Theme, useTheme } from '@mui/material/styles'
 import dayjs, { Dayjs } from 'dayjs'
-import { Message } from 'jami-web-common'
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
+import { Message, ReactionAdded, WebSocketMessageType } from 'jami-web-common'
 import Linkify from 'linkify-react'
 import * as linkify from 'linkifyjs'
-import { ReactElement, ReactNode, useCallback, useMemo, useState } from 'react'
+import { memo, ReactElement, ReactNode, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useReplyMessageContext } from '../contexts/ReplyMessageProvider'
+import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { Account } from '../models/account'
 import { Contact } from '../models/contact'
 import { useLinkPreviewQuery } from '../services/linkPreviewQueries'
@@ -35,6 +38,7 @@ import { formatRelativeDate, formatTime } from '../utils/dates&times'
 import { EmojiButton, MoreButton, ReplyMessageButton } from './Button'
 import ConversationAvatar from './ConversationAvatar'
 import LoadingPage from './Loading'
+import MessageReaction from './MessageReaction'
 import MessageStatus from './MessageStatus'
 import PopoverList, { PopoverListItemData } from './PopoverList'
 import {
@@ -70,7 +74,7 @@ const checkShowsTime = (time: Dayjs, previousTime: Dayjs) => {
   return !previousTime.isSame(time) && !time.isBetween(previousTime, previousTime?.add(1, 'minute'))
 }
 
-const findPreviousVisibleMessage = (messages: Message[], messageIndex: number) => {
+export const findPreviousVisibleMessage = (messages: Message[], messageIndex: number) => {
   for (let i = messageIndex + 1; i < messages.length; ++i) {
     const message = messages[i]
     if (!checkIsInvisibleMessageType(message?.type)) {
@@ -79,7 +83,7 @@ const findPreviousVisibleMessage = (messages: Message[], messageIndex: number) =
   }
 }
 
-const findNextVisibleMessage = (messages: Message[], messageIndex: number) => {
+export const findNextVisibleMessage = (messages: Message[], messageIndex: number) => {
   for (let i = messageIndex - 1; i >= 0; --i) {
     const message = messages[i]
     if (!checkIsInvisibleMessageType(message?.type)) {
@@ -290,23 +294,34 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   const theme: Theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('md'))
+  const { setMessage: setReplyMessage } = useReplyMessageContext()
+
+  const onDoubleClick = () => {
+    setReplyMessage(message)
+  }
 
   return (
-    <MessageTooltip position={position} message={message}>
-      <Bubble
-        bubbleColor={bubbleColor}
-        position={position}
-        isFirstOfGroup={isFirstOfGroup}
-        isLastOfGroup={isLastOfGroup}
-        maxWidth={isMobile ? '200px' : isMedium ? '380px' : '600px'}
-        sentTime={sentTime}
-      >
-        <Typography variant="body1" color={textColor} textAlign={position}>
-          <Linkify options={{ render: RenderLink as any, attributes: { isAccountMessage } }}>{message.body}</Linkify>
-        </Typography>
-        {link && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}
-      </Bubble>
-    </MessageTooltip>
+    <Box>
+      <MessageTooltip position={position} message={message}>
+        <Box onDoubleClick={() => onDoubleClick()}>
+          <Bubble
+            bubbleColor={bubbleColor}
+            position={position}
+            isFirstOfGroup={isFirstOfGroup}
+            isLastOfGroup={isLastOfGroup}
+            maxWidth={isMobile ? '200px' : isMedium ? '380px' : '600px'}
+            sentTime={sentTime}
+          >
+            <Typography variant="body1" color={textColor} textAlign={position}>
+              <Linkify options={{ render: RenderLink as any, attributes: { isAccountMessage } }}>
+                {message.body}
+              </Linkify>
+            </Typography>
+            {link && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}
+          </Bubble>
+        </Box>
+      </MessageTooltip>
+    </Box>
   )
 }
 
@@ -397,7 +412,6 @@ interface UserMessageRowProps {
   isAccountMessage: boolean
   previousMessage: Message | undefined
   nextMessage: Message | undefined
-  time: Dayjs
   showsTime: boolean
   author: Account | Contact
 }
@@ -407,7 +421,6 @@ const UserMessageRow = ({
   previousMessage,
   nextMessage,
   isAccountMessage,
-  time,
   showsTime,
   author,
 }: UserMessageRowProps) => {
@@ -417,11 +430,11 @@ const UserMessageRow = ({
   const previousIsUserMessageType = checkIsUserMessageType(previousMessage?.type)
   const nextIsUserMessageType = checkIsUserMessageType(nextMessage?.type)
   const nextTime = dayjs.unix(Number(nextMessage?.timestamp))
-  const nextShowsTime = checkShowsTime(nextTime, time)
+  const sentTime = dayjs.unix(Number(message.timestamp))
+  const nextShowsTime = checkShowsTime(nextTime, sentTime)
   const isFirstOfGroup = showsTime || !previousIsUserMessageType || previousMessage?.author !== message.author
   const isLastOfGroup = nextShowsTime || !nextIsUserMessageType || message.author !== nextMessage?.author
   const { members } = useConversationContext()
-  const sentTime = time
 
   const props = {
     message,
@@ -455,9 +468,9 @@ const UserMessageRow = ({
 
   let replyMessageComponent = <></>
 
-  if (typeof replyMessage !== 'object') {
+  if (typeof replyMessage !== 'object' && replyMessage !== undefined) {
     console.error('reply-to is not a Message object')
-  } else {
+  } else if (replyMessage !== undefined) {
     const member = members.find((member) => replyMessage?.author === member.contact.uri)
     const bubbleColorReply = '#D3D3D3'
     const textColorReply = '#555555'
@@ -499,6 +512,7 @@ const UserMessageRow = ({
         spacing={spacingBetweenAvatarAndBubble}
         paddingTop="6px"
         width="66.66%"
+        sx={{ zIndex: 1 }}
       >
         <Box sx={{ width: avatarSize }}>
           {!isAccountMessage && isLastOfGroup && (
@@ -509,7 +523,9 @@ const UserMessageRow = ({
           )}
         </Box>
         <MessageComponent {...props} />
+        <MessageStatus message={message} />
       </Stack>
+      <MessageReaction message={message} />
     </Stack>
   )
 }
@@ -522,9 +538,14 @@ interface MessageTooltipProps {
 }
 
 const MessageTooltip = styled(({ message, className, position, children }: MessageTooltipProps) => {
+  const { conversationId } = useConversationContext()
+  const webSocket = useWebSocketContext()
+  const { account } = useAuthContext()
   const [open, setOpen] = useState(false)
+  const [emojiIsOpen, setEmojiIsOpen] = useState(false)
   const { setMessage: setReplyMessage } = useReplyMessageContext()
-  const emojis = ['😎', '😄', '😍'] // Should be last three used emojis
+  const [tooltipOpen, setTooltipOpen] = useState(false)
+
   const additionalOptions: PopoverListItemData[] = [
     {
       Icon: TwoSheetsIcon,
@@ -545,39 +566,86 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
 
   const toggleMoreMenu = useCallback(() => setOpen((open) => !open), [setOpen])
 
-  const onClose = useCallback(() => {
+  const onClose = () => {
     setOpen(false)
-  }, [setOpen])
+    setEmojiIsOpen(false)
+  }
+
+  const onEmojiClickHandler = () => {
+    setEmojiIsOpen(true)
+  }
 
   function onReply() {
     setReplyMessage(message)
   }
 
+  function onEmojiSelected(emoji: string) {
+    for (const reaction of message.reactions) {
+      if (reaction.author === account.getUri() && reaction.body === emoji) {
+        if (reaction.id === undefined) {
+          console.error('reaction id is undefined')
+        } else {
+          webSocket.send(WebSocketMessageType.ReactionRemoved, {
+            conversationId,
+            messageId: message.id,
+            reactionId: reaction.id,
+          })
+        }
+        return
+      }
+    }
+
+    const data: ReactionAdded = {
+      accountId: account.id,
+      conversationId: conversationId,
+      messageId: message.id,
+      reaction: {
+        author: account.id,
+        body: emoji,
+        timestamp: dayjs().unix().toString(),
+        parents: message.id,
+        'react-to': message.id,
+      },
+    }
+    webSocket.send(WebSocketMessageType.ReactionAdded, data)
+  }
+
+  const onEmojiClick = (emoji: EmojiClickData, _: MouseEvent) => {
+    onEmojiSelected(emoji.emoji)
+    setEmojiIsOpen(false)
+  }
+
+  const handleMouseEnter = () => {
+    setTooltipOpen(true)
+  }
+
+  const handleMouseLeave = () => {
+    setTooltipOpen(false)
+    onClose()
+  }
+
   return (
     <Tooltip
-      classes={{ tooltip: className }} // Required for styles. Don't know why
+      classes={{ tooltip: className }}
       placement={position === 'start' ? 'right-start' : 'left-start'}
       PopperProps={{
         modifiers: [
           {
             name: 'offset',
             options: {
-              offset: [-2, -30],
+              offset: [-2, -50],
             },
           },
         ],
       }}
-      onClose={onClose}
+      open={tooltipOpen}
+      disableHoverListener
+      disableFocusListener
+      disableTouchListener
       title={
-        <Stack>
-          <Stack // Main options
-            direction="row"
-            spacing="16px"
-            padding="16px"
-          >
-            {emojis.map((emoji) => (
-              <EmojiButton key={emoji} emoji={emoji} />
-            ))}
+        <div onMouseLeave={handleMouseLeave}>
+          <Stack direction="row" spacing="16px" padding="16px" sx={{ cursor: 'pointer' }}>
+            <EmojiButton emoji="😃" onClick={onEmojiClickHandler} />
             <ReplyMessageButton onClick={onReply} />
             <MoreButton onClick={toggleMoreMenu} />
           </Stack>
@@ -587,11 +655,11 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
               <PopoverList items={additionalOptions} />
             </>
           )}
-        </Stack>
+          {emojiIsOpen && <EmojiPicker onEmojiClick={onEmojiClick} autoFocusSearch={false} skinTonesDisabled={true} />}
+        </div>
       }
     >
-      {/* div fixes 'Function components cannot be given refs' error */}
-      <div>{children}</div>
+      <div onMouseEnter={handleMouseEnter}>{children}</div>
     </Tooltip>
   )
 })(({ position }) => {
@@ -693,17 +761,14 @@ const ParticipantName = ({ name }: ParticipantNameProps) => {
 }
 
 interface MessageProps {
-  messageIndex: number
-  messages: Message[]
+  message: Message
   isAccountMessage: boolean
   author: Account | Contact
-  messageStatus: Map<string, string>
+  previousMessage?: Message | undefined
+  nextMessage?: Message | undefined
 }
 
-export const MessageRow = ({ messageIndex, messages, isAccountMessage, author, messageStatus }: MessageProps) => {
-  const message = messages[messageIndex]
-  const previousMessage = findPreviousVisibleMessage(messages, messageIndex)
-  const nextMessage = findNextVisibleMessage(messages, messageIndex)
+export const MessageRow = memo(({ message, isAccountMessage, author, previousMessage, nextMessage }: MessageProps) => {
   const time = dayjs.unix(Number(message.timestamp))
   const previousTime = dayjs.unix(Number(previousMessage?.timestamp))
   const showDate =
@@ -717,7 +782,6 @@ export const MessageRow = ({ messageIndex, messages, isAccountMessage, author, m
         message={message}
         previousMessage={previousMessage}
         nextMessage={nextMessage}
-        time={time}
         showsTime={showTime}
         isAccountMessage={isAccountMessage}
         author={author}
@@ -737,7 +801,6 @@ export const MessageRow = ({ messageIndex, messages, isAccountMessage, author, m
       {showDate && <DateIndicator time={time} />}
       {showTime && <TimeIndicator time={time} hasDateOnTop={showDate} />}
       {messageComponent}
-      <MessageStatus message={message} messageStatus={messageStatus} />
     </Stack>
   )
-}
+})
