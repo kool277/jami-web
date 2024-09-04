@@ -23,6 +23,7 @@ export enum WebSocketMessageType {
   AccountMessageStatus = 'account-message-status',
   ReactionAdded = 'reaction-added',
   ReactionRemoved = 'reaction-removed',
+  MessageEdition = 'message-edition',
 
   // calls (in the order they should be sent)
   sendCallInvite = 'sendCallInvite',

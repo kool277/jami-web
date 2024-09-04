@@ -147,6 +147,12 @@ export interface SwarmMessageReceived {
   message: Message
 }
 
+export interface SwarmMessageUpdated {
+  accountId: string
+  conversationId: string
+  message: Message
+}
+
 export interface ComposingStatusChanged {
   accountId: string
   conversationId: string

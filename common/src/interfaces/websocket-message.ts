@@ -41,6 +41,7 @@ export interface WebSocketMessageTable {
   [WebSocketMessageType.AccountMessageStatus]: AccountMessageStatus
   [WebSocketMessageType.ReactionAdded]: ReactionAdded
   [WebSocketMessageType.ReactionRemoved]: ReactionRemoved
+  [WebSocketMessageType.MessageEdition]: ConversationMessage
 
   // calls (in the order they should be sent)
   [WebSocketMessageType.sendCallInvite]: CallInvite

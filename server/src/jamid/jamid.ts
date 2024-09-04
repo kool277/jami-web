@@ -62,6 +62,7 @@ import {
   RegistrationStateChanged,
   SwarmLoaded,
   SwarmMessageReceived,
+  SwarmMessageUpdated,
   VolatileDetailsChanged,
 } from './jami-signal-interfaces.js'
 import { JamiSwig, StringMap, stringMapToRecord, stringVectToArray, vectMapToRecordArray } from './jami-swig.js'
@@ -188,6 +189,10 @@ export class Jamid {
     handlers.SwarmMessageReceived = (accountId: string, conversationId: string, message: Message) =>
       onSwarmMessageReceived.next({ accountId, conversationId, message })
 
+    const onSwarmMessageUpdated = new Subject<SwarmMessageUpdated>()
+    handlers.SwarmMessageUpdated = (accountId: string, conversationId: string, message: Message) =>
+      onSwarmMessageUpdated.next({ accountId, conversationId, message })
+
     const onReactionAdded = new Subject<ReactionAdded>()
     handlers.ReactionAdded = (accountId: string, conversationId: string, messageId: string, reaction: Reaction) =>
       onReactionAdded.next({ accountId, conversationId, messageId, reaction })
@@ -221,6 +226,7 @@ export class Jamid {
       onSwarmLoaded: onSwarmLoaded.asObservable(),
       onConversationMemberEvent: onConversationMemberEvent.asObservable(),
       onSwarmMessageReceived: onSwarmMessageReceived.asObservable(),
+      onSwarmMessageUpdated: onSwarmMessageUpdated.asObservable(),
       onComposingStatusChanged: onComposingStatusChanged.asObservable(),
       onReactionAdded: onReactionAdded.asObservable(),
       onReactionRemoved: onReactionRemoved.asObservable(),
@@ -598,6 +604,27 @@ export class Jamid {
         },
       }
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationMessage, data)
+    })
+
+    this.events.onSwarmMessageUpdated.subscribe((signal) => {
+      log.debug('Received SwarmMessageUpdated:', JSON.stringify(signal))
+      const data: ConversationMessage = {
+        conversationId: signal.conversationId,
+        message: {
+          id: signal.message.id,
+          author: signal.message.body.author,
+          linearizedParent: signal.message.body.linearizedParent,
+          parents: signal.message.body.parents,
+          timestamp: signal.message.body.timestamp,
+          body: signal.message.body.body,
+          type: signal.message.body.type,
+          'reply-to': signal.message.body['reply-to'],
+          editions: signal.message.editions,
+          reactions: signal.message.reactions,
+          status: signal.message.status,
+        },
+      }
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.MessageEdition, data)
     })
 
     this.events.onReactionAdded.subscribe((signal) => {
