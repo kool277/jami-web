@@ -121,6 +121,18 @@ export const useSendMessageMutation = (conversationId: string) => {
   })
 }
 
+export const useEditMessageMutation = (conversationId: string) => {
+  const { axiosInstance } = useAuthContext()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (message: string) =>
+      axiosInstance.post(`/conversations/${conversationId}/editmessage`, {
+        message,
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
+  })
+}
+
 const CheckConversationRequestsAreEqual = (
   conversationRequest1: IConversationRequest,
   conversationRequest2: IConversationRequest,

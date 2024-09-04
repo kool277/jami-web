@@ -21,9 +21,9 @@ declare namespace Cypress {
     loginViaUI(): Chainable<Element>
     loginWithoutUI(): Chainable<Element>
     logoutViaUI(): Chainable<Element>
-    sendMessageWithUi(): Chainable<Element>
-    deleteMessageWithUi(): Chainable<Element>
-    replyToMessageWithUi(): Chainable<Element>
-    reactToMessageWithUi(): Chainable<Element>
+    sendMessageWithUi(text: string): Chainable<Element>
+    reactToMessageWithUi(text: string, emojiTitle: string): Chainable<Element>
+    replyToMessageWithUi(text: string, reply: string): Chainable<Element>
+    editMessageWithUi(text: string, edit: string): Chainable<Element>
   }
 }

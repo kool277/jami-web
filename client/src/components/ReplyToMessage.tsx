@@ -20,16 +20,16 @@ import { Box, Button } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
+import { useActionMessageContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
-import { useReplyMessageContext } from '../contexts/ReplyMessageProvider'
 import ReplyIcon from '../icons/replyIcon.svg?react'
 
 export default function ReplyToMessage() {
   const { members } = useConversationContext()
   const { t } = useTranslation()
   const { account } = useAuthContext()
-  const { message, setMessage } = useReplyMessageContext()
+  const { replyMessage: message, setReplyMessage: setMessage } = useActionMessageContext()
 
   function cancelHandler() {
     setMessage(undefined)

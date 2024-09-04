@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Divider, Fade, Stack, Typography } from '@mui/material'
+import { Box, Button, Divider, Fade, Stack, Typography } from '@mui/material'
 import { motion } from 'framer-motion'
 import {
   AccountMessageStatus,
@@ -36,12 +36,13 @@ import MessageList from '../components/MessageList'
 import { FileDragOverlay } from '../components/Overlay'
 import ReplyToMessage from '../components/ReplyToMessage'
 import SendMessageForm from '../components/SendMessageForm'
+import { PenIcon } from '../components/SvgIcon'
+import { useActionMessageContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
-import { useReplyMessageContext } from '../contexts/ReplyMessageProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { ConversationMember } from '../models/conversation-member'
-import { useMessagesQuery, useSendMessageMutation } from '../services/conversationQueries'
+import { useEditMessageMutation, useMessagesQuery, useSendMessageMutation } from '../services/conversationQueries'
 import { FileHandler } from '../utils/files'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
 
@@ -53,10 +54,16 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(false)
-  const { message: selectedReply, setMessage: setSelectedReply } = useReplyMessageContext()
-
+  const { t } = useTranslation()
+  const {
+    replyMessage: selectedReply,
+    setReplyMessage: setSelectedReply,
+    editMessage,
+    setEditMessage: setIsEditing,
+  } = useActionMessageContext()
   const messagesQuery = useMessagesQuery(conversationId)
   const sendMessageMutation = useSendMessageMutation(conversationId)
+  const editMessageMutation = useEditMessageMutation(conversationId)
 
   const [fileHandlers, setFileHandlers] = useState<FileHandler[]>([])
 
@@ -190,9 +197,22 @@ const ChatInterface = () => {
     [sendMessageMutation, selectedReply],
   )
 
+  const editMessageHandler = useCallback(
+    (message: string) => {
+      editMessageMutation.mutate(JSON.stringify({ message, messageId: editMessage?.id }))
+    },
+    [editMessage, editMessageMutation],
+  )
+
+  function onCancelEdit() {
+    setIsEditing(undefined)
+  }
+
   function handleSendMessage(message: string) {
-    sendMessage(message)
+    if (editMessage) editMessageHandler(message)
+    else sendMessage(message)
     setSelectedReply(undefined)
+    setIsEditing(undefined)
   }
 
   useEffect(() => {
@@ -208,7 +228,6 @@ const ChatInterface = () => {
       setMessages((messages) => addMessage(messages, data.message))
     }
     const reactionsAddedListener = (data: ReactionAdded) => {
-      console.log(data)
       setMessages((messages) => {
         return messages.map((message) => {
           if (message.id === data.messageId) {
@@ -219,7 +238,6 @@ const ChatInterface = () => {
         })
       })
     }
-
     const reactionsRemovedListener = (data: ReactionRemoved) => {
       setMessages((messages) => {
         const index = messages.findIndex((message) => message.id === data.messageId)
@@ -236,12 +254,34 @@ const ChatInterface = () => {
         return messages
       })
     }
+    const messageEditionListener = (data: ConversationMessage) => {
+      setMessages((messages) => {
+        const index = messages.findIndex((message) => message.id === data.message.id)
+        if (index !== -1) {
+          const updatedMessages = [...messages]
+          // replace the previous message with the new one
+          updatedMessages[index] = data.message
+          const messageMap = new Map(updatedMessages.map((message) => [message.id, message]))
+          updatedMessages.forEach((message) => {
+            if (message['reply-to'] && typeof message['reply-to'] === 'object' && 'id' in message['reply-to']) {
+              const replyToMessage = messageMap.get(message['reply-to'].id)
+              if (replyToMessage) {
+                message['reply-to'] = replyToMessage
+              }
+            }
+          })
+          return updatedMessages
+        }
+        return messages
+      })
+    }
 
+    webSocket.bind(WebSocketMessageType.MessageEdition, messageEditionListener)
     webSocket.bind(WebSocketMessageType.ReactionAdded, reactionsAddedListener)
     webSocket.bind(WebSocketMessageType.ReactionRemoved, reactionsRemovedListener)
     webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
-
     return () => {
+      webSocket.unbind(WebSocketMessageType.MessageEdition, messageEditionListener)
       webSocket.unbind(WebSocketMessageType.ReactionAdded, reactionsAddedListener)
       webSocket.unbind(WebSocketMessageType.ReactionRemoved, reactionsRemovedListener)
       webSocket.unbind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
@@ -269,7 +309,18 @@ const ChatInterface = () => {
         }}
       />
       {selectedReply !== undefined ? <ReplyToMessage /> : null}
-      <SendMessageForm onSend={handleSendMessage} openFilePicker={openFilePicker} />
+      {editMessage !== undefined ? (
+        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', padding: '1%' }}>
+            <PenIcon sx={{ marginLeft: '2%' }} />
+            <Box sx={{ marginLeft: '10%' }}>{t('editing')}</Box>
+          </Box>
+          <Button onClick={onCancelEdit} sx={{ marginLeft: '4%' }}>
+            X
+          </Button>
+        </Box>
+      ) : null}
+      <SendMessageForm onSend={handleSendMessage} openFilePicker={openFilePicker} editMessage={editMessage} />
       {fileHandlers.length > 0 && <FilePreviewsList fileHandlers={fileHandlers} removeFile={removeFile} />}
     </Stack>
   )

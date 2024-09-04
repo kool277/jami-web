@@ -119,21 +119,33 @@ Cypress.Commands.add('logoutViaUI', () => {
     })
 })
 
-Cypress.Commands.add('sendMessageWithUi', () => {
-  cy.loginViaUI()
+Cypress.Commands.add('sendMessageWithUi', (text: string) => {
   cy.get('[data-cy = "conversation-summary-item"]').first().click()
 
-  cy.get('[data-cy = "message-input"]')
-    .type('Hello, this is a test message')
-    .find('input')
-    .should('have.value', 'Hello, this is a test message')
+  cy.get('[data-cy = "message-input"]').type(text).find('input').should('have.value', text)
 
   cy.get('[type="submit"]').click()
 })
 
-Cypress.Commands.add('reactToMessageWithUi', () => {
+Cypress.Commands.add('reactToMessageWithUi', (text: string, emojiTitle: string) => {
   cy.get('[data-cy = "conversation-summary-item"]').first().click()
-  cy.get('[data-cy = "message"]').first().click()
+  cy.get('[data-cy = "message"]').first().contains(text).trigger('mouseover')
   cy.get('[data-cy = "emoji-reaction-button"]').click()
-  cy.get('.epr-emoji-img').first().click()
+  cy.get('[alt="' + emojiTitle + '"]').click()
+})
+
+Cypress.Commands.add('replyToMessageWithUi', (text: string, reply: string) => {
+  cy.get('[data-cy = "conversation-summary-item"]').first().click()
+  cy.get('[data-cy = "message"]').first().contains(text).trigger('mouseover')
+  cy.get('[data-cy = "reply-button"]').click()
+  cy.get('[data-cy = "message-input"]').type(reply).find('input').should('have.value', reply)
+  cy.get('[type="submit"]').click()
+})
+
+Cypress.Commands.add('editMessageWithUi', (text: string, edit: string) => {
+  cy.get('[data-cy = "conversation-summary-item"]').first().click()
+  cy.get('[data-cy = "message"]').first().contains(text).trigger('mouseover')
+  cy.get('[data-cy = "edit-button"]').click()
+  cy.get('[data-cy = "message-input"]').clear().type(edit).find('input').should('have.value', edit)
+  cy.get('[type="submit"]').click()
 })

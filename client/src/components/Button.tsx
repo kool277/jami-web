@@ -223,7 +223,7 @@ export const CancelPictureButton = (props: IconButtonProps) => {
 }
 
 export const EditPictureButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="edit picture" Icon={PenIcon} size="medium" />
+  return <RoundButton {...props} aria-label="edit picture" Icon={PenIcon} size="small" />
 }
 
 export const UploadPictureButton = (props: IconButtonProps) => {

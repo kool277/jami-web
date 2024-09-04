@@ -24,19 +24,19 @@ import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { Message, ReactionAdded, WebSocketMessageType } from 'jami-web-common'
 import Linkify from 'linkify-react'
 import * as linkify from 'linkifyjs'
-import { memo, ReactElement, ReactNode, useCallback, useMemo, useState } from 'react'
+import { memo, ReactElement, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useActionMessageContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
-import { useReplyMessageContext } from '../contexts/ReplyMessageProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { Account } from '../models/account'
 import { Contact } from '../models/contact'
 import { useLinkPreviewQuery } from '../services/linkPreviewQueries'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
 import { formatRelativeDate, formatTime } from '../utils/dates&times'
-import { EmojiButton, MoreButton, ReplyMessageButton } from './Button'
+import { EditPictureButton, EmojiButton, MoreButton, ReplyMessageButton } from './Button'
 import ConversationAvatar from './ConversationAvatar'
 import LoadingPage from './Loading'
 import MessageReaction from './MessageReaction'
@@ -155,6 +155,7 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
       isLastOfGroup={isLastOfGroup}
       bubbleColor={bubbleColor}
       sentTime={sentTime}
+      edited={false} // edited is not used in call message
     >
       <Stack direction="row" spacing="10px" alignItems="center">
         <Icon sx={{ fontSize: '16px', color: textColor }} />
@@ -194,6 +195,7 @@ const MessageDataTransfer = ({
       isFirstOfGroup={isFirstOfGroup}
       isLastOfGroup={isLastOfGroup}
       sentTime={sentTime}
+      edited={false} // edited is not used in data-transfer message
     >
       &quot;data-transfer&quot;
     </Bubble>
@@ -298,14 +300,21 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   const theme: Theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('md'))
-  const { setMessage: setReplyMessage } = useReplyMessageContext()
+  const [isEdited, setIsEdited] = useState(false)
+  const { setReplyMessage } = useActionMessageContext()
+
+  useEffect(() => {
+    if (message.editions !== undefined && message.editions.length > 0) {
+      setIsEdited(true)
+    }
+  }, [message])
 
   const onDoubleClick = () => {
     setReplyMessage(message)
   }
 
   return (
-    <Box>
+    <Box data-cy="message">
       <MessageTooltip position={position} message={message}>
         <Box onDoubleClick={() => onDoubleClick()}>
           <Bubble
@@ -315,6 +324,7 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
             isLastOfGroup={isLastOfGroup}
             maxWidth={isMobile ? '200px' : isMedium ? '380px' : '600px'}
             sentTime={sentTime}
+            edited={isEdited}
           >
             <Typography variant="body1" color={textColor} textAlign={position}>
               <Linkify options={{ render: RenderLink as any, attributes: { isAccountMessage } }}>
@@ -439,7 +449,6 @@ const UserMessageRow = ({
   const isFirstOfGroup = showsTime || !previousIsUserMessageType || previousMessage?.author !== message.author
   const isLastOfGroup = nextShowsTime || !nextIsUserMessageType || message.author !== nextMessage?.author
   const { members } = useConversationContext()
-
   const props = {
     message,
     isAccountMessage,
@@ -484,13 +493,14 @@ const UserMessageRow = ({
         <Box sx={{ fontSize: '11px', color: 'grey', fontWeight: 'bolder', mt: 1, mr: 1.5, mb: 0 }}>
           {t('replied_to') + ' ' + name}
         </Box>
-        <Box sx={{ mb: -2, mr: 1.5 }}>
+        <Box data-cy="reply-message" sx={{ mb: -2, mr: 1.5 }}>
           <Bubble
             bubbleColor={bubbleColorReply}
             position={position}
             isFirstOfGroup={true}
             isLastOfGroup={true}
             maxWidth={'400px'}
+            edited={false} // edited is not used in reply message
           >
             <Typography variant="body1" color={textColorReply} textAlign={position}>
               {replyMessage?.body}
@@ -540,15 +550,15 @@ interface MessageTooltipProps {
   children: ReactElement
   message: Message
 }
-
 const MessageTooltip = styled(({ message, className, position, children }: MessageTooltipProps) => {
   const { conversationId } = useConversationContext()
   const webSocket = useWebSocketContext()
   const { account } = useAuthContext()
   const [open, setOpen] = useState(false)
   const [emojiIsOpen, setEmojiIsOpen] = useState(false)
-  const { setMessage: setReplyMessage } = useReplyMessageContext()
+  const { setReplyMessage } = useActionMessageContext()
   const [tooltipOpen, setTooltipOpen] = useState(false)
+  const { setEditMessage } = useActionMessageContext()
 
   const additionalOptions: PopoverListItemData[] = [
     {
@@ -580,7 +590,13 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
   }
 
   function onReply() {
+    setEditMessage(undefined)
     setReplyMessage(message)
+  }
+
+  function onEdit() {
+    setReplyMessage(undefined)
+    setEditMessage(message)
   }
 
   function onEmojiSelected(emoji: string) {
@@ -598,7 +614,6 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
         return
       }
     }
-
     const data: ReactionAdded = {
       accountId: account.id,
       conversationId: conversationId,
@@ -613,22 +628,18 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
     }
     webSocket.send(WebSocketMessageType.ReactionAdded, data)
   }
-
   const onEmojiClick = (emoji: EmojiClickData, _: MouseEvent) => {
     onEmojiSelected(emoji.emoji)
     setEmojiIsOpen(false)
     handleMouseLeave()
   }
-
   const handleMouseEnter = () => {
     setTooltipOpen(true)
   }
-
   const handleMouseLeave = () => {
     setTooltipOpen(false)
     onClose()
   }
-
   return (
     <Tooltip
       classes={{ tooltip: className }}
@@ -650,8 +661,11 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
       title={
         <div onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
           <Stack direction="row" spacing="16px" padding="16px" sx={{ cursor: 'pointer' }}>
-            <EmojiButton emoji="😃" onClick={onEmojiClickHandler} />
-            <ReplyMessageButton onClick={onReply} />
+            <EmojiButton data-cy="emoji-reaction-button" emoji="😃" onClick={onEmojiClickHandler} />
+            <ReplyMessageButton data-cy="reply-button" onClick={onReply} />
+            {account.getUri() === message.author && (
+              <EditPictureButton data-cy="edit-button" onClick={onEdit} sx={{ minHeight: '20px', minWidth: '20px' }} />
+            )}
             <MoreButton onClick={toggleMoreMenu} />
           </Stack>
           {open && (
@@ -691,6 +705,7 @@ interface BubbleProps {
   maxWidth?: string
   children: ReactNode
   sentTime?: Dayjs
+  edited: boolean
 }
 
 const Bubble = ({
@@ -701,7 +716,9 @@ const Bubble = ({
   maxWidth,
   children,
   sentTime,
+  edited,
 }: BubbleProps) => {
+  const { t } = useTranslation()
   const largeRadius = '12px'
   const smallRadius = '5px'
   const radius = useMemo(() => {
@@ -720,9 +737,6 @@ const Bubble = ({
       borderEndEndRadius: isLastOfGroup ? largeRadius : smallRadius,
     }
   }, [isFirstOfGroup, isLastOfGroup, position])
-
-  // text color
-  // date color
 
   return (
     <Box
@@ -762,6 +776,9 @@ const Bubble = ({
               ml: '10%',
             }}
           >
+            <Box sx={{ paddingRight: '2px' }} data-cy="edited-message">
+              {edited ? t('edited_message') : ''}
+            </Box>
             <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>
           </Box>
         )}

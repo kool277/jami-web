@@ -29,11 +29,11 @@ import Appearance from './components/GeneralSettings/Appearance'
 import System from './components/GeneralSettings/System'
 import Header from './components/Header'
 import SettingSidebar from './components/SettingSidebar'
+import ActionMessageProvider from './contexts/ActionMessageProvider'
 import AuthProvider from './contexts/AuthProvider'
 import CallManagerProvider from './contexts/CallManagerProvider'
 import ConversationProvider from './contexts/ConversationProvider'
 import MessengerProvider from './contexts/MessengerProvider'
-import ReplyMessageProvider from './contexts/ReplyMessageProvider'
 import UserMediaProvider from './contexts/UserMediaProvider'
 import WebSocketProvider from './contexts/WebSocketProvider'
 import { RouteParams } from './hooks/useUrlParams'
@@ -80,13 +80,13 @@ export const router = createBrowserRouter(
           <Route
             path="conversation/:conversationId"
             element={
-              <ReplyMessageProvider>
+              <ActionMessageProvider>
                 <Messenger>
                   <ConversationProvider>
                     <ConversationView />
                   </ConversationProvider>
                 </Messenger>
-              </ReplyMessageProvider>
+              </ActionMessageProvider>
             }
           />
         </Route>

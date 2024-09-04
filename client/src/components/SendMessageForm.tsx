@@ -18,12 +18,12 @@
 import { InputBase } from '@mui/material'
 import { Stack } from '@mui/system'
 import { Message, WebSocketMessageType } from 'jami-web-common'
-import { ChangeEvent, FormEvent, useCallback, useMemo, useRef, useState } from 'react'
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useActionMessageContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
-import { useReplyMessageContext } from '../contexts/ReplyMessageProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { ConversationMember } from '../models/conversation-member'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
@@ -38,15 +38,20 @@ import {
 type SendMessageFormProps = {
   onSend: (message: string, reply: Message | undefined) => void
   openFilePicker: () => void
+  editMessage?: Message
 }
 
-export default function SendMessageForm({ onSend, openFilePicker }: SendMessageFormProps) {
+export default function SendMessageForm({ onSend, openFilePicker, editMessage }: SendMessageFormProps) {
   const webSocket = useWebSocketContext()
   const { members, conversationId } = useConversationContext()
   const [currentMessage, setCurrentMessage] = useState('')
   const composingNotificationTimeRef = useRef(0)
   const placeholder = usePlaceholder(members)
-  const { message: reply } = useReplyMessageContext()
+  const { replyMessage: reply } = useActionMessageContext()
+
+  useEffect(() => {
+    setCurrentMessage(editMessage?.body || '')
+  }, [editMessage])
 
   const notifyComposing = useCallback(() => {
     const currentTime = new Date().getTime()
@@ -98,9 +103,9 @@ export default function SendMessageForm({ onSend, openFilePicker }: SendMessageF
       paddingX="16px"
       paddingTop="16px"
     >
-      <UploadFileButton onClick={openFilePicker} />
-      <RecordVoiceMessageButton />
-      <RecordVideoMessageButton />
+      <UploadFileButton disabled={editMessage ? true : false} onClick={openFilePicker} />
+      <RecordVoiceMessageButton disabled={editMessage ? true : false} />
+      <RecordVideoMessageButton disabled={editMessage ? true : false} />
       <Stack flexGrow={1}>
         <InputBase
           data-cy="message-input"
