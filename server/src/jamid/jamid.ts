@@ -454,6 +454,10 @@ export class Jamid {
     this.jamiSwig.sendMessage(accountId, conversationId, message, replyTo ?? '', flag ?? 0)
   }
 
+  deleteConversationMessage(accountId: string, conversationId: string, messageId: string): void {
+    this.jamiSwig.sendMessage(accountId, conversationId, '', messageId, 1)
+  }
+
   setIsComposing(accountId: string, conversationId: string, isWriting: boolean) {
     this.jamiSwig.setIsComposing(accountId, conversationId, isWriting)
   }

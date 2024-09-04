@@ -244,3 +244,8 @@ conversationRouter.post(
     res.sendStatus(HttpStatusCode.NoContent)
   },
 )
+
+conversationRouter.delete('/delete/:conversationId/:messageId', (req, res) => {
+  jamid.deleteConversationMessage(res.locals.accountId, req.params.conversationId, req.params.messageId)
+  res.sendStatus(HttpStatusCode.NoContent)
+})
