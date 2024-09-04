@@ -216,3 +216,29 @@ conversationRouter.delete('/:conversationId', (req, res) => {
   jamid.removeConversation(res.locals.accountId, req.params.conversationId)
   res.sendStatus(HttpStatusCode.NoContent)
 })
+
+conversationRouter.post(
+  '/:conversationId/editmessage',
+  (req: Request<ParamsDictionary, string, Partial<NewMessageRequestBody>>, res) => {
+    if (req.body.message === undefined) {
+      res.status(HttpStatusCode.BadRequest).send('Missing message in body')
+      return
+    }
+
+    const data = JSON.parse(req.body.message)
+    const accountId = res.locals.accountId
+    const conversationId = req.params.conversationId
+    const message = data.message
+    const messageId = data.messageId
+
+    const infos = jamid.getConversationInfos(accountId, conversationId)
+    if (Object.keys(infos).length === 0) {
+      res.status(HttpStatusCode.NotFound).send('No such conversation found')
+      return
+    }
+
+    jamid.sendConversationMessage(accountId, conversationId, message, messageId, 1)
+
+    res.sendStatus(HttpStatusCode.NoContent)
+  },
+)
