@@ -308,7 +308,7 @@ const ChatInterface = () => {
           borderTop: '1px solid #E5E5E5',
         }}
       />
-      {selectedReply !== undefined ? <ReplyToMessage /> : null}
+      <ReplyToMessage />
       {editMessage !== undefined ? (
         <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', padding: '1%' }}>

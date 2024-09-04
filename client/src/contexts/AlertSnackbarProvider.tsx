@@ -92,6 +92,7 @@ type AlertMessageKeys =
   | 'removing_jams_server_success'
   | 'removing_jams_server_error'
   | 'unauthorized_access'
+  | 'error_cannot_delete_message'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
 
@@ -141,6 +142,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('setting_jams_server_success')
         case 'unauthorized_access':
           return t('unauthorized_access')
+        case 'error_cannot_delete_message':
+          return t('error_cannot_delete_message')
         case 'setting_jams_server_error_same_value':
           return t('setting_jams_server_error_same_value')
         case 'removing_jams_server_success':

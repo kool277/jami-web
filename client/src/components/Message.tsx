@@ -21,10 +21,11 @@ import { styled } from '@mui/material/styles'
 import { Theme, useTheme } from '@mui/material/styles'
 import dayjs, { Dayjs } from 'dayjs'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
+import { t } from 'i18next'
 import { Message, ReactionAdded, WebSocketMessageType } from 'jami-web-common'
 import Linkify from 'linkify-react'
 import * as linkify from 'linkifyjs'
-import { memo, ReactElement, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, ReactElement, ReactNode, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useActionMessageContext } from '../contexts/ActionMessageProvider'
@@ -51,6 +52,7 @@ import {
   TwoSheetsIcon,
 } from './SvgIcon'
 import { getColor, getTextColor, getSentTimeColor } from '../utils/messagecolor'
+import { useDeleteMessageMutation } from '../services/conversationQueries'
 
 type MessagePosition = 'start' | 'end'
 
@@ -303,6 +305,14 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   const [isEdited, setIsEdited] = useState(false)
   const { setReplyMessage } = useActionMessageContext()
 
+  const [isDeleted, setIsDeleted] = useState(message.body === '')
+
+  useEffect(() => {
+    if (message.body === '') {
+      setIsDeleted(true)
+    }
+  }, [message.body, setIsDeleted])
+
   useEffect(() => {
     if (message.editions !== undefined && message.editions.length > 0) {
       setIsEdited(true)
@@ -310,12 +320,15 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   }, [message])
 
   const onDoubleClick = () => {
+    if (isDeleted) {
+      return
+    }
     setReplyMessage(message)
   }
 
   return (
     <Box data-cy="message">
-      <MessageTooltip position={position} message={message}>
+      <MessageTooltip isDeleted={isDeleted} position={position} message={message}>
         <Box onDoubleClick={() => onDoubleClick()}>
           <Bubble
             bubbleColor={bubbleColor}
@@ -325,10 +338,11 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
             maxWidth={isMobile ? '200px' : isMedium ? '380px' : '600px'}
             sentTime={sentTime}
             edited={isEdited}
+            deleted={isDeleted}
           >
             <Typography variant="body1" color={textColor} textAlign={position}>
               <Linkify options={{ render: RenderLink as any, attributes: { isAccountMessage } }}>
-                {message.body}
+                {isDeleted ? t('message_deleted') : message.body}
               </Linkify>
             </Typography>
             {link && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}
@@ -527,7 +541,7 @@ const UserMessageRow = ({
             edited={false} // edited is not used in reply message
           >
             <Typography variant="body1" color={textColorReply} textAlign={position}>
-              {replyMessage?.body}
+              {replyMessage?.body === '' ? t('message_deleted') : replyMessage?.body}
             </Typography>
           </Bubble>
         </Box>
@@ -573,8 +587,10 @@ interface MessageTooltipProps {
   position: MessagePosition
   children: ReactElement
   message: Message
+  isDeleted: boolean
 }
-const MessageTooltip = styled(({ message, className, position, children }: MessageTooltipProps) => {
+
+const MessageTooltip = styled(({ message, className, position, children, isDeleted }: MessageTooltipProps) => {
   const { conversationId } = useConversationContext()
   const webSocket = useWebSocketContext()
   const { account } = useAuthContext()
@@ -583,6 +599,13 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
   const { setReplyMessage } = useActionMessageContext()
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const { setEditMessage } = useActionMessageContext()
+  const deleteMessageMutation = useDeleteMessageMutation(conversationId)
+
+  // No actions if message is deleted
+  if (isDeleted) {
+    return <>{children}</>
+  }
+
   const theme = useTheme()
   const additionalOptions: PopoverListItemData[] = [
     {
@@ -595,34 +618,34 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
       label: 'Transfer',
       onClick: () => {},
     },
-    {
-      Icon: TrashBinIcon,
-      label: 'Delete message',
-      onClick: () => {},
-    },
   ]
 
-  const toggleMoreMenu = useCallback(() => setOpen((open) => !open), [setOpen])
+  if (account.getUri() === message.author) {
+    additionalOptions.push({
+      Icon: TrashBinIcon,
+      label: 'Delete message',
+      onClick: () => {
+        deleteMessageMutation.mutate(message.id)
+      },
+    })
+  }
 
+  const toggleMoreMenu = () => setOpen((open) => !open)
   const onClose = () => {
     setOpen(false)
     setEmojiIsOpen(false)
   }
-
   const onEmojiClickHandler = () => {
     setEmojiIsOpen(true)
   }
-
   function onReply() {
     setEditMessage(undefined)
     setReplyMessage(message)
   }
-
   function onEdit() {
     setReplyMessage(undefined)
     setEditMessage(message)
   }
-
   function onEmojiSelected(emoji: string) {
     for (const reaction of message.reactions) {
       if (reaction.author === account.getUri() && reaction.body === emoji) {
@@ -738,6 +761,7 @@ interface BubbleProps {
   children: ReactNode
   sentTime?: Dayjs
   edited: boolean
+  deleted?: boolean
 }
 
 const Bubble = ({
@@ -749,6 +773,7 @@ const Bubble = ({
   children,
   sentTime,
   edited,
+  deleted,
 }: BubbleProps) => {
   const { t } = useTranslation()
   const largeRadius = '12px'
@@ -805,11 +830,11 @@ const Bubble = ({
               flexDirection: 'row',
               justifyContent: 'flex-end',
               flexWrap: 'nowrap',
-              ml: '10%',
+              ml: '4%',
             }}
           >
             <Box sx={{ paddingRight: '2px' }} data-cy="edited-message">
-              {edited ? t('edited_message') : ''}
+              {edited && !deleted ? t('edited_message') : ''}
             </Box>
             <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>
           </Box>

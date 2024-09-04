@@ -24,8 +24,9 @@ import {
   IConversationSummary,
   Message,
 } from 'jami-web-common'
-import { useCallback } from 'react'
+import { useCallback, useContext } from 'react'
 
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { ConversationMember } from '../models/conversation-member'
 import { useAddToCache, useRemoveFromCache } from '../utils/reactquery'
@@ -130,6 +131,23 @@ export const useEditMessageMutation = (conversationId: string) => {
         message,
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
+  })
+}
+
+export const useDeleteMessageMutation = (conversationId: string) => {
+  const { axiosInstance } = useAuthContext()
+  const queryClient = useQueryClient()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  return useMutation({
+    mutationFn: (messageId: string) => axiosInstance.delete(`/conversations/delete/${conversationId}/${messageId}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'error_cannot_delete_message',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
   })
 }
 

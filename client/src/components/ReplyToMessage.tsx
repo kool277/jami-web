@@ -32,12 +32,16 @@ export default function ReplyToMessage() {
   const { replyMessage: message, setReplyMessage: setMessage } = useActionMessageContext()
   const theme = useTheme()
 
+  if (message === undefined) {
+    return
+  }
+
   function cancelHandler() {
     setMessage(undefined)
   }
 
   function getName() {
-    if (!message) {
+    if (message === undefined) {
       return
     }
     if (account.getUri() === message.author) {
@@ -47,6 +51,7 @@ export default function ReplyToMessage() {
       return member?.contact.getDisplayName()
     }
   }
+  const content = message.body === '' ? t('message_deleted') : message.body
 
   return (
     <motion.div
@@ -100,7 +105,7 @@ export default function ReplyToMessage() {
                   WebkitBoxOrient: 'vertical',
                 }}
               >
-                {message?.body}
+                {content}
               </Box>
             </div>
           </Box>
