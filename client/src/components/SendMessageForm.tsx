@@ -21,11 +21,11 @@ import { Message, WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useActionMessageContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { ConversationMember } from '../models/conversation-member'
+import { FileHandler } from '../utils/files'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
 import {
   RecordVideoMessageButton,
@@ -36,18 +36,18 @@ import {
 } from './Button'
 
 type SendMessageFormProps = {
-  onSend: (message: string, reply: Message | undefined) => void
+  onSend: (message: string) => void
   openFilePicker: () => void
+  fileHandlers: FileHandler[]
   editMessage?: Message
 }
 
-export default function SendMessageForm({ onSend, openFilePicker, editMessage }: SendMessageFormProps) {
+export default function SendMessageForm({ onSend, openFilePicker, editMessage, fileHandlers }: SendMessageFormProps) {
   const webSocket = useWebSocketContext()
   const { members, conversationId } = useConversationContext()
   const [currentMessage, setCurrentMessage] = useState('')
   const composingNotificationTimeRef = useRef(0)
   const placeholder = usePlaceholder(members)
-  const { replyMessage: reply } = useActionMessageContext()
 
   const theme = useTheme()
 
@@ -74,12 +74,15 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage }:
     (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       if (currentMessage) {
-        onSend(currentMessage, reply)
+        onSend(currentMessage)
         setCurrentMessage('')
         notifyStopcomposing()
       }
+      if (fileHandlers.length > 0 && currentMessage === '') {
+        onSend('files-to-send')
+      }
     },
-    [currentMessage, onSend, reply, notifyStopcomposing],
+    [currentMessage, fileHandlers.length, onSend, notifyStopcomposing],
   )
 
   const handleInputChange = useCallback(
@@ -126,7 +129,7 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage }:
         />
       </Stack>
       <SelectEmojiButton onEmojiSelected={onEmojiSelected} />
-      {currentMessage && <SendMessageButton type="submit" />}
+      {(currentMessage || fileHandlers.length > 0) && <SendMessageButton type="submit" />}
     </Stack>
   )
 }

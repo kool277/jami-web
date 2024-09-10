@@ -43,6 +43,7 @@ import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { ConversationMember } from '../models/conversation-member'
 import { useEditMessageMutation, useMessagesQuery, useSendMessageMutation } from '../services/conversationQueries'
+import { useSendFilesMutation } from '../services/dataTransferQueries'
 import { FileHandler } from '../utils/files'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
 
@@ -64,9 +65,9 @@ const ChatInterface = () => {
   const messagesQuery = useMessagesQuery(conversationId)
   const sendMessageMutation = useSendMessageMutation(conversationId)
   const editMessageMutation = useEditMessageMutation(conversationId)
+  const sendFilesMutation = useSendFilesMutation(conversationId)
 
   const [fileHandlers, setFileHandlers] = useState<FileHandler[]>([])
-
   const { account } = useAuthContext()
 
   const [lastSeen, setLastSeen] = useState<Map<string, string>>(new Map())
@@ -193,8 +194,15 @@ const ChatInterface = () => {
   const sendMessage = useCallback(
     (message: string) => {
       sendMessageMutation.mutate(JSON.stringify({ message, replyTo: selectedReply?.id }))
+      const data: FormData = new FormData()
+      for (const file of fileHandlers) {
+        data.append('file', file.file)
+      }
+      data.append('replyTo', selectedReply?.id || '')
+      sendFilesMutation.mutate(data)
+      setFileHandlers([])
     },
-    [sendMessageMutation, selectedReply],
+    [sendMessageMutation, selectedReply, fileHandlers, sendFilesMutation],
   )
 
   const editMessageHandler = useCallback(
@@ -209,10 +217,20 @@ const ChatInterface = () => {
   }
 
   function handleSendMessage(message: string) {
-    if (editMessage) editMessageHandler(message)
-    else sendMessage(message)
+    if (message === 'files-to-send') {
+      const data: FormData = new FormData()
+      for (const file of fileHandlers) {
+        data.append('file', file.file)
+      }
+      data.append('replyTo', selectedReply?.id || '')
+      sendFilesMutation.mutate(data)
+      setFileHandlers([])
+    } else {
+      if (editMessage) editMessageHandler(message)
+      else sendMessage(message)
+      setIsEditing(undefined)
+    }
     setSelectedReply(undefined)
-    setIsEditing(undefined)
   }
 
   useEffect(() => {
@@ -320,7 +338,12 @@ const ChatInterface = () => {
           </Button>
         </Box>
       ) : null}
-      <SendMessageForm onSend={handleSendMessage} openFilePicker={openFilePicker} editMessage={editMessage} />
+      <SendMessageForm
+        onSend={handleSendMessage}
+        openFilePicker={openFilePicker}
+        fileHandlers={fileHandlers}
+        editMessage={editMessage}
+      />
       {fileHandlers.length > 0 && <FilePreviewsList fileHandlers={fileHandlers} removeFile={removeFile} />}
     </Stack>
   )
@@ -334,6 +357,9 @@ interface FilePreviewsListProps {
 const FilePreviewsList = ({ fileHandlers, removeFile }: FilePreviewsListProps) => {
   return (
     <Stack
+      display="flex"
+      flexDirection="row"
+      justifyContent="space-between"
       direction="row"
       flexWrap="wrap"
       gap="16px"

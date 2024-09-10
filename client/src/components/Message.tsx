@@ -32,14 +32,18 @@ import { useActionMessageContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
+import DownloadFileIcon from '../icons/downloadFile.svg?react'
 import { Account } from '../models/account'
 import { Contact } from '../models/contact'
+import { GetDownloadedFile } from '../services/dataTransferQueries'
 import { useLinkPreviewQuery } from '../services/linkPreviewQueries'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
 import { formatRelativeDate, formatTime } from '../utils/dates&times'
+import AudioPlayer from './AudioPlayer'
 import { EditPictureButton, EmojiButton, MoreButton, ReplyMessageButton } from './Button'
 import ConversationAvatar from './ConversationAvatar'
 import LoadingPage from './Loading'
+import MessageDataContent from './MessageDataContent'
 import MessageReaction from './MessageReaction'
 import MessageStatus from './MessageStatus'
 import PopoverList, { PopoverListItemData } from './PopoverList'
@@ -182,25 +186,188 @@ interface MessageDataTransferProps {
   sentTime: Dayjs
 }
 
+enum FileType {
+  Image = 'image',
+  Video = 'video',
+  Audio = 'audio',
+  Document = 'document',
+}
+
 const MessageDataTransfer = ({
   //message, not used for now but will be used in the future
   isAccountMessage,
   isFirstOfGroup,
   isLastOfGroup,
+  message,
   sentTime,
 }: MessageDataTransferProps) => {
   const position = isAccountMessage ? 'end' : 'start'
+  const [isDeleted, setIsDeleted] = useState(false)
+  const { conversationId } = useConversationContext()
+  const [fileType, setFileType] = useState<FileType>()
+  const extension = message.displayName?.split('.').pop()?.toLowerCase() || ''
+  const theme: Theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const bubbleColor = isAccountMessage ? '#005699' : '#E5E5E5'
+  const textColor = isAccountMessage ? 'white' : 'black'
+  const [preview, setPreview] = useState<string>()
+  const [audioBlob, setAudioBlob] = useState<Blob>()
+  const downloadFile = GetDownloadedFile(conversationId)
+  const { setReplyMessage } = useActionMessageContext()
+
+  useEffect(() => {
+    if (message.fileId === '') {
+      setIsDeleted(true)
+    }
+  }, [message.fileId, setIsDeleted])
+
+  if (message.fileId === undefined) {
+    return null
+  }
+
+  async function checkFileType(type: string) {
+    if (isDeleted) {
+      return
+    }
+    const acceptedAudioTypes = ['ogg', 'wav', 'mpeg', 'aac', 'flac', 'mp3']
+    const acceptedImageTypes = ['apng', 'avif', 'jpg', 'JPG', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
+    const acceptedVideoTypes = ['mp4', 'webm', 'mkv', 'avi', 'mov', 'flv', 'wmv', 'm4v', '3gp', '3gpp', '3g2', '3gpp2']
+    if (acceptedAudioTypes.includes(type)) {
+      setFileType(FileType.Audio)
+      await getAudioBlob(type)
+    } else if (acceptedImageTypes.includes(type)) {
+      setFileType(FileType.Image)
+      await getPreview(type, true)
+    } else if (acceptedVideoTypes.includes(type)) {
+      setFileType(FileType.Video)
+      await getPreview(type, false)
+    } else {
+      setFileType(FileType.Document)
+    }
+  }
+
+  async function getAudioBlob(extension: string) {
+    const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
+    if (!result.data) {
+      return
+    }
+    const blob = new Blob([result.data], { type: 'audio/' + extension.toLowerCase() })
+    setAudioBlob(blob)
+  }
+
+  async function getPreview(extension: string, isImage: boolean) {
+    const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
+    if (!result.data) {
+      return
+    }
+    const blob = new Blob([result.data], {
+      type: isImage ? 'image/' + extension.toLowerCase() : 'video/' + extension.toLowerCase(),
+    })
+    setPreview(URL.createObjectURL(blob))
+  }
+
+  const getImgSize = () => {
+    if (isMobile) {
+      return '90px'
+    }
+    return '240px'
+  }
+
+  if (fileType === undefined && !isDeleted) {
+    checkFileType(extension)
+  }
+
+  const onDoubleClick = () => {
+    setReplyMessage(message)
+  }
+
+  const handleDownload = async () => {
+    if (isDeleted) {
+      return
+    }
+
+    //open download popup
+    if (preview) {
+      const link = document.createElement('a')
+      link.href = preview
+      link.setAttribute('href', preview)
+      const fileName = message.displayName ? message.displayName : 'file'
+      link.setAttribute('download', fileName)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } else {
+      const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
+      if (!result.data) {
+        return
+      }
+      const url = URL.createObjectURL(new Blob([result.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('href', url)
+      const fileName = message.displayName ? message.displayName : 'file'
+      link.setAttribute('download', fileName)
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    }
+  }
+
   return (
-    <Bubble
-      bubbleColor="#E5E5E5"
-      position={position}
-      isFirstOfGroup={isFirstOfGroup}
-      isLastOfGroup={isLastOfGroup}
-      sentTime={sentTime}
-      edited={false} // edited is not used in data-transfer message
-    >
-      &quot;data-transfer&quot;
-    </Bubble>
+    <MessageTooltip isDeleted={isDeleted} position={position} message={message}>
+      <Box
+        onClick={fileType !== FileType.Audio ? handleDownload : undefined}
+        onDoubleClick={onDoubleClick}
+        sx={isDeleted || fileType === FileType.Audio ? null : { cursor: 'pointer' }}
+      >
+        <Bubble
+          bubbleColor={bubbleColor}
+          position={position}
+          isFirstOfGroup={isFirstOfGroup}
+          isLastOfGroup={isLastOfGroup}
+          sentTime={sentTime}
+          edited={false} // edited is not used in data-transfer message
+          isMedia={fileType !== FileType.Document && !isDeleted ? true : false}
+        >
+          {isDeleted ? (
+            <Box color={textColor}>{t('media_deleted')}</Box>
+          ) : fileType === FileType.Audio ? (
+            <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap' }}>
+              {position === 'end' && <Box sx={{ minWidth: '35px' }}></Box>}
+              <AudioPlayer blob={audioBlob} backgroundColor={bubbleColor} />
+              {position === 'start' && <Box sx={{ minWidth: '35px' }}></Box>}
+            </Box>
+          ) : fileType === FileType.Image ? (
+            <img style={{ maxHeight: getImgSize(), borderRadius: '10px' }} src={preview} alt={message.displayName} />
+          ) : fileType === FileType.Video ? (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                flexWrap: 'nowrap',
+                alignContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <video style={{ maxHeight: getImgSize(), borderRadius: '10px' }} src={preview} controls />
+              <Box onClick={handleDownload}>
+                <DownloadFileIcon />{' '}
+              </Box>
+            </Box>
+          ) : (
+            <>
+              {' '}
+              <MessageDataContent
+                isAccountMessage={isAccountMessage}
+                textColor={textColor}
+                displayName={message.displayName || 'Unknown'}
+                totalSize={Number(message.totalSize)}
+              />{' '}
+            </>
+          )}
+        </Bubble>
+      </Box>
+    </MessageTooltip>
   )
 }
 
@@ -540,9 +707,18 @@ const UserMessageRow = ({
             maxWidth={'400px'}
             edited={false} // edited is not used in reply message
           >
-            <Typography variant="body1" color={textColorReply} textAlign={position}>
-              {replyMessage?.body === '' ? t('message_deleted') : replyMessage?.body}
-            </Typography>
+            {replyMessage.type === 'text/plain' ? (
+              <Typography variant="body1" color={textColorReply} textAlign={position}>
+                {replyMessage?.body === '' ? t('message_deleted') : replyMessage?.body}
+              </Typography>
+            ) : replyMessage.type === 'application/data-transfer+json' ? (
+              <MessageDataContent
+                displayName={replyMessage?.displayName || 'Unknown'}
+                totalSize={Number(replyMessage?.totalSize)}
+              />
+            ) : (
+              t('cannot_load_messages')
+            )}
           </Bubble>
         </Box>
       </Box>
@@ -589,7 +765,6 @@ interface MessageTooltipProps {
   message: Message
   isDeleted: boolean
 }
-
 const MessageTooltip = styled(({ message, className, position, children, isDeleted }: MessageTooltipProps) => {
   const { conversationId } = useConversationContext()
   const webSocket = useWebSocketContext()
@@ -629,7 +804,6 @@ const MessageTooltip = styled(({ message, className, position, children, isDelet
       },
     })
   }
-
   const toggleMoreMenu = () => setOpen((open) => !open)
   const onClose = () => {
     setOpen(false)
@@ -751,7 +925,6 @@ const MessageTooltip = styled(({ message, className, position, children, isDelet
     overflow: 'hidden',
   }
 })
-
 interface BubbleProps {
   position: MessagePosition
   isFirstOfGroup: boolean
@@ -762,6 +935,18 @@ interface BubbleProps {
   sentTime?: Dayjs
   edited: boolean
   deleted?: boolean
+}
+interface BubbleProps {
+  position: MessagePosition
+  isFirstOfGroup: boolean
+  isLastOfGroup: boolean
+  bubbleColor: string
+  maxWidth?: string
+  children: ReactNode
+  sentTime?: Dayjs
+  edited: boolean
+  deleted?: boolean
+  isMedia?: boolean
 }
 
 const Bubble = ({
@@ -774,6 +959,7 @@ const Bubble = ({
   sentTime,
   edited,
   deleted,
+  isMedia,
 }: BubbleProps) => {
   const { t } = useTranslation()
   const largeRadius = '12px'
@@ -804,7 +990,7 @@ const Bubble = ({
         width: 'fit-content',
         maxWidth,
         backgroundColor: bubbleColor,
-        padding: bubblePadding,
+        padding: isMedia ? null : bubblePadding,
         overflow: 'hidden',
         wordWrap: 'break-word',
         ...radius,
@@ -814,13 +1000,13 @@ const Bubble = ({
       <Box
         sx={{
           marginBottom: '-2px',
-          paddingLeft: '10px',
+          paddingLeft: isMedia ? null : '10px',
           whiteSpace: 'nowrap',
           marginTop: 'auto',
-          marginLeft: '-6%',
+          marginLeft: isMedia ? null : '-6%',
         }}
       >
-        {sentTime && (
+        {sentTime && !isMedia && (
           <Box
             sx={{
               width: 1,
@@ -836,6 +1022,20 @@ const Bubble = ({
             <Box sx={{ paddingRight: '2px' }} data-cy="edited-message">
               {edited && !deleted ? t('edited_message') : ''}
             </Box>
+            <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>
+          </Box>
+        )}
+
+        {sentTime && isMedia && (
+          <Box
+            sx={{
+              color: 'grey.400',
+              fontSize: 11,
+              flexWrap: 'nowrap',
+              marginLeft: '-50px',
+              marginBottom: '5px',
+            }}
+          >
             <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>
           </Box>
         )}

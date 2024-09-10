@@ -24,6 +24,7 @@ import { useActionMessageContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import ReplyIcon from '../icons/replyIcon.svg?react'
+import MessageDataContent from './MessageDataContent'
 
 export default function ReplyToMessage() {
   const { members } = useConversationContext()
@@ -54,72 +55,85 @@ export default function ReplyToMessage() {
   const content = message.body === '' ? t('message_deleted') : message.body
 
   return (
-    <motion.div
-      style={{
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-      }}
-    >
-      <Box
-        sx={{
-          color: 'black',
-          width: '96%',
+    <>
+      <motion.div
+        style={{
+          width: '100%',
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          alignContent: 'center',
+          justifyContent: 'center',
         }}
       >
         <Box
           sx={{
+            color: 'black',
+            width: '96%',
             display: 'flex',
-            justifyContent: 'center',
-            flexDirection: 'row',
-            flexWrap: 'nowrap',
+            justifyContent: 'space-between',
             alignItems: 'center',
             alignContent: 'center',
-            width: '100%',
           }}
         >
-          <ReplyIcon />
           <Box
             sx={{
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              marginLeft: '3%',
+              justifyContent: 'center',
+              flexDirection: 'row',
+              flexWrap: 'nowrap',
+              alignItems: 'center',
+              alignContent: 'center',
               width: '100%',
             }}
           >
-            <div style={{ color: 'grey', fontSize: '13px' }}>{t('replying_to') + ' ' + getName()}</div>
-            <div style={{ backgroundColor: theme.Header.backgroundColor, borderRadius: '5px', overflow: 'hidden' }}>
-              <Box
-                sx={{
-                  padding: '5px',
-                  color: '#606060',
-                  fontStyle: 'italic',
-                  textOverflow: 'ellipsis',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                }}
-              >
-                {content}
-              </Box>
-            </div>
+            <ReplyIcon />
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                marginLeft: '3%',
+                width: '100%',
+              }}
+            >
+              <div style={{ color: 'grey', fontSize: '13px' }}>{t('replying_to') + ' ' + getName()}</div>
+              <div style={{ backgroundColor: theme.Header.backgroundColor, borderRadius: '5px', overflow: 'hidden' }}>
+                <Box
+                  sx={{
+                    padding: '5px',
+                    color: '#606060',
+                    fontStyle: 'italic',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                  }}
+                >
+                  {message.type === 'text/plain' ? (
+                    <Box>{content}</Box>
+                  ) : message.type === 'application/data-transfer+json' ? (
+                    <Box sx={{ paddingBottom: '0.5rem' }}>
+                      <MessageDataContent
+                        displayName={message.displayName || 'Unknown'}
+                        totalSize={Number(message.totalSize)}
+                      />
+                    </Box>
+                  ) : (
+                    <Box>Error loading message</Box>
+                  )}
+                </Box>
+              </div>
+            </Box>
           </Box>
+          <Button
+            onClick={cancelHandler}
+            sx={{
+              backgroundColor: 'inherit',
+              color: 'black',
+            }}
+          >
+            X
+          </Button>
         </Box>
-        <Button
-          onClick={cancelHandler}
-          sx={{
-            backgroundColor: 'inherit',
-            color: 'black',
-          }}
-        >
-          X
-        </Button>
-      </Box>
-    </motion.div>
+      </motion.div>
+    </>
   )
 }
