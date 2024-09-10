@@ -1,0 +1,119 @@
+/*
+ * Copyright (C) 2022-2024 Savoir-faire Linux Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public
+ * License along with this program.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ */
+import { Router } from 'express'
+import asyncHandler from 'express-async-handler'
+import fs from 'fs'
+import { HttpStatusCode } from 'jami-web-common'
+import multer from 'multer'
+import os from 'os'
+import { Container } from 'typedi'
+
+import { Jamid } from '../jamid/jamid.js'
+import { authenticateToken } from '../middleware/auth.js'
+
+const dir = './uploads'
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir)
+}
+
+const multerPath = './uploads/'
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, multerPath)
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+  },
+})
+
+const upload = multer({ storage: storage })
+const jamid = Container.get(Jamid)
+export const dataTransferRouter = Router()
+
+dataTransferRouter.use(authenticateToken)
+
+dataTransferRouter.post(
+  '/:conversationId',
+  upload.array('file', 10),
+  asyncHandler(async (req, res) => {
+    const accountId = res.locals.accountId
+    const conversationId = req.params.conversationId
+
+    const replyTo = req.body.replyTo
+    console.log('replyTo:', replyTo)
+    for (const file of req.files as Express.Multer.File[]) {
+      console.log(file)
+      // the file is temporarily stored in the server
+      // for now the files are stored in the uploads folder (automatically created)
+      // we don t know when the file will be downloaded from the client
+      // when it happens the file will be stored in the uploads folder and
+      // in /home/<username>/.local/share/jami/:accountId/conversation_data/:conversationId/:fileId
+      // which can be concerning if the file is too big
+      // the service isnt a cloud service so we need to remove files after a certain time
+      const path: string = multerPath + '/' + file.originalname
+      console.log('Sending file to daemon:', path)
+      // send file to daemon
+      jamid.sendFile(accountId, conversationId, path, file.originalname, replyTo)
+    }
+
+    res.status(HttpStatusCode.Ok).send()
+  }),
+)
+
+dataTransferRouter.get('/:conversationId/:interactionId/:fileId', (req, res) => {
+  const accountId = res.locals.accountId
+  const conversationId = req.params.conversationId
+  const interactionId = req.params.interactionId // equals to message id
+  const fileId = req.params.fileId
+  const downloadPathOnServer = '' // default path
+
+  // file is stored in /home/<username>/.local/share/jami/:accountId/conversation_data/:conversationId/:fileId
+
+  const path = os.homedir() + '/.local/share/jami/' + accountId + '/conversation_data/' + conversationId + '/' + fileId
+
+  jamid.downdloadFile(accountId, conversationId, interactionId, fileId, downloadPathOnServer)
+
+  // attendre que les fichiers chargent sur le serveur
+  while (!fs.existsSync(path)) {
+    console.log('waiting for file to be downloaded...')
+  }
+  console.log('sending file: ' + path)
+
+  // send file to client
+  const extension = path.split('.').pop() || ''
+  const acceptedAudioTypes = ['ogg', 'wav', 'mpeg', 'mp4', 'aac', 'flac']
+  const acceptedImageTypes = ['apng', 'avif', 'jpg', 'JPG', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
+
+  console.log('extension:', extension, acceptedAudioTypes.includes(extension), acceptedImageTypes.includes(extension))
+
+  if (acceptedAudioTypes.includes(extension)) {
+    res.setHeader('Content-Type', 'audio/' + extension)
+  } else if (acceptedImageTypes.includes(extension)) {
+    res.setHeader('Content-Type', 'image/' + extension)
+  }
+
+  res.sendFile(path, (err) => {
+    if (err) {
+      console.error('Error sending file:', err)
+      res.status(HttpStatusCode.InternalServerError).send('Error sending file')
+    } else {
+      console.log('File sent successfully')
+    }
+  })
+})

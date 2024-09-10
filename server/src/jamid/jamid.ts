@@ -33,6 +33,7 @@ import {
   WebSocketMessage,
   WebSocketMessageType,
 } from 'jami-web-common'
+import { DataTransferError } from 'jami-web-common/src/enums/datatransfer-error-code.js'
 import log from 'loglevel'
 import { filter, firstValueFrom, map, Subject } from 'rxjs'
 import { Service } from 'typedi'
@@ -53,6 +54,7 @@ import {
   ConversationReady,
   ConversationRemoved,
   ConversationRequestReceived,
+  DataTransferEvent,
   IncomingAccountMessage,
   KnownDevicesChanged,
   NameRegistrationEnded,
@@ -185,6 +187,15 @@ export class Jamid {
       onConversationMemberEvent.next({ accountId, conversationId, memberUri, event })
     }
 
+    const onDataTransferEvent = new Subject<DataTransferEvent>()
+    handlers.DataTransferEvent = (
+      accountId: string,
+      conversationId: string,
+      interactionId: string,
+      fileId: string,
+      eventCode: number,
+    ) => onDataTransferEvent.next({ accountId, conversationId, interactionId, fileId, eventCode })
+
     const onSwarmMessageReceived = new Subject<SwarmMessageReceived>()
     handlers.SwarmMessageReceived = (accountId: string, conversationId: string, message: Message) =>
       onSwarmMessageReceived.next({ accountId, conversationId, message })
@@ -223,6 +234,7 @@ export class Jamid {
       onConversationReady: onConversationReady.asObservable(),
       onConversationRemoved: onConversationRemoved.asObservable(),
       onConversationLoaded: onConversationLoaded.asObservable(),
+      onDataTransferEvent: onDataTransferEvent.asObservable(),
       onSwarmLoaded: onSwarmLoaded.asObservable(),
       onConversationMemberEvent: onConversationMemberEvent.asObservable(),
       onSwarmMessageReceived: onSwarmMessageReceived.asObservable(),
@@ -487,7 +499,41 @@ export class Jamid {
     return this.usernamesToAccountIds.get(username.toLowerCase())
   }
 
+  // File transfer
+  sendFile(accountId: string, conversationId: string, path: string, displayName: string, replyTo: string): void {
+    this.jamiSwig.sendFile(accountId, conversationId, path, displayName, replyTo)
+  }
+
+  downdloadFile(
+    accountId: string,
+    conversationId: string,
+    interactionId: string,
+    fileId: string,
+    path: string,
+  ): number {
+    return this.jamiSwig.downloadFile(accountId, conversationId, interactionId, fileId, path)
+  }
+
+  cancelDataTransfer(accountId: string, conversationId: string, fileId: string): DataTransferError {
+    return this.jamiSwig.cancelDataTransfer(accountId, conversationId, fileId)
+  }
+
+  getFileTransferInfo(
+    accountId: string,
+    conversationId: string,
+    fileId: string,
+    pathOut: string,
+    totalOut: number,
+    progressOut: number,
+  ): DataTransferError {
+    return this.jamiSwig.fileTransferInfo(accountId, conversationId, fileId, pathOut, totalOut, progressOut)
+  }
+
   private setupSignalHandlers(): void {
+    this.events.onDataTransferEvent.subscribe((signal) => {
+      log.debug('Received DataTransferEvent:', JSON.stringify(signal))
+    })
+
     this.events.onAccountsChanged.subscribe(() => {
       log.debug('Received AccountsChanged')
     })
@@ -607,12 +653,17 @@ export class Jamid {
           linearizedParent: signal.message.linearizedParent,
           parents: signal.message.body.parents,
           timestamp: signal.message.body.timestamp,
-          body: signal.message.body.body,
+          displayName: signal.message.body.displayName,
+          sha3sum: signal.message.body.sha3sum,
+          tid: signal.message.body.tid,
+          totalSize: signal.message.body.totalSize,
+          fileId: signal.message.body.fileId,
           type: signal.message.body.type,
           'reply-to': signal.message.body['reply-to'],
           editions: signal.message.editions,
           reactions: signal.message.reactions,
           status: signal.message.status,
+          body: signal.message.body.body,
         },
       }
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationMessage, data)

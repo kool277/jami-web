@@ -173,3 +173,11 @@ export interface ReactionRemoved {
   messageId: string
   reactionId: string
 }
+
+export interface DataTransferEvent {
+  accountId: string
+  conversationId: string
+  interactionId: string
+  fileId: string
+  eventCode: number
+}

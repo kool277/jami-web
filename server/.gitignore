@@ -4,4 +4,6 @@ jamid.node
 
 /accounts.json
 /admin.json
+uploads/*
+uploads
 /config.json

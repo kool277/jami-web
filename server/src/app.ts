@@ -30,6 +30,7 @@ import { callRouter } from './routers/call-router.js'
 import { contactsRouter } from './routers/contacts-router.js'
 import { conversationRequestRouter } from './routers/conversation-request-router.js'
 import { conversationRouter } from './routers/conversation-router.js'
+import { dataTransferRouter } from './routers/data-transfer.js'
 import { defaultModeratorsRouter } from './routers/default-moderators-router.js'
 import { linkPreviewRouter } from './routers/link-preview-router.js'
 import { nameserverRouter } from './routers/nameserver-router.js'
@@ -64,6 +65,7 @@ export class App {
     this.app.use('/calls', callRouter)
     this.app.use('/link-preview', linkPreviewRouter)
     this.app.use('/ns', nameserverRouter)
+    this.app.use('/data', dataTransferRouter)
 
     // Setup WebSocket callbacks
     bindChatCallbacks()

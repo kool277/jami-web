@@ -15,6 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { DataTransferError } from 'jami-web-common/src/enums/datatransfer-error-code.js'
+
 import { Constructable } from '../interfaces/constructable.js'
 
 interface SwigVect<T> {
@@ -136,6 +138,19 @@ export interface JamiSwig {
 
   getCallList(accountId: string): StringVect
   getCallDetails(accountId: string, callId: string): StringMap
+
+  // File transfer
+  sendFile(accountId: string, conversationId: string, path: string, displayName: string, replyTo: string): void
+  downloadFile(accountId: string, conversationId: string, interactionId: string, fileId: string, path: string): number
+  cancelDataTransfer(accountId: string, conversationId: string, fileId: string): DataTransferError
+  fileTransferInfo(
+    accountId: string,
+    conversationId: string,
+    fileId: string,
+    path_out: string,
+    total_out: number,
+    progress_out: number,
+  ): DataTransferError
 
   // IntVect: Constructable<IntVect>;
   // UintVect: Constructable<UintVect>;

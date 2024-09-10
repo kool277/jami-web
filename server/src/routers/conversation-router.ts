@@ -177,6 +177,11 @@ conversationRouter.get(
       element.author = element.body.author
       element.parents = element.body.parents
       element.timestamp = element.body.timestamp
+      element.fileId = element.body.fileId
+      element.sha3sum = element.body.sha3sum
+      element.displayName = element.body.displayName
+      element.totalSize = element.body.totalSize
+      element.tid = element.body.tid
       if (element.body?.['reply-to']) {
         element['reply-to'] = element.body['reply-to']
       }

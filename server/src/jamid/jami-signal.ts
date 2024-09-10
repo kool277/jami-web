@@ -60,4 +60,7 @@ export enum JamiSignal {
   ConversationMemberEvent = 'ConversationMemberEvent',
   OnConversationError = 'OnConversationError',
   OnConferenceInfosUpdated = 'OnConferenceInfosUpdated',
+
+  // libjami::DataTransferSignal
+  DataTransferEvent = 'DataTransferEvent',
 }

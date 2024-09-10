@@ -56,10 +56,13 @@ export interface Message {
   invited?: string
   fileId?: string
   reactions: Array<Reaction>
+  displayName?: string
+  sha3sum?: string
+  tid?: string
+  totalSize?: number
   editions?: string
   status: Map<string, MessageStatusCode>
   'reply-to'?: string | Message
-  displayName?: string
 }
 
 export interface ConversationInfos {
