@@ -216,7 +216,7 @@ const ChatInterface = () => {
     setIsEditing(undefined)
   }
 
-  function handleSendMessage(message: string) {
+  function handleSendMessage(message: string, audioFile?: File) {
     if (message === 'files-to-send') {
       const data: FormData = new FormData()
       for (const file of fileHandlers) {
@@ -225,6 +225,13 @@ const ChatInterface = () => {
       data.append('replyTo', selectedReply?.id || '')
       sendFilesMutation.mutate(data)
       setFileHandlers([])
+    } else if (message === 'audio-message') {
+      if (audioFile) {
+        const data: FormData = new FormData()
+        data.append('file', audioFile)
+        data.append('replyTo', selectedReply?.id || '')
+        sendFilesMutation.mutate(data)
+      }
     } else {
       if (editMessage) editMessageHandler(message)
       else sendMessage(message)

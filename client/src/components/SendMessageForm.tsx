@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { InputBase, useTheme } from '@mui/material'
+import { Box, InputBase, useTheme } from '@mui/material'
 import { Stack } from '@mui/system'
 import { Message, WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -28,6 +28,7 @@ import { ConversationMember } from '../models/conversation-member'
 import { FileHandler } from '../utils/files'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
 import {
+  CancelPictureButton,
   RecordVideoMessageButton,
   RecordVoiceMessageButton,
   SelectEmojiButton,
@@ -36,7 +37,7 @@ import {
 } from './Button'
 
 type SendMessageFormProps = {
-  onSend: (message: string) => void
+  onSend: (message: string, audioFile?: File) => void
   openFilePicker: () => void
   fileHandlers: FileHandler[]
   editMessage?: Message
@@ -48,6 +49,19 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
   const [currentMessage, setCurrentMessage] = useState('')
   const composingNotificationTimeRef = useRef(0)
   const placeholder = usePlaceholder(members)
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [startTime, setStartTime] = useState(0)
+  const [firstTime, setFirstTime] = useState(-1)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const analyserRef = useRef<AnalyserNode | null>(null)
+  const dataArrayRef = useRef<Uint8Array | null>(null)
+  const chunksRef = useRef<Blob[]>([])
+  const waveformDataRef = useRef<Array<{ data: Uint8Array; progress: number }>>([])
+  const frameCountRef = useRef<number>(0)
+  const scrollOffsetRef = useRef<number>(0)
 
   const theme = useTheme()
 
@@ -98,6 +112,204 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
     [setCurrentMessage],
   )
 
+  const handleVoiceRecording = () => {
+    setIsRecordingVoice((isRecordingVoice) => !isRecordingVoice)
+    stopRecording(false)
+  }
+
+  const voiceRecordingStatusChange = () => {
+    if (isRecordingVoice) {
+      stopRecording(true)
+    } else {
+      startRecording()
+    }
+    setIsRecordingVoice((isRecordingVoice) => !isRecordingVoice)
+  }
+
+  const sendAudioMessage = useCallback(() => {
+    const blob = new Blob(chunksRef.current, { type: 'audio/ogg; codecs=opus' })
+    const file = new File([blob], 'voicemessage.ogg', { type: 'audio/ogg; codecs=opus' })
+    onSend('audio-message', file)
+  }, [onSend])
+
+  const startRecording = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaRecorderRef.current = new MediaRecorder(stream)
+      audioContextRef.current = new window.AudioContext()
+      analyserRef.current = audioContextRef.current.createAnalyser()
+      const source = audioContextRef.current.createMediaStreamSource(stream)
+      source.connect(analyserRef.current)
+
+      analyserRef.current.fftSize = 2048
+      const bufferLength = analyserRef.current.frequencyBinCount
+      dataArrayRef.current = new Uint8Array(bufferLength)
+
+      chunksRef.current = []
+      mediaRecorderRef.current.ondataavailable = (e) => chunksRef.current.push(e.data)
+      mediaRecorderRef.current.onstop = () => {
+        sendAudioMessage()
+      }
+
+      mediaRecorderRef.current.start()
+      setCurrentTime(0)
+      setStartTime(0)
+      setFirstTime(-1)
+    } catch (error) {
+      console.error('Error starting recording:', error)
+    }
+  }, [sendAudioMessage])
+
+  const stopRecording = useCallback(
+    (isCancel: boolean) => {
+      if (mediaRecorderRef.current && isRecordingVoice) {
+        if (isCancel) {
+          mediaRecorderRef.current.onstop = null
+        }
+        setCurrentTime(0)
+        setStartTime(0)
+        setFirstTime(-1)
+        mediaRecorderRef.current.stop()
+
+        // stop and reset animation
+        frameCountRef.current = 0
+        waveformDataRef.current = []
+        scrollOffsetRef.current = 0
+
+        const tracks = mediaRecorderRef.current.stream.getTracks()
+        tracks.forEach((track) => track.stop())
+      }
+    },
+    [isRecordingVoice],
+  )
+
+  useEffect(() => {
+    let animationFrameId: number
+
+    const draw = (timestamp: number) => {
+      if (startTime === null || startTime === undefined) setStartTime(timestamp)
+      const calculatedTime = (timestamp - startTime) / 1000
+      if (calculatedTime > 0 && firstTime === -1) setFirstTime(calculatedTime)
+      setCurrentTime(calculatedTime - firstTime)
+
+      const canvas = canvasRef.current
+      if (canvas === null) return
+      const ctx = canvas.getContext('2d')
+      const width = canvas.width
+      const height = canvas.height
+
+      if (analyserRef.current === null || dataArrayRef.current === null) {
+        return
+      }
+      analyserRef.current.getByteFrequencyData(dataArrayRef.current)
+
+      frameCountRef.current++
+      if (frameCountRef.current % 8 === 0) {
+        waveformDataRef.current.push({
+          data: new Uint8Array(dataArrayRef.current),
+          progress: 0,
+        } as never)
+      }
+
+      if (ctx === null) {
+        console.error('Canvas context is null')
+        return
+      }
+      ctx.clearRect(0, 0, width, height)
+      const barWidth = 5
+      const gap = 3
+      const amp = height * 0.9
+      const minBarHeight = height * 0.15
+
+      ctx.fillStyle = 'rgb(255, 255, 255)'
+
+      let totalWidth = 0
+      waveformDataRef.current.forEach((item: { progress: number; data: Uint8Array }) => {
+        const x = totalWidth - scrollOffsetRef.current
+        const rawBarHeight = (item.data[0] / 255) * amp
+        const accentuatedHeight = Math.pow(rawBarHeight / amp, 0.5) * amp
+        const barHeight = Math.max(minBarHeight, accentuatedHeight * item.progress)
+        const y = height / 2 - barHeight / 2
+
+        if (x + barWidth > 0 && x < width) {
+          drawRoundedBar(ctx, x, y, barWidth, barHeight)
+        }
+        totalWidth += barWidth + gap
+        item.progress = Math.min(item.progress + 0.2, 1)
+      })
+
+      if (totalWidth > width) {
+        scrollOffsetRef.current += 0.3
+        if (scrollOffsetRef.current >= barWidth + gap) {
+          waveformDataRef.current.shift()
+          scrollOffsetRef.current -= barWidth + gap
+        }
+      }
+
+      if (isRecordingVoice) {
+        animationFrameId = requestAnimationFrame(draw)
+      }
+    }
+
+    const drawRoundedBar = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) => {
+      const radius = Math.min(width / 2, 2)
+      ctx.beginPath()
+      ctx.moveTo(x + radius, y)
+      ctx.lineTo(x + width - radius, y)
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
+      ctx.lineTo(x + width, y + height - radius)
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
+      ctx.lineTo(x + radius, y + height)
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
+      ctx.lineTo(x, y + radius)
+      ctx.quadraticCurveTo(x, y, x + radius, y)
+      ctx.closePath()
+      ctx.fill()
+    }
+
+    if (isRecordingVoice) {
+      animationFrameId = requestAnimationFrame(draw)
+    }
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+      }
+    }
+  }, [isRecordingVoice, currentTime, startTime, firstTime])
+
+  const containerStyles: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    backgroundColor: '#005699',
+    borderRadius: '25px',
+    padding: '10px 12px',
+    width: '70%',
+    justifyContent: 'space-between',
+    boxSizing: 'border-box',
+  }
+
+  const waveformContainerStyles: React.CSSProperties = {
+    display: 'flex',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    flexGrow: 1,
+    margin: '0 10px',
+    position: 'relative',
+    width: '100%',
+  }
+
+  const durationStyles: React.CSSProperties = {
+    color: 'white',
+    fontSize: '14px',
+    marginLeft: '10px',
+  }
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  }
+
   return (
     <Stack
       component="form"
@@ -108,28 +320,44 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
       paddingX="16px"
       paddingTop="16px"
     >
-      <UploadFileButton disabled={editMessage ? true : false} onClick={openFilePicker} />
-      <RecordVoiceMessageButton disabled={editMessage ? true : false} />
-      <RecordVideoMessageButton disabled={editMessage ? true : false} />
+      {isRecordingVoice ? null : <UploadFileButton disabled={editMessage ? true : false} onClick={openFilePicker} />}
+      {isRecordingVoice ? (
+        <CancelPictureButton sx={{ maxHeight: '20px', maxWidth: '20px' }} onClick={voiceRecordingStatusChange} />
+      ) : (
+        <RecordVoiceMessageButton onClick={voiceRecordingStatusChange} disabled={editMessage ? true : false} />
+      )}
+      {isRecordingVoice ? null : <RecordVideoMessageButton disabled={editMessage ? true : false} />}
       <Stack flexGrow={1}>
-        <InputBase
-          data-cy="message-input"
-          placeholder={placeholder}
-          value={currentMessage}
-          onChange={handleInputChange}
-          sx={{
-            fontSize: '15px',
-            color: theme.palette.text.primary,
-            '& ::placeholder': {
+        {isRecordingVoice ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={containerStyles}>
+              <div style={waveformContainerStyles}>
+                {/* canvas not responsible for now */}
+                <canvas ref={canvasRef} width={700} height={30} style={{ display: 'block' }} />
+              </div>
+              <span style={durationStyles}>{formatTime(currentTime)}</span>
+            </div>
+          </Box>
+        ) : (
+          <InputBase
+            placeholder={placeholder}
+            value={currentMessage}
+            onChange={handleInputChange}
+            sx={{
+              fontSize: '15px',
               color: theme.palette.text.primary,
-              opacity: 1,
-              textOverflow: 'ellipsis',
-            },
-          }}
-        />
+              '& ::placeholder': {
+                color: theme.palette.text.primary,
+                opacity: 1,
+                textOverflow: 'ellipsis',
+              },
+            }}
+          />
+        )}
       </Stack>
-      <SelectEmojiButton onEmojiSelected={onEmojiSelected} />
-      {(currentMessage || fileHandlers.length > 0) && <SendMessageButton type="submit" />}
+      {isRecordingVoice ? null : <SelectEmojiButton onEmojiSelected={onEmojiSelected} />}
+      {(currentMessage || fileHandlers.length > 0) && !isRecordingVoice && <SendMessageButton type="submit" />}
+      {isRecordingVoice && <SendMessageButton onClick={handleVoiceRecording} />}
     </Stack>
   )
 }
