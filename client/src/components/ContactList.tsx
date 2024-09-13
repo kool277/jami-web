@@ -27,6 +27,7 @@ import {
   useContactQuery,
   useRemoveContactMutation,
 } from '../services/contactQueries'
+import { useMembersQuery } from '../services/conversationQueries'
 import ContactDetailDialog from './ContactDetailDialog'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
 import ConversationAvatar from './ConversationAvatar'
@@ -38,7 +39,6 @@ import { BlockContactIcon, CancelIcon, PersonIcon } from './SvgIcon'
 export default function ContactList() {
   const [currentContactId, setCurrentContactId] = useState<string>('')
   const [isBlocking, setIsBlocking] = useState(true)
-
   const [contactDetailDialogOpen, setContactDetailDialogOpen] = useState<boolean>(false)
 
   const contactListQuery = useContactListQuery()
@@ -99,7 +99,7 @@ export default function ContactList() {
             <ListItemAvatar>
               <ConversationAvatar />
             </ListItemAvatar>
-            <ListItemText primary={contact.id} secondary={contact.id} />
+            <ContactInfo conversationId={contact.conversationId} contactId={contact.id} />
           </ListItem>
         ))}
       </List>
@@ -185,3 +185,17 @@ const ContactDialog = memo(({ isBlocking, open, closeContactDialog, currentConta
     />
   )
 })
+
+const ContactInfo = ({ conversationId, contactId }: { conversationId: string; contactId: string }) => {
+  const membersQuery = useMembersQuery(conversationId)
+  const { t } = useTranslation()
+
+  const data = membersQuery.data
+  let name = data?.filter((member) => member.contact.uri === contactId)[0].getDisplayName()
+
+  if (name === '' || name === undefined) {
+    name = t('unknown_user')
+  }
+
+  return <ListItemText primary={name} secondary={contactId} />
+}
