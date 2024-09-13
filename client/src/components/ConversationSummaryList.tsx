@@ -44,6 +44,10 @@ type ConversationSummaryListProps = {
 }
 
 export const ConversationSummaryList = ({ conversationsSummaries }: ConversationSummaryListProps) => {
+  const sortedConversations = useMemo(() => {
+    return [...conversationsSummaries].sort((a, b) => Number(b.lastMessage.timestamp) - Number(a.lastMessage.timestamp))
+  }, [conversationsSummaries])
+
   return (
     <List
       sx={{
@@ -52,7 +56,7 @@ export const ConversationSummaryList = ({ conversationsSummaries }: Conversation
         textOverflow: 'ellipsis',
       }}
     >
-      {conversationsSummaries?.map((conversationSummary) => (
+      {sortedConversations?.map((conversationSummary) => (
         <ConversationSummaryListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
       ))}
     </List>
