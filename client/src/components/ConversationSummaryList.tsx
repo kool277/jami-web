@@ -136,7 +136,7 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
           return t('message_swarm_created')
         }
         case 'application/data-transfer+json': {
-          return message.fileId
+          return message.displayName
         }
         case 'application/call-history+json': {
           const isAccountMessage = message.author === account.getUri()
