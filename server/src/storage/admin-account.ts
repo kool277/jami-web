@@ -25,6 +25,7 @@ import { Service } from 'typedi'
 export class AdminAccount {
   private readonly filename = 'admin.json'
   private adminAccount: IAdminAccount
+  private defaultUploadPath: string = 'uploads/'
 
   constructor() {
     let buffer: Buffer
@@ -53,7 +54,16 @@ export class AdminAccount {
       jamsAuthEnabled: !!this.getJamsServerUrl(),
       guestAccessEnabled: false,
       openIdAuthEnabled: false,
+      uploadPath: this.defaultUploadPath,
     }
+  }
+
+  getUploadPath(): string {
+    if (!('uploadPath' in this.adminAccount.config) || this.adminAccount.config.uploadPath === undefined) {
+      this.adminAccount.config.uploadPath = this.defaultUploadPath
+      this.save()
+    }
+    return this.adminAccount.config.uploadPath
   }
 
   getPasswordHash(): string | undefined {

@@ -21,6 +21,7 @@ export interface IAdminConfigState {
   jamsAuthEnabled: boolean
   guestAccessEnabled: boolean
   openIdAuthEnabled: boolean
+  uploadPath: string
 }
 
 export interface IAdminAccount {
@@ -36,6 +37,7 @@ export const adminConfigValuePair = {
   jamsAuthEnabled: 'boolean',
   guestAccessEnabled: 'boolean',
   openIdAuthEnabled: 'boolean',
+  uploadPath: 'string',
 }
 
 export interface AccountOverview {

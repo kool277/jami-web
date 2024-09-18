@@ -44,3 +44,26 @@ export enum MessageState {
   Failure,
   Cancelled,
 }
+
+export enum ConversationMemberEventType {
+  Add,
+  Join,
+  Remove,
+  Ban,
+  Unban,
+}
+
+export enum DataTransferEventCode {
+  invalid = 0,
+  created = 1,
+  unsupported = 2,
+  wait_peer_acceptance = 3,
+  wait_host_acceptance = 4,
+  ongoing = 5,
+  finished = 6,
+  closed_by_host = 7,
+  closed_by_peer = 8,
+  invalid_pathname = 9,
+  unjoinable_peer = 10,
+  timeout_expired = 11,
+}

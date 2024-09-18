@@ -26,7 +26,7 @@ import {
 import { RegisteredNameFoundState } from 'jami-web-common'
 
 import { ConversationRequestMetadata } from './conversation-request-metadata.js'
-import { MessageState, NameRegistrationEndedState, RegistrationState } from './state-enums.js'
+import { DataTransferEventCode, MessageState, NameRegistrationEndedState, RegistrationState } from './state-enums.js'
 
 // These interfaces are used to hold all the parameters for signal handlers
 // These parameters' names and types can be found in daemon/bin/nodejs/callback.h
@@ -193,5 +193,19 @@ export interface DataTransferEvent {
   conversationId: string
   interactionId: string
   fileId: string
-  eventCode: number
+  eventCode: DataTransferEventCode
+}
+
+export interface ReactionAdded {
+  accountId: string
+  conversationId: string
+  messageId: string
+  reaction: Reaction
+}
+
+export interface ReactionRemoved {
+  accountId: string
+  conversationId: string
+  messageId: string
+  reactionId: string
 }

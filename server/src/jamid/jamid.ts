@@ -76,7 +76,7 @@ import {
   VolatileDetailsChanged,
 } from './jami-signal-interfaces.js'
 import { JamiSwig, StringMap, stringMapToRecord, stringVectToArray, vectMapToRecordArray } from './jami-swig.js'
-import { MessageState, NameRegistrationEndedState, RegistrationState } from './state-enums.js'
+import { DataTransferEventCode, MessageState, NameRegistrationEndedState, RegistrationState } from './state-enums.js'
 
 const require = createRequire(import.meta.url)
 
@@ -578,6 +578,12 @@ export class Jamid {
   private setupSignalHandlers(): void {
     this.events.onDataTransferEvent.subscribe((signal) => {
       log.debug('Received DataTransferEvent:', JSON.stringify(signal))
+      if (signal.eventCode === DataTransferEventCode.created) {
+        // It is now safe to delete the associated file
+        // in fileId we have the path to the file that we provided
+        // to the sendFile function
+        fs.unlinkSync(path.resolve(signal.fileId))
+      }
     })
 
     this.events.onAccountsChanged.subscribe(() => {

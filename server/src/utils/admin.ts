@@ -36,6 +36,9 @@ export const isConfigValid = (config: any): config is Partial<IAdminConfigState>
         return typeof config['guestAccessEnabled'] === adminConfigValuePair['guestAccessEnabled']
       case 'openIdAuthEnabled':
         return typeof config['openIdAuthEnabled'] === adminConfigValuePair['openIdAuthEnabled']
+      case 'uploadPath':
+        // TODO check if the upload path is unsecure
+        return typeof config['uploadPath'] === adminConfigValuePair['uploadPath']
       default:
         return false
     }

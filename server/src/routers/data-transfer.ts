@@ -25,20 +25,36 @@ import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
+import { AdminAccount } from '../storage/admin-account.js'
+const config = Container.get(AdminAccount)
 
-const dir = './uploads'
-if (!fs.existsSync(dir)) {
-  fs.mkdirSync(dir)
+const multerPath = config.getUploadPath()
+if (!fs.existsSync(multerPath)) {
+  fs.mkdirSync(multerPath)
 }
 
-const multerPath = './uploads/'
+function parseName(name: string) {
+  let fileName = name.replace('\\', '_')
+  fileName = fileName.replace('/', '_')
+  fileName = fileName.replace("'", '_')
+  fileName = fileName.replace('"', '_')
+  return fileName
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, multerPath)
+    const accountId = req.res?.locals.accountId
+    const userFilePath = multerPath + accountId + '/'
+    if (!fs.existsSync(userFilePath)) {
+      fs.mkdirSync(userFilePath)
+    }
+    cb(null, userFilePath)
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname)
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
+    const extension = parseName(file.originalname.split('.').pop() || '')
+    const filename = file.fieldname + '-' + uniqueSuffix + '.' + extension
+    cb(null, filename)
   },
 })
 
@@ -50,7 +66,7 @@ dataTransferRouter.use(authenticateToken)
 
 dataTransferRouter.post(
   '/:conversationId',
-  upload.array('file', 10),
+  upload.array('file'),
   asyncHandler(async (req, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
@@ -66,12 +82,10 @@ dataTransferRouter.post(
       // in /home/<username>/.local/share/jami/:accountId/conversation_data/:conversationId/:fileId
       // which can be concerning if the file is too big
       // the service isnt a cloud service so we need to remove files after a certain time
-      const path: string = multerPath + '/' + file.originalname
-      console.log('Sending file to daemon:', path)
-      // send file to daemon
-      jamid.sendFile(accountId, conversationId, path, file.originalname, replyTo)
+      const updatedFileName = parseName(file.originalname)
+      const path = multerPath + accountId + '/' + file.filename
+      jamid.sendFile(accountId, conversationId, path, updatedFileName, replyTo)
     }
-
     res.status(HttpStatusCode.Ok).send()
   }),
 )

@@ -30,6 +30,7 @@ import { signJwt } from '../utils/jwt.js'
 
 const jamid = Container.get(Jamid)
 const accounts = Container.get(Accounts)
+
 const config = Container.get(AdminAccount)
 export const authRouter = Router()
 
