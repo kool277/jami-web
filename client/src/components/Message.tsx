@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+// eslint-disable-next-line simple-import-sort/imports
 import { Box, Chip, Divider, Link, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { Theme, useTheme } from '@mui/material/styles'
@@ -49,6 +50,7 @@ import {
   TrashBinIcon,
   TwoSheetsIcon,
 } from './SvgIcon'
+import { getColor, getTextColor, getSentTimeColor } from '../utils/messagecolor'
 
 type MessagePosition = 'start' | 'end'
 
@@ -94,7 +96,7 @@ export const findNextVisibleMessage = (messages: Message[], messageIndex: number
 
 const avatarSize = '22px'
 const spacingBetweenAvatarAndBubble = '10px'
-const bubblePadding = '16px'
+const bubblePadding = '10px'
 
 interface MessageCallProps {
   message: Message
@@ -156,7 +158,7 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
     >
       <Stack direction="row" spacing="10px" alignItems="center">
         <Icon sx={{ fontSize: '16px', color: textColor }} />
-        <Typography variant="body1" color={textColor} textAlign={position} fontWeight="bold" textTransform="uppercase">
+        <Typography variant="body1" color={textColor} textAlign={'start'} fontWeight="bold" textTransform="uppercase">
           {text}
         </Typography>
       </Stack>
@@ -287,9 +289,11 @@ interface MessageTextProps {
 }
 
 const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup, sentTime }: MessageTextProps) => {
+  const { members } = useConversationContext()
+
   const position = isAccountMessage ? 'end' : 'start'
-  const bubbleColor = isAccountMessage ? '#005699' : '#E5E5E5'
-  const textColor = isAccountMessage ? 'white' : 'black'
+  const bubbleColor = isAccountMessage ? (members.length > 1 ? '#9E9E9E' : getColor(members[0].contact.uri)) : '#E5E5E5'
+  const textColor = isAccountMessage ? getTextColor(bubbleColor) : '#000000'
   const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message])
   const theme: Theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
@@ -695,7 +699,7 @@ const Bubble = ({
   children,
   sentTime,
 }: BubbleProps) => {
-  const largeRadius = '20px'
+  const largeRadius = '12px'
   const smallRadius = '5px'
   const radius = useMemo(() => {
     if (position === 'start') {
@@ -713,25 +717,40 @@ const Bubble = ({
       borderEndEndRadius: isLastOfGroup ? largeRadius : smallRadius,
     }
   }, [isFirstOfGroup, isLastOfGroup, position])
+
+  // text color
+  // date color
+
   return (
-    <>
+    <Box
+      sx={{
+        color: getTextColor(bubbleColor),
+        display: 'flex',
+        flexDirection: 'row',
+        width: 'fit-content',
+        maxWidth,
+        backgroundColor: bubbleColor,
+        padding: bubblePadding,
+        overflow: 'hidden',
+        wordWrap: 'break-word',
+        ...radius,
+      }}
+    >
+      {children}
       <Box
         sx={{
-          width: 'fit-content',
-          maxWidth,
-          backgroundColor: bubbleColor,
-          padding: bubblePadding,
-          overflow: 'hidden',
-          wordWrap: 'break-word',
-          ...radius,
+          marginBottom: '-2px',
+          paddingLeft: '10px',
+          whiteSpace: 'nowrap',
+          marginTop: 'auto',
+          marginLeft: '-6%',
         }}
       >
-        {children}
         {sentTime && (
           <Box
             sx={{
               width: 1,
-              color: '#A6948B',
+              color: getSentTimeColor(bubbleColor),
               fontSize: 11,
               display: 'flex',
               flexDirection: 'row',
@@ -744,7 +763,7 @@ const Bubble = ({
           </Box>
         )}
       </Box>
-    </>
+    </Box>
   )
 }
 
