@@ -16,9 +16,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, useMediaQuery, useTheme } from '@mui/material'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { NotificationContext } from '../../contexts/NotificationsProvider'
 import { languagesInfos, LanguageTag } from '../../i18n'
 import { SettingSelect, SettingSelectProps, SettingsGroup, SettingSwitch } from '../Settings'
 
@@ -31,6 +32,7 @@ function System() {
       <SettingsGroup label={t('settings_title_system')}>
         <SettingLanguage />
         <SettingLinkPreview />
+        <SettingNotifications />
       </SettingsGroup>
     </Box>
   )
@@ -81,6 +83,20 @@ const SettingLinkPreview = () => {
       <SettingSwitch label={t('settings_link_preview')} onChange={() => setIsOn((isOn) => !isOn)} checked={isOn} />{' '}
     </Box>
   )
+}
+
+const SettingNotifications = () => {
+  const { t } = useTranslation()
+  const { enable, setIsEnabled } = useContext(NotificationContext)
+
+  const [isOn, setIsOn] = useState<boolean>(enable)
+
+  const onChange = useCallback(() => {
+    setIsEnabled(!isOn)
+    setIsOn((isOn) => !isOn)
+  }, [isOn, setIsEnabled])
+
+  return <SettingSwitch label={t('settings_menu_item_notifications')} onChange={onChange} checked={isOn} />
 }
 
 export default System

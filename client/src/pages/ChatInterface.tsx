@@ -473,6 +473,7 @@ const WaitingDots = () => {
 }
 
 const addMessage = (sortedMessages: Message[], message: Message) => {
+  if (!message) return sortedMessages
   if (sortedMessages.length === 0) {
     return [message]
   } else if (message.id === sortedMessages[sortedMessages.length - 1].linearizedParent) {

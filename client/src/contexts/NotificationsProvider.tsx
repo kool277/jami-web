@@ -1,0 +1,62 @@
+/*
+ * Copyright (C) 2022-2024 Savoir-faire Linux Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public
+ * License along with this program.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ */
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+
+import { WithChildren } from '../utils/utils'
+
+interface INotificationContext {
+  enable: boolean
+  setIsEnabled(value: boolean): void
+}
+
+export const NotificationContext = createContext<INotificationContext>({
+  enable: true,
+  setIsEnabled: () => {},
+})
+
+export default ({ children }: WithChildren) => {
+  const [enable, setEnable] = useState<boolean>(true)
+
+  useEffect(() => {
+    const NotificationInStorage = localStorage.getItem('notification-preference')
+    let notificationPreferenceValue = true
+    // localStorage returns null if no value is found for the given key
+    if (typeof NotificationInStorage === 'string') {
+      notificationPreferenceValue = JSON.parse(NotificationInStorage)
+      setEnable(notificationPreferenceValue)
+    } else {
+      //By default we enable notifications
+      setEnable(true)
+    }
+  }, [])
+
+  const setIsEnabled = useCallback((value: boolean) => {
+    setEnable(value)
+    localStorage.setItem('notification-preference', JSON.stringify(value))
+  }, [])
+
+  const value = useMemo(
+    () => ({
+      enable,
+      setIsEnabled,
+    }),
+    [enable, setIsEnabled],
+  )
+
+  return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>
+}

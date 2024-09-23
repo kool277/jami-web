@@ -34,6 +34,7 @@ import OpenIdAuthMethod from './components/AdminSettings/OpenIdAuthMethod'
 import ContactList from './components/ContactList'
 import ConversationView from './components/ConversationView'
 import LayoutWrapper from './components/LayoutWrapper'
+import NotificationHandler from './components/NotificationHandler'
 import UserSettingsSelection from './components/UserSettingsSelection'
 import ActionMessageProvider from './contexts/ActionMessageProvider'
 import AuthProvider from './contexts/AuthProvider'
@@ -144,14 +145,22 @@ export const router = createBrowserRouter(
                 <ActionMessageProvider>
                   <Messenger>
                     <ConversationProvider>
-                      <ConversationView />
+                      <NotificationHandler>
+                        <ConversationView />
+                      </NotificationHandler>
                     </ConversationProvider>
                   </Messenger>
                 </ActionMessageProvider>
               }
             />
           </Route>
-          <Route element={<LayoutWrapper sidebar={<UserSettingsSelection />} main={<Outlet />}></LayoutWrapper>}>
+          <Route
+            element={
+              <NotificationHandler>
+                <LayoutWrapper sidebar={<UserSettingsSelection />} main={<Outlet />}></LayoutWrapper>
+              </NotificationHandler>
+            }
+          >
             <Route path="settings/account/manage-account" element={<AccountSettings />} />
             <Route path="settings/account/customize-profile" element={<CustomizeProfile />} />
             <Route path="settings/account/linked-devices" element={<LinkedDevicesPage />} />
