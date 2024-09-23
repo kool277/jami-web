@@ -79,17 +79,18 @@ export class ConversationService {
     // Build a dataUrl from the avatar
     // TODO: Host the image and use a "normal" url instead
     infos.avatar = infos.avatar ? `data:image/jpeg;base64,${infos.avatar}` : undefined
-
+    jamid.clearCache(accountId, conversationId)
     const membersNames = await this.getMembersNames(accountId, conversationId)
-    let lastMessage: Message | undefined
-    // Skip "merge" type since they are of no interest for the user
-    // Should we add some protection to prevent infinite loop?
-    while (!lastMessage || lastMessage.type === 'merge') {
-      lastMessage = (
-        await jamid.getConversationMessages(accountId, conversationId, lastMessage?.linearizedParent || '', 1)
-      )[0]
-    }
-
+    const lastMessage: Message = (await jamid.getSwarmMessages(accountId, conversationId, '', 1))[0]
+    lastMessage.author = lastMessage.body.author
+    lastMessage.linearizedParent = lastMessage.body.linearizedParent
+    lastMessage.parents = lastMessage.body.parents
+    lastMessage.type = lastMessage.body.type
+    lastMessage.timestamp = lastMessage.body.timestamp
+    lastMessage.fileId = lastMessage.body.fileId
+    lastMessage.action = lastMessage.body.action
+    lastMessage.displayName = lastMessage.body.displayName
+    lastMessage.body = lastMessage.body.body
     return {
       id: conversationId,
       avatar: infos.avatar,

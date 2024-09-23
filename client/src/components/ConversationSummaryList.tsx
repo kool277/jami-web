@@ -19,6 +19,7 @@ import { Box, List, Stack, Typography } from '@mui/material'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { IConversationSummary, ProfileReceived, WebSocketMessageType } from 'jami-web-common'
+import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -31,6 +32,7 @@ import { useConversationDisplayNameShort } from '../hooks/useConversationDisplay
 import { useUrlParams } from '../hooks/useUrlParams'
 import { ConversationRouteParams } from '../router'
 import { CallStatus } from '../services/CallManager'
+import { useRefreshConversationsSummaries } from '../services/conversationQueries'
 import { useMembersQuery } from '../services/conversationQueries'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
 import { formatRelativeDate, formatTime } from '../utils/dates&times'
@@ -108,12 +110,13 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
 
   const conversationId = conversationSummary.id
   const isSelected = conversationId === selectedConversationId
-
+  const refreshConversationsSummaries = useRefreshConversationsSummaries()
   const onClick = useCallback(() => {
+    refreshConversationsSummaries()
     if (conversationId) {
       navigate(`/conversation/${conversationId}`)
     }
-  }, [navigate, conversationId])
+  }, [conversationId, navigate, refreshConversationsSummaries])
 
   const conversationName = useConversationDisplayNameShort(
     account,
@@ -139,7 +142,6 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
         contextMenuProps={contextMenuHandler.props}
       />
       <CustomListItemButton
-        data-cy={`conversation-summary-item`}
         selected={isSelected}
         onClick={onClick}
         onContextMenu={contextMenuHandler.handleAnchorPosition}
@@ -181,6 +183,19 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
     }
   }, [conversationSummary, i18n])
 
+  const [isRead, setIsRead] = useState(false)
+
+  useEffect(() => {
+    const status = JSON.parse(JSON.stringify(conversationSummary.lastMessage.status))[account.getUri()]
+    if (conversationSummary.lastMessage.author === account.getUri()) {
+      setIsRead(true)
+    } else if (status === MessageStatusCode.read) {
+      setIsRead(true)
+    } else {
+      setIsRead(false)
+    }
+  }, [account, conversationSummary, conversationSummary.lastMessage])
+
   const lastMessageText = useMemo(() => {
     if (!callData || callData.conversationId !== conversationSummary.id) {
       const message = conversationSummary.lastMessage
@@ -219,14 +234,26 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
     return callData.role === 'caller' ? t('outgoing_call') : t('incoming_call')
   }, [account, conversationSummary, callData, callStatus, isAudioOn, t, i18n])
 
+  const lastMessageStyle = {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    maxWidth: '140px',
+  }
+
   return (
     <Stack direction="row" spacing="5px">
-      <Typography variant="body2" fontWeight={isSelected ? 'bold' : 'normal'}>
+      <Typography variant="body2" fontWeight={isSelected ? 'bold' : isRead ? 'normal' : 'bold'}>
         {timeIndicator}
       </Typography>
-      <Typography sx={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }} variant="body2">
-        {lastMessageText}
-      </Typography>
+      {isRead ? (
+        <Typography sx={lastMessageStyle} variant="body2">
+          {lastMessageText}
+        </Typography>
+      ) : (
+        <Typography sx={lastMessageStyle} fontWeight={'bolder'} variant="body2">
+          {lastMessageText}
+        </Typography>
+      )}
     </Stack>
   )
 }
