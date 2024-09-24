@@ -22,6 +22,7 @@ import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 're
 import App, { appLoader } from './App'
 import LinkedDevices from './components/AccountSettings/LinkedDevices'
 import AccountsOverview from './components/AdminSettings/AccountsOverview'
+import AdminAccountConfiguration from './components/AdminSettings/AdminAccountConfiguration'
 import AdminAuthWrapper from './components/AdminSettings/AdminAuthWrapper'
 import AuthMethods from './components/AdminSettings/AuthMethods'
 import JamsAuthMethod from './components/AdminSettings/JamsAuthMethod'
@@ -62,11 +63,7 @@ export const router = createBrowserRouter(
       >
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Registration />} />
-        <Route
-          path="admin"
-          element={<AdminLogin />}
-          // the login page will redirect correctly the identified user aswell
-        />
+        <Route path="admin" element={<AdminLogin />} />
         <Route
           element={
             <AdminAuthWrapper>
@@ -76,7 +73,7 @@ export const router = createBrowserRouter(
             </AdminAuthWrapper>
           }
         >
-          <Route path={`/admin/${AdminSettingSelection.ACCOUNTS}`} element={<>Accounts</>} />
+          <Route path={`/admin/${AdminSettingSelection.ACCOUNTS}`} element={<AccountsOverview />} />
           <Route path={`/admin/${AdminSettingSelection.AUTHENTICATION}`} element={<AuthMethods />} />
           <Route
             path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMI}`}
@@ -86,7 +83,10 @@ export const router = createBrowserRouter(
             path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMS}`}
             element={<JamsAuthMethod />}
           />
-          <Route path={`/admin/${AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION}`} element={<AccountsOverview />} />
+          <Route
+            path={`/admin/${AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION}`}
+            element={<AdminAccountConfiguration />}
+          />
         </Route>
         <Route path="admin/login" element={<AdminLogin />} />
         <Route path="admin/setup" element={<AdminSetup />} />
