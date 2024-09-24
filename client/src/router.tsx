@@ -17,12 +17,15 @@
  */
 
 import { Stack } from '@mui/material'
+import { AdminSettingSelection } from 'jami-web-common'
 import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 'react-router-dom'
 
 import App, { appLoader } from './App'
 import CustomizeProfile from './components/AccountSettings/CustomizeProfile'
 import LinkedDevices from './components/AccountSettings/LinkedDevices'
 import ManageAccount from './components/AccountSettings/ManageAccount'
+import AuthMethods from './components/AdminSettings/AuthMethods'
+import LocalAuthMethod from './components/AdminSettings/LocalAuthMethod'
 import ContactList from './components/ContactList'
 import ConversationView from './components/ConversationView'
 import Appearance from './components/GeneralSettings/Appearance'
@@ -36,6 +39,7 @@ import ConversationProvider from './contexts/ConversationProvider'
 import MessengerProvider from './contexts/MessengerProvider'
 import UserMediaProvider from './contexts/UserMediaProvider'
 import WebSocketProvider from './contexts/WebSocketProvider'
+import { AuthenticationMethods } from './enums/authenticationMethods'
 import { RouteParams } from './hooks/useUrlParams'
 import AccountSettings from './pages/AccountSettings'
 import AdminLogin from './pages/AdminLogin'
@@ -52,7 +56,43 @@ export const router = createBrowserRouter(
     <Route path="/" element={<App />} loader={appLoader}>
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Registration />} />
-      <Route path="admin" element={<AdminPanel />} />
+      <Route
+        path="admin"
+        element={<AdminLogin />}
+        // the login page will redirect correctly the identified user aswell
+      />
+      <Route
+        path={`/admin/${AdminSettingSelection.ACCOUNTS}`}
+        element={
+          <AdminPanel>
+            <>Accounts</>
+          </AdminPanel>
+        }
+      />
+      <Route
+        path={`/admin/${AdminSettingSelection.AUTHENTICATION}`}
+        element={
+          <AdminPanel>
+            <AuthMethods />
+          </AdminPanel>
+        }
+      />
+      <Route
+        path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMI}`}
+        element={
+          <AdminPanel>
+            <LocalAuthMethod />
+          </AdminPanel>
+        }
+      />
+      <Route
+        path={`/admin/${AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION}`}
+        element={
+          <AdminPanel>
+            <>Admin Configuration</>
+          </AdminPanel>
+        }
+      />
       <Route path="admin/login" element={<AdminLogin />} />
       <Route path="admin/setup" element={<AdminSetup />} />
       <Route

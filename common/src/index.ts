@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+export * from './enums/admin-setting-selection.js'
 export * from './enums/http-status-code.js'
 export * from './enums/websocket-message-type.js'
 export * from './interfaces/account.js'

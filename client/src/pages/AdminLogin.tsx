@@ -19,6 +19,7 @@ import GroupAddRounded from '@mui/icons-material/GroupAddRounded'
 import { Box, Card, CardContent, Container, Fab, Input, Typography, useMediaQuery } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { motion } from 'framer-motion'
+import { AdminSettingSelection } from 'jami-web-common'
 import { FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate } from 'react-router-dom'
@@ -42,7 +43,7 @@ export default function AdminLogin() {
   }
 
   if (localStorage.getItem('adminAccessToken')) {
-    return <Navigate to={'/admin'} />
+    return <Navigate to={'/admin/' + AdminSettingSelection.ACCOUNTS} />
   }
   //TODO: refactor translations
   return (

@@ -15,61 +15,53 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Typography, useMediaQuery } from '@mui/material'
+import { Box, Typography, useMediaQuery } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
+import { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 
-import AuthMethods from '../components/AdminSettings/AuthMethods'
-import jamiLogoIcon from '../icons/jamiLogoIcon.svg'
-export default function AdminPanel() {
+import MainSettingsSelection from '../components/AdminSettings/MainSettingsSelection'
+
+interface AdminPanelProps {
+  children: ReactElement
+}
+
+export default function AdminPanel({ children }: AdminPanelProps) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
-  const adminLogout = () => {
-    localStorage.removeItem('adminAccessToken')
-    navigate('/admin/login')
-  }
   const theme: Theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   return (
     <>
+      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+        <Typography variant={isMobile ? 'h3' : 'h2'} sx={{ mt: '1%' }}>
+          {t('admin_page_welcome')}
+        </Typography>
+      </Box>
       <div
         style={{
           display: 'flex',
           flexDirection: 'row',
-          justifyContent: isMobile ? 'center' : 'space-between',
-          flexWrap: 'wrap',
+          flexWrap: 'nowrap',
           textAlign: isMobile ? 'center' : 'inherit',
         }}
       >
+        <Box sx={{ height: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+          <MainSettingsSelection />
+        </Box>
         <Box
-          component="img"
           sx={{
-            height: 'auto',
-            width: 150,
-            maxHeight: { xs: 0, md: 100 },
-            maxWidth: { xs: 0, md: 150 },
+            width: '80vw',
+            display: 'flex',
+            flexDirection: 'rorw',
+            justifyContent: 'center',
+            textAlign: 'center',
+            alignContent: 'center',
+            alignItems: 'center',
           }}
-          alt="Logo Savoir Faire Linux"
-          src={jamiLogoIcon}
-        />
-        <Typography variant={isMobile ? 'h3' : 'h2'} sx={{ mt: '1%' }}>
-          {t('admin_page_welcome')}
-        </Typography>
-        {isMobile ? null : (
-          <Button variant="contained" type="submit" onClick={adminLogout} sx={{ margin: '0.5%', mt: '1.5%' }}>
-            {t('logout')}
-          </Button>
-        )}
+        >
+          {children}
+        </Box>
       </div>
-      <AuthMethods />
-      {isMobile ? (
-        <div>
-          <Button variant="contained" type="submit" onClick={adminLogout} sx={{ margin: '1%' }}>
-            {t('logout')}
-          </Button>
-        </div>
-      ) : null}
     </>
   )
 }
