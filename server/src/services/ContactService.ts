@@ -20,13 +20,16 @@ import { IContact } from 'jami-web-common'
 import { Container, Service } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
+import { AdminAccount } from '../storage/admin-account.js'
 
 const jamid = Container.get(Jamid)
+const config = Container.get(AdminAccount)
 
 @Service()
 export class ContactService {
   async getContactFromUri(accountId: string, contactUri: string): Promise<IContact> {
-    const { username } = await jamid.lookupAddress(contactUri, accountId)
+    const nameserver = config.getNameServerAddress()
+    const { username } = await jamid.lookupAddress(contactUri, nameserver, accountId)
 
     return {
       uri: contactUri,

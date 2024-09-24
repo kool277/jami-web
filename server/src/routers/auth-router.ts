@@ -25,9 +25,11 @@ import { Container } from 'typedi'
 import { Jamid } from '../jamid/jamid.js'
 import { NameRegistrationEndedState, RegistrationState } from '../jamid/state-enums.js'
 import { Accounts } from '../storage/accounts.js'
+import { AdminAccount } from '../storage/admin-account.js'
 import { signJwt } from '../utils/jwt.js'
 const jamid = Container.get(Jamid)
 const accounts = Container.get(Accounts)
+const config = Container.get(AdminAccount)
 export const authRouter = Router()
 authRouter.post(
   '/new-account',
@@ -55,6 +57,10 @@ authRouter.post(
     if (authMethod === 'jams') {
       accountDetails['Account.managerUri'] = 'https://jams.savoirfairelinux.com/'
       accountDetails['Account.managerUsername'] = username
+    }
+    const nameserver = config.getNameServerAddress()
+    if (nameserver !== '') {
+      accountDetails['RingNS.uri'] = nameserver
     }
     const { accountId, state } = await jamid.addAccount(accountDetails)
     if (authMethod === 'jams') {

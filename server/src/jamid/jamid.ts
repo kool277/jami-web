@@ -297,8 +297,8 @@ export class Jamid {
     this.jamiSwig.sendAccountTextMessage(accountId, contactId, messageStringMap, 0)
   }
 
-  async lookupUsername(username: string, accountId?: string): Promise<LookupResult> {
-    const hasRingNs = this.jamiSwig.lookupName(accountId || '', '', username)
+  async lookupUsername(username: string, nameserver: string, accountId?: string): Promise<LookupResult> {
+    const hasRingNs = this.jamiSwig.lookupName(accountId || '', nameserver, username)
     if (!hasRingNs) {
       throw new Error('Jami does not have a nameserver')
     }
@@ -310,8 +310,8 @@ export class Jamid {
     )
   }
 
-  async lookupAddress(address: string, accountId?: string): Promise<LookupResult> {
-    const hasRingNs = this.jamiSwig.lookupAddress(accountId || '', '', address)
+  async lookupAddress(address: string, nameserver: string, accountId?: string): Promise<LookupResult> {
+    const hasRingNs = this.jamiSwig.lookupAddress(accountId || '', nameserver, address)
 
     if (!hasRingNs) {
       throw new Error('Jami does not have a nameserver')

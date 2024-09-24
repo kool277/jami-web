@@ -26,6 +26,7 @@ export interface IAdminConfigState {
 export interface IAdminAccount {
   admin: string
   config: IAdminConfigState
+  nameserver?: string
 }
 
 //For runtime type check

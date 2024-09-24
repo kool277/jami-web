@@ -106,6 +106,9 @@ export interface AccountDetails {
   'TURN.password': string
   'TURN.realm': string
 
+  // RING specific parameters
+  'RingNS.uri': string
+
   // SRTP specific parameters
   'SRTP.enable': string
   'SRTP.keyExchange': string

@@ -22,8 +22,10 @@ import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateOptionalToken } from '../middleware/auth.js'
+import { AdminAccount } from '../storage/admin-account.js'
 
 const jamid = Container.get(Jamid)
+const config = Container.get(AdminAccount)
 
 export const nameserverRouter = Router()
 
@@ -32,7 +34,8 @@ nameserverRouter.use(authenticateOptionalToken)
 nameserverRouter.get(
   '/username/:username',
   asyncHandler(async (req, res) => {
-    const result = await jamid.lookupUsername(req.params.username, res.locals.accountId)
+    const nameserver = config.getNameServerAddress()
+    const result = await jamid.lookupUsername(req.params.username, nameserver, res.locals.accountId)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
         res.status(HttpStatusCode.Ok).send(result)
@@ -52,7 +55,8 @@ nameserverRouter.get(
   '/username/availability/:username', //
   asyncHandler(async (req, res) => {
     //This is using the same jamid service as the route /username/:username, except the responses are handled different
-    const result = await jamid.lookupUsername(req.params.username, res.locals.accountId)
+    const nameserver = config.getNameServerAddress()
+    const result = await jamid.lookupUsername(req.params.username, nameserver, res.locals.accountId)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
         res.status(HttpStatusCode.Ok).send('taken')
@@ -70,7 +74,8 @@ nameserverRouter.get(
 nameserverRouter.get(
   '/address/:address',
   asyncHandler(async (req, res) => {
-    const result = await jamid.lookupAddress(req.params.address, res.locals.accountId)
+    const nameserver = config.getNameServerAddress()
+    const result = await jamid.lookupAddress(req.params.address, nameserver, res.locals.accountId)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
         res.send(result)

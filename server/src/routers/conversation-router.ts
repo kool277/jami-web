@@ -30,9 +30,11 @@ import { Container } from 'typedi'
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
 import { ConversationService } from '../services/ConversationService.js'
+import { AdminAccount } from '../storage/admin-account.js'
 
 const jamid = Container.get(Jamid)
 const conversationService = Container.get(ConversationService)
+const config = Container.get(AdminAccount)
 
 export const conversationRouter = Router()
 
@@ -135,9 +137,9 @@ conversationRouter.get(
       if (member.uri === accountUri) {
         continue
       }
-
+      const nameserver = config.getNameServerAddress()
       // Add usernames for conversation members
-      const { username } = await jamid.lookupAddress(member.uri, accountId)
+      const { username } = await jamid.lookupAddress(member.uri, nameserver, accountId)
       namedMembers.push({
         role: member.role,
         contact: {

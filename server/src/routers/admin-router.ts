@@ -27,6 +27,7 @@ import { checkAdminSetup } from '../middleware/setup.js'
 import { AdminAccount } from '../storage/admin-account.js'
 import { isConfigValid } from '../utils/admin.js'
 import { signJwt } from '../utils/jwt.js'
+
 const adminAccount = Container.get(AdminAccount)
 
 export const adminRouter = Router()
@@ -114,5 +115,45 @@ adminRouter.patch(
     } catch (e) {
       res.sendStatus(HttpStatusCode.InternalServerError)
     }
+  }),
+)
+
+adminRouter.post(
+  '/nameserver',
+  asyncHandler(async (req, res) => {
+    const nameserver = req.body.nameserver
+    // create JSON file is not exists and set the name server address in it
+    // replace it if it exists
+    // this overrides the default name server address in the daemon
+    // https://ns.jami.net
+
+    if (!nameserver || nameserver === '') {
+      res.status(HttpStatusCode.BadRequest).send('Nameserver not provided')
+      return
+    }
+    if (!/^(http(s)?:\/\/)?([a-zA-Z0-9\-.]+)(:\d{1,5})?(\/.*)?$/g.test(nameserver)) {
+      res.status(HttpStatusCode.BadRequest).send('Invalid nameserver')
+      return
+    }
+    adminAccount.setNameServerAdress(nameserver)
+    adminAccount.save()
+    res.sendStatus(HttpStatusCode.Ok)
+  }),
+)
+
+adminRouter.delete(
+  '/nameserver',
+  asyncHandler(async (req, res) => {
+    adminAccount.resetNameServerAdress()
+    adminAccount.save()
+    res.sendStatus(HttpStatusCode.Ok)
+  }),
+)
+
+adminRouter.get(
+  '/nameserver',
+  asyncHandler(async (req, res) => {
+    const nameserver = adminAccount.getNameServerAddress()
+    res.send(nameserver)
   }),
 )

@@ -75,6 +75,25 @@ export class AdminAccount {
     }
   }
 
+  getNameServerAddress() {
+    const name = this.adminAccount.nameserver
+    if (typeof name === 'string') {
+      return name
+    }
+    // returns a default value if the name is not set
+    return ''
+  }
+
+  resetNameServerAdress() {
+    //here the goal is to remove completely the name server
+    //address and the key from the configuration file
+    delete this.adminAccount.nameserver
+  }
+
+  setNameServerAdress(value: string) {
+    this.adminAccount.nameserver = value
+  }
+
   async save(): Promise<void> {
     await writeFile(this.filename, JSON.stringify(this.adminAccount, null, 2) + '\n')
   }
