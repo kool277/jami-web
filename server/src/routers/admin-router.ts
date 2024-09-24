@@ -154,6 +154,11 @@ adminRouter.get(
   '/nameserver',
   asyncHandler(async (req, res) => {
     const nameserver = adminAccount.getNameServerAddress()
+    if (nameserver === '') {
+      // default name server address
+      res.send('https://ns.jami.net')
+      return
+    }
     res.send(nameserver)
   }),
 )

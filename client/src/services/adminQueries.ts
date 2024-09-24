@@ -123,6 +123,94 @@ export const useCheckAdminSetupStatusQuery = () => {
   })
 }
 
+export const useGetNameServer = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const query = useQuery({
+    queryKey: ['nameserver', 'getter'],
+    queryFn: async () => {
+      const { data } = await axios.get('/admin/nameserver', {
+        baseURL: apiUrl,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return data
+    },
+  })
+  useEffect(() => {
+    if (query.error) {
+      setAlertContent({
+        messageI18nKey: 'getting_name_server_error',
+        severity: 'error',
+        alertOpen: true,
+      })
+    }
+  }, [query.error, setAlertContent])
+
+  return query
+}
+
+export const useResetNameServer = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const queryClient = useQueryClient()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  return useMutation({
+    mutationKey: ['nameserver', 'reset'],
+    mutationFn: async () => {
+      const { data } = await axios.delete(`/admin/nameserver`, {
+        baseURL: apiUrl,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['nameserver', 'getter'] })
+    },
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'setting_name_server_error',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
+  })
+}
+
+export const useSetNameServer = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const queryClient = useQueryClient()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  return useMutation({
+    mutationKey: ['nameserver', 'setter'],
+    mutationFn: async (nameserver: string) => {
+      const { data } = await axios.post(
+        '/admin/nameserver',
+        { nameserver },
+        {
+          baseURL: apiUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['nameserver', 'getter'] })
+    },
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'setting_name_server_error',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
+  })
+}
+
 export const useGetAdminConfigQuery = () => {
   const navigate = useNavigate()
   const { setAlertContent } = useContext(AlertSnackbarContext)
