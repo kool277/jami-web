@@ -20,14 +20,30 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useUpdateAdminPasswordMutation } from '../../services/adminQueries'
+
 export default function AuthMethods() {
   const { t } = useTranslation()
   const [oldPassword, setOldPassword] = useState<string>('')
   const [newPassword, setNewPassword] = useState<string>('')
   const [repeatPassword, setRepeatPassword] = useState<string>('')
 
+  const passwordMutation = useUpdateAdminPasswordMutation()
+
   function validatePasswordChange() {
-    console.log('validate')
+    if (
+      newPassword !== repeatPassword ||
+      oldPassword === newPassword ||
+      newPassword === '' ||
+      repeatPassword === '' ||
+      oldPassword === ''
+    ) {
+      return
+    }
+    passwordMutation.mutate({ old: oldPassword, new: newPassword })
+    setOldPassword('')
+    setNewPassword('')
+    setRepeatPassword('')
   }
 
   function onOldPasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -92,7 +108,11 @@ export default function AuthMethods() {
                 type="submit"
                 onClick={validatePasswordChange}
                 disabled={
-                  oldPassword === '' || newPassword === '' || repeatPassword === '' || newPassword !== repeatPassword
+                  oldPassword === '' ||
+                  newPassword === '' ||
+                  repeatPassword === '' ||
+                  newPassword !== repeatPassword ||
+                  oldPassword === newPassword
                 }
               >
                 {t('admin_page_password_submit')}

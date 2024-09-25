@@ -276,9 +276,54 @@ export const useUpdateAdminConfigMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'config'] })
     },
     onError: (e: any) => {
-      if (e.repsponse.status === HttpStatusCode.Unauthorized) {
+      if (e.response.status === HttpStatusCode.Unauthorized) {
         localStorage.removeItem('adminAccessToken')
         navigate('/admin/login')
+      } else {
+        setAlertContent({
+          messageI18nKey: 'unknown_error_alert',
+          severity: 'error',
+          alertOpen: true,
+        })
+      }
+    },
+  })
+}
+
+export const useUpdateAdminPasswordMutation = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const navigate = useNavigate()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (passwords: { old: string; new: string }) => {
+      const response = await axios.patch('/admin/password', passwords, {
+        baseURL: apiUrl,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return response
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'password'] })
+      setAlertContent({
+        messageI18nKey: 'admin_password_changed_successfully',
+        severity: 'success',
+        alertOpen: true,
+      })
+    },
+    onError: (e: any) => {
+      if (e.response.status === HttpStatusCode.Unauthorized && e.response.data !== 'Incorrect password') {
+        localStorage.removeItem('adminAccessToken')
+        navigate('/admin/login')
+      } else if (e.response.status === HttpStatusCode.Unauthorized && e.response.data === 'Incorrect password') {
+        setAlertContent({
+          messageI18nKey: 'incorrect_password',
+          severity: 'error',
+          alertOpen: true,
+        })
       } else {
         setAlertContent({
           messageI18nKey: 'unknown_error_alert',

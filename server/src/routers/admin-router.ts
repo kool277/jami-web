@@ -138,6 +138,44 @@ adminRouter.patch(
 adminRouter.use(adminAuthenticationMiddleware)
 
 adminRouter.patch(
+  '/password',
+  asyncHandler(async (req, res) => {
+    const newPassword = req.body.new
+    const oldPassword = req.body.old
+
+    const oldPasswordHash = adminAccount.getPasswordHash()
+    if (oldPasswordHash === undefined) {
+      res.status(HttpStatusCode.InternalServerError).send('Admin password not found')
+      return
+    }
+
+    const isPasswordVerified = await argon2.verify(oldPasswordHash, oldPassword)
+    if (!isPasswordVerified) {
+      res.status(HttpStatusCode.Unauthorized).send('Incorrect password')
+      return
+    }
+
+    if (newPassword === undefined) {
+      res.status(HttpStatusCode.BadRequest).send('Missing password in body')
+      return
+    }
+    if (newPassword) {
+      try {
+        const hashedPassword = await argon2.hash(newPassword, { type: argon2.argon2id })
+        adminAccount.setPasswordHash(hashedPassword)
+        await adminAccount.save()
+        res.sendStatus(HttpStatusCode.Ok)
+        return
+      } catch (e) {
+        res.sendStatus(HttpStatusCode.InternalServerError)
+        return
+      }
+    }
+    res.sendStatus(HttpStatusCode.BadRequest)
+  }),
+)
+
+adminRouter.patch(
   '/config',
   asyncHandler(async (req: Request<ParamsDictionary, unknown, unknown>, res: Response) => {
     const config = req.body

@@ -83,6 +83,8 @@ type AlertMessageKeys =
   | 'password_input_helper_text_empty'
   | 'login_invalid_credentials'
   | 'registration_success'
+  | 'incorrect_password'
+  | 'admin_password_changed_successfully'
   | 'setting_jams_server_error'
   | 'setting_jams_server_error_same_value'
   | ''
@@ -132,6 +134,10 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('admin_page_setup_not_complete')
         case 'admin_page_setup_complete':
           return t('admin_page_setup_complete')
+        case 'incorrect_password':
+          return t('incorrect_password')
+        case 'admin_password_changed_successfully':
+          return t('admin_password_changed_successfully')
         case 'setting_jams_server_error':
           return t('setting_jams_server_error')
         case 'setting_name_server_error':
