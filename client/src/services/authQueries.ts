@@ -141,7 +141,7 @@ export const useLoginMutation = () => {
     mutationFn: async (loginData: LoginData) => {
       const { data } = await axios.post<AccessToken>(
         '/auth/login',
-        { username: loginData.username, password: loginData.password, isJams: loginData.authMethod },
+        { username: loginData.username, password: loginData.password, authMethod: loginData.authMethod },
         { baseURL: apiUrl },
       )
       return data

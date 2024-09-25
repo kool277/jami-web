@@ -50,7 +50,9 @@ conversationRouter.get(
     const conversationsSummaries = []
     for (const conversationId of conversationIds) {
       const conversationSummary = await conversationService.createConversationSummary(accountId, conversationId)
-      conversationsSummaries.push(conversationSummary)
+      if (conversationSummary !== undefined) {
+        conversationsSummaries.push(conversationSummary)
+      }
     }
 
     res.send(conversationsSummaries)

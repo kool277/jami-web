@@ -19,12 +19,16 @@ import { readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
 import { Service } from 'typedi'
+
 interface AccountsFormat {
   local: Record<string, string>
-  jams: Record<string, string>
+  jams: Record<string, { password: string; accountId: string }>
   guest: Record<string, string>
   openid: Record<string, string>
 }
+
+const METHODS = ['local', 'jams', 'guest', 'openid']
+
 @Service()
 export class Accounts {
   private readonly filename = 'accounts.json'
@@ -38,12 +42,40 @@ export class Accounts {
     }
     this.accounts = JSON.parse(buffer.toString())
   }
-  get(username: string, authMethod: string = 'local'): string | undefined {
+  get(username: string, authMethod: string = 'local') {
+    if (!METHODS.includes(authMethod)) {
+      return
+    }
     return this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
   }
-  set(username: string, password: string, authMethod: string = 'local'): void {
-    this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()] = password
+
+  set(username: string, password: string, authMethod: string = 'local', JAMSAccountId?: string): void {
+    switch (authMethod) {
+      case 'jams':
+        if (JAMSAccountId !== undefined) {
+          this.accounts['jams'][username.toLowerCase()] = {
+            password: password,
+            accountId: JAMSAccountId,
+          }
+        } else {
+          throw new Error('JAMSAccountId is required for jams auth method')
+        }
+        break
+      case 'local':
+        this.accounts['local'][username.toLowerCase()] = password
+        break
+      // TODO : Add support for guest and openid
+      case 'guest':
+        this.accounts['guest'][username.toLowerCase()] = password
+        break
+      case 'openid':
+        this.accounts['openid'][username.toLowerCase()] = password
+        break
+      default:
+        throw new Error('Invalid auth method')
+    }
   }
+
   async save(): Promise<void> {
     await writeFile(this.filename, JSON.stringify(this.accounts, null, 2) + '\n')
   }

@@ -56,9 +56,12 @@ export const ConversationSummaryList = ({ conversationsSummaries }: Conversation
         textOverflow: 'ellipsis',
       }}
     >
-      {sortedConversations?.map((conversationSummary) => (
-        <ConversationSummaryListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
-      ))}
+      {sortedConversations?.map(
+        (conversationSummary) =>
+          conversationSummary !== null && (
+            <ConversationSummaryListItem key={conversationSummary.id} conversationSummary={conversationSummary} />
+          ),
+      )}
     </List>
   )
 }
