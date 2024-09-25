@@ -55,7 +55,13 @@ authRouter.post(
       // 'Account.archivePassword': password
     }
     if (authMethod === 'jams') {
-      accountDetails['Account.managerUri'] = 'https://jams.savoirfairelinux.com/'
+      const jamsServerUrl = config.getJamsServerUrl()
+      if (jamsServerUrl === undefined) {
+        res.status(HttpStatusCode.NoContent).send('JAMS server URL is not set')
+        return
+      }
+
+      accountDetails['Account.managerUri'] = jamsServerUrl
       accountDetails['Account.managerUsername'] = username
     }
     const nameserver = config.getNameServerAddress()

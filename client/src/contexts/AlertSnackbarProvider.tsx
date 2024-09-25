@@ -83,9 +83,14 @@ type AlertMessageKeys =
   | 'password_input_helper_text_empty'
   | 'login_invalid_credentials'
   | 'registration_success'
+  | 'setting_jams_server_error'
+  | 'setting_jams_server_error_same_value'
   | ''
   | 'setting_name_server_error'
   | 'getting_name_server_error'
+  | 'setting_jams_server_success'
+  | 'removing_jams_server_success'
+  | 'removing_jams_server_error'
   | 'unauthorized_access'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
@@ -126,12 +131,22 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('admin_page_setup_not_complete')
         case 'admin_page_setup_complete':
           return t('admin_page_setup_complete')
+        case 'setting_jams_server_error':
+          return t('setting_jams_server_error')
         case 'setting_name_server_error':
           return t('setting_name_server_error')
         case 'getting_name_server_error':
           return t('getting_name_server_error')
+        case 'setting_jams_server_success':
+          return t('setting_jams_server_success')
         case 'unauthorized_access':
           return t('unauthorized_access')
+        case 'setting_jams_server_error_same_value':
+          return t('setting_jams_server_error_same_value')
+        case 'removing_jams_server_success':
+          return t('removing_jams_server_success')
+        case 'removing_jams_server_error':
+          return t('removing_jams_server_error')
         default:
           return t('unknown_error_alert')
       }

@@ -50,7 +50,7 @@ export class AdminAccount {
   init() {
     this.adminAccount.config = {
       localAuthEnabled: true,
-      jamsAuthEnabled: true,
+      jamsAuthEnabled: !!this.getJamsServerUrl(),
       guestAccessEnabled: false,
       openIdAuthEnabled: false,
     }
@@ -92,6 +92,19 @@ export class AdminAccount {
 
   setNameServerAdress(value: string) {
     this.adminAccount.nameserver = value
+  }
+
+  getJamsServerUrl() {
+    const url = this.adminAccount.jamsUrl
+    return url
+  }
+
+  setJamsServerUrl(value: string): void {
+    this.adminAccount.jamsUrl = value
+  }
+
+  resetJamsServerUrl(): void {
+    delete this.adminAccount.jamsUrl
   }
 
   async save(): Promise<void> {

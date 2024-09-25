@@ -26,6 +26,7 @@ import LinkedDevices from './components/AccountSettings/LinkedDevices'
 import ManageAccount from './components/AccountSettings/ManageAccount'
 import AdminAuthWrapper from './components/AdminSettings/AdminAuthWrapper'
 import AuthMethods from './components/AdminSettings/AuthMethods'
+import JamsAuthMethod from './components/AdminSettings/JamsAuthMethod'
 import LocalAuthMethod from './components/AdminSettings/LocalAuthMethod'
 import ContactList from './components/ContactList'
 import ConversationView from './components/ConversationView'
@@ -76,6 +77,10 @@ export const router = createBrowserRouter(
         <Route
           path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMI}`}
           element={<LocalAuthMethod />}
+        />
+        <Route
+          path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMS}`}
+          element={<JamsAuthMethod />}
         />
         <Route
           path={`/admin/${AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION}`}

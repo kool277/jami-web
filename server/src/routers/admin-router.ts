@@ -127,6 +127,28 @@ adminRouter.patch(
   }),
 )
 
+//Requests below require authentication
+adminRouter.use(adminAuthenticationMiddleware)
+
+adminRouter.patch(
+  '/config',
+  asyncHandler(async (req: Request<ParamsDictionary, unknown, unknown>, res: Response) => {
+    const config = req.body
+
+    if (!isConfigValid(config)) {
+      res.status(HttpStatusCode.BadRequest).send('Invalid config in the payload')
+      return
+    }
+    adminAccount.updateConfig(config)
+    try {
+      await adminAccount.save()
+      res.sendStatus(HttpStatusCode.Ok)
+    } catch (e) {
+      res.sendStatus(HttpStatusCode.InternalServerError)
+    }
+  }),
+)
+
 adminRouter.post(
   '/nameserver',
   asyncHandler(async (req, res) => {
@@ -169,5 +191,46 @@ adminRouter.get(
       return
     }
     res.send(nameserver)
+  }),
+)
+
+adminRouter.post(
+  '/jamsurl',
+  asyncHandler(async (req, res) => {
+    const jamsUrl = req.body.url
+
+    if (!jamsUrl || jamsUrl === '') {
+      res.status(HttpStatusCode.BadRequest).send('Nameserver not provided')
+      return
+    }
+    if (!/^(http(s)?:\/\/)?([a-zA-Z0-9\-.]+)(:\d{1,5})?(\/.*)?$/g.test(jamsUrl)) {
+      res.status(HttpStatusCode.BadRequest).send('Invalid url')
+      return
+    }
+    adminAccount.setJamsServerUrl(jamsUrl)
+    adminAccount.save()
+    res.sendStatus(HttpStatusCode.Ok)
+  }),
+)
+
+adminRouter.delete(
+  '/jamsurl',
+  asyncHandler(async (req, res) => {
+    adminAccount.resetJamsServerUrl()
+    adminAccount.save()
+    adminAccount.updateConfig({ jamsAuthEnabled: false })
+    res.sendStatus(HttpStatusCode.Ok)
+  }),
+)
+
+adminRouter.get(
+  '/jamsurl',
+  asyncHandler(async (req, res) => {
+    const url = adminAccount.getJamsServerUrl()
+    if (url === undefined) {
+      res.status(HttpStatusCode.NoContent).send('JAMS server URL is not set')
+      return
+    }
+    res.send(url)
   }),
 )

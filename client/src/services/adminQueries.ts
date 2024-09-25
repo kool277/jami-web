@@ -310,6 +310,92 @@ export const useGetAdminAuthMethods = async () => {
   }
 }
 
+export const useGetJamsUrl = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  return useQuery({
+    queryKey: ['jamsurl', 'getter'],
+    queryFn: async () => {
+      const { data } = await axios.get('/admin/jamsurl', {
+        baseURL: apiUrl,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return data
+    },
+  })
+}
+export const useRemoveJamsUrl = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const queryClient = useQueryClient()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  return useMutation({
+    mutationKey: ['jamsurl', 'reset'],
+    mutationFn: async () => {
+      const { data } = await axios.delete(`/admin/jamsurl`, {
+        baseURL: apiUrl,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['jamsurl', 'getter'] })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'config'] })
+      setAlertContent({
+        messageI18nKey: 'removing_jams_server_success',
+        severity: 'success',
+        alertOpen: true,
+      })
+    },
+    onError: () => {
+      queryClient.invalidateQueries({ queryKey: ['jamsurl', 'getter'] })
+      setAlertContent({
+        messageI18nKey: 'removing_jams_server_error',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
+  })
+}
+export const useSetJamsUrl = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const queryClient = useQueryClient()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  return useMutation({
+    mutationKey: ['jamsurl', 'setter'],
+    mutationFn: async (url: string) => {
+      const { data } = await axios.post(
+        '/admin/jamsurl',
+        { url },
+        {
+          baseURL: apiUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['nameserver', 'getter'] })
+      setAlertContent({
+        messageI18nKey: 'setting_jams_server_success',
+        severity: 'success',
+        alertOpen: true,
+      })
+    },
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'setting_jams_server_error',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
+  })
+}
+
 export const useCheckAdminTokenValidity = async () => {
   const token = localStorage.getItem('adminAccessToken')
   try {

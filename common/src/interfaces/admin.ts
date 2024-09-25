@@ -27,6 +27,7 @@ export interface IAdminAccount {
   admin: string
   config: IAdminConfigState
   nameserver?: string
+  jamsUrl?: string
 }
 
 //For runtime type check

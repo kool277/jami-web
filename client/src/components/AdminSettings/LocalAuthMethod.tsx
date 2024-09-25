@@ -32,6 +32,7 @@ import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
+import { AuthenticationMethods } from '../../enums/authenticationMethods'
 import {
   useGetAdminConfigQuery,
   useGetNameServer,
@@ -110,7 +111,9 @@ const LocalAuthMethod = () => {
           height: '3rem',
         }}
       >
-        <span style={{ paddingRight: '10%' }}>{t('setting_auth_jami_change')}</span>
+        <span style={{ paddingRight: '10%' }}>
+          {t('setting_auth_change', { authMethod: AuthenticationMethods.JAMI })}
+        </span>
         <FormControl>
           <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
             <FormControlLabel
