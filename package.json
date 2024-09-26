@@ -45,5 +45,8 @@
     "globals": "^15.9.0",
     "lint-staged": "^15.2.9",
     "prettier": "^3.3.3"
+  },
+  "dependencies": {
+    "byte-size": "^9.0.0"
   }
 }

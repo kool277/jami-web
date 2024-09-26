@@ -396,6 +396,22 @@ export const useSetJamsUrl = () => {
   })
 }
 
+export const useGetAllAccounts = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  return useQuery({
+    queryKey: ['all', 'accounts'],
+    queryFn: async () => {
+      const { data } = await axios.get('/admin/accounts', {
+        baseURL: apiUrl,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return data
+    },
+  })
+}
+
 export const useCheckAdminTokenValidity = async () => {
   const token = localStorage.getItem('adminAccessToken')
   try {

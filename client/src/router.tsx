@@ -24,6 +24,7 @@ import App, { appLoader } from './App'
 import CustomizeProfile from './components/AccountSettings/CustomizeProfile'
 import LinkedDevices from './components/AccountSettings/LinkedDevices'
 import ManageAccount from './components/AccountSettings/ManageAccount'
+import AccountsOverview from './components/AdminSettings/AccountsOverview'
 import AdminAuthWrapper from './components/AdminSettings/AdminAuthWrapper'
 import AuthMethods from './components/AdminSettings/AuthMethods'
 import JamsAuthMethod from './components/AdminSettings/JamsAuthMethod'
@@ -82,10 +83,7 @@ export const router = createBrowserRouter(
           path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMS}`}
           element={<JamsAuthMethod />}
         />
-        <Route
-          path={`/admin/${AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION}`}
-          element={<>Admin Configuration</>}
-        />
+        <Route path={`/admin/${AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION}`} element={<AccountsOverview />} />
       </Route>
       <Route path="admin/login" element={<AdminLogin />} />
       <Route path="admin/setup" element={<AdminSetup />} />
