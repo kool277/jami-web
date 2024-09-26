@@ -18,7 +18,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
-import { AccessToken, IAdminConfigState } from 'jami-web-common'
+import { AccessToken, AccountOverview, IAdminConfigState } from 'jami-web-common'
 import { HttpStatusCode } from 'jami-web-common'
 import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -408,6 +408,31 @@ export const useGetAllAccounts = () => {
         },
       })
       return data
+    },
+  })
+}
+
+export const useDeleteAccounts = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationKey: ['delete', 'accounts'],
+    mutationFn: async (accounts: AccountOverview[]) => {
+      const { data } = await axios.delete(`/admin/accounts`, {
+        data: accounts,
+        baseURL: apiUrl,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all', 'accounts'] })
+    },
+    onError: () => {
+      console.log(`Error deleting accounts`)
+      queryClient.invalidateQueries({ queryKey: ['all', 'accounts'] })
     },
   })
 }

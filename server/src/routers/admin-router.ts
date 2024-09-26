@@ -282,7 +282,28 @@ adminRouter.get(
         }
       }
     }
-    console.log(accountsList)
     res.send(accountsList)
+  }),
+)
+
+adminRouter.delete(
+  '/accounts',
+  asyncHandler(async (req, res) => {
+    const users = req.body
+    for (const user of users) {
+      if (user.auth === 'local') {
+        const accountId = jamid.getAccountIdFromUsername(user.username)
+        if (accountId) {
+          jamid.removeAccount(accountId)
+        }
+      } else if (user.auth === 'jams') {
+        const account = accounts.get(user.username, user.auth)
+        if (typeof account === 'object') {
+          jamid.removeAccount(account.accountId)
+        }
+      }
+      accounts.remove(user.username, user.auth)
+    }
+    res.sendStatus(HttpStatusCode.Ok)
   }),
 )

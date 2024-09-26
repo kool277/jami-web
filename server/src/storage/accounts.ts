@@ -80,6 +80,10 @@ export class Accounts {
     return this.accounts
   }
 
+  remove(username: string, authMethod: string) {
+    delete this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
+  }
+
   async save(): Promise<void> {
     await writeFile(this.filename, JSON.stringify(this.accounts, null, 2) + '\n')
   }

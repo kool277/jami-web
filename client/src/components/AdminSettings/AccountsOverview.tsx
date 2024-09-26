@@ -41,7 +41,7 @@ import { AccountOverview } from 'jami-web-common'
 import { ChangeEvent, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useGetAllAccounts } from '../../services/adminQueries'
+import { useDeleteAccounts, useGetAllAccounts } from '../../services/adminQueries'
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -150,9 +150,10 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 interface EnhancedTableToolbarProps {
   numSelected: number
   accountsNumber: number
+  onDelete: () => void
 }
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-  const { numSelected, accountsNumber } = props
+  const { numSelected, accountsNumber, onDelete } = props
   const { t } = useTranslation()
   return (
     <Toolbar
@@ -177,7 +178,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       )}
       {numSelected > 0 && (
         <Tooltip title="Delete">
-          <IconButton>
+          <IconButton onClick={onDelete}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -193,6 +194,7 @@ export default function AccountsOverview() {
   const [dense, setDense] = useState(false)
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const getAllAccounts = useGetAllAccounts()
+  const accountDeletionMutation = useDeleteAccounts()
 
   const rows = useMemo(() => {
     if (getAllAccounts.data) {
@@ -232,6 +234,17 @@ export default function AccountsOverview() {
     setSelected(newSelected)
   }
 
+  const handleSubmitDeletion = () => {
+    const accountsToDelete: AccountOverview[] = []
+    for (const account of rows) {
+      if (selected.includes(account.accountUri)) {
+        accountsToDelete.push(account)
+      }
+    }
+    accountDeletionMutation.mutate(accountsToDelete)
+    setSelected([])
+  }
+
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
@@ -256,7 +269,11 @@ export default function AccountsOverview() {
   return (
     <Box sx={{ width: '85%', marginTop: '5%' }}>
       <Paper sx={{ width: '100%', mb: 2, borderRadius: '10px' }}>
-        <EnhancedTableToolbar numSelected={selected.length} accountsNumber={rows.length} />
+        <EnhancedTableToolbar
+          numSelected={selected.length}
+          accountsNumber={rows.length}
+          onDelete={handleSubmitDeletion}
+        />
         <TableContainer>
           <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={dense ? 'small' : 'medium'}>
             <EnhancedTableHead
