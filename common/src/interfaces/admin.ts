@@ -37,3 +37,10 @@ export const adminConfigValuePair = {
   guestAccessEnabled: 'boolean',
   openIdAuthEnabled: 'boolean',
 }
+
+export interface AccountOverview {
+  username: string
+  accountUri: string
+  auth: string
+  storage: number
+}

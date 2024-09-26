@@ -19,16 +19,23 @@ import argon2 from 'argon2'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import { ParamsDictionary, Request, Response } from 'express-serve-static-core'
-import { AccessToken, AdminCredentials, HttpStatusCode } from 'jami-web-common'
+import { readdir, stat } from 'fs/promises'
+import { AccessToken, AccountOverview, AdminCredentials, HttpStatusCode } from 'jami-web-common'
+import os from 'os'
+import path from 'path'
 import { Container } from 'typedi'
 
+import { Jamid } from '../jamid/jamid.js'
 import { adminAuthenticationMiddleware } from '../middleware/auth.js'
 import { checkAdminSetup } from '../middleware/setup.js'
+import { Accounts } from '../storage/accounts.js'
 import { AdminAccount } from '../storage/admin-account.js'
 import { isConfigValid } from '../utils/admin.js'
 import { signJwt } from '../utils/jwt.js'
 
+const jamid = Container.get(Jamid)
 const adminAccount = Container.get(AdminAccount)
+const accounts = Container.get(Accounts)
 
 export const adminRouter = Router()
 
@@ -232,5 +239,50 @@ adminRouter.get(
       return
     }
     res.send(url)
+  }),
+)
+
+const getSizeOnDisk = async (accountId: string) => {
+  const pathToAccount = os.homedir() + '/.local/share/jami/' + accountId
+  const files = await readdir(pathToAccount)
+  const stats = files.map((file) => stat(path.join(pathToAccount, file)))
+  return (await Promise.all(stats)).reduce((accumulator, { size }) => accumulator + size, 0)
+}
+
+adminRouter.get(
+  '/accounts',
+  asyncHandler(async (req, res) => {
+    const allAccounts = accounts.getAll()
+    const localAccounts = allAccounts.local
+    const jamsAccounts = allAccounts.jams
+    const accountsList: AccountOverview[] = []
+
+    for (const [username, account] of Object.entries(jamsAccounts)) {
+      const accountUri = jamid.getAccountDetails(account.accountId)['Account.username']
+      if (accountUri) {
+        accountsList.push({
+          username,
+          accountUri,
+          auth: 'jams',
+          storage: await getSizeOnDisk(account.accountId),
+        })
+      }
+    }
+    for (const [username] of Object.entries(localAccounts)) {
+      const accountId = jamid.getAccountIdFromUsername(username)
+      if (accountId) {
+        const accountUri = jamid.getAccountDetails(accountId)['Account.username']
+        if (accountUri) {
+          accountsList.push({
+            username,
+            accountUri,
+            auth: 'local',
+            storage: await getSizeOnDisk(accountId),
+          })
+        }
+      }
+    }
+    console.log(accountsList)
+    res.send(accountsList)
   }),
 )

@@ -76,6 +76,10 @@ export class Accounts {
     }
   }
 
+  getAll(): AccountsFormat {
+    return this.accounts
+  }
+
   async save(): Promise<void> {
     await writeFile(this.filename, JSON.stringify(this.accounts, null, 2) + '\n')
   }
