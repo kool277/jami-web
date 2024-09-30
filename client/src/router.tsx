@@ -29,7 +29,6 @@ import AdminAuthWrapper from './components/AdminSettings/AdminAuthWrapper'
 import AuthMethods from './components/AdminSettings/AuthMethods'
 import JamsAuthMethod from './components/AdminSettings/JamsAuthMethod'
 import LocalAuthMethod from './components/AdminSettings/LocalAuthMethod'
-import ContactList from './components/ContactList'
 import ConversationView from './components/ConversationView'
 import Appearance from './components/GeneralSettings/Appearance'
 import System from './components/GeneralSettings/System'
@@ -48,6 +47,7 @@ import AccountSettings from './pages/AccountSettings'
 import AdminLogin from './pages/AdminLogin'
 import AdminPanel from './pages/AdminPanel'
 import AdminSetup from './pages/AdminSetup'
+import Contacts from './pages/Contacts'
 import GeneralSettings from './pages/GeneralSettings'
 import Login from './pages/Login'
 import Messenger from './pages/Messenger'
@@ -139,7 +139,7 @@ export const router = createBrowserRouter(
           <Route path="settings-account" element={<AccountSettings />} />
           <Route path="settings-general" element={<GeneralSettings />} />
         </Route>
-        <Route path="contacts" element={<ContactList />} />
+        <Route path="contacts" element={<Contacts />} />
       </Route>
     </Route>,
   ),

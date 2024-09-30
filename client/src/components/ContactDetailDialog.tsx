@@ -34,7 +34,7 @@ const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDial
   const items = [
     {
       label: t('contact_details_name'),
-      value: contactDetail?.id,
+      value: contactDetail?.username,
     },
     {
       label: t('contact_details_identifier'),
@@ -50,13 +50,8 @@ const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDial
     <InfosDialog
       open={open}
       onClose={onClose}
-      icon={
-        <ConversationAvatar
-          sx={{ width: 'inherit', height: 'inherit' }}
-          displayName={contactDetail?.id || contactDetail?.id}
-        />
-      }
-      title={contactDetail?.id || 'No contact selected'}
+      icon={<ConversationAvatar sx={{ width: 'inherit', height: 'inherit' }} displayName={contactDetail?.username} />}
+      title={contactDetail?.username || 'No contact selected'}
       content={<DialogContentList title={t('contact_details_dialog_title')} items={items} />}
     />
   )

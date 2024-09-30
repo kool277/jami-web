@@ -21,7 +21,8 @@ import { useCallManagerContext } from '../contexts/CallManagerProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import CallInterface from '../pages/CallInterface'
 import ChatInterface from '../pages/ChatInterface'
-import { AddParticipantButton, ShowOptionsMenuButton, StartAudioCallButton, StartVideoCallButton } from './Button'
+import AddUserToSwarmModal from './AddUserToSwarmModal'
+import { ShowOptionsMenuButton, StartAudioCallButton, StartVideoCallButton } from './Button'
 
 const ConversationView = () => {
   const { conversationId } = useConversationContext()
@@ -58,7 +59,7 @@ const ConversationHeader = () => {
       <Stack direction="row" spacing="20px">
         <StartAudioCallButton onClick={() => startCall(conversationId)} />
         <StartVideoCallButton onClick={() => startCall(conversationId, true)} />
-        <AddParticipantButton />
+        <AddUserToSwarmModal />
         <ShowOptionsMenuButton />
       </Stack>
     </Stack>

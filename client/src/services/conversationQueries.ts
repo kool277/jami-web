@@ -215,3 +215,14 @@ export const useDeclineConversationRequestMutation = () => {
     },
   })
 }
+
+export const useAddMemberToSwarm = (conversationId: string) => {
+  const { axiosInstance } = useAuthContext()
+  return useMutation({
+    mutationFn: (contactUri: string[]) =>
+      axiosInstance.post(`/conversations/${conversationId}/add-to-swarm`, { contactUri }),
+    onSuccess: () => {
+      // refresh conversations summaries
+    },
+  })
+}

@@ -74,6 +74,7 @@
   "end_call": "End call",
   "error_cannot_delete_message": "An error occurred while deleting the message",
   "enter_jams_server": "Please, provide a valid Jams server address",
+  "find_contacts": "Find contacts",
   "find_users_and_conversations": "Search",
   "getting_name_server_error": "Error getting name server",
   "guest": "Guest",

@@ -15,24 +15,20 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import SearchRounded from '@mui/icons-material/SearchRounded'
-import { Box, InputBase, Stack, Typography } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 
 import { useConversationRequestsQuery, useConversationsSummariesQuery } from '../services/conversationQueries'
-import { SquareButton } from './Button'
+import ContactSearchBar from './ContactSearchBar'
 import ContactSearchResultList from './ContactSearchResultList'
 import { ConversationRequestList } from './ConversationRequestList'
 import { ConversationSummaryList } from './ConversationSummaryList'
-import { PeopleGroupIcon } from './SvgIcon'
 import { Tab, TabPanel, TabPanelProps, Tabs, TabsList, TabsProps } from './Tabs'
 
 export default function ConversationList() {
   const { t } = useTranslation()
   const [searchFilter, setSearchFilter] = useState('')
-  const navigate = useNavigate()
   const handleInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setSearchFilter(event.target.value)
   }, [])
@@ -45,46 +41,7 @@ export default function ConversationList() {
         </Typography>
       </Box>
       <Stack sx={{ display: 'flex' }}>
-        <Stack direction="row">
-          <Box
-            sx={{
-              width: '99%',
-              display: 'flex',
-              justifyContent: 'center',
-              borderRadius: '7px',
-              backgroundColor: 'white',
-              margin: '2%',
-            }}
-          >
-            <InputBase
-              type="search"
-              placeholder={t('find_users_and_conversations')}
-              onChange={handleInputChange}
-              startAdornment={
-                <SearchRounded
-                  sx={{
-                    color: 'grey.500',
-                    ml: 1,
-                    mr: 0.5,
-                  }}
-                />
-              }
-              sx={{
-                flexGrow: 1,
-                // color and placeholder color does not change in dark mode
-                '& .MuiInputBase-input::placeholder': { color: 'grey.600' },
-                color: 'grey.900',
-              }}
-            />
-            <SquareButton
-              aria-label="start swarm"
-              Icon={PeopleGroupIcon}
-              onClick={() => {
-                navigate('/contacts')
-              }}
-            />
-          </Box>
-        </Stack>
+        <ContactSearchBar placeholder={t('find_users_and_conversations')} handleChange={handleInputChange} />
         {searchFilter ? <ContactSearchResultList searchFilter={searchFilter} /> : <ConversationTabs />}
       </Stack>
     </>

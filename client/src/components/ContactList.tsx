@@ -16,8 +16,9 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { ListItem, ListItemAvatar, ListItemText } from '@mui/material'
+import { Box, Divider, ListItem, ListItemAvatar, ListItemText } from '@mui/material'
 import List from '@mui/material/List'
+import { motion } from 'framer-motion'
 import { memo, SetStateAction, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -27,26 +28,31 @@ import {
   useContactQuery,
   useRemoveContactMutation,
 } from '../services/contactQueries'
-import { useMembersQuery } from '../services/conversationQueries'
 import ContactDetailDialog from './ContactDetailDialog'
+import ContactSearchBar from './ContactSearchBar'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
 import ConversationAvatar from './ConversationAvatar'
 import { ConfirmationDialog, useDialogHandler } from './Dialog'
 import LoadingPage from './Loading'
 import { PopoverListItemData } from './PopoverList'
-import { BlockContactIcon, CancelIcon, PersonIcon } from './SvgIcon'
+import { BlockContactIcon, CancelIcon, CheckedIcon, PersonIcon } from './SvgIcon'
 
-export default function ContactList() {
+interface ContactListProps {
+  members?: string[]
+  selectedContacts?: string[]
+  setSelectedContact?: (contact: string) => void
+}
+
+export default function ContactList({ setSelectedContact, selectedContacts, members }: ContactListProps) {
   const [currentContactId, setCurrentContactId] = useState<string>('')
   const [isBlocking, setIsBlocking] = useState(true)
   const [contactDetailDialogOpen, setContactDetailDialogOpen] = useState<boolean>(false)
-
   const contactListQuery = useContactListQuery()
   const { isLoading, data: contacts } = contactListQuery
-
+  const [filterValue, setFilterValue] = useState('')
+  const { t } = useTranslation()
   const singleContactQuery = useContactQuery(currentContactId)
   const { data: contactDetail } = singleContactQuery
-
   const contextMenuHandler = useContextMenuHandler()
 
   const {
@@ -64,6 +70,32 @@ export default function ContactList() {
       />
     )
   }, [contactDetail, contactDetailDialogOpen])
+
+  const filteredContacts = useMemo(() => {
+    const inSwarm: string[] = []
+    if (members !== undefined) {
+      for (const member of members) {
+        inSwarm.push(member)
+      }
+    }
+    const preFilter = contacts?.filter((contact) => !inSwarm.includes(contact.id))
+    if (filterValue === '') {
+      return preFilter
+    }
+    return preFilter?.filter((contact) => contact.username.toLowerCase().includes(filterValue.toLowerCase()))
+  }, [contacts, filterValue, members])
+
+  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFilterValue(event.target.value)
+  }
+
+  const item = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+    },
+  }
 
   if (isLoading) {
     return <LoadingPage />
@@ -85,24 +117,49 @@ export default function ContactList() {
         setIsBlocking={setIsBlocking}
         setContactDetailDialogOpen={setContactDetailDialogOpen}
       />
-
+      <ContactSearchBar placeholder={t('find_contacts')} handleChange={handleFilterChange} />
       <List>
-        {contacts?.map((contact) => (
-          <ListItem
-            alignItems="flex-start"
-            key={contact.id}
-            onContextMenu={(e) => {
-              setCurrentContactId(contact.id)
-              contextMenuHandler.handleAnchorPosition(e)
-            }}
-          >
-            <ListItemAvatar>
-              <ConversationAvatar />
-            </ListItemAvatar>
-            <ContactInfo conversationId={contact.conversationId} contactId={contact.id} />
-          </ListItem>
+        {filteredContacts?.map((contact) => (
+          <>
+            <ListItem
+              onClick={() => setSelectedContact && setSelectedContact(contact.id)}
+              sx={{ cursor: 'pointer' }}
+              alignItems="flex-start"
+              key={contact.id}
+              onContextMenu={(e) => {
+                setCurrentContactId(contact.id)
+                contextMenuHandler.handleAnchorPosition(e)
+              }}
+            >
+              <ListItemAvatar>
+                <ConversationAvatar displayName={contact.username} />
+              </ListItemAvatar>
+              <ListItemText primary={contact.username} secondary={contact.id} />
+              {selectedContacts !== undefined && selectedContacts.includes(contact.id) && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    alignContent: 'center',
+                    alignItems: 'center',
+                    marginTop: '5%',
+                  }}
+                >
+                  <motion.div variants={item} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
+                    <CheckedIcon />
+                  </motion.div>
+                </Box>
+              )}
+            </ListItem>
+            {contact.id !== filteredContacts[filteredContacts.length - 1].id && <Divider variant="middle" />}
+          </>
         ))}
       </List>
+      {filteredContacts !== undefined && filteredContacts.length === 0 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', textAlign: 'center' }}>No contacts found</Box>
+      )}
     </>
   )
 }
@@ -185,17 +242,3 @@ const ContactDialog = memo(({ isBlocking, open, closeContactDialog, currentConta
     />
   )
 })
-
-const ContactInfo = ({ conversationId, contactId }: { conversationId: string; contactId: string }) => {
-  const membersQuery = useMembersQuery(conversationId)
-  const { t } = useTranslation()
-
-  const data = membersQuery.data
-  let name = data?.filter((member) => member.contact.uri === contactId)[0].getDisplayName()
-
-  if (name === '' || name === undefined) {
-    name = t('unknown_user')
-  }
-
-  return <ListItemText primary={name} secondary={contactId} />
-}
