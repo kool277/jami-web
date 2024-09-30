@@ -117,6 +117,7 @@ export interface JamiSwig {
   getDefaultModerators(accountId: string): StringVect
   setDefaultModerator(accountId: string, uri: string, state: boolean): void
 
+  startConversation(accountId: string): string
   getConversations(accountId: string): StringVect
   conversationInfos(accountId: string, conversationId: string): StringMap
   getConversationMembers(accountId: string, conversationId: string): VectMap
@@ -125,6 +126,7 @@ export interface JamiSwig {
   getConversationRequests(accountId: string): VectMap
   acceptConversationRequest(accountId: string, conversationId: string): void
   declineConversationRequest(accountId: string, conversationId: string): void
+  addConversationMember(accountId: string, conversationId: string, uri: string): void
 
   sendMessage(accountId: string, conversationId: string, message: string, replyTo: string, flag: number): void
   loadConversationMessages(accountId: string, conversationId: string, fromMessage: string, n: number): number

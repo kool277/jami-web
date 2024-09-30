@@ -26,4 +26,5 @@ export interface ContactDetails {
   added: string
   confirmed: string
   banned?: string
+  username: string
 }

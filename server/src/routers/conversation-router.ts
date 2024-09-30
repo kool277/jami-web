@@ -221,6 +221,27 @@ conversationRouter.delete('/:conversationId', (req, res) => {
   res.sendStatus(HttpStatusCode.NoContent)
 })
 
+conversationRouter.post('/:conversationId/add-to-swarm', (req, res) => {
+  const infos = jamid.getConversationInfos(res.locals.accountId, req.params.conversationId)
+  // 0 represents private mode
+  if (infos.mode === '0') {
+    const newConversationId = jamid.startConversation(res.locals.accountId)
+    const members = jamid.getConversationMembers(res.locals.accountId, req.params.conversationId)
+    for (const member of members) {
+      if (member.uri !== res.locals.accountId) {
+        jamid.addConversationMember(res.locals.accountId, newConversationId, member.uri)
+      }
+    }
+    for (const contactUri of req.body.contactUri) {
+      jamid.addConversationMember(res.locals.accountId, newConversationId, contactUri)
+    }
+  } else {
+    for (const contactUri of req.body.contactUri) {
+      jamid.addConversationMember(res.locals.accountId, req.params.conversationId, contactUri)
+    }
+  }
+  res.sendStatus(HttpStatusCode.Ok)
+})
 conversationRouter.post(
   '/:conversationId/editmessage',
   (req: Request<ParamsDictionary, string, Partial<NewMessageRequestBody>>, res) => {

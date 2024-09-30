@@ -249,6 +249,10 @@ export class Jamid {
     this.jamiSwig.fini()
   }
 
+  startConversation(accountId: string): string {
+    return this.jamiSwig.startConversation(accountId)
+  }
+
   getVolatileAccountDetails(accountId: string): VolatileDetails {
     return stringMapToRecord(this.jamiSwig.getVolatileAccountDetails(accountId)) as unknown as VolatileDetails
   }
@@ -393,6 +397,10 @@ export class Jamid {
     return vectMapToRecordArray(
       this.jamiSwig.getConversationMembers(accountId, conversationId),
     ) as unknown as ConversationMemberInfos[]
+  }
+
+  addConversationMember(accountId: string, conversationId: string, uri: string): void {
+    this.jamiSwig.addConversationMember(accountId, conversationId, uri)
   }
 
   async getConversationMessages(

@@ -28,14 +28,24 @@ export const contactsRouter = Router()
 
 contactsRouter.use(authenticateToken)
 
-contactsRouter.get('/', (_req, res) => {
+contactsRouter.get('/', async (_req, res) => {
   const contacts = jamid.getContacts(res.locals.accountId)
+  for (const contact of contacts) {
+    const contactUsername = await jamid.lookupAddress(contact.id, res.locals.accountId)
+    if (contactUsername.address === contact.id) {
+      contact.username = contactUsername.username
+    }
+  }
+
   res.send(contacts)
 })
 
-contactsRouter.get('/:contactId', (req, res) => {
+contactsRouter.get('/:contactId', async (req, res) => {
   const contactDetails = jamid.getContactDetails(res.locals.accountId, req.params.contactId)
-
+  const contactUsername = await jamid.lookupAddress(contactDetails.id, res.locals.accountId)
+  if (contactUsername.address === contactDetails.id) {
+    contactDetails.username = contactUsername.username
+  }
   if (Object.keys(contactDetails).length === 0) {
     res.status(HttpStatusCode.NotFound).send('No such contact found')
     return
