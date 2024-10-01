@@ -17,6 +17,7 @@
  */
 import { createRequire } from 'node:module'
 
+import fs from 'fs/promises'
 import {
   AccountDetails,
   AccountMessageStatus,
@@ -35,9 +36,11 @@ import {
 } from 'jami-web-common'
 import { DataTransferError } from 'jami-web-common/src/enums/datatransfer-error-code.js'
 import log from 'loglevel'
+import os from 'os'
 import { filter, firstValueFrom, map, Subject } from 'rxjs'
 import { Service } from 'typedi'
 
+import { getAvatar } from '../utils/vCard.js'
 import { WebSocketServer } from '../websocket/websocket-server.js'
 import { ConversationMemberInfos } from './conversation-member-infos.js'
 import { ConversationRequestMetadata } from './conversation-request-metadata.js'
@@ -45,6 +48,7 @@ import { JamiSignal } from './jami-signal.js'
 import {
   AccountDetailsChanged,
   AccountMessageStatusChanged,
+  AccountProfileReceived,
   ClearCache,
   ComposingStatusChanged,
   ContactAdded,
@@ -58,6 +62,7 @@ import {
   IncomingAccountMessage,
   KnownDevicesChanged,
   NameRegistrationEnded,
+  ProfileReceived,
   ReactionAdded,
   ReactionRemoved,
   RegisteredNameFound,
@@ -108,6 +113,10 @@ export class Jamid {
     const onAccountDetailsChanged = new Subject<AccountDetailsChanged>()
     handlers.AccountDetailsChanged = (accountId: string, details: AccountDetails) =>
       onAccountDetailsChanged.next({ accountId, details })
+
+    const onAccountProfileReceived = new Subject<AccountProfileReceived>()
+    handlers.AccountProfileReceived = (accountId: string, displayName: string, photo: string) =>
+      onAccountProfileReceived.next({ accountId, displayName, photo })
 
     const onVolatileDetailsChanged = new Subject<VolatileDetailsChanged>()
     handlers.VolatileDetailsChanged = (accountId: string, details: VolatileDetails) =>
@@ -173,6 +182,10 @@ export class Jamid {
     handlers.ConversationLoaded = (id: number, accountId: string, conversationId: string, messages: Message[]) =>
       onConversationLoaded.next({ id, accountId, conversationId, messages })
 
+    const onProfileReceived = new Subject<ProfileReceived>()
+    handlers.ProfileReceived = (accountId: string, from: string, path: string) =>
+      onProfileReceived.next({ accountId, from, path })
+
     const onSwarmLoaded = new Subject<SwarmLoaded>()
     handlers.SwarmLoaded = (id: number, accountId: string, conversationId: string, messages: Message[]) =>
       onSwarmLoaded.next({ id, accountId, conversationId, messages })
@@ -220,6 +233,7 @@ export class Jamid {
     this.events = {
       onAccountsChanged: onAccountsChanged.asObservable(),
       onAccountDetailsChanged: onAccountDetailsChanged.asObservable(),
+      onAccountProfileReceived: onAccountProfileReceived.asObservable(),
       onVolatileDetailsChanged: onVolatileDetailsChanged.asObservable(),
       onRegistrationStateChanged: onRegistrationStateChanged.asObservable(),
       onNameRegistrationEnded: onNameRegistrationEnded.asObservable(),
@@ -242,6 +256,7 @@ export class Jamid {
       onComposingStatusChanged: onComposingStatusChanged.asObservable(),
       onReactionAdded: onReactionAdded.asObservable(),
       onReactionRemoved: onReactionRemoved.asObservable(),
+      onProfileReceived: onProfileReceived.asObservable(),
     }
 
     this.setupSignalHandlers()
@@ -542,6 +557,10 @@ export class Jamid {
       log.debug('Received AccountsDetailsChanged', JSON.stringify(signal))
     })
 
+    this.events.onAccountProfileReceived.subscribe((signal) => {
+      log.debug('\nReceived AccountProfileReceived\n', JSON.stringify(signal))
+    })
+
     this.events.onVolatileDetailsChanged.subscribe(({ accountId, details }) => {
       const username = details['Account.registeredName']
       log.debug(
@@ -710,6 +729,29 @@ export class Jamid {
         reactionId: signal.reactionId,
       }
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.ReactionRemoved, data)
+    })
+
+    this.events.onProfileReceived.subscribe(async (signal) => {
+      log.debug('Received ProfileReceived:', JSON.stringify(signal))
+      const peer = signal.from
+      const accountId = signal.accountId
+      const folder = os.homedir() + '/.local/share/jami/' + accountId + '/cache/profile/'
+      const fileName = btoa(peer)
+      const displayNameFile = fileName + '.txt'
+      const profilePictureFile = fileName + '.png'
+      try {
+        await fs.unlink(folder + profilePictureFile)
+      } catch (e) {
+        log.debug('Profile picture does not exist')
+      }
+      try {
+        await fs.unlink(folder + displayNameFile)
+      } catch (e) {
+        log.debug('Display name does not exist')
+      }
+      await getAvatar(accountId, peer)
+
+      this.webSocketServer.send(accountId, WebSocketMessageType.ProfileReceived, { peer })
     })
 
     this.events.onComposingStatusChanged.subscribe((signal) => {

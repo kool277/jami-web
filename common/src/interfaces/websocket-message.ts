@@ -26,6 +26,7 @@ import {
   ConversationMessage,
   ConversationView,
   LoadMoreMessages,
+  ProfileReceived,
   ReactionAdded,
   ReactionRemoved,
   WebRtcIceCandidate,
@@ -42,6 +43,7 @@ export interface WebSocketMessageTable {
   [WebSocketMessageType.AccountMessageStatus]: AccountMessageStatus
   [WebSocketMessageType.ReactionAdded]: ReactionAdded
   [WebSocketMessageType.ReactionRemoved]: ReactionRemoved
+  [WebSocketMessageType.ProfileReceived]: ProfileReceived
   [WebSocketMessageType.MessageEdition]: ConversationMessage
   [WebSocketMessageType.LoadMoreMessages]: LoadMoreMessages
 

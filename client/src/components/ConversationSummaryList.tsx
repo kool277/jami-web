@@ -16,15 +16,17 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, List, Stack, Typography } from '@mui/material'
+import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { IConversationSummary } from 'jami-web-common'
+import { IConversationSummary, ProfileReceived, WebSocketMessageType } from 'jami-web-common'
 import { QRCodeCanvas } from 'qrcode.react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useCallManagerContext } from '../contexts/CallManagerProvider'
+import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName'
 import { useUrlParams } from '../hooks/useUrlParams'
 import { ConversationRouteParams } from '../router'
@@ -44,6 +46,21 @@ type ConversationSummaryListProps = {
 }
 
 export const ConversationSummaryList = ({ conversationsSummaries }: ConversationSummaryListProps) => {
+  const webSocket = useWebSocketContext()
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    const profileReceivedHandler = (data: ProfileReceived) => {
+      queryClient.invalidateQueries({ queryKey: ['picture', data.peer] })
+      queryClient.refetchQueries({ queryKey: ['picture', data.peer] })
+    }
+
+    webSocket.bind(WebSocketMessageType.ProfileReceived, profileReceivedHandler)
+    return () => {
+      webSocket.unbind(WebSocketMessageType.ProfileReceived, profileReceivedHandler)
+    }
+  }, [queryClient, webSocket])
+
   const sortedConversations = useMemo(() => {
     if (conversationsSummaries.some((conversationSummary) => conversationSummary === null)) {
       return conversationsSummaries

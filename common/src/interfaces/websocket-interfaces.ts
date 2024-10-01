@@ -58,6 +58,10 @@ export interface ReactionRemoved {
   reactionId: string
 }
 
+export interface ProfileReceived {
+  peer: string
+}
+
 export interface LoadMoreMessages {
   accountId: string
   conversationId: string

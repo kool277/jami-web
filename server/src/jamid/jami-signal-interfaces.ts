@@ -40,6 +40,12 @@ export interface AccountDetailsChanged {
   details: AccountDetails
 }
 
+export interface AccountProfileReceived {
+  accountId: string
+  displayName: string
+  photo: string
+}
+
 export interface VolatileDetailsChanged {
   accountId: string
   details: VolatileDetails
@@ -172,6 +178,12 @@ export interface ReactionRemoved {
   conversationId: string
   messageId: string
   reactionId: string
+}
+
+export interface ProfileReceived {
+  accountId: string
+  from: string
+  path: string
 }
 
 export interface DataTransferEvent {

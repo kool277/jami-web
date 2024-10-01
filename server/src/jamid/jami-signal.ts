@@ -24,6 +24,7 @@ export enum JamiSignal {
   // libjami::ConfigurationSignal
   AccountsChanged = 'AccountsChanged',
   AccountDetailsChanged = 'AccountDetailsChanged',
+  AccountProfileReceived = 'AccountProfileReceived',
   RegistrationStateChanged = 'RegistrationStateChanged',
   ComposingStatusChanged = 'ComposingStatusChanged',
   IncomingTrustRequest = 'IncomingTrustRequest',
@@ -36,6 +37,7 @@ export enum JamiSignal {
   KnownDevicesChanged = 'KnownDevicesChanged',
   IncomingAccountMessage = 'IncomingAccountMessage',
   AccountMessageStatusChanged = 'AccountMessageStatusChanged',
+  ProfileReceived = 'ProfileReceived',
 
   // libjami::CallSignal
   StateChange = 'StateChange',

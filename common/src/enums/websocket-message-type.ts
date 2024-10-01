@@ -23,6 +23,7 @@ export enum WebSocketMessageType {
   AccountMessageStatus = 'account-message-status',
   ReactionAdded = 'reaction-added',
   ReactionRemoved = 'reaction-removed',
+  ProfileReceived = 'profile-received',
   MessageEdition = 'message-edition',
   LoadMoreMessages = 'load-more-messages',
 
