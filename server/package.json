@@ -28,6 +28,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "typedi": "^0.10.0",
+    "vcard4-ts": "^0.4.1",
     "whatwg-url": "^14.0.0",
     "ws": "^8.18.0"
   },

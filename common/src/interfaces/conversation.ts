@@ -84,6 +84,7 @@ export interface IConversationSummary {
   id: string
   avatar: ConversationInfos['avatar']
   title: ConversationInfos['title']
+  mode: ConversationInfos['mode']
   membersNames: string[]
   lastMessage: Message
 }

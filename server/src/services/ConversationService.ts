@@ -94,6 +94,7 @@ export class ConversationService {
       id: conversationId,
       avatar: infos.avatar,
       title: infos.title,
+      mode: infos.mode,
       membersNames,
       lastMessage,
     }
@@ -110,7 +111,6 @@ export class ConversationService {
       if (member.uri === accountUri) {
         continue
       }
-
       // Add usernames for conversation members
       const { username } = await jamid.lookupAddress(member.uri, nameserver, accountId)
       membersNames.push(username || member.uri)

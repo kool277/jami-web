@@ -50,7 +50,8 @@ conversationRouter.get(
     const conversationsSummaries = []
     for (const conversationId of conversationIds) {
       const conversationSummary = await conversationService.createConversationSummary(accountId, conversationId)
-      if (conversationSummary !== undefined) {
+      if (conversationSummary) {
+        conversationSummary.mode = jamid.getConversationInfos(accountId, conversationId).mode
         conversationsSummaries.push(conversationSummary)
       }
     }
