@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import ConversationAvatar from './ConversationAvatar'
 import { InfosDialog } from './Dialog'
 import { DialogContentList } from './Dialog'
+import LoadingPage from './Loading'
 
 interface ContactDetailDialogProps {
   contactDetail: ContactDetailType | undefined
@@ -46,11 +47,21 @@ const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDial
     },
   ]
 
+  if (contactDetail === undefined) {
+    return <InfosDialog open={open} onClose={onClose} title="" content={<LoadingPage />} />
+  }
+
   return (
     <InfosDialog
       open={open}
       onClose={onClose}
-      icon={<ConversationAvatar sx={{ width: 'inherit', height: 'inherit' }} displayName={contactDetail?.username} />}
+      icon={
+        <ConversationAvatar
+          contactUri={contactDetail?.id}
+          sx={{ width: 'inherit', height: 'inherit' }}
+          displayName={contactDetail?.username}
+        />
+      }
       title={contactDetail?.username || 'No contact selected'}
       content={<DialogContentList title={t('contact_details_dialog_title')} items={items} />}
     />

@@ -23,6 +23,7 @@ import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 
 import CallPermissionDenied from '../pages/CallPermissionDenied'
+import { useContactProfilePicture } from '../services/contactQueries'
 import { FileHandler } from '../utils/files'
 import {
   CancelPictureButton,
@@ -39,9 +40,12 @@ import { CircleMaskOverlay, FileDragOverlay } from './Overlay'
 
 type ConversationAvatarProps = AvatarProps & {
   displayName?: string
+  contactUri?: string
 }
-export default function ConversationAvatar({ displayName, ...props }: ConversationAvatarProps) {
-  const src = props.src ?? '/broken'
+export default function ConversationAvatar({ displayName, contactUri, ...props }: ConversationAvatarProps) {
+  const profilePictureQuery = useContactProfilePicture(contactUri)
+  const url = profilePictureQuery.data
+  const src = props.src || url || '/broken'
   delete props.src
   return <Avatar {...props} alt={displayName?.toUpperCase()} src={src} />
 }

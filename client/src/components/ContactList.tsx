@@ -132,7 +132,7 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
               }}
             >
               <ListItemAvatar>
-                <ConversationAvatar displayName={contact.username} />
+                <ConversationAvatar contactUri={contact.id} displayName={contact.username} />
               </ListItemAvatar>
               <ListItemText primary={contact.username} secondary={contact.id} />
               {selectedContacts !== undefined && selectedContacts.includes(contact.id) && (

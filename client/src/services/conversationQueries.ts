@@ -49,6 +49,7 @@ export const useConversationsSummariesQuery = () => {
     queryKey: ['conversations', 'summaries'],
     queryFn: async () => {
       const { data } = await axiosInstance.get<IConversationSummary[]>(`/conversations`)
+      console.log('DATA', data)
       return data
     },
   })

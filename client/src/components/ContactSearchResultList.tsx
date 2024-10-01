@@ -83,7 +83,7 @@ const ContactSearchResultListItem = ({ contact }: ContactSearchResultListItemPro
         onClick={() => {
           dialogHandler.openDialog()
         }}
-        icon={<ConversationAvatar displayName={contact.getDisplayName()} />}
+        icon={<ConversationAvatar contactUri={contact.uri} displayName={contact.getDisplayName()} />}
         primaryText={<Typography variant="body1">{contact.getDisplayName()}</Typography>}
       />
     </>

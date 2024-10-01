@@ -29,7 +29,7 @@ import { useConversationDisplayNameShort } from '../hooks/useConversationDisplay
 import { useUrlParams } from '../hooks/useUrlParams'
 import { ConversationRouteParams } from '../router'
 import { CallStatus } from '../services/CallManager'
-import { useRemoveConversationMutation } from '../services/conversationQueries'
+import { useMembersQuery, useRemoveConversationMutation } from '../services/conversationQueries'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
 import { formatRelativeDate, formatTime } from '../utils/dates&times'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
@@ -68,7 +68,6 @@ export const ConversationSummaryList = ({ conversationsSummaries }: Conversation
     </List>
   )
 }
-
 type ConversationSummaryListItemProps = {
   conversationSummary: IConversationSummary
 }
@@ -80,6 +79,7 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
   } = useUrlParams<ConversationRouteParams>()
   const contextMenuHandler = useContextMenuHandler()
   const navigate = useNavigate()
+  const members = useMembersQuery(conversationSummary.id)
 
   const conversationId = conversationSummary.id
   const isSelected = conversationId === selectedConversationId
@@ -99,6 +99,10 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
   return (
     <Box>
       <ConversationMenu
+        conversationMemberUri={
+          Number(conversationSummary.mode) === 0 ? (members.data ? members.data[0].contact.uri : undefined) : undefined
+        }
+        conversationAvatar={conversationSummary.avatar}
         conversationId={conversationId}
         conversationName={conversationName}
         onMessageClick={onClick}
@@ -110,7 +114,15 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
         selected={isSelected}
         onClick={onClick}
         onContextMenu={contextMenuHandler.handleAnchorPosition}
-        icon={<ConversationAvatar displayName={conversationName} src={conversationSummary.avatar} />}
+        icon={
+          <ConversationAvatar
+            contactUri={
+              Number(conversationSummary.mode) === 0 && members.data ? members.data[0].contact.uri : undefined
+            }
+            displayName={conversationName}
+            src={conversationSummary.avatar}
+          />
+        }
         primaryText={<Typography variant="body1">{conversationName}</Typography>}
         secondaryText={<SecondaryText conversationSummary={conversationSummary} isSelected={isSelected} />}
       />
@@ -194,14 +206,18 @@ interface ConversationMenuProps {
   onMessageClick: () => void
   isSelected: boolean
   contextMenuProps: ContextMenuHandler['props']
+  conversationAvatar?: string
+  conversationMemberUri?: string
 }
 
 const ConversationMenu = ({
+  conversationMemberUri,
   conversationId,
   conversationName,
   onMessageClick,
   isSelected,
   contextMenuProps,
+  conversationAvatar,
 }: ConversationMenuProps) => {
   const { t } = useTranslation()
   const { startCall } = useCallManagerContext()
@@ -283,6 +299,8 @@ const ConversationMenu = ({
         {...detailsDialogHandler.props}
         conversationId={conversationId}
         conversationName={conversationName}
+        conversationAvatar={conversationAvatar}
+        conversationMemberUri={conversationMemberUri}
         isSwarm={isSwarm}
       />
 
@@ -301,9 +319,19 @@ interface DetailsDialogProps {
   open: boolean
   onClose: () => void
   isSwarm: boolean
+  conversationAvatar?: string
+  conversationMemberUri?: string
 }
 
-const DetailsDialog = ({ conversationId, conversationName, open, onClose, isSwarm }: DetailsDialogProps) => {
+const DetailsDialog = ({
+  conversationId,
+  conversationName,
+  open,
+  onClose,
+  isSwarm,
+  conversationAvatar,
+  conversationMemberUri,
+}: DetailsDialogProps) => {
   const { t } = useTranslation()
   const items = useMemo(
     () => [
@@ -330,7 +358,14 @@ const DetailsDialog = ({ conversationId, conversationName, open, onClose, isSwar
     <InfosDialog
       open={open}
       onClose={onClose}
-      icon={<ConversationAvatar sx={{ width: 'inherit', height: 'inherit' }} displayName={conversationName} />}
+      icon={
+        <ConversationAvatar
+          src={conversationAvatar}
+          contactUri={conversationMemberUri}
+          sx={{ width: 'inherit', height: 'inherit' }}
+          displayName={conversationName}
+        />
+      }
       title={conversationName}
       content={<DialogContentList title={t('conversation_details_informations')} items={items} />}
     />

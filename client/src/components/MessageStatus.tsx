@@ -65,6 +65,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
           const member = members.find((member) => peerId === member.contact.uri)
           return (
             <ConversationAvatar
+              contactUri={peerId}
               key={peerId}
               displayName={member?.getDisplayName()}
               sx={{ width: avatarSize, height: avatarSize, fontSize: '12px', ml: 0.1 }}
