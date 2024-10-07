@@ -18,7 +18,7 @@
 import { Typography } from '@mui/material'
 import { Box, Stack } from '@mui/system'
 import { Message } from 'jami-web-common'
-import { MutableRefObject, useRef, useState } from 'react'
+import { memo, MutableRefObject, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Waypoint } from 'react-waypoint'
 
@@ -26,6 +26,21 @@ import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { findNextVisibleMessage, findPreviousVisibleMessage, MessageRow } from './Message'
 import { ArrowDownIcon } from './SvgIcon'
+
+const MemoizedMessageRow = memo(MessageRow, (prevProps, nextProps) => {
+  return (
+    prevProps.message.id === nextProps.message.id &&
+    prevProps.message.body === nextProps.message.body &&
+    prevProps.message.reactions === nextProps.message.reactions &&
+    prevProps.message.status === nextProps.message.status &&
+    prevProps.message.editions === nextProps.message.editions &&
+    prevProps.message['reply-to'] === nextProps.message['reply-to'] &&
+    prevProps.isAccountMessage === nextProps.isAccountMessage &&
+    prevProps.author === nextProps.author &&
+    prevProps.previousMessage?.id === nextProps.previousMessage?.id &&
+    prevProps.nextMessage?.id === nextProps.nextMessage?.id
+  )
+})
 
 interface MessageListProps {
   messages: Message[]
@@ -71,7 +86,7 @@ export default function MessageList({ messages }: MessageListProps) {
                 previousMessage,
                 nextMessage,
               }
-              return <MessageRow key={message.id} {...props} />
+              return <MemoizedMessageRow key={message.id} {...props} />
             })
           }
         </Stack>

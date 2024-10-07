@@ -31,7 +31,7 @@ export interface MessageReactionProps {
   message: Message
 }
 
-export default function MessageReaction({ message }: MessageReactionProps) {
+const MessageReaction = ({ message }: MessageReactionProps) => {
   interface ReactionAttributes {
     body: string
     id: string
@@ -69,7 +69,10 @@ export default function MessageReaction({ message }: MessageReactionProps) {
 
   useEffect(() => {
     setReactionsArray(() => generateReactionsArray())
-  }, [generateReactionsArray])
+    if (message.reactions.length === 0) {
+      setIsOpen(false)
+    }
+  }, [generateReactionsArray, message.reactions])
 
   const container = {
     hidden: { opacity: 1, scale: 1.25 },
@@ -94,7 +97,7 @@ export default function MessageReaction({ message }: MessageReactionProps) {
     setIsOpen(false)
   }
 
-  function handleDeleteReaction(reactionId: string) {
+  const handleDeleteReaction = (reactionId: string) => {
     const data: ReactionRemoved = {
       conversationId: conversationId,
       messageId: message.id,
@@ -218,3 +221,5 @@ export default function MessageReaction({ message }: MessageReactionProps) {
     </>
   )
 }
+
+export default MessageReaction
