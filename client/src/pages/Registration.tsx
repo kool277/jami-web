@@ -26,13 +26,14 @@ import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../com
 import ProcessingRequest from '../components/ProcessingRequest'
 import withAuthUI from '../components/WithAuthUI'
 import { PasswordStrength } from '../enums/passwordStrength'
+import JamiLogo from '../icons/jamiLogoIcon.svg?react'
 import {
   checkPasswordStrength,
   useCheckIfUsernameIsRegisteredQuery,
   useLoginMutation,
   useRegisterMutation,
 } from '../services/authQueries'
-import { inputWidth, jamiUsernamePattern } from '../utils/constants'
+import { inputWidth, jamiUsernamePattern, submitButtonWidth } from '../utils/constants'
 
 function RegistrationForm() {
   const theme: Theme = useTheme()
@@ -47,6 +48,7 @@ function RegistrationForm() {
   const { isPending: isRegisterLoading } = registerMutation
   const { isPending: isLoginLoading } = loginMutation
   const isPending = isRegisterLoading || isLoginLoading
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.up('md'))
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername)
   const usernameOk = usernameStatus === 'success'
@@ -136,7 +138,8 @@ function RegistrationForm() {
           justifyContent: 'center',
         }}
       >
-        <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(20) }}>
+        {isMedium || isMobile ? null : <JamiLogo width="12%" height="auto" style={{ marginTop: '-5vh' }} />}
+        <Box sx={{ mt: theme.typography.pxToRem(10), mb: theme.typography.pxToRem(20) }}>
           <Typography component={'span'} variant="h2">
             {t('registration_form_title')}
           </Typography>
@@ -162,21 +165,23 @@ function RegistrationForm() {
               sx={{ width: theme.typography.pxToRem(inputWidth) }}
             />
           </div>
-          <Button
-            disabled={!usernameOk || !passwordOk}
-            data-cy="register-button"
-            variant="contained"
-            type="submit"
-            onClick={handleSubmit}
-            sx={{ width: theme.typography.pxToRem(inputWidth), mt: theme.typography.pxToRem(20) }}
-          >
-            {t('registration_form_submit_button')}
-          </Button>
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <Button
+              disabled={!usernameOk || !passwordOk}
+              data-cy="register-button"
+              variant="contained"
+              type="submit"
+              onClick={handleSubmit}
+              sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(20) }}
+            >
+              {t('registration_form_submit_button')}
+            </Button>
+          </Box>
         </Form>
         <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(50) }}>
-          <Typography variant="body1">
+          <Typography variant="body1" fontSize={13}>
             {t('registration_form_to_login_text')} &nbsp;
-            <Link data-cy="login-link" to={'/login'}>
+            <Link style={{ color: theme.ChatInterface.inputColor }} data-cy="login-link" to={'/login'}>
               {t('registration_form_to_login_link')}
             </Link>
           </Typography>

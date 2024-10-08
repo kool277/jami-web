@@ -39,8 +39,17 @@ export default function JamiWelcomeLogo({ logoWidth, logoHeight, ...stackProps }
         ...stackProps.sx,
       }}
     >
+      <Typography variant="h2" fontWeight={'bolder'} sx={{ marginTop: '6vh', paddingBottom: '2vh', color: 'black' }}>
+        {t('welcome_to_text')}
+      </Typography>
       <JamiLogo width={logoWidth ?? jamiLogoDefaultSize} height={logoHeight ?? jamiLogoDefaultSize} />
-      <Typography variant="h2">{t('welcome_text')}</Typography>
+      <img
+        src={'./jamiTitle.png'}
+        alt="Jami"
+        width={'50%'}
+        height={'auto'}
+        style={{ marginLeft: '-2.5vw', marginBottom: '10vh' }}
+      />
     </Stack>
   )
 }

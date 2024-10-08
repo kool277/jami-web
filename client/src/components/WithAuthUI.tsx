@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, Grid, Paper, useMediaQuery } from '@mui/material'
-import { Theme, useTheme } from '@mui/material/styles'
+import { alpha, Theme, useTheme } from '@mui/material/styles'
 import React from 'react'
 import { Navigate } from 'react-router-dom'
 
@@ -43,27 +43,31 @@ export default function withAuthUI(WrappedComponent: React.FunctionComponent): R
           width: '100%',
           height: '100%',
           display: 'flex',
-          backgroundColor: `${isDesktopOrLaptop ? theme.palette.primary.dark : 'white'}`,
+          backgroundImage: `url(./admin/background.jpg)`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
         }}
       >
         <Paper
           elevation={10}
           sx={{
             width: '100%',
-            backgroundColor: 'white',
+            backgroundColor: `transparent`,
             margin: `${isDesktopOrLaptop ? theme.typography.pxToRem(100) : 0}`,
             borderRadius: `${isDesktopOrLaptop ? theme.typography.pxToRem(borderRadius) : 0}`,
+            overflow: 'hidden',
           }}
         >
           <Grid container spacing={0} sx={{ height: '100%' }}>
             {!isMobile && (
               <Grid
                 item
-                xs={6}
+                xs={5}
                 id="logo"
                 sx={{
                   height: '100%',
-                  backgroundColor: theme.palette.secondary.main,
+                  backgroundColor: alpha(theme.LoginPage.backgroundColor, 0.3),
                   borderRadius: `${
                     isDesktopOrLaptop
                       ? `${theme.typography.pxToRem(borderRadius)} 0 0 ${theme.typography.pxToRem(borderRadius)}`
@@ -74,7 +78,7 @@ export default function withAuthUI(WrappedComponent: React.FunctionComponent): R
                 <JamiWelcomeLogo logoWidth="90%" sx={{ height: '100%' }} />
               </Grid>
             )}
-            <Grid item xs={isMobile ? 12 : 6} sx={{ height: '100%' }}>
+            <Grid item xs={isMobile ? 12 : 7} sx={{ height: '100%' }}>
               {isMobile && (
                 <JamiWelcomeLogo
                   logoWidth={theme.typography.pxToRem(100)}
@@ -82,7 +86,7 @@ export default function withAuthUI(WrappedComponent: React.FunctionComponent): R
                   sx={{ mt: theme.typography.pxToRem(30), mb: theme.typography.pxToRem(20) }}
                 />
               )}
-              <Box sx={{ height: `${isMobile ? 'auto' : '100%'}` }}>
+              <Box sx={{ height: `${isMobile ? 'auto' : '100%'}`, backgroundColor: theme.palette.background.paper }}>
                 <WrappedComponent />
               </Box>
             </Grid>

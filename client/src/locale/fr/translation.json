@@ -204,5 +204,6 @@
   "username_rule_4": "Le nom d'utilisateur peut contenir des tirets bas (_).",
   "username_rules_dialog_title": "Règles du nom d'utilisateur",
   "welcome_text": "Bienvenue sur Jami!",
+  "welcome_to_text": "Welcome to ",
   "yourself": "vous-même"
 }

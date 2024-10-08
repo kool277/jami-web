@@ -35,9 +35,10 @@ import { PasswordInput, UsernameInput } from '../components/Input'
 import ProcessingRequest from '../components/ProcessingRequest'
 import withAuthUI from '../components/WithAuthUI'
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
+import JamiLogo from '../icons/jamiLogoIcon.svg?react'
 import { useGetAdminConfigQuery } from '../services/adminQueries'
 import { useLoginMutation } from '../services/authQueries'
-import { inputWidth } from '../utils/constants'
+import { inputWidth, submitButtonWidth } from '../utils/constants'
 function LoginForm() {
   const theme: Theme = useTheme()
   const { t } = useTranslation()
@@ -48,6 +49,7 @@ function LoginForm() {
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const loginMutation = useLoginMutation()
   const { isPending } = loginMutation
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.up('md'))
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
   if (data === undefined) {
@@ -91,8 +93,9 @@ function LoginForm() {
           textAlign: 'center',
         }}
       >
-        <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(20) }}>
-          <Typography component={'span'} variant="h2" sx={{ textAlign: 'center' }}>
+        {isMedium || isMobile ? null : <JamiLogo width="12%" height="auto" style={{ marginTop: '-5vh' }} />}
+        <Box sx={{ mt: theme.typography.pxToRem(10), mb: theme.typography.pxToRem(20) }}>
+          <Typography component={'span'} variant="h2" fontWeight={500} sx={{ textAlign: 'center' }}>
             {t('login_form_title')}
           </Typography>
         </Box>
@@ -118,12 +121,17 @@ function LoginForm() {
           <div>
             <FormControl
               sx={{
-                width: theme.typography.pxToRem(inputWidth),
+                width: '20vw',
                 alignItems: 'center',
                 justifyContent: 'space-between',
               }}
             >
-              <RadioGroup row onChange={handleSelectionChange} value={authMethod}>
+              <RadioGroup
+                sx={{ width: '70%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}
+                row
+                onChange={handleSelectionChange}
+                value={authMethod}
+              >
                 {data.localAuthEnabled ? (
                   <FormControlLabel value="local" control={<Radio />} label={t('jami')} />
                 ) : null}
@@ -142,16 +150,16 @@ function LoginForm() {
             variant="contained"
             type="submit"
             onClick={login}
-            sx={{ width: theme.typography.pxToRem(inputWidth), mt: theme.typography.pxToRem(5) }}
+            sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
             disabled={username === '' || password === ''}
           >
             {t('login_form_submit_button')}
           </Button>
         </Form>
-        <Box sx={{ mt: theme.typography.pxToRem(5), mb: theme.typography.pxToRem(10) }}>
-          <Typography variant="body1">
+        <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(10) }}>
+          <Typography variant="body1" fontSize={13}>
             {t('login_form_to_registration_text')} &nbsp;
-            <Link data-cy="register-link" to={'/register'}>
+            <Link style={{ color: theme.ChatInterface.inputColor }} data-cy="register-link" to={'/register'}>
               {t('login_form_to_registration_link')}
             </Link>
           </Typography>

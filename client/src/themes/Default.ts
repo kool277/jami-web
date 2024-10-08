@@ -26,6 +26,10 @@ declare module '@mui/material/styles' {
     }
     ChatInterface: {
       panelColor: string
+      inputColor: string
+    }
+    LoginPage: {
+      backgroundColor: string
     }
     Header: {
       backgroundColor: string
@@ -191,6 +195,10 @@ const palettes = {
     },
     ChatInterface: {
       panelColor: '#f2f2f2',
+      inputColor: 'black',
+    },
+    LoginPage: {
+      backgroundColor: '#f9fafc',
     },
     Header: {
       backgroundColor: '#dbd9d9',
@@ -236,6 +244,10 @@ const palettes = {
     },
     ChatInterface: {
       panelColor: '#181818',
+      inputColor: 'white',
+    },
+    LoginPage: {
+      backgroundColor: '#f9fafc',
     },
     Header: {
       backgroundColor: '#2e2d2d',
@@ -255,6 +267,7 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
   // Attemps to set the fonts on the second "createTheme" has resulted with wrong font-families
   const partialTheme = createTheme({ ...palettes[mode] /*, ...fonts*/ })
   const palette = partialTheme.palette
+  const ChatInterface = partialTheme.ChatInterface
 
   return createTheme(partialTheme, {
     components: {
@@ -373,7 +386,7 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
       MuiInput: {
         styleOverrides: {
           root: {
-            color: palette.primary.dark,
+            color: ChatInterface.inputColor,
             '&.Mui-error': {
               color: palette.error.main,
             },
@@ -413,19 +426,19 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
       MuiInputLabel: {
         styleOverrides: {
           root: {
-            color: 'black',
+            color: ChatInterface.inputColor,
             fontSize: '15px',
             left: '50%',
             transform: 'translate(-50%, 20px)',
             transition: 'left .2s, transform .2s',
           },
           shrink: {
-            color: 'black',
+            color: ChatInterface.inputColor,
             left: 0,
             transform: 'translate(0, 50px) scale(0.75)',
             transition: 'left .2s, transform .2s',
             '&.Mui-focused, &.Mui-error': {
-              color: 'black',
+              color: ChatInterface.inputColor,
             },
           },
         },

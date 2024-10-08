@@ -17,7 +17,9 @@
  */
 export const jamiUsernamePattern = /^[a-zA-Z0-9-_]{3,32}$/
 
-export const inputWidth = 260
+export const inputWidth = 320
+
+export const submitButtonWidth = 120
 
 export const jamiLogoDefaultSize = '512px'
 
