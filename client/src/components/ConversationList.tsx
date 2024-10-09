@@ -91,8 +91,8 @@ const ConversationTabs = () => {
     <Tabs style={{ overflow: 'scroll' }} defaultValue={summariesTabIndex} value={tabIndex} onChange={onChange}>
       {isShowingTabMenu && (
         <TabsList>
-          <Tab>{t('conversations')}</Tab>
-          <Tab>
+          <Tab isSelected={tabIndex === summariesTabIndex}>{t('conversations')}</Tab>
+          <Tab isSelected={tabIndex === invitationsTabIndex}>
             {t('invitations')} {conversationRequestsLength}
           </Tab>
         </TabsList>

@@ -29,18 +29,19 @@ import { styled } from '@mui/system'
 
 type TabProps = MuiTabProps & {
   theme?: Theme
+  isSelected?: boolean
 }
 
-export const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
+export const Tab = styled(MuiTab)<TabProps>(({ theme, isSelected }) => ({
   fontFamily: theme.typography.fontFamily,
   ...theme.typography.body1,
-  color: '#666666',
+  color: isSelected ? 'black' : '#666666',
   cursor: 'pointer',
   border: 'none',
   display: 'flex',
   justifyContent: 'center',
-  borderBottom: '4px solid white',
-  backgroundColor: 'white',
+  borderBottom: isSelected ? '2px solid grey' : 'none',
+  backgroundColor: 'inherit',
   padding: '9px 0',
   '&:hover': {
     color: 'black',
@@ -76,7 +77,6 @@ export const TabsList = styled(MuiTabsList)(() => ({
   display: 'flex',
   alignItems: 'center',
   placeContent: 'space-evenly',
-  borderBottom: '1px solid #bfbfbf',
 }))
 
 export type TabsProps = MuiTabsProps
