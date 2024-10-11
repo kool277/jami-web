@@ -617,6 +617,7 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
   const onEmojiClick = (emoji: EmojiClickData, _: MouseEvent) => {
     onEmojiSelected(emoji.emoji)
     setEmojiIsOpen(false)
+    handleMouseLeave()
   }
 
   const handleMouseEnter = () => {
@@ -647,7 +648,7 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
       disableFocusListener
       disableTouchListener
       title={
-        <div onMouseLeave={handleMouseLeave}>
+        <div onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
           <Stack direction="row" spacing="16px" padding="16px" sx={{ cursor: 'pointer' }}>
             <EmojiButton emoji="😃" onClick={onEmojiClickHandler} />
             <ReplyMessageButton onClick={onReply} />
@@ -663,7 +664,9 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
         </div>
       }
     >
-      <div onMouseEnter={handleMouseEnter}>{children}</div>
+      <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        {children}
+      </div>
     </Tooltip>
   )
 })(({ position }) => {
