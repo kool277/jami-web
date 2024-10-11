@@ -63,6 +63,7 @@ export interface Message {
   editions?: string
   status: Map<string, MessageStatusCode>
   'reply-to'?: string | Message
+  animate?: boolean
 }
 
 export interface ConversationInfos {

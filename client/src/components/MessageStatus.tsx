@@ -110,10 +110,10 @@ export default function MessageStatus({ message }: MessageStatusProps) {
     >
       <motion.div
         data-cy="message-status-icon"
-        variants={item}
-        initial="hidden"
-        animate="visible"
-        transition={{ delay: 0.3 }}
+        variants={message.animate ? item : undefined}
+        initial={message.animate ? 'hidden' : undefined}
+        animate={message.animate ? 'visible' : undefined}
+        transition={message.animate ? { delay: 0.3 } : undefined}
       >
         {DisplayedIcon(message)}
       </motion.div>

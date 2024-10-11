@@ -251,6 +251,7 @@ const ChatInterface = () => {
           }
         }
       }
+      data.message.animate = true
       setMessages((messages) => addMessage(messages, data.message))
     }
     const reactionsAddedListener = (data: ReactionAdded) => {

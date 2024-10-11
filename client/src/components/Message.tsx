@@ -56,6 +56,7 @@ import {
   TwoSheetsIcon,
 } from './SvgIcon'
 import { getColor, getTextColor, getSentTimeColor } from '../utils/messagecolor'
+import { motion } from 'framer-motion'
 import { useDeleteMessageMutation } from '../services/conversationQueries'
 
 type MessagePosition = 'start' | 'end'
@@ -724,7 +725,6 @@ const UserMessageRow = ({
       </Box>
     )
   }
-
   return (
     <Stack alignItems={position} id={`message-${message.id}`}>
       {isFirstOfGroup && (
@@ -751,7 +751,21 @@ const UserMessageRow = ({
             />
           )}
         </Box>
-        <MessageComponent {...props} />
+        <motion.div
+          initial={message.animate ? { rotate: isAccountMessage ? 5 : -5, scale: 0.8, y: -10 } : undefined}
+          animate={message.animate ? { rotate: 0, scale: 1, y: 0 } : undefined}
+          transition={
+            message.animate
+              ? {
+                  type: 'spring',
+                  stiffness: 300,
+                  damping: 10,
+                }
+              : undefined
+          }
+        >
+          <MessageComponent {...props} />
+        </motion.div>
         <MessageStatus message={message} />
       </Stack>
       <MessageReaction message={message} />

@@ -115,30 +115,34 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
     <>
       <Box data-cy="emoji-reaction-list" onClick={() => setIsOpen(!isOpen)} sx={{ ':hover': { cursor: 'pointer' } }}>
         <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={container}
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'nowrap',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '15px',
-            backgroundColor: 'rgba(0,0,0,0.0)',
-            paddingLeft: '7px',
-            paddingRight: '5px',
-            paddingBottom: '2px',
-            paddingTop: '2px',
-            marginTop: '-4px',
-            marginBottom: '5px',
-            marginRight: isAccount ? '45px' : '0px',
-            marginLeft: isAccount ? '0px' : '65px',
-            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)',
-          }}
+          initial={message.animate ? 'hidden' : undefined}
+          animate={message.animate ? 'visible' : undefined}
+          variants={message.animate ? container : undefined}
+          style={
+            message.animate
+              ? {
+                  display: 'flex',
+                  flexDirection: 'row',
+                  flexWrap: 'nowrap',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: '15px',
+                  backgroundColor: 'rgba(0,0,0,0.0)',
+                  paddingLeft: '7px',
+                  paddingRight: '5px',
+                  paddingBottom: '2px',
+                  paddingTop: '2px',
+                  marginTop: '-4px',
+                  marginBottom: '5px',
+                  marginRight: isAccount ? '45px' : '0px',
+                  marginLeft: isAccount ? '0px' : '65px',
+                  boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)',
+                }
+              : undefined
+          }
         >
           {sortedReactionsArray.slice(0, 3).map((reaction: ReactionAttributes) => (
-            <motion.span variants={item} key={reaction.id}>
+            <motion.span variants={message.animate ? item : undefined} key={reaction.id}>
               {reaction.body}
             </motion.span>
           ))}
