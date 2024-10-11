@@ -45,10 +45,8 @@ export default function Header() {
   }
 
   return (
-    <Box>
-      <Button>
-        <QrCodeModal account={account} />
-      </Button>
+    <Box sx={{ display: 'flex' }}>
+      <QrCodeModal account={account} />
       <Button data-cy="menu-button" aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
         {t('Menu')}
       </Button>

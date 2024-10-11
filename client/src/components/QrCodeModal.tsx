@@ -58,37 +58,35 @@ const QrCodeModal = ({ account }: QrCodeProps) => {
   const qrCodeSize: number = 250
 
   return (
-    <>
-      <div>
-        <Button onClick={handleOpen}>
-          <img src={qrcodeIcon} />
-        </Button>
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="parent-modal-title"
-          aria-describedby="parent-modal-description"
-        >
-          <Box sx={{ ...style }}>
-            <Box
-              sx={{
-                width: '100%',
-                display: 'flex',
-                flexWrap: 'nowrap',
-                justifyContent: 'flex-end',
-                mb: '2%',
-              }}
-            >
-              <Button size="small" onClick={handleClose}>
-                X
-              </Button>
-            </Box>
-
-            <QRCodeCanvas size={qrCodeSize} value={account.getUri()} />
+    <div>
+      <Button onClick={handleOpen}>
+        <img src={qrcodeIcon} />
+      </Button>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="parent-modal-title"
+        aria-describedby="parent-modal-description"
+      >
+        <Box sx={{ ...style }}>
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              flexWrap: 'nowrap',
+              justifyContent: 'flex-end',
+              mb: '2%',
+            }}
+          >
+            <Button size="small" onClick={handleClose}>
+              X
+            </Button>
           </Box>
-        </Modal>
-      </div>
-    </>
+
+          <QRCodeCanvas size={qrCodeSize} value={account.getUri()} />
+        </Box>
+      </Modal>
+    </div>
   )
 }
 
