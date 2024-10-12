@@ -479,6 +479,24 @@ const UserMessageRow = ({
 
   const replyMessage = message['reply-to']
 
+  function scrollToMessage(messageId: string) {
+    const messageElement = document.getElementById(`message-${messageId}`)
+    if (messageElement) {
+      messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }
+
+  function highlightReplyMessage(messageId: string) {
+    const replyMessageElement = document.getElementById(`message-${messageId}`)
+    if (replyMessageElement) {
+      replyMessageElement.style.transition = 'background-color 0.5s ease-in-out'
+      replyMessageElement.style.backgroundColor = '#dfe8ef'
+      setTimeout(() => {
+        replyMessageElement.style.backgroundColor = ''
+      }, 1000)
+    }
+  }
+
   let replyMessageComponent = <></>
 
   if (typeof replyMessage !== 'object' && replyMessage !== undefined) {
@@ -489,7 +507,13 @@ const UserMessageRow = ({
     const textColorReply = '#555555'
     const name = member === undefined ? t('yourself') : member.contact.getDisplayName()
     replyMessageComponent = (
-      <>
+      <Box
+        sx={{ '&:hover': { cursor: 'pointer' } }}
+        onClick={() => {
+          scrollToMessage(replyMessage.id)
+          highlightReplyMessage(replyMessage.id)
+        }}
+      >
         <Box sx={{ fontSize: '11px', color: 'grey', fontWeight: 'bolder', mt: 1, mr: 1.5, mb: 0 }}>
           {t('replied_to') + ' ' + name}
         </Box>
@@ -507,12 +531,12 @@ const UserMessageRow = ({
             </Typography>
           </Bubble>
         </Box>
-      </>
+      </Box>
     )
   }
 
   return (
-    <Stack alignItems={position}>
+    <Stack alignItems={position} id={`message-${message.id}`}>
       {isFirstOfGroup && (
         <Box padding={`0px ${participantNamePadding} 0 ${participantNamePadding}`}>
           <ParticipantName name={authorName} />
