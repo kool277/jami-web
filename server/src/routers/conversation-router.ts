@@ -169,7 +169,7 @@ conversationRouter.get(
       res.status(HttpStatusCode.NotFound).send('No such conversation found')
       return
     }
-    const messages = await jamid.getSwarmMessages(accountId, conversationId)
+    const messages = await jamid.getSwarmMessages(accountId, conversationId, '', 32)
 
     // Convert the messages to the format expected by the client
     // swarm messages are stored in a different format

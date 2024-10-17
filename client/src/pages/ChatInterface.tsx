@@ -20,6 +20,7 @@ import { motion } from 'framer-motion'
 import {
   AccountMessageStatus,
   ConversationMessage,
+  LoadMoreMessages,
   Message,
   ReactionAdded,
   ReactionRemoved,
@@ -301,11 +302,24 @@ const ChatInterface = () => {
       })
     }
 
+    const loadMoreMessagesListener = (data: LoadMoreMessages) => {
+      setMessages((messages) => {
+        const newMessages = data.messages
+        if (newMessages) {
+          // add messages above the current ones
+          return [...messages, ...newMessages]
+        }
+        return messages
+      })
+    }
+
+    webSocket.bind(WebSocketMessageType.LoadMoreMessages, loadMoreMessagesListener)
     webSocket.bind(WebSocketMessageType.MessageEdition, messageEditionListener)
     webSocket.bind(WebSocketMessageType.ReactionAdded, reactionsAddedListener)
     webSocket.bind(WebSocketMessageType.ReactionRemoved, reactionsRemovedListener)
     webSocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
     return () => {
+      webSocket.unbind(WebSocketMessageType.LoadMoreMessages, loadMoreMessagesListener)
       webSocket.unbind(WebSocketMessageType.MessageEdition, messageEditionListener)
       webSocket.unbind(WebSocketMessageType.ReactionAdded, reactionsAddedListener)
       webSocket.unbind(WebSocketMessageType.ReactionRemoved, reactionsRemovedListener)

@@ -29,10 +29,12 @@ export function bindLoadMoreMessagesCallBack() {
     WebSocketMessageType.LoadMoreMessages,
     async (accountId, data: unknown) => {
       const { conversationId, lastMessageId, limit } = data as LoadMoreMessages
-      console.debug('Load More Messages ', conversationId, lastMessageId, limit)
 
-      const messages = await jamid.getSwarmMessages(accountId, conversationId)
+      if (lastMessageId === undefined || lastMessageId === '') {
+        return
+      }
 
+      const messages = await jamid.getSwarmMessages(accountId, conversationId, lastMessageId, limit)
       messages.forEach(function (element) {
         element.action = element.body.action
         element.author = element.body.author

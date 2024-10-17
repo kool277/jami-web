@@ -17,13 +17,14 @@
  */
 import { Typography } from '@mui/material'
 import { Box, Stack } from '@mui/system'
-import { Message } from 'jami-web-common'
+import { Message, WebSocketMessageType } from 'jami-web-common'
 import { memo, MutableRefObject, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Waypoint } from 'react-waypoint'
 
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
+import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { findNextVisibleMessage, findPreviousVisibleMessage, MessageRow } from './Message'
 import { ArrowDownIcon } from './SvgIcon'
 
@@ -47,10 +48,22 @@ interface MessageListProps {
 }
 
 export default function MessageList({ messages }: MessageListProps) {
-  const { account } = useAuthContext()
-  const { members } = useConversationContext()
+  const { account, accountId } = useAuthContext()
+  const { members, conversationId } = useConversationContext()
   const [showScrollButton, setShowScrollButton] = useState(false)
   const listBottomRef = useRef<HTMLElement>()
+  const webSocket = useWebSocketContext()
+  const lastMessageId = messages[messages.length - 1]?.id
+
+  const loadMoreMessages = () => {
+    const args = {
+      accountId,
+      conversationId,
+      lastMessageId,
+      limit: 32,
+    }
+    webSocket.send(WebSocketMessageType.LoadMoreMessages, args)
+  }
 
   return (
     <>
@@ -90,7 +103,12 @@ export default function MessageList({ messages }: MessageListProps) {
             })
           }
         </Stack>
-        <Waypoint onEnter={() => console.log('should load more messages')} topOffset="-200px" />
+        <Waypoint
+          onEnter={() => {
+            loadMoreMessages()
+          }}
+          topOffset="-200px"
+        />
       </Stack>
       {showScrollButton && (
         <Box position="relative">
