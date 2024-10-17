@@ -24,6 +24,7 @@ export enum WebSocketMessageType {
   ReactionAdded = 'reaction-added',
   ReactionRemoved = 'reaction-removed',
   MessageEdition = 'message-edition',
+  LoadMoreMessages = 'load-more-messages',
 
   // calls (in the order they should be sent)
   sendCallInvite = 'sendCallInvite',

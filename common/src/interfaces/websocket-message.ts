@@ -25,6 +25,7 @@ import {
   ComposingStatus,
   ConversationMessage,
   ConversationView,
+  LoadMoreMessages,
   ReactionAdded,
   ReactionRemoved,
   WebRtcIceCandidate,
@@ -42,6 +43,7 @@ export interface WebSocketMessageTable {
   [WebSocketMessageType.ReactionAdded]: ReactionAdded
   [WebSocketMessageType.ReactionRemoved]: ReactionRemoved
   [WebSocketMessageType.MessageEdition]: ConversationMessage
+  [WebSocketMessageType.LoadMoreMessages]: LoadMoreMessages
 
   // calls (in the order they should be sent)
   [WebSocketMessageType.sendCallInvite]: CallInvite

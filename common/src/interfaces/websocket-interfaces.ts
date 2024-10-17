@@ -58,6 +58,14 @@ export interface ReactionRemoved {
   reactionId: string
 }
 
+export interface LoadMoreMessages {
+  accountId: string
+  conversationId: string
+  lastMessageId: string
+  limit?: number
+  messages?: Message[]
+}
+
 export interface ComposingStatus {
   contactId?: string // optional (ignored) when is about the user sending it
   conversationId: string
