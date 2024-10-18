@@ -99,6 +99,15 @@ adminRouter.get(
 //Requests below require authentication
 adminRouter.use(adminAuthenticationMiddleware)
 
+adminRouter.get(
+  '/isTokenValid',
+  asyncHandler(async (_, res: Response) => {
+    // If the request reaches this point, the token is valid
+    // The token is verified by the adminAuthenticationMiddleware
+    res.sendStatus(HttpStatusCode.Ok)
+  }),
+)
+
 adminRouter.patch(
   '/config',
   asyncHandler(async (req: Request<ParamsDictionary, unknown, unknown>, res: Response) => {

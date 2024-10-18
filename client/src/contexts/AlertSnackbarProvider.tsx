@@ -86,6 +86,7 @@ type AlertMessageKeys =
   | ''
   | 'setting_name_server_error'
   | 'getting_name_server_error'
+  | 'unauthorized_access'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
 
@@ -129,6 +130,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('setting_name_server_error')
         case 'getting_name_server_error':
           return t('getting_name_server_error')
+        case 'unauthorized_access':
+          return t('unauthorized_access')
         default:
           return t('unknown_error_alert')
       }

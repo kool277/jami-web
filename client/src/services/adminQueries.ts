@@ -309,3 +309,23 @@ export const useGetAdminAuthMethods = async () => {
     console.log('Erreur ', e)
   }
 }
+
+export const useCheckAdminTokenValidity = async () => {
+  const token = localStorage.getItem('adminAccessToken')
+  try {
+    const response = await axios.get('/admin/isTokenValid', {
+      baseURL: apiUrl,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    if (response.status === HttpStatusCode.Ok) {
+      return true
+    }
+  } catch (e: any) {
+    if (e.response?.status === HttpStatusCode.Unauthorized) {
+      console.error('Admin token is invalid')
+    }
+  }
+  return false
+}
