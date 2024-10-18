@@ -596,7 +596,7 @@ export class Jamid {
         message: {
           id: signal.message.id,
           author: signal.message.body.author,
-          linearizedParent: signal.message.body.linearizedParent,
+          linearizedParent: signal.message.linearizedParent,
           parents: signal.message.body.parents,
           timestamp: signal.message.body.timestamp,
           body: signal.message.body.body,
