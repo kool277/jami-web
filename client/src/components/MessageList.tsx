@@ -79,7 +79,7 @@ export default function MessageList({ messages }: MessageListProps) {
       </Stack>
       {showScrollButton && (
         <Box position="relative">
-          <Box position="absolute" bottom="10px" left="50%" sx={{ transform: 'translate(-50%)' }}>
+          <Box position="absolute" bottom="10px" left="50%" sx={{ transform: 'translate(-50%)', zIndex: 2 }}>
             <ScrollToEndButton listBottomRef={listBottomRef} />
           </Box>
         </Box>

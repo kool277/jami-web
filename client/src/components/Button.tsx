@@ -460,7 +460,7 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
           Icon={EmojiIcon}
           onClick={handleOpenEmojiPicker}
         />
-        <Popper id={id} open={open} anchorEl={anchorEl}>
+        <Popper sx={{ zIndex: 2 }} id={id} open={open} anchorEl={anchorEl}>
           <EmojiPicker onEmojiClick={onEmojiClick} autoFocusSearch={false} skinTonesDisabled={true} />
         </Popper>
       </Box>
