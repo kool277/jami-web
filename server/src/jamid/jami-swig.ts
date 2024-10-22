@@ -129,6 +129,10 @@ export interface JamiSwig {
   acceptConversationRequest(accountId: string, conversationId: string): void
   declineConversationRequest(accountId: string, conversationId: string): void
   addConversationMember(accountId: string, conversationId: string, uri: string): void
+  removeConversationMember(accountId: string, conversationId: string, uri: string): void
+  getConversationPreferences(accountId: string, conversationId: string): StringMap
+  setConversationPreferences(accountId: string, conversationId: string, preferences: StringMap): void
+  updateConversationInfos(accountId: string, conversationId: string, infos: StringMap): void
 
   sendMessage(accountId: string, conversationId: string, message: string, replyTo: string, flag: number): void
   loadConversationMessages(accountId: string, conversationId: string, fromMessage: string, n: number): number

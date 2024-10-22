@@ -26,6 +26,7 @@ import {
   ConversationInfos,
   ConversationMemberEventCode,
   ConversationMessage,
+  ConversationPreferences,
   Devices,
   LookupResult,
   Message,
@@ -427,6 +428,32 @@ export class Jamid {
 
   addConversationMember(accountId: string, conversationId: string, uri: string): void {
     this.jamiSwig.addConversationMember(accountId, conversationId, uri)
+  }
+
+  removeConversationMember(accountId: string, conversationId: string, uri: string): void {
+    this.jamiSwig.removeConversationMember(accountId, conversationId, uri)
+  }
+
+  getConversationPreferences(accountId: string, conversationId: string): ConversationPreferences {
+    return stringMapToRecord(
+      this.jamiSwig.getConversationPreferences(accountId, conversationId),
+    ) as unknown as ConversationPreferences
+  }
+
+  setConversationPreferences(accountId: string, conversationId: string, preferences: ConversationPreferences): void {
+    const preferencesStringMap: StringMap = new this.jamiSwig.StringMap()
+    for (const [key, value] of Object.entries(preferences)) {
+      preferencesStringMap.set(key, value.toString())
+    }
+    this.jamiSwig.setConversationPreferences(accountId, conversationId, preferencesStringMap)
+  }
+
+  updateConversationInfos(accountId: string, conversationId: string, infos: ConversationInfos): void {
+    const infosStringMap: StringMap = new this.jamiSwig.StringMap()
+    for (const [key, value] of Object.entries(infos)) {
+      infosStringMap.set(key, value.toString())
+    }
+    this.jamiSwig.updateConversationInfos(accountId, conversationId, infosStringMap)
   }
 
   async getConversationMessages(

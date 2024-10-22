@@ -72,6 +72,12 @@ export interface ConversationInfos {
   title?: string
 }
 
+export interface ConversationPreferences {
+  color?: string
+  emoji?: string
+  ignoreNotifications?: boolean
+}
+
 export interface NewConversationRequestBody {
   members: string[]
 }
