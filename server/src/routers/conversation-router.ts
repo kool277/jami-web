@@ -118,6 +118,56 @@ conversationRouter.get(
   }),
 )
 
+conversationRouter.post('/:conversationId/infos', (req, res) => {
+  const accountId = res.locals.accountId
+  const conversationId = req.params.conversationId
+  const infos = req.body
+
+  if (Object.keys(infos).length === 0) {
+    res.status(HttpStatusCode.BadRequest)
+    return
+  }
+  jamid.updateConversationInfos(accountId, conversationId, infos)
+  res.sendStatus(HttpStatusCode.Ok)
+})
+
+conversationRouter.get(
+  '/:conversationId/preferences',
+  asyncHandler(async (req, res) => {
+    const accountId = res.locals.accountId
+    const conversationId = req.params.conversationId
+
+    const preferences = jamid.getConversationPreferences(accountId, conversationId)
+    if (Object.keys(preferences).length === 0) {
+      res.status(HttpStatusCode.NotFound).send('No such conversation found')
+      return
+    }
+    res.send(preferences)
+  }),
+)
+
+conversationRouter.post('/:conversationId/preferences', (req, res) => {
+  const accountId = res.locals.accountId
+  const conversationId = req.params.conversationId
+  const preferences = req.body
+
+  if (Object.keys(preferences).length === 0) {
+    res.status(HttpStatusCode.BadRequest).send('Invalid preferences provided')
+    return
+  }
+
+  const preferencesSet = jamid.getConversationPreferences(accountId, conversationId) as { [key: string]: any }
+
+  Object.keys(preferences).forEach((key) => {
+    if (preferencesSet[key] !== preferences[key]) {
+      preferencesSet[key] = preferences[key]
+    }
+  })
+
+  jamid.setConversationPreferences(accountId, conversationId, preferencesSet)
+  res.sendStatus(HttpStatusCode.NoContent)
+})
+
 conversationRouter.get(
   '/:conversationId/members',
   asyncHandler(async (req, res) => {
@@ -242,6 +292,29 @@ conversationRouter.post('/:conversationId/add-to-swarm', (req, res) => {
   }
   res.sendStatus(HttpStatusCode.Ok)
 })
+
+conversationRouter.post('/:conversationId/remove-from-swarm', (req, res) => {
+  const accountId = res.locals.accountId
+  const conversationId = req.params.conversationId
+  const contactUri = req.body.contactUri
+
+  const accountUri = jamid.getAccountDetails(accountId)['Account.username']
+  const members = jamid.getConversationMembers(accountId, conversationId)
+
+  const isAdmin = members.some(
+    (member: { uri: string; role: string }) => member.uri === accountUri && member.role === 'admin',
+  )
+  const infos = jamid.getConversationInfos(accountId, conversationId)
+  console.log('infos', infos.mode)
+  if (!isAdmin || infos.mode === '0') {
+    res.status(HttpStatusCode.Forbidden).send('You must be an admin to remove members from the swarm group')
+    return
+  }
+  console.log('Removing member from swarm group', accountId, conversationId, contactUri)
+  jamid.removeConversationMember(accountId, conversationId, contactUri)
+  res.sendStatus(HttpStatusCode.Ok)
+})
+
 conversationRouter.post(
   '/:conversationId/editmessage',
   (req: Request<ParamsDictionary, string, Partial<NewMessageRequestBody>>, res) => {
