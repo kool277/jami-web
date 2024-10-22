@@ -15,7 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ComposingStatus, ConversationInfos, ConversationView, WebSocketMessageType } from 'jami-web-common'
+import {
+  ComposingStatus,
+  ConversationInfos,
+  ConversationMemberEvent,
+  ConversationView,
+  WebSocketMessageType,
+} from 'jami-web-common'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import LoadingPage from '../components/Loading'
@@ -109,6 +115,21 @@ export default ({ children }: WithChildren) => {
 
     return () => webSocket.unbind(WebSocketMessageType.ComposingStatus, onComposingStatusChanged)
   }, [accountId, conversationInfos, conversationId, onComposingStatusChanged, webSocket])
+
+  useEffect(() => {
+    if (!conversationInfos || !conversationId) {
+      return
+    }
+
+    const conversationMemberEventHandler = (data: ConversationMemberEvent) => {
+      if (data.conversationId === conversationId) {
+        membersQuery.refetch()
+      }
+    }
+
+    webSocket.bind(WebSocketMessageType.ConversationMemberEvent, conversationMemberEventHandler)
+    return () => webSocket.unbind(WebSocketMessageType.ConversationMemberEvent, conversationMemberEventHandler)
+  }, [conversationInfos, conversationId, webSocket, membersQuery])
 
   const value = useMemo(() => {
     if (!conversationId || !conversationDisplayName || !conversationInfos || !members) {
