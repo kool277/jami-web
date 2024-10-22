@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Divider, Fade, Stack, Typography } from '@mui/material'
+import { Box, Button, Divider, Fade, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import {
   AccountMessageStatus,
@@ -31,6 +31,7 @@ import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 
+import ConversationPreferences from '../components/ConversationPreferences'
 import { FilePreviewRemovable } from '../components/FilePreview'
 import LoadingPage from '../components/Loading'
 import MessageList from '../components/MessageList'
@@ -40,6 +41,7 @@ import SendMessageForm from '../components/SendMessageForm'
 import { PenIcon } from '../components/SvgIcon'
 import { useActionMessageContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
+import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { ConversationMember } from '../models/conversation-member'
@@ -65,12 +67,14 @@ const ChatInterface = () => {
   } = useActionMessageContext()
   const messagesQuery = useMessagesQuery(conversationId)
   const sendMessageMutation = useSendMessageMutation(conversationId)
+  const { isOpen } = useConversationPreferencesContext()
   const editMessageMutation = useEditMessageMutation(conversationId)
   const sendFilesMutation = useSendFilesMutation(conversationId)
 
   const [fileHandlers, setFileHandlers] = useState<FileHandler[]>([])
   const { account } = useAuthContext()
-
+  const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const [lastSeen, setLastSeen] = useState<Map<string, string>>(new Map())
 
   const onFilesDrop = useCallback(
@@ -335,38 +339,41 @@ const ChatInterface = () => {
   }
 
   return (
-    <Stack flex={1} overflow="hidden" {...getRootProps()} paddingBottom="16px">
-      {isDragActive && <FileDragOverlay />}
-      <input {...getInputProps()} />
-      <currentLastSeenMessageContext.Provider value={lastSeen}>
-        <MessageList messages={messages} />
-      </currentLastSeenMessageContext.Provider>
-      <ComposingMembersIndicator />
-      <Divider
-        sx={{
-          marginX: '16px',
-          borderTop: '1px solid #E5E5E5',
-        }}
-      />
-      <ReplyToMessage />
-      {editMessage !== undefined ? (
-        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', padding: '1%' }}>
-            <PenIcon sx={{ marginLeft: '2%' }} />
-            <Box sx={{ marginLeft: '10%' }}>{t('editing')}</Box>
+    <Stack flex={1} direction="row" overflow="hidden" spacing={0}>
+      <Stack width={isOpen && isMobile ? '0px' : '100%'} overflow="hidden" {...getRootProps()} paddingBottom="16px">
+        {isDragActive && <FileDragOverlay />}
+        <input {...getInputProps()} />
+        <currentLastSeenMessageContext.Provider value={lastSeen}>
+          <MessageList messages={messages} />
+        </currentLastSeenMessageContext.Provider>
+        <ComposingMembersIndicator />
+        <Divider
+          sx={{
+            marginX: '16px',
+            borderTop: '1px solid #E5E5E5',
+          }}
+        />
+        <ReplyToMessage />
+        {editMessage !== undefined ? (
+          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', padding: '1%' }}>
+              <PenIcon sx={{ marginLeft: '2%' }} />
+              <Box sx={{ marginLeft: '10%' }}>{t('editing')}</Box>
+            </Box>
+            <Button onClick={onCancelEdit} sx={{ marginLeft: '4%' }}>
+              X
+            </Button>
           </Box>
-          <Button onClick={onCancelEdit} sx={{ marginLeft: '4%' }}>
-            X
-          </Button>
-        </Box>
-      ) : null}
-      <SendMessageForm
-        onSend={handleSendMessage}
-        openFilePicker={openFilePicker}
-        fileHandlers={fileHandlers}
-        editMessage={editMessage}
-      />
-      {fileHandlers.length > 0 && <FilePreviewsList fileHandlers={fileHandlers} removeFile={removeFile} />}
+        ) : null}
+        <SendMessageForm
+          onSend={handleSendMessage}
+          openFilePicker={openFilePicker}
+          fileHandlers={fileHandlers}
+          editMessage={editMessage}
+        />
+        {fileHandlers.length > 0 && <FilePreviewsList fileHandlers={fileHandlers} removeFile={removeFile} />}
+      </Stack>
+      {isOpen && <ConversationPreferences />}
     </Stack>
   )
 }

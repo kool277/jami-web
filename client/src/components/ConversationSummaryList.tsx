@@ -365,7 +365,7 @@ const ConversationMenu = ({
       <RemoveConversationDialog
         {...RemoveConversationDialogHandler.props}
         conversationId={conversationId}
-        isSelected={isSelected}
+        isCurrent={isSelected}
       />
     </>
   )

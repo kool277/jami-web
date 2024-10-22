@@ -25,12 +25,12 @@ import { ConfirmationDialog } from './Dialog'
 
 interface RemoveConversationDialogProps {
   conversationId: string
-  isSelected: boolean
+  isCurrent: boolean
   open: boolean
   onClose: () => void
 }
 
-const RemoveConversationDialog = ({ conversationId, isSelected, open, onClose }: RemoveConversationDialogProps) => {
+const RemoveConversationDialog = ({ conversationId, isCurrent, open, onClose }: RemoveConversationDialogProps) => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const removeConversationMutation = useRemoveConversationMutation()
@@ -40,7 +40,7 @@ const RemoveConversationDialog = ({ conversationId, isSelected, open, onClose }:
       { conversationId },
       {
         onSuccess: () => {
-          if (isSelected) {
+          if (isCurrent) {
             navigate('/conversation/')
           }
         },
@@ -52,7 +52,7 @@ const RemoveConversationDialog = ({ conversationId, isSelected, open, onClose }:
         },
       },
     )
-  }, [conversationId, isSelected, navigate, onClose, removeConversationMutation])
+  }, [conversationId, isCurrent, navigate, onClose, removeConversationMutation])
 
   return (
     <ConfirmationDialog

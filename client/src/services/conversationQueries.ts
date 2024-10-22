@@ -268,11 +268,19 @@ export const useConversationPreferencesQuery = (conversationId: string) => {
 export const useConversationPreferencesMutation = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
   const queryClient = useQueryClient()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
   return useMutation({
     mutationFn: (preferences: ConversationPreferences) =>
       axiosInstance.post(`/conversations/${conversationId}/preferences`, preferences),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversationPreferences', conversationId] })
+    },
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'update_conversation_preferences_error',
+        severity: 'error',
+        alertOpen: true,
+      })
     },
   })
 }

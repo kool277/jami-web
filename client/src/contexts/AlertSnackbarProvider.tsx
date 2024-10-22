@@ -102,6 +102,7 @@ type AlertMessageKeys =
   | 'add_to_group_no_user_selected'
   | 'removed_linked_device_success'
   | 'removed_linked_device_error'
+  | 'update_conversation_preferences_error'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
 
@@ -177,6 +178,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('removed_linked_device_success')
         case 'removed_linked_device_error':
           return t('removed_linked_device_error')
+        case 'update_conversation_preferences_error':
+          return t('update_conversation_preferences_error')
         default:
           return t('unknown_error_alert')
       }

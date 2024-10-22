@@ -42,6 +42,10 @@ declare module '@mui/material/styles' {
       backgroundColor: string
       hoverColor: string
     }
+    ConversationPreferences: {
+      backgroundColor: string
+      border: string
+    }
   }
 
   interface ThemeOptions {
@@ -210,6 +214,10 @@ const palettes = {
     CustomSelect: {
       backgroundColor: 'white',
     },
+    ConversationPreferences: {
+      backgroundColor: '#f2f2f2',
+      border: '0.5px lightgrey solid',
+    },
   },
   dark: {
     palette: {
@@ -258,6 +266,10 @@ const palettes = {
     },
     CustomSelect: {
       backgroundColor: '#121212',
+    },
+    ConversationPreferences: {
+      backgroundColor: '#181818',
+      border: '0.5px darkgrey solid',
     },
   },
 }
