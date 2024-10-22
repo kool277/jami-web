@@ -111,6 +111,7 @@ conversationRouter.get(
     const infos = jamid.getConversationInfos(accountId, conversationId)
     if (Object.keys(infos).length === 0) {
       res.status(HttpStatusCode.NotFound).send('No such conversation found')
+      return
     }
 
     res.send(infos)

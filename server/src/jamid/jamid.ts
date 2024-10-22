@@ -338,6 +338,9 @@ export class Jamid {
   }
 
   async lookupAddress(address: string, nameserver: string, accountId?: string): Promise<LookupResult> {
+    if (address === undefined) {
+      throw new Error('Address is undefined')
+    }
     const hasRingNs = this.jamiSwig.lookupAddress(accountId || '', nameserver, address)
 
     if (!hasRingNs) {
@@ -681,6 +684,7 @@ export class Jamid {
           fileId: signal.message.body.fileId,
           type: signal.message.body.type,
           'reply-to': signal.message.body['reply-to'],
+          action: signal.message.body.action,
           editions: signal.message.editions,
           reactions: signal.message.reactions,
           status: signal.message.status,
@@ -700,12 +704,13 @@ export class Jamid {
           linearizedParent: signal.message.body.linearizedParent,
           parents: signal.message.body.parents,
           timestamp: signal.message.body.timestamp,
-          body: signal.message.body.body,
           type: signal.message.body.type,
           'reply-to': signal.message.body['reply-to'],
+          action: signal.message.body.action,
           editions: signal.message.editions,
           reactions: signal.message.reactions,
           status: signal.message.status,
+          body: signal.message.body.body,
         },
       }
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.MessageEdition, data)
