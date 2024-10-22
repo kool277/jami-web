@@ -31,14 +31,15 @@ import { useConversationDisplayNameShort } from '../hooks/useConversationDisplay
 import { useUrlParams } from '../hooks/useUrlParams'
 import { ConversationRouteParams } from '../router'
 import { CallStatus } from '../services/CallManager'
-import { useMembersQuery, useRemoveConversationMutation } from '../services/conversationQueries'
+import { useMembersQuery } from '../services/conversationQueries'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
 import { formatRelativeDate, formatTime } from '../utils/dates&times'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
 import ConversationAvatar from './ConversationAvatar'
 import { CustomListItemButton } from './CustomListItemButton'
-import { ConfirmationDialog, DialogContentList, InfosDialog, useDialogHandler } from './Dialog'
+import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog'
 import { PopoverListItemData } from './PopoverList'
+import RemoveConversationDialog from './RemoveComversationDialog'
 import { AudioCallIcon, CancelIcon, MessageIcon, PersonIcon, VideoCallIcon } from './SvgIcon'
 
 type ConversationSummaryListProps = {
@@ -398,49 +399,6 @@ const DetailsDialog = ({
       }
       title={conversationName}
       content={<DialogContentList title={t('conversation_details_informations')} items={items} />}
-    />
-  )
-}
-
-interface RemoveConversationDialogProps {
-  conversationId: string
-  isSelected: boolean
-  open: boolean
-  onClose: () => void
-}
-
-const RemoveConversationDialog = ({ conversationId, isSelected, open, onClose }: RemoveConversationDialogProps) => {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const removeConversationMutation = useRemoveConversationMutation()
-
-  const remove = useCallback(async () => {
-    removeConversationMutation.mutate(
-      { conversationId },
-      {
-        onSuccess: () => {
-          if (isSelected) {
-            navigate('/conversation/')
-          }
-        },
-        onError: (e) => {
-          console.error(`Error removing conversation : `, e)
-        },
-        onSettled: () => {
-          onClose()
-        },
-      },
-    )
-  }, [conversationId, isSelected, navigate, onClose, removeConversationMutation])
-
-  return (
-    <ConfirmationDialog
-      open={open}
-      onClose={onClose}
-      title={t('dialog_confirm_title_default')}
-      content={t('conversation_ask_confirm_remove')}
-      onConfirm={remove}
-      confirmButtonText={t('conversation_confirm_remove')}
     />
   )
 }
