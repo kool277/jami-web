@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { ConversationMemberEventCode } from '../enums/conversation-member-event-code.js'
 import { MessageStatusCode } from '../enums/message-status-code.js'
 import { Message, Reaction } from './conversation.js'
 
@@ -25,6 +26,12 @@ export interface ContactMessage {
 export interface ConversationMessage {
   conversationId: string
   message: Message
+}
+
+export interface ConversationMemberEvent {
+  conversationId: string
+  member: string
+  event: ConversationMemberEventCode
 }
 
 export interface ConversationView {

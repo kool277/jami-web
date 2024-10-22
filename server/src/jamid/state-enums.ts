@@ -44,11 +44,3 @@ export enum MessageState {
   Failure,
   Cancelled,
 }
-
-export enum ConversationMemberEventType {
-  Add,
-  Join,
-  Remove,
-  Ban,
-  Unban,
-}

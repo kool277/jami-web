@@ -24,6 +24,7 @@ import {
   ComposingStatus,
   ContactDetails,
   ConversationInfos,
+  ConversationMemberEventCode,
   ConversationMessage,
   Devices,
   LookupResult,
@@ -73,12 +74,7 @@ import {
   VolatileDetailsChanged,
 } from './jami-signal-interfaces.js'
 import { JamiSwig, StringMap, stringMapToRecord, stringVectToArray, vectMapToRecordArray } from './jami-swig.js'
-import {
-  ConversationMemberEventType,
-  MessageState,
-  NameRegistrationEndedState,
-  RegistrationState,
-} from './state-enums.js'
+import { MessageState, NameRegistrationEndedState, RegistrationState } from './state-enums.js'
 
 const require = createRequire(import.meta.url)
 
@@ -195,7 +191,7 @@ export class Jamid {
       accountId: string,
       conversationId: string,
       memberUri: string,
-      event: ConversationMemberEventType,
+      event: ConversationMemberEventCode,
     ) => {
       onConversationMemberEvent.next({ accountId, conversationId, memberUri, event })
     }
@@ -660,6 +656,12 @@ export class Jamid {
 
     this.events.onConversationMemberEvent.subscribe((signal) => {
       log.debug('Received onConversationMemberEvent:', JSON.stringify(signal))
+      const data = {
+        conversationId: signal.conversationId,
+        member: signal.memberUri,
+        event: signal.event,
+      }
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationMemberEvent, data)
     })
 
     this.events.onSwarmMessageReceived.subscribe((signal) => {

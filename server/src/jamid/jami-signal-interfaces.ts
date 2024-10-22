@@ -15,16 +15,18 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { AccountDetails, Devices, Message, Reaction, VolatileDetails } from 'jami-web-common'
+import {
+  AccountDetails,
+  ConversationMemberEventCode,
+  Devices,
+  Message,
+  Reaction,
+  VolatileDetails,
+} from 'jami-web-common'
 import { RegisteredNameFoundState } from 'jami-web-common'
 
 import { ConversationRequestMetadata } from './conversation-request-metadata.js'
-import {
-  ConversationMemberEventType,
-  MessageState,
-  NameRegistrationEndedState,
-  RegistrationState,
-} from './state-enums.js'
+import { MessageState, NameRegistrationEndedState, RegistrationState } from './state-enums.js'
 
 // These interfaces are used to hold all the parameters for signal handlers
 // These parameters' names and types can be found in daemon/bin/nodejs/callback.h
@@ -144,7 +146,7 @@ export interface ConversationMemberEvent {
   accountId: string
   conversationId: string
   memberUri: string
-  event: ConversationMemberEventType
+  event: ConversationMemberEventCode
 }
 
 export interface SwarmMessageReceived {

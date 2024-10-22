@@ -23,6 +23,7 @@ import {
   CallInvite,
   CallJoin,
   ComposingStatus,
+  ConversationMemberEvent,
   ConversationMessage,
   ConversationView,
   LoadMoreMessages,
@@ -45,6 +46,7 @@ export interface WebSocketMessageTable {
   [WebSocketMessageType.ReactionRemoved]: ReactionRemoved
   [WebSocketMessageType.ProfileReceived]: ProfileReceived
   [WebSocketMessageType.MessageEdition]: ConversationMessage
+  [WebSocketMessageType.ConversationMemberEvent]: ConversationMemberEvent
   [WebSocketMessageType.LoadMoreMessages]: LoadMoreMessages
 
   // calls (in the order they should be sent)

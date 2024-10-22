@@ -20,6 +20,7 @@ export enum WebSocketMessageType {
   ConversationRequest = 'conversation-request',
   ConversationView = 'conversation-view',
   ComposingStatus = 'composing-status',
+  ConversationMemberEvent = 'conversation-member-event',
   AccountMessageStatus = 'account-message-status',
   ReactionAdded = 'reaction-added',
   ReactionRemoved = 'reaction-removed',
