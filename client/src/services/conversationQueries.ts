@@ -19,6 +19,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import {
   ConversationInfos,
+  ConversationPreferences,
   IConversationMember,
   IConversationRequest,
   IConversationSummary,
@@ -40,6 +41,18 @@ export const useConversationInfosQuery = (conversationId?: string) => {
       return data
     },
     enabled: !!conversationId,
+  })
+}
+
+export const useConversationInfosMutation = (conversationId: string) => {
+  const { axiosInstance } = useAuthContext()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (conversationInfos: ConversationInfos) =>
+      axiosInstance.post(`/conversations/${conversationId}/infos`, conversationInfos),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations', conversationId] })
+    },
   })
 }
 
@@ -219,11 +232,47 @@ export const useDeclineConversationRequestMutation = () => {
 
 export const useAddMemberToSwarm = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (contactUri: string[]) =>
       axiosInstance.post(`/conversations/${conversationId}/add-to-swarm`, { contactUri }),
     onSuccess: () => {
-      // refresh conversations summaries
+      queryClient.invalidateQueries({ queryKey: ['conversations', 'summaries'] })
+    },
+  })
+}
+
+export const useRemoveMemberFromSwarm = (conversationId: string) => {
+  const { axiosInstance } = useAuthContext()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (contactUri: string) =>
+      axiosInstance.post(`/conversations/${conversationId}/remove-from-swarm`, { contactUri }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations', 'summaries'] })
+    },
+  })
+}
+
+export const useConversationPreferencesQuery = (conversationId: string) => {
+  const { axiosInstance } = useAuthContext()
+  return useQuery({
+    queryKey: ['conversationPreferences', conversationId],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<ConversationPreferences>(`/conversations/${conversationId}/preferences`)
+      return data
+    },
+  })
+}
+
+export const useConversationPreferencesMutation = (conversationId: string) => {
+  const { axiosInstance } = useAuthContext()
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (preferences: ConversationPreferences) =>
+      axiosInstance.post(`/conversations/${conversationId}/preferences`, preferences),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversationPreferences', conversationId] })
     },
   })
 }
