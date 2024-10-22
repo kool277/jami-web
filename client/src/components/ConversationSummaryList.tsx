@@ -97,6 +97,13 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
   const contextMenuHandler = useContextMenuHandler()
   const navigate = useNavigate()
   const members = useMembersQuery(conversationSummary.id)
+  const memberArray = members.data
+
+  const filteredMembers = useMemo(() => {
+    return memberArray?.filter((member) => member.contact.uri !== account.getUri()) || []
+  }, [memberArray, account])
+
+  console.log('filteredMembers', filteredMembers)
 
   const conversationId = conversationSummary.id
   const isSelected = conversationId === selectedConversationId
@@ -117,7 +124,11 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
     <Box>
       <ConversationMenu
         conversationMemberUri={
-          Number(conversationSummary.mode) === 0 ? (members.data ? members.data[0].contact.uri : undefined) : undefined
+          Number(conversationSummary.mode) === 0
+            ? filteredMembers.length > 0
+              ? filteredMembers[0].contact.uri
+              : undefined
+            : undefined
         }
         conversationAvatar={conversationSummary.avatar}
         conversationId={conversationId}
@@ -134,7 +145,9 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
         icon={
           <ConversationAvatar
             contactUri={
-              Number(conversationSummary.mode) === 0 && members.data ? members.data[0].contact.uri : undefined
+              Number(conversationSummary.mode) === 0 && filteredMembers.length > 0
+                ? filteredMembers[0].contact.uri
+                : undefined
             }
             displayName={conversationName}
             src={conversationSummary.avatar}

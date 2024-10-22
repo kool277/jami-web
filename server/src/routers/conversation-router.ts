@@ -124,9 +124,6 @@ conversationRouter.get(
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
 
-    // Retrieve the URI of the current account (Account.username actually stores the URI rather than the username)
-    const accountUri = jamid.getAccountDetails(accountId)['Account.username']
-
     const infos = jamid.getConversationInfos(accountId, conversationId)
     if (Object.keys(infos).length === 0) {
       res.status(HttpStatusCode.NotFound).send('No such conversation found')
@@ -137,10 +134,6 @@ conversationRouter.get(
 
     const namedMembers: IConversationMember[] = []
     for (const member of members) {
-      // Exclude current user from returned conversation members
-      if (member.uri === accountUri) {
-        continue
-      }
       const nameserver = config.getNameServerAddress()
       // Add usernames for conversation members
       const { username } = await jamid.lookupAddress(member.uri, nameserver, accountId)
