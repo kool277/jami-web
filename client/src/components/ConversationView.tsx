@@ -20,6 +20,9 @@ import { Box, Divider, Stack, Typography, useMediaQuery, useTheme } from '@mui/m
 import { useNavigate } from 'react-router-dom'
 
 import { useCallManagerContext } from '../contexts/CallManagerProvider'
+import ConversationPreferencesProvider, {
+  useConversationPreferencesContext,
+} from '../contexts/ConversationPreferencesContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import CallInterface from '../pages/CallInterface'
 import ChatInterface from '../pages/ChatInterface'
@@ -35,21 +38,24 @@ const ConversationView = () => {
   }
 
   return (
-    <Stack flexGrow={1} height="100%" width="100%">
-      <ConversationHeader />
-      <Divider
-        sx={{
-          borderTop: '1px solid #E5E5E5',
-        }}
-      />
-      <ChatInterface />
-    </Stack>
+    <ConversationPreferencesProvider>
+      <Stack flexGrow={1} height="100%" width="100%">
+        <ConversationHeader />
+        <Divider
+          sx={{
+            borderTop: '1px solid #E5E5E5',
+          }}
+        />
+        <ChatInterface />
+      </Stack>
+    </ConversationPreferencesProvider>
   )
 }
 
 const ConversationHeader = () => {
   const { conversationId, conversationDisplayName } = useConversationContext()
   const { startCall } = useCallManagerContext()
+  const { isOpen, setIsOpen } = useConversationPreferencesContext()
 
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
@@ -69,7 +75,11 @@ const ConversationHeader = () => {
         <StartAudioCallButton onClick={() => startCall(conversationId)} />
         <StartVideoCallButton onClick={() => startCall(conversationId, true)} />
         <AddUserToSwarmModal />
-        <ShowOptionsMenuButton />
+        <ShowOptionsMenuButton
+          onClick={() => {
+            setIsOpen(!isOpen)
+          }}
+        />
       </Stack>
     </Stack>
   )
