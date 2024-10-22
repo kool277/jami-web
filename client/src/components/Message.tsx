@@ -55,9 +55,10 @@ import {
   TrashBinIcon,
   TwoSheetsIcon,
 } from './SvgIcon'
-import { getColor, getTextColor, getSentTimeColor } from '../utils/messagecolor'
+import { getTextColor, getSentTimeColor } from '../utils/messagecolor'
 import { motion } from 'framer-motion'
 import { useDeleteMessageMutation } from '../services/conversationQueries'
+import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
 
 type MessagePosition = 'start' | 'end'
 
@@ -205,11 +206,13 @@ const MessageDataTransfer = ({
   const position = isAccountMessage ? 'end' : 'start'
   const [isDeleted, setIsDeleted] = useState(false)
   const { conversationId } = useConversationContext()
+  const { conversationColor } = useConversationPreferencesContext()
+  const bubbleColor = isAccountMessage ? conversationColor : '#E5E5E5'
   const [fileType, setFileType] = useState<FileType>()
   const extension = message.displayName?.split('.').pop()?.toLowerCase() || ''
   const theme: Theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-  const bubbleColor = isAccountMessage ? '#005699' : '#E5E5E5'
+
   const textColor = isAccountMessage ? 'white' : 'black'
   const [preview, setPreview] = useState<string>()
   const [audioBlob, setAudioBlob] = useState<Blob>()
@@ -461,10 +464,10 @@ interface MessageTextProps {
 }
 
 const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup, sentTime }: MessageTextProps) => {
-  const { members } = useConversationContext()
+  const { conversationColor } = useConversationPreferencesContext()
 
   const position = isAccountMessage ? 'end' : 'start'
-  const bubbleColor = isAccountMessage ? (members.length > 1 ? '#9E9E9E' : getColor(members[0].contact.uri)) : '#E5E5E5'
+  const bubbleColor = isAccountMessage ? conversationColor : '#E5E5E5'
   const textColor = isAccountMessage ? getTextColor(bubbleColor) : '#000000'
   const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message])
   const theme: Theme = useTheme()
