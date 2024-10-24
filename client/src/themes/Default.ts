@@ -35,6 +35,13 @@ declare module '@mui/material/styles' {
     LoginPage: {
       backgroundColor: string
     }
+    WelcomePage: {
+      infoBackgroundColor: string
+      tipsBackgroundColor: string
+      tipsHoverBackgroundColor: string
+      middleBoxBackgroundColor: string
+      iconsColor: string
+    }
     MessageCall: {
       textColorMissed: string
     }
@@ -241,6 +248,13 @@ const palettes = {
     LoginPage: {
       backgroundColor: '#f9fafc',
     },
+    WelcomePage: {
+      infoBackgroundColor: '#f0efef',
+      tipsBackgroundColor: 'rgba(255, 255, 255, 0.3)',
+      tipsHoverBackgroundColor: 'rgba(255, 255, 255, 0.6)',
+      middleBoxBackgroundColor: 'rgba(255, 255, 255, 0.5)',
+      iconsColor: '#005699',
+    },
     MessageCall: {
       textColorMissed: '#CC0022',
     },
@@ -326,6 +340,13 @@ const palettes = {
     },
     LoginPage: {
       backgroundColor: '#f9fafc',
+    },
+    WelcomePage: {
+      infoBackgroundColor: '#333333',
+      tipsBackgroundColor: 'rgba(0, 0, 0, 0.8)',
+      tipsHoverBackgroundColor: 'rgba(0, 0, 0, 0.5)',
+      middleBoxBackgroundColor: 'rgba(0, 0, 0, 0.8)',
+      iconsColor: 'white',
     },
     MessageCall: {
       textColorMissed: '#FA2E30',

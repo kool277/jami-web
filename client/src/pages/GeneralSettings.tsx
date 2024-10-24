@@ -36,6 +36,7 @@ export default function GeneralPreferences() {
         <Typography variant="h2">{t('settings_title_general')}</Typography>
         <SettingsGroup label={t('settings_title_system')}>
           <SettingTheme />
+          <SettingTips />
           <SettingLanguage />
         </SettingsGroup>
         <SettingsGroup label={t('settings_title_chat')}>
@@ -52,6 +53,22 @@ const SettingTheme = () => {
   const { mode, toggleMode } = useContext(CustomThemeContext)
 
   return <SettingSwitch label={t('settings_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />
+}
+
+const SettingTips = () => {
+  const [isDisabled, setIsDisabled] = useState<boolean>(localStorage.getItem('disable-tips') === 'true')
+
+  const handleTipState = () => {
+    if (isDisabled) {
+      localStorage.removeItem('disable-tips')
+      setIsDisabled(false)
+      return
+    }
+    localStorage.setItem('disable-tips', 'true')
+    setIsDisabled(true)
+  }
+
+  return <SettingSwitch label="Disable tips" onChange={handleTipState} checked={isDisabled} />
 }
 
 const settingLanguageOptions = languagesInfos.map(({ tag, fullName }) => ({

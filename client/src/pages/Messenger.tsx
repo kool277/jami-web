@@ -19,9 +19,10 @@ import { ReactNode } from 'react'
 
 import ConversationList from '../components/ConversationList'
 import LayoutWrapper from '../components/LayoutWrapper'
+import WelcomePage from '../components/WelcomePage'
 
 const Messenger = ({ children }: { children?: ReactNode }) => {
-  return <LayoutWrapper sidebar={<ConversationList />} main={children} />
+  return <LayoutWrapper sidebar={<ConversationList />} main={children !== undefined ? children : <WelcomePage />} />
 }
 
 export default Messenger

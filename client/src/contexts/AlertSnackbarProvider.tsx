@@ -73,6 +73,7 @@ const defaultAlertSnackbarContext: IAlertSnackbarContext = {
 
 //Don't forget to add the cases in the switch statement below
 type AlertMessageKeys =
+  | 'copied_to_clipboard'
   | 'redirect_admin_setup_complete'
   | 'password_input_helper_text_not_match'
   | 'admin_page_setup_not_complete'
@@ -113,7 +114,6 @@ type AlertMessageKeys =
   | 'extending_session_error_alert'
   | 'getting_oauth_clients_error'
   | 'getting_oauth_provider_info_error'
-  | 'copied_to_clipboard'
   | 'file_not_downloaded'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
@@ -164,6 +164,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('setting_name_server_error')
         case 'getting_name_server_error':
           return t('getting_name_server_error')
+        case 'copied_to_clipboard':
+          return t('copied_to_clipboard')
         case 'setting_jams_server_success':
           return t('setting_jams_server_success')
         case 'unauthorized_access':
@@ -212,8 +214,6 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('getting_oauth_clients_error')
         case 'getting_oauth_provider_info_error':
           return t('getting_oauth_provider_info_error')
-        case 'copied_to_clipboard':
-          return t('copied_to_clipboard')
         case 'file_not_downloaded':
           return t('file_not_downloaded')
         default:
