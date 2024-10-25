@@ -29,14 +29,20 @@ export class Account implements IAccount {
   devices: Devices = {}
   contacts: Contact[] = []
 
-  constructor(id: string, details: AccountDetails, volatileDetails: VolatileDetails) {
+  constructor(id: string, details: AccountDetails, volatileDetails: VolatileDetails, devices: Devices = {}) {
     this.id = id
     this.details = details
     this.volatileDetails = volatileDetails
+    this.devices = devices
   }
 
   static fromInterface(accountInterface: IAccount) {
-    const account = new Account(accountInterface.id, accountInterface.details, accountInterface.volatileDetails)
+    const account = new Account(
+      accountInterface.id,
+      accountInterface.details,
+      accountInterface.volatileDetails,
+      accountInterface.devices,
+    )
     account.defaultModerators = accountInterface.defaultModerators.map(Contact.fromInterface)
     return account
   }
