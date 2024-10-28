@@ -15,7 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Divider, Stack, Typography } from '@mui/material'
+import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+import { Box, Divider, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
 
 import { useCallManagerContext } from '../contexts/CallManagerProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
@@ -49,12 +51,19 @@ const ConversationHeader = () => {
   const { conversationId, conversationDisplayName } = useConversationContext()
   const { startCall } = useCallManagerContext()
 
+  const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const navigate = useNavigate()
+
   return (
     <Stack direction="row" padding="16px" overflow="hidden">
       <Stack flex={1} justifyContent="center" whiteSpace="nowrap" overflow="hidden">
-        <Typography variant="h5" textOverflow="ellipsis">
-          {conversationDisplayName}
-        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4%' }}>
+          {isMobile && <MenuOpenIcon sx={{ '&:hover': { cursor: 'pointer' } }} onClick={() => navigate('/')} />}
+          <Typography variant="h5" textOverflow="ellipsis">
+            {conversationDisplayName}
+          </Typography>
+        </Box>
       </Stack>
       <Stack direction="row" spacing="20px">
         <StartAudioCallButton onClick={() => startCall(conversationId)} />

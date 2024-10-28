@@ -17,6 +17,7 @@
  */
 
 import GroupRounded from '@mui/icons-material/AddCircle'
+import { Box } from '@mui/material'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
@@ -37,7 +38,7 @@ function LinkedDevices() {
   console.log(devices)
 
   return (
-    <>
+    <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
       <Grid
         item
         xs={12}
@@ -64,7 +65,7 @@ function LinkedDevices() {
           </CardContent>
         </Card>
       </Grid>
-    </>
+    </Box>
   )
 }
 

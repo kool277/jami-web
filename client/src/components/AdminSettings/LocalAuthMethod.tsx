@@ -101,7 +101,7 @@ const LocalAuthMethod = () => {
   }
 
   return (
-    <Box sx={{ textAlign: 'start', marginTop: '8%' }}>
+    <Box sx={{ textAlign: 'start' }}>
       <Box
         sx={{
           display: 'flex',
@@ -115,7 +115,7 @@ const LocalAuthMethod = () => {
           {t('setting_auth_change', { authMethod: AuthenticationMethods.JAMI })}
         </span>
         <FormControl>
-          <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
+          <FormGroup style={{ alignItems: 'center' }}>
             <FormControlLabel
               control={<Switch checked={data.localAuthEnabled} onChange={handleChange} />}
               label={undefined}
@@ -123,7 +123,7 @@ const LocalAuthMethod = () => {
           </FormGroup>
         </FormControl>
       </Box>
-      <Box sx={{ textAlign: 'start', alignItems: 'start', marginTop: '8%' }}>
+      <Box sx={{ textAlign: 'start', alignItems: 'start' }}>
         <Typography>{t('setting_name_server')}</Typography>
         <Form>
           <Input value={nameServer} onChange={handleNameChangeNameServer} />

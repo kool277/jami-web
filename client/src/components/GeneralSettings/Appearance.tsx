@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import { Box } from '@mui/material'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -24,9 +25,11 @@ import { SettingsGroup, SettingSwitch } from '../Settings'
 function Appearance() {
   const { t } = useTranslation()
   return (
-    <SettingsGroup label={t('settings_theme')}>
-      <SettingTheme />
-    </SettingsGroup>
+    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <SettingsGroup label={t('settings_theme')}>
+        <SettingTheme />
+      </SettingsGroup>
+    </Box>
   )
 }
 
@@ -35,7 +38,11 @@ const SettingTheme = () => {
 
   const { mode, toggleMode } = useContext(CustomThemeContext)
 
-  return <SettingSwitch label={t('settings_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />
+  return (
+    <Box sx={{ width: '180px', textAlign: 'start' }}>
+      <SettingSwitch label={t('settings_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />
+    </Box>
+  )
 }
 
 export default Appearance

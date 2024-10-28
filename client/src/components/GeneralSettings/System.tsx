@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -23,11 +24,15 @@ import { SettingSelect, SettingSelectProps, SettingsGroup, SettingSwitch } from 
 
 function System() {
   const { t } = useTranslation()
+  const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   return (
-    <SettingsGroup label={t('settings_title_system')}>
-      <SettingLanguage />
-      <SettingLinkPreview />
-    </SettingsGroup>
+    <Box sx={{ display: 'flex', justifyContent: isMobile ? 'center' : 'flex-start', padding: '2%' }}>
+      <SettingsGroup label={t('settings_title_system')}>
+        <SettingLanguage />
+        <SettingLinkPreview />
+      </SettingsGroup>
+    </Box>
   )
 }
 
@@ -55,12 +60,14 @@ const SettingLanguage = () => {
   )
 
   return (
-    <SettingSelect
-      label={t('settings_language')}
-      option={option}
-      options={settingLanguageOptions}
-      onChange={onChange}
-    />
+    <Box sx={{ mt: '2%', mb: '2%' }}>
+      <SettingSelect
+        label={t('settings_language')}
+        option={option}
+        options={settingLanguageOptions}
+        onChange={onChange}
+      />
+    </Box>
   )
 }
 
@@ -69,7 +76,11 @@ const SettingLinkPreview = () => {
 
   const [isOn, setIsOn] = useState<boolean>(true)
 
-  return <SettingSwitch label={t('settings_link_preview')} onChange={() => setIsOn((isOn) => !isOn)} checked={isOn} />
+  return (
+    <Box sx={{ mt: '2%', mb: '2%' }}>
+      <SettingSwitch label={t('settings_link_preview')} onChange={() => setIsOn((isOn) => !isOn)} checked={isOn} />{' '}
+    </Box>
+  )
 }
 
 export default System

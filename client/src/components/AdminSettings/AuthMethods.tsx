@@ -60,8 +60,8 @@ export default function AuthMethods() {
 
   const listStyle = {
     py: 0,
-    width: '100%',
-    maxWidth: 360,
+    width: '100vw',
+    maxWidth: '360px',
     borderRadius: 2,
     border: '1px solid',
     borderColor: 'divider',
@@ -70,7 +70,7 @@ export default function AuthMethods() {
   }
 
   const listItemStyle = {
-    width: '15vw',
+    width: '100%',
     borderRadius: '7px',
     textAlign: 'center',
     ':hover': { cursor: 'pointer' },

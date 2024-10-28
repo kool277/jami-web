@@ -22,7 +22,7 @@ import AccountPreferences from '../components/AccountPreferences'
 export default function AccountSettings() {
   // TODO: Improve component and sub-components UI.
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="sm" sx={{ marginTop: '5vh' }}>
       <AccountPreferences />
     </Container>
   )
