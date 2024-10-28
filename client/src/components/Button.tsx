@@ -35,7 +35,7 @@ import {
   SvgIconProps,
   Theme,
 } from '@mui/material'
-import { PaletteColor, styled } from '@mui/material/styles'
+import { PaletteColor, styled, useTheme } from '@mui/material/styles'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { ComponentType, ReactNode, useCallback, useState } from 'react'
 
@@ -222,9 +222,14 @@ export const CancelPictureButton = (props: IconButtonProps) => {
   return <RoundButton {...props} aria-label="remove picture" Icon={CancelIcon} size="large" />
 }
 
-export const EditPictureButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="edit picture" Icon={PenIcon} size="small" />
-}
+export const EditPictureButton = styled((props: IconButtonProps) => {
+  return <RoundButton {...props} disableRipple={false} aria-label="edit picture" Icon={PenIcon} size="small" />
+})(() => ({
+  backgroundColor: 'inherit',
+  '&:hover': {
+    background: '#E5E5E5',
+  },
+}))
 
 export const UploadPictureButton = (props: IconButtonProps) => {
   return <RoundButton {...props} aria-label="upload picture" Icon={FolderIcon} size="large" />
@@ -437,7 +442,7 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
 
   const handleOpenEmojiPicker = useCallback((e: any) => setAnchorEl(anchorEl ? null : e.currentTarget), [anchorEl])
-
+  const theme = useTheme()
   const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
 
   const onEmojiClick = //useCallback(
@@ -461,7 +466,12 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
           onClick={handleOpenEmojiPicker}
         />
         <Popper sx={{ zIndex: 2 }} id={id} open={open} anchorEl={anchorEl}>
-          <EmojiPicker onEmojiClick={onEmojiClick} autoFocusSearch={false} skinTonesDisabled={true} />
+          <EmojiPicker
+            theme={theme.EmojiPicker.backgroundColor}
+            onEmojiClick={onEmojiClick}
+            autoFocusSearch={false}
+            skinTonesDisabled={true}
+          />
         </Popper>
       </Box>
     </ClickAwayListener>
