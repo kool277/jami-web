@@ -16,29 +16,26 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Stack } from '@mui/material'
 import { AdminSettingSelection } from 'jami-web-common'
 import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 'react-router-dom'
 
 import App, { appLoader } from './App'
-import CustomizeProfile from './components/AccountSettings/CustomizeProfile'
 import LinkedDevices from './components/AccountSettings/LinkedDevices'
-import ManageAccount from './components/AccountSettings/ManageAccount'
 import AccountsOverview from './components/AdminSettings/AccountsOverview'
 import AdminAuthWrapper from './components/AdminSettings/AdminAuthWrapper'
 import AuthMethods from './components/AdminSettings/AuthMethods'
 import JamsAuthMethod from './components/AdminSettings/JamsAuthMethod'
 import LocalAuthMethod from './components/AdminSettings/LocalAuthMethod'
+import ContactList from './components/ContactList'
 import ConversationView from './components/ConversationView'
-import Appearance from './components/GeneralSettings/Appearance'
-import System from './components/GeneralSettings/System'
-import Header from './components/Header'
-import SettingSidebar from './components/SettingSidebar'
+import LayoutWrapper from './components/LayoutWrapper'
+import UserSettingsSelection from './components/UserSettingsSelection'
 import ActionMessageProvider from './contexts/ActionMessageProvider'
 import AuthProvider from './contexts/AuthProvider'
 import CallManagerProvider from './contexts/CallManagerProvider'
 import ConversationProvider from './contexts/ConversationProvider'
 import MessengerProvider from './contexts/MessengerProvider'
+import MobileMenuStateProvider from './contexts/MobileMenuStateProvider'
 import UserMediaProvider from './contexts/UserMediaProvider'
 import WebSocketProvider from './contexts/WebSocketProvider'
 import { AuthenticationMethods } from './enums/authenticationMethods'
@@ -47,7 +44,6 @@ import AccountSettings from './pages/AccountSettings'
 import AdminLogin from './pages/AdminLogin'
 import AdminPanel from './pages/AdminPanel'
 import AdminSetup from './pages/AdminSetup'
-import Contacts from './pages/Contacts'
 import GeneralSettings from './pages/GeneralSettings'
 import Login from './pages/Login'
 import Messenger from './pages/Messenger'
@@ -57,89 +53,85 @@ export type ConversationRouteParams = RouteParams<{ conversationId?: string }, R
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />} loader={appLoader}>
-      <Route path="login" element={<Login />} />
-      <Route path="register" element={<Registration />} />
-      <Route
-        path="admin"
-        element={<AdminLogin />}
-        // the login page will redirect correctly the identified user aswell
-      />
       <Route
         element={
-          <AdminAuthWrapper>
-            <AdminPanel>
-              <Outlet />
-            </AdminPanel>
-          </AdminAuthWrapper>
+          <MobileMenuStateProvider>
+            <Outlet />
+          </MobileMenuStateProvider>
         }
       >
-        <Route path={`/admin/${AdminSettingSelection.ACCOUNTS}`} element={<>Accounts</>} />
-        <Route path={`/admin/${AdminSettingSelection.AUTHENTICATION}`} element={<AuthMethods />} />
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Registration />} />
         <Route
-          path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMI}`}
-          element={<LocalAuthMethod />}
+          path="admin"
+          element={<AdminLogin />}
+          // the login page will redirect correctly the identified user aswell
         />
-        <Route
-          path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMS}`}
-          element={<JamsAuthMethod />}
-        />
-        <Route path={`/admin/${AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION}`} element={<AccountsOverview />} />
-      </Route>
-      <Route path="admin/login" element={<AdminLogin />} />
-      <Route path="admin/setup" element={<AdminSetup />} />
-      <Route
-        element={
-          <AuthProvider>
-            <WebSocketProvider>
-              <UserMediaProvider>
-                <CallManagerProvider>
-                  <Outlet />
-                </CallManagerProvider>
-              </UserMediaProvider>
-            </WebSocketProvider>
-          </AuthProvider>
-        }
-      >
         <Route
           element={
-            <MessengerProvider>
-              <Outlet />
-            </MessengerProvider>
+            <AdminAuthWrapper>
+              <AdminPanel>
+                <Outlet />
+              </AdminPanel>
+            </AdminAuthWrapper>
           }
         >
-          <Route index element={<Messenger />} />
-          <Route path="conversation" element={<Messenger />} />
+          <Route path={`/admin/${AdminSettingSelection.ACCOUNTS}`} element={<>Accounts</>} />
+          <Route path={`/admin/${AdminSettingSelection.AUTHENTICATION}`} element={<AuthMethods />} />
           <Route
-            path="conversation/:conversationId"
-            element={
-              <ActionMessageProvider>
-                <Messenger>
-                  <ConversationProvider>
-                    <ConversationView />
-                  </ConversationProvider>
-                </Messenger>
-              </ActionMessageProvider>
-            }
+            path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMI}`}
+            element={<LocalAuthMethod />}
           />
+          <Route
+            path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMS}`}
+            element={<JamsAuthMethod />}
+          />
+          <Route path={`/admin/${AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION}`} element={<AccountsOverview />} />
         </Route>
+        <Route path="admin/login" element={<AdminLogin />} />
+        <Route path="admin/setup" element={<AdminSetup />} />
         <Route
           element={
-            <Stack>
-              <Header />
-              <SettingSidebar />
-            </Stack>
+            <AuthProvider>
+              <WebSocketProvider>
+                <UserMediaProvider>
+                  <CallManagerProvider>
+                    <Outlet />
+                  </CallManagerProvider>
+                </UserMediaProvider>
+              </WebSocketProvider>
+            </AuthProvider>
           }
         >
-          <Route path="settings/account/manage-account" element={<ManageAccount />} />
-          <Route path="settings/account/customize-profile" element={<CustomizeProfile />} />
-          <Route path="settings/account/linked-devices" element={<LinkedDevices />} />
-          <Route path="settings/general/system" element={<System />} />
-          <Route path="settings/general/appearance" element={<Appearance />} />
-
-          <Route path="settings-account" element={<AccountSettings />} />
-          <Route path="settings-general" element={<GeneralSettings />} />
+          <Route
+            element={
+              <MessengerProvider>
+                <Outlet />
+              </MessengerProvider>
+            }
+          >
+            <Route index element={<Messenger />} />
+            <Route path="conversation" element={<Messenger />} />
+            <Route
+              path="conversation/:conversationId"
+              element={
+                <ActionMessageProvider>
+                  <Messenger>
+                    <ConversationProvider>
+                      <ConversationView />
+                    </ConversationProvider>
+                  </Messenger>
+                </ActionMessageProvider>
+              }
+            />
+          </Route>
+          <Route element={<LayoutWrapper sidebar={<UserSettingsSelection />} main={<Outlet />}></LayoutWrapper>}>
+            <Route path="settings/account/manage-account" element={<AccountSettings />} />
+            <Route path="settings/account/linked-devices" element={<LinkedDevices />} />
+            <Route path="settings/general" element={<GeneralSettings />} />
+            <Route path="contacts" element={<ContactList />} />
+          </Route>
         </Route>
-        <Route path="contacts" element={<Contacts />} />
       </Route>
     </Route>,
   ),

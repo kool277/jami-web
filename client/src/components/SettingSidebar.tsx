@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { Typography } from '@mui/material'
 import Collapse from '@mui/material/Collapse'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
@@ -22,109 +23,76 @@ import ListItemText from '@mui/material/ListItemText'
 // import ListItemIcon from '@mui/material/ListItemIcon';
 import Stack from '@mui/material/Stack'
 import { Theme } from '@mui/material/styles'
-import { useTheme } from '@mui/system'
+import { useMediaQuery, useTheme } from '@mui/system'
 import Box from '@mui/system/Box'
-import { useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-//Settings meta structure
-interface ISettingItem {
-  icon: unknown
-  title: string
-  highlightKey: string //The string used to determine whether to highlight the title or not.
-  link: string
-  submenuItems?: ISettingItem[]
+import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
+import { ISettingItem } from '../utils/utils'
+
+interface SettingSidebarProps {
+  settingMeta: ISettingItem[]
+  pageTitle: string
 }
 
-function SettingSidebar() {
-  const { t } = useTranslation()
+function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
   const navigate = useNavigate()
   const theme: Theme = useTheme()
   const { pathname } = useLocation()
+  const { setIsMenuOpen } = useMobileMenuStateContext()
+
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
   const isCurrentlyViewing = (text: string) => {
-    return pathname.includes(text)
+    return pathname.startsWith(text)
   }
 
-  const settingMeta: ISettingItem[] = useMemo(() => {
-    return [
-      {
-        icon: null,
-        title: t('settings_title_account'),
-        highlightKey: 'account',
-        link: '/settings/account/manage-account',
-        submenuItems: [
-          {
-            highlightKey: 'manage-account',
-            icon: null,
-            title: t('settings_manage_account'),
-            link: '/settings/account/manage-account',
-          },
-          {
-            highlightKey: 'customize-profile',
-            icon: null,
-            title: t('settings_customize_profile'),
-            link: '/settings/account/customize-profile',
-          },
-          {
-            highlightKey: 'linked-devices',
-            icon: null,
-            title: t('settings_linked_devices'),
-            link: '/settings/account/linked-devices',
-          },
-        ],
-      },
-      {
-        icon: null,
-        title: t('settings_title_general'),
-        highlightKey: 'general',
-        link: '/settings/general/system',
-        submenuItems: [
-          {
-            highlightKey: 'system',
-            icon: null,
-            title: t('settings_title_system'),
-            link: '/settings/general/system',
-          },
-          {
-            highlightKey: 'appearance',
-            icon: null,
-            title: t('settings_appearance'),
-            link: '/settings/general/appearance',
-          },
-        ],
-      },
-    ]
-  }, [t])
-
   return (
-    <Stack direction="row">
-      <List sx={{ width: '300px' }}>
-        {settingMeta.map((settingItem, index) => (
-          <Box key={index}>
-            <ListItemButton
-              selected={isCurrentlyViewing(settingItem.highlightKey)}
-              onClick={() => navigate(settingItem.link)}
-            >
-              {/* TODO: add icons */}
-              {/* <ListItemIcon>
-                                {/* <InboxIcon /> */}
-              {/* </ListItemIcon> */}
-              <ListItemText
-                primaryTypographyProps={{
-                  color: isCurrentlyViewing(settingItem.highlightKey)
-                    ? theme.palette.primary.dark
-                    : theme.palette.text.primary,
+    <>
+      <Box sx={{ display: 'flex' }}>
+        <Typography sx={{ marginLeft: '4%', marginTop: '6%', marginBottom: '2%', fontWeight: 'bolder' }} variant="h6">
+          {pageTitle}
+        </Typography>
+      </Box>
+      <Stack direction="row">
+        <List sx={{ width: '100%' }}>
+          {settingMeta.map((settingItem, index) => (
+            <Box key={index}>
+              <ListItemButton
+                selected={isCurrentlyViewing(settingItem.highlightKey)}
+                onClick={() => {
+                  navigate(settingItem.link)
+                  setIsMenuOpen(false)
                 }}
-                primary={settingItem.title}
-              />
-            </ListItemButton>
-            <Collapse in={isCurrentlyViewing(settingItem.highlightKey)} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {settingItem.submenuItems &&
-                  settingItem.submenuItems.map((submenuItem, itemIndex) => (
-                    <ListItemButton key={itemIndex} sx={{ pl: 4 }} onClick={() => navigate(submenuItem.link)}>
+              >
+                {/* TODO: add icons */}
+                {/* <ListItemIcon>
+                                {/* <InboxIcon /> */}
+                {/* </ListItemIcon> */}
+                <ListItemText
+                  primaryTypographyProps={{
+                    color: isCurrentlyViewing(settingItem.highlightKey)
+                      ? theme.palette.primary.dark
+                      : theme.palette.text.primary,
+                  }}
+                  primary={settingItem.title}
+                />
+              </ListItemButton>
+              <Collapse
+                in={isMobile ? true : isCurrentlyViewing(settingItem.highlightKey)}
+                timeout="auto"
+                unmountOnExit
+              >
+                <List component="div" disablePadding>
+                  {settingItem.submenuItems?.map((submenuItem, itemIndex) => (
+                    <ListItemButton
+                      key={itemIndex}
+                      sx={{ pl: 4 }}
+                      onClick={() => {
+                        navigate(submenuItem.link)
+                        setIsMenuOpen(false)
+                      }}
+                    >
                       <ListItemText
                         primaryTypographyProps={{
                           color: isCurrentlyViewing(submenuItem.highlightKey)
@@ -135,13 +103,13 @@ function SettingSidebar() {
                       />
                     </ListItemButton>
                   ))}
-              </List>
-            </Collapse>
-          </Box>
-        ))}
-      </List>
-      <Outlet />
-    </Stack>
+                </List>
+              </Collapse>
+            </Box>
+          ))}
+        </List>
+      </Stack>
+    </>
   )
 }
 

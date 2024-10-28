@@ -31,7 +31,7 @@ declare module '@mui/material/styles' {
     LoginPage: {
       backgroundColor: string
     }
-    Header: {
+    Footer: {
       backgroundColor: string
       iconsColor: string
     }
@@ -200,7 +200,7 @@ const palettes = {
     LoginPage: {
       backgroundColor: '#f9fafc',
     },
-    Header: {
+    Footer: {
       backgroundColor: '#dbd9d9',
       iconsColor: 'black',
     },
@@ -249,7 +249,7 @@ const palettes = {
     LoginPage: {
       backgroundColor: '#f9fafc',
     },
-    Header: {
+    Footer: {
       backgroundColor: '#2e2d2d',
       iconsColor: 'white',
     },

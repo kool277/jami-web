@@ -33,7 +33,7 @@ const ConversationView = () => {
   }
 
   return (
-    <Stack flexGrow={1} height="100%">
+    <Stack flexGrow={1} height="100%" width="100%">
       <ConversationHeader />
       <Divider
         sx={{

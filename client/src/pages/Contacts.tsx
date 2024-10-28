@@ -22,7 +22,7 @@ import { useEffect } from 'react'
 
 import ContactList from '../components/ContactList'
 import EditSwarmDetails from '../components/EditSwamDetails'
-import Header from '../components/Header'
+import Footer from '../components/Footer'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 
 export default function Contacts() {
@@ -44,7 +44,7 @@ export default function Contacts() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'row' }}>
       <Box sx={{ backgroundColor: '#F2F2F2', width: '22vw', height: '100vh' }}>
-        <Header />
+        <Footer />
         <ContactList />
       </Box>
       <Box sx={{ width: '100%', height: '100%' }}>

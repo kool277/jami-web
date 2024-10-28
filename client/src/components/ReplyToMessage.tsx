@@ -95,7 +95,7 @@ export default function ReplyToMessage() {
               }}
             >
               <div style={{ color: 'grey', fontSize: '13px' }}>{t('replying_to') + ' ' + getName()}</div>
-              <div style={{ backgroundColor: theme.Header.backgroundColor, borderRadius: '5px', overflow: 'hidden' }}>
+              <div style={{ backgroundColor: theme.Footer.backgroundColor, borderRadius: '5px', overflow: 'hidden' }}>
                 <Box
                   sx={{
                     padding: '5px',

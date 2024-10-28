@@ -19,8 +19,8 @@ import { Box, Button, Modal } from '@mui/material'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useState } from 'react'
 
-import qrcodeIcon from '../icons/qrCodeIcon.svg'
 import { Account } from '../models/account'
+import { QrCodeIcon } from './SvgIcon'
 
 interface QrCodeProps {
   account: Account
@@ -59,8 +59,8 @@ const QrCodeModal = ({ account }: QrCodeProps) => {
 
   return (
     <div>
-      <Button onClick={handleOpen}>
-        <img src={qrcodeIcon} />
+      <Button sx={{ backgroundColor: 'inherit', color: 'black' }} onClick={handleOpen}>
+        <QrCodeIcon sx={{ color: 'black' }} />
       </Button>
       <Modal
         open={open}
@@ -83,7 +83,7 @@ const QrCodeModal = ({ account }: QrCodeProps) => {
             </Button>
           </Box>
 
-          <QRCodeCanvas size={qrCodeSize} value={account.getUri()} />
+          <QRCodeCanvas style={{ borderRadius: '5px' }} size={qrCodeSize} value={account.getUri()} />
         </Box>
       </Modal>
     </div>

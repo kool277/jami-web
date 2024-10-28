@@ -15,25 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Stack, useTheme } from '@mui/material'
 import { ReactNode } from 'react'
 
 import ConversationList from '../components/ConversationList'
-import Header from '../components/Header'
+import LayoutWrapper from '../components/LayoutWrapper'
 
 const Messenger = ({ children }: { children?: ReactNode }) => {
-  const theme = useTheme()
-  return (
-    <Box display="flex" height="100%">
-      <Stack flexGrow={0} flexShrink={0} maxWidth={360} bgcolor={theme.ChatInterface.panelColor} overflow="auto">
-        <Header />
-        <ConversationList />
-      </Stack>
-      <Box flexGrow={1} display="flex" position="relative">
-        {children}
-      </Box>
-    </Box>
-  )
+  return <LayoutWrapper sidebar={<ConversationList />} main={children} />
 }
 
 export default Messenger

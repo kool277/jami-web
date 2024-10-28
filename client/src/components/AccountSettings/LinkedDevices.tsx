@@ -38,7 +38,15 @@ function LinkedDevices() {
 
   return (
     <>
-      <Grid item xs={12} sm={6}>
+      <Grid
+        item
+        xs={12}
+        sm={6}
+        aria-label="linked-device"
+        sx={{
+          padding: '3%',
+        }}
+      >
         <Card>
           <CardContent>
             <Typography color="textSecondary" gutterBottom>

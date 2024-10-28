@@ -27,7 +27,11 @@ export default function GeneralPreferences() {
   const { t } = useTranslation()
 
   return (
-    <Stack>
+    <Stack
+      sx={{
+        padding: '3%',
+      }}
+    >
       <Typography variant="h2">{t('settings_title_general')}</Typography>
       <SettingsGroup label={t('settings_title_system')}>
         <SettingTheme />
