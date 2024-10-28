@@ -16,9 +16,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 import SearchRounded from '@mui/icons-material/SearchRounded'
-import { InputBase, Stack } from '@mui/material'
+import { Box, InputBase, Stack, Typography } from '@mui/material'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 
 import { useConversationRequestsQuery, useConversationsSummariesQuery } from '../services/conversationQueries'
 import { SquareButton } from './Button'
@@ -31,35 +32,62 @@ import { Tab, TabPanel, TabPanelProps, Tabs, TabsList, TabsProps } from './Tabs'
 export default function ConversationList() {
   const { t } = useTranslation()
   const [searchFilter, setSearchFilter] = useState('')
-
+  const navigate = useNavigate()
   const handleInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setSearchFilter(event.target.value)
   }, [])
 
   return (
-    <Stack>
-      <Stack direction="row">
-        <InputBase
-          type="search"
-          placeholder={t('find_users_and_conversations')}
-          onChange={handleInputChange}
-          startAdornment={
-            <SearchRounded
+    <>
+      <Box sx={{ display: 'flex' }}>
+        <Typography sx={{ marginLeft: '4%', marginTop: '6%', marginBottom: '4.3%', fontWeight: 'bolder' }} variant="h6">
+          {t('conversations')}
+        </Typography>
+      </Box>
+      <Stack sx={{ display: 'flex' }}>
+        <Stack direction="row">
+          <Box
+            sx={{
+              width: '99%',
+              display: 'flex',
+              justifyContent: 'center',
+              borderRadius: '7px',
+              backgroundColor: 'white',
+              margin: '2%',
+            }}
+          >
+            <InputBase
+              type="search"
+              placeholder={t('find_users_and_conversations')}
+              onChange={handleInputChange}
+              startAdornment={
+                <SearchRounded
+                  sx={{
+                    color: 'grey.500',
+                    ml: 1,
+                    mr: 0.5,
+                  }}
+                />
+              }
               sx={{
-                color: 'grey.500',
-                ml: 1,
-                mr: 0.5,
+                flexGrow: 1,
+                // color and placeholder color does not change in dark mode
+                '& .MuiInputBase-input::placeholder': { color: 'grey.600' },
+                color: 'grey.900',
               }}
             />
-          }
-          sx={{
-            flexGrow: 1,
-          }}
-        />
-        <SquareButton aria-label="start swarm" Icon={PeopleGroupIcon} />
+            <SquareButton
+              aria-label="start swarm"
+              Icon={PeopleGroupIcon}
+              onClick={() => {
+                navigate('/contacts')
+              }}
+            />
+          </Box>
+        </Stack>
+        {searchFilter ? <ContactSearchResultList searchFilter={searchFilter} /> : <ConversationTabs />}
       </Stack>
-      {searchFilter ? <ContactSearchResultList searchFilter={searchFilter} /> : <ConversationTabs />}
-    </Stack>
+    </>
   )
 }
 
