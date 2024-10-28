@@ -583,7 +583,7 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
   const { setReplyMessage } = useActionMessageContext()
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const { setEditMessage } = useActionMessageContext()
-
+  const theme = useTheme()
   const additionalOptions: PopoverListItemData[] = [
     {
       Icon: TwoSheetsIcon,
@@ -698,7 +698,14 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
               <PopoverList items={additionalOptions} />
             </>
           )}
-          {emojiIsOpen && <EmojiPicker onEmojiClick={onEmojiClick} autoFocusSearch={false} skinTonesDisabled={true} />}
+          {emojiIsOpen && (
+            <EmojiPicker
+              theme={theme.EmojiPicker.backgroundColor}
+              onEmojiClick={onEmojiClick}
+              autoFocusSearch={false}
+              skinTonesDisabled={true}
+            />
+          )}
         </div>
       }
     >
@@ -707,11 +714,12 @@ const MessageTooltip = styled(({ message, className, position, children }: Messa
       </div>
     </Tooltip>
   )
-})(({ position }) => {
+})(({ position, theme }) => {
   const largeRadius = '20px'
   const smallRadius = '5px'
   return {
-    backgroundColor: 'white',
+    backgroundColor: theme.InfoTooltip.backgroundColor.main,
+    color: theme.InfoTooltip.color.main,
     padding: '0px',
     boxShadow: '3px 3px 7px #00000029',
     borderRadius: largeRadius,

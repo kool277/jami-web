@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { InputBase } from '@mui/material'
+import { InputBase, useTheme } from '@mui/material'
 import { Stack } from '@mui/system'
 import { Message, WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -48,6 +48,8 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage }:
   const composingNotificationTimeRef = useRef(0)
   const placeholder = usePlaceholder(members)
   const { replyMessage: reply } = useActionMessageContext()
+
+  const theme = useTheme()
 
   useEffect(() => {
     setCurrentMessage(editMessage?.body || '')
@@ -114,9 +116,9 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage }:
           onChange={handleInputChange}
           sx={{
             fontSize: '15px',
-            color: 'black',
+            color: theme.palette.text.primary,
             '& ::placeholder': {
-              color: '#7E7E7E',
+              color: theme.palette.text.primary,
               opacity: 1,
               textOverflow: 'ellipsis',
             },

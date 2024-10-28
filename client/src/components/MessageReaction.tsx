@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Modal } from '@mui/material'
+import { Box, Button, Modal, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Message, ReactionRemoved, WebSocketMessageType } from 'jami-web-common'
 import { useCallback, useMemo, useState } from 'react'
@@ -45,7 +45,7 @@ export default function MessageReaction({ message }: MessageReactionProps) {
   const { account } = useAuthContext()
   const isAccount = account.getUri() === message.author
   const membersMap = useMemo(() => new Map(members.map((member) => [member.contact.uri, member])), [members])
-
+  const theme = useTheme()
   const generateReactionsArray = useCallback(() => {
     const reactionAttributesArray: Array<ReactionAttributes> = []
 
@@ -152,7 +152,7 @@ export default function MessageReaction({ message }: MessageReactionProps) {
           position: 'absolute',
           borderRadius: '15px',
           border: 'none',
-          backgroundColor: 'white',
+          backgroundColor: theme.InfoTooltip.backgroundColor.main,
           alignContent: 'center',
           alignItems: 'center',
           top: '50%',
@@ -164,7 +164,7 @@ export default function MessageReaction({ message }: MessageReactionProps) {
       >
         <Box
           sx={{
-            backgroundColor: 'white',
+            backgroundColor: theme.InfoTooltip.backgroundColor.main,
             borderRadius: '15px',
             padding: '10px',
             display: 'flex',

@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, InputBase, InputBaseProps, styled, useAutocomplete } from '@mui/material'
+import { Box, InputBase, InputBaseProps, styled, useAutocomplete, useTheme } from '@mui/material'
 import { MUIStyledCommonProps } from '@mui/system'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -27,7 +27,7 @@ export interface SelectOption<Payload> {
   payload: Payload
 }
 
-const width = '250px'
+const width = '150px'
 
 type InputProps = InputBaseProps & {
   popupOpen: boolean // Sometimes the popover is opened but the Input is not focused
@@ -41,7 +41,7 @@ const Input = styled(({ popupOpen, ...props }: InputProps) => <InputBase {...pro
   boxSizing: 'border-box',
   fontSize: '15px',
   padding: '16px',
-  color: theme.palette.primary.dark,
+  color: '#666666',
   fontWeight: 'medium',
   '&.Mui-focused': {
     // Sometimes the popover is closed but the Input is still focused
@@ -108,7 +108,7 @@ export type CustomSelectProps<OptionPayload> = {
 
 export const CustomSelect = <OptionPayload,>({ option, options, onChange, size }: CustomSelectProps<OptionPayload>) => {
   const { t } = useTranslation()
-
+  const theme = useTheme()
   const [open, setOpen] = useState(false)
 
   const { getRootProps, getInputProps, getListboxProps, getOptionProps, groupedOptions, popupOpen } = useAutocomplete<
@@ -123,6 +123,7 @@ export const CustomSelect = <OptionPayload,>({ option, options, onChange, size }
     onOpen: () => setOpen(true),
     onClose: () => setOpen(false),
   })
+  const backgroundColor = theme.CustomSelect.backgroundColor
 
   return (
     <div>
@@ -137,11 +138,15 @@ export const CustomSelect = <OptionPayload,>({ option, options, onChange, size }
           popupOpen={popupOpen}
         />
       </Box>
-      <Box position="relative">
+      <Box position="relative" sx={{ backgroundColor: backgroundColor }}>
         {groupedOptions.length > 0 ? (
-          <Listbox {...getListboxProps()}>
+          <Listbox {...getListboxProps()} sx={{ backgroundColor: backgroundColor }}>
             {(groupedOptions as SelectOption<OptionPayload>[]).map((option, index) => (
-              <Option {...getOptionProps({ option, index })} key={option.label}>
+              <Option
+                {...getOptionProps({ option, index })}
+                key={option.label}
+                sx={{ backgroundColor: backgroundColor }}
+              >
                 {option.label}
               </Option>
             ))}

@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button } from '@mui/material'
+import { Box, Button, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
@@ -30,6 +30,7 @@ export default function ReplyToMessage() {
   const { t } = useTranslation()
   const { account } = useAuthContext()
   const { replyMessage: message, setReplyMessage: setMessage } = useActionMessageContext()
+  const theme = useTheme()
 
   function cancelHandler() {
     setMessage(undefined)
@@ -87,7 +88,7 @@ export default function ReplyToMessage() {
             }}
           >
             <div style={{ color: 'grey', fontSize: '13px' }}>{t('replying_to') + ' ' + getName()}</div>
-            <div style={{ backgroundColor: '#e5e5e5', borderRadius: '5px', overflow: 'hidden' }}>
+            <div style={{ backgroundColor: theme.Header.backgroundColor, borderRadius: '5px', overflow: 'hidden' }}>
               <Box
                 sx={{
                   padding: '5px',
