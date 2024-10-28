@@ -175,7 +175,9 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
       <Typography variant="body2" fontWeight={isSelected ? 'bold' : 'normal'}>
         {timeIndicator}
       </Typography>
-      <Typography variant="body2">{lastMessageText}</Typography>
+      <Typography sx={{ overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '140px' }} variant="body2">
+        {lastMessageText}
+      </Typography>
     </Stack>
   )
 }
