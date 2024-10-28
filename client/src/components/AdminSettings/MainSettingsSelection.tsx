@@ -15,85 +15,89 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button } from '@mui/material'
-import Divider from '@mui/material/Divider'
-import List from '@mui/material/List'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import { t } from 'i18next'
+import LogoutIcon from '@mui/icons-material/Logout'
+import { Box, Button, useMediaQuery, useTheme } from '@mui/material'
 import { AdminSettingSelection } from 'jami-web-common'
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-const listStyle = {
-  py: 0,
-  width: '100%',
-  maxWidth: 360,
-  borderRadius: 2,
-  border: '1px solid',
-  borderColor: 'divider',
-  backgroundColor: 'background.paper',
-  margin: '5%',
-}
+import SettingSidebar from '../SettingSidebar'
 
-const listItemTextStyle = {
-  textAlign: 'start',
+//Settings meta structure
+interface ISettingItem {
+  icon: unknown
+  title: string
+  highlightKey: string //The string used to determine whether to highlight the title or not.
+  link: string
+  submenuItems?: ISettingItem[]
 }
 
 export default function MainSettingsSelection() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
-  const handleClick = (value: string) => {
-    navigate(`/admin/${value}`)
-  }
+  const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
   const adminLogout = () => {
     localStorage.removeItem('adminAccessToken')
     navigate('/admin/login')
   }
 
-  const borderRadiusValue = '7px'
+  const settingMeta: ISettingItem[] = useMemo(() => {
+    return [
+      {
+        icon: null,
+        title: t('accounts'),
+        highlightKey: 'accounts',
+        link: `/admin/${AdminSettingSelection.ACCOUNTS}`,
+      },
+      {
+        icon: null,
+        title: t('authentication'),
+        highlightKey: 'authentication',
+        link: `/admin/${AdminSettingSelection.AUTHENTICATION}`,
+      },
+      {
+        icon: null,
+        title: t('admin_account_configuration'),
+        highlightKey: 'admin_account_configuration',
+        link: `/admin/${AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION}`,
+      },
+    ]
+  }, [t])
 
   return (
-    <>
-      <List sx={listStyle}>
-        <ListItem
-          sx={{
-            borderRadius: borderRadiusValue,
-            textAlign: 'center',
-            ':hover': { backgroundColor: 'primary.light', cursor: 'pointer' },
-          }}
-          onClick={() => handleClick(AdminSettingSelection.ACCOUNTS)}
-        >
-          <ListItemText sx={listItemTextStyle} primary="Accounts" />
-        </ListItem>
-        <Divider variant="middle" component="li" />
-        <ListItem
-          sx={{
-            borderRadius: borderRadiusValue,
-            textAlign: 'center',
-            ':hover': { backgroundColor: 'primary.light', cursor: 'pointer' },
-          }}
-          onClick={() => handleClick(AdminSettingSelection.AUTHENTICATION)}
-        >
-          <ListItemText sx={listItemTextStyle} primary="Authentication" />
-        </ListItem>
-        <Divider variant="middle" component="li" />
-        <ListItem
-          sx={{
-            borderRadius: borderRadiusValue,
-            textAlign: 'center',
-            ':hover': { backgroundColor: 'primary.light', cursor: 'pointer' },
-          }}
-          onClick={() => handleClick(AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION)}
-        >
-          <ListItemText sx={listItemTextStyle} primary="Admin account configuration" />
-        </ListItem>
-      </List>
-      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', marginLeft: '10%' }}>
-        <Button variant="contained" type="submit" onClick={adminLogout}>
-          {t('logout')}
+    <Box
+      sx={{
+        height: isMobile ? '95vh' : '2000vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        width: isMobile ? '100%' : '280px',
+      }}
+    >
+      <Box>
+        <SettingSidebar settingMeta={settingMeta} pageTitle={t('admin_page_welcome')} />
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+        <Button sx={{ width: isMobile ? '50%' : '85%' }} variant="contained" type="submit" onClick={adminLogout}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              width: '80%',
+              alignContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            {t('logout')}
+            <LogoutIcon sx={{ marginLeft: '10%' }} />
+          </Box>
         </Button>
       </Box>
-    </>
+    </Box>
   )
 }

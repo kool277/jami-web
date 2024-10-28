@@ -34,6 +34,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
   const { isMenuOpen, setIsMenuOpen } = useMobileMenuStateContext()
   const location = useLocation()
   const isSettings = location.pathname.startsWith('/settings') || location.pathname.startsWith('/contacts')
+  const isAdminPanel = location.pathname.startsWith('/admin')
 
   const sidebarStyles = {
     top: 0,
@@ -43,6 +44,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
     flexDirection: 'column',
     justifyContent: 'space-between',
     height: '100vh',
+    bgcolor: theme.ChatInterface.panelColor,
   }
 
   const sidebarStylesMobile = {
@@ -74,9 +76,11 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
     <Box display={'flex'}>
       <Box sx={isMobile ? sidebarStylesMobile : sidebarStyles}>
         <Box>{sidebar}</Box>
-        <Box sx={footerStyles}>
-          <Footer />
-        </Box>
+        {!isAdminPanel && (
+          <Box sx={footerStyles}>
+            <Footer />
+          </Box>
+        )}
       </Box>
 
       <Box

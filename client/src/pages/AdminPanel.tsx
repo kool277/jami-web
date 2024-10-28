@@ -15,53 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Typography, useMediaQuery } from '@mui/material'
-import { Theme, useTheme } from '@mui/material/styles'
 import { ReactElement } from 'react'
-import { useTranslation } from 'react-i18next'
 
 import MainSettingsSelection from '../components/AdminSettings/MainSettingsSelection'
+import LayoutWrapper from '../components/LayoutWrapper'
 
 interface AdminPanelProps {
   children: ReactElement
 }
 
 export default function AdminPanel({ children }: AdminPanelProps) {
-  const { t } = useTranslation()
-  const theme: Theme = useTheme()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-  return (
-    <>
-      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-        <Typography variant={isMobile ? 'h3' : 'h2'} sx={{ mt: '1%' }}>
-          {t('admin_page_welcome')}
-        </Typography>
-      </Box>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          flexWrap: 'nowrap',
-          textAlign: isMobile ? 'center' : 'inherit',
-        }}
-      >
-        <Box sx={{ height: '100%', minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
-          <MainSettingsSelection />
-        </Box>
-        <Box
-          sx={{
-            width: '80vw',
-            display: 'flex',
-            flexDirection: 'rorw',
-            justifyContent: 'center',
-            textAlign: 'center',
-            alignContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          {children}
-        </Box>
-      </div>
-    </>
-  )
+  return <LayoutWrapper sidebar={<MainSettingsSelection />} main={children} />
 }
