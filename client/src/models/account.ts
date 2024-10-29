@@ -47,6 +47,10 @@ export class Account implements IAccount {
     return account
   }
 
+  setDetails(details: AccountDetails) {
+    this.details = details
+  }
+
   getType(): AccountType {
     return this.details['Account.type'] as AccountType
   }

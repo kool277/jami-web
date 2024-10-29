@@ -20,6 +20,7 @@ import { AdminSettingSelection } from 'jami-web-common'
 import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 'react-router-dom'
 
 import App, { appLoader } from './App'
+import AccountDetailsListener from './components/AccountDetailsListener'
 import CustomizeProfile from './components/AccountSettings/CustomizeProfile'
 import LinkedDevices from './components/AccountSettings/LinkedDevices'
 import AccountsOverview from './components/AdminSettings/AccountsOverview'
@@ -95,11 +96,13 @@ export const router = createBrowserRouter(
           element={
             <AuthProvider>
               <WebSocketProvider>
-                <UserMediaProvider>
-                  <CallManagerProvider>
-                    <Outlet />
-                  </CallManagerProvider>
-                </UserMediaProvider>
+                <AccountDetailsListener>
+                  <UserMediaProvider>
+                    <CallManagerProvider>
+                      <Outlet />
+                    </CallManagerProvider>
+                  </UserMediaProvider>
+                </AccountDetailsListener>
               </WebSocketProvider>
             </AuthProvider>
           }
