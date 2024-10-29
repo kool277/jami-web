@@ -26,6 +26,7 @@ import {
   ConversationMemberEvent,
   ConversationMessage,
   ConversationView,
+  IAccountDetails,
   LoadMoreMessages,
   ProfileReceived,
   ReactionAdded,
@@ -37,6 +38,7 @@ import {
 } from './websocket-interfaces.js'
 
 export interface WebSocketMessageTable {
+  [WebSocketMessageType.AccountDetails]: IAccountDetails
   [WebSocketMessageType.ComposingStatus]: ComposingStatus
   [WebSocketMessageType.ConversationMessage]: ConversationMessage
   [WebSocketMessageType.ConversationRequest]: IConversationRequest

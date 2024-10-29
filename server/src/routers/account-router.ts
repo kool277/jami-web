@@ -63,9 +63,43 @@ accountRouter.get(
 accountRouter.patch('/', (req: Request<ParamsDictionary, string, Partial<AccountDetails>>, res) => {
   const accountId = res.locals.accountId
 
+  if (typeof accountId !== 'string') {
+    res.sendStatus(HttpStatusCode.BadRequest)
+    return
+  }
+
   const currentAccountDetails = jamid.getAccountDetails(accountId)
   const newAccountDetails: AccountDetails = { ...currentAccountDetails, ...req.body }
   jamid.setAccountDetails(accountId, newAccountDetails)
+
+  res.sendStatus(HttpStatusCode.NoContent)
+})
+
+accountRouter.post('/displayName/reset', (req, res) => {
+  const accountId = res.locals.accountId
+  const account = jamid.getAccountDetails(accountId)
+
+  if (account['Account.displayName'] === account['Account.username']) {
+    res.sendStatus(HttpStatusCode.Ok)
+    return
+  }
+
+  const accountDetails = jamid.getAccountDetails(accountId)
+  const volatileDetails = jamid.getVolatileAccountDetails(accountId)
+
+  accountDetails['Account.displayName'] = volatileDetails['Account.registeredName']
+  jamid.setAccountDetails(accountId, accountDetails)
+
+  res.sendStatus(HttpStatusCode.NoContent)
+})
+
+accountRouter.post('/displayName', (req, res) => {
+  const accountId = res.locals.accountId
+  const displayName = req.body.displayName
+
+  const accountDetails = jamid.getAccountDetails(accountId)
+  accountDetails['Account.displayName'] = displayName
+  jamid.setAccountDetails(accountId, accountDetails)
 
   res.sendStatus(HttpStatusCode.NoContent)
 })

@@ -581,6 +581,10 @@ export class Jamid {
 
     this.events.onAccountDetailsChanged.subscribe((signal) => {
       log.debug('Received AccountsDetailsChanged', JSON.stringify(signal))
+      const data = {
+        details: signal.details,
+      }
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.AccountDetails, data)
     })
 
     this.events.onAccountProfileReceived.subscribe((signal) => {

@@ -17,7 +17,12 @@
  */
 import { ConversationMemberEventCode } from '../enums/conversation-member-event-code.js'
 import { MessageStatusCode } from '../enums/message-status-code.js'
+import { AccountDetails } from './account.js'
 import { Message, Reaction } from './conversation.js'
+
+export interface IAccountDetails {
+  details: AccountDetails
+}
 
 export interface ContactMessage {
   senderContactId: string

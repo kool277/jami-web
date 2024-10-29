@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 export enum WebSocketMessageType {
+  AccountDetails = 'account-details',
   ConversationMessage = 'conversation-message',
   ConversationRequest = 'conversation-request',
   ConversationView = 'conversation-view',
