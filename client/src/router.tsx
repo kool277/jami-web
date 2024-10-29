@@ -20,6 +20,7 @@ import { AdminSettingSelection } from 'jami-web-common'
 import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 'react-router-dom'
 
 import App, { appLoader } from './App'
+import CustomizeProfile from './components/AccountSettings/CustomizeProfile'
 import LinkedDevices from './components/AccountSettings/LinkedDevices'
 import AccountsOverview from './components/AdminSettings/AccountsOverview'
 import AdminAccountConfiguration from './components/AdminSettings/AdminAccountConfiguration'
@@ -127,6 +128,7 @@ export const router = createBrowserRouter(
           </Route>
           <Route element={<LayoutWrapper sidebar={<UserSettingsSelection />} main={<Outlet />}></LayoutWrapper>}>
             <Route path="settings/account/manage-account" element={<AccountSettings />} />
+            <Route path="settings/account/customize-profile" element={<CustomizeProfile />} />
             <Route path="settings/account/linked-devices" element={<LinkedDevices />} />
             <Route path="settings/general" element={<GeneralSettings />} />
             <Route path="contacts" element={<ContactList />} />

@@ -94,6 +94,10 @@ type AlertMessageKeys =
   | 'removing_jams_server_success'
   | 'removing_jams_server_error'
   | 'unauthorized_access'
+  | 'setting_display_name_success_alert'
+  | 'setting_display_name_error_alert'
+  | 'resetting_display_name_success_alert'
+  | 'resetting_display_name_error_alert'
   | 'error_cannot_delete_message'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
@@ -148,6 +152,14 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('setting_jams_server_success')
         case 'unauthorized_access':
           return t('unauthorized_access')
+        case 'setting_display_name_success_alert':
+          return t('setting_display_name_success_alert')
+        case 'setting_display_name_error_alert':
+          return t('setting_display_name_error_alert')
+        case 'resetting_display_name_success_alert':
+          return t('resetting_display_name_success_alert')
+        case 'resetting_display_name_error_alert':
+          return t('resetting_display_name_error_alert')
         case 'error_cannot_delete_message':
           return t('error_cannot_delete_message')
         case 'setting_jams_server_error_same_value':
