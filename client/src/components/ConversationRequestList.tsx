@@ -68,7 +68,7 @@ const ConversationRequestListItem = ({ conversationRequest }: ConversationReques
       <HandleConversationRequestDialog {...dialogHandler.props} conversationRequest={conversationRequest} />
       <CustomListItemButton
         onClick={dialogHandler.openDialog}
-        icon={<ConversationAvatar displayName={conversationName} src={infos.avatar} />}
+        icon={<ConversationAvatar displayName={conversationName} src={infos.avatar} contactUri="" />}
         primaryText={<Typography variant="body1">{conversationName}</Typography>}
       />
     </>
@@ -135,7 +135,12 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
         <Typography variant="caption" visibility={acceptConversationRequestMutation.isPending ? 'hidden' : 'visible'}>
           {t('conversation_request_has_sent_request', { contact: contact.getDisplayName() })}
         </Typography>
-        <ConversationAvatar displayName={title} src={avatar} sx={{ width: '112px', height: '112px' }} />
+        <ConversationAvatar
+          displayName={title || ''}
+          src={avatar}
+          sx={{ width: '112px', height: '112px' }}
+          contactUri=""
+        />
         {acceptConversationRequestMutation.isPending ? (
           <>
             <Typography variant="h3" whiteSpace="pre-line" textAlign="center" fontWeight="bold">

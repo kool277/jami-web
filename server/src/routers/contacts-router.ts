@@ -21,7 +21,7 @@ import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
-import { getAccountAvatar, getAvatar, getDisplayName } from '../utils/vCard.js'
+import { getAvatar, getDisplayName } from '../utils/vCard.js'
 const jamid = Container.get(Jamid)
 export const contactsRouter = Router()
 
@@ -89,17 +89,6 @@ contactsRouter.post('/:contactId/block', (req, res) => {
 contactsRouter.get('/:contactUri/profile/picture', async (req, res) => {
   const accountId = res.locals.accountId
   const contactUri = req.params.contactUri
-  const accountUri = jamid.getAccountDetails(accountId)['Account.username']
-
-  if (contactUri === accountUri) {
-    const path = await getAccountAvatar(accountId)
-    if (path) {
-      res.sendFile(path)
-      return
-    }
-    res.sendStatus(HttpStatusCode.NotFound)
-    return
-  }
 
   const path = await getAvatar(accountId, contactUri)
   if (path) {

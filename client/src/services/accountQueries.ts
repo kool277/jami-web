@@ -24,6 +24,19 @@ import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { apiUrl } from '../utils/constants'
 
+export const useUpdateAvatarMutation = () => {
+  const { axiosInstance } = useAuthContext()
+  return useMutation({
+    mutationFn: (content: FormData) =>
+      axiosInstance.post(`/account/avatar`, content, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Accept: '*/*',
+        },
+      }),
+  })
+}
+
 export const useRemoveLinkedDevice = () => {
   const { axiosInstance } = useAuthContext()
   const { setAlertContent } = useContext(AlertSnackbarContext)

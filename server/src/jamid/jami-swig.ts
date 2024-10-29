@@ -97,6 +97,7 @@ export interface JamiSwig {
 
   addAccount(details: StringMap): string
   removeAccount(accountId: string): void
+  updateProfile(accountId: string, displayName: string, avatarPath: string, fileType: string, flag: number): void
 
   getAccountList(): StringVect
 

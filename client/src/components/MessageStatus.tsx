@@ -66,7 +66,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
             <ConversationAvatar
               contactUri={peerId}
               key={peerId}
-              displayName={member?.getDisplayName()}
+              displayName={member?.getDisplayName() || member?.contact.registeredName || ''}
               sx={{ width: avatarSize, height: avatarSize, fontSize: '12px', ml: 0.1 }}
             />
           )

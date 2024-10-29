@@ -876,7 +876,7 @@ const UserMessageRow = ({
         <Box sx={{ width: avatarSize }}>
           {!isAccountMessage && isLastOfGroup && (
             <ConversationAvatar
-              contactUri={'uri' in author ? author.uri : undefined}
+              contactUri={'uri' in author ? author.uri : ''}
               displayName={authorName}
               sx={{ width: avatarSize, height: avatarSize, fontSize: '15px', marginLeft: '4px' }}
             />

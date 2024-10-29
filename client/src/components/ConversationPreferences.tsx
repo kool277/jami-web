@@ -481,7 +481,7 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
           {' '}
           <ConversationAvatar
             contactUri={member.contact.uri}
-            displayName={member.contact.registeredName}
+            displayName={member.contact.registeredName || member.contact.uri}
             sx={{ marginRight: '2%' }}
           />
           {member.contact.registeredName}

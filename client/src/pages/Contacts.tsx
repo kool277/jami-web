@@ -16,31 +16,12 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box } from '@mui/material'
-import { useQueryClient } from '@tanstack/react-query'
-import { ProfileReceived, WebSocketMessageType } from 'jami-web-common'
-import { useEffect } from 'react'
 
 import ContactList from '../components/ContactList'
 import EditSwarmDetails from '../components/EditSwamDetails'
 import Footer from '../components/Footer'
-import { useWebSocketContext } from '../contexts/WebSocketProvider'
 
 export default function Contacts() {
-  const webSocket = useWebSocketContext()
-  const queryClient = useQueryClient()
-
-  useEffect(() => {
-    const profileReceivedHandler = (data: ProfileReceived) => {
-      queryClient.invalidateQueries({ queryKey: ['picture', data.peer] })
-      queryClient.refetchQueries({ queryKey: ['picture', data.peer] })
-    }
-
-    webSocket.bind(WebSocketMessageType.ProfileReceived, profileReceivedHandler)
-    return () => {
-      webSocket.unbind(WebSocketMessageType.ProfileReceived, profileReceivedHandler)
-    }
-  }, [queryClient, webSocket])
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'row' }}>
       <Box sx={{ backgroundColor: '#F2F2F2', width: '22vw', height: '100vh' }}>

@@ -102,7 +102,8 @@ export default function Footer() {
         >
           <ConversationAvatar
             sx={{ marginLeft: '3px', marginRight: '2%' }}
-            displayName={account.getDisplayName()}
+            displayName={account.getDisplayName() || account.getRegisteredName()}
+            contactUri={account.getUri()}
             src={profilePictureQuery.data}
           />
           <Box sx={{ display: 'flex', flexDirection: 'column', marginLeft: '8px', height: '100%', marginTop: '8px' }}>

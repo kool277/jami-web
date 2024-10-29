@@ -18,7 +18,9 @@
 import { Request, Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import { ParamsDictionary } from 'express-serve-static-core'
+import fs from 'fs'
 import { AccountDetails, HttpStatusCode, IAccount, IContact } from 'jami-web-common'
+import multer from 'multer'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
@@ -75,6 +77,41 @@ accountRouter.patch('/', (req: Request<ParamsDictionary, string, Partial<Account
   res.sendStatus(HttpStatusCode.NoContent)
 })
 
+const dir = './profile-avatar'
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir)
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, dir)
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname)
+  },
+})
+const upload = multer({ storage: storage })
+
+accountRouter.post(
+  '/avatar',
+  upload.array('avatar', 1),
+  asyncHandler(async (req, res) => {
+    if (req.files === undefined || req.files.length === 0) {
+      res.status(HttpStatusCode.BadRequest).send()
+      return
+    }
+    const accountId = res.locals.accountId
+
+    const accountDetails = jamid.getAccountDetails(accountId)
+    const files = req.files as Express.Multer.File[]
+    const path = dir + '/' + files[0].originalname
+
+    // so it does not change the displayName
+    jamid.updateProfile(accountId, accountDetails['Account.displayName'], path, 'PNG', 0)
+
+    res.status(HttpStatusCode.Ok).send()
+  }),
+)
 accountRouter.post(
   '/:deviceId/revoke',
   asyncHandler(async (req, res) => {
@@ -100,23 +137,19 @@ accountRouter.post('/displayName/reset', (req, res) => {
     res.sendStatus(HttpStatusCode.Ok)
     return
   }
-
-  const accountDetails = jamid.getAccountDetails(accountId)
-  const volatileDetails = jamid.getVolatileAccountDetails(accountId)
-
-  accountDetails['Account.displayName'] = volatileDetails['Account.registeredName']
-  jamid.setAccountDetails(accountId, accountDetails)
-
+  jamid.updateProfile(accountId, '', '', '', 10)
   res.sendStatus(HttpStatusCode.NoContent)
 })
 
 accountRouter.post('/displayName', (req, res) => {
   const accountId = res.locals.accountId
   const displayName = req.body.displayName
+  const account = jamid.getAccountDetails(accountId)
 
-  const accountDetails = jamid.getAccountDetails(accountId)
-  accountDetails['Account.displayName'] = displayName
-  jamid.setAccountDetails(accountId, accountDetails)
-
+  if (account['Account.displayName'] === displayName) {
+    res.sendStatus(HttpStatusCode.Ok)
+    return
+  }
+  jamid.updateProfile(accountId, displayName, '', '', 10)
   res.sendStatus(HttpStatusCode.NoContent)
 })

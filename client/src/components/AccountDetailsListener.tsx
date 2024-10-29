@@ -16,7 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { IAccountDetails, WebSocketMessageType } from 'jami-web-common'
+import { useQueryClient } from '@tanstack/react-query'
+import { IAccountDetails, ProfileReceived, WebSocketMessageType } from 'jami-web-common'
 import { useEffect } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider'
@@ -29,6 +30,19 @@ interface AccountDetailsListenerProps {
 export default function AccountDetailsListener({ children }: AccountDetailsListenerProps) {
   const { account } = useAuthContext()
   const webSocket = useWebSocketContext()
+  const queryClient = useQueryClient()
+
+  useEffect(() => {
+    const profileReceivedHandler = (data: ProfileReceived) => {
+      queryClient.invalidateQueries({ queryKey: ['picture', data.peer] })
+      queryClient.removeQueries({ queryKey: ['picture', data.peer] })
+      queryClient.refetchQueries({ queryKey: ['picture', data.peer] })
+    }
+    webSocket.bind(WebSocketMessageType.ProfileReceived, profileReceivedHandler)
+    return () => {
+      webSocket.unbind(WebSocketMessageType.ProfileReceived, profileReceivedHandler)
+    }
+  }, [queryClient, webSocket])
 
   useEffect(() => {
     const accountDetailsChangedListener = (data: IAccountDetails) => {

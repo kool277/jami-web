@@ -213,7 +213,7 @@ export default function AccountPreferences() {
                 moderators.map((moderator) => (
                   <ListItem key={moderator.uri}>
                     <ListItemAvatar>
-                      <ConversationAvatar displayName={moderator.getDisplayName()} />
+                      <ConversationAvatar displayName={moderator.getDisplayName()} contactUri={moderator.uri} />
                     </ListItemAvatar>
                     <ListItemText primary={moderator.getDisplayName()} />
                     <ListItemSecondaryAction>

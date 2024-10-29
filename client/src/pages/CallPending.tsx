@@ -99,6 +99,7 @@ export const CallPending = () => {
             }}
           />
           <ConversationAvatar
+            contactUri=""
             alt="contact profile picture"
             displayName={conversationDisplayName}
             style={{

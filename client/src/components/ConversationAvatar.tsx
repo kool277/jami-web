@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useAuthContext } from '../contexts/AuthProvider'
 import CallPermissionDenied from '../pages/CallPermissionDenied'
+import { useUpdateAvatarMutation } from '../services/accountQueries'
 import { useContactProfilePicture } from '../services/contactQueries'
 import { FileHandler } from '../utils/files'
 import { getColor } from '../utils/messagecolor'
@@ -41,8 +42,8 @@ import { InfosDialog, useDialogHandler } from './Dialog'
 import { CircleMaskOverlay, FileDragOverlay } from './Overlay'
 
 type ConversationAvatarProps = AvatarProps & {
-  displayName?: string
-  contactUri?: string
+  displayName: string
+  contactUri: string
 }
 
 export default function ConversationAvatar({ displayName, contactUri, ...props }: ConversationAvatarProps) {
@@ -51,8 +52,15 @@ export default function ConversationAvatar({ displayName, contactUri, ...props }
   const src = props.src || url || '/broken'
   const color = getColor(contactUri ? 'jami:' + contactUri : '')
   delete props.src
+
+  useEffect(() => {
+    const updatedSrc = props.src || url || '/broken'
+    document.getElementById('avatar' + contactUri)?.setAttribute('src', updatedSrc)
+  }, [contactUri, props.src, url])
+
   return (
     <Avatar
+      id={'avatar' + contactUri}
       {...props}
       alt={displayName?.toUpperCase()}
       src={src}
@@ -69,14 +77,18 @@ export const AvatarEditor = () => {
   const [editionToolsIsOpen, setEditionToolsIsOpen] = useState(false)
   const [avatarHandler, setAvatarHandler] = useState<FileHandler | null>(null)
   const photoTakerHandler = useDialogHandler()
+  const updateAvatarMutation = useUpdateAvatarMutation()
 
   const onFilesDrop = useCallback(
     (acceptedFiles: File[]) => {
       const fileHandler = new FileHandler(acceptedFiles[0])
       setAvatarHandler(fileHandler)
       setEditionToolsIsOpen(false)
+      const data = new FormData()
+      data.append('avatar', fileHandler.file)
+      updateAvatarMutation.mutate(data)
     },
-    [setAvatarHandler, setEditionToolsIsOpen],
+    [updateAvatarMutation],
   )
 
   const {
@@ -120,8 +132,9 @@ export const AvatarEditor = () => {
           <EditPictureButton onClick={() => setEditionToolsIsOpen(true)} sx={{ width: '30px', height: '30px' }} />
         </Box>
         <ConversationAvatar
-          contactUri={account.getUri()}
           src={avatarHandler?.url || url}
+          contactUri={account.getUri()}
+          displayName={account.getDisplayName()}
           sx={{ width: '100%', height: '100%' }}
         />
       </Stack>
