@@ -43,7 +43,7 @@ type ConversationAvatarProps = AvatarProps & {
 export default function ConversationAvatar({ displayName, ...props }: ConversationAvatarProps) {
   const src = props.src ?? '/broken'
   delete props.src
-  return <Avatar {...props} alt={displayName} src={src} />
+  return <Avatar {...props} alt={displayName?.toUpperCase()} src={src} />
 }
 
 export const AvatarEditor = () => {
