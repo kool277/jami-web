@@ -22,6 +22,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 
+import { useAuthContext } from '../contexts/AuthProvider'
 import CallPermissionDenied from '../pages/CallPermissionDenied'
 import { useContactProfilePicture } from '../services/contactQueries'
 import { FileHandler } from '../utils/files'
@@ -52,6 +53,11 @@ export default function ConversationAvatar({ displayName, contactUri, ...props }
 
 export const AvatarEditor = () => {
   const { t } = useTranslation()
+  const { account } = useAuthContext()
+  const profilePictureQuery = useContactProfilePicture(account.getUri())
+  const url = profilePictureQuery.data
+  console.log(url)
+
   const [editionToolsIsOpen, setEditionToolsIsOpen] = useState(false)
   const [avatarHandler, setAvatarHandler] = useState<FileHandler | null>(null)
   const photoTakerHandler = useDialogHandler()
@@ -105,7 +111,7 @@ export const AvatarEditor = () => {
         <Box sx={{ position: 'absolute', right: '19.89px', zIndex: 10 }}>
           <EditPictureButton onClick={() => setEditionToolsIsOpen(true)} sx={{ width: '30px', height: '30px' }} />
         </Box>
-        <ConversationAvatar src={avatarHandler?.url} sx={{ width: '100%', height: '100%' }} />
+        <ConversationAvatar src={avatarHandler?.url || url} sx={{ width: '100%', height: '100%' }} />
       </Stack>
 
       {editionToolsIsOpen && (

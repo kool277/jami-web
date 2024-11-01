@@ -19,9 +19,7 @@ import fs from 'fs/promises'
 import os from 'os'
 import { parseVCards } from 'vcard4-ts'
 
-export async function getVCard(accountId: string, contactUri: string) {
-  const fileName = btoa(contactUri) + '.vcf'
-  const path = os.homedir() + '/.local/share/jami/' + accountId + '/profiles/' + fileName
+export async function decodeVCard(path: string) {
   const data: { name: string; photo?: string } = { name: '', photo: undefined }
   try {
     const file = await fs.readFile(path)
@@ -36,6 +34,12 @@ export async function getVCard(accountId: string, contactUri: string) {
   } catch (e) {
     return undefined
   }
+}
+
+export async function getVCard(accountId: string, contactUri: string) {
+  const fileName = btoa(contactUri) + '.vcf'
+  const path = os.homedir() + '/.local/share/jami/' + accountId + '/profiles/' + fileName
+  return decodeVCard(path)
 }
 
 export async function getDisplayName(accountId: string, contactUri: string) {
@@ -71,5 +75,35 @@ export async function getAvatar(accountId: string, contactUri: string) {
       return imgPath
     }
     return undefined
+  }
+}
+
+export async function getAccountAvatar(accountId: string) {
+  const jamiPath = os.homedir() + '/.local/share/jami/' + accountId
+  const cacheFolder = jamiPath + '/cache'
+  const imgPath = cacheFolder + '/profile.png'
+  await fs.mkdir(cacheFolder, { recursive: true })
+  try {
+    await fs.access(imgPath)
+    return imgPath
+  } catch (e) {
+    const data = decodeVCard(jamiPath + '/profile.vcf')
+    data.then(async (data) => {
+      if (data === undefined) {
+        return undefined
+      }
+      if (data?.name) {
+        await fs.writeFile(cacheFolder + '/profile.txt', data.name)
+      }
+      if (data?.photo) {
+        const base64Data = data.photo.replace(/^data:image\/png;base64,/, '')
+        await fs.writeFile(imgPath, base64Data, 'base64')
+        return imgPath
+      }
+    })
+    data.catch((e) => {
+      console.error(e)
+      return undefined
+    })
   }
 }
