@@ -198,7 +198,7 @@ const ContactMenu = ({
         },
       },
       {
-        label: t('contact_remove'),
+        label: t('leave_conversation'),
         Icon: CancelIcon,
         onClick: () => {
           openContactDialog()

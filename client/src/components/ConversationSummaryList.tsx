@@ -425,7 +425,7 @@ const DetailsDialog = ({
         />
       }
       title={conversationName}
-      content={<DialogContentList title={t('conversation_details_informations')} items={items} />}
+      content={<DialogContentList title={t('conversation_details_information')} items={items} />}
     />
   )
 }

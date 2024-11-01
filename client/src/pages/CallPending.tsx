@@ -207,7 +207,7 @@ export const CallPendingReceiverInterface = () => {
       buttons={[
         {
           ButtonComponent: CallingRefuseButton,
-          title: t('refuse_call'),
+          title: t('decline_call'),
         },
         {
           ButtonComponent: CallingAnswerAudioButton,
