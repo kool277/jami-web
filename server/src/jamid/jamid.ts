@@ -376,6 +376,10 @@ export class Jamid {
     return stringMapToRecord(this.jamiSwig.getKnownRingDevices(accountId))
   }
 
+  revokeDevice(accountId: string, deviceId: string, scheme: string = '', password: string = ''): boolean {
+    return this.jamiSwig.revokeDevice(accountId, deviceId, scheme, password)
+  }
+
   addContact(accountId: string, contactId: string): void {
     this.jamiSwig.addContact(accountId, contactId)
   }

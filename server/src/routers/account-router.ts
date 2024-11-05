@@ -75,6 +75,23 @@ accountRouter.patch('/', (req: Request<ParamsDictionary, string, Partial<Account
   res.sendStatus(HttpStatusCode.NoContent)
 })
 
+accountRouter.post(
+  '/:deviceId/revoke',
+  asyncHandler(async (req, res) => {
+    const accountId = res.locals.accountId
+    const deviceId = req.params.deviceId
+    const password = req.body.password
+    const scheme = req.body.scheme
+
+    const value = jamid.revokeDevice(accountId, deviceId, scheme, password)
+    if (!value) {
+      res.status(HttpStatusCode.BadRequest).send('Failed to revoke device')
+      return
+    }
+    res.sendStatus(HttpStatusCode.Ok)
+  }),
+)
+
 accountRouter.post('/displayName/reset', (req, res) => {
   const accountId = res.locals.accountId
   const account = jamid.getAccountDetails(accountId)

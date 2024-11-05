@@ -149,6 +149,7 @@ export interface VolatileDetails {
   'Account.active': string
   'Account.deviceAnnounced': string
   'Account.registeredName': string
+  'Account.deviceID': string
 }
 
 export type Devices = Record<string, string>

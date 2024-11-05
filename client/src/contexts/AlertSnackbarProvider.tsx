@@ -99,6 +99,8 @@ type AlertMessageKeys =
   | 'resetting_display_name_success_alert'
   | 'resetting_display_name_error_alert'
   | 'error_cannot_delete_message'
+  | 'removed_linked_device_success'
+  | 'removed_linked_device_error'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
 
@@ -168,6 +170,10 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('removing_jams_server_success')
         case 'removing_jams_server_error':
           return t('removing_jams_server_error')
+        case 'removed_linked_device_success':
+          return t('removed_linked_device_success')
+        case 'removed_linked_device_error':
+          return t('removed_linked_device_error')
         default:
           return t('unknown_error_alert')
       }

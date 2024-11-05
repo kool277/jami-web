@@ -15,13 +15,46 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-
 import { useMutation } from '@tanstack/react-query'
 import axios from 'axios'
+import { removedLinkedDeviceContent } from 'jami-web-common'
 import { useContext } from 'react'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
+import { useAuthContext } from '../contexts/AuthProvider'
 import { apiUrl } from '../utils/constants'
+
+export const useRemoveLinkedDevice = () => {
+  const { axiosInstance } = useAuthContext()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const token = localStorage.getItem('accessToken')
+
+  return useMutation({
+    mutationFn: async (content: removedLinkedDeviceContent) => {
+      const { data } = await axiosInstance.post(`/account/${content.deviceId}/revoke/`, {
+        baseURL: apiUrl,
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      return data
+    },
+
+    onSuccess: () => {
+      setAlertContent({
+        messageI18nKey: 'removed_linked_device_success',
+        severity: 'success',
+        alertOpen: true,
+      })
+    },
+
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'removed_linked_device_error',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
+  })
+}
 
 export const useSetDisplayName = () => {
   const { setAlertContent } = useContext(AlertSnackbarContext)

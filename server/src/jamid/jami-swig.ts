@@ -107,6 +107,7 @@ export interface JamiSwig {
   registerName(accountId: string, username: string, scheme: string, password: string): boolean
 
   getKnownRingDevices(accountId: string): StringMap
+  revokeDevice(accountId: string, deviceId: string, scheme: string, password: string): boolean
 
   addContact(accountId: string, contactId: string): void
   removeContact(accountId: string, contactId: string, ban: boolean): void

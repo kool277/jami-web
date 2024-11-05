@@ -16,7 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import GroupRounded from '@mui/icons-material/AddCircle'
 import { Box } from '@mui/material'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -24,18 +23,33 @@ import Grid from '@mui/material/Grid'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Typography from '@mui/material/Typography'
+import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuthContext } from '../../contexts/AuthProvider'
+import { useRemoveLinkedDevice } from '../../services/accountQueries'
+import { TrashBinIcon } from '../SvgIcon'
 
 function LinkedDevices() {
   const { account } = useAuthContext()
   const { t } = useTranslation()
-  const devices: string[][] = []
-  const accountDevices = account.devices
-  for (const i in accountDevices) devices.push([i, accountDevices[i]])
-  //TODO: reduce number of renders
-  console.log(devices)
+  const removeLinkedDeviceMutation = useRemoveLinkedDevice()
+
+  const devices = useMemo(() => {
+    const deviceList: string[][] = []
+    const accountDevices = account.devices
+
+    for (const deviceId in accountDevices) {
+      if (deviceId === account.volatileDetails['Account.deviceID']) continue
+      deviceList.push([deviceId, accountDevices[deviceId]])
+    }
+
+    return deviceList
+  }, [account.devices, account.volatileDetails])
+
+  function removeDevice(deviceId: string) {
+    removeLinkedDeviceMutation.mutate({ deviceId })
+  }
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
@@ -54,10 +68,24 @@ function LinkedDevices() {
               {t('settings_linked_devices')}
             </Typography>
             <Typography gutterBottom variant="h5" component="h2">
-              {devices.map((device, i) => (
-                <ListItem key={i}>
-                  <GroupRounded />
+              <ListItem>
+                <ListItemText
+                  id="switch-list-label-rendezvous"
+                  primary={
+                    <>
+                      {account.details['Account.deviceName']}
+                      <span style={{ fontSize: 'small', fontWeight: 'bolder', marginLeft: '3%' }}>
+                        {t('current_device')}
+                      </span>
+                    </>
+                  }
+                  secondary={account.volatileDetails['Account.deviceID']}
+                />
+              </ListItem>
+              {devices.map((device) => (
+                <ListItem key={device[0]}>
                   <ListItemText id="switch-list-label-rendezvous" primary={device[1]} secondary={device[0]} />
+                  <TrashBinIcon sx={{ '&:hover': { cursor: 'pointer' } }} onClick={() => removeDevice(device[0])} />
                 </ListItem>
               ))}
               {/* <ListItemTextsion> */}
