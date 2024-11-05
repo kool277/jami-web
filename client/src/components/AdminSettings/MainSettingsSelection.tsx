@@ -71,7 +71,7 @@ export default function MainSettingsSelection() {
   return (
     <Box
       sx={{
-        height: isMobile ? '95vh' : '2000vh',
+        height: '95vh',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',

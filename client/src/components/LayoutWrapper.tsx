@@ -39,7 +39,6 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
   const sidebarStyles = {
     top: 0,
     left: 0,
-    overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -49,12 +48,14 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
 
   const sidebarStylesMobile = {
     ...sidebarStyles,
+    overflow: 'hidden',
     width: isMenuOpen ? '100%' : '0px',
     transition: 'width 0.3s',
     zIndex: 99,
   }
 
   const mainWindowStyles = {
+    height: isSettings ? 'auto' : '100vh',
     width: '100%',
     overflow: 'auto',
   }

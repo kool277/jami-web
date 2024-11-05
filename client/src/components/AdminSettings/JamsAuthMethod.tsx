@@ -111,49 +111,50 @@ const JamsAuthMethod = () => {
   }
 
   return (
-    <Box sx={{ textAlign: 'start', marginTop: '8%' }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignContent: 'center',
-          height: '3rem',
-        }}
-      >
-        <span style={{ paddingRight: '10%' }}>
-          {t('setting_auth_change', { authMethod: AuthenticationMethods.JAMS })}
-        </span>
-        <FormControl>
-          <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
-            <FormControlLabel
-              control={<Switch checked={data.jamsAuthEnabled} onChange={handleChange} />}
-              label={undefined}
-            />
-          </FormGroup>
-        </FormControl>
-      </Box>
-      <Box sx={{ textAlign: 'start', alignItems: 'start', marginTop: '8%' }}>
-        <Typography>Jams URL </Typography>
-        <Form>
-          <Input
-            sx={{ width: '100%' }}
-            value={jamsUrl}
-            onChange={handleNameChangeJamsUrl}
-            placeholder={t('enter_jams_server')}
-          />
-          <Button
-            variant="contained"
-            type="submit"
-            onClick={submitNewJamsUrl}
-            sx={{ mt: theme.typography.pxToRem(20), marginRight: theme.typography.pxToRem(10) }}
-          >
-            {t('save_button')}
-          </Button>
-          <Button variant="contained" onClick={removeJamsUrl} sx={{ mt: theme.typography.pxToRem(20) }}>
-            {t('remove_jams_server')}
-          </Button>
-        </Form>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80%' }}>
+      <Box sx={{ textAlign: 'start', marginTop: '8%' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignContent: 'center',
+            height: '3rem',
+          }}
+        >
+          <span style={{ paddingRight: '10%' }}>
+            {t('setting_auth_change', { authMethod: AuthenticationMethods.JAMS })}
+          </span>
+          <FormControl>
+            <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
+              <FormControlLabel
+                control={<Switch checked={data.jamsAuthEnabled} onChange={handleChange} />}
+                label={undefined}
+              />
+            </FormGroup>
+          </FormControl>
+        </Box>
+        <Box sx={{ textAlign: 'start', alignItems: 'start' }}>
+          <Typography>JAMS URL </Typography>
+          <Form>
+            <Input value={jamsUrl} onChange={handleNameChangeJamsUrl} placeholder={t('enter_jams_server')} />
+            <Button
+              variant="contained"
+              type="submit"
+              onClick={submitNewJamsUrl}
+              sx={{ mt: theme.typography.pxToRem(20), marginLeft: theme.typography.pxToRem(10), marginTop: '-4%' }}
+            >
+              {t('save_button')}
+            </Button>
+            <Button
+              variant="contained"
+              onClick={removeJamsUrl}
+              sx={{ mt: theme.typography.pxToRem(20), marginLeft: theme.typography.pxToRem(10), marginTop: '-4%' }}
+            >
+              {t('remove_jams_server')}
+            </Button>
+          </Form>
+        </Box>
       </Box>
     </Box>
   )

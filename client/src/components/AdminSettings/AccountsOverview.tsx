@@ -267,86 +267,88 @@ export default function AccountsOverview() {
   )
 
   return (
-    <Box sx={{ width: '85%', marginTop: '5%' }}>
-      <Paper sx={{ width: '100%', mb: 2, borderRadius: '10px' }}>
-        <EnhancedTableToolbar
-          numSelected={selected.length}
-          accountsNumber={rows.length}
-          onDelete={handleSubmitDeletion}
-        />
-        <TableContainer>
-          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={dense ? 'small' : 'medium'}>
-            <EnhancedTableHead
-              numSelected={selected.length}
-              order={order}
-              orderBy={orderBy}
-              onSelectAllClick={handleSelectAllClick}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-            />
-            <TableBody>
-              {visibleRows.map((row, index) => {
-                const isItemSelected = selected.includes(row.accountUri)
-                const labelId = `enhanced-table-checkbox-${index}`
+    <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
+      <Box sx={{ width: '85%', marginTop: '5%' }}>
+        <Paper sx={{ width: '100%', mb: 2, borderRadius: '10px' }}>
+          <EnhancedTableToolbar
+            numSelected={selected.length}
+            accountsNumber={rows.length}
+            onDelete={handleSubmitDeletion}
+          />
+          <TableContainer>
+            <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={dense ? 'small' : 'medium'}>
+              <EnhancedTableHead
+                numSelected={selected.length}
+                order={order}
+                orderBy={orderBy}
+                onSelectAllClick={handleSelectAllClick}
+                onRequestSort={handleRequestSort}
+                rowCount={rows.length}
+              />
+              <TableBody>
+                {visibleRows.map((row, index) => {
+                  const isItemSelected = selected.includes(row.accountUri)
+                  const labelId = `enhanced-table-checkbox-${index}`
 
-                return (
+                  return (
+                    <TableRow
+                      hover
+                      onClick={(event) => handleClick(event, row.accountUri)}
+                      role="checkbox"
+                      aria-checked={isItemSelected}
+                      tabIndex={-1}
+                      key={row.accountUri}
+                      selected={isItemSelected}
+                      sx={{ cursor: 'pointer' }}
+                    >
+                      <TableCell sx={{ paddingLeft: '0.5%' }} component="th" id={labelId} scope="row" padding="none">
+                        {row.username}
+                        <Box sx={{ fontSize: '11px', color: 'grey' }}>{row.accountUri}</Box>
+                      </TableCell>
+                      <TableCell align="right">{row.auth}</TableCell>
+                      <TableCell align="right">{String(byteSize(row.storage))}</TableCell>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          color="primary"
+                          checked={isItemSelected}
+                          inputProps={{
+                            'aria-labelledby': labelId,
+                          }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+                {emptyRows > 0 && (
                   <TableRow
-                    hover
-                    onClick={(event) => handleClick(event, row.accountUri)}
-                    role="checkbox"
-                    aria-checked={isItemSelected}
-                    tabIndex={-1}
-                    key={row.accountUri}
-                    selected={isItemSelected}
-                    sx={{ cursor: 'pointer' }}
+                    style={{
+                      height: (dense ? 33 : 53) * emptyRows,
+                    }}
                   >
-                    <TableCell sx={{ paddingLeft: '0.5%' }} component="th" id={labelId} scope="row" padding="none">
-                      {row.username}
-                      <Box sx={{ fontSize: '11px', color: 'grey' }}>{row.accountUri}</Box>
-                    </TableCell>
-                    <TableCell align="right">{row.auth}</TableCell>
-                    <TableCell align="right">{String(byteSize(row.storage))}</TableCell>
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        color="primary"
-                        checked={isItemSelected}
-                        inputProps={{
-                          'aria-labelledby': labelId,
-                        }}
-                      />
-                    </TableCell>
+                    <TableCell colSpan={6} />
                   </TableRow>
-                )
-              })}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: (dense ? 33 : 53) * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
-      <Box sx={{ width: '100%', display: 'flex', marginTop: '1%', flexWrap: 'nowrap' }}>
-        <FormControlLabel
-          sx={{ width: '40%', display: 'flex', justifyContent: 'flex-end' }}
-          labelPlacement="start"
-          label={t('dense_padding')}
-          control={<Switch sx={{ ml: '1%', mr: '1%' }} checked={dense} onChange={handleChangeDense} />}
-        />
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Paper>
+        <Box sx={{ width: '100%', display: 'flex', marginTop: '1%', flexWrap: 'nowrap' }}>
+          <FormControlLabel
+            sx={{ width: '40%', display: 'flex', justifyContent: 'flex-end' }}
+            labelPlacement="start"
+            label={t('dense_padding')}
+            control={<Switch sx={{ ml: '1%', mr: '1%' }} checked={dense} onChange={handleChangeDense} />}
+          />
+        </Box>
       </Box>
     </Box>
   )

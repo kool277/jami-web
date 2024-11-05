@@ -101,53 +101,55 @@ const LocalAuthMethod = () => {
   }
 
   return (
-    <Box sx={{ textAlign: 'start' }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignContent: 'center',
-          height: '3rem',
-        }}
-      >
-        <span style={{ paddingRight: '10%' }}>
-          {t('setting_auth_change', { authMethod: AuthenticationMethods.JAMI })}
-        </span>
-        <FormControl>
-          <FormGroup style={{ alignItems: 'center' }}>
-            <FormControlLabel
-              control={<Switch checked={data.localAuthEnabled} onChange={handleChange} />}
-              label={undefined}
-            />
-          </FormGroup>
-        </FormControl>
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80%' }}>
+      <Box sx={{ textAlign: 'start' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignContent: 'center',
+            height: '3rem',
+          }}
+        >
+          <span style={{ paddingRight: '10%' }}>
+            {t('setting_auth_change', { authMethod: AuthenticationMethods.JAMI })}
+          </span>
+          <FormControl>
+            <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
+              <FormControlLabel
+                control={<Switch checked={data.localAuthEnabled} onChange={handleChange} />}
+                label={undefined}
+              />
+            </FormGroup>
+          </FormControl>
+        </Box>
+        <Box sx={{ textAlign: 'start', alignItems: 'start' }}>
+          <Typography>{t('setting_name_server')}</Typography>
+          <Form>
+            <Input value={nameServer} onChange={handleNameChangeNameServer} />
+            <Button
+              variant="contained"
+              type="submit"
+              onClick={submitNewNameServer}
+              sx={{ mt: theme.typography.pxToRem(20), marginLeft: theme.typography.pxToRem(10), marginTop: '-4%' }}
+              disabled={nameServer === nameServerConfigured}
+            >
+              {t('save_button')}
+            </Button>
+            <Button
+              variant="contained"
+              onClick={deleteNameServer}
+              sx={{ mt: theme.typography.pxToRem(20), marginLeft: theme.typography.pxToRem(10), marginTop: '-4%' }}
+            >
+              {t('reset_nameserver_button')}
+            </Button>
+          </Form>
+        </Box>
+        {nameServer === nameServerConfigured && (
+          <Box style={{ fontSize: 'smaller', marginTop: '2%' }}>{t('nameserver_already_set')}</Box>
+        )}
       </Box>
-      <Box sx={{ textAlign: 'start', alignItems: 'start' }}>
-        <Typography>{t('setting_name_server')}</Typography>
-        <Form>
-          <Input value={nameServer} onChange={handleNameChangeNameServer} />
-          <Button
-            variant="contained"
-            type="submit"
-            onClick={submitNewNameServer}
-            sx={{ mt: theme.typography.pxToRem(20), marginLeft: theme.typography.pxToRem(10), marginTop: '-4%' }}
-            disabled={nameServer === nameServerConfigured}
-          >
-            {t('save_button')}
-          </Button>
-          <Button
-            variant="contained"
-            onClick={deleteNameServer}
-            sx={{ mt: theme.typography.pxToRem(20), marginLeft: theme.typography.pxToRem(10), marginTop: '-4%' }}
-          >
-            {t('reset_nameserver_button')}
-          </Button>
-        </Form>
-      </Box>
-      {nameServer === nameServerConfigured && (
-        <Box style={{ fontSize: 'smaller', marginTop: '2%' }}>{t('nameserver_already_set')}</Box>
-      )}
     </Box>
   )
 }

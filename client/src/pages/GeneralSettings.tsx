@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Stack, Typography } from '@mui/material'
+import { Box, Stack, Typography } from '@mui/material'
 import { useCallback, useContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -27,20 +27,22 @@ export default function GeneralPreferences() {
   const { t } = useTranslation()
 
   return (
-    <Stack
-      sx={{
-        padding: '3%',
-      }}
-    >
-      <Typography variant="h2">{t('settings_title_general')}</Typography>
-      <SettingsGroup label={t('settings_title_system')}>
-        <SettingTheme />
-        <SettingLanguage />
-      </SettingsGroup>
-      <SettingsGroup label={t('settings_title_chat')}>
-        <SettingLinkPreview />
-      </SettingsGroup>
-    </Stack>
+    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <Stack
+        sx={{
+          padding: '3%',
+        }}
+      >
+        <Typography variant="h2">{t('settings_title_general')}</Typography>
+        <SettingsGroup label={t('settings_title_system')}>
+          <SettingTheme />
+          <SettingLanguage />
+        </SettingsGroup>
+        <SettingsGroup label={t('settings_title_chat')}>
+          <SettingLinkPreview />
+        </SettingsGroup>
+      </Stack>
+    </Box>
   )
 }
 
