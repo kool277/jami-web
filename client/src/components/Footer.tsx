@@ -199,7 +199,7 @@ export default function Footer() {
           </motion.div>
         </Menu>
 
-        <Button
+        <Box
           style={{
             margin: margin,
             padding: padding,
@@ -208,29 +208,30 @@ export default function Footer() {
           }}
         >
           <QrCodeModal account={account} />
-        </Button>
-
-        {!currentUrl.includes('settings') ? (
+        </Box>
+        <Box
+          style={{
+            marginLeft: '-5px',
+            marginRight: '10px',
+            padding: padding,
+            backgroundColor: componentColor,
+            color: theme.Footer.iconsColor,
+          }}
+        >
           <Button
             sx={{ margin: margin, padding: padding, backgroundColor: componentColor, color: theme.Footer.iconsColor }}
             data-cy="menu-button"
             aria-controls="simple-menu"
             aria-haspopup="true"
-            onClick={() => closeMenuAndNavigate('/settings/account/manage-account')}
+            onClick={
+              !currentUrl.includes('settings')
+                ? () => closeMenuAndNavigate('/settings/account/manage-account')
+                : () => closeMenuAndNavigate('/')
+            }
           >
-            <img src={SettingsIcon} />
+            <img src={!currentUrl.includes('settings') ? SettingsIcon : roundCloseIcon} />
           </Button>
-        ) : (
-          <Button
-            sx={{ margin: margin, padding: padding }}
-            data-cy="menu-button"
-            aria-controls="simple-menu"
-            aria-haspopup="true"
-            onClick={() => closeMenuAndNavigate('/')}
-          >
-            <img src={roundCloseIcon} />
-          </Button>
-        )}
+        </Box>
       </Box>
     </>
   )
