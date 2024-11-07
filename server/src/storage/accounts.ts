@@ -44,12 +44,25 @@ export class Accounts {
   }
   get(username: string, authMethod: string = 'local') {
     if (!METHODS.includes(authMethod)) {
+      console.log('Invalid auth method')
       return
+    }
+    if (!(authMethod in this.accounts)) {
+      this.accounts[authMethod as keyof AccountsFormat] = {}
     }
     return this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
   }
 
   set(username: string, password: string, authMethod: string = 'local', JAMSAccountId?: string): void {
+    if (!METHODS.includes(authMethod)) {
+      console.log('Invalid auth method')
+      return
+    }
+
+    if (!(authMethod in this.accounts)) {
+      this.accounts[authMethod as keyof AccountsFormat] = {}
+    }
+
     switch (authMethod) {
       case 'jams':
         if (JAMSAccountId !== undefined) {
@@ -81,6 +94,15 @@ export class Accounts {
   }
 
   remove(username: string, authMethod: string) {
+    if (!METHODS.includes(authMethod)) {
+      console.log('Invalid auth method')
+      return
+    }
+    if (!(authMethod in this.accounts)) {
+      this.accounts[authMethod as keyof AccountsFormat] = {}
+      return
+    }
+
     delete this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
   }
 
