@@ -96,6 +96,7 @@ export default function Footer() {
           backgroundColor: componentColor,
           display: 'flex',
           justifyContent: 'flex-start',
+          alignItems: 'center',
           maxWidth: isMobile ? 'none' : '360px',
           borderRadius: '3px',
           padding: '0.5%',
@@ -103,6 +104,7 @@ export default function Footer() {
           paddingLeft: '2%',
           paddingRight: '2%',
           paddingTop: '4%',
+          height: '70px',
         }}
       >
         <Box
@@ -117,6 +119,7 @@ export default function Footer() {
             maxWidth: isMobile ? 'none' : '200px',
             '&:hover': { cursor: 'pointer', backgroundColor: '#f0f0f0', color: 'black' },
             textAlign: 'right',
+            padding: '4px',
           }}
           onClick={(event: MouseEvent<HTMLDivElement>) => {
             handleClick(event as unknown as MouseEvent<HTMLButtonElement>)
@@ -130,10 +133,11 @@ export default function Footer() {
           <Box sx={{ display: 'flex', flexDirection: 'column', marginLeft: '2%' }}>
             <Box
               sx={{
+                textAlign: 'left',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                maxWidth: isMobile ? 'none' : '95px',
-                paddingRight: isMobile ? '' : '10%',
+                maxWidth: isMobile ? 'none' : '77px',
+                maxHeight: '45px',
               }}
             >
               {account.getDisplayName()}
@@ -212,7 +216,7 @@ export default function Footer() {
         <Box
           style={{
             marginLeft: '-5px',
-            marginRight: '10px',
+            marginRight: '0px',
             padding: padding,
             backgroundColor: componentColor,
             color: theme.Footer.iconsColor,

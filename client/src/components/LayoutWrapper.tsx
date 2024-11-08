@@ -37,6 +37,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
   const isAdminPanel = location.pathname.startsWith('/admin')
 
   const sidebarStyles = {
+    width: '300px',
     top: 0,
     left: 0,
     display: 'flex',
@@ -64,6 +65,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
     width: isMobile && !isMenuOpen ? '100%' : '0px',
     transition: 'width 0.3s',
     overflow: 'auto',
+    height: '100vh',
   }
 
   const footerStyles = {
@@ -91,9 +93,10 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
             : {
                 display: 'flex',
                 flexDirection: 'column',
-                width: '100%',
+                flexGrow: 1,
+                width: isMobile ? '100%' : 'unset',
                 height: '100vh',
-                padding: isSettings ? '3%' : undefined,
+                padding: isSettings ? '3%' : 'unset',
               }
         }
       >

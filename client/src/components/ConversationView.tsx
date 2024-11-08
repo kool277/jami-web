@@ -15,9 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import MenuOpenIcon from '@mui/icons-material/MenuOpen'
-import { Box, Divider, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
-import { useNavigate } from 'react-router-dom'
+import { Box, Divider, Stack, Typography } from '@mui/material'
 
 import { useCallManagerContext } from '../contexts/CallManagerProvider'
 import ConversationPreferencesProvider, {
@@ -57,15 +55,10 @@ const ConversationHeader = () => {
   const { startCall } = useCallManagerContext()
   const { isOpen, setIsOpen } = useConversationPreferencesContext()
 
-  const theme = useTheme()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-  const navigate = useNavigate()
-
   return (
     <Stack direction="row" padding="16px" overflow="hidden">
       <Stack flex={1} justifyContent="center" whiteSpace="nowrap" overflow="hidden">
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4%' }}>
-          {isMobile && <MenuOpenIcon sx={{ '&:hover': { cursor: 'pointer' } }} onClick={() => navigate('/')} />}
           <Typography variant="h5" textOverflow="ellipsis">
             {conversationDisplayName}
           </Typography>
