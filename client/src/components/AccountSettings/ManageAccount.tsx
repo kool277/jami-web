@@ -31,8 +31,6 @@ function ManageAccount() {
   const accountDevices = account.devices
   for (const i in accountDevices) devices.push([i, accountDevices[i]])
 
-  console.log(devices)
-
   const isJamiAccount = account.getType() === 'RING'
 
   return (

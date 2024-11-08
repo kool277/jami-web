@@ -98,7 +98,6 @@ adminRouter.get(
       res.status(HttpStatusCode.Ok).send(config)
       return
     }
-    console.log(config)
     res.sendStatus(HttpStatusCode.InternalServerError)
   }),
 )

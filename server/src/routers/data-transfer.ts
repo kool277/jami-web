@@ -72,9 +72,7 @@ dataTransferRouter.post(
     const conversationId = req.params.conversationId
 
     const replyTo = req.body.replyTo
-    console.log('replyTo:', replyTo)
     for (const file of req.files as Express.Multer.File[]) {
-      console.log(file)
       // the file is temporarily stored in the server
       // for now the files are stored in the uploads folder (automatically created)
       // we don t know when the file will be downloaded from the client
@@ -93,14 +91,13 @@ dataTransferRouter.post(
 dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, res) => {
   const accountId = res.locals.accountId
   const conversationId = req.params.conversationId
-  const interactionId = req.params.interactionId // equals to message id
+  const interactionId = req.params.interactionId
   const fileId = req.params.fileId
-  const downloadPathOnServer = '' // default path
+  const downloadPathOnServer = ''
   const acceptedAudioTypes = ['ogg', 'wav', 'mpeg', 'mp4', 'aac', 'flac']
   const acceptedImageTypes = ['apng', 'avif', 'jpg', 'JPG', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
 
   // file is stored in /home/<username>/.local/share/jami/:accountId/conversation_data/:conversationId/:fileId
-
   const path = os.homedir() + '/.local/share/jami/' + accountId + '/conversation_data/' + conversationId + '/' + fileId
 
   if (fs.existsSync(path)) {

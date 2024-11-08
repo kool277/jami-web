@@ -42,7 +42,6 @@ authRouter.post(
       res.status(HttpStatusCode.BadRequest).send('Missing username or password in body')
       return
     }
-    console.log('Creating new account', username, password)
     const isAccountAlreadyCreated = accounts.get(username) !== undefined
     if (isAccountAlreadyCreated) {
       res.status(HttpStatusCode.Conflict).send('Username already exists locally')

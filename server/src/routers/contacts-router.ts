@@ -92,7 +92,6 @@ contactsRouter.get('/:contactUri/profile/picture', async (req, res) => {
   const accountUri = jamid.getAccountDetails(accountId)['Account.username']
 
   if (contactUri === accountUri) {
-    console.log('SAME ACCOUNT')
     const path = await getAccountAvatar(accountId)
     if (path) {
       res.sendFile(path)

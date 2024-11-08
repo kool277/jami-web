@@ -305,12 +305,10 @@ conversationRouter.post('/:conversationId/remove-from-swarm', (req, res) => {
     (member: { uri: string; role: string }) => member.uri === accountUri && member.role === 'admin',
   )
   const infos = jamid.getConversationInfos(accountId, conversationId)
-  console.log('infos', infos.mode)
   if (!isAdmin || infos.mode === '0') {
     res.status(HttpStatusCode.Forbidden).send('You must be an admin to remove members from the swarm group')
     return
   }
-  console.log('Removing member from swarm group', accountId, conversationId, contactUri)
   jamid.removeConversationMember(accountId, conversationId, contactUri)
   res.sendStatus(HttpStatusCode.Ok)
 })

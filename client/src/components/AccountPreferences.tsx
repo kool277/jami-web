@@ -65,8 +65,6 @@ export default function AccountPreferences() {
   const accountDevices = account.devices
   for (const i in accountDevices) devices.push([i, accountDevices[i]])
 
-  console.log(devices)
-
   const isJamiAccount = account.getType() === 'RING'
   const alias = isJamiAccount ? 'Jami account' : 'SIP account'
   const moderators = account.defaultModerators
@@ -84,10 +82,8 @@ export default function AccountPreferences() {
   const removeModerator = async (uri: string) => await axiosInstance.delete(`/default-moderators/${uri}`)
 
   const handleToggle = async (key: keyof AccountDetails, value: boolean) => {
-    console.log(`handleToggle ${key} ${value}`)
     const newDetails: Partial<AccountDetails> = {}
     newDetails[key] = value ? 'true' : 'false'
-    console.log(newDetails)
     await axiosInstance.patch('/account', newDetails)
     account.updateDetails(newDetails)
     setDetails(account.details)

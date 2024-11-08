@@ -56,8 +56,6 @@ export const AvatarEditor = () => {
   const { account } = useAuthContext()
   const profilePictureQuery = useContactProfilePicture(account.getUri())
   const url = profilePictureQuery.data
-  console.log(url)
-
   const [editionToolsIsOpen, setEditionToolsIsOpen] = useState(false)
   const [avatarHandler, setAvatarHandler] = useState<FileHandler | null>(null)
   const photoTakerHandler = useDialogHandler()
