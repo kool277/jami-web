@@ -18,7 +18,7 @@
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import fs from 'fs'
-import { HttpStatusCode } from 'jami-web-common'
+import { DataTransferEventCode, HttpStatusCode } from 'jami-web-common'
 import multer from 'multer'
 import os from 'os'
 import { Container } from 'typedi'
@@ -90,44 +90,82 @@ dataTransferRouter.post(
   }),
 )
 
-dataTransferRouter.get('/:conversationId/:interactionId/:fileId', (req, res) => {
+dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, res) => {
   const accountId = res.locals.accountId
   const conversationId = req.params.conversationId
   const interactionId = req.params.interactionId // equals to message id
   const fileId = req.params.fileId
   const downloadPathOnServer = '' // default path
+  const acceptedAudioTypes = ['ogg', 'wav', 'mpeg', 'mp4', 'aac', 'flac']
+  const acceptedImageTypes = ['apng', 'avif', 'jpg', 'JPG', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
 
   // file is stored in /home/<username>/.local/share/jami/:accountId/conversation_data/:conversationId/:fileId
 
   const path = os.homedir() + '/.local/share/jami/' + accountId + '/conversation_data/' + conversationId + '/' + fileId
 
-  jamid.downdloadFile(accountId, conversationId, interactionId, fileId, downloadPathOnServer)
+  if (fs.existsSync(path)) {
+    const extension = path.split('.').pop() || ''
 
-  // attendre que les fichiers chargent sur le serveur
-  while (!fs.existsSync(path)) {
-    console.log('waiting for file to be downloaded...')
+    if (acceptedAudioTypes.includes(extension)) {
+      res.setHeader('Content-Type', 'audio/' + extension)
+    } else if (acceptedImageTypes.includes(extension)) {
+      res.setHeader('Content-Type', 'image/' + extension)
+    }
+
+    res.sendFile(path, (err) => {
+      if (err) {
+        console.error('Error sending file:', err)
+        res.status(HttpStatusCode.InternalServerError).send('Error sending file')
+      }
+    })
+    return
   }
-  console.log('sending file: ' + path)
 
-  // send file to client
+  // if the file is not found in the local storage, we download it from the daemon
+  const status = jamid.downloadFile(accountId, conversationId, interactionId, fileId, downloadPathOnServer)
+
+  if (status === 0) {
+    res.status(HttpStatusCode.NotFound).send('File not found')
+    return
+  }
+
+  let code = await jamid.waitForDataTransferEvent(accountId, conversationId, interactionId, fileId)
+
+  const errors = [
+    DataTransferEventCode.invalid,
+    DataTransferEventCode.unsupported,
+    DataTransferEventCode.invalid_pathname,
+    DataTransferEventCode.unjoinable_peer,
+    DataTransferEventCode.timeout_expired,
+    DataTransferEventCode.closed_by_host,
+    DataTransferEventCode.closed_by_peer,
+  ]
+
+  if (errors.includes(code.eventCode)) {
+    console.error('Error code:', code)
+    res.status(HttpStatusCode.NotFound).send('Error ' + DataTransferEventCode[code.eventCode])
+    return
+  }
+
+  while (code.eventCode !== DataTransferEventCode.finished) {
+    code = await jamid.waitForDataTransferEvent(accountId, conversationId, interactionId, fileId)
+    if (errors.includes(code.eventCode)) {
+      console.error('Error code:', code)
+      res.status(HttpStatusCode.NotFound).send('Error ' + DataTransferEventCode[code.eventCode])
+      return
+    }
+  }
+
   const extension = path.split('.').pop() || ''
-  const acceptedAudioTypes = ['ogg', 'wav', 'mpeg', 'mp4', 'aac', 'flac']
-  const acceptedImageTypes = ['apng', 'avif', 'jpg', 'JPG', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
-
-  console.log('extension:', extension, acceptedAudioTypes.includes(extension), acceptedImageTypes.includes(extension))
-
   if (acceptedAudioTypes.includes(extension)) {
     res.setHeader('Content-Type', 'audio/' + extension)
   } else if (acceptedImageTypes.includes(extension)) {
     res.setHeader('Content-Type', 'image/' + extension)
   }
-
   res.sendFile(path, (err) => {
     if (err) {
       console.error('Error sending file:', err)
       res.status(HttpStatusCode.InternalServerError).send('Error sending file')
-    } else {
-      console.log('File sent successfully')
     }
   })
 })

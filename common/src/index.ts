@@ -18,6 +18,7 @@
 export * from './enums/admin-setting-selection.js'
 export * from './enums/conversation-member-event-code.js'
 export * from './enums/datatransfer-error-code.js'
+export * from './enums/datatransfer-event-code.js'
 export * from './enums/http-status-code.js'
 export * from './enums/websocket-message-type.js'
 export * from './interfaces/account.js'

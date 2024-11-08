@@ -550,13 +550,7 @@ export class Jamid {
     this.jamiSwig.sendFile(accountId, conversationId, path, displayName, replyTo)
   }
 
-  downdloadFile(
-    accountId: string,
-    conversationId: string,
-    interactionId: string,
-    fileId: string,
-    path: string,
-  ): number {
+  downloadFile(accountId: string, conversationId: string, interactionId: string, fileId: string, path: string): number {
     return this.jamiSwig.downloadFile(accountId, conversationId, interactionId, fileId, path)
   }
 
@@ -573,6 +567,25 @@ export class Jamid {
     progressOut: number,
   ): DataTransferError {
     return this.jamiSwig.fileTransferInfo(accountId, conversationId, fileId, pathOut, totalOut, progressOut)
+  }
+
+  async waitForDataTransferEvent(
+    accountId: string,
+    conversationId: string,
+    interactionId: string,
+    fileId: string,
+  ): Promise<DataTransferEvent> {
+    return firstValueFrom(
+      this.events.onDataTransferEvent.pipe(
+        filter(
+          (event) =>
+            event.accountId === accountId &&
+            event.conversationId === conversationId &&
+            event.interactionId === interactionId &&
+            event.fileId === fileId,
+        ),
+      ),
+    )
   }
 
   private setupSignalHandlers(): void {
