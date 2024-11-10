@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, Divider, Stack, Typography } from '@mui/material'
+import { useState } from 'react'
 
 import { useCallManagerContext } from '../contexts/CallManagerProvider'
 import ConversationPreferencesProvider, {
@@ -25,6 +26,7 @@ import { useConversationContext } from '../contexts/ConversationProvider'
 import CallInterface from '../pages/CallInterface'
 import ChatInterface from '../pages/ChatInterface'
 import AddUserToSwarmModal from './AddUserToSwarmModal'
+import { AddParticipantButton } from './Button'
 import { ShowOptionsMenuButton, StartAudioCallButton, StartVideoCallButton } from './Button'
 
 const ConversationView = () => {
@@ -54,6 +56,7 @@ const ConversationHeader = () => {
   const { conversationId, conversationDisplayName } = useConversationContext()
   const { startCall } = useCallManagerContext()
   const { isOpen, setIsOpen } = useConversationPreferencesContext()
+  const [open, setOpen] = useState<boolean>(false)
 
   return (
     <Stack direction="row" padding="16px" overflow="hidden">
@@ -67,7 +70,12 @@ const ConversationHeader = () => {
       <Stack direction="row" spacing="20px">
         <StartAudioCallButton onClick={() => startCall(conversationId)} />
         <StartVideoCallButton onClick={() => startCall(conversationId, true)} />
-        <AddUserToSwarmModal />
+        <AddParticipantButton
+          onClick={() => {
+            setOpen(true)
+          }}
+        />
+        <AddUserToSwarmModal open={open} setOpen={setOpen} />
         <ShowOptionsMenuButton
           onClick={() => {
             setIsOpen(!isOpen)

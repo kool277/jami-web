@@ -135,23 +135,25 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
                 <ConversationAvatar contactUri={contact.id} displayName={contact.username} />
               </ListItemAvatar>
               <ListItemText primary={contact.username} secondary={contact.id} />
-              {selectedContacts !== undefined && selectedContacts.includes(contact.id) && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    textAlign: 'center',
-                    alignContent: 'center',
-                    alignItems: 'center',
-                    marginTop: '5%',
-                  }}
-                >
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  alignContent: 'center',
+                  alignItems: 'center',
+                  marginTop: '5%',
+                  width: '24px',
+                  height: '24px',
+                }}
+              >
+                {selectedContacts !== undefined && selectedContacts.includes(contact.id) && (
                   <motion.div variants={item} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
                     <CheckedIcon />
                   </motion.div>
-                </Box>
-              )}
+                )}
+              </Box>
             </ListItem>
             {contact.id !== filteredContacts[filteredContacts.length - 1].id && <Divider variant="middle" />}
           </>

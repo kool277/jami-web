@@ -16,19 +16,28 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Modal } from '@mui/material'
-import { useState } from 'react'
+import { Box, Button, Modal, useMediaQuery, useTheme } from '@mui/material'
+import { useContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useAddMemberToSwarm } from '../services/conversationQueries'
-import { AddParticipantButton } from './Button'
 import ContactList from './ContactList'
 
-export default function AddUserToSwarmModal() {
-  const [open, setOpen] = useState<boolean>(false)
+interface AddUserToSwarmModalProps {
+  open: boolean
+  setOpen: (open: boolean) => void
+}
+
+export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmModalProps) {
   const { conversationId, members } = useConversationContext()
   const addMembers = useAddMemberToSwarm(conversationId)
   const [selectedContacts, setSelectedContact] = useState<string[]>([])
+  const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const { t } = useTranslation()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
 
   const handleSelectedContact = (contact: string) => {
     if (selectedContacts.includes(contact)) {
@@ -41,18 +50,42 @@ export default function AddUserToSwarmModal() {
   const membersUris = members.map((member) => member.contact.uri)
 
   function addToSwarm() {
+    if (selectedContacts.length === 0) {
+      setAlertContent({
+        messageI18nKey: 'add_to_group_no_user_selected',
+        severity: 'error',
+        alertOpen: true,
+      })
+      return
+    }
+
     addMembers.mutate(selectedContacts)
     setSelectedContact([])
     setOpen(false)
   }
 
+  const stylesInCommon = {
+    height: 'auto',
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: '10px',
+    marginTop: '3.6%',
+  }
+
+  const nonMobileStyles = {
+    ...stylesInCommon,
+    width: 'auto',
+    position: 'absolute',
+    right: 0,
+    marginRight: '0.5%',
+  }
+
+  const mobileStyles = {
+    ...stylesInCommon,
+    width: '100%',
+  }
+
   return (
     <>
-      <AddParticipantButton
-        onClick={() => {
-          setOpen(true)
-        }}
-      />
       <Modal
         open={open}
         onClose={() => {
@@ -60,20 +93,9 @@ export default function AddUserToSwarmModal() {
           setSelectedContact([])
         }}
       >
-        <Box
-          sx={{
-            width: 'auto',
-            height: 'auto',
-            backgroundColor: 'white',
-            position: 'absolute',
-            borderRadius: '10px',
-            right: 0,
-            marginRight: '0.5%',
-            marginTop: '3.6%',
-          }}
-        >
-          <Box sx={{ textAlign: 'center' }}>
-            <h3>Add User to Swarm</h3>
+        <Box sx={isMobile ? mobileStyles : nonMobileStyles}>
+          <Box sx={{ textAlign: 'center', paddingTop: isMobile ? '1px' : 'unset' }}>
+            <h3>{t('add_user_to_group')}</h3>
           </Box>
           <Box sx={{ marginTop: '-2%' }}>
             <ContactList
@@ -82,15 +104,11 @@ export default function AddUserToSwarmModal() {
               members={membersUris}
             />
           </Box>
-          {selectedContacts.length === 0 ? (
-            <Box sx={{ paddingBottom: '6%' }}></Box>
-          ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', paddingBottom: '2%' }}>
-              <Button sx={{ margin: '2px' }} variant="contained" onClick={addToSwarm}>
-                Add to Swarm
-              </Button>
-            </Box>
-          )}
+          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', paddingBottom: '2%' }}>
+            <Button sx={{ margin: '2px' }} variant="contained" onClick={addToSwarm}>
+              {t('add_to_group_validation')}
+            </Button>
+          </Box>
         </Box>
       </Modal>
     </>
