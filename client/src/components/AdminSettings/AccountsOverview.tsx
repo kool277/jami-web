@@ -18,11 +18,9 @@
 import DeleteIcon from '@mui/icons-material/Delete'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import { alpha } from '@mui/material/styles'
-import Switch from '@mui/material/Switch'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -191,7 +189,6 @@ export default function AccountsOverview() {
   const [orderBy, setOrderBy] = useState<keyof AccountOverview>('auth')
   const [selected, setSelected] = useState<readonly string[]>([])
   const [page, setPage] = useState(0)
-  const [dense, setDense] = useState(false)
   const [rowsPerPage, setRowsPerPage] = useState(5)
   const getAllAccounts = useGetAllAccounts()
   const accountDeletionMutation = useDeleteAccounts()
@@ -254,10 +251,6 @@ export default function AccountsOverview() {
     setPage(0)
   }
 
-  const handleChangeDense = (event: ChangeEvent<HTMLInputElement>) => {
-    setDense(event.target.checked)
-  }
-
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
 
@@ -276,7 +269,7 @@ export default function AccountsOverview() {
             onDelete={handleSubmitDeletion}
           />
           <TableContainer>
-            <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={dense ? 'small' : 'medium'}>
+            <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={'medium'}>
               <EnhancedTableHead
                 numSelected={selected.length}
                 order={order}
@@ -322,7 +315,7 @@ export default function AccountsOverview() {
                 {emptyRows > 0 && (
                   <TableRow
                     style={{
-                      height: (dense ? 33 : 53) * emptyRows,
+                      height: 53 * emptyRows,
                     }}
                   >
                     <TableCell colSpan={6} />
@@ -341,14 +334,6 @@ export default function AccountsOverview() {
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </Paper>
-        <Box sx={{ width: '100%', display: 'flex', marginTop: '1%', flexWrap: 'nowrap' }}>
-          <FormControlLabel
-            sx={{ width: '40%', display: 'flex', justifyContent: 'flex-end' }}
-            labelPlacement="start"
-            label={t('dense_padding')}
-            control={<Switch sx={{ ml: '1%', mr: '1%' }} checked={dense} onChange={handleChangeDense} />}
-          />
-        </Box>
       </Box>
     </Box>
   )

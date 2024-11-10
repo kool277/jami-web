@@ -75,7 +75,6 @@
   "conversation_title_more": "{{member0}}, {{member1}}, {{member2}}, +{{excess}} other members",
   "conversations": "Conversations",
   "current_device": "current device",
-  "dense_padding": "Dense padding",
   "dialog_cancel": "Cancel",
   "dialog_close": "Close",
   "dialog_confirm_title_default": "Confirm action",
