@@ -27,6 +27,7 @@ import AccountsOverview from './components/AdminSettings/AccountsOverview'
 import AdminAccountConfiguration from './components/AdminSettings/AdminAccountConfiguration'
 import AdminAuthWrapper from './components/AdminSettings/AdminAuthWrapper'
 import AuthMethods from './components/AdminSettings/AuthMethods'
+import DownloadLimit from './components/AdminSettings/DownloadLimit'
 import JamsAuthMethod from './components/AdminSettings/JamsAuthMethod'
 import LocalAuthMethod from './components/AdminSettings/LocalAuthMethod'
 import ContactList from './components/ContactList'
@@ -41,6 +42,7 @@ import MessengerProvider from './contexts/MessengerProvider'
 import MobileMenuStateProvider from './contexts/MobileMenuStateProvider'
 import UserMediaProvider from './contexts/UserMediaProvider'
 import WebSocketProvider from './contexts/WebSocketProvider'
+import { AdminConfigurationOptions } from './enums/adminConfigurationOptions'
 import { AuthenticationMethods } from './enums/authenticationMethods'
 import { RouteParams } from './hooks/useUrlParams'
 import AccountSettings from './pages/AccountSettings'
@@ -86,8 +88,12 @@ export const router = createBrowserRouter(
             element={<JamsAuthMethod />}
           />
           <Route
-            path={`/admin/${AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION}`}
+            path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`}
             element={<AdminAccountConfiguration />}
+          />
+          <Route
+            path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`}
+            element={<DownloadLimit />}
           />
         </Route>
         <Route path="admin/login" element={<AdminLogin />} />

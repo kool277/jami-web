@@ -62,6 +62,10 @@ const upload = multer({ storage: storage })
 const jamid = Container.get(Jamid)
 export const dataTransferRouter = Router()
 
+dataTransferRouter.get('/autoDownloadLimit', (req, res) => {
+  res.status(HttpStatusCode.Ok).json({ limit: config.getAutoDownloadLimit() })
+})
+
 dataTransferRouter.use(authenticateToken)
 
 dataTransferRouter.post(

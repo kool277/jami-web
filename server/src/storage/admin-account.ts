@@ -56,6 +56,24 @@ export class AdminAccount {
       openIdAuthEnabled: false,
       uploadPath: this.defaultUploadPath,
     }
+    this.adminAccount.autoDownloadLimit = 20 // default value
+  }
+
+  setAutoDownloadLimit(limit: number) {
+    if (!('autoDownloadLimit' in this.adminAccount)) {
+      this.adminAccount.autoDownloadLimit = 20
+    }
+    if (limit < 0) {
+      return
+    }
+    this.adminAccount.autoDownloadLimit = limit
+  }
+
+  getAutoDownloadLimit() {
+    if (!('autoDownloadLimit' in this.adminAccount)) {
+      this.adminAccount.autoDownloadLimit = 20
+    }
+    return this.adminAccount.autoDownloadLimit
   }
 
   getUploadPath(): string {

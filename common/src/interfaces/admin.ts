@@ -29,6 +29,7 @@ export interface IAdminAccount {
   config: IAdminConfigState
   nameserver?: string
   jamsUrl?: string
+  autoDownloadLimit?: number // size (in Mb) of the file that can be downloaded without user interaction
 }
 
 //For runtime type check

@@ -102,6 +102,10 @@ type AlertMessageKeys =
   | 'add_to_group_no_user_selected'
   | 'removed_linked_device_success'
   | 'removed_linked_device_error'
+  | 'same_limit_error'
+  | 'limit_cannot_be_negative'
+  | 'setting_auto_download_limit_success'
+  | 'setting_auto_download_limit_error'
   | 'update_conversation_preferences_error'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
@@ -178,6 +182,14 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('removed_linked_device_success')
         case 'removed_linked_device_error':
           return t('removed_linked_device_error')
+        case 'same_limit_error':
+          return t('same_limit_error')
+        case 'limit_cannot_be_negative':
+          return t('limit_cannot_be_negative')
+        case 'setting_auto_download_limit_success':
+          return t('setting_auto_download_limit_success')
+        case 'setting_auto_download_limit_error':
+          return t('setting_auto_download_limit_error')
         case 'update_conversation_preferences_error':
           return t('update_conversation_preferences_error')
         default:

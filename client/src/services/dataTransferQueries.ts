@@ -15,9 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
 
 import { useAuthContext } from '../contexts/AuthProvider'
+import { apiUrl } from '../utils/constants'
 
 export const useSendFilesMutation = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
@@ -39,21 +41,15 @@ export const useSendFilesMutation = (conversationId: string) => {
   })
 }
 
-/*
-export const GetDownloadedFile = (conversationId: string, messageId : string, fileId : string) => {
-  const { axiosInstance } = useAuthContext()
-  return useQuery<File, Error>({
-    queryKey: ['data', conversationId],
+export const useGetAutoDownloadLimit = () => {
+  return useQuery({
+    queryKey: ['get', 'autoDownloadLimit'],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<File>(`/data/${conversationId}/${messageId}/${fileId}`, {
-        responseType: 'blob',
-      });
-      return data;
+      const { data } = await axios.get(`/data/autoDownloadLimit`, { baseURL: apiUrl })
+      return data
     },
-    enabled: false,
   })
 }
-*/
 
 interface Content {
   messageId: string

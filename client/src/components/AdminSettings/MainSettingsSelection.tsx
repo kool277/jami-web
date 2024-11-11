@@ -22,6 +22,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { AdminConfigurationOptions } from '../../enums/adminConfigurationOptions'
 import SettingSidebar from '../SettingSidebar'
 
 //Settings meta structure
@@ -49,21 +50,35 @@ export default function MainSettingsSelection() {
     return [
       {
         icon: null,
+        title: t('admin_account_configuration'),
+        highlightKey: `/admin/${AdminSettingSelection.CONFIGURATION}`,
+        link: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`,
+        submenuItems: [
+          {
+            icon: null,
+            title: 'Account',
+            highlightKey: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`,
+            link: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`,
+          },
+          {
+            icon: null,
+            title: 'Auto Download Limit',
+            highlightKey: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`,
+            link: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`,
+          },
+        ],
+      },
+      {
+        icon: null,
         title: t('accounts'),
-        highlightKey: 'accounts',
+        highlightKey: `/admin/${AdminSettingSelection.ACCOUNTS}`,
         link: `/admin/${AdminSettingSelection.ACCOUNTS}`,
       },
       {
         icon: null,
         title: t('authentication'),
-        highlightKey: 'authentication',
+        highlightKey: `/admin/${AdminSettingSelection.AUTHENTICATION}`,
         link: `/admin/${AdminSettingSelection.AUTHENTICATION}`,
-      },
-      {
-        icon: null,
-        title: t('admin_account_configuration'),
-        highlightKey: 'admin_account_configuration',
-        link: `/admin/${AdminSettingSelection.ADMIN_ACCOUNT_CONFIGURATION}`,
       },
     ]
   }, [t])

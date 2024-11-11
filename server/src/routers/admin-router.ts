@@ -344,3 +344,18 @@ adminRouter.delete(
     res.sendStatus(HttpStatusCode.Ok)
   }),
 )
+
+adminRouter.post('/autoDownloadLimit', (req, res) => {
+  const downloadLimit = Number(req.body.limit)
+  if (!downloadLimit) {
+    res.status(HttpStatusCode.BadRequest)
+    return
+  }
+  if (downloadLimit < 0) {
+    res.status(HttpStatusCode.BadRequest).send('Invalid download limit')
+    return
+  }
+  adminAccount.setAutoDownloadLimit(downloadLimit)
+  adminAccount.save()
+  res.sendStatus(HttpStatusCode.Ok)
+})

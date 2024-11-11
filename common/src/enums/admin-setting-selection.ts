@@ -18,5 +18,5 @@
 export enum AdminSettingSelection {
   ACCOUNTS = 'accounts',
   AUTHENTICATION = 'authentication',
-  ADMIN_ACCOUNT_CONFIGURATION = 'admin-account-configuration',
+  CONFIGURATION = 'configuration',
 }

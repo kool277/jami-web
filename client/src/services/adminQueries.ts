@@ -501,3 +501,40 @@ export const useCheckAdminTokenValidity = async () => {
   }
   return false
 }
+
+export const useSetAutoDownloadLimit = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const queryClient = useQueryClient()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  return useMutation({
+    mutationKey: ['set', 'autoDownloadLimit'],
+    mutationFn: async (limit: number) => {
+      const { data } = await axios.post(
+        '/admin/autoDownloadLimit',
+        { limit },
+        {
+          baseURL: apiUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get', 'autoDownloadLimit'] })
+      setAlertContent({
+        messageI18nKey: 'setting_auto_download_limit_success',
+        severity: 'success',
+        alertOpen: true,
+      })
+    },
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'setting_auto_download_limit_error',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
+  })
+}
