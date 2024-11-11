@@ -39,7 +39,7 @@ export const colors = [
 
 // colors of bubble and text inside the bubble does not
 // change based dark mode or light mode
-const darkColorsText = ['#CDDC39']
+const darkColorsText = ['#CDDC39', '#E5E5E5']
 const darkColorsTime = ['#9E9E9E', '#009688']
 const lightColorsTime = ['#f44336', '#2196f3', '#00BCD4', '#4CAF50', '#FF5722', '#607D8B']
 

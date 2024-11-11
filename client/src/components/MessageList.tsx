@@ -15,18 +15,16 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Typography } from '@mui/material'
-import { Box, Stack } from '@mui/system'
+import { Typography, useTheme } from '@mui/material'
+import { Box, Stack, useMediaQuery } from '@mui/system'
 import { Message, WebSocketMessageType } from 'jami-web-common'
 import { memo, MutableRefObject, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Waypoint } from 'react-waypoint'
 
 import { useAuthContext } from '../contexts/AuthProvider'
-import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
-import { getTextColor } from '../utils/messagecolor'
 import { findNextVisibleMessage, findPreviousVisibleMessage, MessageRow } from './Message'
 import { ArrowDownIcon } from './SvgIcon'
 
@@ -129,18 +127,20 @@ interface ScrollToEndButtonProps {
 
 const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
   const { t } = useTranslation()
-  const { conversationColor } = useConversationPreferencesContext()
-  const textColor = getTextColor(conversationColor)
+  const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const textColor = 'white'
   return (
     <Stack
       direction="row"
       borderRadius="5px"
-      height="30px"
+      height={isMobile ? '40px' : '30px'}
       alignItems="center"
       padding="0 16px"
+      textAlign="center"
       spacing="12px"
       sx={{
-        backgroundColor: conversationColor, // Should be same color as message bubble
+        backgroundColor: theme.palette.primary.main, // TODO: use another color
         cursor: 'pointer',
       }}
       onClick={() => listBottomRef.current?.scrollIntoView({ behavior: 'smooth' })}

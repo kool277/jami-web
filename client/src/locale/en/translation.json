@@ -130,6 +130,7 @@
   "message_call_incoming_missed": "Missed incoming call",
   "message_call_outgoing": "Outgoing call - {{duration}}",
   "message_call_outgoing_missed": "Missed outgoing call",
+  "message_content_copied": "Message copied",
   "message_deleted": "Message deleted successfully.",
   "message_input_placeholder_1": "Write to {{member0}}",
   "message_input_placeholder_2": "Write to {{member0}} and {{member1}}",

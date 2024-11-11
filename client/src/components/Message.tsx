@@ -25,14 +25,13 @@ import { t } from 'i18next'
 import { Message, ReactionAdded, WebSocketMessageType } from 'jami-web-common'
 import Linkify from 'linkify-react'
 import * as linkify from 'linkifyjs'
-import { memo, ReactElement, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, ReactElement, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useActionMessageContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
-import DownloadFileIcon from '../icons/downloadFile.svg?react'
 import { Account } from '../models/account'
 import { Contact } from '../models/contact'
 import { GetDownloadedFile, useGetAutoDownloadLimit, useGetDownloadFileInfo } from '../services/dataTransferQueries'
@@ -44,8 +43,6 @@ import { EditPictureButton, EmojiButton, MoreButton, ReplyMessageButton } from '
 import ConversationAvatar from './ConversationAvatar'
 import LoadingPage from './Loading'
 import MessageDataContent from './MessageDataContent'
-import MessageReaction from './MessageReaction'
-import MessageStatus from './MessageStatus'
 import PopoverList, { PopoverListItemData } from './PopoverList'
 import {
   ArrowLeftCurved,
@@ -54,11 +51,15 @@ import {
   OppositeArrowsIcon,
   TrashBinIcon,
   TwoSheetsIcon,
+  DownloadFileIcon,
 } from './SvgIcon'
-import { getTextColor, getSentTimeColor } from '../utils/messagecolor'
+import { getSentTimeColor, getTextColor } from '../utils/messagecolor'
 import { motion } from 'framer-motion'
 import { useDeleteMessageMutation } from '../services/conversationQueries'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
+import MessageReaction from './MessageReaction'
+import MessageStatus from './MessageStatus'
 
 type MessagePosition = 'start' | 'end'
 
@@ -104,7 +105,7 @@ export const findNextVisibleMessage = (messages: Message[], messageIndex: number
 
 const avatarSize = '22px'
 const spacingBetweenAvatarAndBubble = '10px'
-const bubblePadding = '10px'
+const bubblePadding = '8px'
 
 interface MessageCallProps {
   message: Message
@@ -177,7 +178,13 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
 
 const MessageInitial = () => {
   const { t } = useTranslation()
-  return <Typography variant="body1">{t('message_swarm_created')}</Typography>
+  const isReduced = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
+
+  return (
+    <Typography maxWidth={isReduced ? '200px' : 'unset'} variant="body1">
+      {t('message_swarm_created')}
+    </Typography>
+  )
 }
 
 interface MessageDataTransferProps {
@@ -202,13 +209,13 @@ const MessageDataTransfer = ({
   message,
   sentTime,
 }: MessageDataTransferProps) => {
+  const theme: Theme = useTheme()
   const { conversationId } = useConversationContext()
   const { setReplyMessage } = useActionMessageContext()
   const { conversationColor } = useConversationPreferencesContext()
-  const bubbleColor = isAccountMessage ? conversationColor : '#E5E5E5'
+  const bubbleColor = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
   const [fileType, setFileType] = useState<FileType>()
   const extension = message.displayName?.split('.').pop()?.toLowerCase() || ''
-  const theme: Theme = useTheme()
 
   const downloadFile = GetDownloadedFile(conversationId)
   const limitData = useGetAutoDownloadLimit()
@@ -366,7 +373,7 @@ const MessageDataTransfer = ({
   const dataComponent = () => {
     switch (fileType) {
       case FileType.Audio:
-        if (!preview) {
+        if (!audioBlob) {
           return (
             <Box
               onClick={() => {
@@ -386,7 +393,7 @@ const MessageDataTransfer = ({
         return (
           <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap' }}>
             {position === 'end' && <Box sx={{ minWidth: '35px' }}></Box>}
-            <AudioPlayer blob={audioBlob} backgroundColor={bubbleColor} />
+            <AudioPlayer blob={audioBlob} isAccountMessage={isAccountMessage} />
             {position === 'start' && <Box sx={{ minWidth: '35px' }}></Box>}
           </Box>
         )
@@ -456,25 +463,33 @@ const MessageDataTransfer = ({
   }
 
   return (
-    <MessageTooltip isDeleted={isDeleted} position={position} message={message}>
-      <Box
-        onClick={fileType !== FileType.Audio ? handleDownload : undefined}
-        onDoubleClick={onDoubleClick}
-        sx={isDeleted || fileType === FileType.Audio ? null : { cursor: 'pointer' }}
+    <>
+      <MessageTooltip
+        isDeleted={isDeleted}
+        position={position}
+        message={message}
+        isMedia={true}
+        handleDownload={handleDownload}
       >
-        <Bubble
-          bubbleColor={bubbleColor}
-          position={position}
-          isFirstOfGroup={isFirstOfGroup}
-          isLastOfGroup={isLastOfGroup}
-          sentTime={sentTime}
-          edited={false} // edited is not used in data-transfer message
-          isMedia={fileType !== FileType.Document && !isDeleted ? true : false}
-        >
-          {isDeleted ? <Box color={textColor}>{t('media_deleted')}</Box> : dataComponent()}
-        </Bubble>
+        <Box onDoubleClick={onDoubleClick} sx={isDeleted || fileType === FileType.Audio ? null : { cursor: 'pointer' }}>
+          <Bubble
+            bubbleColor={bubbleColor}
+            position={position}
+            isFirstOfGroup={isFirstOfGroup}
+            isLastOfGroup={isLastOfGroup}
+            sentTime={sentTime}
+            edited={false} // edited is not used in data-transfer message
+            isMedia={fileType !== FileType.Document && !isDeleted ? true : false}
+            isAudio={fileType === FileType.Audio}
+          >
+            {isDeleted ? <Box color={textColor}>{t('media_deleted')}</Box> : dataComponent()}
+          </Bubble>
+        </Box>
+      </MessageTooltip>
+      <Box sx={{ width: '95%', display: 'flex', justifyContent: isAccountMessage ? 'flex-start' : 'flex-end' }}>
+        <MessageReaction message={message} />
       </Box>
-    </MessageTooltip>
+    </>
   )
 }
 
@@ -485,13 +500,13 @@ interface MessageMemberProps {
 const MessageMember = ({ message }: MessageMemberProps) => {
   const { i18n } = useTranslation()
   const theme: Theme = useTheme()
-  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
+  const isReduced = useMediaQuery(theme.breakpoints.down('md'))
 
   const text = getMessageMemberText(message, i18n)
   return (
     <Chip
       sx={{
-        maxWidth: isMedium ? '300px' : 'unset',
+        maxWidth: isReduced ? '300px' : 'unset',
         width: 'fit-content',
         textOverflow: 'ellipsis',
         overflow: 'hidden',
@@ -523,7 +538,8 @@ const LinkPreview = ({ isAccountMessage, link }: LinkPreviewProps) => {
         {imageIsWorking && linkPreview.image && (
           <img
             style={{
-              padding: '15px 0',
+              width: '50%',
+              borderRadius: '3px',
             }}
             alt={linkPreview.title}
             src={linkPreview.image}
@@ -573,12 +589,11 @@ interface MessageTextProps {
 
 const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup, sentTime }: MessageTextProps) => {
   const { conversationColor } = useConversationPreferencesContext()
+  const theme: Theme = useTheme()
 
   const position = isAccountMessage ? 'end' : 'start'
-  const bubbleColor = isAccountMessage ? conversationColor : '#E5E5E5'
-  const textColor = isAccountMessage ? getTextColor(bubbleColor) : '#000000'
+  const bubbleColor = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
   const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message])
-  const theme: Theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('md'))
   const [isEdited, setIsEdited] = useState(false)
@@ -606,29 +621,32 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   }
 
   return (
-    <Box data-cy="message">
-      <MessageTooltip isDeleted={isDeleted} position={position} message={message}>
-        <Box onDoubleClick={() => onDoubleClick()}>
-          <Bubble
-            bubbleColor={bubbleColor}
-            position={position}
-            isFirstOfGroup={isFirstOfGroup}
-            isLastOfGroup={isLastOfGroup}
-            maxWidth={isMobile ? '200px' : isMedium ? '380px' : '600px'}
-            sentTime={sentTime}
-            edited={isEdited}
-            deleted={isDeleted}
-          >
-            <Typography variant="body1" color={textColor} textAlign={position}>
+    <>
+      <Box data-cy="message">
+        <MessageTooltip isDeleted={isDeleted} position={position} message={message} isMedia={false}>
+          <Box onDoubleClick={() => onDoubleClick()}>
+            <Bubble
+              bubbleColor={bubbleColor}
+              position={position}
+              isFirstOfGroup={isFirstOfGroup}
+              isLastOfGroup={isLastOfGroup}
+              maxWidth={isMobile ? '200px' : isMedium ? '380px' : '600px'}
+              sentTime={sentTime}
+              edited={isEdited}
+              deleted={isDeleted}
+            >
               <Linkify options={{ render: RenderLink as any, attributes: { isAccountMessage } }}>
-                {isDeleted ? t('message_deleted') : message.body}
+                {message.body + '            '}
               </Linkify>
-            </Typography>
-            {link && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}
-          </Bubble>
-        </Box>
-      </MessageTooltip>
-    </Box>
+              <Box>{link && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}</Box>
+            </Bubble>
+          </Box>
+        </MessageTooltip>
+      </Box>
+      <Box sx={{ width: '95%', display: 'flex', justifyContent: isAccountMessage ? 'flex-start' : 'flex-end' }}>
+        <MessageReaction message={message} />
+      </Box>
+    </>
   )
 }
 
@@ -743,6 +761,7 @@ const UserMessageRow = ({
   const isLastOfGroup = nextShowsTime || !nextIsUserMessageType || message.author !== nextMessage?.author
   const { members } = useConversationContext()
   const theme: Theme = useTheme()
+  const isReduced = useMediaQuery(theme.breakpoints.down('md'))
   const props = {
     message,
     isAccountMessage,
@@ -817,7 +836,7 @@ const UserMessageRow = ({
             position={position}
             isFirstOfGroup={true}
             isLastOfGroup={true}
-            maxWidth={'400px'}
+            maxWidth={isReduced ? '400px' : 'unset'}
             edited={false} // edited is not used in reply message
           >
             {replyMessage.type === 'text/plain' ? (
@@ -859,7 +878,7 @@ const UserMessageRow = ({
             <ConversationAvatar
               contactUri={'uri' in author ? author.uri : undefined}
               displayName={authorName}
-              sx={{ width: avatarSize, height: avatarSize, fontSize: '15px' }}
+              sx={{ width: avatarSize, height: avatarSize, fontSize: '15px', marginLeft: '4px' }}
             />
           )}
         </Box>
@@ -878,9 +897,8 @@ const UserMessageRow = ({
         >
           <MessageComponent {...props} />
         </motion.div>
-        <MessageStatus message={message} />
+        {isAccountMessage && <MessageStatus message={message} />}
       </Stack>
-      <MessageReaction message={message} />
     </Stack>
   )
 }
@@ -891,154 +909,191 @@ interface MessageTooltipProps {
   children: ReactElement
   message: Message
   isDeleted: boolean
+  isMedia: boolean
+  handleDownload?: () => void
 }
-const MessageTooltip = styled(({ message, className, position, children, isDeleted }: MessageTooltipProps) => {
-  const { conversationId } = useConversationContext()
-  const webSocket = useWebSocketContext()
-  const { account } = useAuthContext()
-  const [open, setOpen] = useState(false)
-  const [emojiIsOpen, setEmojiIsOpen] = useState(false)
-  const { setReplyMessage } = useActionMessageContext()
-  const [tooltipOpen, setTooltipOpen] = useState(false)
-  const { setEditMessage } = useActionMessageContext()
-  const deleteMessageMutation = useDeleteMessageMutation(conversationId)
 
-  // No actions if message is deleted
-  if (isDeleted) {
-    return <>{children}</>
-  }
+const MessageTooltip = styled(
+  ({ message, className, position, children, isDeleted, isMedia, handleDownload }: MessageTooltipProps) => {
+    const { conversationId } = useConversationContext()
+    const webSocket = useWebSocketContext()
+    const { account } = useAuthContext()
+    const [open, setOpen] = useState(false)
+    const [emojiIsOpen, setEmojiIsOpen] = useState(false)
+    const { setReplyMessage } = useActionMessageContext()
+    const [tooltipOpen, setTooltipOpen] = useState(false)
+    const { setEditMessage } = useActionMessageContext()
+    const deleteMessageMutation = useDeleteMessageMutation(conversationId)
+    const theme = useTheme()
+    const { setAlertContent } = useContext(AlertSnackbarContext)
 
-  const theme = useTheme()
-  const additionalOptions: PopoverListItemData[] = [
-    {
-      Icon: TwoSheetsIcon,
-      label: 'Copy',
-      onClick: () => {},
-    },
-    {
-      Icon: OppositeArrowsIcon,
-      label: 'Transfer',
-      onClick: () => {},
-    },
-  ]
+    // No actions if message is deleted
+    if (isDeleted) {
+      return <>{children}</>
+    }
 
-  if (account.getUri() === message.author) {
-    additionalOptions.push({
-      Icon: TrashBinIcon,
-      label: 'Delete message',
-      onClick: () => {
-        deleteMessageMutation.mutate(message.id)
+    const handleCopyMessage = () => {
+      navigator.clipboard.writeText(message.body)
+      setAlertContent({
+        messageI18nKey: 'message_content_copied',
+        severity: 'success',
+        alertOpen: true,
+      })
+    }
+
+    const additionalOptions: PopoverListItemData[] = [
+      {
+        Icon: OppositeArrowsIcon,
+        label: 'Transfer',
+        onClick: () => {},
       },
-    })
-  }
-  const toggleMoreMenu = () => setOpen((open) => !open)
-  const onClose = () => {
-    setOpen(false)
-    setEmojiIsOpen(false)
-  }
-  const onEmojiClickHandler = () => {
-    setEmojiIsOpen(true)
-  }
-  function onReply() {
-    setEditMessage(undefined)
-    setReplyMessage(message)
-  }
-  function onEdit() {
-    setReplyMessage(undefined)
-    setEditMessage(message)
-  }
-  function onEmojiSelected(emoji: string) {
-    for (const reaction of message.reactions) {
-      if (reaction.author === account.getUri() && reaction.body === emoji) {
-        if (reaction.id === undefined) {
-          console.error('reaction id is undefined')
-        } else {
-          webSocket.send(WebSocketMessageType.ReactionRemoved, {
-            conversationId,
-            messageId: message.id,
-            reactionId: reaction.id,
-          })
+    ]
+
+    if (isMedia) {
+      additionalOptions.push({
+        Icon: DownloadFileIcon,
+        label: 'Download',
+        onClick: () => {
+          if (handleDownload) {
+            handleDownload()
+          }
+        },
+      })
+    } else {
+      additionalOptions.push({
+        Icon: TwoSheetsIcon,
+        label: 'Copy',
+        onClick: handleCopyMessage,
+      })
+    }
+
+    if (account.getUri() === message.author) {
+      additionalOptions.push({
+        Icon: TrashBinIcon,
+        label: 'Delete message',
+        onClick: () => {
+          deleteMessageMutation.mutate(message.id)
+        },
+      })
+    }
+
+    const toggleMoreMenu = () => setOpen((open) => !open)
+    const onClose = () => {
+      setOpen(false)
+      setEmojiIsOpen(false)
+    }
+
+    const onEmojiClickHandler = () => {
+      setEmojiIsOpen(true)
+    }
+
+    function onReply() {
+      setEditMessage(undefined)
+      setReplyMessage(message)
+    }
+
+    function onEdit() {
+      setReplyMessage(undefined)
+      setEditMessage(message)
+    }
+
+    function onEmojiSelected(emoji: string) {
+      for (const reaction of message.reactions) {
+        if (reaction.author === account.getUri() && reaction.body === emoji) {
+          if (reaction.id === undefined) {
+            console.error('reaction id is undefined')
+          } else {
+            webSocket.send(WebSocketMessageType.ReactionRemoved, {
+              conversationId,
+              messageId: message.id,
+              reactionId: reaction.id,
+            })
+          }
+          return
         }
-        return
       }
+      const data: ReactionAdded = {
+        accountId: account.id,
+        conversationId: conversationId,
+        messageId: message.id,
+        reaction: {
+          author: account.id,
+          body: emoji,
+          timestamp: dayjs().unix().toString(),
+          parents: message.id,
+          'react-to': message.id,
+        },
+      }
+      webSocket.send(WebSocketMessageType.ReactionAdded, data)
     }
-    const data: ReactionAdded = {
-      accountId: account.id,
-      conversationId: conversationId,
-      messageId: message.id,
-      reaction: {
-        author: account.id,
-        body: emoji,
-        timestamp: dayjs().unix().toString(),
-        parents: message.id,
-        'react-to': message.id,
-      },
+    const onEmojiClick = (emoji: EmojiClickData, _: MouseEvent) => {
+      onEmojiSelected(emoji.emoji)
+      setEmojiIsOpen(false)
+      handleMouseLeave()
     }
-    webSocket.send(WebSocketMessageType.ReactionAdded, data)
-  }
-  const onEmojiClick = (emoji: EmojiClickData, _: MouseEvent) => {
-    onEmojiSelected(emoji.emoji)
-    setEmojiIsOpen(false)
-    handleMouseLeave()
-  }
-  const handleMouseEnter = () => {
-    setTooltipOpen(true)
-  }
-  const handleMouseLeave = () => {
-    setTooltipOpen(false)
-    onClose()
-  }
-  return (
-    <Tooltip
-      classes={{ tooltip: className }}
-      placement={position === 'start' ? 'right-start' : 'left-start'}
-      PopperProps={{
-        modifiers: [
-          {
-            name: 'offset',
-            options: {
-              offset: [-2, -50],
+    const handleMouseEnter = () => {
+      setTooltipOpen(true)
+    }
+    const handleMouseLeave = () => {
+      setTooltipOpen(false)
+      onClose()
+    }
+    return (
+      <Tooltip
+        classes={{ tooltip: className }}
+        placement={position === 'start' ? 'right-start' : 'left-start'}
+        PopperProps={{
+          modifiers: [
+            {
+              name: 'offset',
+              options: {
+                offset: [-2, -50],
+              },
             },
-          },
-        ],
-      }}
-      open={tooltipOpen}
-      disableHoverListener
-      disableFocusListener
-      disableTouchListener
-      title={
-        <div onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
-          <Stack direction="row" spacing="16px" padding="16px" sx={{ cursor: 'pointer' }}>
-            <EmojiButton data-cy="emoji-reaction-button" emoji="😃" onClick={onEmojiClickHandler} />
-            <ReplyMessageButton data-cy="reply-button" onClick={onReply} />
-            {account.getUri() === message.author && (
-              <EditPictureButton data-cy="edit-button" onClick={onEdit} sx={{ minHeight: '20px', minWidth: '20px' }} />
+          ],
+        }}
+        open={tooltipOpen}
+        disableHoverListener
+        disableFocusListener
+        disableTouchListener
+        title={
+          <div onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
+            <Stack direction="row" spacing="16px" padding="16px" sx={{ cursor: 'pointer' }}>
+              <EmojiButton data-cy="emoji-reaction-button" emoji="😃" onClick={onEmojiClickHandler} />
+              <ReplyMessageButton data-cy="reply-button" onClick={onReply} />
+              {account.getUri() === message.author && (
+                <EditPictureButton
+                  data-cy="edit-button"
+                  onClick={onEdit}
+                  sx={{ minHeight: '20px', minWidth: '20px' }}
+                />
+              )}
+              <MoreButton onClick={toggleMoreMenu} />
+            </Stack>
+            {open && (
+              <>
+                <Divider sx={{ marginX: '16px' }} />
+                <PopoverList items={additionalOptions} />
+              </>
             )}
-            <MoreButton onClick={toggleMoreMenu} />
-          </Stack>
-          {open && (
-            <>
-              <Divider sx={{ marginX: '16px' }} />
-              <PopoverList items={additionalOptions} />
-            </>
-          )}
-          {emojiIsOpen && (
-            <EmojiPicker
-              theme={theme.EmojiPicker.backgroundColor}
-              onEmojiClick={onEmojiClick}
-              autoFocusSearch={false}
-              skinTonesDisabled={true}
-            />
-          )}
+            {emojiIsOpen && (
+              <EmojiPicker
+                theme={theme.EmojiPicker.backgroundColor}
+                onEmojiClick={onEmojiClick}
+                autoFocusSearch={false}
+                skinTonesDisabled={true}
+              />
+            )}
+          </div>
+        }
+      >
+        <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+          {children}
         </div>
-      }
-    >
-      <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-        {children}
-      </div>
-    </Tooltip>
-  )
-})(({ position, theme }) => {
+      </Tooltip>
+    )
+  },
+)(({ position, theme }) => {
   const largeRadius = '20px'
   const smallRadius = '5px'
   return {
@@ -1052,17 +1107,7 @@ const MessageTooltip = styled(({ message, className, position, children, isDelet
     overflow: 'hidden',
   }
 })
-interface BubbleProps {
-  position: MessagePosition
-  isFirstOfGroup: boolean
-  isLastOfGroup: boolean
-  bubbleColor: string
-  maxWidth?: string
-  children: ReactNode
-  sentTime?: Dayjs
-  edited: boolean
-  deleted?: boolean
-}
+
 interface BubbleProps {
   position: MessagePosition
   isFirstOfGroup: boolean
@@ -1074,6 +1119,7 @@ interface BubbleProps {
   edited: boolean
   deleted?: boolean
   isMedia?: boolean
+  isAudio?: boolean
 }
 
 const Bubble = ({
@@ -1087,6 +1133,7 @@ const Bubble = ({
   edited,
   deleted,
   isMedia,
+  isAudio,
 }: BubbleProps) => {
   const { t } = useTranslation()
   const largeRadius = '12px'
@@ -1107,66 +1154,67 @@ const Bubble = ({
       borderEndEndRadius: isLastOfGroup ? largeRadius : smallRadius,
     }
   }, [isFirstOfGroup, isLastOfGroup, position])
-
+  const nonMediaBubbleStyle = {
+    color: getTextColor(bubbleColor),
+    maxWidth: maxWidth || '100%',
+    backgroundColor: bubbleColor,
+    padding: isMedia ? null : bubblePadding,
+    overflow: 'hidden',
+    wordWrap: 'break-word',
+    textWrap: 'wrap',
+    display: 'flex',
+    flexWrap: 'wrap',
+    whiteSpace: 'pre-wrap',
+    marginRight: '8px',
+    height: 'auto',
+    ...radius,
+  }
+  const mediaBubbleStyle = {
+    paddingTop: '15px',
+    marginRight: isAudio && position === 'start' ? '-25px' : '8px',
+  }
+  const messageContentBubbleStyle = {
+    wordWrap: 'break-word',
+  }
+  const sentTimeStyle = {
+    color: getSentTimeColor(bubbleColor),
+    fontSize: 11,
+    flexWrap: 'nowrap',
+    textWrap: 'nowrap',
+    whiteSpace: 'nowrap',
+  }
+  const boxedBubbleSentTime = {
+    zIndex: 99,
+    marginRight: '16px',
+    marginTop: '-24px',
+  }
+  const editedBoxedBubbleSentTime = {
+    ...boxedBubbleSentTime,
+    marginRight: position === 'start' ? '20px' : '16px',
+  }
   return (
-    <Box
-      sx={{
-        color: getTextColor(bubbleColor),
-        display: 'flex',
-        flexDirection: 'row',
-        width: 'fit-content',
-        maxWidth,
-        backgroundColor: bubbleColor,
-        padding: isMedia ? null : bubblePadding,
-        overflow: 'hidden',
-        wordWrap: 'break-word',
-        ...radius,
-      }}
-    >
-      {children}
-      <Box
-        sx={{
-          marginBottom: '-2px',
-          paddingLeft: isMedia ? null : '10px',
-          whiteSpace: 'nowrap',
-          marginTop: 'auto',
-          marginLeft: isMedia ? null : '-6%',
-        }}
-      >
-        {sentTime && !isMedia && (
-          <Box
-            sx={{
-              width: 1,
-              color: getSentTimeColor(bubbleColor),
-              fontSize: 11,
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'flex-end',
-              flexWrap: 'nowrap',
-              ml: '4%',
-            }}
-          >
-            <Box sx={{ paddingRight: '2px' }} data-cy="edited-message">
-              {edited && !deleted ? t('edited_message') : ''}
-            </Box>
-            <Box data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</Box>
-          </Box>
-        )}
-
-        {sentTime && isMedia && (
-          <Box
-            sx={{
-              color: 'grey.400',
-              fontSize: 11,
-              flexWrap: 'nowrap',
-              marginLeft: '-50px',
-              marginBottom: '5px',
-            }}
-          >
-            <Box data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</Box>
-          </Box>
-        )}
+    <Box>
+      <Box sx={isMedia ? mediaBubbleStyle : nonMediaBubbleStyle}>
+        <Box sx={isMedia && !deleted ? null : messageContentBubbleStyle}>
+          {deleted ? t(isMedia ? 'media_deleted' : 'message_deleted') + '            ' : children}
+        </Box>
       </Box>
+      {edited ? (
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', ...sentTimeStyle }}>
+          <Box sx={{ marginLeft: '8px' }}>
+            <div data-cy={`message-edited`}>{t('edited')}</div>
+          </Box>
+          <Box sx={editedBoxedBubbleSentTime}>
+            {sentTime && <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>}
+          </Box>
+        </Box>
+      ) : (
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', ...sentTimeStyle }}>
+          <Box sx={boxedBubbleSentTime}>
+            {sentTime && <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>}
+          </Box>
+        </Box>
+      )}
     </Box>
   )
 }

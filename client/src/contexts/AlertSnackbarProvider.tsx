@@ -99,6 +99,7 @@ type AlertMessageKeys =
   | 'resetting_display_name_success_alert'
   | 'resetting_display_name_error_alert'
   | 'error_cannot_delete_message'
+  | 'message_content_copied'
   | 'add_to_group_no_user_selected'
   | 'removed_linked_device_success'
   | 'removed_linked_device_error'
@@ -176,6 +177,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('removing_jams_server_success')
         case 'removing_jams_server_error':
           return t('removing_jams_server_error')
+        case 'message_content_copied':
+          return t('message_content_copied')
         case 'add_to_group_no_user_selected':
           return t('add_to_group_no_user_selected')
         case 'removed_linked_device_success':

@@ -33,8 +33,7 @@ export default function ReplyToMessage() {
   const { account } = useAuthContext()
   const { replyMessage: message, setReplyMessage: setMessage } = useActionMessageContext()
   const theme = useTheme()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
+  const isReduced: boolean = useMediaQuery(theme.breakpoints.down('sm'))
 
   if (message === undefined) {
     return
@@ -61,7 +60,6 @@ export default function ReplyToMessage() {
     <>
       <motion.div
         style={{
-          maxWidth: isMedium ? '200px' : isMobile ? '300px' : '400px',
           width: '100%',
           display: 'flex',
           justifyContent: 'center',
@@ -70,6 +68,7 @@ export default function ReplyToMessage() {
       >
         <Box
           sx={{
+            maxWidth: isReduced ? '350px' : '100%',
             color: 'black',
             width: '96%',
             display: 'flex',

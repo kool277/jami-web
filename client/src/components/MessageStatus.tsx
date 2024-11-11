@@ -16,7 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Message } from 'jami-web-common'
 import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
@@ -73,6 +72,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
           )
         })
       }
+      const messageSentIconWidth = '15px'
 
       if (highestStatus === MessageStatusCode.read) {
         return null
@@ -81,9 +81,9 @@ export default function MessageStatus({ message }: MessageStatusProps) {
           case MessageStatusCode.sending:
             return <>...</>
           case MessageStatusCode.sent:
-            return <SentIcon width="15px" />
+            return <SentIcon width={messageSentIconWidth} />
           default:
-            return <SentIcon width="15px" />
+            return <SentIcon width={messageSentIconWidth} />
         }
       }
     },
@@ -98,25 +98,26 @@ export default function MessageStatus({ message }: MessageStatusProps) {
     },
   }
 
+  const styles = {
+    marginRight: '5px',
+    marginLeft: '-5px',
+    display: 'flex',
+    flexDirection: 'row',
+    flexWrap: 'nowrap',
+    justifyContent: 'flex-end',
+    minWidth: '15px',
+  }
+
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'row',
-        flexWrap: 'nowrap',
-        justifyContent: 'flex-end',
-        width: '7px',
-      }}
+    <motion.div
+      style={styles as any}
+      data-cy="message-status-icon"
+      variants={message.animate ? item : undefined}
+      initial={message.animate ? 'hidden' : undefined}
+      animate={message.animate ? 'visible' : undefined}
+      transition={message.animate ? { delay: 0.3 } : undefined}
     >
-      <motion.div
-        data-cy="message-status-icon"
-        variants={message.animate ? item : undefined}
-        initial={message.animate ? 'hidden' : undefined}
-        animate={message.animate ? 'visible' : undefined}
-        transition={message.animate ? { delay: 0.3 } : undefined}
-      >
-        {DisplayedIcon(message)}
-      </motion.div>
-    </Box>
+      {DisplayedIcon(message)}
+    </motion.div>
   )
 }

@@ -130,6 +130,7 @@
   "message_call_incoming_missed": "Appel entrant manqué",
   "message_call_outgoing": "Appel entrant - {{duration}}",
   "message_call_outgoing_missed": "Appel sortant manqué",
+  "message_content_copied": "Message copié",
   "message_deleted": "Ce message a été supprimé",
   "message_input_placeholder_1": "Écrire à {{member0}}",
   "message_input_placeholder_2": "Écrire à {{member0}} et {{member1}}",

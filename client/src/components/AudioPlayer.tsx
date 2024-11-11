@@ -16,24 +16,29 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box } from '@mui/material'
+import PauseIcon from '@mui/icons-material/Pause'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
 
-import DownloadFileIcon from '../icons/downloadFile.svg?react'
+import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
 import AudioVisual from './AudioVisual'
 
 interface AudioPlayerProps {
   blob?: Blob
-  backgroundColor: string
+  isAccountMessage: boolean
 }
 
-function AudioPlayer({ blob, backgroundColor }: AudioPlayerProps) {
+function AudioPlayer({ blob, isAccountMessage }: AudioPlayerProps) {
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer>()
   const [error, setError] = useState<string>()
   const [audioContext, setAudioContext] = useState<AudioContext>()
   const [isPlaying, setIsPlaying] = useState(false)
   const [source, setSource] = useState<AudioBufferSourceNode | null>(null)
   const [currentTime, setCurrentTime] = useState(0)
+  const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const { conversationColor } = useConversationPreferencesContext()
 
   useEffect(() => {
     if (blob === undefined) {
@@ -103,20 +108,15 @@ function AudioPlayer({ blob, backgroundColor }: AudioPlayerProps) {
   const audioContainerStyles = {
     display: 'flex',
     alignItems: 'center',
-    backgroundColor: backgroundColor,
-    borderRadius: '25px',
-    padding: '10px',
-    width: '350px',
+    borderRadius: '10px',
+    padding: '5px',
+    width: isMobile ? '200px' : '350px',
     justifyContent: 'space-between',
   }
 
   const playButtonStyles = {
-    marginTop: '-2%',
-    paddingLeft: '10px',
-    background: 'none',
-    border: 'none',
+    display: 'flex',
     color: 'white',
-    fontSize: '20px',
     cursor: 'pointer',
   }
 
@@ -132,19 +132,6 @@ function AudioPlayer({ blob, backgroundColor }: AudioPlayerProps) {
     fontWeight: 'bold',
   }
 
-  const handleDownload = () => {
-    if (audioBuffer && blob !== undefined) {
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.style.display = 'none'
-      a.href = url
-      a.download = 'audio.wav'
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-    }
-  }
-
   const getFormatedTime = () => {
     const valueToStr = currentTime.toString()
     const numberToDisplay = valueToStr.split('.')[0].length
@@ -155,18 +142,23 @@ function AudioPlayer({ blob, backgroundColor }: AudioPlayerProps) {
   }
 
   return (
-    <Box sx={{ textAlign: 'center' }}>
+    // TODO : update the color based on preferences context
+    <Box
+      sx={{
+        backgroundColor: isAccountMessage ? conversationColor : theme.ChatInterface.messageColor,
+        borderRadius: '15px',
+        paddingRight: '5px',
+        marginBottom: '4px',
+      }}
+    >
       <Box sx={audioContainerStyles}>
         <Box component="div" sx={playButtonStyles} onClick={audioBuffer ? playPauseAudio : undefined}>
-          {isPlaying ? '❚❚' : '▶'}
+          {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
         </Box>
         <Box sx={waveformContainerStyles} onClick={playPauseAudio}>
           {audioBuffer && <AudioVisual audioBuffer={audioBuffer} currentTime={currentTime} />}
         </Box>
         <span style={audioDurationStyles}>{currentTime !== 0 ? getFormatedTime() : null}</span>
-        <Box onClick={handleDownload} sx={{ marginTop: '2%', cursor: 'pointer' }}>
-          <DownloadFileIcon />
-        </Box>
       </Box>
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </Box>

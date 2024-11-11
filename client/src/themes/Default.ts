@@ -27,6 +27,7 @@ declare module '@mui/material/styles' {
     ChatInterface: {
       panelColor: string
       inputColor: string
+      messageColor: string
     }
     LoginPage: {
       backgroundColor: string
@@ -208,6 +209,7 @@ const palettes = {
     ChatInterface: {
       panelColor: '#f2f2f2',
       inputColor: 'black',
+      messageColor: '#E5E5E5',
     },
     LoginPage: {
       backgroundColor: '#f9fafc',
@@ -269,6 +271,7 @@ const palettes = {
     ChatInterface: {
       panelColor: '#181818',
       inputColor: 'white',
+      messageColor: '#6C6C6C',
     },
     LoginPage: {
       backgroundColor: '#f9fafc',

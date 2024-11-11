@@ -19,7 +19,7 @@ import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
 import byteSize from 'byte-size'
 import { useTranslation } from 'react-i18next'
 
-import DownloadFileIcon from '../icons/downloadFile.svg?react'
+import { DownloadFileIcon } from './SvgIcon'
 
 interface MessageDataContentProps {
   displayName: string
@@ -70,6 +70,7 @@ export default function ({
           borderRadius: '10px',
           marginTop: '-7px',
           marginBottom: '-15px',
+          color: 'black', // fixed color
         }}
       >
         <DownloadFileIcon />
