@@ -64,6 +64,23 @@ export const GetDownloadedFile = (conversationId: string) => {
       axiosInstance.get(`/data/${conversationId}/${content.messageId}/${content.fileId}`, {
         responseType: 'blob',
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['messages', conversationId] })
+    },
+  })
+}
+
+export const useGetDownloadFileInfo = ({ content, conversationId }: { content: Content; conversationId: string }) => {
+  const { axiosInstance } = useAuthContext()
+  return useQuery({
+    queryKey: ['get', 'downloadFileInfo', conversationId, content.messageId, content.fileId],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get(
+        `/data/${conversationId}/${content.messageId}/${content.fileId}/isDownloaded`,
+        { baseURL: apiUrl },
+      )
+      return data
+    },
+    enabled: true,
   })
 }

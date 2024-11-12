@@ -170,3 +170,17 @@ dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, re
     }
   })
 })
+
+dataTransferRouter.get('/:conversationId/:interactionId/:fileId/isDownloaded', (req, res) => {
+  const accountId = res.locals.accountId
+  const conversationId = req.params.conversationId
+  const fileId = req.params.fileId
+  const path = os.homedir() + '/.local/share/jami/' + accountId + '/conversation_data/' + conversationId + '/' + fileId
+
+  if (fs.existsSync(path)) {
+    res.send(true)
+    return
+  }
+
+  res.send(false)
+})

@@ -183,6 +183,7 @@
   "removed_linked_device_error": "Erreur lors de la suppression de l'appareil associé",
   "reset_to_default": "Réinitialiser aux valeurs par defaut",
   "reset_nameserver_button": "Réitialiser au nameserver par défaut",
+  "ressource_not_available": "Ressource indisponible",
   "save_button": "Enregistrer",
   "replying_to": "Répondre à",
   "replied_to": "A répondu à",

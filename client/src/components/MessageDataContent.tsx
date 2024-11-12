@@ -15,8 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box } from '@mui/material'
+import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
 import byteSize from 'byte-size'
+import { useTranslation } from 'react-i18next'
 
 import DownloadFileIcon from '../icons/downloadFile.svg?react'
 
@@ -25,11 +26,36 @@ interface MessageDataContentProps {
   totalSize: number
   textColor?: string
   isAccountMessage?: boolean
+  isNotAvailable?: boolean
 }
 
-export default function ({ displayName, totalSize, textColor, isAccountMessage }: MessageDataContentProps) {
+export default function ({
+  displayName,
+  totalSize,
+  textColor,
+  isAccountMessage,
+  isNotAvailable,
+}: MessageDataContentProps) {
+  const { t } = useTranslation()
+  const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'row', alignContent: 'center', alignItems: 'center', gap: '5px' }}>
+    <Box
+      sx={{
+        maxWidth: isMobile ? '270px' : '460px',
+        textOverflow: 'ellipsis',
+        display: 'flex',
+        flexDirection: 'row',
+        alignContent: 'center',
+        alignItems: 'center',
+        gap: '5px',
+        pb: '17px',
+        pt: '7px',
+        pr: '3px',
+        pl: '3px',
+      }}
+    >
       <Box
         sx={{
           display: 'flex',
@@ -39,19 +65,19 @@ export default function ({ displayName, totalSize, textColor, isAccountMessage }
           alignItems: 'center',
           height: '50px',
           width: '50px',
+          padding: '5px',
           backgroundColor: isAccountMessage ? '#005B8f' : 'lightgrey',
-          borderRadius: '5px',
+          borderRadius: '10px',
           marginTop: '-7px',
           marginBottom: '-15px',
         }}
       >
         <DownloadFileIcon />
+        <Box sx={{ fontSize: '11px', color: textColor, textWrap: 'nowrap' }}>{String(byteSize(Number(totalSize)))}</Box>
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', color: textColor }}>
-        <Box>{displayName}</Box>
-        <Box sx={{ fontSize: '11px', display: 'flex', justifyContent: 'flex-end' }}>
-          {String(byteSize(Number(totalSize)))}
-        </Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', color: textColor, width: isMobile ? '80%' : '88%' }}>
+        <Box sx={{ textOverflow: 'ellipsis', textWrap: 'wrap' }}>{displayName}</Box>
+        <Box>{isNotAvailable && <Typography sx={{ fontSize: '13px' }}>{t('ressource_not_available')}</Typography>}</Box>
       </Box>
     </Box>
   )

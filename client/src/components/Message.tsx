@@ -25,7 +25,7 @@ import { t } from 'i18next'
 import { Message, ReactionAdded, WebSocketMessageType } from 'jami-web-common'
 import Linkify from 'linkify-react'
 import * as linkify from 'linkifyjs'
-import { memo, ReactElement, ReactNode, useEffect, useMemo, useState } from 'react'
+import { memo, ReactElement, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useActionMessageContext } from '../contexts/ActionMessageProvider'
@@ -35,7 +35,7 @@ import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import DownloadFileIcon from '../icons/downloadFile.svg?react'
 import { Account } from '../models/account'
 import { Contact } from '../models/contact'
-import { GetDownloadedFile } from '../services/dataTransferQueries'
+import { GetDownloadedFile, useGetAutoDownloadLimit, useGetDownloadFileInfo } from '../services/dataTransferQueries'
 import { useLinkPreviewQuery } from '../services/linkPreviewQueries'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
 import { formatRelativeDate, formatTime } from '../utils/dates&times'
@@ -196,29 +196,35 @@ enum FileType {
 }
 
 const MessageDataTransfer = ({
-  //message, not used for now but will be used in the future
   isAccountMessage,
   isFirstOfGroup,
   isLastOfGroup,
   message,
   sentTime,
 }: MessageDataTransferProps) => {
-  const position = isAccountMessage ? 'end' : 'start'
-  const [isDeleted, setIsDeleted] = useState(false)
   const { conversationId } = useConversationContext()
+  const { setReplyMessage } = useActionMessageContext()
   const { conversationColor } = useConversationPreferencesContext()
   const bubbleColor = isAccountMessage ? conversationColor : '#E5E5E5'
   const [fileType, setFileType] = useState<FileType>()
   const extension = message.displayName?.split('.').pop()?.toLowerCase() || ''
   const theme: Theme = useTheme()
+
+  const downloadFile = GetDownloadedFile(conversationId)
+  const limitData = useGetAutoDownloadLimit()
+  const content = { messageId: message.id, fileId: message.fileId || '' }
+  const isFileAlreadyInCache = useGetDownloadFileInfo({ content, conversationId })
+
+  const [isDeleted, setIsDeleted] = useState(false)
+  const [preview, setPreview] = useState<string>()
+  const [audioBlob, setAudioBlob] = useState<Blob>()
+
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
 
   const textColor = isAccountMessage ? 'white' : 'black'
-  const [preview, setPreview] = useState<string>()
-  const [audioBlob, setAudioBlob] = useState<Blob>()
-  const downloadFile = GetDownloadedFile(conversationId)
-  const { setReplyMessage } = useActionMessageContext()
+  const position = isAccountMessage ? 'end' : 'start'
+  const totalSize = Number(message.totalSize) / 1000000
 
   useEffect(() => {
     if (message.fileId === '') {
@@ -226,49 +232,90 @@ const MessageDataTransfer = ({
     }
   }, [message.fileId, setIsDeleted])
 
-  if (message.fileId === undefined) {
-    return null
-  }
-
-  async function checkFileType(type: string) {
-    if (isDeleted) {
-      return
-    }
-    const acceptedAudioTypes = ['ogg', 'wav', 'mpeg', 'aac', 'flac', 'mp3']
-    const acceptedImageTypes = ['apng', 'avif', 'jpg', 'JPG', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
-    const acceptedVideoTypes = ['mp4', 'webm', 'mkv', 'avi', 'mov', 'flv', 'wmv', 'm4v', '3gp', '3gpp', '3g2', '3gpp2']
-    if (acceptedAudioTypes.includes(type)) {
-      setFileType(FileType.Audio)
-      await getAudioBlob(type)
-    } else if (acceptedImageTypes.includes(type)) {
-      setFileType(FileType.Image)
-      await getPreview(type, true)
-    } else if (acceptedVideoTypes.includes(type)) {
-      setFileType(FileType.Video)
-      await getPreview(type, false)
-    } else {
-      setFileType(FileType.Document)
-    }
-  }
-
-  async function getAudioBlob(extension: string) {
+  const getAudioBlob = useCallback(async () => {
     const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
     if (!result.data) {
       return
     }
     const blob = new Blob([result.data], { type: 'audio/' + extension.toLowerCase() })
     setAudioBlob(blob)
-  }
+  }, [downloadFile, message.id, message.fileId, extension])
 
-  async function getPreview(extension: string, isImage: boolean) {
-    const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
-    if (!result.data) {
-      return
+  const getPreview = useCallback(
+    async (isImage: boolean) => {
+      const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
+      if (!result.data) {
+        return
+      }
+      const blob = new Blob([result.data], {
+        type: isImage ? 'image/' + extension.toLowerCase() : 'video/' + extension.toLowerCase(),
+      })
+      setPreview(URL.createObjectURL(blob))
+    },
+    [downloadFile, message.id, message.fileId, extension],
+  )
+
+  useEffect(() => {
+    async function checkFileType() {
+      if (isDeleted) {
+        return
+      }
+      const acceptedAudioTypes = ['ogg', 'wav', 'mpeg', 'aac', 'flac', 'mp3']
+      const acceptedImageTypes = ['apng', 'avif', 'jpg', 'JPG', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
+      const acceptedVideoTypes = [
+        'mp4',
+        'webm',
+        'mkv',
+        'avi',
+        'mov',
+        'flv',
+        'wmv',
+        'm4v',
+        '3gp',
+        '3gpp',
+        '3g2',
+        '3gpp2',
+      ]
+      if (acceptedAudioTypes.includes(extension)) {
+        setFileType(FileType.Audio)
+        if (totalSize < limitData.data.limit || isFileAlreadyInCache.data) {
+          await getAudioBlob()
+        }
+      } else if (acceptedImageTypes.includes(extension)) {
+        setFileType(FileType.Image)
+        if (totalSize < limitData.data.limit || isFileAlreadyInCache.data) {
+          await getPreview(true)
+        }
+      } else if (acceptedVideoTypes.includes(extension)) {
+        setFileType(FileType.Video)
+        if (totalSize < limitData.data.limit || isFileAlreadyInCache.data) {
+          await getPreview(false)
+        }
+      } else {
+        setFileType(FileType.Document)
+      }
     }
-    const blob = new Blob([result.data], {
-      type: isImage ? 'image/' + extension.toLowerCase() : 'video/' + extension.toLowerCase(),
-    })
-    setPreview(URL.createObjectURL(blob))
+
+    if (limitData.isSuccess && isFileAlreadyInCache.isSuccess && !isDeleted && fileType === undefined) {
+      checkFileType()
+    }
+  }, [
+    limitData,
+    isFileAlreadyInCache,
+    isDeleted,
+    fileType,
+    extension,
+    totalSize,
+    setAudioBlob,
+    setPreview,
+    downloadFile,
+    message,
+    getAudioBlob,
+    getPreview,
+  ])
+
+  if (message.fileId === undefined) {
+    return null
   }
 
   const getImgSize = () => {
@@ -278,10 +325,6 @@ const MessageDataTransfer = ({
       return '120px'
     }
     return '240px'
-  }
-
-  if (fileType === undefined && !isDeleted) {
-    checkFileType(extension)
   }
 
   const onDoubleClick = () => {
@@ -320,6 +363,98 @@ const MessageDataTransfer = ({
     }
   }
 
+  const dataComponent = () => {
+    switch (fileType) {
+      case FileType.Audio:
+        if (!preview) {
+          return (
+            <Box
+              onClick={() => {
+                getAudioBlob()
+              }}
+            >
+              <MessageDataContent
+                isAccountMessage={isAccountMessage}
+                textColor={textColor}
+                displayName={message.displayName || 'Unknown'}
+                totalSize={Number(message.totalSize)}
+                isNotAvailable={true}
+              />
+            </Box>
+          )
+        }
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap' }}>
+            {position === 'end' && <Box sx={{ minWidth: '35px' }}></Box>}
+            <AudioPlayer blob={audioBlob} backgroundColor={bubbleColor} />
+            {position === 'start' && <Box sx={{ minWidth: '35px' }}></Box>}
+          </Box>
+        )
+      case FileType.Image:
+        if (!preview) {
+          return (
+            <Box
+              onClick={() => {
+                getPreview(true)
+              }}
+            >
+              <MessageDataContent
+                isAccountMessage={isAccountMessage}
+                textColor={textColor}
+                displayName={message.displayName || 'Unknown'}
+                totalSize={Number(message.totalSize)}
+                isNotAvailable={true}
+              />
+            </Box>
+          )
+        }
+        return <img style={{ maxHeight: getImgSize(), borderRadius: '10px' }} src={preview} alt={message.displayName} />
+      case FileType.Video:
+        if (!preview) {
+          return (
+            <Box
+              onClick={() => {
+                getPreview(false)
+              }}
+            >
+              <MessageDataContent
+                isAccountMessage={isAccountMessage}
+                textColor={textColor}
+                displayName={message.displayName || 'Unknown'}
+                totalSize={Number(message.totalSize)}
+                isNotAvailable={true}
+              />
+            </Box>
+          )
+        }
+        return (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              flexWrap: 'nowrap',
+              alignContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <video style={{ maxHeight: getImgSize(), borderRadius: '10px' }} src={preview} controls />
+            <Box onClick={handleDownload}>
+              <DownloadFileIcon />{' '}
+            </Box>
+          </Box>
+        )
+      default: // includes document
+        return (
+          <MessageDataContent
+            isAccountMessage={isAccountMessage}
+            textColor={textColor}
+            displayName={message.displayName || 'Unknown'}
+            totalSize={Number(message.totalSize)}
+          />
+        )
+    }
+  }
+
   return (
     <MessageTooltip isDeleted={isDeleted} position={position} message={message}>
       <Box
@@ -336,42 +471,7 @@ const MessageDataTransfer = ({
           edited={false} // edited is not used in data-transfer message
           isMedia={fileType !== FileType.Document && !isDeleted ? true : false}
         >
-          {isDeleted ? (
-            <Box color={textColor}>{t('media_deleted')}</Box>
-          ) : fileType === FileType.Audio ? (
-            <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap' }}>
-              {position === 'end' && <Box sx={{ minWidth: '35px' }}></Box>}
-              <AudioPlayer blob={audioBlob} backgroundColor={bubbleColor} />
-              {position === 'start' && <Box sx={{ minWidth: '35px' }}></Box>}
-            </Box>
-          ) : fileType === FileType.Image ? (
-            <img style={{ maxHeight: getImgSize(), borderRadius: '10px' }} src={preview} alt={message.displayName} />
-          ) : fileType === FileType.Video ? (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                flexWrap: 'nowrap',
-                alignContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <video style={{ maxHeight: getImgSize(), borderRadius: '10px' }} src={preview} controls />
-              <Box onClick={handleDownload}>
-                <DownloadFileIcon />{' '}
-              </Box>
-            </Box>
-          ) : (
-            <>
-              {' '}
-              <MessageDataContent
-                isAccountMessage={isAccountMessage}
-                textColor={textColor}
-                displayName={message.displayName || 'Unknown'}
-                totalSize={Number(message.totalSize)}
-              />{' '}
-            </>
-          )}
+          {isDeleted ? <Box color={textColor}>{t('media_deleted')}</Box> : dataComponent()}
         </Bubble>
       </Box>
     </MessageTooltip>
