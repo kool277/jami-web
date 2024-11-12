@@ -17,7 +17,7 @@
  */
 import { createRequire } from 'node:module'
 
-import fs from 'fs/promises'
+import fs from 'fs'
 import {
   AccountDetails,
   AccountMessageStatus,
@@ -39,6 +39,7 @@ import {
 import { DataTransferError } from 'jami-web-common/src/enums/datatransfer-error-code.js'
 import log from 'loglevel'
 import os from 'os'
+import path from 'path'
 import { filter, firstValueFrom, map, Subject } from 'rxjs'
 import { Service } from 'typedi'
 
@@ -745,8 +746,40 @@ export class Jamid {
           editions: signal.message.editions,
           reactions: signal.message.reactions,
           status: signal.message.status,
+          fileId: signal.message.body.fileId,
           body: signal.message.body.body,
         },
+      }
+      // if message was a file and it is deleted we need to delete it from the cache
+      if (
+        Array.isArray(data.message.editions) &&
+        data.message.type === 'application/data-transfer+json' &&
+        data.message.fileId === ''
+      ) {
+        if (data.message.editions.length === 0) {
+          console.error('Editions array is empty')
+        } else {
+          const fileName = data.message.editions[data.message.editions.length - 1].fileId
+          if (fileName === undefined) {
+            console.error('FileId is undefined')
+          } else {
+            const filePath = path.join(
+              os.homedir(),
+              '.local',
+              'share',
+              'jami',
+              signal.accountId,
+              'conversation_data',
+              signal.conversationId,
+              fileName,
+            )
+            try {
+              fs.unlinkSync(filePath)
+            } catch (error) {
+              console.error('Error deleting file:', error)
+            }
+          }
+        }
       }
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.MessageEdition, data)
     })
@@ -782,12 +815,12 @@ export class Jamid {
       const displayNameFile = fileName + '.txt'
       const profilePictureFile = fileName + '.png'
       try {
-        await fs.unlink(folder + profilePictureFile)
+        fs.unlinkSync(folder + profilePictureFile)
       } catch (e) {
         log.debug('Profile picture does not exist')
       }
       try {
-        await fs.unlink(folder + displayNameFile)
+        fs.unlinkSync(folder + displayNameFile)
       } catch (e) {
         log.debug('Display name does not exist')
       }

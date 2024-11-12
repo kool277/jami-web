@@ -60,7 +60,7 @@ export interface Message {
   sha3sum?: string
   tid?: string
   totalSize?: number
-  editions?: string
+  editions?: string | Message[]
   status: Map<string, MessageStatusCode>
   'reply-to'?: string | Message
   animate?: boolean
