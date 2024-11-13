@@ -95,7 +95,7 @@ export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmMod
       >
         <Box sx={isMobile ? mobileStyles : nonMobileStyles}>
           <Box sx={{ textAlign: 'center', paddingTop: isMobile ? '1px' : 'unset' }}>
-            <h3>{t('add_user_to_group')}</h3>
+            <h3>{t('add_users_to_group')}</h3>
           </Box>
           <Box sx={{ marginTop: '-2%' }}>
             <ContactList
