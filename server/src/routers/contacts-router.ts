@@ -41,6 +41,12 @@ contactsRouter.get('/', async (_req, res) => {
 
 contactsRouter.get('/:contactId', async (req, res) => {
   const contactDetails = jamid.getContactDetails(res.locals.accountId, req.params.contactId)
+
+  if (contactDetails.id === undefined) {
+    res.status(HttpStatusCode.NotFound).send('No such contact found')
+    return
+  }
+
   const contactUsername = await jamid.lookupAddress(contactDetails.id, res.locals.accountId)
   if (contactUsername.address === contactDetails.id) {
     contactDetails.username = contactUsername.username

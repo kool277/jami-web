@@ -75,6 +75,10 @@ nameserverRouter.get(
   '/address/:address',
   asyncHandler(async (req, res) => {
     const nameserver = config.getNameServerAddress()
+    if (req.params.address === undefined) {
+      res.status(HttpStatusCode.BadRequest).send('Invalid address')
+      return
+    }
     const result = await jamid.lookupAddress(req.params.address, nameserver, res.locals.accountId)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
