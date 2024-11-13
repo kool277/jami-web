@@ -20,7 +20,6 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
 import { Box, Button, Divider, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material'
-import { motion } from 'framer-motion'
 import { MouseEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -66,27 +65,6 @@ export default function Footer() {
     display: 'flex',
     justifyContent: 'flex-start',
     width: '100%',
-  }
-
-  const variants = {
-    visible: { opacity: 1, x: 0 },
-    hidden: { opacity: 0, x: -100 },
-  }
-
-  const menuVariant = {
-    visible: {
-      opacity: 1,
-      transition: {
-        when: 'beforeChildren',
-        staggerChildren: 0.15,
-      },
-    },
-    hidden: {
-      opacity: 0,
-      transition: {
-        when: 'afterChildren',
-      },
-    },
   }
 
   return (
@@ -168,39 +146,39 @@ export default function Footer() {
             horizontal: 'left',
           }}
         >
-          <motion.div initial="hidden" animate={anchorEl ? 'visible' : 'hidden'} variants={menuVariant}>
+          <div>
             {currentUrl.split('/').pop() !== '' && (
               <>
                 <MenuItem onClick={() => closeMenuAndNavigate(`/`)}>
-                  <motion.div variants={variants} style={menuItemStyle}>
+                  <div style={menuItemStyle}>
                     <QuestionAnswerIcon sx={{ marginRight: '5%' }} />
                     {t('conversations')}
-                  </motion.div>
+                  </div>
                 </MenuItem>
                 <Divider />
               </>
             )}
             <MenuItem onClick={() => closeMenuAndNavigate(`/contacts`)}>
-              <motion.div variants={variants} style={menuItemStyle}>
+              <div style={menuItemStyle}>
                 <PeopleAltIcon sx={{ marginRight: '5%' }} />
                 {t('settings_menu_item_contacts')}
-              </motion.div>
+              </div>
             </MenuItem>
             <Divider />
             <MenuItem onClick={() => closeMenuAndNavigate(`/settings/account/manage-account`)}>
-              <motion.div variants={variants} style={menuItemStyle}>
+              <div style={menuItemStyle}>
                 <ManageAccountsIcon sx={{ marginRight: '5%' }} />
                 {t('settings_manage_account')}
-              </motion.div>
+              </div>
             </MenuItem>
             <Divider />
             <MenuItem data-cy="logout-button" onClick={logout}>
-              <motion.div variants={variants} style={menuItemStyle}>
+              <div style={menuItemStyle}>
                 <LogoutIcon sx={{ marginRight: '5%', color: '#FA2E30' }} />
                 {t('logout')}
-              </motion.div>
+              </div>
             </MenuItem>
-          </motion.div>
+          </div>
         </Menu>
 
         <Box
