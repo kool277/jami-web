@@ -16,6 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import { AdminWizardState } from '../enums/admin-wizard-state'
+
 export interface IAdminConfigState {
   localAuthEnabled: boolean
   jamsAuthEnabled: boolean
@@ -27,6 +29,7 @@ export interface IAdminConfigState {
 export interface IAdminAccount {
   admin: string
   config: IAdminConfigState
+  lastWizardState: AdminWizardState
   nameserver?: string
   jamsUrl?: string
   autoDownloadLimit?: number // size (in Mb) of the file that can be downloaded without user interaction

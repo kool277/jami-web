@@ -20,7 +20,7 @@ import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import { ParamsDictionary, Request, Response } from 'express-serve-static-core'
 import { readdir, stat } from 'fs/promises'
-import { AccessToken, AccountOverview, AdminCredentials, HttpStatusCode } from 'jami-web-common'
+import { AccessToken, AccountOverview, AdminCredentials, AdminWizardState, HttpStatusCode } from 'jami-web-common'
 import os from 'os'
 import path from 'path'
 import { Container } from 'typedi'
@@ -44,9 +44,14 @@ adminRouter.get('/check', (_req, res) => {
   res.send({ isSetupComplete })
 })
 
+adminRouter.get('/adminWizardState', (_req, res) => {
+  const lastWizardState = adminAccount.getLastWizardState()
+  res.send({ lastWizardState })
+})
+
 adminRouter.post(
   '/create',
-  asyncHandler(async (req: Request<ParamsDictionary, string, Partial<AdminCredentials>>, res) => {
+  asyncHandler(async (req: Request<ParamsDictionary, AccessToken | string, Partial<AdminCredentials>>, res) => {
     const { password } = req.body
     if (password) {
       const hashedPassword = await argon2.hash(password, { type: argon2.argon2id })
@@ -54,7 +59,9 @@ adminRouter.post(
       adminAccount.setPasswordHash(hashedPassword)
       await adminAccount.save()
 
-      res.sendStatus(HttpStatusCode.Created)
+      const jwt = await signJwt('admin')
+      adminAccount.setLastWizardState(AdminWizardState.local)
+      res.send({ accessToken: jwt })
       return
     }
 
@@ -63,6 +70,12 @@ adminRouter.post(
 )
 //Requests below require a successful setup
 adminRouter.use(checkAdminSetup)
+
+adminRouter.post('/adminWizardState', (req: Request<ParamsDictionary, AdminWizardState>, res) => {
+  const lastWizardState = req.body.state
+  adminAccount.setLastWizardState(lastWizardState)
+  res.sendStatus(HttpStatusCode.Ok)
+})
 
 adminRouter.post(
   '/login',

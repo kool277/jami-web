@@ -18,7 +18,7 @@
 import { readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
-import { IAdminAccount, IAdminConfigState } from 'jami-web-common'
+import { AdminWizardState, IAdminAccount, IAdminConfigState } from 'jami-web-common'
 import { Service } from 'typedi'
 
 @Service()
@@ -56,7 +56,17 @@ export class AdminAccount {
       openIdAuthEnabled: false,
       uploadPath: this.defaultUploadPath,
     }
+    this.adminAccount.lastWizardState = AdminWizardState.account
     this.adminAccount.autoDownloadLimit = 20 // default value
+  }
+
+  getLastWizardState(): string {
+    return this.adminAccount.lastWizardState
+  }
+
+  setLastWizardState(state: AdminWizardState): void {
+    this.adminAccount.lastWizardState = state
+    this.save()
   }
 
   setAutoDownloadLimit(limit: number) {
