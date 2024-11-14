@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Container } from '@mui/material'
+import { Container, Box } from '@mui/material'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -41,30 +41,51 @@ export default function WelcomeAnimation(props) {
   const { t } = useTranslation()
   const [visible, setVisible] = useState(true)
 
+  const backgroundStyle = {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    backgroundImage: `url(./admin/background.jpg)`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'center',
+    backgroundSize: 'cover',
+    transition: 'background-image 0.5s ease-in-out',
+  }
+
   return (
-    <Container style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <AnimatePresence>
-        {visible && (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={list}
-            onAnimationComplete={(a) => {
-              if (a === 'hidden') {
-                props.onComplete()
-              } else {
-                setVisible(false)
-              }
-            }}
-          >
-            <motion.div variants={item}>
-              <JamiLogo width="95%" />
+    <Box sx={backgroundStyle}>
+      <Container
+        style={{
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          display: 'flex',
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        <AnimatePresence>
+          {visible && (
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={list}
+              onAnimationComplete={(a) => {
+                if (a === 'hidden') {
+                  props.onComplete()
+                } else {
+                  setVisible(false)
+                }
+              }}
+            >
+              <motion.div style={{ width: '100%', display: 'flex', justifyContent: 'center' }} variants={item}>
+                <JamiLogo width="60%" />
+              </motion.div>
             </motion.div>
-            <motion.h2 variants={item}>{t('welcome_text')}</motion.h2>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </Container>
+          )}
+        </AnimatePresence>
+      </Container>
+    </Box>
   )
 }
