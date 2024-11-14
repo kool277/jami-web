@@ -311,15 +311,15 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
       MuiButton: {
         styleOverrides: {
           root: {
-            height: '46px',
+            height: '35px',
             fontWeight: 700,
             fontSize: '15px',
             lineHeight: '17px',
             textTransform: 'none',
-            borderRadius: '5px',
+            borderRadius: '9px',
           },
           sizeSmall: {
-            height: '36px',
+            height: '26px',
           },
           contained: {
             background: palette.primary.dark,
