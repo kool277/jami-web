@@ -19,7 +19,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
 import { AccessToken, AccountOverview, IAdminConfigState } from 'jami-web-common'
-import { HttpStatusCode } from 'jami-web-common'
+import { AdminWizardState, HttpStatusCode } from 'jami-web-common'
 import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -36,9 +36,11 @@ export const useSetupAdminMutation = () => {
       const { data } = await axios.post('/admin/create', { password }, { baseURL: apiUrl })
       return data
     },
-    onSuccess: () => {
-      //TODO: Do not login the admin for now in case we need to implement multi-factor authentication
-      navigate('/admin/login')
+    onSuccess: (data) => {
+      //Logged in because it is the first step of the wizard
+      //TODO:implement multi-factor authentication
+      localStorage.setItem('adminAccessToken', data.accessToken)
+      navigate('/admin/setup/ns')
     },
     onError: (e: any) => {
       if (e.response?.status === HttpStatusCode.BadRequest) {
@@ -103,6 +105,7 @@ export const useLoginAdminMutation = () => {
 }
 
 //For non-react components that need to get the admin setup status
+// use for the password
 export const checkAdminSetupStatus = async () => {
   try {
     const { data } = await axios.get<{ isSetupComplete: boolean }>('/admin/check', { baseURL: apiUrl })
@@ -110,6 +113,39 @@ export const checkAdminSetupStatus = async () => {
   } catch (e) {
     console.log(e)
   }
+}
+
+// use for the entire wizard
+export const checkWizardStatus = async () => {
+  try {
+    const { data } = await axios.get<{ lastWizardState: AdminWizardState }>('/admin/adminWizardState', {
+      baseURL: apiUrl,
+    })
+    return data.lastWizardState
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+export const useSetWizardStateMutation = () => {
+  const token = localStorage.getItem('adminAccessToken')
+
+  return useMutation({
+    mutationKey: ['admin', 'wizard', 'state'],
+    mutationFn: async (state: AdminWizardState) => {
+      const { data } = await axios.post(
+        '/admin/adminWizardState',
+        { state },
+        {
+          baseURL: apiUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      return data
+    },
+  })
 }
 
 //For react components that can invoke hooks
