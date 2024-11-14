@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Stack, Typography, useMediaQuery } from '@mui/material'
+import { Box, Button, Typography, useMediaQuery } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { HttpStatusCode } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
@@ -23,17 +23,17 @@ import { useTranslation } from 'react-i18next'
 import { Form, Link } from 'react-router-dom'
 
 import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input'
+import JamiWelcomeLogo from '../components/JamiWelcomeLogo'
 import ProcessingRequest from '../components/ProcessingRequest'
-import withAuthUI from '../components/WithAuthUI'
+import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
 import { PasswordStrength } from '../enums/passwordStrength'
-import JamiLogo from '../icons/jamiLogoIcon.svg?react'
 import {
   checkPasswordStrength,
   useCheckIfUsernameIsRegisteredQuery,
   useLoginMutation,
   useRegisterMutation,
 } from '../services/authQueries'
-import { inputWidth, jamiUsernamePattern, submitButtonWidth } from '../utils/constants'
+import { inputWidth, jamiAuthLogoSize, jamiUsernamePattern, submitButtonWidth } from '../utils/constants'
 
 function RegistrationForm() {
   const theme: Theme = useTheme()
@@ -48,7 +48,6 @@ function RegistrationForm() {
   const { isPending: isRegisterLoading } = registerMutation
   const { isPending: isLoginLoading } = loginMutation
   const isPending = isRegisterLoading || isLoginLoading
-  const isMedium: boolean = useMediaQuery(theme.breakpoints.up('md'))
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername)
   const usernameOk = usernameStatus === 'success'
@@ -130,42 +129,44 @@ function RegistrationForm() {
   return (
     <>
       <ProcessingRequest open={isPending} />
-      <Stack
-        sx={{
-          minHeight: `${isMobile ? 'auto' : '100%'}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        {isMedium || isMobile ? null : <JamiLogo width="12%" height="auto" style={{ marginTop: '-5vh' }} />}
-        <Box sx={{ mt: theme.typography.pxToRem(10), mb: theme.typography.pxToRem(20) }}>
-          <Typography component={'span'} variant="h2">
-            {t('registration_form_title')}
-          </Typography>
+
+      <UnconnectedUserLayout>
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'row',
+            color: 'black',
+            justifyContent: 'center',
+            marginTop: isMobile ? '-25%' : '-45%',
+          }}
+        >
+          <JamiWelcomeLogo logoWidth={jamiAuthLogoSize} logoHeight={jamiAuthLogoSize} />
         </Box>
-        <Form method="post" id="register-form">
-          <div>
-            <UsernameInput
-              data-cy="username-input"
-              value={username}
-              onChange={handleUsername}
-              status={usernameStatus}
-              tooltipTitle={t('registration_form_username_tooltip')}
-              sx={{ width: theme.typography.pxToRem(inputWidth) }}
-            />
-          </div>
-          <div>
-            <PasswordInput
-              data-cy="password-input"
-              value={password}
-              onChange={handlePassword}
-              status={passwordStatus}
-              tooltipTitle={t('registration_form_password_tooltip')}
-              sx={{ width: theme.typography.pxToRem(inputWidth) }}
-            />
-          </div>
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+
+        <Form
+          method="post"
+          id="register-form"
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <UsernameInput
+            data-cy="username-input"
+            value={username}
+            onChange={handleUsername}
+            status={usernameStatus}
+            tooltipTitle={t('registration_form_username_tooltip')}
+            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '10%' }}
+          />
+
+          <PasswordInput
+            data-cy="password-input"
+            value={password}
+            onChange={handlePassword}
+            status={passwordStatus}
+            tooltipTitle={t('registration_form_password_tooltip')}
+            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: isMobile ? '-7%' : '-10%' }}
+          />
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: isMobile ? '-3%' : '-5%' }}>
             <Button
               disabled={!usernameOk || !passwordOk}
               data-cy="register-button"
@@ -178,7 +179,16 @@ function RegistrationForm() {
             </Button>
           </Box>
         </Form>
-        <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(50) }}>
+
+        <Box
+          sx={{
+            mt: theme.typography.pxToRem(50),
+            mb: theme.typography.pxToRem(10),
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+          }}
+        >
           <Typography variant="body1" fontSize={13}>
             {t('registration_form_to_login_text')} &nbsp;
             <Link style={{ color: theme.ChatInterface.inputColor }} data-cy="login-link" to={'/login'}>
@@ -186,8 +196,8 @@ function RegistrationForm() {
             </Link>
           </Typography>
         </Box>
-      </Stack>
+      </UnconnectedUserLayout>
     </>
   )
 }
-export default withAuthUI(RegistrationForm)
+export default RegistrationForm

@@ -17,13 +17,15 @@
  */
 export const jamiUsernamePattern = /^[a-zA-Z0-9-_]{3,32}$/
 
-export const inputWidth = 320
+export const inputWidth = 220
 
 export const submitButtonWidth = 120
 
-export const jamiLogoDefaultSize = '512px'
+export const jamiLogoDefaultSize = '256px'
 
 export const callTimeoutMs = 60_000
+
+export const jamiAuthLogoSize = '100px'
 
 const apiUrl: string = import.meta.env.VITE_API_URL
 

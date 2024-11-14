@@ -15,8 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Stack, StackProps, Typography } from '@mui/material'
-import { useTranslation } from 'react-i18next'
+import { Stack, StackProps } from '@mui/material'
 
 import JamiLogo from '../icons/jamiLogoIcon.svg?react'
 import { jamiLogoDefaultSize } from '../utils/constants'
@@ -27,8 +26,6 @@ interface WelcomeLogoProps extends StackProps {
 }
 
 export default function JamiWelcomeLogo({ logoWidth, logoHeight, ...stackProps }: WelcomeLogoProps) {
-  const { t } = useTranslation()
-
   return (
     <Stack
       {...stackProps}
@@ -36,20 +33,13 @@ export default function JamiWelcomeLogo({ logoWidth, logoHeight, ...stackProps }
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        flexDirection: 'row',
+        alignContent: 'center',
         ...stackProps.sx,
       }}
     >
-      <Typography variant="h2" fontWeight={'bolder'} sx={{ marginTop: '6vh', paddingBottom: '2vh', color: 'black' }}>
-        {t('welcome_to_text')}
-      </Typography>
       <JamiLogo width={logoWidth ?? jamiLogoDefaultSize} height={logoHeight ?? jamiLogoDefaultSize} />
-      <img
-        src={'./jamiTitle.png'}
-        alt="Jami"
-        width={'50%'}
-        height={'auto'}
-        style={{ marginLeft: '-2.5vw', marginBottom: '10vh' }}
-      />
+      <img src={'./jamiTitle.png'} alt="Jami" width={logoWidth || '200px'} height={'auto'} />
     </Stack>
   )
 }

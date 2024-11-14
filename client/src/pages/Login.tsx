@@ -15,30 +15,20 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import {
-  Box,
-  Button,
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Stack,
-  Typography,
-  useMediaQuery,
-} from '@mui/material'
+import { Box, Button, FormControl, FormControlLabel, Radio, RadioGroup, Typography, useMediaQuery } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { ChangeEvent, FormEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Link } from 'react-router-dom'
 
 import { PasswordInput, UsernameInput } from '../components/Input'
+import JamiWelcomeLogo from '../components/JamiWelcomeLogo'
 import ProcessingRequest from '../components/ProcessingRequest'
-import withAuthUI from '../components/WithAuthUI'
+import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
-import JamiLogo from '../icons/jamiLogoIcon.svg?react'
 import { useGetAdminConfigQuery } from '../services/adminQueries'
 import { useLoginMutation } from '../services/authQueries'
-import { inputWidth, submitButtonWidth } from '../utils/constants'
+import { inputWidth, jamiAuthLogoSize, submitButtonWidth } from '../utils/constants'
 function LoginForm() {
   const theme: Theme = useTheme()
   const { t } = useTranslation()
@@ -49,7 +39,6 @@ function LoginForm() {
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const loginMutation = useLoginMutation()
   const { isPending } = loginMutation
-  const isMedium: boolean = useMediaQuery(theme.breakpoints.up('md'))
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
   if (data === undefined) {
@@ -84,79 +73,73 @@ function LoginForm() {
   return (
     <>
       <ProcessingRequest open={isPending} />
-      <Stack
-        sx={{
-          minHeight: `${isMobile ? 'auto' : '100%'}`,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-        }}
-      >
-        {isMedium || isMobile ? null : <JamiLogo width="12%" height="auto" style={{ marginTop: '-5vh' }} />}
-        <Box sx={{ mt: theme.typography.pxToRem(10), mb: theme.typography.pxToRem(20) }}>
-          <Typography component={'span'} variant="h2" fontWeight={500} sx={{ textAlign: 'center' }}>
-            {t('login_form_title')}
-          </Typography>
+      <UnconnectedUserLayout>
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'row',
+            color: 'black',
+            justifyContent: 'center',
+            marginTop: isMobile ? '-25%' : '-45%',
+          }}
+        >
+          <JamiWelcomeLogo logoWidth={jamiAuthLogoSize} logoHeight={jamiAuthLogoSize} />
         </Box>
-        <Form method="post" id="login-form">
-          <div>
-            <UsernameInput
-              data-cy="username-input"
-              value={username}
-              onChange={handleUsername}
-              tooltipTitle={t('login_form_username_tooltip')}
-              sx={{ width: theme.typography.pxToRem(inputWidth) }}
-            />
-          </div>
-          <div>
-            <PasswordInput
-              data-cy="password-input"
-              value={password}
-              onChange={handlePassword}
-              tooltipTitle={t('login_form_password_tooltip')}
-              sx={{ width: theme.typography.pxToRem(inputWidth) }}
-            />
-          </div>
-          <div>
-            <FormControl
-              sx={{
-                width: '20vw',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <RadioGroup
-                sx={{ width: '70%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}
-                row
-                onChange={handleSelectionChange}
-                value={authMethod}
-              >
-                {data.localAuthEnabled ? (
-                  <FormControlLabel value="local" control={<Radio />} label={t('jami')} />
-                ) : null}
-                {data.jamsAuthEnabled ? <FormControlLabel value="jams" control={<Radio />} label={t('jams')} /> : null}
-                {data.guestAccessEnabled ? (
-                  <FormControlLabel value="guest" control={<Radio />} label={t('guest')} />
-                ) : null}
-                {data.openIdAuthEnabled ? (
-                  <FormControlLabel value="openid" control={<Radio />} label={t('openid')} />
-                ) : null}
-              </RadioGroup>
-            </FormControl>
-          </div>
+
+        <Form
+          method="post"
+          id="login-form"
+          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <UsernameInput
+            data-cy="username-input"
+            value={username}
+            onChange={handleUsername}
+            tooltipTitle={t('login_form_username_tooltip')}
+            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '10%' }}
+          />
+          <PasswordInput
+            data-cy="password-input"
+            value={password}
+            onChange={handlePassword}
+            tooltipTitle={t('login_form_password_tooltip')}
+            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: isMobile ? '-7%' : '-10%' }}
+          />
+          <FormControl sx={{ marginTop: isMobile ? '-3%' : '-5%' }}>
+            <RadioGroup row onChange={handleSelectionChange} value={authMethod}>
+              {data.localAuthEnabled ? <FormControlLabel value="local" control={<Radio />} label={t('jami')} /> : null}
+              {data.jamsAuthEnabled ? <FormControlLabel value="jams" control={<Radio />} label={t('jams')} /> : null}
+              {data.guestAccessEnabled ? (
+                <FormControlLabel value="guest" control={<Radio />} label={t('guest')} />
+              ) : null}
+              {data.openIdAuthEnabled ? (
+                <FormControlLabel value="openid" control={<Radio />} label={t('openid')} />
+              ) : null}
+            </RadioGroup>
+          </FormControl>
+
           <Button
             data-cy="login-button"
             variant="contained"
             type="submit"
             onClick={login}
-            sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
+            sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: isMobile ? '-3%' : '-5%' }}
             disabled={username === '' || password === ''}
           >
             {t('login_form_submit_button')}
           </Button>
         </Form>
-        <Box sx={{ mt: theme.typography.pxToRem(50), mb: theme.typography.pxToRem(10) }}>
+
+        <Box
+          sx={{
+            mt: theme.typography.pxToRem(50),
+            mb: theme.typography.pxToRem(10),
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+          }}
+        >
           <Typography variant="body1" fontSize={13}>
             {t('login_form_to_registration_text')} &nbsp;
             <Link style={{ color: theme.ChatInterface.inputColor }} data-cy="register-link" to={'/register'}>
@@ -164,8 +147,8 @@ function LoginForm() {
             </Link>
           </Typography>
         </Box>
-      </Stack>
+      </UnconnectedUserLayout>
     </>
   )
 }
-export default withAuthUI(LoginForm)
+export default LoginForm
