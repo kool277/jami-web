@@ -16,8 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { AdminSettingSelection } from 'jami-web-common'
-import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 'react-router-dom'
+import { AdminSettingSelection, AdminWizardState } from 'jami-web-common'
+import { createBrowserRouter, createRoutesFromElements, Navigate, Outlet, Route } from 'react-router-dom'
 
 import App, { appLoader } from './App'
 import AccountDetailsListener from './components/AccountDetailsListener'
@@ -47,7 +47,9 @@ import { RouteParams } from './hooks/useUrlParams'
 import AccountSettings from './pages/AccountSettings'
 import AdminLogin from './pages/AdminLogin'
 import AdminPanel from './pages/AdminPanel'
-import AdminSetup from './pages/AdminSetup'
+import AdminConfigureJams from './pages/AdminWizard/AdminConfigureJams'
+import AdminConfigureNameServer from './pages/AdminWizard/AdminConfigureNameServer'
+import AdminCreateAccount from './pages/AdminWizard/AdminCreateAccount'
 import GeneralSettings from './pages/GeneralSettings'
 import LinkedDevicesPage from './pages/LinkedDevicesPage'
 import Login from './pages/Login'
@@ -67,7 +69,8 @@ export const router = createBrowserRouter(
       >
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Registration />} />
-        <Route path="admin" element={<AdminLogin />} />
+        <Route path="admin" element={<Navigate to={'/admin/login'} />} />
+        <Route path="admin/login" element={<AdminLogin />} />
         <Route
           element={
             <AdminAuthWrapper>
@@ -96,8 +99,11 @@ export const router = createBrowserRouter(
             element={<DownloadLimit />}
           />
         </Route>
-        <Route path="admin/login" element={<AdminLogin />} />
-        <Route path="admin/setup" element={<AdminSetup />} />
+        <Route path="admin/setup" element={<Navigate to={'/admin/setup/account'} />} />
+        <Route path={`admin/setup/${AdminWizardState.account}`} element={<AdminCreateAccount />} />
+        <Route path={`admin/setup/${AdminWizardState.local}`} element={<AdminConfigureNameServer />} />
+        <Route path={`admin/setup/${AdminWizardState.jams}`} element={<AdminConfigureJams />} />
+
         <Route
           element={
             <AuthProvider>

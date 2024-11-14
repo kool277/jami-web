@@ -17,20 +17,40 @@
  */
 import './dayjsInitializer' // Initialized once and globally to ensure available locales are always imported
 
+import { AdminWizardState } from 'jami-web-common'
 import { useState } from 'react'
 import { json, LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
 
 import WelcomeAnimation from './components/WelcomeAnimation'
-import { checkAdminSetupStatus } from './services/adminQueries'
+import { checkAdminSetupStatus, checkWizardStatus } from './services/adminQueries'
 import { getAccessToken } from './services/authQueries'
 
 export async function appLoader({ request }: LoaderFunctionArgs) {
   const initialUrl = new URL(request.url)
   const isSetupComplete = await checkAdminSetupStatus()
+  const lastWizardState = await checkWizardStatus()
+  const path = initialUrl.pathname
 
-  if (!isSetupComplete && initialUrl.pathname !== '/admin/setup') {
-    return redirect('/admin/setup')
+  if (
+    lastWizardState !== undefined &&
+    lastWizardState === AdminWizardState.complete &&
+    path.startsWith('/admin/setup')
+  ) {
+    return redirect('/admin/login')
   }
+
+  if (!isSetupComplete && path !== '/admin/setup/account') {
+    return redirect('/admin/setup/account')
+  }
+
+  if (
+    lastWizardState !== undefined &&
+    lastWizardState !== AdminWizardState.complete &&
+    path !== '/admin/setup/' + lastWizardState
+  ) {
+    return redirect('/admin/setup/' + lastWizardState)
+  }
+
   return json({ isSetupComplete }, { status: 200 })
 }
 

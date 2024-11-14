@@ -44,9 +44,10 @@ import ProcessingRequest from '../ProcessingRequest'
 
 const LocalAuthMethod = () => {
   const { t } = useTranslation()
+
   const accessToken = localStorage.getItem('adminAccessToken')
   const saveAdminConfigMutation = useUpdateAdminConfigMutation()
-  const [nameServer, setNameServer] = useState<string>('') // call the server to get the current value
+  const [nameServer, setNameServer] = useState<string>('')
   const { data } = useGetAdminConfigQuery()
   const theme: Theme = useTheme()
   const setNameServerMutation = useSetNameServer()
