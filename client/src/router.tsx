@@ -22,7 +22,6 @@ import { createBrowserRouter, createRoutesFromElements, Outlet, Route } from 're
 import App, { appLoader } from './App'
 import AccountDetailsListener from './components/AccountDetailsListener'
 import CustomizeProfile from './components/AccountSettings/CustomizeProfile'
-import LinkedDevices from './components/AccountSettings/LinkedDevices'
 import AccountsOverview from './components/AdminSettings/AccountsOverview'
 import AdminAccountConfiguration from './components/AdminSettings/AdminAccountConfiguration'
 import AdminAuthWrapper from './components/AdminSettings/AdminAuthWrapper'
@@ -50,6 +49,7 @@ import AdminLogin from './pages/AdminLogin'
 import AdminPanel from './pages/AdminPanel'
 import AdminSetup from './pages/AdminSetup'
 import GeneralSettings from './pages/GeneralSettings'
+import LinkedDevicesPage from './pages/LinkedDevicesPage'
 import Login from './pages/Login'
 import Messenger from './pages/Messenger'
 import Registration from './pages/Registration'
@@ -138,7 +138,7 @@ export const router = createBrowserRouter(
           <Route element={<LayoutWrapper sidebar={<UserSettingsSelection />} main={<Outlet />}></LayoutWrapper>}>
             <Route path="settings/account/manage-account" element={<AccountSettings />} />
             <Route path="settings/account/customize-profile" element={<CustomizeProfile />} />
-            <Route path="settings/account/linked-devices" element={<LinkedDevices />} />
+            <Route path="settings/account/linked-devices" element={<LinkedDevicesPage />} />
             <Route path="settings/general" element={<GeneralSettings />} />
             <Route path="contacts" element={<ContactList />} />
           </Route>

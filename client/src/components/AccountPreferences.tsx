@@ -42,6 +42,7 @@ import { AccountDetails } from 'jami-web-common'
 import { useState } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider'
+import LinkedDevices from './AccountSettings/LinkedDevices'
 import ConversationAvatar, { AvatarEditor } from './ConversationAvatar'
 import ConversationsOverviewCard from './ConversationsOverviewCard'
 import JamiIdCard from './JamiIdCard'
@@ -135,24 +136,9 @@ export default function AccountPreferences() {
           </motion.div>
         </Grid>
 
-        <Grid item xs={12} sm={6}>
-          <motion.div variants={thumbnailVariants}>
-            <Card>
-              <CardContent>
-                <Typography color="textSecondary" gutterBottom>
-                  Appareils associés
-                </Typography>
-                <Typography gutterBottom variant="h5" component="h2">
-                  {devices.map((device, i) => (
-                    <ListItem key={i}>
-                      <GroupRounded />
-                      <ListItemText id="switch-list-label-rendezvous" primary={device[1]} secondary={device[0]} />
-                    </ListItem>
-                  ))}
-                  {/* <ListItemTextsion> */}
-                </Typography>
-              </CardContent>
-            </Card>
+        <Grid item xs={12} sm={12}>
+          <motion.div variants={thumbnailVariants} style={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
+            <LinkedDevices />
           </motion.div>
         </Grid>
       </Grid>

@@ -16,7 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box } from '@mui/material'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
@@ -52,48 +51,42 @@ function LinkedDevices() {
   }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-      <Grid
-        item
-        xs={12}
-        sm={6}
-        aria-label="linked-device"
-        sx={{
-          padding: '3%',
-        }}
-      >
-        <Card>
-          <CardContent>
-            <Typography color="textSecondary" gutterBottom>
-              {t('settings_linked_devices')}
-            </Typography>
-            <Typography gutterBottom variant="h5" component="h2">
-              <ListItem>
-                <ListItemText
-                  id="switch-list-label-rendezvous"
-                  primary={
-                    <>
-                      {account.details['Account.deviceName']}
-                      <span style={{ fontSize: 'small', fontWeight: 'bolder', marginLeft: '3%' }}>
-                        {t('current_device')}
-                      </span>
-                    </>
-                  }
-                  secondary={account.volatileDetails['Account.deviceID']}
-                />
+    <Grid item xs={12} sm={12} aria-label="linked-device">
+      <Card>
+        <CardContent sx={{ width: '100%' }}>
+          <Typography sx={{}} color="textSecondary" gutterBottom>
+            {t('settings_linked_devices')}
+          </Typography>
+          <Typography gutterBottom variant="h5" component="h2">
+            <ListItem>
+              <ListItemText
+                id="switch-list-label-rendezvous"
+                primary={
+                  <>
+                    {account.details['Account.deviceName']}
+                    <span style={{ fontSize: 'small', fontWeight: 'bolder', marginLeft: '3%' }}>
+                      {t('current_device')}
+                    </span>
+                  </>
+                }
+                secondary={
+                  <Typography noWrap sx={{ textOverflow: 'ellipsis', overflow: 'hidden', maxWidth: '100%' }}>
+                    {account.volatileDetails['Account.deviceID']}
+                  </Typography>
+                }
+              />
+            </ListItem>
+            {devices.map((device) => (
+              <ListItem key={device[0]}>
+                <ListItemText id="switch-list-label-rendezvous" primary={device[1]} secondary={device[0]} />
+                <TrashBinIcon sx={{ '&:hover': { cursor: 'pointer' } }} onClick={() => removeDevice(device[0])} />
               </ListItem>
-              {devices.map((device) => (
-                <ListItem key={device[0]}>
-                  <ListItemText id="switch-list-label-rendezvous" primary={device[1]} secondary={device[0]} />
-                  <TrashBinIcon sx={{ '&:hover': { cursor: 'pointer' } }} onClick={() => removeDevice(device[0])} />
-                </ListItem>
-              ))}
-              {/* <ListItemTextsion> */}
-            </Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-    </Box>
+            ))}
+            {/* <ListItemTextsion> */}
+          </Typography>
+        </CardContent>
+      </Card>
+    </Grid>
   )
 }
 
