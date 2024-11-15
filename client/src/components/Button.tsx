@@ -79,7 +79,7 @@ export const RoundButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
   background: 'white',
   opacity: 1,
   '&:hover': {
-    background: theme.palette.primary.light,
+    background: theme.SvgIcons.hoverBackgroundColor,
   },
   '&:active': {
     color: '#FFF',
@@ -224,10 +224,10 @@ export const CancelPictureButton = (props: IconButtonProps) => {
 
 export const EditPictureButton = styled((props: IconButtonProps) => {
   return <RoundButton {...props} disableRipple={false} aria-label="edit picture" Icon={PenIcon} size="small" />
-})(() => ({
+})(({ theme }) => ({
   backgroundColor: 'inherit',
   '&:hover': {
-    background: '#E5E5E5',
+    background: theme.SvgIcons.hoverBackgroundColor,
   },
 }))
 
@@ -267,7 +267,7 @@ export const MoreButton = styled((props: IconButtonProps) => {
   height: '20px',
   width: '20px',
   '&:hover': {
-    background: theme.palette.primary.light,
+    background: theme.SvgIcons.hoverBackgroundColor,
   },
   '&:active': {
     color: '#FFF',
@@ -288,7 +288,7 @@ export const BackButton = styled((props: IconButtonProps) => {
   width: '51px',
   borderRadius: '5px',
   '&:hover': {
-    background: theme.palette.primary.light,
+    background: theme.SvgIcons.hoverBackgroundColor,
   },
 }))
 
@@ -335,7 +335,7 @@ export const CloseButton = styled((props: IconButtonProps) => {
   width: '30px',
   borderRadius: '5px',
   '&:hover': {
-    background: theme.palette.primary.light,
+    background: theme.SvgIcons.hoverBackgroundColor,
   },
 }))
 
@@ -355,7 +355,7 @@ export const ToggleVisibilityButton = styled(({ visible, ...props }: ToggleVisib
   height: '15px',
   width: '15px',
   '&:hover': {
-    background: theme.palette.primary.light,
+    background: theme.SvgIcons.hoverBackgroundColor,
   },
 }))
 
@@ -363,14 +363,14 @@ export const SquareButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
   <IconButton {...props} disableRipple={true}>
     <Icon fontSize="inherit" />
   </IconButton>
-))(() => ({
+))(({ theme }) => ({
   color: '#7E7E7E',
   fontSize: '25px',
   height: '36px',
   width: '36px',
   borderRadius: '5px',
   '&:hover': {
-    background: '#E5E5E5',
+    background: theme.SvgIcons.hoverBackgroundColor,
   },
 }))
 
@@ -417,7 +417,7 @@ export const ReplyMessageButton = styled((props: IconButtonProps) => (
   width: '20px',
   borderRadius: '5px',
   '&:hover': {
-    background: '#E5E5E5',
+    background: theme.SvgIcons.hoverBackgroundColor,
   },
 }))
 

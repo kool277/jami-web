@@ -46,6 +46,9 @@ declare module '@mui/material/styles' {
       backgroundColor: string
       border: string
     }
+    SvgIcons: {
+      hoverBackgroundColor: string
+    }
   }
 
   interface ThemeOptions {
@@ -218,6 +221,9 @@ const palettes = {
       backgroundColor: '#f2f2f2',
       border: '0.5px lightgrey solid',
     },
+    SvgIcons: {
+      hoverBackgroundColor: '#E5E5E5',
+    },
   },
   dark: {
     palette: {
@@ -270,6 +276,9 @@ const palettes = {
     ConversationPreferences: {
       backgroundColor: '#181818',
       border: '0.5px darkgrey solid',
+    },
+    SvgIcons: {
+      hoverBackgroundColor: '#2A2A2A',
     },
   },
 }
