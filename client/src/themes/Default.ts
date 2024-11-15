@@ -49,6 +49,9 @@ declare module '@mui/material/styles' {
     SvgIcons: {
       hoverBackgroundColor: string
     }
+    Buttons: {
+      hoverBackgroundColor: string
+    }
   }
 
   interface ThemeOptions {
@@ -224,6 +227,9 @@ const palettes = {
     SvgIcons: {
       hoverBackgroundColor: '#E5E5E5',
     },
+    Buttons: {
+      hoverBackgroundColor: '#E5EEF5',
+    },
   },
   dark: {
     palette: {
@@ -280,6 +286,9 @@ const palettes = {
     SvgIcons: {
       hoverBackgroundColor: '#2A2A2A',
     },
+    Buttons: {
+      hoverBackgroundColor: '#262525',
+    },
   },
 }
 
@@ -289,6 +298,7 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
   const partialTheme = createTheme({ ...palettes[mode] /*, ...fonts*/ })
   const palette = partialTheme.palette
   const ChatInterface = partialTheme.ChatInterface
+  const Buttons = partialTheme.Buttons
 
   return createTheme(partialTheme, {
     components: {
@@ -316,7 +326,7 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
             borderColor: '#0056995C',
             color: palette.primary.dark,
             '&:hover': {
-              background: palette.primary.light,
+              background: Buttons.hoverBackgroundColor,
               borderColor: palette.primary.dark,
             },
           },
@@ -324,7 +334,7 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
             background: '#fff',
             color: palette.primary.dark,
             '&:hover': {
-              background: palette.primary.light,
+              background: Buttons.hoverBackgroundColor,
             },
           },
         },
