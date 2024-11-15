@@ -44,6 +44,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
     flexDirection: 'column',
     justifyContent: 'space-between',
     height: '100vh',
+    overflow: 'scroll',
     bgcolor: theme.ChatInterface.panelColor,
   }
 
@@ -58,7 +59,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
   const mainWindowStyles = {
     height: isSettings ? 'auto' : '100vh',
     width: '100%',
-    overflow: 'auto',
+    overflow: 'hidden',
   }
 
   const mainWindowStylesMobile = {
@@ -78,7 +79,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
   return (
     <Box display={'flex'}>
       <Box sx={isMobile ? sidebarStylesMobile : sidebarStyles}>
-        <Box>{sidebar}</Box>
+        <Box sx={{ overflow: 'hidden' }}>{sidebar}</Box>
         {!isAdminPanel && (
           <Box sx={footerStyles}>
             <Footer />

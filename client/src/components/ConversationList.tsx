@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Stack, Typography } from '@mui/material'
+import { Box, Stack, Typography, useTheme } from '@mui/material'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -32,16 +32,31 @@ export default function ConversationList() {
   const handleInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setSearchFilter(event.target.value)
   }, [])
+  const theme = useTheme()
 
   return (
     <>
-      <Box sx={{ display: 'flex' }}>
-        <Typography sx={{ marginLeft: '4%', marginTop: '6%', marginBottom: '4.3%', fontWeight: 'bolder' }} variant="h6">
-          {t('conversations')}
-        </Typography>
-      </Box>
-      <Stack sx={{ display: 'flex' }}>
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 99,
+          backgroundColor: theme.ChatInterface.panelColor,
+          overflow: 'hidden',
+        }}
+      >
+        <Box sx={{ display: 'flex' }}>
+          <Typography
+            sx={{ marginLeft: '16px', marginTop: '24px', marginBottom: '8px', fontWeight: 'bolder' }}
+            variant="h6"
+          >
+            {t('conversations')}
+          </Typography>
+        </Box>
         <ContactSearchBar placeholder={t('find_users_and_conversations')} handleChange={handleInputChange} />
+      </Box>
+
+      <Stack sx={{ overflow: 'scroll', height: '100%', paddingBottom: '100px' }}>
         {searchFilter ? <ContactSearchResultList searchFilter={searchFilter} /> : <ConversationTabs />}
       </Stack>
     </>
@@ -73,7 +88,7 @@ const ConversationTabs = () => {
   }, [])
 
   return (
-    <Tabs defaultValue={summariesTabIndex} value={tabIndex} onChange={onChange}>
+    <Tabs style={{ overflow: 'scroll' }} defaultValue={summariesTabIndex} value={tabIndex} onChange={onChange}>
       {isShowingTabMenu && (
         <TabsList>
           <Tab>{t('conversations')}</Tab>
@@ -93,7 +108,7 @@ const SummariesTabPanel = (props: TabPanelProps) => {
   const conversationsSummaries = conversationsSummariesQuery.data || []
 
   return (
-    <TabPanel {...props}>
+    <TabPanel sx={{ overflow: 'scroll', height: '100%' }} {...props}>
       <ConversationSummaryList conversationsSummaries={conversationsSummaries} />
     </TabPanel>
   )

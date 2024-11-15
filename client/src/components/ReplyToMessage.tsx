@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, useTheme } from '@mui/material'
+import { Box, Button, useMediaQuery, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
@@ -32,6 +32,8 @@ export default function ReplyToMessage() {
   const { account } = useAuthContext()
   const { replyMessage: message, setReplyMessage: setMessage } = useActionMessageContext()
   const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
 
   if (message === undefined) {
     return
@@ -58,6 +60,7 @@ export default function ReplyToMessage() {
     <>
       <motion.div
         style={{
+          maxWidth: isMedium ? '200px' : isMobile ? '300px' : '400px',
           width: '100%',
           display: 'flex',
           justifyContent: 'center',

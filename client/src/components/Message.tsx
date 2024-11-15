@@ -212,6 +212,7 @@ const MessageDataTransfer = ({
   const extension = message.displayName?.split('.').pop()?.toLowerCase() || ''
   const theme: Theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
 
   const textColor = isAccountMessage ? 'white' : 'black'
   const [preview, setPreview] = useState<string>()
@@ -273,6 +274,8 @@ const MessageDataTransfer = ({
   const getImgSize = () => {
     if (isMobile) {
       return '90px'
+    } else if (isMedium) {
+      return '120px'
     }
     return '240px'
   }
@@ -381,12 +384,17 @@ interface MessageMemberProps {
 
 const MessageMember = ({ message }: MessageMemberProps) => {
   const { i18n } = useTranslation()
+  const theme: Theme = useTheme()
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
 
   const text = getMessageMemberText(message, i18n)
   return (
     <Chip
       sx={{
+        maxWidth: isMedium ? '300px' : 'unset',
         width: 'fit-content',
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
       }}
       label={text}
     />

@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Divider, Stack, Typography } from '@mui/material'
+import { Box, Divider, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { useState } from 'react'
 
 import { useCallManagerContext } from '../contexts/CallManagerProvider'
@@ -57,12 +57,25 @@ const ConversationHeader = () => {
   const { startCall } = useCallManagerContext()
   const { isOpen, setIsOpen } = useConversationPreferencesContext()
   const [open, setOpen] = useState<boolean>(false)
+  const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
+
+  function getMaxWidth() {
+    if (isMobile) {
+      return '100px'
+    } else if (isMedium) {
+      return '70px'
+    } else {
+      return '150px'
+    }
+  }
 
   return (
     <Stack direction="row" padding="16px" overflow="hidden">
       <Stack flex={1} justifyContent="center" whiteSpace="nowrap" overflow="hidden">
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4%' }}>
-          <Typography variant="h5" textOverflow="ellipsis">
+          <Typography variant="h5" textOverflow="ellipsis" sx={{ maxWidth: getMaxWidth() }}>
             {conversationDisplayName}
           </Typography>
         </Box>
