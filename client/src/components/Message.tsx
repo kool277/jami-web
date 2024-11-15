@@ -634,6 +634,7 @@ const UserMessageRow = ({
   const isFirstOfGroup = showsTime || !previousIsUserMessageType || previousMessage?.author !== message.author
   const isLastOfGroup = nextShowsTime || !nextIsUserMessageType || message.author !== nextMessage?.author
   const { members } = useConversationContext()
+  const theme: Theme = useTheme()
   const props = {
     message,
     isAccountMessage,
@@ -675,7 +676,7 @@ const UserMessageRow = ({
     const replyMessageElement = document.getElementById(`message-${messageId}`)
     if (replyMessageElement) {
       replyMessageElement.style.transition = 'background-color 0.5s ease-in-out'
-      replyMessageElement.style.backgroundColor = '#dfe8ef'
+      replyMessageElement.style.backgroundColor = theme.Buttons.hoverBackgroundColor
       setTimeout(() => {
         replyMessageElement.style.backgroundColor = ''
       }, 1000)
