@@ -1049,7 +1049,7 @@ const Bubble = ({
             <Box sx={{ paddingRight: '2px' }} data-cy="edited-message">
               {edited && !deleted ? t('edited_message') : ''}
             </Box>
-            <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>
+            <Box data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</Box>
           </Box>
         )}
 
@@ -1063,7 +1063,7 @@ const Bubble = ({
               marginBottom: '5px',
             }}
           >
-            <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>
+            <Box data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</Box>
           </Box>
         )}
       </Box>

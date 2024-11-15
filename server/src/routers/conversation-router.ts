@@ -142,6 +142,15 @@ conversationRouter.get(
       res.status(HttpStatusCode.NotFound).send('No such conversation found')
       return
     }
+
+    if (
+      'ignoreNotifications' in preferences &&
+      preferences.ignoreNotifications &&
+      typeof preferences.ignoreNotifications === 'string'
+    ) {
+      preferences.ignoreNotifications = preferences.ignoreNotifications === 'true' ? true : false
+    }
+
     res.send(preferences)
   }),
 )

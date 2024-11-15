@@ -26,6 +26,7 @@ import { useAuthContext } from '../contexts/AuthProvider'
 import CallPermissionDenied from '../pages/CallPermissionDenied'
 import { useContactProfilePicture } from '../services/contactQueries'
 import { FileHandler } from '../utils/files'
+import { getColor } from '../utils/messagecolor'
 import {
   CancelPictureButton,
   CloseButton,
@@ -43,12 +44,21 @@ type ConversationAvatarProps = AvatarProps & {
   displayName?: string
   contactUri?: string
 }
+
 export default function ConversationAvatar({ displayName, contactUri, ...props }: ConversationAvatarProps) {
   const profilePictureQuery = useContactProfilePicture(contactUri)
   const url = profilePictureQuery.data
   const src = props.src || url || '/broken'
+  const color = getColor(contactUri ? 'jami:' + contactUri : '')
   delete props.src
-  return <Avatar {...props} alt={displayName?.toUpperCase()} src={src} />
+  return (
+    <Avatar
+      {...props}
+      alt={displayName?.toUpperCase()}
+      src={src}
+      style={{ backgroundColor: color, color: '#E5E5E5' }}
+    />
+  )
 }
 
 export const AvatarEditor = () => {
@@ -109,7 +119,11 @@ export const AvatarEditor = () => {
         <Box sx={{ position: 'absolute', right: '19.89px', zIndex: 10 }}>
           <EditPictureButton onClick={() => setEditionToolsIsOpen(true)} sx={{ width: '30px', height: '30px' }} />
         </Box>
-        <ConversationAvatar src={avatarHandler?.url || url} sx={{ width: '100%', height: '100%' }} />
+        <ConversationAvatar
+          contactUri={account.getUri()}
+          src={avatarHandler?.url || url}
+          sx={{ width: '100%', height: '100%' }}
+        />
       </Stack>
 
       {editionToolsIsOpen && (

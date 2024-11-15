@@ -50,6 +50,7 @@ import {
   useConversationPreferencesMutation,
   useRemoveMemberFromSwarm,
 } from '../services/conversationQueries'
+import { colors } from '../utils/messagecolor'
 import ContactDetailDialog from './ContactDetailDialog'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
 import ConversationAvatar from './ConversationAvatar'
@@ -67,8 +68,7 @@ enum TABS {
 
 export default function ConversationPreferences() {
   const { conversationColor, isSwarmGroup } = useConversationPreferencesContext()
-  const { conversationDisplayName } = useConversationContext()
-  const { members, conversationId } = useConversationContext()
+  const { members, conversationId, conversationDisplayName, conversationInfos } = useConversationContext()
   const { account } = useAuthContext()
   const [title, setTitle] = useState(conversationDisplayName)
   const isAdmin = members.some((member) => member.contact.uri === account.getUri() && member.role === 'admin')
@@ -137,9 +137,19 @@ export default function ConversationPreferences() {
               }}
             />
           }
-          avatar={<ConversationAvatar sx={{ width: '45px', height: '45px' }} displayName={conversationDisplayName} />}
+          avatar={
+            <ConversationAvatar
+              contactUri={
+                conversationInfos.mode && conversationInfos.mode === '0'
+                  ? members.filter((member) => member.contact.uri !== account.getUri())[0].contact.uri
+                  : ''
+              }
+              sx={{ width: '45px', height: '45px' }}
+              displayName={conversationDisplayName}
+            />
+          }
           sx={{ backgroundColor: conversationColor, height: '12%', borderRadius: '5px' }}
-        ></CardHeader>
+        />
         <CardContent>
           <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '1vh' }}>
             <Button
@@ -469,7 +479,11 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
           }}
         >
           {' '}
-          <ConversationAvatar displayName={member.contact.registeredName} sx={{ marginRight: '2%' }} />
+          <ConversationAvatar
+            contactUri={member.contact.uri}
+            displayName={member.contact.registeredName}
+            sx={{ marginRight: '2%' }}
+          />
           {member.contact.registeredName}
           {member.role && <Box sx={{ fontSize: 'smaller', marginLeft: '5%' }}>{t(member.role)}</Box>}
         </Box>
@@ -587,6 +601,7 @@ const ColorPicker = ({ conversationId }: ColorPickerProps) => {
               triangle="hide"
               styles={{}}
               color={conversationColor}
+              colors={colors}
               onChange={(color) => {
                 handleNewColor(color.hex)
               }}

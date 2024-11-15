@@ -377,6 +377,7 @@ interface FilePreviewsListProps {
 }
 
 const FilePreviewsList = ({ fileHandlers, removeFile }: FilePreviewsListProps) => {
+  const { conversationColor } = useConversationPreferencesContext()
   return (
     <Stack
       display="flex"
@@ -396,7 +397,7 @@ const FilePreviewsList = ({ fileHandlers, removeFile }: FilePreviewsListProps) =
           key={fileHandler.id}
           remove={() => removeFile(fileHandler.id)}
           fileHandler={fileHandler}
-          borderColor={'#005699' /* Should be same color as message bubble */}
+          borderColor={conversationColor /* Should be same color as message bubble */}
         />
       ))}
     </Stack>

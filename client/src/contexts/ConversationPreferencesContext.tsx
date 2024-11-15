@@ -54,12 +54,10 @@ const ConversationPreferencesProvider: React.FC<WithChildren> = ({ children }) =
     } else {
       setIsSwarmGroup(false)
     }
-    if (preferencesQuery.data && preferencesQuery.data.color) {
-      setConversationColor(preferencesQuery.data.color)
-    } else {
-      setConversationColor(getColor(conversationId))
-    }
-    if (preferencesQuery.data && preferencesQuery.data.ignoreNotifications) {
+
+    setConversationColor(preferencesQuery.data?.color ?? getColor(conversationId))
+
+    if (preferencesQuery.data?.ignoreNotifications !== undefined) {
       setIgnoreNotifications(preferencesQuery.data.ignoreNotifications)
     }
   }, [conversationId, members, preferencesQuery])

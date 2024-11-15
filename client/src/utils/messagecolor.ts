@@ -55,14 +55,14 @@ export function getSentTimeColor(color: string): string {
     return '#d8d8d8'
   }
   if (darkColorsTime.includes(color)) {
-    return '#6C6C6C'
+    return '#6b6b6b'
   }
   return '#A6948B'
 }
 
 export function getColor(canonicalUri: string): string {
   if (canonicalUri === '') {
-    return '#9E9E9E'
+    return '#9E9E9E' // default color
   }
   const hash: string = MD5(canonicalUri).toString()
   if (hash === '') {

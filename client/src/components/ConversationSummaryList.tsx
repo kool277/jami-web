@@ -36,6 +36,7 @@ import { useRefreshConversationsSummaries } from '../services/conversationQuerie
 import { useMembersQuery } from '../services/conversationQueries'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
 import { formatRelativeDate, formatTime } from '../utils/dates&times'
+import { getColor } from '../utils/messagecolor'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
 import ConversationAvatar from './ConversationAvatar'
 import { CustomListItemButton } from './CustomListItemButton'
@@ -421,6 +422,7 @@ const DetailsDialog = ({
           src={conversationAvatar}
           contactUri={conversationMemberUri}
           sx={{ width: 'inherit', height: 'inherit' }}
+          color={getColor(conversationId)}
           displayName={conversationName}
         />
       }

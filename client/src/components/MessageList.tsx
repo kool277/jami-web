@@ -23,8 +23,10 @@ import { useTranslation } from 'react-i18next'
 import { Waypoint } from 'react-waypoint'
 
 import { useAuthContext } from '../contexts/AuthProvider'
+import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
+import { getTextColor } from '../utils/messagecolor'
 import { findNextVisibleMessage, findPreviousVisibleMessage, MessageRow } from './Message'
 import { ArrowDownIcon } from './SvgIcon'
 
@@ -127,7 +129,8 @@ interface ScrollToEndButtonProps {
 
 const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
   const { t } = useTranslation()
-  const textColor = 'white'
+  const { conversationColor } = useConversationPreferencesContext()
+  const textColor = getTextColor(conversationColor)
   return (
     <Stack
       direction="row"
@@ -137,7 +140,7 @@ const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
       padding="0 16px"
       spacing="12px"
       sx={{
-        backgroundColor: '#005699', // Should be same color as message bubble
+        backgroundColor: conversationColor, // Should be same color as message bubble
         cursor: 'pointer',
       }}
       onClick={() => listBottomRef.current?.scrollIntoView({ behavior: 'smooth' })}

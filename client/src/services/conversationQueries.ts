@@ -259,7 +259,7 @@ export const useConversationPreferencesQuery = (conversationId: string) => {
   return useQuery({
     queryKey: ['conversationPreferences', conversationId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<ConversationPreferences>(`/conversations/${conversationId}/preferences`)
+      const { data } = await axiosInstance.get(`/conversations/${conversationId}/preferences`)
       return data
     },
   })
