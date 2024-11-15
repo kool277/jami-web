@@ -386,39 +386,42 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
         },
         styleOverrides: {
           root: {
-            width: '60px',
-            height: '30px',
+            width: '55px',
+            height: '28px',
             padding: 0,
           },
           switchBase: {
+            border: 'none',
+            marginTop: '2px',
+            marginLeft: '2px',
             padding: 0,
             '&.Mui-checked': {
+              marginLeft: '-1px',
               transform: `translateX(30px)`,
             },
           },
           thumb: {
             boxSizing: 'border-box',
-            width: '30px',
-            height: '30px',
-            border: `1px solid ${palette.primary.dark}`,
+            width: '24px',
+            height: '24px',
             boxShadow: 'none',
             '.Mui-checked.Mui-checked &': {
               border: 'none',
             },
           },
           track: {
-            backgroundColor: palette.primary.light,
-            borderRadius: '30px',
+            backgroundColor: '#c2cad1',
+            borderRadius: '25px',
             opacity: 1,
             '.Mui-checked.Mui-checked + &': {
-              backgroundColor: palette.primary.light,
+              backgroundColor: palette.primary.dark,
               opacity: 1,
             },
           },
           colorPrimary: {
-            color: '#fff',
+            color: 'white',
             '&.Mui-checked': {
-              color: palette.primary.dark,
+              color: 'white',
             },
           },
         },
