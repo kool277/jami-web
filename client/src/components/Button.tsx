@@ -222,6 +222,10 @@ export const CancelPictureButton = (props: IconButtonProps) => {
   return <RoundButton {...props} aria-label="remove picture" Icon={CancelIcon} size="large" />
 }
 
+export const SquareCancelPictureButton = (props: IconButtonProps) => {
+  return <SquareButton {...props} aria-label="remove picture" Icon={CancelIcon} size="medium" />
+}
+
 export const EditPictureButton = styled((props: IconButtonProps) => {
   return <RoundButton {...props} disableRipple={false} aria-label="edit picture" Icon={PenIcon} size="small" />
 })(({ theme }) => ({
@@ -364,13 +368,16 @@ export const SquareButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
     <Icon fontSize="inherit" />
   </IconButton>
 ))(({ theme }) => ({
-  color: '#7E7E7E',
+  color: theme.Buttons.color,
   fontSize: '25px',
   height: '36px',
   width: '36px',
   borderRadius: '5px',
   '&:hover': {
     background: theme.SvgIcons.hoverBackgroundColor,
+  },
+  '&:disabled': {
+    color: theme.Buttons.disabledColor,
   },
 }))
 

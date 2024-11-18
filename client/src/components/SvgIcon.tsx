@@ -42,9 +42,9 @@ export const ArrowIcon = (props: SvgIconProps) => {
 
 export const Arrow2Icon = (props: SvgIconProps) => {
   return (
-    <SvgIcon {...props} viewBox="0 0 21.776 20.23">
+    <SvgIcon {...props} viewBox="0 0 21.776 21.23">
       <path
-        style={{ fill: 'none', stroke: '#7e7e7e', strokeMiterlimit: 10, strokeWidth: '1.75px' }}
+        style={{ fill: 'none', stroke: 'currentColor', strokeMiterlimit: 10, strokeWidth: '1.75px' }}
         d="M.219 18.221a.771.771 0 0 1-.143-.87l3.942-8.124L.076 1.1A.77.77 0 0 1 1.085.068l18.461 8.461a.765.765 0 0 1 0 1.394L1.085 18.385a.771.771 0 0 1-.867-.164Z"
         transform="translate(.903 .901)"
       />
@@ -217,7 +217,7 @@ export const CameraIcon = (props: SvgIconProps) => {
 
 export const CameraInBubbleIcon = (props: SvgIconProps) => {
   return (
-    <SvgIcon {...props} viewBox="0 0 25 25">
+    <SvgIcon {...props} viewBox="0 0 30 30">
       <path d="M25 25H12.5A12.379 12.379 0 0 1 0 12.5 12.379 12.379 0 0 1 12.5 0 12.379 12.379 0 0 1 25 12.5ZM12.5 1.75a11 11 0 0 0-7.625 3.125 10.865 10.865 0 0 0 0 15.25A10.781 10.781 0 0 0 12.5 23.25h10.75V12.5a11 11 0 0 0-3.125-7.625A11 11 0 0 0 12.5 1.75Z" />
       <path d="M15.125 18.375H6.75a1.329 1.329 0 0 1-1.5-1.25v-8a1.465 1.465 0 0 1 1.375-1.25H15a1.286 1.286 0 0 1 1.375 1.25v.75l1.375-.75A1.146 1.146 0 0 1 19.125 9a1.034 1.034 0 0 1 .625 1v6.25a1.248 1.248 0 0 1-.625 1.125 1.479 1.479 0 0 1-1.25-.125L16.5 16.5v.75a1.276 1.276 0 0 1-1.375 1.125Zm-8.25-1.625h8v-1.625a1.08 1.08 0 0 1 .375-.75.8.8 0 0 1 .75 0l2 1.125v-4.75l-1.875 1.125a.8.8 0 0 1-.75 0 .685.685 0 0 1-.5-.75V9.5h-8Zm11.875-.875Z" />
     </SvgIcon>
@@ -556,7 +556,7 @@ export const MicroOffIcon = (props: SvgIconProps) => {
 
 export const MicroInBubbleIcon = (props: SvgIconProps) => {
   return (
-    <SvgIcon {...props} viewBox="0 0 25 25">
+    <SvgIcon {...props} viewBox="0 0 30 30">
       <g transform="translate(-2 -2)">
         <g transform="translate(2 2)">
           <path
@@ -589,9 +589,9 @@ export const OppositeArrowsIcon = (props: SvgIconProps) => {
 
 export const PaperClipIcon = (props: SvgIconProps) => {
   return (
-    <SvgIcon {...props} viewBox="0 0 12.208 25.75">
+    <SvgIcon {...props} viewBox="0 0 12.208 30.75">
       <path
-        style={{ fill: '#7e7e7e', stroke: '#7e7e7e', strokeMiterlimit: 10, strokeWidth: '.75px' }}
+        style={{ fill: 'currentColor', stroke: 'currentColor', strokeMiterlimit: 10, strokeWidth: '.75px' }}
         d="M5.729 25A5.736 5.736 0 0 1 0 19.271V4.167a4.167 4.167 0 0 1 8.333 0v13.541a2.6 2.6 0 0 1-5.208 0V5.7a.521.521 0 1 1 1.042 0v12.008a1.563 1.563 0 0 0 3.125 0V4.167a3.125 3.125 0 0 0-6.25 0v15.1a4.687 4.687 0 0 0 9.375 0V5.053a.521.521 0 0 1 1.042 0v14.218A5.736 5.736 0 0 1 5.729 25Z"
       />
     </SvgIcon>

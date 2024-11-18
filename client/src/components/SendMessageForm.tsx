@@ -15,24 +15,25 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, InputBase, useTheme } from '@mui/material'
-import { Stack } from '@mui/system'
+import { Box, Card, CardContent, TextareaAutosize, useTheme } from '@mui/material'
+import { Stack, useMediaQuery } from '@mui/system'
 import { Message, WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuthContext } from '../contexts/AuthProvider'
+import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { ConversationMember } from '../models/conversation-member'
 import { FileHandler } from '../utils/files'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
 import {
-  CancelPictureButton,
   RecordVideoMessageButton,
   RecordVoiceMessageButton,
   SelectEmojiButton,
   SendMessageButton,
+  SquareCancelPictureButton,
   UploadFileButton,
 } from './Button'
 
@@ -62,8 +63,12 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
   const waveformDataRef = useRef<Array<{ data: Uint8Array; progress: number }>>([])
   const frameCountRef = useRef<number>(0)
   const scrollOffsetRef = useRef<number>(0)
+  const { conversationColor } = useConversationPreferencesContext()
 
   const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
+  const isReduced = isMobile || isMedium
 
   useEffect(() => {
     setCurrentMessage(editMessage?.body || '')
@@ -100,7 +105,7 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
   )
 
   const handleInputChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
+    (event: ChangeEvent<HTMLTextAreaElement>) => {
       setCurrentMessage(event.target.value)
       notifyComposing()
     },
@@ -280,7 +285,7 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
   const containerStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
-    backgroundColor: '#005699',
+    backgroundColor: conversationColor,
     borderRadius: '25px',
     padding: '10px 12px',
     width: '70%',
@@ -310,54 +315,104 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
+  const mobileOptionStyles = {
+    ml: '-3px',
+    mr: '-3px',
+  }
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && event.shiftKey) {
+      event.preventDefault()
+      setCurrentMessage((prev) => prev + '\n')
+    } else if (event.key === 'Enter') {
+      event.preventDefault()
+      handleSubmit(new Event('submit') as unknown as FormEvent<HTMLFormElement>)
+    }
+  }
+
   return (
     <Stack
       component="form"
       onSubmit={handleSubmit}
       direction="row"
       alignItems="center"
-      spacing="20px"
-      paddingX="16px"
-      paddingTop="16px"
+      spacing="5px"
+      paddingX="8px"
+      marginBottom="-8px"
     >
-      {isRecordingVoice ? null : <UploadFileButton disabled={editMessage ? true : false} onClick={openFilePicker} />}
+      <Box sx={{ display: 'flex' }}>
+        <RecordVoiceMessageButton
+          sx={isReduced ? mobileOptionStyles : {}}
+          onClick={voiceRecordingStatusChange}
+          disabled={editMessage || isRecordingVoice ? true : false}
+        />
+        <UploadFileButton
+          sx={isReduced ? mobileOptionStyles : {}}
+          disabled={editMessage || isRecordingVoice ? true : false}
+          onClick={openFilePicker}
+        />
+        <RecordVideoMessageButton
+          sx={isReduced ? mobileOptionStyles : {}}
+          disabled={editMessage || isRecordingVoice ? true : false}
+        />
+      </Box>
       {isRecordingVoice ? (
-        <CancelPictureButton sx={{ maxHeight: '20px', maxWidth: '20px' }} onClick={voiceRecordingStatusChange} />
-      ) : (
-        <RecordVoiceMessageButton onClick={voiceRecordingStatusChange} disabled={editMessage ? true : false} />
-      )}
-      {isRecordingVoice ? null : <RecordVideoMessageButton disabled={editMessage ? true : false} />}
-      <Stack flexGrow={1}>
-        {isRecordingVoice ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-            <div style={containerStyles}>
-              <div style={waveformContainerStyles}>
-                {/* canvas not responsible for now */}
-                <canvas ref={canvasRef} width={700} height={30} style={{ display: 'block' }} />
-              </div>
-              <span style={durationStyles}>{formatTime(currentTime)}</span>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <div style={containerStyles}>
+            <div style={waveformContainerStyles}>
+              {/* canvas not responsible for now */}
+              <canvas ref={canvasRef} width={700} height={30} style={{ display: 'block' }} />
             </div>
-          </Box>
-        ) : (
-          <InputBase
-            placeholder={placeholder}
-            value={currentMessage}
-            onChange={handleInputChange}
+            <span style={durationStyles}>{formatTime(currentTime)}</span>
+          </div>
+        </Box>
+      ) : (
+        <Card variant="elevation" sx={{ width: '100%', borderRadius: '10px', minWidth: '100px' }}>
+          <CardContent
             sx={{
-              fontSize: '15px',
-              color: theme.palette.text.primary,
-              '& ::placeholder': {
-                color: theme.palette.text.primary,
-                opacity: 1,
-                textOverflow: 'ellipsis',
-              },
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'flex-start',
+              padding: '10px',
             }}
-          />
+          >
+            <Stack flexGrow={1}>
+              <TextareaAutosize
+                value={currentMessage}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder={placeholder}
+                maxRows={4}
+                style={{
+                  width: '100%',
+                  resize: 'none',
+                  border: 'none',
+                  outline: 'none',
+                  overflowY: 'auto',
+                  backgroundColor: 'transparent',
+                  textAlign: 'start',
+                  marginBottom: '-12px',
+                  whiteSpace: currentMessage ? 'pre-wrap' : 'nowrap',
+                  textOverflow: currentMessage ? 'clip' : 'ellipsis',
+                }}
+              />
+            </Stack>
+          </CardContent>
+        </Card>
+      )}
+      <Box sx={{ display: 'flex', alignItems: 'center', alignContent: 'center' }}>
+        {isRecordingVoice ? (
+          <SquareCancelPictureButton onClick={voiceRecordingStatusChange} />
+        ) : (
+          <SelectEmojiButton onEmojiSelected={onEmojiSelected} />
         )}
-      </Stack>
-      {isRecordingVoice ? null : <SelectEmojiButton onEmojiSelected={onEmojiSelected} />}
-      {(currentMessage || fileHandlers.length > 0) && !isRecordingVoice && <SendMessageButton type="submit" />}
-      {isRecordingVoice && <SendMessageButton onClick={handleVoiceRecording} />}
+        <SendMessageButton
+          disabled={!(currentMessage || fileHandlers.length > 0) && !isRecordingVoice}
+          onClick={isRecordingVoice ? handleVoiceRecording : () => {}}
+          type={isRecordingVoice ? undefined : 'submit'}
+        />
+      </Box>
     </Stack>
   )
 }

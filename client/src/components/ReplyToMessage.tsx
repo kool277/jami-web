@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, useMediaQuery, useTheme } from '@mui/material'
+import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
@@ -24,6 +24,7 @@ import { useActionMessageContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import ReplyIcon from '../icons/replyIcon.svg?react'
+import { SquareCancelPictureButton } from './Button'
 import MessageDataContent from './MessageDataContent'
 
 export default function ReplyToMessage() {
@@ -64,6 +65,7 @@ export default function ReplyToMessage() {
           width: '100%',
           display: 'flex',
           justifyContent: 'center',
+          marginBottom: '5px',
         }}
       >
         <Box
@@ -87,7 +89,9 @@ export default function ReplyToMessage() {
               width: '100%',
             }}
           >
-            <ReplyIcon />
+            <Box sx={{ paddingLeft: '5px', marginTop: '25px' }}>
+              <ReplyIcon color={'white'} />
+            </Box>
             <Box
               sx={{
                 display: 'flex',
@@ -125,16 +129,8 @@ export default function ReplyToMessage() {
                 </Box>
               </div>
             </Box>
+            <SquareCancelPictureButton sx={{ marginLeft: '5px', marginTop: '20px' }} onClick={cancelHandler} />
           </Box>
-          <Button
-            onClick={cancelHandler}
-            sx={{
-              backgroundColor: 'inherit',
-              color: 'black',
-            }}
-          >
-            X
-          </Button>
         </Box>
       </motion.div>
     </>

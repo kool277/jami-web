@@ -51,6 +51,8 @@ declare module '@mui/material/styles' {
     }
     Buttons: {
       hoverBackgroundColor: string
+      color: string
+      disabledColor: string
     }
   }
 
@@ -229,6 +231,8 @@ const palettes = {
     },
     Buttons: {
       hoverBackgroundColor: '#E5EEF5',
+      color: '#4f4f4f',
+      disabledColor: '#7e7e7e',
     },
   },
   dark: {
@@ -288,6 +292,8 @@ const palettes = {
     },
     Buttons: {
       hoverBackgroundColor: '#262525',
+      color: 'EAEAEA',
+      disabledColor: '#7E7E7E',
     },
   },
 }

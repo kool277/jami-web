@@ -67,7 +67,7 @@ export default function MessageList({ messages }: MessageListProps) {
 
   return (
     <>
-      <Stack flex={1} overflow="auto" padding="0px 16px" direction="column-reverse">
+      <Stack flex={1} overflow="auto" padding="0px px" direction="column-reverse" marginBottom="-25px">
         {/* Here is the bottom of the list of messages because of 'column-reverse' */}
         <Box ref={listBottomRef} />
         <Waypoint

@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Divider, Fade, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Fade, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import {
   AccountMessageStatus,
@@ -31,6 +31,7 @@ import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 
+import { SquareCancelPictureButton } from '../components/Button'
 import ConversationPreferences from '../components/ConversationPreferences'
 import { FilePreviewRemovable } from '../components/FilePreview'
 import LoadingPage from '../components/Loading'
@@ -347,12 +348,7 @@ const ChatInterface = () => {
           <MessageList messages={messages} />
         </currentLastSeenMessageContext.Provider>
         <ComposingMembersIndicator />
-        <Divider
-          sx={{
-            marginX: '16px',
-            borderTop: '1px solid #E5E5E5',
-          }}
-        />
+        {fileHandlers.length > 0 && <FilePreviewsList fileHandlers={fileHandlers} removeFile={removeFile} />}
         <ReplyToMessage />
         {editMessage !== undefined ? (
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -360,9 +356,7 @@ const ChatInterface = () => {
               <PenIcon sx={{ marginLeft: '2%' }} />
               <Box sx={{ marginLeft: '10%' }}>{t('editing')}</Box>
             </Box>
-            <Button onClick={onCancelEdit} sx={{ marginLeft: '4%' }}>
-              X
-            </Button>
+            <SquareCancelPictureButton sx={{ marginLeft: '5px' }} onClick={onCancelEdit} />
           </Box>
         ) : null}
         <SendMessageForm
@@ -371,7 +365,6 @@ const ChatInterface = () => {
           fileHandlers={fileHandlers}
           editMessage={editMessage}
         />
-        {fileHandlers.length > 0 && <FilePreviewsList fileHandlers={fileHandlers} removeFile={removeFile} />}
       </Stack>
       {isOpen && <ConversationPreferences />}
     </Stack>
@@ -395,8 +388,8 @@ const FilePreviewsList = ({ fileHandlers, removeFile }: FilePreviewsListProps) =
       overflow="auto"
       maxHeight="30%"
       paddingX="16px"
-      marginTop="12px" // spacing with the component on top
-      paddingTop="4px" // spacing so "RemoveButton" are not cut
+      marginBottom="5px"
+      paddingTop="3px"
     >
       {fileHandlers.map((fileHandler) => (
         <FilePreviewRemovable
