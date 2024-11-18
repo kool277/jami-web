@@ -77,6 +77,8 @@ export default function ConversationPreferences() {
   const [currentTab, setCurrentTab] = useState<TABS>(TABS.INFOS)
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
+  const isMoreThanMedium: boolean = useMediaQuery(theme.breakpoints.only('md'))
 
   const buttonStyle = {
     backgroundColor: 'inherit',
@@ -99,9 +101,19 @@ export default function ConversationPreferences() {
     setTitle(conversationDisplayName)
   }
 
+  function getWidth(): string {
+    if (isMobile) {
+      return '100vw'
+    } else if (isMedium || isMoreThanMedium) {
+      return '100%'
+    } else {
+      return '350px'
+    }
+  }
+
   return (
     <motion.span
-      style={{ width: isMobile ? '100vw' : '450px', marginLeft: '-0.2vw' }}
+      style={{ width: getWidth(), marginLeft: '-0.2vw', minWidth: !(isMedium || isMobile) ? '350px' : 'unset' }}
       initial={{ scale: 1, x: 100 }}
       animate={{ scale: 1, x: 0 }}
       transition={{
@@ -192,7 +204,7 @@ export default function ConversationPreferences() {
               <AdminPanelSettingsIcon />
             </Button>
           </Box>
-          <Box sx={{ marginTop: '10%' }}>
+          <Box sx={{ marginTop: '10%', display: 'flex', justifyContent: 'center' }}>
             {currentTab === TABS.INFOS && <Infos />}
             {currentTab === TABS.MEMBERS && <Members isAdmin={isAdmin} />}
             {currentTab === TABS.FILES && <Files />}

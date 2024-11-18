@@ -76,6 +76,8 @@ const ChatInterface = () => {
   const { account } = useAuthContext()
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
+
   const [lastSeen, setLastSeen] = useState<Map<string, string>>(new Map())
 
   const onFilesDrop = useCallback(
@@ -341,7 +343,12 @@ const ChatInterface = () => {
 
   return (
     <Stack flex={1} direction="row" overflow="hidden" spacing={0}>
-      <Stack width={isOpen && isMobile ? '0px' : '100%'} overflow="hidden" {...getRootProps()} paddingBottom="16px">
+      <Stack
+        width={isOpen && (isMobile || isMedium) ? '0px' : '100%'}
+        overflow="hidden"
+        {...getRootProps()}
+        paddingBottom="16px"
+      >
         {isDragActive && <FileDragOverlay />}
         <input {...getInputProps()} />
         <currentLastSeenMessageContext.Provider value={lastSeen}>
