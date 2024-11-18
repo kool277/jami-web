@@ -19,17 +19,16 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
-import { Box, Button, Divider, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Card, Divider, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material'
 import { MouseEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useAuthContext } from '../contexts/AuthProvider'
-import roundCloseIcon from '../icons/roundCloseIcon.svg'
-import SettingsIcon from '../icons/setting.svg'
 import { useContactProfilePicture } from '../services/contactQueries'
 import ConversationAvatar from './ConversationAvatar'
 import QrCodeModal from './QrCodeModal'
+import { RoundCloseIcon, SettingsIcon } from './SvgIcon'
 //TODO:  remove 'settings-account' and 'settings' when migration is finished
 type NavigateURL =
   | '/'
@@ -54,9 +53,9 @@ export default function Footer() {
       navigate(navigateUrl)
     }
   }
-  const margin = '3px'
-  const padding = '5px'
   const componentColor = theme.Footer.backgroundColor
+
+  const componentSize = '25px'
 
   const location = useLocation()
   const currentUrl = location.pathname
@@ -67,37 +66,35 @@ export default function Footer() {
     width: '100%',
   }
 
+  const footerIcons = { padding: '2px', height: componentSize, width: componentSize, '&:hover': { cursor: 'pointer' } }
+
   return (
     <>
-      <Box
+      <Card
         sx={{
           backgroundColor: componentColor,
           display: 'flex',
-          justifyContent: 'flex-start',
+          justifyContent: 'space-between',
           alignItems: 'center',
           maxWidth: isMobile ? 'none' : '360px',
-          borderRadius: '3px',
-          padding: '0.5%',
-          paddingBottom: '2%',
-          paddingLeft: '2%',
-          paddingRight: '2%',
-          paddingTop: '4%',
-          height: '70px',
+          height: '50px',
+          margin: '4px',
+          borderRadius: '10px',
         }}
       >
         <Box
           sx={{
-            margin: margin,
-            fontSize: '14px',
-            backgroundColor: componentColor,
-            borderRadius: '5px',
+            marginLeft: '4px',
+            paddingLeft: '4px',
+            fontSize: '13px',
             display: 'flex',
             alignItems: 'center',
             width: '100%',
             maxWidth: isMobile ? 'none' : '200px',
-            '&:hover': { cursor: 'pointer', backgroundColor: '#f0f0f0', color: 'black' },
+            '&:hover': { cursor: 'pointer' },
             textAlign: 'right',
             padding: '4px',
+            height: '100%',
           }}
           onClick={(event: MouseEvent<HTMLDivElement>) => {
             handleClick(event as unknown as MouseEvent<HTMLButtonElement>)
@@ -108,17 +105,33 @@ export default function Footer() {
             displayName={account.getDisplayName()}
             src={profilePictureQuery.data}
           />
-          <Box sx={{ display: 'flex', flexDirection: 'column', marginLeft: '2%' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', marginLeft: '8px', height: '100%', marginTop: '8px' }}>
             <Box
               sx={{
+                justifyContent: 'flex-start',
+                textWrap: 'nowrap',
                 textAlign: 'left',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                maxWidth: isMobile ? 'none' : '77px',
-                maxHeight: '45px',
+                maxWidth: isMobile ? '200px' : '150px',
               }}
             >
               {account.getDisplayName()}
+            </Box>
+            <Box
+              sx={{
+                fontSize: '10px',
+                justifyContent: 'flex-start',
+                textWrap: 'nowrap',
+                textAlign: 'left',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: isMobile ? '200px' : '120px',
+                color: 'grey',
+                marginLeft: '1px',
+              }}
+            >
+              {account.getDisplayName() !== account.getRegisteredName() && account.getRegisteredName()}
             </Box>
           </Box>
         </Box>
@@ -183,38 +196,32 @@ export default function Footer() {
 
         <Box
           style={{
-            margin: margin,
-            padding: padding,
-            backgroundColor: componentColor,
+            display: 'flex',
+            alignItems: 'center',
             color: theme.Footer.iconsColor,
+            gap: '10px',
+            margin: '8px',
           }}
         >
           <QrCodeModal account={account} />
+
+          {!currentUrl.includes('settings') ? (
+            <SettingsIcon
+              sx={footerIcons}
+              onClick={() => {
+                closeMenuAndNavigate('/settings/account/manage-account')
+              }}
+            />
+          ) : (
+            <RoundCloseIcon
+              sx={footerIcons}
+              onClick={() => {
+                closeMenuAndNavigate('/')
+              }}
+            />
+          )}
         </Box>
-        <Box
-          style={{
-            marginLeft: '-5px',
-            marginRight: '0px',
-            padding: padding,
-            backgroundColor: componentColor,
-            color: theme.Footer.iconsColor,
-          }}
-        >
-          <Button
-            sx={{ margin: margin, padding: padding, backgroundColor: componentColor, color: theme.Footer.iconsColor }}
-            data-cy="menu-button"
-            aria-controls="simple-menu"
-            aria-haspopup="true"
-            onClick={
-              !currentUrl.includes('settings')
-                ? () => closeMenuAndNavigate('/settings/account/manage-account')
-                : () => closeMenuAndNavigate('/')
-            }
-          >
-            <img src={!currentUrl.includes('settings') ? SettingsIcon : roundCloseIcon} />
-          </Button>
-        </Box>
-      </Box>
+      </Card>
     </>
   )
 }

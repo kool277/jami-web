@@ -58,10 +58,18 @@ const QrCodeModal = ({ account }: QrCodeProps) => {
   const qrCodeSize: number = 250
 
   return (
-    <div>
-      <Button sx={{ backgroundColor: 'inherit', color: 'black' }} onClick={handleOpen}>
-        <QrCodeIcon sx={{ color: 'black' }} />
-      </Button>
+    <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'center' }}>
+      <QrCodeIcon
+        onClick={handleOpen}
+        sx={{
+          height: '30px',
+          width: '30px',
+          borderRadius: '5px',
+          color: 'inherit',
+          padding: '2px',
+          ':hover': { cursor: 'pointer', backgroundColor: 'inherit' },
+        }}
+      />
       <Modal
         open={open}
         onClose={handleClose}

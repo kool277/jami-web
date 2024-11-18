@@ -44,7 +44,6 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
     flexDirection: 'column',
     justifyContent: 'space-between',
     height: '100vh',
-    overflow: 'scroll',
     bgcolor: theme.ChatInterface.panelColor,
   }
 
