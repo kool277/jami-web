@@ -68,6 +68,7 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
+  const isMoreThanMedium: boolean = useMediaQuery(theme.breakpoints.up('md'))
   const isReduced = isMobile || isMedium
 
   useEffect(() => {
@@ -282,13 +283,33 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
     }
   }, [isRecordingVoice, currentTime, startTime, firstTime])
 
+  function getAudioWavePercentageWidth() {
+    if (isMobile) {
+      return '100%'
+    } else if (isMedium) {
+      return '90%'
+    } else if (isMoreThanMedium) {
+      return '80%'
+    }
+    return '70%'
+  }
+
+  function getAudioWavePixelWidth() {
+    if (isMobile || isMedium) {
+      return 100
+    } else if (isMoreThanMedium) {
+      return 400
+    }
+    return 700
+  }
+
   const containerStyles: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     backgroundColor: conversationColor,
-    borderRadius: '25px',
-    padding: '10px 12px',
-    width: '70%',
+    borderRadius: '15px',
+    padding: '7px 20px',
+    width: getAudioWavePercentageWidth(),
     justifyContent: 'space-between',
     boxSizing: 'border-box',
   }
@@ -357,11 +378,11 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
         />
       </Box>
       {isRecordingVoice ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
           <div style={containerStyles}>
             <div style={waveformContainerStyles}>
               {/* canvas not responsible for now */}
-              <canvas ref={canvasRef} width={700} height={30} style={{ display: 'block' }} />
+              <canvas ref={canvasRef} width={getAudioWavePixelWidth()} height={30} style={{ display: 'block' }} />
             </div>
             <span style={durationStyles}>{formatTime(currentTime)}</span>
           </div>
