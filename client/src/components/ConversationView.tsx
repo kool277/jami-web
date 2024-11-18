@@ -27,7 +27,8 @@ import CallInterface from '../pages/CallInterface'
 import ChatInterface from '../pages/ChatInterface'
 import AddUserToSwarmModal from './AddUserToSwarmModal'
 import { AddParticipantButton } from './Button'
-import { ShowOptionsMenuButton, StartAudioCallButton, StartVideoCallButton } from './Button'
+import { ShowOptionsMenuButton } from './Button'
+//import { StartAudioCallButton, StartVideoCallButton } from './Button'
 
 const ConversationView = () => {
   const { conversationId } = useConversationContext()
@@ -53,8 +54,8 @@ const ConversationView = () => {
 }
 
 const ConversationHeader = () => {
-  const { conversationId, conversationDisplayName } = useConversationContext()
-  const { startCall } = useCallManagerContext()
+  const { conversationDisplayName } = useConversationContext()
+  //const { startCall } = useCallManagerContext()
   const { isOpen, setIsOpen } = useConversationPreferencesContext()
   const [open, setOpen] = useState<boolean>(false)
   const theme = useTheme()
@@ -81,8 +82,8 @@ const ConversationHeader = () => {
         </Box>
       </Stack>
       <Stack direction="row" spacing="20px">
-        <StartAudioCallButton onClick={() => startCall(conversationId)} />
-        <StartVideoCallButton onClick={() => startCall(conversationId, true)} />
+        {/*<StartAudioCallButton onClick={() => startCall(conversationId)} />*/}
+        {/*<StartVideoCallButton onClick={() => startCall(conversationId, true)} />*/}
         <AddParticipantButton
           onClick={() => {
             setOpen(true)
