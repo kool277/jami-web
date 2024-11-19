@@ -47,6 +47,7 @@ export type PasswordStatus = 'default' | PasswordStrength | 'registration_failed
 export type InputProps<StatusType extends NameStatus | PasswordStatus> = TextFieldProps & {
   status?: StatusType
   infoButtonProps?: IconButtonProps
+  isEqual?: boolean
   tooltipTitle: string
   newPlaceHolder?: string
 }
@@ -198,6 +199,53 @@ export const PasswordInput = ({
             <Stack direction="row" spacing="14px" alignItems="center">
               <ToggleVisibilityButton visible={showPassword} onClick={toggleShowPassword} />
               <InfoButton tooltipTitle={tooltipTitle} {...infoButtonProps} onClick={dialogHandler.openDialog} />
+            </Stack>
+          ),
+          ...props.InputProps,
+        }}
+      />
+    </>
+  )
+}
+
+export const RepeatPasswordInput = ({ isEqual, tooltipTitle, ...props }: InputProps<PasswordStatus>) => {
+  const { t } = useTranslation()
+  const [showPassword, setShowPassword] = useState(false)
+  const [isSelected, setIsSelected] = useState(false)
+  const dialogHandler = useDialogHandler()
+
+  const passwordError = !isEqual
+
+  const toggleShowPassword = () => {
+    setShowPassword((showPassword) => !showPassword)
+  }
+
+  let StartAdornmentIcon = StyledLockIcon
+  if (passwordError) {
+    StartAdornmentIcon = StyledRoundSaltireIconError
+  } else {
+    StartAdornmentIcon = StyledCheckedIconSuccess
+  }
+
+  return (
+    <>
+      <InfosDialog {...dialogHandler.props} title={t('password_rules_dialog_title')} content={<PasswordRules />} />
+      <TextField
+        required
+        error={passwordError}
+        label={t('password_input_label_repeat')}
+        type={showPassword ? 'text' : 'password'}
+        variant="standard"
+        autoComplete="current-password"
+        onFocus={() => setIsSelected(true)}
+        onBlur={() => setIsSelected(false)}
+        {...props}
+        InputLabelProps={{ shrink: !!(isSelected || props.value), ...props.InputLabelProps }}
+        InputProps={{
+          startAdornment: <StartAdornmentIcon sx={{ visibility: 'visible' }} />,
+          endAdornment: (
+            <Stack direction="row" spacing="14px" alignItems="center">
+              <ToggleVisibilityButton visible={showPassword} onClick={toggleShowPassword} />
             </Stack>
           ),
           ...props.InputProps,

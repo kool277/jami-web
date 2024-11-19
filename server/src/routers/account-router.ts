@@ -164,11 +164,27 @@ accountRouter.post('/displayName', (req, res) => {
   res.sendStatus(HttpStatusCode.NoContent)
 })
 
-accountRouter.post('/subscribe', (req, res) => {
-  const accountId = res.locals.accountId
-  const subscribe = req.body.subscribe
-  const enable = req.body.enable
+accountRouter.post(
+  '/addDevice',
+  asyncHandler(async (req, res) => {
+    const uri = req.body.uri
+    const accountId = res.locals.accountId
+    jamid.addDevice(accountId, uri)
+    res.sendStatus(HttpStatusCode.Ok)
+  }),
+)
 
-  jamid.subscribeBuddy(accountId, subscribe, enable)
+accountRouter.post('/:opId/confirmDevice', (req, res) => {
+  const accountId = res.locals.accountId
+  const opId = Number(req.params.opId)
+  jamid.confirmDevice(accountId, opId)
+  res.sendStatus(HttpStatusCode.Ok)
+})
+
+accountRouter.post('/:opId/cancelDevice', (req, res) => {
+  const accountId = res.locals.accountId
+  const opId = Number(req.params.opId)
+  jamid.cancelDevice(accountId, opId)
+  jamid.removeAccount(accountId)
   res.sendStatus(HttpStatusCode.Ok)
 })

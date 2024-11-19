@@ -38,6 +38,8 @@ export enum JamiSignal {
   IncomingAccountMessage = 'IncomingAccountMessage',
   AccountMessageStatusChanged = 'AccountMessageStatusChanged',
   ProfileReceived = 'ProfileReceived',
+  DeviceAuthStateChanged = 'DeviceAuthStateChanged',
+  AddDeviceStateChanged = 'AddDeviceStateChanged',
   UserSearchEnded = 'UserSearchEnded',
   DeviceRevocationEnded = 'DeviceRevocationEnded',
 

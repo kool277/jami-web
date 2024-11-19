@@ -111,6 +111,13 @@ type AlertMessageKeys =
   | 'setting_auto_download_limit_success'
   | 'setting_auto_download_limit_error'
   | 'update_conversation_preferences_error'
+  | 'invalid_code_provided'
+  | 'device_auth_error_authentication'
+  | 'device_auth_error_network'
+  | 'auth_error_while_linking_device'
+  | 'password_setter_request_failed'
+  | 'password_setter_request_failed_not_found'
+  | 'link_device_could_not_initiate'
   | 'extending_session_success_alert'
   | 'extending_session_error_alert'
   | 'getting_oauth_clients_error'
@@ -209,6 +216,20 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('setting_auto_download_limit_error')
         case 'update_conversation_preferences_error':
           return t('update_conversation_preferences_error')
+        case 'invalid_code_provided':
+          return t('invalid_code_provided')
+        case 'device_auth_error_authentication':
+          return t('device_auth_error_authentication')
+        case 'device_auth_error_network':
+          return t('device_auth_error_network')
+        case 'auth_error_while_linking_device':
+          return t('auth_error_while_linking_device')
+        case 'password_setter_request_failed':
+          return t('password_setter_request_failed')
+        case 'password_setter_request_failed_not_found':
+          return t('password_setter_request_failed_not_found')
+        case 'link_device_could_not_initiate':
+          return t('link_device_could_not_initiate')
         case t('extending_session_success_alert'):
           return t('extending_session_success_alert')
         case t('extending_session_error_alert'):

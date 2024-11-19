@@ -49,6 +49,19 @@ export interface AccountProfileReceived {
   photo: string
 }
 
+export interface AddDeviceStateChanged {
+  accountId: string
+  opId: number
+  state: number
+  details: Map<string, string>
+}
+
+export interface DeviceAuthStateChanged {
+  accountId: string
+  state: number
+  details: Map<string, string>
+}
+
 export interface VolatileDetailsChanged {
   accountId: string
   details: VolatileDetails

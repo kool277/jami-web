@@ -65,6 +65,11 @@ export interface ISettingItem {
   submenuItems?: ISettingItem[]
 }
 
+export interface IProvideAccountAuthentication {
+  password: string
+  accountId: string
+  scheme: string
+}
 export function isEmoji(char: string) {
   const emojiRegex = /^\p{Emoji}$/u
   return emojiRegex.test(char)

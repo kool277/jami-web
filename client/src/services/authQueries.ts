@@ -221,3 +221,87 @@ export const useGetAllProviders = () => {
     refetchInterval: 0,
   })
 }
+
+/*
+ * Queries used only in the import account flow
+ */
+
+export function setImportToken(importToken: string): void {
+  if (localStorage.getItem('importToken')) {
+    localStorage.removeItem('importToken')
+  }
+  localStorage.setItem('importToken', importToken)
+}
+
+export const useGetLinkTokenQuery = () => {
+  return useQuery({
+    queryKey: ['linkToken'],
+    queryFn: async () => {
+      const { data } = await axios.get('/auth/linkToken', { baseURL: apiUrl })
+      setImportToken(data.jwt)
+      return data
+    },
+  })
+}
+
+export const useCancelLinkDeviceMutation = () => {
+  const token = localStorage.getItem('importToken')
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const navigate = useNavigate()
+
+  return useMutation({
+    mutationKey: ['cancel', 'linkDevice'],
+    mutationFn: async (accountId: string) => {
+      await axios.post(
+        '/auth/link/cancel',
+        { accountId },
+        { headers: { Authorization: `Bearer ${token}` }, baseURL: apiUrl },
+      )
+    },
+    onSuccess: () => {
+      navigate('/login')
+    },
+    onError: () => {
+      setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true })
+      navigate('/login')
+    },
+  })
+}
+
+export const useSetPasswordMutation = (accountId: string) => {
+  const token = localStorage.getItem('importToken')
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const cancelLinkDeviceMutation = useCancelLinkDeviceMutation()
+  const navivate = useNavigate()
+  return useMutation({
+    mutationKey: ['user', 'setPassword'],
+    mutationFn: async (password: string) => {
+      const response = await axios.post(
+        '/auth/link/password',
+        { password, accountId },
+        { headers: { Authorization: `Bearer ${token}` }, baseURL: apiUrl },
+      )
+      return response
+    },
+    onSuccess: (response) => {
+      setAccessToken(response.data.accessToken)
+      localStorage.removeItem('importToken')
+      navivate('/')
+    },
+    onError: (e: any) => {
+      if (e.response.status === HttpStatusCode.NotFound) {
+        // the user has not username
+        setAlertContent({
+          messageI18nKey: 'password_setter_request_failed_not_found',
+          severity: 'error',
+          alertOpen: true,
+        })
+        cancelLinkDeviceMutation.mutate(accountId)
+        localStorage.removeItem('importToken')
+        navivate('/')
+        return
+      }
+      setAlertContent({ messageI18nKey: 'password_setter_request_failed', severity: 'error', alertOpen: true })
+    },
+  })
+}

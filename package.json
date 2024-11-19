@@ -51,6 +51,7 @@
   "dependencies": {
     "byte-size": "^9.0.0",
     "multer": "^1.4.5-lts.1",
+    "qr-scanner": "^1.4.2",
     "vcard4-ts": "^0.4.1"
   }
 }

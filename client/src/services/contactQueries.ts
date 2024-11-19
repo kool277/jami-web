@@ -17,6 +17,7 @@
  */
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useQueryClient } from '@tanstack/react-query'
+import axios from 'axios'
 import { ContactDetails, JamsSearchResult, LookupResult } from 'jami-web-common'
 
 import { useAuthContext } from '../contexts/AuthProvider'
@@ -145,6 +146,23 @@ export const useContactProfilePicture = (contactId?: string) => {
       const blobUrl = URL.createObjectURL(data)
       queryClient.setQueryData(['picture', contactId], blobUrl)
       return blobUrl
+    },
+    enabled: !!contactId,
+  })
+}
+
+export const useGetLinkUsername = (contactId?: string) => {
+  // only use in ImportAccountLock
+  // note that the token used is different
+  // from the one used everywhere else
+  const token = localStorage.getItem('importToken')
+  return useQuery({
+    queryKey: ['linkUsername', contactId],
+    queryFn: async () => {
+      const { data } = await axios.get<string>(`/contacts/${contactId}/username`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      return data
     },
     enabled: !!contactId,
   })

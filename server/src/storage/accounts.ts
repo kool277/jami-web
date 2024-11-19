@@ -19,7 +19,9 @@ import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
 import envPaths from 'env-paths'
-import { Service } from 'typedi'
+import { Container, Service } from 'typedi'
+
+import { Jamid } from '../jamid/jamid.js'
 
 const paths = envPaths('jami-web', { suffix: '' })
 
@@ -30,6 +32,7 @@ if (!existsSync(paths.data)) {
 interface AccountsFormat {
   local: Record<string, { password: string; accountId: string }>
   jams: Record<string, { password: string; accountId: string }>
+  pendingImports: Record<string, string>
   guest: Record<string, string> // key is accountId, value is expiration date
   openid: Record<
     string,
@@ -46,6 +49,7 @@ const METHODS = ['local', 'jams', 'guest', 'openid']
 export class Accounts {
   private readonly filename = paths.data + '/accounts.json'
   private accounts: AccountsFormat
+  private jamidInstance: Jamid | null = null // Lazy initialization
   private accountsIds: Set<string>
 
   constructor() {
@@ -53,7 +57,7 @@ export class Accounts {
     try {
       buffer = readFileSync(this.filename)
     } catch (e) {
-      buffer = Buffer.from('{"local":{},"jams":{}, "guest":{}, "openid":{}}')
+      buffer = Buffer.from('{"local":{},"jams":{}, "guest":{}, "openid":{}, "pendingImports":{}}')
     }
     this.accounts = JSON.parse(buffer.toString())
 
@@ -71,6 +75,13 @@ export class Accounts {
     for (const key of Object.keys(this.accounts.openid)) {
       this.accountsIds.add(this.accounts.openid[key].accountId)
     }
+  }
+
+  private get jamid() {
+    if (!this.jamidInstance) {
+      this.jamidInstance = Container.get(Jamid)
+    }
+    return this.jamidInstance
   }
 
   get(username: string, authMethod: string = 'local') {
@@ -171,6 +182,41 @@ export class Accounts {
     }
 
     delete this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
+  }
+
+  isInPendingAccounts(accountId: string) {
+    if (this.accounts.pendingImports === undefined) {
+      this.accounts.pendingImports = {}
+    }
+    return accountId in this.accounts.pendingImports
+  }
+
+  getPendingAccounts() {
+    if (!this.accounts.pendingImports) {
+      this.accounts.pendingImports = {}
+    }
+
+    return this.accounts.pendingImports
+  }
+
+  removeAndDeletePendingAccount(accountId: string) {
+    this.removePendingAccount(accountId)
+    this.jamid.removeAccount(accountId)
+  }
+
+  removePendingAccount(accountId: string) {
+    if (!this.accounts.pendingImports) {
+      this.accounts.pendingImports = {}
+      return
+    }
+    delete this.accounts.pendingImports[accountId]
+  }
+
+  addPendingAccount(accountId: string) {
+    if (!this.accounts.pendingImports) {
+      this.accounts.pendingImports = {}
+    }
+    this.accounts.pendingImports[accountId] = accountId
   }
 
   extendSessionIfGuest(accountId: string) {

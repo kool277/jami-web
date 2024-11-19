@@ -40,10 +40,12 @@ import ActionMessageProvider from './contexts/ActionMessageProvider'
 import AuthProvider from './contexts/AuthProvider'
 import CallManagerProvider from './contexts/CallManagerProvider'
 import ConversationProvider from './contexts/ConversationProvider'
+import ImportDeviceProvider from './contexts/ImportDeviceProvider'
 import MessengerProvider from './contexts/MessengerProvider'
 import MobileMenuStateProvider from './contexts/MobileMenuStateProvider'
 import PresenceProvider from './contexts/PresenceProvider'
 import UserMediaProvider from './contexts/UserMediaProvider'
+import WebSocketLinkProvider from './contexts/WebSocketLinkProvider'
 import WebSocketProvider from './contexts/WebSocketProvider'
 import { AdminConfigurationOptions } from './enums/adminConfigurationOptions'
 import { AuthenticationMethods } from './enums/authenticationMethods'
@@ -54,8 +56,14 @@ import AdminPanel from './pages/AdminPanel'
 import AdminConfigureJams from './pages/AdminWizard/AdminConfigureJams'
 import AdminConfigureNameServer from './pages/AdminWizard/AdminConfigureNameServer'
 import AdminCreateAccount from './pages/AdminWizard/AdminCreateAccount'
+import { ExportToAnotherDevice } from './pages/ExportAccount/ExportToAnotherDevice'
 import GeneralSettings from './pages/GeneralSettings'
 import LinkedDevicesPage from './pages/LinkedDevicesPage'
+import ImportAccount from './pages/LinkExistingDevice/ImportAccount'
+import ImportAccountConfirmation from './pages/LinkExistingDevice/ImportAccountConfirmation'
+import ImportAccountConnecting from './pages/LinkExistingDevice/ImportAccountConnecting'
+import ImportAccountLock from './pages/LinkExistingDevice/ImportAccountLock'
+import ImportAccountTransferInProgress from './pages/LinkExistingDevice/ImportAccountTransferInProgress'
 import Login from './pages/Login'
 import Messenger from './pages/Messenger'
 import Registration from './pages/Registration'
@@ -72,6 +80,21 @@ export const router = createBrowserRouter(
         }
       >
         <Route path="login" element={<Login />} />
+        <Route
+          element={
+            <WebSocketLinkProvider>
+              <ImportDeviceProvider>
+                <Outlet />
+              </ImportDeviceProvider>
+            </WebSocketLinkProvider>
+          }
+        >
+          <Route path="import-account" element={<ImportAccount />} />
+          <Route path="import-account-connecting" element={<ImportAccountConnecting />} />
+          <Route path="import-account-unlock" element={<ImportAccountLock />} />
+          <Route path="import-account-done" element={<ImportAccountConfirmation />} />
+          <Route path="import-account-in-progress" element={<ImportAccountTransferInProgress />} />
+        </Route>
         <Route path="register" element={<Registration />} />
         <Route path="admin" element={<Navigate to={'/admin/login'} />} />
         <Route path="admin/login" element={<AdminLogin />} />
@@ -170,6 +193,7 @@ export const router = createBrowserRouter(
           >
             <Route path="settings/account/manage-account" element={<AccountSettings />} />
             <Route path="settings/account/linked-devices" element={<LinkedDevicesPage />} />
+            <Route path="settings/account/linked-devices/export" element={<ExportToAnotherDevice />} />
             <Route path="settings/general" element={<GeneralSettings />} />
             <Route path="contacts" element={<ContactList />} />
           </Route>

@@ -28,6 +28,8 @@ export enum WebSocketMessageType {
   ProfileReceived = 'profile-received',
   MessageEdition = 'message-edition',
   LoadMoreMessages = 'load-more-messages',
+  DeviceAuthStateChanged = 'device-auth-state-changed',
+  AddDeviceStateChanged = 'add-device-state-changed',
   LoadSwarmUntil = 'load-swarm-until',
   KnownDevicesChanged = 'known-devices-changed',
   ConversationReady = 'conversation-ready',

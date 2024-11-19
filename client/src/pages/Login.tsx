@@ -19,7 +19,7 @@ import { Box, Button, FormControl, FormControlLabel, Radio, RadioGroup, Typograp
 import { Theme, useTheme } from '@mui/material/styles'
 import { ChangeEvent, FormEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Form, Link } from 'react-router-dom'
+import { Form, Link, useNavigate } from 'react-router-dom'
 
 import { PasswordInput, UsernameInput } from '../components/Input'
 import JamiWelcomeLogo from '../components/JamiWelcomeLogo'
@@ -41,6 +41,7 @@ function LoginForm() {
   }
 
   const theme: Theme = useTheme()
+  const navigate = useNavigate()
   const { t } = useTranslation()
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
@@ -212,6 +213,24 @@ function LoginForm() {
                 {t('login_form_submit_button')}
               </Button>
             )}
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Button
+              variant="contained"
+              type="submit"
+              onClick={() => navigate('/import-account')}
+              sx={{ width: theme.typography.pxToRem(submitButtonWidth) + 100, mt: '3%', mb: '-4%' }}
+            >
+              {t('connect_from_another_device')}
+            </Button>
           </Box>
         </Form>
 

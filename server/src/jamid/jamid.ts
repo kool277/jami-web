@@ -53,6 +53,7 @@ import {
   AccountDetailsChanged,
   AccountMessageStatusChanged,
   AccountProfileReceived,
+  AddDeviceStateChanged,
   ClearCache,
   ComposingStatusChanged,
   ContactAdded,
@@ -63,6 +64,7 @@ import {
   ConversationRemoved,
   ConversationRequestReceived,
   DataTransferEvent,
+  DeviceAuthStateChanged,
   DeviceRevocationEnded,
   IncomingAccountMessage,
   INearbyPeerNotification,
@@ -93,6 +95,7 @@ const require = createRequire(import.meta.url)
 export class Jamid {
   private jamiSwig: JamiSwig
   private usernamesToAccountIds = new Map<string, string>()
+  private accountUrisToAccountIds = new Map<string, string>()
   readonly events
 
   reformatMessage(message: Message): Message {
@@ -147,6 +150,14 @@ export class Jamid {
     const onAccountProfileReceived = new Subject<AccountProfileReceived>()
     handlers.AccountProfileReceived = (accountId: string, displayName: string, photo: string) =>
       onAccountProfileReceived.next({ accountId, displayName, photo })
+
+    const onAddDeviceStateChanged = new Subject<AddDeviceStateChanged>()
+    handlers.AddDeviceStateChanged = (accountId: string, opId: number, state: number, details: Map<string, string>) =>
+      onAddDeviceStateChanged.next({ accountId, opId, state, details })
+
+    const onDeviceAuthStateChanged = new Subject<DeviceAuthStateChanged>()
+    handlers.DeviceAuthStateChanged = (accountId: string, state: number, details: Map<string, string>) =>
+      onDeviceAuthStateChanged.next({ accountId, state, details })
 
     const onVolatileDetailsChanged = new Subject<VolatileDetailsChanged>()
     handlers.VolatileDetailsChanged = (accountId: string, details: VolatileDetails) =>
@@ -313,6 +324,8 @@ export class Jamid {
       onAccountsChanged: onAccountsChanged.asObservable(),
       onAccountDetailsChanged: onAccountDetailsChanged.asObservable(),
       onAccountProfileReceived: onAccountProfileReceived.asObservable(),
+      onAddDeviceStateChanged: onAddDeviceStateChanged.asObservable(),
+      onDeviceAuthStateChanged: onDeviceAuthStateChanged.asObservable(),
       onVolatileDetailsChanged: onVolatileDetailsChanged.asObservable(),
       onRegistrationStateChanged: onRegistrationStateChanged.asObservable(),
       onNameRegistrationEnded: onNameRegistrationEnded.asObservable(),
@@ -394,6 +407,34 @@ export class Jamid {
     for (const [key, value] of Object.entries(accountDetails)) {
       accountDetailsStringMap.set(key, value.toString())
     }
+    const accountId = this.jamiSwig.addAccount(accountDetailsStringMap)
+    return firstValueFrom(
+      this.events.onRegistrationStateChanged.pipe(
+        filter((value) => value.accountId === accountId),
+        filter(
+          (value) => value.state === RegistrationState.Registered || value.state === RegistrationState.ErrorGeneric,
+        ),
+      ),
+    )
+  }
+
+  addDevice(accountId: string, uri: string): void {
+    this.jamiSwig.addDevice(accountId, uri)
+  }
+
+  confirmDevice(accountId: string, opId: number): void {
+    this.jamiSwig.confirmAddDevice(accountId, opId)
+  }
+
+  cancelDevice(accountId: string, opId: number): void {
+    this.jamiSwig.cancelAddDevice(accountId, opId)
+  }
+
+  async getLinkToken(): Promise<RegistrationStateChanged> {
+    const accountDetailsStringMap: StringMap = new this.jamiSwig.StringMap()
+    accountDetailsStringMap.set('Account.archiveURL', 'jami-auth')
+    accountDetailsStringMap.set('Account.type', 'RING')
+
     const accountId = this.jamiSwig.addAccount(accountDetailsStringMap)
     return firstValueFrom(
       this.events.onRegistrationStateChanged.pipe(
@@ -591,6 +632,10 @@ export class Jamid {
     this.jamiSwig.updateConversationInfos(accountId, conversationId, infosStringMap)
   }
 
+  provideAccountAuthentication(accountId: string, credentials: string, scheme: string): boolean {
+    return this.jamiSwig.provideAccountAuthentication(accountId, credentials, scheme)
+  }
+
   async getConversationMessages(
     accountId: string,
     conversationId: string,
@@ -612,6 +657,15 @@ export class Jamid {
       this.events.onSwarmLoaded.pipe(
         filter((value) => value.id === requestId),
         map((value) => value.messages),
+      ),
+    )
+  }
+
+  async waitForVolatileDetails(accountId: string): Promise<VolatileDetails> {
+    return firstValueFrom(
+      this.events.onVolatileDetailsChanged.pipe(
+        filter((value) => value.accountId === accountId),
+        map((value) => value.details),
       ),
     )
   }
@@ -737,6 +791,13 @@ export class Jamid {
     )
   }
 
+  isUriAlreadyImported(accountId: string): boolean {
+    return this.accountUrisToAccountIds.has(accountId)
+  }
+
+  async waitForDeviceAuthStateChanged(): Promise<DeviceAuthStateChanged> {
+    return firstValueFrom(this.events.onDeviceAuthStateChanged)
+  }
   publish(accountId: string, status: boolean, note: string): void {
     this.jamiSwig.publish(accountId, status, note)
   }
@@ -820,16 +881,43 @@ export class Jamid {
       log.debug('\nReceived AccountProfileReceived\n', JSON.stringify(signal))
     })
 
+    this.events.onAddDeviceStateChanged.subscribe((signal) => {
+      log.debug('\n\nReceived AddDeviceStateChanged:\n\n', JSON.stringify(signal))
+      const data = {
+        opId: signal.opId,
+        state: signal.state,
+        details: signal.details,
+      }
+
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.AddDeviceStateChanged, data)
+    })
+
+    this.events.onDeviceAuthStateChanged.subscribe((signal) => {
+      log.debug('Received DeviceAuthStateChanged:', JSON.stringify(signal))
+
+      const data = {
+        accountId: signal.accountId,
+        state: signal.state,
+        details: signal.details,
+      }
+
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.DeviceAuthStateChanged, data)
+    })
+
     this.events.onVolatileDetailsChanged.subscribe(({ accountId, details }) => {
       const username = details['Account.registeredName']
+      const uri = this.getAccountDetails(accountId)['Account.username']
       log.debug(
         `Received VolatileDetailsChanged: {"accountId":"${accountId}",` +
           `"details":{"Account.registeredName":"${username}", ...}}`,
       )
 
-      if (username) {
+      if (username && username !== 'undefined') {
         // Keep map of usernames to account IDs
         this.usernamesToAccountIds.set(username.toLowerCase(), accountId)
+      }
+      if (!this.accountUrisToAccountIds.has(uri)) {
+        this.accountUrisToAccountIds.set(uri, accountId)
       }
     })
 

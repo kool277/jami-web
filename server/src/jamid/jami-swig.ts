@@ -111,6 +111,12 @@ export interface JamiSwig {
   getKnownRingDevices(accountId: string): StringMap
   revokeDevice(accountId: string, deviceId: string, scheme: string, password: string): boolean
 
+  addDevice(accountId: string, uri: string): boolean
+  confirmAddDevice(accountId: string, opId: number): boolean
+  cancelAddDevice(accountId: string, opId: number): boolean
+
+  provideAccountAuthentication(accountId: string, credentials: string, scheme: string): boolean
+
   addContact(accountId: string, contactId: string): void
   removeContact(accountId: string, contactId: string, ban: boolean): void
   getContacts(accountId: string): VectMap

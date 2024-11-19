@@ -25,7 +25,9 @@ import { URL } from 'whatwg-url'
 import * as WebSocket from 'ws'
 
 import { PresenceService } from '../services/PresenceService.js'
+import { Accounts } from '../storage/accounts.js'
 import { verifyJwt } from '../utils/jwt.js'
+const accounts = Container.get(Accounts)
 
 const presenceService = Container.get(PresenceService)
 
@@ -83,6 +85,12 @@ export class WebSocketServer {
 
       ws.on('close', () => {
         log.info('Closing connection for account', accountId)
+
+        if (accounts.isInPendingAccounts(accountId)) {
+          accounts.removeAndDeletePendingAccount(accountId)
+          accounts.save()
+        }
+
         const accountSockets = this.sockets.get(accountId)
         if (accountSockets === undefined) {
           return

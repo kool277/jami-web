@@ -1,0 +1,404 @@
+/*
+ * Copyright (C) 2022-2024 Savoir-faire Linux Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public
+ * License along with this program.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ */
+
+import { Box, Button, Card, CardContent, CardHeader, Input, Typography } from '@mui/material'
+import { AddDeviceStateChanged, DeviceAuthError, DeviceAuthStateCode, WebSocketMessageType } from 'jami-web-common'
+import { useContext, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
+
+import QrReader from '../../components/QrReader'
+import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
+import { useWebSocketContext } from '../../contexts/WebSocketProvider'
+import {
+  useCancelAddDeviceMutation,
+  useConfirmAddDeviceMutation,
+  useExportAccountMutation,
+} from '../../services/accountQueries'
+
+export function ExportToAnotherDevice() {
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const exportAccountMutation = useExportAccountMutation()
+  const webSocket = useWebSocketContext()
+  const navigate = useNavigate()
+  const [opId, setOpId] = useState<number | undefined>()
+  const [uri, setPeer] = useState<string | undefined>()
+  const [isSent, setIsSent] = useState(false)
+  const [state, setState] = useState(DeviceAuthStateCode.Init)
+  const [peerAddress, setPeerAddress] = useState<string | undefined>()
+
+  useEffect(() => {
+    function addDeviceStateChangedListener(data: AddDeviceStateChanged) {
+      console.log(data)
+
+      if (opId !== undefined && opId !== data.opId) {
+        // not the same operation
+        return
+      }
+
+      const details = data.details as unknown as { [key: string]: string }
+
+      if (opId === undefined && data.state === DeviceAuthStateCode.Connecting) {
+        setOpId(data.opId)
+      } else if (opId === undefined) {
+        setAlertContent({
+          messageI18nKey: 'link_device_could_not_initiate',
+          severity: 'error',
+          alertOpen: true,
+        })
+        navigate('/settings/account/linked-devices')
+      }
+
+      setState(data.state)
+      switch (data.state) {
+        case DeviceAuthStateCode.Authenticating:
+          // accept or not authentication
+          setPeerAddress(details['peer_address'])
+          setIsSent(true)
+          break
+        case DeviceAuthStateCode.Done:
+          if (details['error'] === DeviceAuthError.Authentication) {
+            setAlertContent({
+              messageI18nKey: 'device_auth_error_authentication',
+              severity: 'error',
+              alertOpen: true,
+            })
+            navigate('/settings/account/linked-devices')
+            break
+          } else if (details['error'] === DeviceAuthError.Network) {
+            setAlertContent({
+              messageI18nKey: 'device_auth_error_network',
+              severity: 'error',
+              alertOpen: true,
+            })
+            navigate('/settings/account/linked-devices')
+            break
+          }
+          break
+        default:
+          // should never be reached
+          if (data.state !== DeviceAuthStateCode.Connecting && data.state !== DeviceAuthStateCode.InProgress) {
+            setAlertContent({
+              messageI18nKey: 'unknown_error_alert',
+              severity: 'error',
+              alertOpen: true,
+            })
+          }
+          break
+      }
+    }
+    webSocket.bind(WebSocketMessageType.AddDeviceStateChanged, addDeviceStateChangedListener)
+    return () => {
+      webSocket.unbind(WebSocketMessageType.AddDeviceStateChanged, addDeviceStateChangedListener)
+    }
+  }, [navigate, opId, setAlertContent, webSocket])
+
+  useEffect(() => {
+    if (uri && !isSent) {
+      exportAccountMutation.mutate(uri)
+      setIsSent(true)
+    }
+  }, [uri, exportAccountMutation, isSent])
+
+  return (
+    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <Card sx={{ width: '600px', height: '700px' }}>
+        {state === DeviceAuthStateCode.Init && <EnterCode setCode={setPeer} />}
+        {state === DeviceAuthStateCode.Connecting && <InProgress isConnecting={true} />}
+        {state === DeviceAuthStateCode.Authenticating && (
+          <AcceptLink peerAddress={peerAddress || 'unknown'} opId={opId || -1} />
+        )}
+        {state === DeviceAuthStateCode.InProgress && <InProgress isConnecting={false} />}
+        {state === DeviceAuthStateCode.Done && <ExportDone />}
+      </Card>
+    </Box>
+  )
+}
+
+const ExportDone = () => {
+  const { t } = useTranslation()
+  return (
+    <CardHeader
+      title={t('export_account')}
+      subheader={
+        <Box
+          sx={{
+            marginTop: '200px',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography>{t('account_transferred_successfully')}</Typography>
+          <Typography>{t('account_transferred_successfully_message')}</Typography>
+        </Box>
+      }
+    />
+  )
+}
+
+interface InProgressProps {
+  isConnecting: boolean
+}
+
+const InProgress = ({ isConnecting }: InProgressProps) => {
+  const { t } = useTranslation()
+  return (
+    <CardHeader
+      title={t('export_account')}
+      subheader={
+        <Box
+          sx={{
+            marginTop: '200px',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {isConnecting ? (
+            <Typography>{t('connecting_to_the_new_device')}</Typography>
+          ) : (
+            <Typography>{t('account_transfer_in_progress')}</Typography>
+          )}
+          <Typography>{t('please_wait')}</Typography>
+        </Box>
+      }
+    />
+  )
+}
+
+interface AcceptLinkProps {
+  peerAddress: string
+  opId: number
+}
+
+const AcceptLink = ({ peerAddress, opId }: AcceptLinkProps) => {
+  const navigate = useNavigate()
+  const { t } = useTranslation()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  if (opId === -1) {
+    setAlertContent({
+      messageI18nKey: 'unknown_error_alert',
+      severity: 'error',
+      alertOpen: true,
+    })
+    navigate('/settings/account/linked-devices')
+  }
+
+  const cancelMutation = useCancelAddDeviceMutation(opId)
+  const confirmMutation = useConfirmAddDeviceMutation(opId)
+
+  return (
+    <>
+      <CardHeader
+        title={t('export_account')}
+        subheader={
+          <Box
+            sx={{
+              marginTop: '200px',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography>{t('new_device_found')}</Typography>
+            <Typography>{t('new_device_found_confirmation')}</Typography>
+            <Typography sx={{ fontWeight: 'bolder' }}>{t('new_device_found_address') + ' ' + peerAddress}</Typography>
+          </Box>
+        }
+      />
+      <CardContent>
+        <Box
+          sx={{
+            marginTop: '50px',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            flexDirection: 'column',
+            alignItems: 'center',
+            height: '300px',
+          }}
+        >
+          <Box sx={{ display: 'flex', gap: '20px', marginTop: '50px' }}>
+            {' '}
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                confirmMutation.mutate()
+              }}
+            >
+              {t('confirm')}
+            </Button>
+            <Button
+              onClick={() => {
+                cancelMutation.mutate()
+              }}
+              variant="contained"
+              color="primary"
+            >
+              {t('dialog_cancel')}
+            </Button>
+          </Box>
+        </Box>
+      </CardContent>
+    </>
+  )
+}
+
+interface EnterCodeProps {
+  setCode: (code: string | undefined) => void
+}
+
+const EnterCode = ({ setCode }: EnterCodeProps) => {
+  const [tmpCode, setTmpCode] = useState<string | undefined>()
+  const [isQrCodeSelected, setIsQrCodeSelected] = useState(true)
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { t } = useTranslation()
+  useEffect(() => {
+    if (tmpCode && isQrCodeSelected) {
+      if (!tmpCode.includes('jami-auth://')) {
+        setAlertContent({
+          messageI18nKey: 'invalid_code_provided',
+          severity: 'error',
+          alertOpen: true,
+        })
+        setTmpCode(undefined)
+      } else {
+        setCode(tmpCode)
+      }
+    }
+  }, [isQrCodeSelected, setAlertContent, setCode, tmpCode])
+
+  const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTmpCode(event.target.value)
+  }
+
+  const onConnect = () => {
+    if (!tmpCode) {
+      setAlertContent({
+        messageI18nKey: 'invalid_code_provided',
+        severity: 'error',
+        alertOpen: true,
+      })
+      return
+    }
+    if (!tmpCode.includes('jami-auth://')) {
+      setAlertContent({
+        messageI18nKey: 'invalid_code_provided',
+        severity: 'error',
+        alertOpen: true,
+      })
+      setTmpCode(undefined)
+    } else {
+      setCode(tmpCode)
+    }
+  }
+
+  const modifyMethodStyles = {
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  }
+
+  return (
+    <>
+      <CardHeader
+        title={t('export_account')}
+        subheader={
+          <Box
+            sx={{
+              marginTop: '72px',
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography>{t('export_account_initiate_on_new_device')}</Typography>
+            <Typography>{t('export_account_steps')}</Typography>
+            <Typography>{t('export_account_scan_qr_when_ready')}</Typography>
+          </Box>
+        }
+      />
+      <CardContent>
+        <Box
+          sx={{
+            marginTop: '50px',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'space-between',
+            flexDirection: 'column',
+            alignItems: 'center',
+            height: '300px',
+          }}
+        >
+          {isQrCodeSelected ? (
+            <>
+              <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                <QrReader setScannedResult={setTmpCode} />
+              </Box>
+              <Box
+                sx={modifyMethodStyles}
+                onClick={() => {
+                  setIsQrCodeSelected(false)
+                }}
+              >
+                <Typography>{t('export_account_alternatively_enter_code')}</Typography>
+              </Box>
+            </>
+          ) : (
+            <>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '20px',
+                  marginTop: '100px',
+                }}
+              >
+                <Input value={tmpCode} onChange={onCodeChange}></Input>
+                <Button onClick={onConnect} variant="contained" color="primary">
+                  {t('connect')}
+                </Button>
+              </Box>
+
+              <Box
+                sx={modifyMethodStyles}
+                onClick={() => {
+                  setIsQrCodeSelected(true)
+                }}
+              >
+                <Typography>{t('export_account_alternatively_scan_qr')}</Typography>
+              </Box>
+            </>
+          )}
+        </Box>
+      </CardContent>
+    </>
+  )
+}

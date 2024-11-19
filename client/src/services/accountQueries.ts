@@ -23,6 +23,7 @@ import { useContext } from 'react'
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { apiUrl } from '../utils/constants'
+import { IProvideAccountAuthentication } from '../utils/utils'
 
 export const useUpdateAvatarMutation = () => {
   const { axiosInstance } = useAuthContext()
@@ -132,6 +133,59 @@ export const useResetDisplayName = () => {
         severity: 'error',
         alertOpen: true,
       })
+    },
+  })
+}
+
+export const useExportAccountMutation = () => {
+  const { axiosInstance } = useAuthContext()
+
+  return useMutation({
+    mutationKey: ['exportAccount'],
+    mutationFn: async (uri: string) => {
+      const { data } = await axiosInstance.post(`/account/addDevice`, { uri }, { baseURL: apiUrl })
+      return data
+    },
+  })
+}
+
+export const useConfirmAddDeviceMutation = (opId: number) => {
+  const { axiosInstance } = useAuthContext()
+
+  return useMutation({
+    mutationKey: ['exportAccount'],
+    mutationFn: async () => {
+      const { data } = await axiosInstance.post(`/account/${opId}/confirmDevice`, { baseURL: apiUrl })
+      return data
+    },
+  })
+}
+
+export const useCancelAddDeviceMutation = (opId: number) => {
+  const { axiosInstance } = useAuthContext()
+
+  return useMutation({
+    mutationKey: ['exportAccount'],
+    mutationFn: async () => {
+      const { data } = await axiosInstance.post(`/account/${opId}/cancelDevice`, { baseURL: apiUrl })
+      return data
+    },
+  })
+}
+
+// Query used only in the import account flow
+export const useProvideAccountAuthentication = () => {
+  const token = localStorage.getItem('importToken')
+
+  return useMutation({
+    mutationKey: ['provideAccountAuthentication'],
+    mutationFn: async (values: IProvideAccountAuthentication) => {
+      const { data } = await axios.post(
+        `/auth/link/authenticate`,
+        { values },
+        { baseURL: apiUrl, headers: { Authorization: `Bearer ${token}` } },
+      )
+      return data
     },
   })
 }

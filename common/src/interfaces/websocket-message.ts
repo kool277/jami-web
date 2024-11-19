@@ -19,6 +19,7 @@ import { WebSocketMessageType } from '../enums/websocket-message-type.js'
 import { IConversationRequest } from './conversation.js'
 import {
   AccountMessageStatus,
+  AddDeviceStateChanged,
   CallExit,
   CallInvite,
   CallJoin,
@@ -27,6 +28,7 @@ import {
   ConversationMessage,
   ConversationReady,
   ConversationView,
+  DeviceAuthStateChanged,
   IAccountDetails,
   IKnownDevicesChanged,
   LoadMoreMessages,
@@ -54,6 +56,8 @@ export interface WebSocketMessageTable {
   [WebSocketMessageType.MessageEdition]: ConversationMessage
   [WebSocketMessageType.ConversationMemberEvent]: ConversationMemberEvent
   [WebSocketMessageType.LoadMoreMessages]: LoadMoreMessages
+  [WebSocketMessageType.DeviceAuthStateChanged]: DeviceAuthStateChanged
+  [WebSocketMessageType.AddDeviceStateChanged]: AddDeviceStateChanged
   [WebSocketMessageType.LoadSwarmUntil]: LoadSwarmUntil
   [WebSocketMessageType.KnownDevicesChanged]: IKnownDevicesChanged
   [WebSocketMessageType.ConversationReady]: ConversationReady

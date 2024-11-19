@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ConversationMemberEventCode } from '../enums/conversation-member-event-code.js'
+import { DeviceAuthStateCode } from '../enums/device-auth-state.js'
 import { MessageStatusCode } from '../enums/message-status-code.js'
 import { AccountDetails, Devices } from './account.js'
 import { Message, Reaction } from './conversation.js'
@@ -56,6 +57,18 @@ export interface AccountMessageStatus {
   peer: string
   messageId: string
   status: MessageStatusCode
+}
+
+export interface AddDeviceStateChanged {
+  state: DeviceAuthStateCode
+  details: Map<string, string>
+  opId: number
+}
+
+export interface DeviceAuthStateChanged {
+  accountId: string
+  state: DeviceAuthStateCode
+  details: Map<string, string>
 }
 
 export interface ReactionAdded {

@@ -42,6 +42,21 @@ const config = Container.get(AdminAccount)
 const providers = Container.get(OpenIdProviders)
 export const authRouter = Router()
 
+const backgroundTask = () => {
+  console.log(`\n\n[${new Date().toISOString()}] Executing - AUTH - background task`)
+  clearPendingAccounts()
+}
+const INTERVAL = 7200000
+setInterval(backgroundTask, INTERVAL)
+
+function clearPendingAccounts() {
+  const pendingAccounts = accounts.getPendingAccounts()
+  for (const pendingAccount of Object.values(pendingAccounts)) {
+    accounts.removeAndDeletePendingAccount(pendingAccount)
+    accounts.save()
+  }
+}
+
 clearGuests()
 
 authRouter.post(
@@ -274,6 +289,89 @@ authRouter.post(
       guard.resetAttempts(accountId)
       res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
     }
+  }),
+)
+
+authRouter.get(
+  '/linkToken',
+  asyncHandler(async (req, res) => {
+    jamid.getLinkToken()
+    const values = await jamid.waitForDeviceAuthStateChanged()
+    const accountId = values.accountId
+    const data = {
+      ...values,
+      jwt: await signJwt(accountId), // tmp jwt
+    }
+    accounts.addPendingAccount(accountId)
+    accounts.save()
+    res.send(data)
+  }),
+)
+
+authRouter.post(
+  '/link/authenticate',
+  asyncHandler(async (req, res) => {
+    const accountId = req.body.values.accountId
+    const password = req.body.values.password
+    const scheme = req.body.values.scheme
+
+    if (accountId === undefined || password === undefined || scheme === undefined) {
+      res.status(HttpStatusCode.BadRequest).send('Missing accountId, password or scheme in body')
+      return
+    }
+
+    jamid.provideAccountAuthentication(accountId, password, scheme)
+
+    res.status(HttpStatusCode.Ok)
+  }),
+)
+
+authRouter.post(
+  '/link/cancel',
+  asyncHandler(async (req, res) => {
+    const accountId = req.body.accountId
+    accounts.removeAndDeletePendingAccount(accountId)
+    accounts.save()
+    res.status(HttpStatusCode.Ok)
+  }),
+)
+
+authRouter.post(
+  '/link/password',
+  asyncHandler(async (req, res) => {
+    const accountId = req.body.accountId
+    const password = req.body.password
+    const hashedPassword = await argon2.hash(password, { type: argon2.argon2id })
+
+    const volatileDetails = jamid.getVolatileAccountDetails(accountId)
+    const details = jamid.getAccountDetails(accountId)
+    const userName = volatileDetails['Account.registeredName']
+    const uri = details['Account.username']
+
+    // we will remove the account from the pending accounts
+    // not matter what happens
+    accounts.removePendingAccount(accountId)
+    accounts.save()
+
+    if (userName === undefined) {
+      if (uri === undefined) {
+        // we need to create a new account
+        // with a username and a password
+        jamid.removeAccount(accountId)
+        res.status(HttpStatusCode.NotFound).send('Username not found')
+        return
+      }
+      accounts.set(uri, hashedPassword, 'local', accountId)
+      await accounts.save()
+      const jwt = await signJwt(accountId)
+      res.send({ accessToken: jwt })
+      return
+    }
+
+    accounts.set(userName, hashedPassword, 'local', accountId)
+    await accounts.save()
+    const jwt = await signJwt(accountId)
+    res.send({ accessToken: jwt })
   }),
 )
 
