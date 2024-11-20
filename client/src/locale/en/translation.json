@@ -78,7 +78,7 @@
   "conversation_title_3": "{{member0}}, {{member1}} and {{member2}}",
   "conversation_title_4": "{{member0}}, {{member1}}, {{member2}}, +1 other member",
   "conversation_title_more": "{{member0}}, {{member1}}, {{member2}}, +{{excess}} other members",
-  "conversation_type": "Type",
+  "conversation_type": "Conversation type",
   "conversation_type_group": "Group",
   "conversation_type_private": "Private",
   "conversations": "Conversations",
