@@ -34,6 +34,8 @@ const METHODS = ['local', 'jams', 'guest', 'openid']
 export class Accounts {
   private readonly filename = 'accounts.json'
   private accounts: AccountsFormat
+  private lastInteraction = new Map<string, number>()
+
   constructor() {
     let buffer: Buffer
     try {
@@ -122,6 +124,18 @@ export class Accounts {
     }
 
     delete this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
+  }
+
+  getGuests() {
+    return this.accounts.guest
+  }
+
+  getLastInteraction(username: string) {
+    return this.lastInteraction.get(username)
+  }
+
+  setLastInteraction(username: string) {
+    this.lastInteraction.set(username, Date.now())
   }
 
   async save(): Promise<void> {

@@ -35,6 +35,16 @@ export async function signJwt(accountId: string): Promise<string> {
     .sign(signingKeys.privateKey)
 }
 
+export async function signJwtWithExpiration(accountId: string, expiration: string): Promise<string> {
+  return new SignJWT({ accountId })
+    .setProtectedHeader({ alg: 'EdDSA' })
+    .setIssuedAt()
+    .setIssuer(jwtIssuer)
+    .setAudience(jwtAudience)
+    .setExpirationTime(expiration)
+    .sign(signingKeys.privateKey)
+}
+
 export async function verifyJwt(token: string): Promise<JWTVerifyResult> {
   return jwtVerify(token, signingKeys.publicKey, {
     issuer: jwtIssuer,
