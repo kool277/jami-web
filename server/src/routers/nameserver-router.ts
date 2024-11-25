@@ -22,6 +22,7 @@ import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateOptionalToken } from '../middleware/auth.js'
+import { extendIfGuest } from '../middleware/guest.js'
 import { AdminAccount } from '../storage/admin-account.js'
 
 const jamid = Container.get(Jamid)
@@ -30,6 +31,7 @@ const config = Container.get(AdminAccount)
 export const nameserverRouter = Router()
 
 nameserverRouter.use(authenticateOptionalToken)
+nameserverRouter.use(extendIfGuest)
 
 nameserverRouter.get(
   '/username/:username',

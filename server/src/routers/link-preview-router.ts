@@ -22,6 +22,7 @@ import { getLinkPreview } from 'link-preview-js'
 import * as linkify from 'linkifyjs'
 
 import { authenticateToken } from '../middleware/auth.js'
+import { extendIfGuest } from '../middleware/guest.js'
 
 export const linkPreviewRouter = Router()
 
@@ -45,6 +46,7 @@ type LinkPreviewJs = {
 }
 
 linkPreviewRouter.use(authenticateToken)
+linkPreviewRouter.use(extendIfGuest)
 
 const linkPreviewOptions = {
   // Allowing redirection from http to https

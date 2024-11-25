@@ -179,6 +179,35 @@ export function setAccessToken(accessToken: string): void {
   localStorage.setItem('accessToken', accessToken)
 }
 
+export const useExtendSessionForGuest = () => {
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const token = localStorage.getItem('accessToken')
+  return useMutation({
+    mutationKey: ['extend', 'session'],
+    mutationFn: async () => {
+      const { data } = await axios.post(`/account/guest/extend`, {
+        baseURL: apiUrl,
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      return data
+    },
+    onSuccess: (response) => {
+      setAccessToken(response.accessToken)
+      setAlertContent({
+        messageI18nKey: 'extending_session_success_alert',
+        severity: 'success',
+        alertOpen: true,
+      })
+    },
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'extending_session_error_alert',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
+  })
+}
 export const useGetAllProviders = () => {
   return useQuery({
     queryKey: ['providers'],

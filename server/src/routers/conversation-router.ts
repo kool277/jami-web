@@ -29,6 +29,7 @@ import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
+import { extendIfGuest } from '../middleware/guest.js'
 import { ConversationService } from '../services/ConversationService.js'
 import { AdminAccount } from '../storage/admin-account.js'
 
@@ -39,6 +40,7 @@ const config = Container.get(AdminAccount)
 export const conversationRouter = Router()
 
 conversationRouter.use(authenticateToken)
+conversationRouter.use(extendIfGuest)
 
 conversationRouter.get(
   '/',

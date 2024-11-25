@@ -25,6 +25,7 @@ import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
+import { extendIfGuest } from '../middleware/guest.js'
 import { AdminAccount } from '../storage/admin-account.js'
 
 const jamid = Container.get(Jamid)
@@ -32,6 +33,7 @@ const config = Container.get(AdminAccount)
 export const accountRouter = Router()
 
 accountRouter.use(authenticateToken)
+accountRouter.use(extendIfGuest)
 
 // TODO: Do we really need this route to return the default moderators?
 // It would be cleaner just to GET /default-moderators for this

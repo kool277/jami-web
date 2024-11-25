@@ -26,6 +26,7 @@ import JamiWelcomeLogo from '../components/JamiWelcomeLogo'
 import ProcessingRequest from '../components/ProcessingRequest'
 import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
+import { AuthenticationMethods } from '../enums/authenticationMethods'
 import { useGetAdminConfigQuery } from '../services/adminQueries'
 import { useGetAllProviders, useLoginMutation } from '../services/authQueries'
 import { inputWidth, jamiAuthLogoSize, submitButtonWidth } from '../utils/constants'
@@ -74,12 +75,20 @@ function LoginForm() {
     setAuthMethod(event.target.value)
   }
 
+  const isAlone = [data.localAuthEnabled, data.jamsAuthEnabled].filter((value) => value === true).length === 1
+
   const login = (event: FormEvent) => {
     event.preventDefault()
+
+    if (isAlone) {
+      setAuthMethod(data.localAuthEnabled ? 'local' : 'jams')
+    }
+
     if (authMethod === undefined) {
       console.error('authMethod is undefined')
       return
     }
+
     if (username === '') {
       setAlertContent({ messageI18nKey: 'username_input_helper_text_empty', severity: 'error', alertOpen: true })
       return
@@ -91,9 +100,10 @@ function LoginForm() {
     loginMutation.mutate({ username, password, authMethod })
   }
 
-  const isAlone =
-    [data.localAuthEnabled, data.jamsAuthEnabled, data.guestAccessEnabled].filter((value) => value === true).length ===
-    1
+  const guestLogin = (event: FormEvent) => {
+    event.preventDefault()
+    loginMutation.mutate({ username, password, authMethod: 'guest' })
+  }
 
   const authChoicesStyle = { visibility: isAlone ? 'hidden' : 'visible' }
 
@@ -161,29 +171,37 @@ function LoginForm() {
               {data.jamsAuthEnabled && (
                 <FormControlLabel value="jams" control={<Radio />} label={t('jams')} sx={authChoicesStyle} />
               )}
-              {data.guestAccessEnabled && (
-                <FormControlLabel value="guest" control={<Radio />} label={t('guest')} sx={authChoicesStyle} />
-              )}
             </RadioGroup>
           </FormControl>
           <Box
             sx={{
               display: 'flex',
-              flexDirection: 'column',
               justifyContent: 'center',
               alignContent: 'center',
               alignItems: 'center',
               marginTop: '-32px',
+              gap: '8px',
             }}
           >
-            {(data.localAuthEnabled || data.jamsAuthEnabled || data.guestAccessEnabled) && (
+            {data.guestAccessEnabled && (
+              <Button
+                data-cy="guest-login-button"
+                variant="contained"
+                type="submit"
+                onClick={guestLogin}
+                sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
+              >
+                {t('login_as_guest')}
+              </Button>
+            )}
+            {(data.localAuthEnabled || data.jamsAuthEnabled) && (
               <Button
                 data-cy="login-button"
                 variant="contained"
                 type="submit"
                 onClick={login}
                 sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
-                disabled={username === '' || password === ''}
+                disabled={authMethod !== AuthenticationMethods.GUEST && (username === '' || password === '')}
               >
                 {t('login_form_submit_button')}
               </Button>

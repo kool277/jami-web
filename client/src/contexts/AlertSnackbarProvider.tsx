@@ -108,6 +108,8 @@ type AlertMessageKeys =
   | 'setting_auto_download_limit_success'
   | 'setting_auto_download_limit_error'
   | 'update_conversation_preferences_error'
+  | 'extending_session_success_alert'
+  | 'extending_session_error_alert'
   | 'getting_oauth_clients_error'
   | 'getting_oauth_provider_info_error'
   | 'copied_to_clipboard'
@@ -198,6 +200,10 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('setting_auto_download_limit_error')
         case 'update_conversation_preferences_error':
           return t('update_conversation_preferences_error')
+        case t('extending_session_success_alert'):
+          return t('extending_session_success_alert')
+        case t('extending_session_error_alert'):
+          return t('extending_session_error_alert')
         case 'getting_oauth_clients_error':
           return t('getting_oauth_clients_error')
         case 'getting_oauth_provider_info_error':

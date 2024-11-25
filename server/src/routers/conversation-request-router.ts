@@ -22,6 +22,7 @@ import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
+import { extendIfGuest } from '../middleware/guest.js'
 import { ConversationService } from '../services/ConversationService.js'
 
 const jamid = Container.get(Jamid)
@@ -30,6 +31,7 @@ const conversationService = Container.get(ConversationService)
 export const conversationRequestRouter = Router()
 
 conversationRequestRouter.use(authenticateToken)
+conversationRequestRouter.use(extendIfGuest)
 
 conversationRequestRouter.get(
   '/',

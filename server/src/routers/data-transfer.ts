@@ -25,6 +25,7 @@ import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
+import { extendIfGuest } from '../middleware/guest.js'
 import { AdminAccount } from '../storage/admin-account.js'
 const config = Container.get(AdminAccount)
 
@@ -67,6 +68,7 @@ dataTransferRouter.get('/autoDownloadLimit', (req, res) => {
 })
 
 dataTransferRouter.use(authenticateToken)
+dataTransferRouter.use(extendIfGuest)
 
 dataTransferRouter.post(
   '/:conversationId',

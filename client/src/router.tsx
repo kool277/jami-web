@@ -28,6 +28,7 @@ import AdminAuthWrapper from './components/AdminSettings/AdminAuthWrapper'
 import AuthMethods from './components/AdminSettings/AuthMethods'
 import ConfigureOpenId from './components/AdminSettings/ConfigureOpenId'
 import DownloadLimit from './components/AdminSettings/DownloadLimit'
+import GuestAuthMethod from './components/AdminSettings/GuestAuthMethod'
 import JamsAuthMethod from './components/AdminSettings/JamsAuthMethod'
 import LocalAuthMethod from './components/AdminSettings/LocalAuthMethod'
 import OpenIdAuthMethod from './components/AdminSettings/OpenIdAuthMethod'
@@ -92,6 +93,10 @@ export const router = createBrowserRouter(
           <Route
             path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMS}`}
             element={<JamsAuthMethod />}
+          />
+          <Route
+            path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.GUEST}`}
+            element={<GuestAuthMethod />}
           />
           <Route
             path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}`}

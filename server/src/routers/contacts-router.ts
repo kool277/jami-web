@@ -21,11 +21,13 @@ import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
+import { extendIfGuest } from '../middleware/guest.js'
 import { getAvatar, getDisplayName } from '../utils/vCard.js'
 const jamid = Container.get(Jamid)
 export const contactsRouter = Router()
 
 contactsRouter.use(authenticateToken)
+contactsRouter.use(extendIfGuest)
 
 contactsRouter.get('/', async (_req, res) => {
   const contacts = jamid.getContacts(res.locals.accountId)
