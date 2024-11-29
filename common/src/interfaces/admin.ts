@@ -26,12 +26,28 @@ export interface IAdminConfigState {
   uploadPath: string
 }
 
+export interface IOpenIdProviderConfiguration {
+  isActive: boolean
+  clientId: string
+  clientSecret: string
+}
+
+export interface IOpenIdProviders {
+  infoUri: string
+  tokenUri: string
+  authUri: string
+  displayName: string
+  documentation: string
+  scope?: string
+}
+
 export interface IAdminAccount {
   admin: string
   config: IAdminConfigState
   lastWizardState: AdminWizardState
   nameserver?: string
   jamsUrl?: string
+  openIdProviders: Record<string, IOpenIdProviderConfiguration>
   autoDownloadLimit?: number // size (in Mb) of the file that can be downloaded without user interaction
 }
 

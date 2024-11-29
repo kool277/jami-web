@@ -18,13 +18,14 @@
 import { readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
+import { OpenIdAccount } from 'jami-web-common'
 import { Service } from 'typedi'
 
 interface AccountsFormat {
   local: Record<string, string>
   jams: Record<string, { password: string; accountId: string }>
   guest: Record<string, string>
-  openid: Record<string, string>
+  openid: Record<string, OpenIdAccount>
 }
 
 const METHODS = ['local', 'jams', 'guest', 'openid']
@@ -53,7 +54,15 @@ export class Accounts {
     return this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
   }
 
-  set(username: string, password: string, authMethod: string = 'local', JAMSAccountId?: string): void {
+  getOpenIdAccount(email: string) {
+    return this.accounts['openid'][email.toLowerCase()]
+  }
+
+  isInJamsAccounts(username: string) {
+    return username.toLowerCase() in this.accounts['jams']
+  }
+
+  set(username: string, value: string | OpenIdAccount, authMethod: string = 'local', JAMSAccountId?: string): void {
     if (!METHODS.includes(authMethod)) {
       console.log('Invalid auth method')
       return
@@ -65,9 +74,9 @@ export class Accounts {
 
     switch (authMethod) {
       case 'jams':
-        if (JAMSAccountId !== undefined) {
+        if (JAMSAccountId !== undefined && typeof value === 'string') {
           this.accounts['jams'][username.toLowerCase()] = {
-            password: password,
+            password: value,
             accountId: JAMSAccountId,
           }
         } else {
@@ -75,14 +84,23 @@ export class Accounts {
         }
         break
       case 'local':
-        this.accounts['local'][username.toLowerCase()] = password
+        if (typeof value !== 'string') {
+          return
+        }
+        this.accounts['local'][username.toLowerCase()] = value
         break
       // TODO : Add support for guest and openid
       case 'guest':
-        this.accounts['guest'][username.toLowerCase()] = password
+        if (typeof value !== 'string') {
+          return
+        }
+        this.accounts['guest'][username.toLowerCase()] = value
         break
       case 'openid':
-        this.accounts['openid'][username.toLowerCase()] = password
+        if (typeof value === 'string') {
+          return
+        }
+        this.accounts['openid'][username.toLowerCase()] = value
         break
       default:
         throw new Error('Invalid auth method')

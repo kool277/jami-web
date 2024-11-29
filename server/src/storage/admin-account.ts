@@ -58,6 +58,71 @@ export class AdminAccount {
     }
     this.adminAccount.lastWizardState = AdminWizardState.account
     this.adminAccount.autoDownloadLimit = 20 // default value
+    if (!this.adminAccount.openIdProviders) {
+      this.adminAccount.openIdProviders = {}
+    }
+  }
+
+  getOpenIdProvidersNames() {
+    return Object.keys(this.adminAccount.openIdProviders)
+  }
+
+  getOpenIdProviders() {
+    if (!('openIdProviders' in this.adminAccount) || this.adminAccount.openIdProviders === undefined) {
+      this.adminAccount.openIdProviders = {}
+      this.save()
+    }
+    return this.adminAccount.openIdProviders
+  }
+
+  getOpenIdProvider(provider: string) {
+    return this.adminAccount.openIdProviders[provider]
+  }
+
+  isProviderActive(provider: string) {
+    const openIdProvider = this.getOpenIdProvider(provider)
+    const isActive = openIdProvider?.isActive
+    return isActive || false
+  }
+
+  setOpenIdProvider(provider: string, clientId: string, clientSecret: string, isActive: boolean) {
+    if (!this.getOpenIdProviders()) {
+      console.error('openIdProviders is not defined')
+      this.adminAccount.openIdProviders = {}
+    }
+    this.adminAccount.openIdProviders[provider] = {
+      isActive,
+      clientId,
+      clientSecret,
+    }
+  }
+
+  setOpenIdProviderClientId(provider: string, clientId: string) {
+    const openIdProvider = this.getOpenIdProvider(provider)
+    if (openIdProvider) {
+      openIdProvider.clientId = clientId
+    }
+  }
+
+  setOpenIdProviderClientSecret(provider: string, clientSecret: string) {
+    const openIdProvider = this.getOpenIdProvider(provider)
+    if (openIdProvider) {
+      openIdProvider.clientSecret = clientSecret
+    }
+  }
+
+  disableOpenIdProvider(provider: string) {
+    const openIdProvider = this.getOpenIdProvider(provider)
+    if (openIdProvider) {
+      openIdProvider.isActive = false
+    }
+  }
+
+  enableOpenIdProvider(provider: string) {
+    const openIdProvider = this.getOpenIdProvider(provider)
+    if (openIdProvider) {
+      openIdProvider.isActive = true
+    }
   }
 
   getLastWizardState(): string {

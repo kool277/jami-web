@@ -20,7 +20,14 @@ import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import { ParamsDictionary, Request, Response } from 'express-serve-static-core'
 import { readdir, stat } from 'fs/promises'
-import { AccessToken, AccountOverview, AdminCredentials, AdminWizardState, HttpStatusCode } from 'jami-web-common'
+import {
+  AccessToken,
+  AccountOverview,
+  AdminCredentials,
+  AdminWizardState,
+  HttpStatusCode,
+  isMailAddress,
+} from 'jami-web-common'
 import os from 'os'
 import path from 'path'
 import { Container } from 'typedi'
@@ -30,12 +37,14 @@ import { adminAuthenticationMiddleware } from '../middleware/auth.js'
 import { checkAdminSetup } from '../middleware/setup.js'
 import { Accounts } from '../storage/accounts.js'
 import { AdminAccount } from '../storage/admin-account.js'
+import { OpenIdProviders } from '../storage/openid-providers.js'
 import { isConfigValid } from '../utils/admin.js'
 import { signJwt } from '../utils/jwt.js'
 
 const jamid = Container.get(Jamid)
 const adminAccount = Container.get(AdminAccount)
 const accounts = Container.get(Accounts)
+const providersSupport = Container.get(OpenIdProviders)
 
 export const adminRouter = Router()
 
@@ -106,6 +115,10 @@ adminRouter.post(
 adminRouter.get(
   '/config',
   asyncHandler(async (_, res: Response) => {
+    if (adminAccount.getOpenIdProvidersNames().length === 0) {
+      adminAccount.updateConfig({ openIdAuthEnabled: false })
+    }
+
     const config = adminAccount.getConfig()
     if (config !== undefined) {
       res.status(HttpStatusCode.Ok).send(config)
@@ -184,25 +197,6 @@ adminRouter.patch(
       }
     }
     res.sendStatus(HttpStatusCode.BadRequest)
-  }),
-)
-
-adminRouter.patch(
-  '/config',
-  asyncHandler(async (req: Request<ParamsDictionary, unknown, unknown>, res: Response) => {
-    const config = req.body
-
-    if (!isConfigValid(config)) {
-      res.status(HttpStatusCode.BadRequest).send('Invalid config in the payload')
-      return
-    }
-    adminAccount.updateConfig(config)
-    try {
-      await adminAccount.save()
-      res.sendStatus(HttpStatusCode.Ok)
-    } catch (e) {
-      res.sendStatus(HttpStatusCode.InternalServerError)
-    }
   }),
 )
 
@@ -305,7 +299,8 @@ adminRouter.get(
     const allAccounts = accounts.getAll()
     const localAccounts = allAccounts.local
     const jamsAccounts = allAccounts.jams
-    const accountsList: AccountOverview[] = []
+    const openIdAccounts = allAccounts.openid
+    let accountsList: AccountOverview[] = []
 
     for (const [username, account] of Object.entries(jamsAccounts)) {
       const accountUri = jamid.getAccountDetails(account.accountId)['Account.username']
@@ -330,6 +325,29 @@ adminRouter.get(
             storage: await getSizeOnDisk(accountId),
           })
         }
+      }
+    }
+
+    const alreadyAdded: Map<string, string> = new Map()
+    for (const [username, account] of Object.entries(openIdAccounts)) {
+      const accountUri = jamid.getAccountDetails(account.accountId)['Account.username']
+      if (accountUri) {
+        const addedAccount = alreadyAdded.get(account.accountId)
+        if (addedAccount !== undefined && isMailAddress(addedAccount)) {
+          continue
+        }
+
+        if (addedAccount !== undefined && !isMailAddress(addedAccount)) {
+          accountsList = accountsList.filter((account) => account.username !== addedAccount)
+        }
+
+        accountsList.push({
+          username,
+          accountUri,
+          auth: account.service.join(', '),
+          storage: await getSizeOnDisk(account.accountId),
+        })
+        alreadyAdded.set(account.accountId, username)
       }
     }
     res.send(accountsList)
@@ -358,6 +376,85 @@ adminRouter.delete(
   }),
 )
 
+adminRouter.get(
+  '/oauth/providers',
+  asyncHandler(async (_, res) => {
+    const supportedProviders = providersSupport.getProviders()
+    const data: { name: string; isActive: boolean; displayName: string }[] = []
+    Array.from(supportedProviders).map(([key, values]) => {
+      data.push({
+        name: key,
+        isActive: adminAccount.isProviderActive(key),
+        displayName: values.displayName,
+      })
+    })
+    res.send(data)
+  }),
+)
+
+adminRouter.get(
+  '/oauth/provider/:name',
+  asyncHandler(async (req, res) => {
+    const provider = req.params.name
+    const providerInfo = adminAccount.getOpenIdProvider(provider)
+    const providerConfig = providersSupport.getOpenIdConfig(provider)
+
+    if (providerConfig === undefined) {
+      res.status(HttpStatusCode.InternalServerError).send('Provider configuration not found')
+      return
+    }
+
+    if (providerInfo === undefined) {
+      adminAccount.setOpenIdProvider(provider, '', '', false)
+      adminAccount.save()
+    }
+
+    const data = {
+      clientId: providerInfo?.clientId || '',
+      isActive: adminAccount.isProviderActive(provider),
+      redirectUri: providersSupport.getRedirectUri(provider),
+      documentation: providerConfig.documentation,
+      displayName: providerConfig.displayName,
+    }
+
+    res.send(data)
+  }),
+)
+
+adminRouter.patch(
+  '/oauth/provider/:name',
+  asyncHandler(async (req, res) => {
+    const provider = req.params.name
+    const providers = adminAccount.getOpenIdProvidersNames()
+    if (!providers.includes(provider)) {
+      res.status(HttpStatusCode.BadRequest).send('Provider does not exist')
+      return
+    }
+
+    const clientId = req.body.clientId
+    const clientSecret = req.body.clientSecret
+    const isActive = req.body.isActive
+
+    if (clientId) {
+      adminAccount.setOpenIdProviderClientId(provider, clientId)
+    }
+
+    if (clientSecret) {
+      adminAccount.setOpenIdProviderClientSecret(provider, clientSecret)
+    }
+
+    if (isActive !== undefined) {
+      if (isActive) {
+        adminAccount.enableOpenIdProvider(provider)
+      } else {
+        adminAccount.disableOpenIdProvider(provider)
+      }
+    }
+
+    adminAccount.save()
+    res.sendStatus(HttpStatusCode.Ok)
+  }),
+)
 adminRouter.post('/autoDownloadLimit', (req, res) => {
   const downloadLimit = Number(req.body.limit)
   if (!downloadLimit) {
