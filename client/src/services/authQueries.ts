@@ -178,3 +178,15 @@ export function getAccessToken(): string | undefined {
 export function setAccessToken(accessToken: string): void {
   localStorage.setItem('accessToken', accessToken)
 }
+
+export const useGetAllProviders = () => {
+  return useQuery({
+    queryKey: ['providers'],
+    queryFn: async () => {
+      const res = await axios.get('/auth/oauth/providers', { baseURL: apiUrl })
+      return res.data
+    },
+    refetchOnWindowFocus: true,
+    refetchInterval: 0,
+  })
+}

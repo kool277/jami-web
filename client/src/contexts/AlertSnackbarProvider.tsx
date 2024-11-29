@@ -108,6 +108,9 @@ type AlertMessageKeys =
   | 'setting_auto_download_limit_success'
   | 'setting_auto_download_limit_error'
   | 'update_conversation_preferences_error'
+  | 'getting_oauth_clients_error'
+  | 'getting_oauth_provider_info_error'
+  | 'copied_to_clipboard'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
 
@@ -195,6 +198,12 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('setting_auto_download_limit_error')
         case 'update_conversation_preferences_error':
           return t('update_conversation_preferences_error')
+        case 'getting_oauth_clients_error':
+          return t('getting_oauth_clients_error')
+        case 'getting_oauth_provider_info_error':
+          return t('getting_oauth_provider_info_error')
+        case 'copied_to_clipboard':
+          return t('copied_to_clipboard')
         default:
           return t('unknown_error_alert')
       }

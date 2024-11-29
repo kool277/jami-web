@@ -18,12 +18,13 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
-import { AccessToken, AccountOverview, IAdminConfigState } from 'jami-web-common'
+import { AccessToken, AccountOverview, AdminSettingSelection, IAdminConfigState } from 'jami-web-common'
 import { AdminWizardState, HttpStatusCode } from 'jami-web-common'
 import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
+import { AuthenticationMethods } from '../enums/authenticationMethods'
 import { apiUrl } from '../utils/constants'
 
 export const useSetupAdminMutation = () => {
@@ -536,6 +537,91 @@ export const useCheckAdminTokenValidity = async () => {
     }
   }
   return false
+}
+
+export const useGetAllOauthClients = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const query = useQuery({
+    queryKey: ['all', 'oauth', 'clients'],
+    queryFn: async () => {
+      const { data } = await axios.get('/admin/oauth/providers', {
+        baseURL: apiUrl,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return data
+    },
+  })
+  useEffect(() => {
+    if (query.error) {
+      setAlertContent({
+        messageI18nKey: 'getting_oauth_clients_error',
+        severity: 'error',
+        alertOpen: true,
+      })
+    }
+  }, [query.error, setAlertContent])
+
+  return query
+}
+
+export const useGetProviderInfo = (provider: string) => {
+  const token = localStorage.getItem('adminAccessToken')
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const navigate = useNavigate()
+  const query = useQuery({
+    queryKey: ['oauth', 'provider', provider],
+    queryFn: async () => {
+      const { data } = await axios.get(`/admin/oauth/provider/${provider}`, {
+        baseURL: apiUrl,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return data
+    },
+  })
+  useEffect(() => {
+    if (query.error) {
+      setAlertContent({
+        messageI18nKey: 'getting_oauth_provider_info_error',
+        severity: 'error',
+        alertOpen: true,
+      })
+      navigate(`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}`)
+    }
+  }, [navigate, query.error, setAlertContent])
+  return query
+}
+
+export const useUpdateProviderInfo = (provider: string) => {
+  const token = localStorage.getItem('adminAccessToken')
+  const queryClient = useQueryClient()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  return useMutation({
+    mutationKey: ['oauth', 'provider', provider],
+    mutationFn: async (data: { clientId?: string; clientSecret?: string; isActive?: boolean }) => {
+      const response = await axios.patch(`/admin/oauth/provider/${provider}`, data, {
+        baseURL: apiUrl,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      return response
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['oauth', 'provider', provider] })
+    },
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'unknown_error_alert',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
+  })
 }
 
 export const useSetAutoDownloadLimit = () => {

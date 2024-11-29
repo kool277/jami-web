@@ -26,9 +26,11 @@ import AccountsOverview from './components/AdminSettings/AccountsOverview'
 import AdminAccountConfiguration from './components/AdminSettings/AdminAccountConfiguration'
 import AdminAuthWrapper from './components/AdminSettings/AdminAuthWrapper'
 import AuthMethods from './components/AdminSettings/AuthMethods'
+import ConfigureOpenId from './components/AdminSettings/ConfigureOpenId'
 import DownloadLimit from './components/AdminSettings/DownloadLimit'
 import JamsAuthMethod from './components/AdminSettings/JamsAuthMethod'
 import LocalAuthMethod from './components/AdminSettings/LocalAuthMethod'
+import OpenIdAuthMethod from './components/AdminSettings/OpenIdAuthMethod'
 import ContactList from './components/ContactList'
 import ConversationView from './components/ConversationView'
 import LayoutWrapper from './components/LayoutWrapper'
@@ -89,6 +91,14 @@ export const router = createBrowserRouter(
           <Route
             path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMS}`}
             element={<JamsAuthMethod />}
+          />
+          <Route
+            path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}`}
+            element={<OpenIdAuthMethod />}
+          />
+          <Route
+            path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}/:provider`}
+            element={<ConfigureOpenId />}
           />
           <Route
             path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`}

@@ -27,22 +27,37 @@ import ProcessingRequest from '../components/ProcessingRequest'
 import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { useGetAdminConfigQuery } from '../services/adminQueries'
-import { useLoginMutation } from '../services/authQueries'
+import { useGetAllProviders, useLoginMutation } from '../services/authQueries'
 import { inputWidth, jamiAuthLogoSize, submitButtonWidth } from '../utils/constants'
+
 function LoginForm() {
+  const currentUrl = window.location.href
+  const accessToken = currentUrl.split('accessToken=')[1]
+  if (accessToken) {
+    localStorage.setItem('accessToken', accessToken)
+    window.location.replace('/conversation')
+  }
+
   const theme: Theme = useTheme()
   const { t } = useTranslation()
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  const [authMethod, setAuthMethod] = useState<string>('local')
+  const [authMethod, setAuthMethod] = useState<string | undefined>()
   const { data } = useGetAdminConfigQuery()
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const loginMutation = useLoginMutation()
   const { isPending } = loginMutation
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const providers = useGetAllProviders()
 
-  if (data === undefined) {
+  if (data === undefined || providers.data === undefined) {
     return <ProcessingRequest open />
+  }
+
+  if (authMethod === undefined) {
+    setAuthMethod(
+      data.localAuthEnabled ? 'local' : data.jamsAuthEnabled ? 'jams' : data.guestAccessEnabled ? 'guest' : 'openid',
+    )
   }
 
   const handleUsername = (event: ChangeEvent<HTMLInputElement>) => {
@@ -59,6 +74,10 @@ function LoginForm() {
 
   const login = (event: FormEvent) => {
     event.preventDefault()
+    if (authMethod === undefined) {
+      console.error('authMethod is undefined')
+      return
+    }
     if (username === '') {
       setAlertContent({ messageI18nKey: 'username_input_helper_text_empty', severity: 'error', alertOpen: true })
       return
@@ -69,6 +88,13 @@ function LoginForm() {
     }
     loginMutation.mutate({ username, password, authMethod })
   }
+
+  const isAlone =
+    [data.localAuthEnabled, data.jamsAuthEnabled, data.guestAccessEnabled, data.openIdAuthEnabled].filter(
+      (value) => value === true,
+    ).length === 1
+
+  const authChoicesStyle = { visibility: isAlone ? 'hidden' : 'visible' }
 
   return (
     <>
@@ -97,38 +123,78 @@ function LoginForm() {
             value={username}
             onChange={handleUsername}
             tooltipTitle={t('login_form_username_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '10%' }}
+            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '40px' }}
           />
           <PasswordInput
             data-cy="password-input"
             value={password}
             onChange={handlePassword}
             tooltipTitle={t('login_form_password_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: isMobile ? '-7%' : '-10%' }}
+            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '-16px' }}
           />
-          <FormControl sx={{ marginTop: isMobile ? '-3%' : '-5%' }}>
-            <RadioGroup row onChange={handleSelectionChange} value={authMethod}>
-              {data.localAuthEnabled ? <FormControlLabel value="local" control={<Radio />} label={t('jami')} /> : null}
-              {data.jamsAuthEnabled ? <FormControlLabel value="jams" control={<Radio />} label={t('jams')} /> : null}
-              {data.guestAccessEnabled ? (
-                <FormControlLabel value="guest" control={<Radio />} label={t('guest')} />
-              ) : null}
-              {data.openIdAuthEnabled ? (
-                <FormControlLabel value="openid" control={<Radio />} label={t('openid')} />
-              ) : null}
+          <FormControl
+            sx={{
+              marginTop: '-16px',
+              width: '100%',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <RadioGroup
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                maxWidth: '200px',
+                marginLeft: '16px',
+              }}
+              row
+              onChange={handleSelectionChange}
+              value={authMethod}
+            >
+              {data.localAuthEnabled && (
+                <FormControlLabel value="local" control={<Radio />} label={t('jami')} sx={authChoicesStyle} />
+              )}
+              {data.jamsAuthEnabled && (
+                <FormControlLabel value="jams" control={<Radio />} label={t('jams')} sx={authChoicesStyle} />
+              )}
+              {data.guestAccessEnabled && (
+                <FormControlLabel value="guest" control={<Radio />} label={t('guest')} sx={authChoicesStyle} />
+              )}
+              {data.openIdAuthEnabled && (
+                <FormControlLabel value="openid" control={<Radio />} label={t('openid')} sx={authChoicesStyle} />
+              )}
             </RadioGroup>
           </FormControl>
 
-          <Button
-            data-cy="login-button"
-            variant="contained"
-            type="submit"
-            onClick={login}
-            sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: isMobile ? '-3%' : '-5%' }}
-            disabled={username === '' || password === ''}
-          >
-            {t('login_form_submit_button')}
-          </Button>
+          {authMethod === 'openid' ? (
+            <>
+              {providers.data.map((item: { provider: string; url: string; displayName: string }) => (
+                <Button
+                  key={item.provider}
+                  variant="contained"
+                  onClick={() => {
+                    window.location.replace(item.url)
+                  }}
+                >
+                  {item.displayName}
+                </Button>
+              ))}
+            </>
+          ) : (
+            <Button
+              data-cy="login-button"
+              variant="contained"
+              type="submit"
+              onClick={login}
+              sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
+              disabled={username === '' || password === ''}
+            >
+              {t('login_form_submit_button')}
+            </Button>
+          )}
         </Form>
 
         <Box
