@@ -276,11 +276,6 @@ authRouter.get(
       return
     }
 
-    if (userInfo.picture) {
-      const base64Img = await getBase64Picture(userInfo.picture)
-      console.log('base64Img', base64Img)
-    }
-
     const name = userInfo.name
 
     let key
@@ -289,6 +284,8 @@ authRouter.get(
     const emailVerified = userInfo.email_verified
     const sub = userInfo.sub !== undefined ? String(userInfo.sub) : undefined
     const id = userInfo.id !== undefined ? String(userInfo.id) : undefined
+
+    console.log(userInfo)
 
     key = email
     if (!email || (emailVerified && emailVerified === false)) {
@@ -335,11 +332,24 @@ authRouter.get(
         fallBack(email, id)
       }
     }
+
     const jwt = await getJwt(key, name, provider)
     if (jwt === 'INVALID') {
       res.redirect(loginUrl)
       return
     }
+
+    const account = accounts.getOpenIdAccount(key)
+
+    if (userInfo.picture) {
+      const base64Img = await getBase64Picture(userInfo.picture)
+      jamid.updateProfile(account.accountId, name, base64Img, 'PNG', 1)
+    }
+    if (userInfo.avatar_url) {
+      const base64Img = await getBase64Picture(userInfo.avatar_url)
+      jamid.updateProfile(account.accountId, name, base64Img, 'PNG', 1)
+    }
+
     res.redirect(loginUrl + '?accessToken=' + jwt)
   }),
 )
