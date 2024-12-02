@@ -39,6 +39,8 @@ export interface IOpenIdProviders {
   displayName: string
   documentation: string
   scope?: string
+  icon?: string
+  colorTheme?: string
 }
 
 export interface IAdminAccount {

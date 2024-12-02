@@ -62,6 +62,8 @@ export class OpenIdProviders {
       authUri: 'https://accounts.google.com/o/oauth2/v2/auth',
       displayName: 'Google',
       documentation: 'https://developers.google.com/identity/protocols/oauth2',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
+      colorTheme: '#d9d9d9',
     })
 
     this.providers.set('github', {
@@ -70,6 +72,8 @@ export class OpenIdProviders {
       authUri: 'https://github.com/login/oauth/authorize',
       displayName: 'GitHub',
       documentation: 'https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg',
+      colorTheme: '#d9d9d9',
     })
 
     this.providers.set('sfl-gitlab', {
@@ -78,6 +82,8 @@ export class OpenIdProviders {
       authUri: 'https://git.jami.net/oauth/authorize',
       displayName: 'Savoir-faire Linux GitLab',
       documentation: 'https://docs.gitlab.com/ee/api/oauth2.html',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/GitLab_logo.svg',
+      colorTheme: '#d9d9d9',
     })
 
     this.providers.set('discord', {
@@ -87,6 +93,8 @@ export class OpenIdProviders {
       displayName: 'Discord',
       documentation: 'https://discord.com/developers/docs/topics/oauth2',
       scope: 'identify+email',
+      icon: 'https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg',
+      colorTheme: '#d9d9d9',
     })
 
     this.providers.set('linkedin', {
@@ -95,6 +103,8 @@ export class OpenIdProviders {
       authUri: 'https://www.linkedin.com/oauth/v2/authorization',
       displayName: 'LinkedIn',
       documentation: 'https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg',
+      colorTheme: '#d9d9d9',
     })
   }
 
@@ -129,6 +139,22 @@ export class OpenIdProviders {
       return undefined
     }
     return config.displayName
+  }
+
+  getColorTheme(provider: string) {
+    const config = this.providers.get(provider)
+    if (!config) {
+      return undefined
+    }
+    return config.colorTheme
+  }
+
+  getIcon(provider: string) {
+    const config = this.providers.get(provider)
+    if (!config) {
+      return undefined
+    }
+    return config.icon
   }
 
   getAllAuthorizeUrls() {

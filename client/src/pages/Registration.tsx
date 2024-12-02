@@ -27,9 +27,11 @@ import JamiWelcomeLogo from '../components/JamiWelcomeLogo'
 import ProcessingRequest from '../components/ProcessingRequest'
 import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
 import { PasswordStrength } from '../enums/passwordStrength'
+import { useGetAdminConfigQuery } from '../services/adminQueries'
 import {
   checkPasswordStrength,
   useCheckIfUsernameIsRegisteredQuery,
+  useGetAllProviders,
   useLoginMutation,
   useRegisterMutation,
 } from '../services/authQueries'
@@ -52,6 +54,8 @@ function RegistrationForm() {
   const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername)
   const usernameOk = usernameStatus === 'success'
   const passwordOk = passwordStatus !== PasswordStrength.TooWeak
+  const { data } = useGetAdminConfigQuery()
+  const providers = useGetAllProviders()
 
   useEffect(() => {
     if (response !== undefined) {
@@ -180,10 +184,30 @@ function RegistrationForm() {
           </Box>
         </Form>
 
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: theme.typography.pxToRem(30) }}>
+          {data.openIdAuthEnabled && (
+            <Box sx={{ marginTop: '8px', display: 'flex', gap: '2px' }}>
+              {providers.data.map(
+                (item: { provider: string; url: string; displayName: string; colorTheme: string; icon: string }) => (
+                  <Button
+                    sx={{ backgroundColor: item.colorTheme ? item.colorTheme : 'unset' }}
+                    key={item.provider}
+                    variant="contained"
+                    onClick={() => {
+                      window.location.replace(item.url)
+                    }}
+                  >
+                    {item.icon ? <img width="25px" height="25px" src={item.icon}></img> : item.displayName}
+                  </Button>
+                ),
+              )}
+            </Box>
+          )}
+        </Box>
+
         <Box
           sx={{
-            mt: theme.typography.pxToRem(50),
-            mb: theme.typography.pxToRem(10),
+            mt: theme.typography.pxToRem(10),
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'center',

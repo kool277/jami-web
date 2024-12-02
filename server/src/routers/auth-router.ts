@@ -199,7 +199,9 @@ authRouter.get(
     const array = []
     for (const [provider, url] of urls) {
       const displayName = providers.getDisplayName(provider)
-      array.push({ provider, url, displayName })
+      const icon = providers.getIcon(provider)
+      const colorTheme = providers.getColorTheme(provider)
+      array.push({ provider, url, displayName, icon, colorTheme })
     }
     res.send(array)
   }),

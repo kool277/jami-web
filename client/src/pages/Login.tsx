@@ -32,7 +32,9 @@ import { inputWidth, jamiAuthLogoSize, submitButtonWidth } from '../utils/consta
 
 function LoginForm() {
   const currentUrl = window.location.href
+
   const accessToken = currentUrl.split('accessToken=')[1]
+
   if (accessToken) {
     localStorage.setItem('accessToken', accessToken)
     window.location.replace('/conversation')
@@ -90,9 +92,8 @@ function LoginForm() {
   }
 
   const isAlone =
-    [data.localAuthEnabled, data.jamsAuthEnabled, data.guestAccessEnabled, data.openIdAuthEnabled].filter(
-      (value) => value === true,
-    ).length === 1
+    [data.localAuthEnabled, data.jamsAuthEnabled, data.guestAccessEnabled].filter((value) => value === true).length ===
+    1
 
   const authChoicesStyle = { visibility: isAlone ? 'hidden' : 'visible' }
 
@@ -163,44 +164,57 @@ function LoginForm() {
               {data.guestAccessEnabled && (
                 <FormControlLabel value="guest" control={<Radio />} label={t('guest')} sx={authChoicesStyle} />
               )}
-              {data.openIdAuthEnabled && (
-                <FormControlLabel value="openid" control={<Radio />} label={t('openid')} sx={authChoicesStyle} />
-              )}
             </RadioGroup>
           </FormControl>
-
-          {authMethod === 'openid' ? (
-            <>
-              {providers.data.map((item: { provider: string; url: string; displayName: string }) => (
-                <Button
-                  key={item.provider}
-                  variant="contained"
-                  onClick={() => {
-                    window.location.replace(item.url)
-                  }}
-                >
-                  {item.displayName}
-                </Button>
-              ))}
-            </>
-          ) : (
-            <Button
-              data-cy="login-button"
-              variant="contained"
-              type="submit"
-              onClick={login}
-              sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
-              disabled={username === '' || password === ''}
-            >
-              {t('login_form_submit_button')}
-            </Button>
-          )}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignContent: 'center',
+              alignItems: 'center',
+              marginTop: '-32px',
+            }}
+          >
+            {(data.localAuthEnabled || data.jamsAuthEnabled || data.guestAccessEnabled) && (
+              <Button
+                data-cy="login-button"
+                variant="contained"
+                type="submit"
+                onClick={login}
+                sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
+                disabled={username === '' || password === ''}
+              >
+                {t('login_form_submit_button')}
+              </Button>
+            )}
+          </Box>
         </Form>
+
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: theme.typography.pxToRem(30) }}>
+          {data.openIdAuthEnabled && (
+            <Box sx={{ marginTop: '8px', display: 'flex', gap: '2px' }}>
+              {providers.data.map(
+                (item: { provider: string; url: string; displayName: string; colorTheme: string; icon: string }) => (
+                  <Button
+                    sx={{ backgroundColor: item.colorTheme ? item.colorTheme : 'unset' }}
+                    key={item.provider}
+                    variant="contained"
+                    onClick={() => {
+                      window.location.replace(item.url)
+                    }}
+                  >
+                    {item.icon ? <img width="25px" height="25px" src={item.icon}></img> : item.displayName}
+                  </Button>
+                ),
+              )}
+            </Box>
+          )}
+        </Box>
 
         <Box
           sx={{
-            mt: theme.typography.pxToRem(50),
-            mb: theme.typography.pxToRem(10),
+            mt: theme.typography.pxToRem(10),
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'center',
