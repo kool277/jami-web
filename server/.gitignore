@@ -4,13 +4,8 @@ jamid.node
 
 /accounts.json
 /admin.json
-<<<<<<< PATCH SET (f783e3 user-profile: profile avatar)
 /config.json
 
-profile-avatar/
 profile-avatar/*
-=======
 uploads/*
 uploads
-/config.json
->>>>>>> BASE      (ea3c8a user-profile: Add websocket listener and setter)
