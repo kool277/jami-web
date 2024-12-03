@@ -73,7 +73,7 @@
   "conversation_request_accepted": "Conversation invitation accepted.",
   "conversation_request_ask_join": "Hello,\nDo you want to join this conversation?",
   "conversation_request_has_sent_request": "{{contact}} sent you a conversation invitation.",
-  "conversation_request_waiting_for_sync": "Waiting until {{contact}}\nconnects to synchronize the conversation.",
+  "conversation_request_waiting_for_sync": "Waiting for {{contact}}\nto connect to synchronize the conversation…",
   "conversation_start_audiocall": "Start audio call",
   "conversation_start_videocall": "Start video call",
   "conversation_title_1": "{{member0}}",
