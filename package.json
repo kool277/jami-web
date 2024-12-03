@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "start": "concurrently \"npm start --workspace server\" \"npm start --workspace client\"",
-    "start:prod": "concurrently \"npm run start:prod --workspace server\" \"npm run start:prod --workspace client\"",
+    "start:prod": " npm run start:prod --workspace server",
     "start:debug-server": "LD_LIBRARY_PATH='${PWD}/daemon/src/.libs' HOME=/tmp npm start --workspace server",
     "build": "npm run build --workspaces",
     "clean": "npm run clean --workspaces",

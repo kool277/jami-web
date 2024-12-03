@@ -16,13 +16,15 @@
  * <https://www.gnu.org/licenses/>.
  */
 import cors from 'cors'
+import * as dotenv from 'dotenv'
 import express, { json, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
 import { HttpStatusCode } from 'jami-web-common'
 import log from 'loglevel'
+import path from 'path'
 import { Service } from 'typedi'
+import { fileURLToPath } from 'url'
 
-import { checkAdminSetup } from './middleware/setup.js'
 import { accountRouter } from './routers/account-router.js'
 import { adminRouter } from './routers/admin-router.js'
 import { authRouter } from './routers/auth-router.js'
@@ -41,6 +43,12 @@ import { bindLoadMoreMessagesCallBack } from './websocket/load-more-messages-han
 import { bindMessageStatusChangeCallbacks } from './websocket/message-status-handler.js'
 import { bindWebRtcCallbacks } from './websocket/webrtc-handler.js'
 
+dotenv.config()
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const isDevMode = process.env.NODE_ENV === 'development' ? true : false
+
 @Service()
 export class App {
   app = express()
@@ -51,21 +59,32 @@ export class App {
     this.app.use(cors())
     this.app.use(json())
 
+    const apiRouter = express.Router()
+    this.app.use('/api', apiRouter)
+
     // Enforce admin setup
-    this.app.use('/admin', adminRouter)
-    this.app.use(checkAdminSetup)
+    apiRouter.use('/admin', adminRouter)
 
     // Setup routing
-    this.app.use('/auth', authRouter)
-    this.app.use('/account', accountRouter)
-    this.app.use('/contacts', contactsRouter)
-    this.app.use('/default-moderators', defaultModeratorsRouter)
-    this.app.use('/conversations', conversationRouter)
-    this.app.use('/conversation-requests', conversationRequestRouter)
-    this.app.use('/calls', callRouter)
-    this.app.use('/link-preview', linkPreviewRouter)
-    this.app.use('/ns', nameserverRouter)
-    this.app.use('/data', dataTransferRouter)
+    apiRouter.use('/auth', authRouter)
+    apiRouter.use('/account', accountRouter)
+    apiRouter.use('/contacts', contactsRouter)
+    apiRouter.use('/default-moderators', defaultModeratorsRouter)
+    apiRouter.use('/conversations', conversationRouter)
+    apiRouter.use('/conversation-requests', conversationRequestRouter)
+    apiRouter.use('/calls', callRouter)
+    apiRouter.use('/link-preview', linkPreviewRouter)
+    apiRouter.use('/ns', nameserverRouter)
+    apiRouter.use('/data', dataTransferRouter)
+
+    if (!isDevMode) {
+      // Serve static files from the client
+      this.app.use(express.static(path.join(__dirname, '../../client/dist')))
+
+      this.app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../../client/dist', 'index.html'))
+      })
+    }
 
     // Setup WebSocket callbacks
     bindChatCallbacks()

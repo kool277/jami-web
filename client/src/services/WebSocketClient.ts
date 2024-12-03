@@ -18,6 +18,7 @@
 
 import { WebSocketMessage, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common'
 
+import { isDevMode } from '../utils/constants'
 type WebSocketCallback<T extends WebSocketMessageType> = (data: WebSocketMessageTable[T]) => void
 
 type WebSocketCallbacks = {
@@ -56,7 +57,8 @@ export class WebSocketClient {
 
     this.accessToken = accessToken
     const url = new URL(apiUrl)
-    url.protocol = 'ws:'
+
+    url.protocol = isDevMode ? 'ws:' : 'wss:'
     url.searchParams.set('accessToken', accessToken)
 
     this.webSocket = new WebSocket(url)

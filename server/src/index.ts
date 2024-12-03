@@ -18,6 +18,7 @@
 import 'reflect-metadata'
 
 import * as dotenv from 'dotenv'
+
 dotenv.config()
 
 import { createServer } from 'node:http'
@@ -30,9 +31,11 @@ import { Jamid } from './jamid/jamid.js'
 import { SigningKeys } from './storage/signing-keys.js'
 import { WebSocketServer } from './websocket/websocket-server.js'
 
-log.setLevel(process.env.NODE_ENV === 'production' ? 'error' : 'trace')
+const isDev = process.env.NODE_ENV === 'development' ? true : false
 
-const port: string | number = 5000
+log.setLevel(isDev ? 'trace' : 'error')
+
+const port: string | number = isDev ? 5000 : 8080
 
 await Container.get(SigningKeys).build()
 const jamid = Container.get(Jamid)

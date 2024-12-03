@@ -74,6 +74,9 @@ The repo is structured as 4 subprojects:
    cd ..
    ```
 
+6. Set the environement variables for development:
+   in `server/.env` set `NODE_ENV=development`.
+
 ### Install npm dependencies and set up Git hooks
 
 ```
@@ -92,6 +95,8 @@ Start both the client and server:
 LD_LIBRARY_PATH="${PWD}/daemon/src/.libs" npm start
 ```
 
+> Keep in mind that this script runs the --mode option on the client, allowing it to utilize development variables. Do not use npm start to launch the application in a production environment.
+
 You can also start the client and server individually:
 
 ```sh
@@ -109,7 +114,9 @@ Open <http://localhost:3000> in your browser to view the app.
 npm run build
 ```
 
-### Preview the production build
+### Run for production & preview the production build
+
+Set the environement variables for production: in `server/.env` set `NODE_ENV=production`, if NODE_ENV isn't provided then the server will run for production anyway.
 
 ```sh
 LD_LIBRARY_PATH="${PWD}/daemon/src/.libs" npm run start:prod
