@@ -14,3 +14,6 @@ server/*jami.node
 client/cypress/videos/
 client/cypress/screenshots/
 client/**/cypress.env.json
+
+jami-web-production
+jami-web.tar.gz

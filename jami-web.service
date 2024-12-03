@@ -1,0 +1,28 @@
+# jami-web.service /etc/systemd/system
+
+# systemctl enable jami-web.service
+# systemctl start jami-web.service
+# systemctl status jami-web.service
+# systemctl stop jami-web.service
+
+# this service file assume that jami-web
+# is installed in /srv/jami-web
+# and that the user www-data is used to run the service.
+
+[Unit]
+Description=Jami Web Service
+After=syslog.target network.target network-online.target
+
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/jami-web/server
+ExecStart=/usr/bin/node /srv/jami-web/server/dist/index.js
+Restart=always
+RestartSec=10
+User=jamid
+Group=jamid
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
