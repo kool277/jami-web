@@ -18,7 +18,7 @@
 import MenuOpenIcon from '@mui/icons-material/MenuOpen'
 import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { ReactNode } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
 import Footer from './Footer'
@@ -35,6 +35,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
   const location = useLocation()
   const isSettings = location.pathname.startsWith('/settings') || location.pathname.startsWith('/contacts')
   const isAdminPanel = location.pathname.startsWith('/admin')
+  const navigate = useNavigate()
 
   const sidebarStyles = {
     width: '300px',
@@ -75,6 +76,14 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
 
   const doNotDisplayStyles = { visibility: 'hidden', width: '0px', height: '0px' }
 
+  const onMenuIconClick = () => {
+    setIsMenuOpen(true)
+    if (location.pathname.startsWith('/conversation')) {
+      navigate('/conversation')
+    }
+    console.log('menu icon clicked')
+  }
+
   return (
     <Box display={'flex'}>
       <Box sx={isMobile ? sidebarStylesMobile : sidebarStyles}>
@@ -103,7 +112,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
         <MenuOpenIcon
           sx={!isMenuOpen && isMobile ? { '&:hover': { cursor: 'pointer' } } : doNotDisplayStyles}
           onClick={() => {
-            setIsMenuOpen(true)
+            onMenuIconClick()
           }}
         />
         <Box sx={isMobile ? mainWindowStylesMobile : mainWindowStyles}>{main}</Box>
