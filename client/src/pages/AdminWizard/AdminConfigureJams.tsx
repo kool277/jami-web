@@ -132,7 +132,7 @@ export default function AdminConfigureJams() {
           onClick={() => {
             submitNewJamsUrl()
             setWizardStateMutation.mutate(AdminWizardState.complete)
-            navigate('/admin/admin-account-configuration')
+            navigate('/admin/accounts')
           }}
         >
           {t('next')}
