@@ -76,8 +76,14 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
 
   const doNotDisplayStyles = { visibility: 'hidden', width: '0px', height: '0px' }
 
+  if (!isMobile) {
+    setIsMenuOpen(false)
+  }
+
   const onMenuIconClick = () => {
-    setIsMenuOpen(true)
+    if (isMobile) {
+      setIsMenuOpen(true)
+    }
     if (location.pathname.startsWith('/conversation')) {
       navigate('/conversation')
     }
