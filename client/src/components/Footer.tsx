@@ -19,7 +19,7 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
-import { Box, Card, Divider, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Card, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material'
 import { MouseEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -169,7 +169,6 @@ export default function Footer() {
                     {t('conversations')}
                   </div>
                 </MenuItem>
-                <Divider />
               </>
             )}
             <MenuItem onClick={() => closeMenuAndNavigate(`/contacts`)}>
@@ -178,14 +177,12 @@ export default function Footer() {
                 {t('settings_menu_item_contacts')}
               </div>
             </MenuItem>
-            <Divider />
             <MenuItem onClick={() => closeMenuAndNavigate(`/settings/account/manage-account`)}>
               <div style={menuItemStyle}>
                 <ManageAccountsIcon sx={{ marginRight: '5%' }} />
                 {t('settings_manage_account')}
               </div>
             </MenuItem>
-            <Divider />
             <MenuItem data-cy="logout-button" onClick={logout}>
               <div style={menuItemStyle}>
                 <LogoutIcon sx={{ marginRight: '5%', color: '#FA2E30' }} />
