@@ -15,14 +15,17 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import { Box, Divider, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { useCallManagerContext } from '../contexts/CallManagerProvider'
 import ConversationPreferencesProvider, {
   useConversationPreferencesContext,
 } from '../contexts/ConversationPreferencesContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
+import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
 import CallInterface from '../pages/CallInterface'
 import ChatInterface from '../pages/ChatInterface'
 import AddUserToSwarmModal from './AddUserToSwarmModal'
@@ -61,6 +64,8 @@ const ConversationHeader = () => {
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
+  const navigate = useNavigate()
+  const { setIsMenuOpen } = useMobileMenuStateContext()
 
   function getMaxWidth() {
     if (isMobile) {
@@ -72,10 +77,26 @@ const ConversationHeader = () => {
     }
   }
 
+  const onMenuIconClick = () => {
+    if (isMobile) {
+      setIsMenuOpen(true)
+    }
+    if (location.pathname.startsWith('/conversation')) {
+      navigate('/conversation')
+    }
+    console.log('menu icon clicked')
+  }
+
   return (
     <Stack direction="row" padding="16px" overflow="hidden">
       <Stack flex={1} justifyContent="center" whiteSpace="nowrap" overflow="hidden">
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4%' }}>
+          <ArrowBackIosNewIcon
+            sx={isMobile ? { '&:hover': { cursor: 'pointer' } } : { visibility: 'hidden', width: '0px', height: '0px' }}
+            onClick={() => {
+              onMenuIconClick()
+            }}
+          />
           <Typography variant="h5" textOverflow="ellipsis" sx={{ maxWidth: getMaxWidth() }}>
             {conversationDisplayName}
           </Typography>

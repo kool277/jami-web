@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import MenuOpenIcon from '@mui/icons-material/MenuOpen'
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -90,6 +90,8 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
     console.log('menu icon clicked')
   }
 
+  const isConversationOpen = location.pathname.startsWith('/conversation') && !isMenuOpen
+
   return (
     <Box display={'flex'}>
       <Box sx={isMobile ? sidebarStylesMobile : sidebarStyles}>
@@ -115,12 +117,14 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
               }
         }
       >
-        <MenuOpenIcon
-          sx={!isMenuOpen && isMobile ? { '&:hover': { cursor: 'pointer' } } : doNotDisplayStyles}
-          onClick={() => {
-            onMenuIconClick()
-          }}
-        />
+        {!isConversationOpen && (
+          <ArrowBackIosNewIcon
+            sx={!isMenuOpen && isMobile ? { '&:hover': { cursor: 'pointer' } } : doNotDisplayStyles}
+            onClick={() => {
+              onMenuIconClick()
+            }}
+          />
+        )}
         <Box sx={isMobile ? mainWindowStylesMobile : mainWindowStyles}>{main}</Box>
       </Box>
     </Box>
