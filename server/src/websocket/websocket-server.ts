@@ -98,7 +98,7 @@ export class WebSocketServer {
 
   async upgrade(request: IncomingMessage, socket: Duplex, head: Buffer): Promise<void> {
     // Do not use parseURL because it returns a URLRecord and not a URL
-    const url = new URL(request.url ?? '/', 'http://localhost/')
+    const url = new URL(request.url ?? '/api', 'http://localhost/api')
     const token = url.searchParams.get('accessToken') ?? undefined
     if (token === undefined) {
       socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
