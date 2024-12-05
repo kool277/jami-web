@@ -54,8 +54,18 @@ export class App {
   app = express()
 
   constructor() {
-    // Setup middleware
-    this.app.use(helmet())
+    this.app.use(
+      helmet({
+        contentSecurityPolicy: {
+          directives: {
+            defaultSrc: ["'self'"],
+            imgSrc: ["'self'", 'data:', 'blob:'],
+            scriptSrc: ["'self'"],
+            styleSrc: ["'self'", "'unsafe-inline'"],
+          },
+        },
+      }),
+    )
     this.app.use(cors())
     this.app.use(json())
 
