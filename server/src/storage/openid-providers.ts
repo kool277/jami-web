@@ -31,7 +31,7 @@ export class OpenIdProviders {
   private readonly filename = 'openid-providers.json'
   private providers: Map<string, IOpenIdProviders>
   // set the baseApiUrl to the value of the environment variable API_BASE_URL or 'http://localhost:5000'
-  private baseApiUrl: string = process.env.API_BASE_URL || 'http://localhost:5000'
+  private baseApiUrl: string = process.env.API_BASE_URL || 'http://localhost:5000/api'
   private readonly defaultScope = 'openid%20email%20profile'
 
   constructor() {
