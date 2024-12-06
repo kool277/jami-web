@@ -22,6 +22,7 @@ import { useAuthContext } from '../contexts/AuthProvider'
 import { NotificationContext } from '../contexts/NotificationsProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { useContactQuery } from '../services/contactQueries'
+import { useConversationPreferencesQuery } from '../services/conversationQueries'
 
 const SendNotification = (message: string, username: string) => {
   if (Notification.permission !== 'granted') {
@@ -43,21 +44,33 @@ export default function NotificationHandler({ children }: { children: React.Reac
   const webSocket = useWebSocketContext()
   const { account } = useAuthContext()
   const [contactUri, setContactUri] = useState<string>('')
+  const [conversationId, setConversationId] = useState<string>('')
   const [message, setMessage] = useState<string>('')
   const contactQuery = useContactQuery(contactUri)
+  const preferencesQuery = useConversationPreferencesQuery(conversationId)
 
   useEffect(() => {
-    const data = contactQuery.refetch()
-    data.then((contact) => {
-      if (message !== '' && message !== undefined) {
-        SendNotification(message, contact.data?.displayName || contactUri)
+    const fetchData = async () => {
+      const contactData = await contactQuery.refetch()
+      const conversationData = await preferencesQuery.refetch()
+
+      let conversationIsMuted = false
+      if (conversationData.data?.ignoreNotifications) {
+        conversationIsMuted = true
       }
-    })
-  }, [contactQuery, contactUri, message])
+
+      if (message !== '' && message !== undefined && !conversationIsMuted) {
+        SendNotification(message, contactData.data?.displayName || contactUri)
+      }
+    }
+
+    fetchData()
+  }, [contactQuery, preferencesQuery, contactUri, conversationId, message])
 
   useEffect(() => {
     const ConversationMessageListener = (data: ConversationMessage) => {
       if (enable && data.message.author !== account.getUri() && data.message.author !== undefined) {
+        setConversationId(data.conversationId)
         setContactUri(data.message.author)
         setMessage(data.message.body)
       }
