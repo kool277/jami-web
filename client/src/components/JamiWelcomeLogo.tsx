@@ -16,9 +16,11 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Stack, StackProps } from '@mui/material'
+import { useContext } from 'react'
 
-import JamiLogo from '../icons/jamiLogoIcon.svg?react'
-import { jamiLogoDefaultSize } from '../utils/constants'
+import { CustomThemeContext } from '../contexts/CustomThemeProvider'
+import JamiLogo from '../icons/logo-jami-net.svg?react'
+import JamiLogoWhite from '../icons/logo-jami-net-white.svg?react'
 
 interface WelcomeLogoProps extends StackProps {
   logoWidth?: string
@@ -26,6 +28,9 @@ interface WelcomeLogoProps extends StackProps {
 }
 
 export default function JamiWelcomeLogo({ logoWidth, logoHeight, ...stackProps }: WelcomeLogoProps) {
+  const { mode } = useContext(CustomThemeContext)
+  const isDark = mode === 'dark'
+
   return (
     <Stack
       {...stackProps}
@@ -38,8 +43,11 @@ export default function JamiWelcomeLogo({ logoWidth, logoHeight, ...stackProps }
         ...stackProps.sx,
       }}
     >
-      <JamiLogo width={logoWidth ?? jamiLogoDefaultSize} height={logoHeight ?? jamiLogoDefaultSize} />
-      <img src={'./jamiTitle.png'} alt="Jami" width={logoWidth || '200px'} height={'auto'} />
+      {isDark ? (
+        <JamiLogoWhite width={logoWidth} height={logoHeight} />
+      ) : (
+        <JamiLogo width={logoWidth} height={logoHeight} />
+      )}
     </Stack>
   )
 }

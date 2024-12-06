@@ -142,7 +142,8 @@ function RegistrationForm() {
             flexDirection: 'row',
             color: 'black',
             justifyContent: 'center',
-            marginTop: isMobile ? '-25%' : '-45%',
+            marginTop: isMobile ? '-25%' : '-50%',
+            marginBottom: '-80px',
           }}
         >
           <JamiWelcomeLogo logoWidth={jamiAuthLogoSize} logoHeight={jamiAuthLogoSize} />
