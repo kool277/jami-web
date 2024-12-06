@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { SvgIcon, SvgIconProps } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 
 /*
     We use SvgIcon so the icons can be handled more easily by Material ui components.
@@ -53,12 +54,26 @@ export const Arrow2Icon = (props: SvgIconProps) => {
 }
 
 export const Arrow3Icon = (props: SvgIconProps) => {
+  const theme = useTheme()
   return (
     <SvgIcon {...props} viewBox="0 0 21.045 14.743">
       <path
         d="m15.54 32.48 8.635 6.49a.2.2 0 0 0 .319-.174V34.74c9.823.666 10.982 4.984 10.982 4.984 0-8.982-7.186-10.228-10.982-10.257v-3.651a.187.187 0 0 0-.319-.145l-8.635 6.49a.227.227 0 0 0 0 .319Z"
         transform="translate(-14.93 -25.11)"
-        style={{ fill: 'none', stroke: '#005699' }}
+        style={{ fill: 'none', stroke: theme.SvgIcons.color }}
+      />
+    </SvgIcon>
+  )
+}
+
+export const Arrow4Icon = (props: SvgIconProps) => {
+  const theme = useTheme()
+  return (
+    <SvgIcon {...props} viewBox="0 0 21.045 14.743">
+      <path
+        d="m15.54 32.48 8.635 6.49a.2.2 0 0 0 .319-.174V34.74c9.823.666 10.982 4.984 10.982 4.984 0-8.982-7.186-10.228-10.982-10.257v-3.651a.187.187 0 0 0-.319-.145l-8.635 6.49a.227.227 0 0 0 0 .319Z"
+        transform="translate(-14.93 -25.11)"
+        style={{ fill: 'none', stroke: theme.Buttons.color }}
       />
     </SvgIcon>
   )
@@ -294,8 +309,9 @@ export const CheckMarkIcon = (props: SvgIconProps) => {
 }
 
 export const CrossedEyeIcon = (props: SvgIconProps) => {
+  const theme = useTheme()
   return (
-    <SvgIcon {...props} viewBox="0 0 15.931 12.145">
+    <SvgIcon {...props} viewBox="0 0 15.931 12.145" style={{ color: theme.SvgIcons.color }}>
       <path d="M7.933 10.41a7.081 7.081 0 0 1-3.7-1.292 12.409 12.409 0 0 1-2.874-2.717.237.237 0 0 1 0-.366 14.122 14.122 0 0 1 2.429-2.372L3 2.873a14.6 14.6 0 0 0-2.836 2.93.629.629 0 0 0 .019.87 13.62 13.62 0 0 0 4.222 3.834 7.4 7.4 0 0 0 3.547 1 7.067 7.067 0 0 0 2.948-.711l-.848-.848a5.577 5.577 0 0 1-2.119.462ZM15.74 5.784a13.154 13.154 0 0 0-4.26-3.856A7.284 7.284 0 0 0 8.145.941a6.436 6.436 0 0 0-2.892.6l.848.848a5.691 5.691 0 0 1 1.793-.348 5.788 5.788 0 0 1 2.583.617 11.437 11.437 0 0 1 3.586 2.783c.193.212.347.424.54.636a.209.209 0 0 1 .019.289 13.993 13.993 0 0 1-2.256 2.275l.79.79a14.6 14.6 0 0 0 2.6-2.737.658.658 0 0 0-.016-.91Z" />
       <path d="m9.687 5.974 1 1a3.349 3.349 0 0 0 .1-.752 2.867 2.867 0 0 0-2.835-2.848 2.576 2.576 0 0 0-.771.116l1.022 1.021a1.738 1.738 0 0 1 1.484 1.463ZM5.311 5.205a2.6 2.6 0 0 0-.193 1.022A2.867 2.867 0 0 0 7.971 9.06a3.005 3.005 0 0 0 1.022-.193l-.906-.906h-.135a1.749 1.749 0 0 1-1.734-1.773v-.077ZM2.882.173A.514.514 0 0 0 2.493 0a.659.659 0 0 0-.556.386.49.49 0 0 0 .135.578l11.007 11.007a.514.514 0 0 0 .386.173.659.659 0 0 0 .559-.386.49.49 0 0 0-.131-.577Z" />
     </SvgIcon>
@@ -348,11 +364,12 @@ export const ExpandLessIcon = (props: SvgIconProps) => {
 }
 
 export const EyeIcon = (props: SvgIconProps) => {
+  const theme = useTheme()
   return (
-    <SvgIcon {...props} viewBox="0 0 15.931 10.568">
+    <SvgIcon {...props} viewBox="0 0 15.931 10.568" style={{ color: theme.SvgIcons.color }}>
       <path d="M7.933 9.469a7.081 7.081 0 0 1-3.7-1.292A12.409 12.409 0 0 1 1.359 5.46a.237.237 0 0 1 0-.366c.733-.892 3.322-3.276 4.685-3.702l-.791-.79a18.682 18.682 0 0 0-5.089 4.26.629.629 0 0 0 .019.867 13.62 13.62 0 0 0 4.222 3.837 7.4 7.4 0 0 0 3.547 1 7.067 7.067 0 0 0 2.948-.711l-.847-.853a5.577 5.577 0 0 1-2.12.467Z" />
       <path d="M15.74 4.843A13.154 13.154 0 0 0 11.48.987 7.284 7.284 0 0 0 8.145 0a6.436 6.436 0 0 0-2.892.6l.848.848A5.691 5.691 0 0 1 7.894 1.1a5.788 5.788 0 0 1 2.583.617A11.437 11.437 0 0 1 14.063 4.5c.193.212.347.424.54.636a.209.209 0 0 1 .019.289 17.151 17.151 0 0 1-4.627 3.6l.79.79a21.4 21.4 0 0 0 4.973-4.067.658.658 0 0 0-.018-.905Z" />
-      <g transform="translate(4.952 1.963)" style={{ stroke: '#005699', fill: 'none' }}>
+      <g transform="translate(4.952 1.963)" style={{ stroke: theme.SvgIcons.color, fill: 'none' }}>
         <circle cx="3" cy="3" r="3" style={{ stroke: 'none' }} />
         <circle cx="3" cy="3" r="2.5" />
       </g>
@@ -496,13 +513,12 @@ export const MessageIcon = (props: SvgIconProps) => {
 }
 
 export const DownloadFileIcon = (props: SvgIconProps) => {
+  const theme = useTheme()
   return (
-    //<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-    <SvgIcon {...props} viewBox="0 0 24 24">
+    <SvgIcon {...props} viewBox="0 0 24 24" style={{ color: theme.SvgIcons.color }}>
       <path d="M0 0h24v24H0V0z" fill="none" />
       <path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z" />
     </SvgIcon>
-    //</svg>
   )
 }
 
@@ -591,8 +607,13 @@ export const MicroInBubbleIcon = (props: SvgIconProps) => {
 }
 
 export const OppositeArrowsIcon = (props: SvgIconProps) => {
+  const theme = useTheme()
   return (
-    <SvgIcon {...props} viewBox="0 0 16.123 17" style={{ fill: 'none', stroke: '#005699', fillRule: 'evenodd' }}>
+    <SvgIcon
+      {...props}
+      viewBox="0 0 16.123 17"
+      style={{ fill: 'none', stroke: theme.SvgIcons.color, fillRule: 'evenodd' }}
+    >
       <path d="M15.623 11.025a.358.358 0 0 0-.358-.358h-8.1v-1.4a.358.358 0 0 0-.537-.31l-2.972 1.717-2.977 1.72a.358.358 0 0 0 0 .62l2.977 1.718 2.975 1.719a.358.358 0 0 0 .537-.31v-1.4h8.1a.358.358 0 0 0 .358-.358v-3.36ZM.5 2.615a.358.358 0 0 1 .358-.358h8.1v-1.4a.358.358 0 0 1 .537-.31l2.976 1.718 2.977 1.72a.358.358 0 0 1 0 .62l-2.977 1.718-2.978 1.719a.358.358 0 0 1-.537-.31v-1.4h-8.1a.358.358 0 0 1-.358-.358v-3.36Z" />
     </SvgIcon>
   )
@@ -842,8 +863,9 @@ export const SettingsIcon = (props: SvgIconProps) => {
 }
 
 export const TrashBinIcon = (props: SvgIconProps) => {
+  const theme = useTheme()
   return (
-    <SvgIcon {...props} viewBox="0 0 15.44 16">
+    <SvgIcon {...props} viewBox="0 0 15.44 16" style={{ color: theme.SvgIcons.color }}>
       <path
         d="M17.2 4.08h-4.72v-.32A1.776 1.776 0 0 0 10.72 2H9.44a1.776 1.776 0 0 0-1.76 1.76V4H2.96a.56.56 0 1 0 0 1.12h1.12l.56 11.04A1.879 1.879 0 0 0 6.56 18h7.12a1.879 1.879 0 0 0 1.92-1.84l.56-11.04h1.12a.547.547 0 0 0 .56-.56c0-.32-.32-.48-.64-.48Zm-8.48 0v-.32a.631.631 0 0 1 .64-.64h1.28a.631.631 0 0 1 .64.64V4H8.72Zm6.24 1.04-.56 10.96a.8.8 0 0 1-.8.8H6.56a.756.756 0 0 1-.8-.8L5.12 5.12Z"
         transform="translate(-2.4 -2)"
@@ -853,8 +875,9 @@ export const TrashBinIcon = (props: SvgIconProps) => {
 }
 
 export const TwoSheetsIcon = (props: SvgIconProps) => {
+  const theme = useTheme()
   return (
-    <SvgIcon {...props} viewBox="0 0 16 15.68">
+    <SvgIcon {...props} viewBox="0 0 16 15.68" style={{ color: theme.SvgIcons.color }}>
       <path
         d="M16.72 2.2H7.2a1.264 1.264 0 0 0-1.28 1.28V5.8H3.28A1.264 1.264 0 0 0 2 7.08v9.52a1.264 1.264 0 0 0 1.28 1.28h9.52a1.264 1.264 0 0 0 1.28-1.28v-2.32h2.64A1.264 1.264 0 0 0 18 13V3.48a1.264 1.264 0 0 0-1.28-1.28Zm-3.68 14.4a.212.212 0 0 1-.24.24H3.28a.212.212 0 0 1-.24-.24V7.08a.255.255 0 0 1 .24-.24h9.52a.212.212 0 0 1 .24.24Zm3.92-3.6a.212.212 0 0 1-.24.24h-2.64V7.08A1.264 1.264 0 0 0 12.8 5.8H6.96V3.48a.212.212 0 0 1 .24-.24h9.52a.212.212 0 0 1 .24.24V13Z"
         transform="translate(-2 -2.2)"

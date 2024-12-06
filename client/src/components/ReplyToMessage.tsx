@@ -23,9 +23,9 @@ import { useTranslation } from 'react-i18next'
 import { useActionMessageContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
-import ReplyIcon from '../icons/replyIcon.svg?react'
 import { SquareCancelPictureButton } from './Button'
 import MessageDataContent from './MessageDataContent'
+import { Arrow4Icon as ReplyIcon } from './SvgIcon'
 
 export default function ReplyToMessage() {
   const { members } = useConversationContext()
@@ -89,7 +89,7 @@ export default function ReplyToMessage() {
             }}
           >
             <Box sx={{ paddingLeft: '5px', marginTop: '25px' }}>
-              <ReplyIcon color={'white'} />
+              <ReplyIcon />
             </Box>
             <Box
               sx={{

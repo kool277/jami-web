@@ -73,10 +73,9 @@ export const RoundButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
     <Icon fontSize="inherit" />
   </IconButton>
 ))(({ theme }) => ({
-  border: `1px solid ${theme.palette.primary.dark}`,
-  color: theme.palette.primary.dark,
+  border: `1px solid ${theme.SvgIcons.color}`,
+  color: theme.SvgIcons.color,
   fontSize: '15px',
-  background: 'white',
   opacity: 1,
   '&:hover': {
     background: theme.SvgIcons.hoverBackgroundColor,
@@ -230,6 +229,7 @@ export const EditPictureButton = styled((props: IconButtonProps) => {
   return <RoundButton {...props} disableRipple={false} aria-label="edit picture" Icon={PenIcon} size="small" />
 })(({ theme }) => ({
   backgroundColor: 'inherit',
+  color: theme.SvgIcons.color,
   '&:hover': {
     background: theme.SvgIcons.hoverBackgroundColor,
   },
@@ -265,8 +265,8 @@ export const MoreButton = styled((props: IconButtonProps) => {
     </IconButton>
   )
 })(({ theme }) => ({
-  border: `1px solid ${theme.palette.primary.dark}`,
-  color: theme.palette.primary.dark,
+  border: `1px solid ${theme.SvgIcons.color}`,
+  color: theme.SvgIcons.color,
   fontSize: '10px',
   height: '20px',
   width: '20px',
@@ -286,7 +286,7 @@ export const BackButton = styled((props: IconButtonProps) => {
     </IconButton>
   )
 })(({ theme }) => ({
-  color: theme.palette.primary.dark,
+  color: theme.SvgIcons.color,
   fontSize: '15px',
   height: '30px',
   width: '51px',
@@ -333,7 +333,7 @@ export const CloseButton = styled((props: IconButtonProps) => {
     </IconButton>
   )
 })(({ theme }) => ({
-  color: theme.palette.primary.dark,
+  color: theme.SvgIcons.color,
   fontSize: '15px',
   height: '30px',
   width: '30px',
@@ -354,7 +354,7 @@ export const ToggleVisibilityButton = styled(({ visible, ...props }: ToggleVisib
     </IconButton>
   )
 })(({ theme }) => ({
-  color: theme.palette.primary.dark,
+  color: theme.SvgIcons.color,
   fontSize: '15px',
   height: '15px',
   width: '15px',

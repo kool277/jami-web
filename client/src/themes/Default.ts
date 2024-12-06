@@ -48,6 +48,7 @@ declare module '@mui/material/styles' {
       border: string
     }
     SvgIcons: {
+      color: string
       hoverBackgroundColor: string
     }
     Buttons: {
@@ -229,6 +230,7 @@ const palettes = {
       border: '0.5px lightgrey solid',
     },
     SvgIcons: {
+      color: '#0071C9',
       hoverBackgroundColor: '#E5E5E5',
     },
     Buttons: {
@@ -291,11 +293,12 @@ const palettes = {
       border: '0.5px darkgrey solid',
     },
     SvgIcons: {
+      color: 'white',
       hoverBackgroundColor: '#2A2A2A',
     },
     Buttons: {
       hoverBackgroundColor: '#262525',
-      color: 'EAEAEA',
+      color: '#EAEAEA',
       disabledColor: '#7E7E7E',
     },
   },

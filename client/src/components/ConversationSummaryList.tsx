@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, List, Stack, Typography } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import dayjs from 'dayjs'
 import { IConversationSummary } from 'jami-web-common'
 import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
@@ -41,7 +42,7 @@ import { CustomListItemButton } from './CustomListItemButton'
 import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog'
 import { PopoverListItemData } from './PopoverList'
 import RemoveConversationDialog from './RemoveComversationDialog'
-import { AudioCallIcon, CancelIcon, MessageIcon, PersonIcon, VideoCallIcon } from './SvgIcon'
+import { CancelIcon, MessageIcon, PersonIcon } from './SvgIcon'
 
 type ConversationSummaryListProps = {
   conversationsSummaries: IConversationSummary[]
@@ -250,6 +251,19 @@ interface ConversationMenuProps {
   conversationMemberUri?: string
 }
 
+const ColoredCancelIcon = () => {
+  const theme = useTheme()
+  return <CancelIcon sx={{ color: theme.SvgIcons.color, width: '16px', height: '16px' }} />
+}
+const ColoredPersonIcon = () => {
+  const theme = useTheme()
+  return <PersonIcon sx={{ color: theme.SvgIcons.color, width: '16px', height: '16px' }} />
+}
+const ColoredMessageIcon = () => {
+  const theme = useTheme()
+  return <MessageIcon sx={{ color: theme.SvgIcons.color, width: '16px', height: '16px' }} />
+}
+
 const ConversationMenu = ({
   conversationMemberUri,
   conversationId,
@@ -260,9 +274,8 @@ const ConversationMenu = ({
   conversationAvatar,
 }: ConversationMenuProps) => {
   const { t } = useTranslation()
-  const { startCall } = useCallManagerContext()
+  //const { startCall } = useCallManagerContext()
   const [isSwarm] = useState(true)
-
   const detailsDialogHandler = useDialogHandler()
   const RemoveConversationDialogHandler = useDialogHandler()
 
@@ -272,10 +285,10 @@ const ConversationMenu = ({
     () => [
       {
         label: t('conversation_message'),
-        Icon: MessageIcon,
+        Icon: ColoredMessageIcon,
         onClick: onMessageClick,
       },
-      {
+      /*{
         label: t('conversation_start_audiocall'),
         Icon: AudioCallIcon,
         onClick: () => {
@@ -292,12 +305,12 @@ const ConversationMenu = ({
             startCall(conversationId, true)
           }
         },
-      },
+      },*/
       ...(isSelected
         ? [
             {
               label: t('conversation_close'),
-              Icon: CancelIcon,
+              Icon: ColoredCancelIcon,
               onClick: () => {
                 navigate(`/`)
               },
@@ -306,14 +319,14 @@ const ConversationMenu = ({
         : []),
       {
         label: t('conversation_details'),
-        Icon: PersonIcon,
+        Icon: ColoredPersonIcon,
         onClick: () => {
           detailsDialogHandler.openDialog()
         },
       },
       {
         label: t('conversation_delete'),
-        Icon: CancelIcon,
+        Icon: ColoredCancelIcon,
         onClick: () => {
           RemoveConversationDialogHandler.openDialog()
         },
@@ -326,8 +339,8 @@ const ConversationMenu = ({
       detailsDialogHandler,
       RemoveConversationDialogHandler,
       t,
-      startCall,
-      conversationId,
+      /*startCall,
+      conversationId,*/
     ],
   )
 
