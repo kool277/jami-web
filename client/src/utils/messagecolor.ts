@@ -37,25 +37,37 @@ export const colors = [
   '#607D8B',
 ]
 
+export const messageColors = [
+  '#C2185B',
+  '#5934AE',
+  '#303F9F',
+  '#005699',
+  '#0288D1',
+  '#0097A7',
+  '#00796B',
+  '#689F30',
+  '#9E9D24',
+  '#FDD835',
+  '#FA2E30',
+  '#A6948B',
+  '#6C6C6C',
+]
+
 // colors of bubble and text inside the bubble does not
 // change based dark mode or light mode
-const darkColorsText = ['#CDDC39', '#E5E5E5']
-const darkColorsTime = ['#9E9E9E', '#009688']
-const lightColorsTime = ['#f44336', '#2196f3', '#00BCD4', '#4CAF50', '#FF5722', '#607D8B']
+const darkColorsText = ['#fdd835']
+const darkColorsTime = ['#c2185b', '#0288d1', '#0097a7', '#689f30', '#9e9d24', '#fa2e30', '#a6948b']
 
 export function getTextColor(color: string): string {
   if (darkColorsText.includes(color)) {
-    return '#4C4C4C'
+    return '#7F7F7F'
   }
   return '#FFFFFF'
 }
 
 export function getSentTimeColor(color: string): string {
-  if (lightColorsTime.includes(color)) {
-    return '#d8d8d8'
-  }
   if (darkColorsTime.includes(color)) {
-    return '#6b6b6b'
+    return '#cfcfcf'
   }
   return '#A6948B'
 }

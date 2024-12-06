@@ -50,7 +50,7 @@ import {
   useConversationPreferencesMutation,
   useRemoveMemberFromSwarm,
 } from '../services/conversationQueries'
-import { colors } from '../utils/messagecolor'
+import { messageColors } from '../utils/messagecolor'
 import ContactDetailDialog from './ContactDetailDialog'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
 import ConversationAvatar from './ConversationAvatar'
@@ -586,6 +586,7 @@ const ColorPicker = ({ conversationId }: ColorPickerProps) => {
   const conversationPreferencesMutation = useConversationPreferencesMutation(conversationId)
 
   const handleNewColor = (color: string) => {
+    console.log('color', color)
     conversationPreferencesMutation.mutate({ color })
   }
 
@@ -613,7 +614,7 @@ const ColorPicker = ({ conversationId }: ColorPickerProps) => {
               triangle="hide"
               styles={{}}
               color={conversationColor}
-              colors={colors}
+              colors={messageColors}
               onChange={(color) => {
                 handleNewColor(color.hex)
               }}
