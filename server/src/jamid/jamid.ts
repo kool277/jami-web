@@ -490,6 +490,10 @@ export class Jamid {
     )
   }
 
+  async loadSwarmUntil(accountId: string, conversationId: string, fromMessage: string, toMessage: string) {
+    this.jamiSwig.loadSwarmUntil(accountId, conversationId, fromMessage, toMessage)
+  }
+
   removeConversation(accountId: string, conversationId: string) {
     this.jamiSwig.removeConversation(accountId, conversationId)
   }

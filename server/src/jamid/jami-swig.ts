@@ -139,6 +139,7 @@ export interface JamiSwig {
   sendMessage(accountId: string, conversationId: string, message: string, replyTo: string, flag: number): void
   loadConversationMessages(accountId: string, conversationId: string, fromMessage: string, n: number): number
   loadConversation(accountId: string, conversationId: string, fromMessage: string, n: number): number
+  loadSwarmUntil(accountId: string, conversationId: string, fromMessage: string, toMessage: string): number
   setIsComposing(accountId: string, conversationId: string, isWriting: boolean): void
   setMessageDisplayed(accountId: string, conversationId: string, messageId: string, status: number): boolean
 
