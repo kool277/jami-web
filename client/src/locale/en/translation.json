@@ -259,7 +259,7 @@
   "username_input_helper_text_registration_failed": "Incorrect username. Please enter the correct username.",
   "username_input_helper_text_success": "Username available.",
   "username_input_helper_text_taken": "The username is already taken. Please choose a different username.",
-  "username_input_label": "Choose an identifier",
+  "username_input_label": "Username",
   "username_rule_1": "The username must be 3 to 32 characters long.",
   "username_rule_2": "The username may contain lowercase and uppercase alphabetical characters.",
   "username_rule_3": "The username may contain hyphens (-).",

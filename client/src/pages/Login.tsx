@@ -135,14 +135,14 @@ function LoginForm() {
             value={username}
             onChange={handleUsername}
             tooltipTitle={t('login_form_username_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '40px' }}
+            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '56px' }}
           />
           <PasswordInput
             data-cy="password-input"
             value={password}
             onChange={handlePassword}
             tooltipTitle={t('login_form_password_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '-16px' }}
+            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '-32px' }}
           />
           <FormControl
             sx={{

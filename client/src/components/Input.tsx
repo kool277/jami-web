@@ -85,7 +85,6 @@ export const UsernameInput = ({
     <>
       <InfosDialog {...dialogHandler.props} title={t('username_rules_dialog_title')} content={<UsernameRules />} />
       <TextField
-        required
         error={usernameError}
         label={t('username_input_label')}
         variant="standard"
@@ -94,6 +93,10 @@ export const UsernameInput = ({
         onBlur={() => setIsSelected(false)}
         {...props}
         InputLabelProps={{
+          sx: {
+            transformOrigin: 'top left',
+            left: '45px',
+          },
           shrink: !!(isSelected || props.value),
           ...props.InputLabelProps,
         }}
@@ -156,7 +159,6 @@ export const PasswordInput = ({
     <>
       <InfosDialog {...dialogHandler.props} title={t('password_rules_dialog_title')} content={<PasswordRules />} />
       <TextField
-        required
         error={passwordError}
         label={t('password_input_label')}
         type={showPassword ? 'text' : 'password'}
@@ -166,7 +168,14 @@ export const PasswordInput = ({
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}
-        InputLabelProps={{ shrink: !!(isSelected || props.value), ...props.InputLabelProps }}
+        InputLabelProps={{
+          sx: {
+            transformOrigin: 'top left',
+            left: '44px',
+          },
+          shrink: !!(isSelected || props.value),
+          ...props.InputLabelProps,
+        }}
         InputProps={{
           startAdornment: <StartAdornmentIcon sx={{ visibility: StartAdornmentIconVisibility }} />,
           endAdornment: (

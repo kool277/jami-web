@@ -160,7 +160,7 @@ function RegistrationForm() {
             onChange={handleUsername}
             status={usernameStatus}
             tooltipTitle={t('registration_form_username_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '40px' }}
+            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '80px' }}
           />
 
           <PasswordInput
@@ -169,7 +169,7 @@ function RegistrationForm() {
             onChange={handlePassword}
             status={passwordStatus}
             tooltipTitle={t('registration_form_password_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '-16px' }}
+            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '-32px' }}
           />
           <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: isMobile ? '-3%' : '-5%' }}>
             <Button

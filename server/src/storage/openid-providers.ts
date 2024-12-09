@@ -82,7 +82,7 @@ export class OpenIdProviders {
       authUri: 'https://git.jami.net/oauth/authorize',
       displayName: 'Savoir-faire Linux GitLab',
       documentation: 'https://docs.gitlab.com/ee/api/oauth2.html',
-      icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/GitLab_logo.svg',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/3/35/GitLab_icon.svg',
       colorTheme: '#d9d9d9',
     })
 
