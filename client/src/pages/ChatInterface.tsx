@@ -341,6 +341,9 @@ const ChatInterface = () => {
     return <div>Error loading {conversationId}</div>
   }
 
+  const lastMessage = messages[messages.length - 1]
+  const isLastMessageAuthor = lastMessage?.author === account.getUri()
+
   return (
     <Stack flex={1} direction="row" overflow="hidden" spacing={0}>
       <Stack
@@ -354,7 +357,9 @@ const ChatInterface = () => {
         <currentLastSeenMessageContext.Provider value={lastSeen}>
           <MessageList messages={messages} />
         </currentLastSeenMessageContext.Provider>
-        <ComposingMembersIndicator />
+        <Box sx={isLastMessageAuthor ? {} : { mt: '14px' }}>
+          <ComposingMembersIndicator />
+        </Box>
         {fileHandlers.length > 0 && <FilePreviewsList fileHandlers={fileHandlers} removeFile={removeFile} />}
         <ReplyToMessage />
         {editMessage !== undefined ? (

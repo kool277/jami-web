@@ -28,6 +28,8 @@ declare module '@mui/material/styles' {
       panelColor: string
       inputColor: string
       messageColor: string
+      fontColor: string
+      replyBorderColor: string
     }
     LoginPage: {
       backgroundColor: string
@@ -214,6 +216,8 @@ const palettes = {
       panelColor: '#f2f2f2',
       inputColor: 'black',
       messageColor: '#E5E5E5',
+      fontColor: 'black',
+      replyBorderColor: '2px solid white',
     },
     LoginPage: {
       backgroundColor: '#f9fafc',
@@ -280,6 +284,8 @@ const palettes = {
       panelColor: '#181818',
       inputColor: 'white',
       messageColor: '#6C6C6C',
+      fontColor: 'white',
+      replyBorderColor: '3px solid #121212',
     },
     LoginPage: {
       backgroundColor: '#f9fafc',

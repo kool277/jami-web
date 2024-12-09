@@ -674,6 +674,7 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
               sentTime={sentTime}
               edited={isEdited}
               deleted={isDeleted}
+              hasReply={message['reply-to'] !== undefined}
             >
               <Linkify options={{ render: RenderLink as any, attributes: { isAccountMessage } }}>
                 {message.body + '            '}
@@ -802,6 +803,7 @@ const UserMessageRow = ({
   const { members } = useConversationContext()
   const theme: Theme = useTheme()
   const isReduced = useMediaQuery(theme.breakpoints.down('md'))
+  const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
   const props = {
     message,
     isAccountMessage,
@@ -850,6 +852,16 @@ const UserMessageRow = ({
     }
   }
 
+  const getMaxReplyWidth = () => {
+    if (isMobile) {
+      return '300px'
+    }
+    if (isReduced) {
+      return '400px'
+    }
+    return '600px'
+  }
+
   let replyMessageComponent = <></>
 
   if (typeof replyMessage !== 'object' && replyMessage !== undefined) {
@@ -870,13 +882,13 @@ const UserMessageRow = ({
         <Box sx={{ fontSize: '11px', color: 'grey', fontWeight: 'bolder', mt: 1, mr: 1.5, mb: 0 }}>
           {t('replied_to') + ' ' + name}
         </Box>
-        <Box data-cy="reply-message" sx={{ mb: -2, mr: 1.5 }}>
+        <Box data-cy="reply-message" sx={{ mb: '-16px', mr: 1.5 }}>
           <Bubble
             bubbleColor={bubbleColorReply}
             position={position}
             isFirstOfGroup={true}
             isLastOfGroup={true}
-            maxWidth={isReduced ? '400px' : 'unset'}
+            maxWidth={getMaxReplyWidth()}
             edited={false} // edited is not used in reply message
             deleted={replyMessage.body === ''}
           >
@@ -900,11 +912,24 @@ const UserMessageRow = ({
   return (
     <Stack alignItems={position} id={`message-${message.id}`}>
       {isFirstOfGroup && (
-        <Box padding={`0px ${participantNamePadding} 0 ${participantNamePadding}`}>
+        <Box
+          padding={`0px ${participantNamePadding} 0 ${participantNamePadding}`}
+          sx={
+            isMobile
+              ? {
+                  maxWidth: isAccountMessage ? 'unset' : '100px',
+                  textOverflow: 'ellipsis',
+                  textWrap: 'nowrap',
+                  marginLeft: !isAccountMessage ? '-8px' : '0',
+                }
+              : {}
+          }
+        >
           <ParticipantName name={authorName} />
         </Box>
       )}
-      {replyMessageComponent}
+      <Box sx={isAccountMessage ? { marginRight: '24px' } : { marginLeft: '48px' }}>{replyMessageComponent}</Box>
+
       <Stack
         direction="row"
         justifyContent={position}
@@ -1161,6 +1186,7 @@ interface BubbleProps {
   deleted: boolean
   isMedia?: boolean
   isAudio?: boolean
+  hasReply?: boolean
 }
 
 const Bubble = ({
@@ -1175,10 +1201,12 @@ const Bubble = ({
   deleted,
   isMedia,
   isAudio,
+  hasReply,
 }: BubbleProps) => {
   const { t } = useTranslation()
   const largeRadius = '12px'
   const smallRadius = '5px'
+  const theme = useTheme()
   const radius = useMemo(() => {
     if (position === 'start') {
       return {
@@ -1196,7 +1224,8 @@ const Bubble = ({
     }
   }, [isFirstOfGroup, isLastOfGroup, position])
   const nonMediaBubbleStyle = {
-    color: getTextColor(bubbleColor),
+    border: hasReply ? theme.ChatInterface.replyBorderColor : 'unset',
+    color: position === 'start' ? theme.ChatInterface.fontColor : getTextColor(bubbleColor),
     maxWidth: maxWidth || '100%',
     backgroundColor: bubbleColor,
     padding: isMedia && !deleted ? null : bubblePadding,
@@ -1207,6 +1236,8 @@ const Bubble = ({
     flexWrap: 'wrap',
     whiteSpace: 'pre-wrap',
     marginRight: '8px',
+    overflowWrap: 'break-word',
+    wordBreak: 'break-word',
     height: 'auto',
     ...radius,
   }
