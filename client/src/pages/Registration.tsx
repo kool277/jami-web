@@ -22,6 +22,7 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Link } from 'react-router-dom'
 
+import SettingLanguage from '../components/GeneralSettings/SettingLanguage'
 import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input'
 import JamiWelcomeLogo from '../components/JamiWelcomeLogo'
 import ProcessingRequest from '../components/ProcessingRequest'
@@ -136,6 +137,9 @@ function RegistrationForm() {
 
   return (
     <>
+      <Box sx={{ position: 'absolute', right: '0', padding: '1px' }}>
+        <SettingLanguage doNotDisplayLabel={true}></SettingLanguage>
+      </Box>
       <ProcessingRequest open={isPending} />
 
       <UnconnectedUserLayout>

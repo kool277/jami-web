@@ -16,12 +16,12 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, useMediaQuery, useTheme } from '@mui/material'
-import { useCallback, useContext, useMemo, useState } from 'react'
+import { useCallback, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationContext } from '../../contexts/NotificationsProvider'
-import { languagesInfos, LanguageTag } from '../../i18n'
-import { SettingSelect, SettingSelectProps, SettingsGroup, SettingSwitch } from '../Settings'
+import { SettingsGroup, SettingSwitch } from '../Settings'
+import SettingLanguage from './SettingLanguage'
 
 function System() {
   const { t } = useTranslation()
@@ -30,45 +30,12 @@ function System() {
   return (
     <Box sx={{ display: 'flex', justifyContent: isMobile ? 'center' : 'flex-start', padding: '2%' }}>
       <SettingsGroup label={t('settings_title_system')}>
-        <SettingLanguage />
+        <Box sx={{ mt: '2%', mb: '2%' }}>
+          <SettingLanguage />
+        </Box>
         <SettingLinkPreview />
         <SettingNotifications />
       </SettingsGroup>
-    </Box>
-  )
-}
-
-const settingLanguageOptions = languagesInfos.map(({ tag, fullName }) => ({
-  label: fullName,
-  payload: tag,
-}))
-
-const SettingLanguage = () => {
-  const { t, i18n } = useTranslation()
-
-  const option = useMemo(
-    // TODO: Tell Typescript the result can't be undefined
-    () => settingLanguageOptions.find((option) => option.payload === i18n.language),
-    [i18n.language],
-  )
-
-  const onChange = useCallback<SettingSelectProps<LanguageTag>['onChange']>(
-    (newValue) => {
-      if (newValue) {
-        i18n.changeLanguage(newValue.payload)
-      }
-    },
-    [i18n],
-  )
-
-  return (
-    <Box sx={{ mt: '2%', mb: '2%' }}>
-      <SettingSelect
-        label={t('settings_language')}
-        option={option}
-        options={settingLanguageOptions}
-        onChange={onChange}
-      />
     </Box>
   )
 }
