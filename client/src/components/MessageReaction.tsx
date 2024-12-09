@@ -157,7 +157,7 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
         open={isOpen}
         onClose={handleCloseModal}
         sx={{
-          width: '25%',
+          width: '350px',
           height: 'auto',
           maxHeight: '40%',
           position: 'absolute',
@@ -201,10 +201,10 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
             }}
           >
             {message.reactions.map((reaction) => {
-              const author = membersMap.get(reaction.author)?.contact.getDisplayName()
+              const author = membersMap.get(reaction.author)?.contact.uri
               return (
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4 }} key={reaction.id}>
-                  {author === undefined ? (
+                  {author === account.getUri() ? (
                     <>
                       <Box>{t('yourself')}</Box>
                       <Box

@@ -56,6 +56,9 @@ declare module '@mui/material/styles' {
       color: string
       disabledColor: string
     }
+    StatusIcon: {
+      color: string
+    }
   }
 
   interface ThemeOptions {
@@ -238,6 +241,9 @@ const palettes = {
       color: '#4f4f4f',
       disabledColor: '#7e7e7e',
     },
+    StatusIcon: {
+      color: 'black',
+    },
   },
   dark: {
     palette: {
@@ -300,6 +306,9 @@ const palettes = {
       hoverBackgroundColor: '#262525',
       color: '#EAEAEA',
       disabledColor: '#7E7E7E',
+    },
+    StatusIcon: {
+      color: 'white',
     },
   },
 }

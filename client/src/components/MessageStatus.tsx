@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import { useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Message } from 'jami-web-common'
 import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
@@ -23,6 +24,7 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
+import SendingIcon from '../icons/sendingIcon.svg?react'
 import SentIcon from '../icons/sentIcon.svg?react'
 import { currentLastSeenMessageContext } from '../pages/ChatInterface'
 import ConversationAvatar from './ConversationAvatar'
@@ -37,6 +39,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
   const [highestStatus, setHighestStatus] = useState<MessageStatusCode>(MessageStatusCode.sending)
   const { members } = useConversationContext()
   const messageStatus = useContext(currentLastSeenMessageContext)
+  const theme = useTheme()
 
   useEffect(() => {
     let highest = MessageStatusCode.sending
@@ -79,7 +82,12 @@ export default function MessageStatus({ message }: MessageStatusProps) {
       } else {
         switch (highestStatus) {
           case MessageStatusCode.sending:
-            return <>...</>
+            return (
+              <SendingIcon
+                style={{ color: theme.StatusIcon.color, stroke: theme.StatusIcon.color, fill: theme.StatusIcon.color }}
+                width={messageSentIconWidth}
+              />
+            )
           case MessageStatusCode.sent:
             return <SentIcon width={messageSentIconWidth} />
           default:
@@ -87,7 +95,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
         }
       }
     },
-    [account, highestStatus, members, messageStatus],
+    [account, highestStatus, members, messageStatus, theme],
   )
 
   const item = {

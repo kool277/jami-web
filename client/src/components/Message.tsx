@@ -17,8 +17,8 @@
  */
 // eslint-disable-next-line simple-import-sort/imports
 import { Box, Chip, Divider, Link, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material'
-import { styled } from '@mui/material/styles'
-import { Theme, useTheme } from '@mui/material/styles'
+import { darken } from '@mui/system'
+import { Theme, useTheme, styled } from '@mui/material/styles'
 import dayjs, { Dayjs } from 'dayjs'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { t } from 'i18next'
@@ -60,6 +60,7 @@ import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
 import MessageReaction from './MessageReaction'
 import MessageStatus from './MessageStatus'
+import { isEmoji } from '../utils/utils'
 
 type MessagePosition = 'start' | 'end'
 
@@ -165,6 +166,8 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
       bubbleColor={bubbleColor}
       sentTime={sentTime}
       edited={false} // edited is not used in call message
+      isMedia={false}
+      deleted={false} // deleted is not used in call message
     >
       <Stack direction="row" spacing="10px" alignItems="center">
         <Icon sx={{ fontSize: '16px', color: textColor }} />
@@ -335,6 +338,9 @@ const MessageDataTransfer = ({
   }
 
   const onDoubleClick = () => {
+    if (isDeleted) {
+      return
+    }
     setReplyMessage(message)
   }
 
@@ -479,8 +485,9 @@ const MessageDataTransfer = ({
             isLastOfGroup={isLastOfGroup}
             sentTime={sentTime}
             edited={false} // edited is not used in data-transfer message
-            isMedia={fileType !== FileType.Document && !isDeleted ? true : false}
+            isMedia={fileType !== FileType.Document ? true : false}
             isAudio={fileType === FileType.Audio}
+            deleted={isDeleted}
           >
             {isDeleted ? <Box color={textColor}>{t('media_deleted')}</Box> : dataComponent()}
           </Bubble>
@@ -618,6 +625,26 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
       return
     }
     setReplyMessage(message)
+  }
+
+  if (!isDeleted && message.body.length === 2 && isEmoji(message.body)) {
+    return (
+      <Box data-cy="message">
+        <MessageTooltip isDeleted={isDeleted} position={position} message={message} isMedia={false}>
+          <Box sx={{ fontSize: '40px', padding: '4px' }}>{message.body}</Box>
+        </MessageTooltip>
+        <Box
+          sx={{
+            width: '95%',
+            display: 'flex',
+            justifyContent: isAccountMessage ? 'flex-start' : 'flex-end',
+            marginTop: '-8px',
+          }}
+        >
+          <MessageReaction message={message} />
+        </Box>
+      </Box>
+    )
   }
 
   return (
@@ -838,6 +865,7 @@ const UserMessageRow = ({
             isLastOfGroup={true}
             maxWidth={isReduced ? '400px' : 'unset'}
             edited={false} // edited is not used in reply message
+            deleted={replyMessage.body === ''}
           >
             {replyMessage.type === 'text/plain' ? (
               <Typography variant="body1" color={textColorReply} textAlign={position}>
@@ -1117,7 +1145,7 @@ interface BubbleProps {
   children: ReactNode
   sentTime?: Dayjs
   edited: boolean
-  deleted?: boolean
+  deleted: boolean
   isMedia?: boolean
   isAudio?: boolean
 }
@@ -1158,7 +1186,7 @@ const Bubble = ({
     color: getTextColor(bubbleColor),
     maxWidth: maxWidth || '100%',
     backgroundColor: bubbleColor,
-    padding: isMedia ? null : bubblePadding,
+    padding: isMedia && !deleted ? null : bubblePadding,
     overflow: 'hidden',
     wordWrap: 'break-word',
     textWrap: 'wrap',
@@ -1192,14 +1220,27 @@ const Bubble = ({
     ...boxedBubbleSentTime,
     marginRight: position === 'start' ? '20px' : '16px',
   }
+
+  const deletedMessageStyle = {
+    color: '#adaaaa',
+    fontStyle: 'italic',
+    backgroundColor: darken(bubbleColor, 0.5),
+  }
+
+  const messageStyles = deleted
+    ? { ...nonMediaBubbleStyle, ...deletedMessageStyle }
+    : isMedia
+      ? mediaBubbleStyle
+      : nonMediaBubbleStyle
+
   return (
     <Box>
-      <Box sx={isMedia ? mediaBubbleStyle : nonMediaBubbleStyle}>
+      <Box sx={messageStyles}>
         <Box sx={isMedia && !deleted ? null : messageContentBubbleStyle}>
           {deleted ? t(isMedia ? 'media_deleted' : 'message_deleted') + '            ' : children}
         </Box>
       </Box>
-      {edited ? (
+      {edited && !deleted ? (
         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', ...sentTimeStyle }}>
           <Box sx={{ marginLeft: '8px' }}>
             <div data-cy={`message-edited`}>{t('edited')}</div>
@@ -1269,8 +1310,16 @@ export const MessageRow = memo(({ message, isAccountMessage, author, previousMes
 
   return (
     <Stack>
-      {showDate && <DateIndicator time={time} />}
-      {showTime && <TimeIndicator time={time} hasDateOnTop={showDate} />}
+      {showDate && (
+        <Box sx={{ mt: '15px', mb: '15px' }}>
+          <DateIndicator time={time} />
+        </Box>
+      )}
+      {showTime && (
+        <Box sx={{ mt: '15px', mb: '15px' }}>
+          <TimeIndicator time={time} hasDateOnTop={showDate} />
+        </Box>
+      )}
       {messageComponent}
     </Stack>
   )

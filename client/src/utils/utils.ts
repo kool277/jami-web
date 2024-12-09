@@ -64,3 +64,8 @@ export interface ISettingItem {
   link: string
   submenuItems?: ISettingItem[]
 }
+
+export function isEmoji(char: string) {
+  const emojiRegex = /^\p{Emoji}$/u
+  return emojiRegex.test(char)
+}
