@@ -223,7 +223,10 @@ function LoginForm() {
                       window.location.replace(item.url)
                     }}
                   >
-                    {item.icon ? <img width="25px" height="25px" src={item.icon}></img> : item.displayName}
+                    <Box sx={{ display: 'flex', flexDirection: 'row', gap: '5px' }}>
+                      <Typography sx={{ color: 'black', fontWeight: 'bolder' }}>{item.displayName}</Typography>
+                      {item.icon && <img width="25px" height="25px" src={item.icon}></img>}
+                    </Box>
                   </Button>
                 ),
               )}
