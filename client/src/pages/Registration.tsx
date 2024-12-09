@@ -76,6 +76,10 @@ function RegistrationForm() {
     }
   }, [username])
 
+  if (data === undefined || providers.data === undefined) {
+    return <ProcessingRequest open />
+  }
+
   const createAccount = () => {
     registerMutation.mutate(
       { username, password },

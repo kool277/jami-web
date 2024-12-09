@@ -17,7 +17,7 @@
  */
 import GppMaybe from '@mui/icons-material/GppMaybe'
 import Warning from '@mui/icons-material/Warning'
-import { IconButtonProps, Stack, TextField, TextFieldProps } from '@mui/material'
+import { Box, IconButtonProps, Stack, TextField, TextFieldProps, Typography } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -81,6 +81,12 @@ export const UsernameInput = ({
  */
   const helperText = t('username_input_helper_text', { context: `${status}` })
 
+  const helper = (
+    <Box sx={{ width: '230px', display: 'flex', justifyContent: 'center', marginTop: '-40px' }}>
+      <Typography sx={{ textWrap: 'nowrap', fontSize: '11px' }}>{status !== 'default' ? helperText : ''}</Typography>
+    </Box>
+  )
+
   return (
     <>
       <InfosDialog {...dialogHandler.props} title={t('username_rules_dialog_title')} content={<UsernameRules />} />
@@ -88,12 +94,13 @@ export const UsernameInput = ({
         error={usernameError}
         label={t('username_input_label')}
         variant="standard"
-        helperText={status !== 'default' ? helperText : ''}
+        helperText={helper}
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}
         InputLabelProps={{
           sx: {
+            visibility: status !== 'default' ? 'hidden' : 'visible',
             transformOrigin: 'top left',
             left: '45px',
           },
@@ -155,6 +162,14 @@ export const PasswordInput = ({
   // TODO: The status is not string anymore, hence it can't be used as a context to fetch the correct translation.
   // const helperText = t('password_input_helper_text', { context: `${status}` })
 
+  const helper = (
+    <Box sx={{ width: '230px', display: 'flex', justifyContent: 'center', marginTop: '-40px' }}>
+      <Typography sx={{ textWrap: 'nowrap', fontSize: '11px' }}>
+        {status === PasswordStrength.TooWeak ? t('password_input_helper_text_too_weak') : ''}
+      </Typography>
+    </Box>
+  )
+
   return (
     <>
       <InfosDialog {...dialogHandler.props} title={t('password_rules_dialog_title')} content={<PasswordRules />} />
@@ -164,12 +179,13 @@ export const PasswordInput = ({
         type={showPassword ? 'text' : 'password'}
         variant="standard"
         autoComplete="current-password"
-        helperText={status === PasswordStrength.TooWeak ? t('password_input_helper_text_too_weak') : ''}
+        helperText={helper}
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}
         InputLabelProps={{
           sx: {
+            visibility: status !== 'default' ? 'hidden' : 'visible',
             transformOrigin: 'top left',
             left: '44px',
           },
