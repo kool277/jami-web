@@ -111,8 +111,8 @@ export default function MessageList({ messages }: MessageListProps) {
         />
       </Stack>
       {showScrollButton && (
-        <Box position="relative">
-          <Box position="absolute" bottom="10px" left="50%" sx={{ transform: 'translate(-50%)', zIndex: 2 }}>
+        <Box position="relative" bottom="15px">
+          <Box position="absolute" left="50%" sx={{ transform: 'translate(-50%)', zIndex: 2 }}>
             <ScrollToEndButton listBottomRef={listBottomRef} />
           </Box>
         </Box>
@@ -134,7 +134,7 @@ const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
     <Stack
       direction="row"
       borderRadius="5px"
-      height={isMobile ? '40px' : '30px'}
+      height={isMobile ? '35px' : '30px'}
       alignItems="center"
       padding="0 16px"
       textAlign="center"
@@ -145,8 +145,8 @@ const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
       }}
       onClick={() => listBottomRef.current?.scrollIntoView({ behavior: 'smooth' })}
     >
-      <ArrowDownIcon sx={{ fontSize: '12px', color: textColor }} />
-      <Typography variant="caption" fontWeight="bold" color={textColor}>
+      <ArrowDownIcon sx={{ fontSize: '14px', color: textColor }} />
+      <Typography variant="caption" fontWeight="bold" color={textColor} sx={{ textWrap: 'nowrap' }}>
         {t('messages_scroll_to_end')}
       </Typography>
     </Stack>

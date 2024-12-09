@@ -155,7 +155,7 @@
   "message_member_left": "{{user}} left",
   "message_member_unbanned": "{{user}} was re-added",
   "message_swarm_created": "Group created",
-  "messages_scroll_to_end": "Scroll to end of conversation",
+  "messages_scroll_to_end": "Scroll to end",
   "missed_incoming_call": "Missed incoming call from conversation {{conversationId}}",
   "mute_conversation": "Mute conversation",
   "nameserver_already_set": "This name server is already set",
