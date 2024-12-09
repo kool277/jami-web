@@ -61,6 +61,7 @@ import { useConversationPreferencesContext } from '../contexts/ConversationPrefe
 import MessageReaction from './MessageReaction'
 import MessageStatus from './MessageStatus'
 import { isEmoji } from '../utils/utils'
+import MediaViewer from './MediaViewer'
 
 type MessagePosition = 'start' | 'end'
 
@@ -228,6 +229,7 @@ const MessageDataTransfer = ({
   const [isDeleted, setIsDeleted] = useState(false)
   const [preview, setPreview] = useState<string>()
   const [audioBlob, setAudioBlob] = useState<Blob>()
+  const [isMediaPreviewOpen, setIsMediaPreviewOpen] = useState(false)
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
@@ -344,6 +346,13 @@ const MessageDataTransfer = ({
     setReplyMessage(message)
   }
 
+  const onMediaPreview = () => {
+    if (!preview || isDeleted || fileType !== FileType.Image) {
+      return
+    }
+    setIsMediaPreviewOpen(true)
+  }
+
   const handleDownload = async () => {
     if (isDeleted) {
       return
@@ -451,9 +460,6 @@ const MessageDataTransfer = ({
             }}
           >
             <video style={{ maxHeight: getImgSize(), borderRadius: '10px' }} src={preview} controls />
-            <Box onClick={handleDownload}>
-              <DownloadFileIcon />{' '}
-            </Box>
           </Box>
         )
       default: // includes document
@@ -470,6 +476,9 @@ const MessageDataTransfer = ({
 
   return (
     <>
+      {preview && (
+        <MediaViewer blobUrl={preview} open={isMediaPreviewOpen} onClose={() => setIsMediaPreviewOpen(false)} />
+      )}
       <MessageTooltip
         isDeleted={isDeleted}
         position={position}
@@ -477,7 +486,11 @@ const MessageDataTransfer = ({
         isMedia={true}
         handleDownload={handleDownload}
       >
-        <Box onDoubleClick={onDoubleClick} sx={isDeleted || fileType === FileType.Audio ? null : { cursor: 'pointer' }}>
+        <Box
+          onClick={onMediaPreview}
+          onDoubleClick={onDoubleClick}
+          sx={isDeleted || fileType === FileType.Audio ? null : { cursor: 'pointer' }}
+        >
           <Bubble
             bubbleColor={bubbleColor}
             position={position}
