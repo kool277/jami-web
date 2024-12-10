@@ -39,12 +39,6 @@ function UserSettingsSelection() {
             link: '/settings/account/manage-account',
           },
           {
-            highlightKey: '/settings/account/customize-profile',
-            icon: null,
-            title: t('settings_customize_profile'),
-            link: '/settings/account/customize-profile',
-          },
-          {
             highlightKey: '/settings/account/linked-devices',
             icon: null,
             title: t('settings_linked_devices'),

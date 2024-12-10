@@ -20,6 +20,7 @@ import DeleteRounded from '@mui/icons-material/AddCircle'
 import GroupRounded from '@mui/icons-material/AddCircle'
 import PhoneCallbackRounded from '@mui/icons-material/AddCircle'
 import {
+  Box,
   Card,
   CardContent,
   Grid,
@@ -42,8 +43,9 @@ import { AccountDetails } from 'jami-web-common'
 import { useState } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider'
-import LinkedDevices from './AccountSettings/LinkedDevices'
-import ConversationAvatar, { AvatarEditor } from './ConversationAvatar'
+import CustomizeProfile from './AccountSettings/CustomizeProfile'
+import LinkedDevicesPreview from './AccountSettings/LinkedDevicesPreview'
+import ConversationAvatar from './ConversationAvatar'
 import ConversationsOverviewCard from './ConversationsOverviewCard'
 import JamiIdCard from './JamiIdCard'
 
@@ -100,12 +102,14 @@ export default function AccountPreferences() {
         exit: { transition: { staggerChildren: 0.02 } },
       }}
     >
-      <AvatarEditor />
       <motion.div variants={thumbnailVariants}>
         <Typography variant="h2" component="h2" gutterBottom>
           {alias}
         </Typography>
       </motion.div>
+      <Box sx={{ mb: '16px' }}>
+        <CustomizeProfile />
+      </Box>
       <Grid container spacing={3} style={{ marginBottom: 16 }}>
         {isJamiAccount && (
           <Grid item xs={12}>
@@ -138,7 +142,7 @@ export default function AccountPreferences() {
 
         <Grid item xs={12} sm={12}>
           <motion.div variants={thumbnailVariants} style={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
-            <LinkedDevices />
+            <LinkedDevicesPreview />
           </motion.div>
         </Grid>
       </Grid>

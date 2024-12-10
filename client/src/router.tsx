@@ -21,7 +21,6 @@ import { createBrowserRouter, createRoutesFromElements, Navigate, Outlet, Route 
 
 import App, { appLoader } from './App'
 import AccountDetailsListener from './components/AccountDetailsListener'
-import CustomizeProfile from './components/AccountSettings/CustomizeProfile'
 import AccountsOverview from './components/AdminSettings/AccountsOverview'
 import AdminAccountConfiguration from './components/AdminSettings/AdminAccountConfiguration'
 import AdminAuthWrapper from './components/AdminSettings/AdminAuthWrapper'
@@ -167,7 +166,6 @@ export const router = createBrowserRouter(
             }
           >
             <Route path="settings/account/manage-account" element={<AccountSettings />} />
-            <Route path="settings/account/customize-profile" element={<CustomizeProfile />} />
             <Route path="settings/account/linked-devices" element={<LinkedDevicesPage />} />
             <Route path="settings/general" element={<GeneralSettings />} />
             <Route path="contacts" element={<ContactList />} />
