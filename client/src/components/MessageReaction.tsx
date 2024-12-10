@@ -111,6 +111,10 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
     return [...reactionsArray].sort((a, b) => (b.amount || 0) - (a.amount || 0))
   }, [reactionsArray])
 
+  if (reactionsArray.length === 0) {
+    return null
+  }
+
   return (
     <>
       <Box data-cy="emoji-reaction-list" onClick={() => setIsOpen(!isOpen)} sx={{ ':hover': { cursor: 'pointer' } }}>
