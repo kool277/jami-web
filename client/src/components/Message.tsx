@@ -62,6 +62,7 @@ import MessageReaction from './MessageReaction'
 import MessageStatus from './MessageStatus'
 import { isEmoji } from '../utils/utils'
 import MediaViewer from './MediaViewer'
+import UseLongPress from './UseLongPress'
 
 type MessagePosition = 'start' | 'end'
 
@@ -966,7 +967,30 @@ const MessageTooltip = styled(
     const { setEditMessage } = useActionMessageContext()
     const deleteMessageMutation = useDeleteMessageMutation(conversationId)
     const theme = useTheme()
+    const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
     const { setAlertContent } = useContext(AlertSnackbarContext)
+
+    const handleLongPress = useCallback(() => {
+      if (!isMobile) return
+      setTooltipOpen(true)
+    }, [isMobile])
+
+    const longPressProps = UseLongPress(handleLongPress, 500)
+
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as Element | null
+        if (target && !target.closest('.MuiTooltip-tooltip')) {
+          setTooltipOpen(false)
+          onClose()
+        }
+      }
+
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside)
+      }
+    }, [])
 
     // No actions if message is deleted
     if (isDeleted) {
@@ -1073,6 +1097,7 @@ const MessageTooltip = styled(
       handleMouseLeave()
     }
     const handleMouseEnter = () => {
+      if (isMobile) return
       setTooltipOpen(true)
     }
     const handleMouseLeave = () => {
@@ -1096,7 +1121,7 @@ const MessageTooltip = styled(
         open={tooltipOpen}
         disableHoverListener
         disableFocusListener
-        disableTouchListener
+        disableTouchListener={!isMobile}
         title={
           <div onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
             <Stack direction="row" spacing="16px" padding="16px" sx={{ cursor: 'pointer' }}>
@@ -1128,7 +1153,7 @@ const MessageTooltip = styled(
           </div>
         }
       >
-        <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div {...longPressProps} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {children}
         </div>
       </Tooltip>
