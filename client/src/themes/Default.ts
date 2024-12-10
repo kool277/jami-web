@@ -35,6 +35,9 @@ declare module '@mui/material/styles' {
     LoginPage: {
       backgroundColor: string
     }
+    MessageCall: {
+      textColorMissed: string
+    }
     MessageDataContent: {
       textColor: string
       backgroundColor: string
@@ -229,6 +232,9 @@ const palettes = {
     LoginPage: {
       backgroundColor: '#f9fafc',
     },
+    MessageCall: {
+      textColorMissed: '#CC0022',
+    },
     MessageDataContent: {
       textColor: 'black',
       backgroundColor: '#7f7f7f',
@@ -302,6 +308,9 @@ const palettes = {
     },
     LoginPage: {
       backgroundColor: '#f9fafc',
+    },
+    MessageCall: {
+      textColorMissed: '#FA2E30',
     },
     MessageDataContent: {
       textColor: 'white',

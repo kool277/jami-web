@@ -118,46 +118,23 @@ interface MessageCallProps {
 }
 
 const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup, sentTime }: MessageCallProps) => {
-  const position = isAccountMessage ? 'end' : 'start'
-
   const { i18n } = useTranslation()
-  const { bubbleColor, Icon, text, textColor } = useMemo(() => {
-    const text = getMessageCallText(isAccountMessage, message, i18n)
-    const callDuration = dayjs.duration(parseInt(message?.duration || ''))
-    if (callDuration.asSeconds() === 0) {
-      if (isAccountMessage) {
-        return {
-          text,
-          Icon: ArrowLeftCurved,
-          textColor: 'white',
-          bubbleColor: '#005699' + '80', // opacity 50%
-        }
-      } else {
-        return {
-          text,
-          Icon: ArrowLeftCurved,
-          textColor: 'black',
-          bubbleColor: '#C6C6C6',
-        }
-      }
-    } else {
-      if (isAccountMessage) {
-        return {
-          text,
-          Icon: ArrowRightUp,
-          textColor: 'white',
-          bubbleColor: '#005699',
-        }
-      } else {
-        return {
-          text,
-          Icon: ArrowLeftDown,
-          textcolor: 'black',
-          bubbleColor: '#E5E5E5',
-        }
-      }
-    }
-  }, [isAccountMessage, message, i18n])
+  const position = isAccountMessage ? 'end' : 'start'
+  const theme = useTheme()
+  const { conversationColor } = useConversationPreferencesContext()
+  const messageColor = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
+  const darkColor = darken(messageColor, 0.3)
+
+  const bubbleColor = isAccountMessage ? darkColor : theme.ChatInterface.messageColor
+  //const textColor = isAccountMessage ? getTextColor(darkColor) : '#adaaaa'
+  const textColor = '#adaaaa'
+
+  const callDuration = dayjs.duration(parseInt(message?.duration || ''))
+  const text = getMessageCallText(isAccountMessage, message, i18n)
+
+  const Icon = callDuration.asSeconds() === 0 ? ArrowLeftCurved : isAccountMessage ? ArrowRightUp : ArrowLeftDown
+
+  const isMissed = text === i18n.t('message_call_outgoing_missed') || text === i18n.t('message_call_incoming_missed')
 
   return (
     <Bubble
@@ -170,10 +147,12 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
       isMedia={false}
       deleted={false} // deleted is not used in call message
     >
-      <Stack direction="row" spacing="10px" alignItems="center">
-        <Icon sx={{ fontSize: '16px', color: textColor }} />
-        <Typography variant="body1" color={textColor} textAlign={'start'} fontWeight="bold" textTransform="uppercase">
-          {text}
+      <Stack direction="row" spacing="10px" alignItems="center" paddingLeft="8px">
+        <Icon
+          sx={{ fontSize: '20px', color: isMissed ? theme.MessageCall.textColorMissed : textColor, marginLeft: '4px' }}
+        />
+        <Typography fontStyle="italic" fontWeight={'bolder'} variant="body2" color={textColor} textAlign={'start'}>
+          {text + '              '}
         </Typography>
       </Stack>
     </Bubble>

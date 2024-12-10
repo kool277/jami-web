@@ -22,6 +22,10 @@ import { Message } from 'jami-web-common'
 import { formatCallDuration } from './dates&times'
 
 export const getMessageCallText = (isAccountMessage: boolean, message: Message, i18n: i18n) => {
+  if (!message?.duration) {
+    console.error(`${getMessageCallText.name} received a message without a duration: ${message}`)
+    return ''
+  }
   const callDuration = dayjs.duration(parseInt(message?.duration || ''))
   const formattedCallDuration = formatCallDuration(callDuration)
   if (callDuration.asSeconds() === 0) {
@@ -32,9 +36,9 @@ export const getMessageCallText = (isAccountMessage: boolean, message: Message, 
     }
   } else {
     if (isAccountMessage) {
-      return i18n.t('message_call_outgoing', formattedCallDuration)
+      return i18n.t('message_call_outgoing', { duration: formattedCallDuration })
     } else {
-      return i18n.t('message_call_incoming', formattedCallDuration)
+      return i18n.t('message_call_incoming', { duration: formattedCallDuration })
     }
   }
 }

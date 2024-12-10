@@ -93,6 +93,7 @@ export class Jamid {
       linearizedParent: message.linearizedParent,
       parents: message.body.parents,
       timestamp: message.body.timestamp,
+      duration: message.body.duration,
       displayName: message.body.displayName,
       sha3sum: message.body.sha3sum,
       tid: message.body.tid,
