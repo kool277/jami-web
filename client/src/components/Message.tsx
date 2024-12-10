@@ -397,7 +397,6 @@ const MessageDataTransfer = ({
             >
               <MessageDataContent
                 isAccountMessage={isAccountMessage}
-                textColor={textColor}
                 displayName={message.displayName || 'Unknown'}
                 totalSize={Number(message.totalSize)}
                 isNotAvailable={true}
@@ -422,7 +421,6 @@ const MessageDataTransfer = ({
             >
               <MessageDataContent
                 isAccountMessage={isAccountMessage}
-                textColor={textColor}
                 displayName={message.displayName || 'Unknown'}
                 totalSize={Number(message.totalSize)}
                 isNotAvailable={true}
@@ -441,7 +439,6 @@ const MessageDataTransfer = ({
             >
               <MessageDataContent
                 isAccountMessage={isAccountMessage}
-                textColor={textColor}
                 displayName={message.displayName || 'Unknown'}
                 totalSize={Number(message.totalSize)}
                 isNotAvailable={true}
@@ -466,7 +463,6 @@ const MessageDataTransfer = ({
         return (
           <MessageDataContent
             isAccountMessage={isAccountMessage}
-            textColor={textColor}
             displayName={message.displayName || 'Unknown'}
             totalSize={Number(message.totalSize)}
           />
@@ -868,8 +864,7 @@ const UserMessageRow = ({
     console.error('reply-to is not a Message object')
   } else if (replyMessage !== undefined) {
     const member = members.find((member) => replyMessage?.author === member.contact.uri)
-    const bubbleColorReply = '#D3D3D3'
-    const textColorReply = '#555555'
+    const bubbleColorReply = theme.ChatInterface.messageReplyColor
     const name = member === undefined ? t('yourself') : member.contact.getDisplayName()
     replyMessageComponent = (
       <Box
@@ -893,11 +888,12 @@ const UserMessageRow = ({
             deleted={replyMessage.body === ''}
           >
             {replyMessage.type === 'text/plain' ? (
-              <Typography variant="body1" color={textColorReply} textAlign={position}>
+              <Typography variant="body1" color={theme.MessageDataContent.textContentColor} textAlign={position}>
                 {replyMessage?.body === '' ? t('message_deleted') : replyMessage?.body}
               </Typography>
             ) : replyMessage.type === 'application/data-transfer+json' ? (
               <MessageDataContent
+                isReply={true}
                 displayName={replyMessage?.displayName || 'Unknown'}
                 totalSize={Number(replyMessage?.totalSize)}
               />

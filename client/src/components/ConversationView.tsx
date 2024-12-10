@@ -97,7 +97,7 @@ const ConversationHeader = () => {
               onMenuIconClick()
             }}
           />
-          <Typography variant="h5" textOverflow="ellipsis" sx={{ maxWidth: getMaxWidth() }}>
+          <Typography variant={'h6'} textOverflow="ellipsis" sx={{ maxWidth: getMaxWidth() }}>
             {conversationDisplayName}
           </Typography>
         </Box>

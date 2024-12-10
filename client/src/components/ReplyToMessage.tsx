@@ -118,6 +118,7 @@ export default function ReplyToMessage() {
                   ) : message.type === 'application/data-transfer+json' ? (
                     <Box sx={{ paddingBottom: '0.5rem' }}>
                       <MessageDataContent
+                        isReply={true}
                         displayName={message.displayName || 'Unknown'}
                         totalSize={Number(message.totalSize)}
                       />

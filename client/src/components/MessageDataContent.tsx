@@ -15,45 +15,55 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import AttachFileIcon from '@mui/icons-material/AttachFile'
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { darken } from '@mui/system'
 import byteSize from 'byte-size'
 import { useTranslation } from 'react-i18next'
 
-import { DownloadFileIcon } from './SvgIcon'
+import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
+import { getTextColor } from '../utils/messagecolor'
+import EllipsisMiddle from './EllipsisMiddle'
 
 interface MessageDataContentProps {
   displayName: string
   totalSize: number
-  textColor?: string
   isAccountMessage?: boolean
   isNotAvailable?: boolean
+  isReply?: boolean
 }
 
 export default function ({
   displayName,
   totalSize,
-  textColor,
   isAccountMessage,
   isNotAvailable,
+  isReply,
 }: MessageDataContentProps) {
   const { t } = useTranslation()
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.down('md'))
+  const { conversationColor } = useConversationPreferencesContext()
 
+  const color = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
+  const backgroundColor = darken(color, 0.3)
+  const textColor = isAccountMessage ? getTextColor(color) : theme.MessageDataContent.textColor
   return (
     <Box
       sx={{
-        maxWidth: isMobile ? '270px' : '460px',
+        maxWidth: isMobile ? '210px' : isMedium ? '270px' : '300px',
+        minWidth: isMobile ? '210px' : isMedium ? '270px' : '300px',
         textOverflow: 'ellipsis',
         display: 'flex',
         flexDirection: 'row',
         alignContent: 'center',
         alignItems: 'center',
         gap: '5px',
-        pb: '17px',
-        pt: '7px',
+        pb: '10px',
+        pt: '5px',
         pr: '3px',
-        pl: '3px',
+        pl: '1px',
       }}
     >
       <Box
@@ -61,24 +71,34 @@ export default function ({
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
-          alignContent: 'center',
           alignItems: 'center',
           height: '50px',
+          minHeight: '50px',
           width: '50px',
-          padding: '5px',
-          backgroundColor: isAccountMessage ? '#005B8f' : 'lightgrey',
-          borderRadius: '10px',
+          minWidth: '50px',
+          padding: 0,
+          backgroundColor: backgroundColor,
+          borderRadius: '6px',
           marginTop: '-7px',
           marginBottom: '-15px',
-          color: 'black', // fixed color
+          boxSizing: 'border-box',
         }}
       >
-        <DownloadFileIcon />
-        <Box sx={{ fontSize: '11px', color: textColor, textWrap: 'nowrap' }}>{String(byteSize(Number(totalSize)))}</Box>
+        <AttachFileIcon sx={{ color: 'grey', fontSize: '26px' }} />
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', color: textColor, width: isMobile ? '80%' : '88%' }}>
-        <Box sx={{ textOverflow: 'ellipsis', textWrap: 'wrap' }}>{displayName}</Box>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          color: isReply ? theme.MessageDataContent.textContentColor : textColor,
+          width: '70%',
+        }}
+      >
+        <EllipsisMiddle text={displayName} />
         <Box>{isNotAvailable && <Typography sx={{ fontSize: '13px' }}>{t('ressource_not_available')}</Typography>}</Box>
+        <Box sx={{ fontSize: '11px', whiteSpace: 'nowrap', marginLeft: '2px' }}>
+          {String(byteSize(Number(totalSize)))}
+        </Box>
       </Box>
     </Box>
   )

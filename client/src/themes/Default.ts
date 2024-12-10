@@ -30,9 +30,15 @@ declare module '@mui/material/styles' {
       messageColor: string
       fontColor: string
       replyBorderColor: string
+      messageReplyColor: string
     }
     LoginPage: {
       backgroundColor: string
+    }
+    MessageDataContent: {
+      textColor: string
+      backgroundColor: string
+      textContentColor: string
     }
     Footer: {
       backgroundColor: string
@@ -218,9 +224,15 @@ const palettes = {
       messageColor: '#E5E5E5',
       fontColor: 'black',
       replyBorderColor: '2px solid white',
+      messageReplyColor: '#D3D3D3',
     },
     LoginPage: {
       backgroundColor: '#f9fafc',
+    },
+    MessageDataContent: {
+      textColor: 'black',
+      backgroundColor: '#7f7f7f',
+      textContentColor: '#555555',
     },
     Footer: {
       backgroundColor: '#dbd9d9',
@@ -286,9 +298,15 @@ const palettes = {
       messageColor: '#6C6C6C',
       fontColor: 'white',
       replyBorderColor: '3px solid #121212',
+      messageReplyColor: '#404040',
     },
     LoginPage: {
       backgroundColor: '#f9fafc',
+    },
+    MessageDataContent: {
+      textColor: 'white',
+      backgroundColor: '#7f7f7f',
+      textContentColor: '#adacac',
     },
     Footer: {
       backgroundColor: '#2e2d2d',
