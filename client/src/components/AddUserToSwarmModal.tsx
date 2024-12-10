@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Modal, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Button, Modal, Paper, useMediaQuery, useTheme } from '@mui/material'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -66,14 +66,14 @@ export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmMod
 
   const stylesInCommon = {
     height: 'auto',
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.ChatInterface.panelColor,
     borderRadius: '10px',
     marginTop: '3.6%',
   }
 
   const nonMobileStyles = {
     ...stylesInCommon,
-    width: 'auto',
+    width: '400px',
     position: 'absolute',
     right: 0,
     marginRight: '0.5%',
@@ -87,17 +87,18 @@ export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmMod
   return (
     <>
       <Modal
+        sx={isMobile ? { padding: '8px' } : {}}
         open={open}
         onClose={() => {
           setOpen(false)
           setSelectedContact([])
         }}
       >
-        <Box sx={isMobile ? mobileStyles : nonMobileStyles}>
-          <Box sx={{ textAlign: 'center', paddingTop: isMobile ? '1px' : 'unset' }}>
+        <Paper elevation={24} sx={isMobile ? mobileStyles : nonMobileStyles}>
+          <Box sx={{ textAlign: 'start', paddingTop: isMobile ? '1px' : 'unset', paddingLeft: '10px' }}>
             <h3>{t('add_users_to_group')}</h3>
           </Box>
-          <Box sx={{ marginTop: '-2%' }}>
+          <Box sx={{ marginTop: '-2%', minHeight: '300px' }}>
             <ContactList
               setSelectedContact={handleSelectedContact}
               selectedContacts={selectedContacts}
@@ -109,7 +110,7 @@ export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmMod
               {t('add_to_group_validation')}
             </Button>
           </Box>
-        </Box>
+        </Paper>
       </Modal>
     </>
   )

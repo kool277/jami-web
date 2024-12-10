@@ -33,6 +33,7 @@ import ContactSearchBar from './ContactSearchBar'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
 import ConversationAvatar from './ConversationAvatar'
 import { ConfirmationDialog, useDialogHandler } from './Dialog'
+import EllipsisMiddle from './EllipsisMiddle'
 import LoadingPage from './Loading'
 import { PopoverListItemData } from './PopoverList'
 import { BlockContactIcon, CancelIcon, CheckedIcon, PersonIcon } from './SvgIcon'
@@ -118,7 +119,7 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
         setContactDetailDialogOpen={setContactDetailDialogOpen}
       />
       <ContactSearchBar placeholder={t('find_contacts')} handleChange={handleFilterChange} />
-      <List>
+      <List sx={{ maxHeight: '400px', overflowY: 'scroll' }}>
         {filteredContacts?.map((contact) => (
           <>
             <ListItem
@@ -134,7 +135,10 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
               <ListItemAvatar>
                 <ConversationAvatar contactUri={contact.id} displayName={contact.username} />
               </ListItemAvatar>
-              <ListItemText primary={contact.username} secondary={contact.id} />
+              <ListItemText
+                primary={contact.displayName || contact.username}
+                secondary={<EllipsisMiddle text={contact.id} />}
+              />
               <Box
                 sx={{
                   display: 'flex',
