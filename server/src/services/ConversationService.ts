@@ -80,8 +80,11 @@ export class ConversationService {
     // TODO: Host the image and use a "normal" url instead
     infos.avatar = infos.avatar ? `data:image/jpeg;base64,${infos.avatar}` : undefined
     jamid.clearCache(accountId, conversationId)
-    const membersNames = await this.getMembersNames(accountId, conversationId)
-    const lastMessage: Message = (await jamid.getSwarmMessages(accountId, conversationId, '', 1))[0]
+    const [membersNames, message] = await Promise.all([
+      this.getMembersNames(accountId, conversationId),
+      jamid.getSwarmMessages(accountId, conversationId, '', 1),
+    ])
+    const lastMessage: Message = message[0]
     lastMessage.author = lastMessage.body.author
     lastMessage.linearizedParent = lastMessage.body.linearizedParent
     lastMessage.parents = lastMessage.body.parents
