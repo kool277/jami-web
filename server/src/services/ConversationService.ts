@@ -106,16 +106,17 @@ export class ConversationService {
     const accountUri = jamid.getAccountDetails(accountId)['Account.username']
     const nameserver = config.getNameServerAddress()
     const members = jamid.getConversationMembers(accountId, conversationId)
-    const membersNames: string[] = []
-    for (const member of members) {
-      // Exclude current user from returned conversation members
+
+    const membersNamesPromises = members.map(async (member) => {
       if (member.uri === accountUri) {
-        continue
+        return
       }
       // Add usernames for conversation members
       const { username } = await jamid.lookupAddress(member.uri, nameserver, accountId)
-      membersNames.push(username || member.uri)
-    }
+      return username || member.uri
+    })
+
+    const membersNames = (await Promise.all(membersNamesPromises)).filter((name): name is string => name !== undefined)
 
     return membersNames
   }

@@ -21,7 +21,7 @@ import dayjs from 'dayjs'
 import { IConversationSummary } from 'jami-web-common'
 import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
 import { QRCodeCanvas } from 'qrcode.react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -31,7 +31,6 @@ import { useConversationDisplayNameShort } from '../hooks/useConversationDisplay
 import { useUrlParams } from '../hooks/useUrlParams'
 import { ConversationRouteParams } from '../router'
 import { CallStatus } from '../services/CallManager'
-import { useRefreshConversationsSummaries } from '../services/conversationQueries'
 import { useMembersQuery } from '../services/conversationQueries'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
 import { formatRelativeDate, formatTime } from '../utils/dates&times'
@@ -91,17 +90,13 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
     return memberArray?.filter((member) => member.contact.uri !== account.getUri()) || []
   }, [memberArray, account])
 
-  console.log('filteredMembers', filteredMembers)
-
   const conversationId = conversationSummary.id
   const isSelected = conversationId === selectedConversationId
-  const refreshConversationsSummaries = useRefreshConversationsSummaries()
-  const onClick = useCallback(() => {
-    refreshConversationsSummaries()
+  const onClick = () => {
     if (conversationId) {
       navigate(`/conversation/${conversationId}`)
     }
-  }, [conversationId, navigate, refreshConversationsSummaries])
+  }
 
   const conversationName = useConversationDisplayNameShort(
     account,

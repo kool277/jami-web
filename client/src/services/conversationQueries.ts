@@ -109,6 +109,7 @@ export const useMembersQuery = (conversationId?: string) => {
       return data.map((item) => ConversationMember.fromInterface(item))
     },
     enabled: !!conversationId,
+    staleTime: Infinity,
   })
 }
 

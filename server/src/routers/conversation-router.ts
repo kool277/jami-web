@@ -18,13 +18,7 @@
 import { Request, Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import { ParamsDictionary } from 'express-serve-static-core'
-import {
-  ContactDetails,
-  HttpStatusCode,
-  IConversationMember,
-  NewConversationRequestBody,
-  NewMessageRequestBody,
-} from 'jami-web-common'
+import { ContactDetails, HttpStatusCode, NewConversationRequestBody, NewMessageRequestBody } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
@@ -49,15 +43,15 @@ conversationRouter.get(
 
     const conversationIds = jamid.getConversationIds(accountId)
 
-    const conversationsSummaries = []
-    for (const conversationId of conversationIds) {
+    const conversationSummariesPromises = conversationIds.map(async (conversationId) => {
       const conversationSummary = await conversationService.createConversationSummary(accountId, conversationId)
       if (conversationSummary) {
         conversationSummary.mode = jamid.getConversationInfos(accountId, conversationId).mode
-        conversationsSummaries.push(conversationSummary)
+        return conversationSummary
       }
-    }
+    })
 
+    const conversationsSummaries = (await Promise.all(conversationSummariesPromises)).filter(Boolean)
     res.send(conversationsSummaries)
   }),
 )
@@ -192,21 +186,20 @@ conversationRouter.get(
     }
 
     const members = jamid.getConversationMembers(accountId, conversationId)
+    const nameserver = config.getNameServerAddress()
 
-    const namedMembers: IConversationMember[] = []
-    for (const member of members) {
-      const nameserver = config.getNameServerAddress()
-      // Add usernames for conversation members
+    const namedMembersPromises = members.map(async (member) => {
       const { username } = await jamid.lookupAddress(member.uri, nameserver, accountId)
-      namedMembers.push({
+      return {
         role: member.role,
         contact: {
           uri: member.uri,
           registeredName: username,
         },
-      })
-    }
+      }
+    })
 
+    const namedMembers = (await Promise.all(namedMembersPromises)).filter(Boolean)
     res.send(namedMembers)
   }),
 )
@@ -218,13 +211,13 @@ conversationRouter.get(
     const conversationId = req.params.conversationId
     const infos = jamid.getConversationInfos(accountId, conversationId)
 
-    await jamid.clearCache(accountId, conversationId)
+    jamid.clearCache(accountId, conversationId)
 
     if (Object.keys(infos).length === 0) {
       res.status(HttpStatusCode.NotFound).send('No such conversation found')
       return
     }
-    const messages = await jamid.getSwarmMessages(accountId, conversationId, '', 32)
+    const messages = await jamid.getSwarmMessages(accountId, conversationId, '', 16)
 
     // Convert the messages to the format expected by the client
     // swarm messages are stored in a different format
@@ -260,12 +253,6 @@ conversationRouter.post(
     const replyTo = data.replyTo
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
-
-    const infos = jamid.getConversationInfos(accountId, conversationId)
-    if (Object.keys(infos).length === 0) {
-      res.status(HttpStatusCode.NotFound).send('No such conversation found')
-      return
-    }
 
     if (replyTo !== undefined) {
       jamid.sendConversationMessage(accountId, conversationId, message, replyTo, 0)
