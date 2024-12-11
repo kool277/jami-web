@@ -85,15 +85,6 @@ export class ConversationService {
       jamid.getSwarmMessages(accountId, conversationId, '', 1),
     ])
     const lastMessage: Message = message[0]
-    lastMessage.author = lastMessage.body.author
-    lastMessage.linearizedParent = lastMessage.body.linearizedParent
-    lastMessage.parents = lastMessage.body.parents
-    lastMessage.type = lastMessage.body.type
-    lastMessage.timestamp = lastMessage.body.timestamp
-    lastMessage.fileId = lastMessage.body.fileId
-    lastMessage.action = lastMessage.body.action
-    lastMessage.displayName = lastMessage.body.displayName
-    lastMessage.body = lastMessage.body.body
     return {
       id: conversationId,
       avatar: infos.avatar,

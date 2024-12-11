@@ -35,17 +35,6 @@ export function bindLoadMoreMessagesCallBack() {
       }
 
       const messages = await jamid.getSwarmMessages(accountId, conversationId, lastMessageId, limit)
-      messages.forEach(function (element) {
-        element.action = element.body.action
-        element.author = element.body.author
-        element.parents = element.body.parents
-        element.timestamp = element.body.timestamp
-        if (element.body?.['reply-to']) {
-          element['reply-to'] = element.body['reply-to']
-        }
-        element.body = element.body.body
-      })
-
       webSocketServer.send(accountId, WebSocketMessageType.LoadMoreMessages, {
         accountId,
         conversationId,

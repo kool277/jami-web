@@ -219,23 +219,6 @@ conversationRouter.get(
     }
     const messages = await jamid.getSwarmMessages(accountId, conversationId, '', 16)
 
-    // Convert the messages to the format expected by the client
-    // swarm messages are stored in a different format
-    messages.forEach(function (element) {
-      element.action = element.body.action
-      element.author = element.body.author
-      element.parents = element.body.parents
-      element.timestamp = element.body.timestamp
-      element.fileId = element.body.fileId
-      element.sha3sum = element.body.sha3sum
-      element.displayName = element.body.displayName
-      element.totalSize = element.body.totalSize
-      element.tid = element.body.tid
-      if (element.body?.['reply-to']) {
-        element['reply-to'] = element.body['reply-to']
-      }
-      element.body = element.body.body
-    })
     res.send(messages)
   }),
 )

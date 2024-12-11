@@ -86,6 +86,28 @@ export class Jamid {
   private usernamesToAccountIds = new Map<string, string>()
   readonly events
 
+  reformatMessage(message: Message): Message {
+    return {
+      id: message.id,
+      author: message.body.author,
+      linearizedParent: message.linearizedParent,
+      parents: message.body.parents,
+      timestamp: message.body.timestamp,
+      displayName: message.body.displayName,
+      sha3sum: message.body.sha3sum,
+      tid: message.body.tid,
+      totalSize: message.body.totalSize,
+      fileId: message.body.fileId,
+      type: message.body.type,
+      'reply-to': message.body['reply-to'],
+      action: message.body.action,
+      editions: message.editions,
+      reactions: message.reactions,
+      status: message.status,
+      body: message.body.body,
+    }
+  }
+
   constructor(private webSocketServer: WebSocketServer) {
     this.jamiSwig = require('../../jamid.node') as JamiSwig
 
@@ -185,8 +207,10 @@ export class Jamid {
       onProfileReceived.next({ accountId, from, path })
 
     const onSwarmLoaded = new Subject<SwarmLoaded>()
-    handlers.SwarmLoaded = (id: number, accountId: string, conversationId: string, messages: Message[]) =>
+    handlers.SwarmLoaded = (id: number, accountId: string, conversationId: string, messages: Message[]) => {
+      messages = messages.map((message) => this.reformatMessage(message))
       onSwarmLoaded.next({ id, accountId, conversationId, messages })
+    }
 
     const onConversationMemberEvent = new Subject<ConversationMemberEvent>()
     handlers.ConversationMemberEvent = (
@@ -208,12 +232,16 @@ export class Jamid {
     ) => onDataTransferEvent.next({ accountId, conversationId, interactionId, fileId, eventCode })
 
     const onSwarmMessageReceived = new Subject<SwarmMessageReceived>()
-    handlers.SwarmMessageReceived = (accountId: string, conversationId: string, message: Message) =>
+    handlers.SwarmMessageReceived = (accountId: string, conversationId: string, message: Message) => {
+      message = this.reformatMessage(message)
       onSwarmMessageReceived.next({ accountId, conversationId, message })
+    }
 
     const onSwarmMessageUpdated = new Subject<SwarmMessageUpdated>()
-    handlers.SwarmMessageUpdated = (accountId: string, conversationId: string, message: Message) =>
+    handlers.SwarmMessageUpdated = (accountId: string, conversationId: string, message: Message) => {
+      message = this.reformatMessage(message)
       onSwarmMessageUpdated.next({ accountId, conversationId, message })
+    }
 
     const onReactionAdded = new Subject<ReactionAdded>()
     handlers.ReactionAdded = (accountId: string, conversationId: string, messageId: string, reaction: Reaction) =>
@@ -734,25 +762,7 @@ export class Jamid {
       log.debug('Received SwarmMessageReceived:', JSON.stringify(signal))
       const data: ConversationMessage = {
         conversationId: signal.conversationId,
-        message: {
-          id: signal.message.id,
-          author: signal.message.body.author,
-          linearizedParent: signal.message.linearizedParent,
-          parents: signal.message.body.parents,
-          timestamp: signal.message.body.timestamp,
-          displayName: signal.message.body.displayName,
-          sha3sum: signal.message.body.sha3sum,
-          tid: signal.message.body.tid,
-          totalSize: signal.message.body.totalSize,
-          fileId: signal.message.body.fileId,
-          type: signal.message.body.type,
-          'reply-to': signal.message.body['reply-to'],
-          action: signal.message.body.action,
-          editions: signal.message.editions,
-          reactions: signal.message.reactions,
-          status: signal.message.status,
-          body: signal.message.body.body,
-        },
+        message: signal.message,
       }
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationMessage, data)
     })
@@ -761,21 +771,7 @@ export class Jamid {
       log.debug('Received SwarmMessageUpdated:', JSON.stringify(signal))
       const data: ConversationMessage = {
         conversationId: signal.conversationId,
-        message: {
-          id: signal.message.id,
-          author: signal.message.body.author,
-          linearizedParent: signal.message.body.linearizedParent,
-          parents: signal.message.body.parents,
-          timestamp: signal.message.body.timestamp,
-          type: signal.message.body.type,
-          'reply-to': signal.message.body['reply-to'],
-          action: signal.message.body.action,
-          editions: signal.message.editions,
-          reactions: signal.message.reactions,
-          status: signal.message.status,
-          fileId: signal.message.body.fileId,
-          body: signal.message.body.body,
-        },
+        message: signal.message,
       }
       // if message was a file and it is deleted we need to delete it from the cache
       if (
