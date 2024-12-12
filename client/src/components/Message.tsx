@@ -985,7 +985,7 @@ const MessageTooltip = styled(
     const longPressProps = UseLongPress(handleLongPress, 500)
 
     useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
+      const handleClickOutside = (event: TouchEvent) => {
         const target = event.target as Element | null
         if (target && !target.closest('.MuiTooltip-tooltip')) {
           setTooltipOpen(false)
@@ -993,9 +993,9 @@ const MessageTooltip = styled(
         }
       }
 
-      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('touchstart', handleClickOutside)
       return () => {
-        document.removeEventListener('mousedown', handleClickOutside)
+        document.removeEventListener('touchstart', handleClickOutside)
       }
     }, [])
 
