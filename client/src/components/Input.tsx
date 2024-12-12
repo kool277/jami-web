@@ -102,7 +102,6 @@ export const UsernameInput = ({
           sx: {
             visibility: status !== 'default' ? 'hidden' : 'visible',
             transformOrigin: 'top left',
-            left: '45px',
           },
           shrink: !!(isSelected || props.value),
           ...props.InputLabelProps,
@@ -187,7 +186,6 @@ export const PasswordInput = ({
           sx: {
             visibility: status !== 'default' ? 'hidden' : 'visible',
             transformOrigin: 'top left',
-            left: '44px',
           },
           shrink: !!(isSelected || props.value),
           ...props.InputLabelProps,

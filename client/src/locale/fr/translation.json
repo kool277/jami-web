@@ -264,7 +264,7 @@
   "username_input_helper_text_registration_failed": "Nom d'utilisateur incorrect!",
   "username_input_helper_text_success": "Nom d'utilisateur disponible",
   "username_input_helper_text_taken": "Nom d'utilisateur déjà pris",
-  "username_input_label": "Choisir un identifiant",
+  "username_input_label": "Identifiant",
   "username_rule_1": "Le nom d'utilisateur doit avoir de 3 à 32 caractères.",
   "username_rule_2": "Le nom d'utilisateur peut contenir des caractères alphabétiques minuscules et majuscules.",
   "username_rule_3": "Le nom d'utilisateur peut contenir des tirets (-).",

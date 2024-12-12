@@ -528,8 +528,7 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
           root: {
             color: ChatInterface.inputColor,
             fontSize: '15px',
-            left: '50%',
-            transform: 'translate(-50%, 20px)',
+            right: '-50%',
             transition: 'left .2s, transform .2s',
           },
           shrink: {
