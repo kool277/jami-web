@@ -310,13 +310,14 @@ const MessageDataTransfer = ({
     return null
   }
 
-  const getImgSize = () => {
+  const getMaxWidth = () => {
     if (isMobile) {
-      return '90px'
-    } else if (isMedium) {
-      return '120px'
+      return '250px'
     }
-    return '240px'
+    if (isMedium) {
+      return '300px'
+    }
+    return '550px'
   }
 
   const onDoubleClick = () => {
@@ -408,7 +409,13 @@ const MessageDataTransfer = ({
             </Box>
           )
         }
-        return <img style={{ maxHeight: getImgSize(), borderRadius: '10px' }} src={preview} alt={message.displayName} />
+        return (
+          <img
+            style={{ maxHeight: '250px', maxWidth: getMaxWidth(), borderRadius: '10px' }}
+            src={preview}
+            alt={message.displayName}
+          />
+        )
       case FileType.Video:
         if (!preview) {
           return (
@@ -436,7 +443,7 @@ const MessageDataTransfer = ({
               alignItems: 'center',
             }}
           >
-            <video style={{ maxHeight: getImgSize(), borderRadius: '10px' }} src={preview} controls />
+            <video style={{ maxWidth: getMaxWidth(), borderRadius: '10px' }} src={preview} controls />
           </Box>
         )
       default: // includes document
