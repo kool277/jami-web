@@ -38,7 +38,6 @@ const EllipsisMiddle = ({ text }: EllipsisMiddleProps) => {
         alignItems: 'baseline',
         justifyContent: 'flex-start',
         textWrap: 'nowrap',
-        maxWidth: '250px',
       }}
     >
       <span style={{ ...stylesCommon, wordBreak: 'break-all' }}>{firstPart}</span>

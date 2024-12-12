@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import { Box } from '@mui/material'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
@@ -27,6 +28,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useAuthContext } from '../../contexts/AuthProvider'
 import { useRemoveLinkedDevice } from '../../services/accountQueries'
+import EllipsisMiddle from '../EllipsisMiddle'
 import { TrashBinIcon } from '../SvgIcon'
 
 function LinkedDevices() {
@@ -78,7 +80,15 @@ function LinkedDevices() {
             </ListItem>
             {devices.map((device) => (
               <ListItem key={device[0]}>
-                <ListItemText id="switch-list-label-rendezvous" primary={device[1]} secondary={device[0]} />
+                <ListItemText
+                  id="switch-list-label-rendezvous"
+                  primary={device[1]}
+                  secondary={
+                    <Box maxWidth={'90%'}>
+                      <EllipsisMiddle text={device[0]} />
+                    </Box>
+                  }
+                />
                 <TrashBinIcon sx={{ '&:hover': { cursor: 'pointer' } }} onClick={() => removeDevice(device[0])} />
               </ListItem>
             ))}

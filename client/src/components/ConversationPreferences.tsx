@@ -55,6 +55,7 @@ import ContactDetailDialog from './ContactDetailDialog'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
 import ConversationAvatar from './ConversationAvatar'
 import { ConfirmationDialog, useDialogHandler } from './Dialog'
+import EllipsisMiddle from './EllipsisMiddle'
 import { PopoverListItemData } from './PopoverList'
 import RemoveConversationDialog from './RemoveComversationDialog'
 import { BlockContactIcon, KickMemberIcon, MessageIcon, PersonIcon } from './SvgIcon'
@@ -249,6 +250,8 @@ const Infos = () => {
   const [description, setDescription] = useState(conversationInfos.description || '')
   const useConversationInfosMutationQuery = useConversationInfosMutation(conversationId)
   const isAdmin = members.some((member) => member.contact.uri === account.getUri() && member.role === 'admin')
+  const isMobile = useMediaQuery(useTheme().breakpoints.only('xs'))
+  const isMedium = useMediaQuery(useTheme().breakpoints.only('sm'))
 
   const onDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDescription(event.target.value)
@@ -259,6 +262,16 @@ const Infos = () => {
 
   const onDescriptionAbort = () => {
     setDescription(conversationInfos.description || '')
+  }
+
+  const getMaxWidth = () => {
+    if (isMobile) {
+      return '180px'
+    } else if (isMedium) {
+      return '220px'
+    } else {
+      return '260px'
+    }
   }
 
   return (
@@ -297,8 +310,8 @@ const Infos = () => {
         <Box>{conversationType}</Box>
       </SettingsItemWrapper>
       <SettingsItemWrapper title="Swarm ID">
-        <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '95%', maxWidth: '190px', marginLeft: '5%' }}>
-          {conversationId}
+        <Box maxWidth={getMaxWidth} marginLeft={'16px'}>
+          <EllipsisMiddle text={conversationId} />
         </Box>
       </SettingsItemWrapper>
     </Box>
