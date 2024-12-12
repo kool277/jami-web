@@ -194,8 +194,8 @@ export const PasswordInput = ({
           startAdornment: <StartAdornmentIcon sx={{ visibility: StartAdornmentIconVisibility }} />,
           endAdornment: (
             <Stack direction="row" spacing="14px" alignItems="center">
-              <InfoButton tooltipTitle={tooltipTitle} {...infoButtonProps} onClick={dialogHandler.openDialog} />
               <ToggleVisibilityButton visible={showPassword} onClick={toggleShowPassword} />
+              <InfoButton tooltipTitle={tooltipTitle} {...infoButtonProps} onClick={dialogHandler.openDialog} />
             </Stack>
           ),
           ...props.InputProps,
