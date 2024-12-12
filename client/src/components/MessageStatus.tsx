@@ -36,7 +36,7 @@ export interface MessageStatusProps {
 export default function MessageStatus({ message }: MessageStatusProps) {
   const avatarSize: string = '15px'
   const { account } = useAuthContext()
-  const [highestStatus, setHighestStatus] = useState<MessageStatusCode>(MessageStatusCode.sending)
+  const [highestStatus, setHighestStatus] = useState<MessageStatusCode | undefined>()
   const { members } = useConversationContext()
   const messageStatus = useContext(currentLastSeenMessageContext)
   const theme = useTheme()
@@ -91,12 +91,14 @@ export default function MessageStatus({ message }: MessageStatusProps) {
           case MessageStatusCode.sent:
             return <SentIcon width={messageSentIconWidth} />
           default:
-            return <SentIcon width={messageSentIconWidth} />
+            return null
         }
       }
     },
     [account, highestStatus, members, messageStatus, theme],
   )
+
+  const Icon = DisplayedIcon(message)
 
   const item = {
     hidden: { y: 20, opacity: 0 },
@@ -125,7 +127,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
       animate={message.animate ? 'visible' : undefined}
       transition={message.animate ? { delay: 0.3 } : undefined}
     >
-      {DisplayedIcon(message)}
+      {Icon}
     </motion.div>
   )
 }
