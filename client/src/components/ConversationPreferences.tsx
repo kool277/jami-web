@@ -250,7 +250,6 @@ const Infos = () => {
   const [description, setDescription] = useState(conversationInfos.description || '')
   const useConversationInfosMutationQuery = useConversationInfosMutation(conversationId)
   const isAdmin = members.some((member) => member.contact.uri === account.getUri() && member.role === 'admin')
-  const isMobile = useMediaQuery(useTheme().breakpoints.only('xs'))
   const isMedium = useMediaQuery(useTheme().breakpoints.only('sm'))
 
   const onDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -262,16 +261,6 @@ const Infos = () => {
 
   const onDescriptionAbort = () => {
     setDescription(conversationInfos.description || '')
-  }
-
-  const getMaxWidth = () => {
-    if (isMobile) {
-      return '180px'
-    } else if (isMedium) {
-      return '220px'
-    } else {
-      return '260px'
-    }
   }
 
   return (
@@ -310,7 +299,7 @@ const Infos = () => {
         <Box>{conversationType}</Box>
       </SettingsItemWrapper>
       <SettingsItemWrapper title="Swarm ID">
-        <Box maxWidth={getMaxWidth} marginLeft={'16px'}>
+        <Box maxWidth={isMedium ? '220px' : '180px'} marginLeft={'16px'}>
           <EllipsisMiddle text={conversationId} />
         </Box>
       </SettingsItemWrapper>
