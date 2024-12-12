@@ -410,7 +410,7 @@ interface MembersProps {
 const Members = ({ isAdmin }: MembersProps) => {
   const { members } = useConversationContext()
   return (
-    <Box sx={{ display: 'flex', width: '100%', flexDirection: 'column' }}>
+    <Box sx={{ display: 'flex', width: '100%', flexDirection: 'column', height: '60vh', overflowY: 'scroll' }}>
       {members.map((member, index) => {
         return <MemberInfo key={index} member={member} isAdmin={isAdmin} />
       })}
@@ -434,6 +434,8 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
   const contextMenuHandler = useContextMenuHandler()
   const isBanned = member.role === 'banned'
   const { t } = useTranslation()
+  const isMobile = useMediaQuery(useTheme().breakpoints.only('xs'))
+  const isMedium = useMediaQuery(useTheme().breakpoints.only('sm'))
 
   const {
     props: { open: dialogOpen, onClose: closeContactDialog },
@@ -450,6 +452,18 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
       />
     )
   }, [contactDetail, contactDetailDialogOpen])
+
+  const bestName = member.getDisplayName() || member.contact.registeredName || member.contact.uri
+
+  const getBestWidth = () => {
+    if (isMobile) {
+      return '100px'
+    }
+    if (isMedium) {
+      return '120px'
+    }
+    return '100px'
+  }
 
   return (
     <>
@@ -493,22 +507,31 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
           }}
         >
           {' '}
-          <ConversationAvatar
-            contactUri={member.contact.uri}
-            displayName={member.contact.registeredName || member.contact.uri}
-            sx={{ marginRight: '2%' }}
-          />
-          {member.contact.registeredName}
-          {member.role && <Box sx={{ fontSize: 'smaller', marginLeft: '5%' }}>{t(member.role)}</Box>}
+          <ConversationAvatar contactUri={member.contact.uri} displayName={bestName} />
+          <Box maxWidth={getBestWidth} marginLeft="8px">
+            <EllipsisMiddle text={bestName} />
+          </Box>
         </Box>
-        {member.contact.uri !== account.getUri() && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            minWidth: isMedium ? '120px' : '105px',
+          }}
+        >
+          {member.role && <Box sx={{ fontSize: 'smaller' }}>{t(member.role)}</Box>}
           <MoreHorizIcon
-            sx={{ '&:hover': { cursor: 'pointer' } }}
+            sx={{
+              '&:hover': { cursor: 'pointer' },
+              visibility: member.contact.uri === account.getUri() ? 'hidden' : 'visible',
+            }}
             onClick={(e) => {
+              if (member.contact.uri === account.getUri()) return
               contextMenuHandler.handleAnchorPosition(e)
             }}
           />
-        )}
+        </Box>
       </Box>
     </>
   )

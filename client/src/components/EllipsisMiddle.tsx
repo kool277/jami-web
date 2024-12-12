@@ -22,8 +22,8 @@ interface EllipsisMiddleProps {
   text: string
 }
 const EllipsisMiddle = ({ text }: EllipsisMiddleProps) => {
-  const firstPart = text.slice(0, -18)
-  const lastPart = text.slice(-18)
+  const firstPart = text.slice(0, -8)
+  const lastPart = text.slice(-8)
 
   const stylesCommon = {
     overflow: 'hidden',
