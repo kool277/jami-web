@@ -90,7 +90,8 @@ export default function MainSettingsSelection() {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        width: isMobile ? '100%' : '280px',
+        width: '100%',
+        minWidth: '300px',
       }}
     >
       <Box>

@@ -67,6 +67,10 @@ declare module '@mui/material/styles' {
       color: string
       disabledColor: string
     }
+    SettingsBackButton: {
+      hoverBackgroundColor: string
+      backgroundColor: string
+    }
     StatusIcon: {
       color: string
     }
@@ -266,6 +270,10 @@ const palettes = {
     StatusIcon: {
       color: 'black',
     },
+    SettingsBackButton: {
+      hoverBackgroundColor: '#E5E5E5',
+      backgroundColor: 'white',
+    },
   },
   dark: {
     palette: {
@@ -342,6 +350,10 @@ const palettes = {
     },
     StatusIcon: {
       color: 'white',
+    },
+    SettingsBackButton: {
+      hoverBackgroundColor: '#E5E5E5',
+      backgroundColor: 'white',
     },
   },
 }

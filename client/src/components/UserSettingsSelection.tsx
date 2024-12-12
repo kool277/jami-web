@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { Box } from '@mui/material'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -55,7 +56,11 @@ function UserSettingsSelection() {
     ]
   }, [t])
 
-  return <SettingSidebar settingMeta={settingMeta} pageTitle={t('settings')} />
+  return (
+    <Box sx={{ minWidth: '300px', width: '100%' }}>
+      <SettingSidebar settingMeta={settingMeta} pageTitle={t('settings')} />
+    </Box>
+  )
 }
 
 export default UserSettingsSelection
