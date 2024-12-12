@@ -406,6 +406,8 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
                 placeholder={placeholder}
                 maxRows={4}
                 style={{
+                  font: 'inherit',
+                  fontSize: '14px',
                   width: '100%',
                   resize: 'none',
                   border: 'none',
