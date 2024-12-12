@@ -88,7 +88,7 @@ const ConversationHeader = () => {
   }
 
   return (
-    <Stack direction="row" padding="16px" overflow="hidden">
+    <Stack direction="row" padding="10px" overflow="hidden">
       <Stack flex={1} justifyContent="center" whiteSpace="nowrap" overflow="hidden">
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4%' }}>
           <ArrowBackIosNewIcon
