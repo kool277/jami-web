@@ -59,7 +59,7 @@ export class App {
         contentSecurityPolicy: {
           directives: {
             defaultSrc: ["'self'"],
-            imgSrc: ["'self'", 'data:', 'blob:'],
+            imgSrc: ["'self'", 'data:', 'blob:', '*'],
             scriptSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
           },

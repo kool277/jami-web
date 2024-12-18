@@ -34,7 +34,6 @@ import { inputWidth, jamiAuthLogoSize, submitButtonWidth } from '../utils/consta
 
 function LoginForm() {
   const currentUrl = window.location.href
-
   const accessToken = currentUrl.split('accessToken=')[1]
 
   if (accessToken) {
@@ -219,13 +218,21 @@ function LoginForm() {
           {data.openIdAuthEnabled && (
             <Box sx={{ marginTop: '8px', display: 'flex', gap: '2px' }}>
               {providers.data.map(
-                (item: { provider: string; url: string; displayName: string; colorTheme: string; icon: string }) => (
+                (item: {
+                  provider: string
+                  url: string
+                  displayName: string
+                  colorTheme: string
+                  icon: string
+                  redirectUri: string
+                }) => (
                   <Button
                     sx={{ backgroundColor: item.colorTheme ? item.colorTheme : 'unset' }}
                     key={item.provider}
                     variant="contained"
                     onClick={() => {
-                      window.location.replace(item.url)
+                      const url = item.redirectUri
+                      window.location.replace(url)
                     }}
                   >
                     <Box sx={{ display: 'flex', flexDirection: 'row', gap: '5px' }}>

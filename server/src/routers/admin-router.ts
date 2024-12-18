@@ -395,9 +395,14 @@ adminRouter.get(
 adminRouter.get(
   '/oauth/provider/:name',
   asyncHandler(async (req, res) => {
+    const devMode = process.env.NODE_ENV === 'development'
     const provider = req.params.name
     const providerInfo = adminAccount.getOpenIdProvider(provider)
     const providerConfig = providersSupport.getOpenIdConfig(provider)
+
+    const protocol = req.secure ? 'https' : 'http'
+    const host = req.get('host')
+    const baseUrl = devMode ? 'http://localhost:5000' : `${protocol}://${host}`
 
     if (providerConfig === undefined) {
       res.status(HttpStatusCode.InternalServerError).send('Provider configuration not found')
@@ -412,7 +417,7 @@ adminRouter.get(
     const data = {
       clientId: providerInfo?.clientId || '',
       isActive: adminAccount.isProviderActive(provider),
-      redirectUri: providersSupport.getRedirectUri(provider),
+      redirectUri: baseUrl + providersSupport.getRedirectUri(provider),
       documentation: providerConfig.documentation,
       displayName: providerConfig.displayName,
     }

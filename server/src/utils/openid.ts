@@ -31,7 +31,7 @@ const accounts = Container.get(Accounts)
 const config = Container.get(AdminAccount)
 const providers = Container.get(OpenIdProviders)
 
-export async function exchangeCodeForToken(code: string, provider: string) {
+export async function exchangeCodeForToken(code: string, provider: string, baseUrl: string) {
   const providerInfo = config.getOpenIdProvider(provider)
 
   if (providerInfo === undefined) {
@@ -61,7 +61,7 @@ export async function exchangeCodeForToken(code: string, provider: string) {
       // eslint-disable-next-line camelcase
       client_secret: providerInfo.clientSecret,
       // eslint-disable-next-line camelcase
-      redirect_uri: redirectUri,
+      redirect_uri: baseUrl + redirectUri,
       // eslint-disable-next-line camelcase
       grant_type: 'authorization_code',
     },

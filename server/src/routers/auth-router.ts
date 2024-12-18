@@ -241,13 +241,17 @@ function clearGuest(accId: string, username: string) {
 authRouter.get(
   '/oauth/providers',
   asyncHandler(async (req, res) => {
+    const protocol = req.secure ? 'https' : 'http'
+    const host = req.get('host')
+    const baseUrl = `${protocol}://${host}`
     const urls = providers.getAllAuthorizeUrls()
     const array = []
     for (const [provider, url] of urls) {
       const displayName = providers.getDisplayName(provider)
       const icon = providers.getIcon(provider)
       const colorTheme = providers.getColorTheme(provider)
-      array.push({ provider, url, displayName, icon, colorTheme })
+      const redirectUri = url + '&redirect_uri=' + baseUrl + providers.getRedirectUri(provider)
+      array.push({ provider, displayName, icon, colorTheme, redirectUri })
     }
     res.send(array)
   }),
@@ -256,12 +260,17 @@ authRouter.get(
 authRouter.get(
   '/oauth/:provider/callback',
   asyncHandler(async (req, res) => {
+    const devMode = process.env.NODE_ENV === 'development'
     const provider = req.params.provider
     const supportedProviders = providers.getOpenIdProvidersNames()
     const configuredProviders = config.getOpenIdProvidersNames()
     const code = req.query.code
 
-    const loginUrl = 'http://localhost:3000/login'
+    const protocol = req.secure ? 'https' : 'http'
+    const host = req.get('host')
+    const baseUrl = `${protocol}://${host}`
+
+    const loginUrl = devMode ? 'http://localhost:3000/login' : baseUrl + '/login'
 
     if (!provider) {
       res.status(HttpStatusCode.BadRequest).send('Missing provider in path')
@@ -295,7 +304,7 @@ authRouter.get(
       return
     }
 
-    const data = await exchangeCodeForToken(code as string, provider)
+    const data = await exchangeCodeForToken(code as string, provider, baseUrl)
     if (data === undefined) {
       res.status(HttpStatusCode.BadRequest).send('Invalid code')
       res.redirect(loginUrl)
@@ -330,8 +339,6 @@ authRouter.get(
     const emailVerified = userInfo.email_verified
     const sub = userInfo.sub !== undefined ? String(userInfo.sub) : undefined
     const id = userInfo.id !== undefined ? String(userInfo.id) : undefined
-
-    console.log(userInfo)
 
     key = email
     if (!email || (emailVerified && emailVerified === false)) {

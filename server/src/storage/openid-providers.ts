@@ -30,8 +30,6 @@ const adminConfig = Container.get(AdminAccount)
 export class OpenIdProviders {
   private readonly filename = 'openid-providers.json'
   private providers: Map<string, IOpenIdProviders>
-  // set the baseApiUrl to the value of the environment variable API_BASE_URL or 'http://localhost:5000'
-  private baseApiUrl: string = process.env.API_BASE_URL || 'http://localhost:5000/api'
   private readonly defaultScope = 'openid%20email%20profile'
 
   constructor() {
@@ -129,7 +127,7 @@ export class OpenIdProviders {
     if (!config) {
       return undefined
     }
-    const uri = this.baseApiUrl + `/auth/oauth/${provider}/callback`
+    const uri = `/api/auth/oauth/${provider}/callback`
     return uri
   }
 
@@ -171,19 +169,10 @@ export class OpenIdProviders {
         continue
       }
 
-      const redirectUri = this.getRedirectUri(provider)
-
       const scope = config.scope ? config.scope : this.defaultScope
 
-      const url =
-        config.authUri +
-        '?client_id=' +
-        clientId +
-        '&redirect_uri=' +
-        redirectUri +
-        '&response_type=code' +
-        '&scope=' +
-        scope
+      const url = config.authUri + '?client_id=' + clientId + '&response_type=code' + '&scope=' + scope
+
       urls.set(provider, url)
     }
     return urls
