@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
 import {
@@ -134,6 +135,36 @@ export const useSendMessageMutation = (conversationId: string) => {
         message,
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
+  })
+}
+
+export const useTransferMessageMutation = (conversationId: string) => {
+  const { axiosInstance } = useAuthContext()
+  const queryClient = useQueryClient()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  return useMutation({
+    mutationFn: ({
+      messageBody,
+      targetedConversations,
+      comment,
+    }: {
+      messageBody: string
+      targetedConversations: string[]
+      comment: string | undefined
+    }) =>
+      axiosInstance.post(`/conversations/${conversationId}/transfermessage/`, {
+        messageBody,
+        targetedConversations,
+        comment,
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'error_cannot_transfer_message',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
   })
 }
 

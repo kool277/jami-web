@@ -17,7 +17,10 @@
  */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
+import { HttpStatusCode } from 'jami-web-common'
+import { useContext } from 'react'
 
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { apiUrl } from '../utils/constants'
 
@@ -38,6 +41,52 @@ export const useSendFilesMutation = (conversationId: string) => {
         },
       ),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
+  })
+}
+
+export const useTransferFileMutation = (conversationId: string) => {
+  const { axiosInstance } = useAuthContext()
+  const queryClient = useQueryClient()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+
+  return useMutation({
+    mutationFn: ({
+      conversationId,
+      fileId,
+      fileName,
+      targetedConversations,
+      comment,
+    }: {
+      conversationId: string
+      fileId: string
+      fileName: string
+      targetedConversations: string[]
+      comment: string
+    }) =>
+      axiosInstance.post(`/data/transferfile/`, {
+        conversationId,
+        fileId,
+        fileName,
+        targetedConversations,
+        comment,
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
+    onError: (e: any) => {
+      if (e.response?.status === HttpStatusCode.NotFound) {
+        setAlertContent({
+          messageI18nKey: 'file_not_downloaded',
+          severity: 'error',
+          alertOpen: true,
+        })
+        return
+      }
+      console.error(e)
+      setAlertContent({
+        messageI18nKey: 'error_cannot_transfer_message',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
   })
 }
 

@@ -70,6 +70,32 @@ dataTransferRouter.get('/autoDownloadLimit', (req, res) => {
 dataTransferRouter.use(authenticateToken)
 dataTransferRouter.use(extendIfGuest)
 
+dataTransferRouter.post('/transferfile', (req, res) => {
+  const accountId = res.locals.accountId
+  const targetedConversations = req.body.targetedConversations
+  const comment = req.body.comment
+  const conversationId = req.body.conversationId
+  const fileId = req.body.fileId
+  const fileName = req.body.fileName
+
+  const path = os.homedir() + '/.local/share/jami/' + accountId + '/conversation_data/' + conversationId + '/' + fileId
+
+  if (!fs.existsSync(path)) {
+    res.status(HttpStatusCode.NotFound).send('File not found')
+    console.error('file not found : ', path)
+    return
+  }
+
+  for (const targetConversationId of targetedConversations) {
+    jamid.sendFile(accountId, targetConversationId, path, fileName, '')
+    if (comment) {
+      jamid.sendConversationMessage(accountId, targetConversationId, comment)
+    }
+  }
+
+  res.status(HttpStatusCode.Ok).send()
+})
+
 dataTransferRouter.post(
   '/:conversationId',
   upload.array('file'),

@@ -557,6 +557,10 @@ export class Jamid {
     this.jamiSwig.sendMessage(accountId, conversationId, message, replyTo ?? '', flag ?? 0)
   }
 
+  transferMessage(accountId: string, conversationId: string, message: string): void {
+    this.jamiSwig.sendMessage(accountId, conversationId, message, '', 0)
+  }
+
   deleteConversationMessage(accountId: string, conversationId: string, messageId: string): void {
     this.jamiSwig.sendMessage(accountId, conversationId, '', messageId, 1)
   }
@@ -628,11 +632,21 @@ export class Jamid {
   private setupSignalHandlers(): void {
     this.events.onDataTransferEvent.subscribe((signal) => {
       log.debug('Received DataTransferEvent:', JSON.stringify(signal))
+
       if (signal.eventCode === DataTransferEventCode.created) {
         // It is now safe to delete the associated file
         // in fileId we have the path to the file that we provided
         // to the sendFile function
-        fs.unlinkSync(path.resolve(signal.fileId))
+        const filePath = path.resolve(signal.fileId)
+
+        if (filePath.includes('.local/share/jami/')) {
+          // do not remove cache files
+          // these are not tmp files
+          return
+        }
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath)
+        }
       }
     })
 

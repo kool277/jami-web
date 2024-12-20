@@ -320,6 +320,30 @@ conversationRouter.post(
   },
 )
 
+conversationRouter.post(
+  '/:conversationId/transfermessage/',
+  asyncHandler(async (req, res) => {
+    const accountId = res.locals.accountId
+    const messageBody = req.body.messageBody
+    const targetedConversations = req.body.targetedConversations
+    const comment = req.body.comment
+
+    if (!messageBody) {
+      res.status(HttpStatusCode.BadRequest).send('Missing message in body')
+      return
+    }
+
+    targetedConversations.forEach((targetConversationId: string) => {
+      jamid.transferMessage(accountId, targetConversationId, messageBody)
+      if (comment) {
+        jamid.sendConversationMessage(accountId, targetConversationId, comment)
+      }
+    })
+
+    res.sendStatus(HttpStatusCode.Ok)
+  }),
+)
+
 conversationRouter.delete('/delete/:conversationId/:messageId', (req, res) => {
   jamid.deleteConversationMessage(res.locals.accountId, req.params.conversationId, req.params.messageId)
   res.sendStatus(HttpStatusCode.NoContent)

@@ -99,6 +99,7 @@ type AlertMessageKeys =
   | 'resetting_display_name_success_alert'
   | 'resetting_display_name_error_alert'
   | 'error_cannot_delete_message'
+  | 'error_cannot_transfer_message'
   | 'message_content_copied'
   | 'add_to_group_no_user_selected'
   | 'removed_linked_device_success'
@@ -113,6 +114,7 @@ type AlertMessageKeys =
   | 'getting_oauth_clients_error'
   | 'getting_oauth_provider_info_error'
   | 'copied_to_clipboard'
+  | 'file_not_downloaded'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
 
@@ -176,6 +178,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('resetting_display_name_error_alert')
         case 'error_cannot_delete_message':
           return t('error_cannot_delete_message')
+        case 'error_cannot_transfer_message':
+          return t('error_cannot_transfer_message')
         case 'setting_jams_server_error_same_value':
           return t('setting_jams_server_error_same_value')
         case 'removing_jams_server_success':
@@ -210,6 +214,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('getting_oauth_provider_info_error')
         case 'copied_to_clipboard':
           return t('copied_to_clipboard')
+        case 'file_not_downloaded':
+          return t('file_not_downloaded')
         default:
           return t('unknown_error_alert')
       }
