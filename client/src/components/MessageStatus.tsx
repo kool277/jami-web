@@ -15,24 +15,23 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-
 import { useTheme } from '@mui/material'
+import { Box } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Message } from 'jami-web-common'
 import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
 import { useCallback, useContext, useEffect, useState } from 'react'
 
+import { currentLastSeenMessageContext } from '../components/ChatInterfaceManager'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import SendingIcon from '../icons/sendingIcon.svg?react'
 import SentIcon from '../icons/sentIcon.svg?react'
-import { currentLastSeenMessageContext } from '../pages/ChatInterface'
 import AvatarMouseOver from './AvatarMouseOver'
 
 export interface MessageStatusProps {
   message: Message
 }
-
 export default function MessageStatus({ message }: MessageStatusProps) {
   const { account } = useAuthContext()
   const [highestStatus, setHighestStatus] = useState<MessageStatusCode | undefined>()
@@ -61,20 +60,36 @@ export default function MessageStatus({ message }: MessageStatusProps) {
           peers.push(peerId)
         }
       }
-      if (peers.length > 0) {
-        return peers.map((peerId) => {
-          const member = members.find((member) => peerId === member.contact.uri)
-          return (
-            <AvatarMouseOver
-              key={peerId}
-              contactUri={peerId}
-              displayName={member?.getDisplayName() || member?.contact.registeredName || peerId}
-            />
-          )
-        })
-      }
-      const messageSentIconWidth = '15px'
 
+      if (peers.length > 0) {
+        return (
+          <Box display="flex" position="relative" sx={{ gap: '0' }}>
+            {peers.map((peerId, index) => {
+              const member = members.find((member) => peerId === member.contact.uri)
+              return (
+                <Box
+                  key={peerId}
+                  sx={{
+                    position: 'absolute',
+                    right: `${index * 14}px`,
+                    zIndex: 1,
+                    border: theme.StatusIcon.border,
+                    borderRadius: '25px',
+                  }}
+                >
+                  <AvatarMouseOver
+                    key={peerId}
+                    contactUri={peerId}
+                    displayName={member?.getDisplayName() || member?.contact.registeredName || peerId}
+                  />
+                </Box>
+              )
+            })}
+          </Box>
+        )
+      }
+
+      const messageSentIconWidth = '15px'
       if (highestStatus === MessageStatusCode.read) {
         return null
       } else {
@@ -97,7 +112,6 @@ export default function MessageStatus({ message }: MessageStatusProps) {
   )
 
   const Icon = DisplayedIcon(message)
-
   const item = {
     hidden: { y: 20, opacity: 0 },
     visible: {
@@ -105,17 +119,13 @@ export default function MessageStatus({ message }: MessageStatusProps) {
       opacity: 1,
     },
   }
-
   const styles = {
-    marginRight: '5px',
-    marginLeft: '-5px',
     display: 'flex',
     flexDirection: 'row',
     flexWrap: 'nowrap',
     justifyContent: 'flex-end',
-    minWidth: '15px',
+    padding: '3px',
   }
-
   return (
     <motion.div
       style={styles as any}
@@ -125,7 +135,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
       animate={message.animate ? 'visible' : undefined}
       transition={message.animate ? { delay: 0.3 } : undefined}
     >
-      {Icon}
+      <Box>{Icon}</Box>
     </motion.div>
   )
 }

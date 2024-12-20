@@ -29,7 +29,6 @@ async function getAvailableLanguages(): Promise<string[]> {
   try {
     const response = await fetch(apiUrl + '/config/languages')
     const data = await response.json()
-    console.log('Available languages:', data)
     return data
   } catch (error) {
     console.error('Error fetching available languages:', error)
@@ -41,7 +40,6 @@ async function getTranslation(language: string): Promise<ResourceLanguage> {
   try {
     const response = await fetch(apiUrl + `/config/languages/${language}/`)
     const data = await response.json()
-    console.log(`Translation for ${language}:`, data)
     return data
   } catch (error) {
     console.error(`Error fetching translation for ${language}:`, error)

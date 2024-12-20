@@ -22,7 +22,7 @@ import {
   ConversationView,
   WebSocketMessageType,
 } from 'jami-web-common'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 
 import LoadingPage from '../components/Loading'
 import { createOptionalContext } from '../hooks/createOptionalContext'
@@ -51,7 +51,7 @@ export default ({ children }: WithChildren) => {
   const {
     urlParams: { conversationId },
   } = useUrlParams<ConversationRouteParams>()
-  const { accountId, account } = useAuthContext()
+  const { account } = useAuthContext()
   const webSocket = useWebSocketContext()
   const [composingMembers, setComposingMembers] = useState<ConversationMember[]>([])
 
@@ -77,35 +77,30 @@ export default ({ children }: WithChildren) => {
 
   const onComposingStatusChanged = useCallback(
     (data: ComposingStatus) => {
-      // FIXME: data.conversationId is an empty string. Don't know why. Should not be.
-      // Good enough for now, but will be a problem if the user has more than one conversation with the same contact.
-      // if (data.conversationId === conversationId)
-      {
-        setComposingMembers((composingMembers) => {
-          if (!data.isWriting) {
-            return composingMembers.filter(({ contact }) => contact.uri !== data.contactId)
-          }
+      setComposingMembers((prevComposingMembers) => {
+        if (!data.isWriting) {
+          return prevComposingMembers.filter(({ contact }) => contact.uri !== data.contactId)
+        }
 
-          const isAlreadyIncluded = composingMembers.find((member) => member.contact.uri === data.contactId)
-          if (isAlreadyIncluded) {
-            return composingMembers
-          }
+        const isAlreadyIncluded = prevComposingMembers.find((member) => member.contact.uri === data.contactId)
+        if (isAlreadyIncluded) {
+          return prevComposingMembers
+        }
 
-          const member = members?.find((member) => member.contact.uri === data.contactId)
-          if (!member) {
-            return composingMembers
-          }
+        const member = members?.find((member) => member.contact.uri === data.contactId)
+        if (!member) {
+          return prevComposingMembers
+        }
 
-          return [...composingMembers, member]
-        })
-      }
+        return [...prevComposingMembers, member]
+      })
     },
-    [/*conversationId,*/ members],
+    [members],
   )
 
-  useEffect(() => {
+  const setupWebSocketBindings = useCallback(() => {
     if (!conversationInfos || !conversationId) {
-      return
+      return undefined
     }
 
     const conversationView: ConversationView = {
@@ -115,14 +110,6 @@ export default ({ children }: WithChildren) => {
     webSocket.send(WebSocketMessageType.ConversationView, conversationView)
     webSocket.bind(WebSocketMessageType.ComposingStatus, onComposingStatusChanged)
 
-    return () => webSocket.unbind(WebSocketMessageType.ComposingStatus, onComposingStatusChanged)
-  }, [accountId, conversationInfos, conversationId, onComposingStatusChanged, webSocket])
-
-  useEffect(() => {
-    if (!conversationInfos || !conversationId) {
-      return
-    }
-
     const conversationMemberEventHandler = (data: ConversationMemberEvent) => {
       if (data.conversationId === conversationId) {
         membersQuery.refetch()
@@ -130,8 +117,21 @@ export default ({ children }: WithChildren) => {
     }
 
     webSocket.bind(WebSocketMessageType.ConversationMemberEvent, conversationMemberEventHandler)
-    return () => webSocket.unbind(WebSocketMessageType.ConversationMemberEvent, conversationMemberEventHandler)
-  }, [conversationInfos, conversationId, webSocket, membersQuery])
+
+    return () => {
+      webSocket.unbind(WebSocketMessageType.ComposingStatus, onComposingStatusChanged)
+      webSocket.unbind(WebSocketMessageType.ConversationMemberEvent, conversationMemberEventHandler)
+    }
+  }, [conversationId, conversationInfos, onComposingStatusChanged, webSocket, membersQuery])
+
+  useLayoutEffect(() => {
+    const cleanup = setupWebSocketBindings()
+    return () => {
+      if (cleanup) {
+        cleanup()
+      }
+    }
+  }, [setupWebSocketBindings])
 
   const value = useMemo(() => {
     if (!conversationId || !conversationDisplayName || !conversationInfos || !members) {

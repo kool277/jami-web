@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ReactionAdded, WebSocketMessageType } from 'jami-web-common'
+import { ReactionAdded, SendMessageType, WebSocketMessageType } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
@@ -29,7 +29,7 @@ export function bindReactionAddedCallBack() {
     WebSocketMessageType.ReactionAdded,
     (accountId: string, { conversationId, messageId, reaction }: ReactionAdded) => {
       console.debug('Received ReactionAdded from client', accountId, messageId, conversationId, reaction)
-      jamid.sendConversationMessage(accountId, conversationId, reaction.body, messageId, 2)
+      jamid.sendConversationMessage(accountId, conversationId, reaction.body, messageId, SendMessageType.REACTION)
     },
   )
 }

@@ -45,6 +45,9 @@ export const SelectConversationList = ({
   )
 
   const sortedConversations = useMemo(() => {
+    if (conversationsSummaries.length === 1) {
+      return conversationsSummaries
+    }
     if (conversationsSummaries.some((conversationSummary) => conversationSummary === null)) {
       return conversationsSummaries
     }

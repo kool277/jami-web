@@ -608,7 +608,7 @@ export class Jamid {
     )
   }
 
-  async getSwarmMessages(accountId: string, conversationId: string, fromMessage = '', n = 32): Promise<Message[]> {
+  async getSwarmMessages(accountId: string, conversationId: string, fromMessage = '', n = 8): Promise<Message[]> {
     const requestId = this.jamiSwig.loadConversation(accountId, conversationId, fromMessage, n)
     return firstValueFrom(
       this.events.onSwarmLoaded.pipe(
@@ -618,8 +618,19 @@ export class Jamid {
     )
   }
 
-  async loadSwarmUntil(accountId: string, conversationId: string, fromMessage: string, toMessage: string) {
-    this.jamiSwig.loadSwarmUntil(accountId, conversationId, fromMessage, toMessage)
+  async loadSwarmUntil(
+    accountId: string,
+    conversationId: string,
+    fromMessage: string,
+    toMessage: string,
+  ): Promise<Message[]> {
+    const requestId = this.jamiSwig.loadSwarmUntil(accountId, conversationId, fromMessage, toMessage)
+    return firstValueFrom(
+      this.events.onSwarmLoaded.pipe(
+        filter((value) => value.id === requestId),
+        map((value) => value.messages),
+      ),
+    )
   }
 
   removeConversation(accountId: string, conversationId: string) {

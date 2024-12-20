@@ -41,6 +41,7 @@ import { bindChatCallbacks } from './websocket/chat-handler.js'
 import { bindReactionAddedCallBack } from './websocket/chat-reactionadded-handler.js'
 import { bindReactionRemovedCallBack } from './websocket/chat-reactionremoved-handler.js'
 import { bindLoadMoreMessagesCallBack } from './websocket/load-more-messages-handler.js'
+import { bindLoadSwarmUntilCallback } from './websocket/load-swarm-until-handler.js'
 import { bindMessageStatusChangeCallbacks } from './websocket/message-status-handler.js'
 import { bindWebRtcCallbacks } from './websocket/webrtc-handler.js'
 
@@ -105,6 +106,7 @@ export class App {
     bindReactionAddedCallBack()
     bindReactionRemovedCallBack()
     bindLoadMoreMessagesCallBack()
+    bindLoadSwarmUntilCallback()
 
     // Setup 404 error handling
     this.app.use((_req, res) => {

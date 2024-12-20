@@ -21,7 +21,7 @@ import { darken } from '@mui/system'
 import byteSize from 'byte-size'
 import { useTranslation } from 'react-i18next'
 
-import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
+import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
 import { getTextColor } from '../utils/messagecolor'
 import EllipsisMiddle from './EllipsisMiddle'
 
@@ -44,7 +44,7 @@ export default function ({
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.down('md'))
-  const { conversationColor } = useConversationPreferencesContext()
+  const { conversationColor } = useConversationPreferencesColorContext()
 
   const color = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
   const backgroundColor = darken(color, 0.3)

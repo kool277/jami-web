@@ -19,7 +19,7 @@
 import { Box, Button, Modal, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Message, ReactionRemoved, WebSocketMessageType } from 'jami-web-common'
-import { useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -230,4 +230,4 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
   )
 }
 
-export default MessageReaction
+export default memo(MessageReaction)

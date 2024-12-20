@@ -23,7 +23,6 @@ import { formatCallDuration } from './dates&times'
 
 export const getMessageCallText = (isAccountMessage: boolean, message: Message, i18n: i18n) => {
   if (!message?.duration) {
-    console.error(`${getMessageCallText.name} received a message without a duration: ${message}`)
     return ''
   }
   const callDuration = dayjs.duration(parseInt(message?.duration || ''))

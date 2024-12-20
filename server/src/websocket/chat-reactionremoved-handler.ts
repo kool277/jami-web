@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ReactionRemoved, WebSocketMessageType } from 'jami-web-common'
+import { ReactionRemoved, SendMessageType, WebSocketMessageType } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
@@ -30,7 +30,7 @@ export function bindReactionRemovedCallBack() {
     (accountId: string, { conversationId, messageId, reactionId }: ReactionRemoved) => {
       console.debug('Received Reaction Removed from client', accountId, messageId, conversationId, reactionId)
 
-      jamid.sendConversationMessage(accountId, conversationId, '', reactionId, 1)
+      jamid.sendConversationMessage(accountId, conversationId, '', reactionId, SendMessageType.EDIT)
     },
   )
 }

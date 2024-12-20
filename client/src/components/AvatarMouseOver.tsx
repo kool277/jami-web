@@ -30,29 +30,25 @@ const AvatarMouseOver = ({ contactUri, displayName }: AvatarMouseOverProps) => {
   const avatarSize: string = '15px'
   const [isMouseOver, setIsMouseOver] = useState(false)
   return (
-    <Box
-      sx={{
-        position: 'relative',
-        display: 'inline-block',
-      }}
-    >
+    <Box sx={{}}>
       {isMouseOver && (
         <Typography
           sx={{
+            color: 'white',
             position: 'absolute',
             bottom: '16px',
             left: '10px',
             transform: 'translateX(-90%)',
-            zIndex: 1000,
+            zIndex: 999999,
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            color: 'white',
-            borderRadius: '5px',
             padding: '0.2em 0.4em',
+            borderRadius: '5px',
             fontSize: '0.8em',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             userSelect: 'none',
+            marginBottom: '3px',
           }}
         >
           {displayName || contactUri}

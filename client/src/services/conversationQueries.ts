@@ -63,7 +63,6 @@ export const useConversationsSummariesQuery = () => {
     queryKey: ['conversations', 'summaries'],
     queryFn: async () => {
       const { data } = await axiosInstance.get<IConversationSummary[]>(`/conversations`)
-      console.log('DATA', data)
       return data
     },
   })
@@ -114,7 +113,7 @@ export const useMembersQuery = (conversationId?: string) => {
   })
 }
 
-export const useMessagesQuery = (conversationId: string) => {
+export const useMessagesQuery = (conversationId: string, needToFetch: boolean) => {
   const { axiosInstance } = useAuthContext()
   return useQuery({
     queryKey: ['conversations', conversationId, 'messages'],
@@ -122,7 +121,7 @@ export const useMessagesQuery = (conversationId: string) => {
       const { data } = await axiosInstance.get<Message[]>(`/conversations/${conversationId}/messages`)
       return data
     },
-    enabled: !!conversationId,
+    enabled: !!conversationId && needToFetch,
   })
 }
 

@@ -82,6 +82,15 @@ export interface LoadMoreMessages {
   messages?: Message[]
 }
 
+export interface LoadSwarmUntil {
+  accountId: string
+  conversationId: string
+  fromMessageId: string
+  toMessageId: string
+  messages?: Message[]
+  firstSection?: boolean
+}
+
 export interface ComposingStatus {
   contactId?: string // optional (ignored) when is about the user sending it
   conversationId: string

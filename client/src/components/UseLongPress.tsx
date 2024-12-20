@@ -19,7 +19,7 @@
 import { useCallback, useRef, useState } from 'react'
 
 const UseLongPress = (callback: () => void, ms: number = 500) => {
-  const [startLongPress, setStartLongPress] = useState(false)
+  const [_, setStartLongPress] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   const startPressTimer = useCallback(() => {
@@ -41,7 +41,6 @@ const UseLongPress = (callback: () => void, ms: number = 500) => {
     onTouchStart: startPressTimer,
     onTouchEnd: cancelPressTimer,
     onTouchMove: cancelPressTimer,
-    startLongPress,
   }
 }
 

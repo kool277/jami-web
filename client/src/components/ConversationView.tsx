@@ -21,9 +21,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useCallManagerContext } from '../contexts/CallManagerProvider'
-import ConversationPreferencesProvider, {
-  useConversationPreferencesContext,
-} from '../contexts/ConversationPreferencesContext'
+import ConversationPreferencesColorProvider from '../contexts/ConversationPreferencesColorContext'
+import ConversationPreferencesNotificationsProvider from '../contexts/ConversationPreferencesNotificationsContext'
+import ConversationPreferencesStateProvider, {
+  useConversationPreferencesStateContext,
+} from '../contexts/ConversationPreferencesStateContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
 import CallInterface from '../pages/CallInterface'
@@ -42,24 +44,28 @@ const ConversationView = () => {
   }
 
   return (
-    <ConversationPreferencesProvider>
-      <Stack flexGrow={1} height="100%" width="100%">
-        <ConversationHeader />
-        <Divider
-          sx={{
-            borderTop: '1px solid #E5E5E5',
-          }}
-        />
-        <ChatInterface />
-      </Stack>
-    </ConversationPreferencesProvider>
+    <ConversationPreferencesStateProvider>
+      <ConversationPreferencesNotificationsProvider>
+        <ConversationPreferencesColorProvider>
+          <Stack flexGrow={1} height="100%" width="100%">
+            <ConversationHeader />
+            <Divider
+              sx={{
+                borderTop: '1px solid #E5E5E5',
+              }}
+            />
+            <ChatInterface />
+          </Stack>
+        </ConversationPreferencesColorProvider>
+      </ConversationPreferencesNotificationsProvider>
+    </ConversationPreferencesStateProvider>
   )
 }
 
 const ConversationHeader = () => {
   const { conversationDisplayName } = useConversationContext()
   //const { startCall } = useCallManagerContext()
-  const { isOpen, setIsOpen } = useConversationPreferencesContext()
+  const { isOpen, setIsOpen } = useConversationPreferencesStateContext()
   const [open, setOpen] = useState<boolean>(false)
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))

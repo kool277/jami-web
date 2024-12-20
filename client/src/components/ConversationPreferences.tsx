@@ -42,7 +42,9 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { useAuthContext } from '../contexts/AuthProvider'
-import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
+import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
+import { useConversationPreferencesNotificationsContext } from '../contexts/ConversationPreferencesNotificationsContext'
+import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { ConversationMember } from '../models/conversation-member'
 import { useBlockContactMutation, useContactQuery } from '../services/contactQueries'
@@ -72,18 +74,25 @@ enum TABS {
 }
 
 export default function ConversationPreferences() {
-  const { conversationColor, isSwarmGroup } = useConversationPreferencesContext()
+  const { conversationColor } = useConversationPreferencesColorContext()
+  const { isOpen } = useConversationPreferencesStateContext()
   const { members, conversationId, conversationDisplayName, conversationInfos } = useConversationContext()
   const { account } = useAuthContext()
-  const [title, setTitle] = useState(conversationDisplayName)
-  const isAdmin = members.some((member) => member.contact.uri === account.getUri() && member.role === 'admin')
   const useConversationInfosMutationQuery = useConversationInfosMutation(conversationId)
-
-  const [currentTab, setCurrentTab] = useState<TABS>(TABS.INFOS)
   const theme = useTheme()
+
+  const [title, setTitle] = useState(conversationDisplayName)
+  const [currentTab, setCurrentTab] = useState<TABS>(TABS.INFOS)
+
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
   const isMoreThanMedium: boolean = useMediaQuery(theme.breakpoints.only('md'))
+
+  if (!isOpen) {
+    return
+  }
+
+  const isAdmin = members.some((member) => member.contact.uri === account.getUri() && member.role === 'admin')
 
   const buttonStyle = {
     backgroundColor: 'inherit',
@@ -178,7 +187,7 @@ export default function ConversationPreferences() {
             >
               <InfoIcon />
             </Button>
-            {isSwarmGroup && (
+            {members.length > 2 && (
               <Button
                 sx={buttonStyle}
                 style={{ opacity: currentTab === TABS.MEMBERS ? 1 : 0.7 }}
@@ -247,9 +256,8 @@ const SettingsItemWrapper = ({ title, children }: SettingsItemWrapperProps) => {
 
 const Infos = () => {
   const { t } = useTranslation()
-  const { isSwarmGroup } = useConversationPreferencesContext()
-  const conversationType = isSwarmGroup ? t('conversation_type_group') : t('conversation_type_private')
   const { conversationId, conversationInfos, members } = useConversationContext()
+  const conversationType = members.length > 2 ? t('conversation_type_group') : t('conversation_type_private')
   const { account } = useAuthContext()
   const [description, setDescription] = useState(conversationInfos.description || '')
   const useConversationInfosMutationQuery = useConversationInfosMutation(conversationId)
@@ -590,7 +598,7 @@ const Settings = () => {
   const RemoveConversationDialogHandler = useDialogHandler()
   const { conversationId } = useConversationContext()
   const conversationPreferencesMutation = useConversationPreferencesMutation(conversationId)
-  const { ignoreNotifications } = useConversationPreferencesContext()
+  const { ignoreNotifications } = useConversationPreferencesNotificationsContext()
 
   const onConversationMuteChange = () => {
     conversationPreferencesMutation.mutate({ ignoreNotifications: !ignoreNotifications })
@@ -646,13 +654,12 @@ interface ColorPickerProps {
 }
 
 const ColorPicker = ({ conversationId }: ColorPickerProps) => {
-  const { conversationColor } = useConversationPreferencesContext()
+  const { conversationColor } = useConversationPreferencesColorContext()
   const [open, setOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const conversationPreferencesMutation = useConversationPreferencesMutation(conversationId)
 
   const handleNewColor = (color: string) => {
-    console.log('color', color)
     conversationPreferencesMutation.mutate({ color })
   }
 

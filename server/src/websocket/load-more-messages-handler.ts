@@ -35,6 +35,7 @@ export function bindLoadMoreMessagesCallBack() {
       }
 
       const messages = await jamid.getSwarmMessages(accountId, conversationId, lastMessageId, limit)
+
       webSocketServer.send(accountId, WebSocketMessageType.LoadMoreMessages, {
         accountId,
         conversationId,

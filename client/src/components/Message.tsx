@@ -28,10 +28,11 @@ import * as linkify from 'linkifyjs'
 import { memo, ReactElement, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useActionMessageContext } from '../contexts/ActionMessageProvider'
+import { useGlobalSetEditMessage } from '../contexts/ActionMessageProvider'
+import { useGlobalSetReplyMessage } from '../contexts/ActionMessageProvider'
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
-import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
+import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { Account } from '../models/account'
@@ -122,7 +123,7 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   const { i18n } = useTranslation()
   const position = isAccountMessage ? 'end' : 'start'
   const theme = useTheme()
-  const { conversationColor } = useConversationPreferencesContext()
+  const { conversationColor } = useConversationPreferencesColorContext()
   const messageColor = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
   const darkColor = darken(messageColor, 0.3)
 
@@ -193,74 +194,64 @@ enum FileType {
   Document = 'document',
 }
 
-const MessageDataTransfer = ({
-  isAccountMessage,
-  isFirstOfGroup,
-  isLastOfGroup,
-  message,
-  sentTime,
-}: MessageDataTransferProps) => {
-  const theme: Theme = useTheme()
-  const { conversationId, members } = useConversationContext()
-  const { setReplyMessage } = useActionMessageContext()
-  const { conversationColor } = useConversationPreferencesContext()
-  const bubbleColor = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
-  const [fileType, setFileType] = useState<FileType>()
-  const extension = message.displayName?.split('.').pop()?.toLowerCase() || ''
+const MessageDataTransfer = memo(
+  ({ isAccountMessage, isFirstOfGroup, isLastOfGroup, message, sentTime }: MessageDataTransferProps) => {
+    const theme: Theme = useTheme()
+    const { conversationId, members } = useConversationContext()
+    const setReplyMessage = useGlobalSetReplyMessage()
+    const { conversationColor } = useConversationPreferencesColorContext()
+    const bubbleColor = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
+    const [fileType, setFileType] = useState<FileType>()
+    const extension = message.displayName?.split('.').pop()?.toLowerCase() || ''
 
-  const downloadFile = GetDownloadedFile(conversationId)
-  const limitData = useGetAutoDownloadLimit()
-  const content = { messageId: message.id, fileId: message.fileId || '' }
-  const isFileAlreadyInCache = useGetDownloadFileInfo({ content, conversationId })
+    const downloadFile = GetDownloadedFile(conversationId)
+    const limitData = useGetAutoDownloadLimit()
+    const content = { messageId: message.id, fileId: message.fileId || '' }
+    const isFileAlreadyInCache = useGetDownloadFileInfo({ content, conversationId })
 
-  const [isDeleted, setIsDeleted] = useState(false)
-  const [preview, setPreview] = useState<string>()
-  const [audioBlob, setAudioBlob] = useState<Blob>()
-  const [isMediaPreviewOpen, setIsMediaPreviewOpen] = useState(false)
+    const [preview, setPreview] = useState<string>()
+    const [audioBlob, setAudioBlob] = useState<Blob>()
+    const [isMediaPreviewOpen, setIsMediaPreviewOpen] = useState(false)
 
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
+    const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+    const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
 
-  const textColor = isAccountMessage ? 'white' : 'black'
-  const position = isAccountMessage ? 'end' : 'start'
-  const totalSize = Number(message.totalSize) / 1000000
+    const textColor = isAccountMessage ? 'white' : 'black'
+    const position = isAccountMessage ? 'end' : 'start'
+    const totalSize = Number(message.totalSize) / 1000000
 
-  const member = members.find((member) => member.contact.uri === message.author)
+    const isDeleted = message.fileId === ''
 
-  useEffect(() => {
-    if (message.fileId === '') {
-      setIsDeleted(true)
-    }
-  }, [message.fileId, setIsDeleted])
+    const member = members.find((member) => member.contact.uri === message.author)
 
-  const getAudioBlob = useCallback(async () => {
-    const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
-    if (!result) {
-      return
-    }
-    const blob = new Blob([result.blob], { type: 'audio/' + extension.toLowerCase() })
-    setAudioBlob(blob)
-  }, [downloadFile, message.id, message.fileId, extension])
-
-  const getPreview = useCallback(
-    async (isImage: boolean) => {
+    const getAudioBlob = useCallback(async () => {
       const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
       if (!result) {
         return
       }
-      const blob = new Blob([result.blob], {
-        type: isImage ? 'image/' + extension.toLowerCase() : 'video/' + extension.toLowerCase(),
-      })
-      setPreview(URL.createObjectURL(blob))
-    },
-    [downloadFile, message.id, message.fileId, extension],
-  )
+      const blob = new Blob([result.blob], { type: 'audio/' + extension.toLowerCase() })
+      setAudioBlob(blob)
+    }, [downloadFile, message.id, message.fileId, extension])
 
-  useEffect(() => {
-    async function checkFileType() {
-      if (isDeleted) {
+    const getPreview = useCallback(
+      async (isImage: boolean) => {
+        const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
+        if (!result || !result.blob) {
+          return
+        }
+        const blob = new Blob([result.blob], {
+          type: isImage ? 'image/' + extension.toLowerCase() : 'video/' + extension.toLowerCase(),
+        })
+        setPreview(URL.createObjectURL(blob))
+      },
+      [downloadFile, message.id, message.fileId, extension],
+    )
+
+    const checkFileType = useCallback(async () => {
+      if (isDeleted || fileType !== undefined || !limitData.isSuccess || !isFileAlreadyInCache.isSuccess) {
         return
       }
+
       const acceptedAudioTypes = ['ogg', 'wav', 'mpeg', 'aac', 'flac', 'mp3']
       const acceptedImageTypes = ['apng', 'avif', 'jpg', 'JPG', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
       const acceptedVideoTypes = [
@@ -277,6 +268,7 @@ const MessageDataTransfer = ({
         '3g2',
         '3gpp2',
       ]
+
       if (acceptedAudioTypes.includes(extension)) {
         setFileType(FileType.Audio)
         if (totalSize < limitData.data.limit || isFileAlreadyInCache.data) {
@@ -295,236 +287,232 @@ const MessageDataTransfer = ({
       } else {
         setFileType(FileType.Document)
       }
-    }
+    }, [
+      isDeleted,
+      fileType,
+      limitData.isSuccess,
+      limitData.data?.limit,
+      isFileAlreadyInCache.isSuccess,
+      isFileAlreadyInCache.data,
+      extension,
+      totalSize,
+      getAudioBlob,
+      getPreview,
+    ])
 
-    if (limitData.isSuccess && isFileAlreadyInCache.isSuccess && !isDeleted && fileType === undefined) {
-      checkFileType()
-    }
-  }, [
-    limitData,
-    isFileAlreadyInCache,
-    isDeleted,
-    fileType,
-    extension,
-    totalSize,
-    setAudioBlob,
-    setPreview,
-    downloadFile,
-    message,
-    getAudioBlob,
-    getPreview,
-  ])
+    checkFileType()
 
-  useEffect(() => {
-    return () => {
-      if (preview) {
-        URL.revokeObjectURL(preview)
+    useEffect(() => {
+      return () => {
+        if (preview) {
+          URL.revokeObjectURL(preview)
+        }
       }
-    }
-  }, [preview])
+    }, [preview])
 
-  if (message.fileId === undefined) {
-    return null
-  }
-
-  const getMaxWidth = () => {
-    if (isMobile) {
-      return '250px'
-    }
-    if (isMedium) {
-      return '300px'
-    }
-    return '550px'
-  }
-
-  const onDoubleClick = () => {
-    if (isDeleted) {
-      return
-    }
-    setReplyMessage(message)
-  }
-
-  const onMediaPreview = () => {
-    if (!preview || isDeleted || fileType !== FileType.Image) {
-      return
-    }
-    setIsMediaPreviewOpen(true)
-  }
-
-  const handleDownload = async () => {
-    if (isDeleted) {
-      return
+    if (message.fileId === undefined) {
+      return null
     }
 
-    //open download popup
-    if (preview) {
-      const link = document.createElement('a')
-      link.href = preview
-      link.setAttribute('href', preview)
-      const fileName = message.displayName ? message.displayName : 'file'
-      link.setAttribute('download', fileName)
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    } else {
-      const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
-      if (!result) {
+    const getMaxWidth = () => {
+      if (isMobile) {
+        return '250px'
+      }
+      if (isMedium) {
+        return '300px'
+      }
+      return '550px'
+    }
+
+    const onDoubleClick = () => {
+      if (isDeleted) {
         return
       }
-      const url = result.blobUrl
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('href', url)
-      const fileName = message.displayName ? message.displayName : 'file'
-      link.setAttribute('download', fileName)
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      setReplyMessage(message)
     }
-  }
 
-  const dataComponent = () => {
-    switch (fileType) {
-      case FileType.Audio:
-        if (!audioBlob) {
-          return (
-            <Box
-              onClick={() => {
-                getAudioBlob()
-              }}
-            >
-              <MessageDataContent
-                isAccountMessage={isAccountMessage}
-                displayName={message.displayName || 'Unknown'}
-                totalSize={Number(message.totalSize)}
-                isNotAvailable={true}
-              />
-            </Box>
-          )
-        }
-        return (
-          <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap' }}>
-            {position === 'end' && <Box sx={{ minWidth: '35px' }}></Box>}
-            <AudioPlayer blob={audioBlob} isAccountMessage={isAccountMessage} />
-            {position === 'start' && <Box sx={{ minWidth: '35px' }}></Box>}
-          </Box>
-        )
-      case FileType.Image:
-        if (!preview) {
-          return (
-            <Box
-              onClick={() => {
-                getPreview(true)
-              }}
-            >
-              <MessageDataContent
-                isAccountMessage={isAccountMessage}
-                displayName={message.displayName || 'Unknown'}
-                totalSize={Number(message.totalSize)}
-                isNotAvailable={true}
-              />
-            </Box>
-          )
-        }
-        return (
-          <img
-            style={{ maxHeight: '250px', maxWidth: getMaxWidth(), borderRadius: '10px' }}
-            src={preview}
-            alt={message.displayName}
-          />
-        )
-      case FileType.Video:
-        if (!preview) {
-          return (
-            <Box
-              onClick={() => {
-                getPreview(false)
-              }}
-            >
-              <MessageDataContent
-                isAccountMessage={isAccountMessage}
-                displayName={message.displayName || 'Unknown'}
-                totalSize={Number(message.totalSize)}
-                isNotAvailable={true}
-              />
-            </Box>
-          )
-        }
-        return (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              flexWrap: 'nowrap',
-              alignContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <video style={{ maxWidth: getMaxWidth(), borderRadius: '10px' }} src={preview} controls />
-          </Box>
-        )
-      default: // includes document
-        return (
-          <MessageDataContent
-            isAccountMessage={isAccountMessage}
-            displayName={message.displayName || 'Unknown'}
-            totalSize={Number(message.totalSize)}
-          />
-        )
+    const onMediaPreview = () => {
+      if (!preview || isDeleted || fileType !== FileType.Image) {
+        return
+      }
+      setIsMediaPreviewOpen(true)
     }
-  }
 
-  return (
-    <>
-      {preview && (
-        <MediaViewer
-          blobUrl={preview}
-          open={isMediaPreviewOpen}
-          onClose={() => setIsMediaPreviewOpen(false)}
-          member={member}
-          handleDownload={handleDownload}
-          fileName={message.displayName}
-        />
-      )}
-      <MessageTooltip
-        isDeleted={isDeleted}
-        position={position}
-        message={message}
-        isMedia={true}
-        handleDownload={handleDownload}
-      >
-        <Box
-          onClick={onMediaPreview}
-          onDoubleClick={onDoubleClick}
-          sx={isDeleted || fileType === FileType.Audio ? null : { cursor: 'pointer' }}
-        >
-          <Bubble
-            bubbleColor={bubbleColor}
-            position={position}
-            isFirstOfGroup={isFirstOfGroup}
-            isLastOfGroup={isLastOfGroup}
-            sentTime={sentTime}
-            edited={false} // edited is not used in data-transfer message
-            isMedia={fileType !== FileType.Document ? true : false}
-            isAudio={fileType === FileType.Audio}
-            deleted={isDeleted}
-          >
-            {isDeleted ? (
-              <Box sx={{ userSelect: 'none' }} color={textColor}>
-                {t('media_deleted')}
+    const handleDownload = async () => {
+      if (isDeleted) {
+        return
+      }
+
+      //open download popup
+      if (preview) {
+        const link = document.createElement('a')
+        link.href = preview
+        link.setAttribute('href', preview)
+        const fileName = message.displayName ? message.displayName : 'file'
+        link.setAttribute('download', fileName)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      } else {
+        const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
+        if (!result || !result.blob) {
+          return
+        }
+        const url = URL.createObjectURL(new Blob([result.blob]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('href', url)
+        const fileName = message.displayName ? message.displayName : 'file'
+        link.setAttribute('download', fileName)
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+      }
+    }
+
+    const dataComponent = () => {
+      switch (fileType) {
+        case FileType.Audio:
+          if (!audioBlob) {
+            return (
+              <Box
+                onClick={() => {
+                  getAudioBlob()
+                }}
+              >
+                <MessageDataContent
+                  isAccountMessage={isAccountMessage}
+                  displayName={message.displayName || 'Unknown'}
+                  totalSize={Number(message.totalSize)}
+                  isNotAvailable={true}
+                />
               </Box>
-            ) : (
-              dataComponent()
-            )}
-          </Bubble>
+            )
+          }
+          return (
+            <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap' }}>
+              {position === 'end' && <Box sx={{ minWidth: '35px' }}></Box>}
+              <AudioPlayer blob={audioBlob} isAccountMessage={isAccountMessage} />
+              {position === 'start' && <Box sx={{ minWidth: '35px' }}></Box>}
+            </Box>
+          )
+        case FileType.Image:
+          if (!preview) {
+            return (
+              <Box
+                onClick={() => {
+                  getPreview(true)
+                }}
+              >
+                <MessageDataContent
+                  isAccountMessage={isAccountMessage}
+                  displayName={message.displayName || 'Unknown'}
+                  totalSize={Number(message.totalSize)}
+                  isNotAvailable={true}
+                />
+              </Box>
+            )
+          }
+          return (
+            <img
+              style={{ maxHeight: '250px', maxWidth: getMaxWidth(), borderRadius: '10px' }}
+              src={preview}
+              alt={message.displayName}
+            />
+          )
+        case FileType.Video:
+          if (!preview) {
+            return (
+              <Box
+                onClick={() => {
+                  getPreview(false)
+                }}
+              >
+                <MessageDataContent
+                  isAccountMessage={isAccountMessage}
+                  displayName={message.displayName || 'Unknown'}
+                  totalSize={Number(message.totalSize)}
+                  isNotAvailable={true}
+                />
+              </Box>
+            )
+          }
+          return (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                flexWrap: 'nowrap',
+                alignContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <video style={{ maxWidth: getMaxWidth(), borderRadius: '10px' }} src={preview} controls />
+            </Box>
+          )
+        default: // includes document
+          return (
+            <MessageDataContent
+              isAccountMessage={isAccountMessage}
+              displayName={message.displayName || 'Unknown'}
+              totalSize={Number(message.totalSize)}
+            />
+          )
+      }
+    }
+
+    return (
+      <>
+        {preview && (
+          <MediaViewer
+            blobUrl={preview}
+            fileName={message.displayName}
+            handleDownload={handleDownload}
+            open={isMediaPreviewOpen}
+            onClose={() => setIsMediaPreviewOpen(false)}
+            member={member}
+          />
+        )}
+        <MessageTooltip
+          isDeleted={isDeleted}
+          position={position}
+          message={message}
+          isMedia={true}
+          handleDownload={handleDownload}
+        >
+          <Box
+            onClick={onMediaPreview}
+            onDoubleClick={onDoubleClick}
+            sx={isDeleted || fileType === FileType.Audio ? null : { cursor: 'pointer' }}
+          >
+            <Bubble
+              bubbleColor={bubbleColor}
+              position={position}
+              isFirstOfGroup={isFirstOfGroup}
+              isLastOfGroup={isLastOfGroup}
+              sentTime={sentTime}
+              edited={false} // edited is not used in data-transfer message
+              isMedia={fileType !== FileType.Document ? true : false}
+              isAudio={fileType === FileType.Audio}
+              deleted={isDeleted}
+            >
+              {isDeleted ? (
+                <Box sx={{ userSelect: 'none' }} color={textColor}>
+                  {t('media_deleted')}
+                </Box>
+              ) : (
+                dataComponent()
+              )}
+            </Bubble>
+          </Box>
+        </MessageTooltip>
+        <Box sx={{ width: '95%', display: 'flex', justifyContent: isAccountMessage ? 'flex-start' : 'flex-end' }}>
+          <MessageReaction message={message} />
         </Box>
-      </MessageTooltip>
-      <Box sx={{ width: '95%', display: 'flex', justifyContent: isAccountMessage ? 'flex-start' : 'flex-end' }}>
-        <MessageReaction message={message} />
-      </Box>
-    </>
-  )
-}
+      </>
+    )
+  },
+)
 
 interface MessageMemberProps {
   message: Message
@@ -554,7 +542,7 @@ type LinkPreviewProps = {
   link: string
 }
 
-const LinkPreview = ({ isAccountMessage, link }: LinkPreviewProps) => {
+const LinkPreview = memo(({ isAccountMessage, link }: LinkPreviewProps) => {
   const [imageIsWorking, setImageIsWorking] = useState(true)
   const linkPreviewQuery = useLinkPreviewQuery(link)
   if (linkPreviewQuery.isLoading) {
@@ -593,7 +581,7 @@ const LinkPreview = ({ isAccountMessage, link }: LinkPreviewProps) => {
       </Stack>
     </a>
   )
-}
+})
 
 type RenderLinkProps = {
   attributes: {
@@ -603,14 +591,14 @@ type RenderLinkProps = {
   content: ReactNode
 }
 
-const RenderLink = ({ attributes, content }: RenderLinkProps) => {
+const RenderLink = memo(({ attributes, content }: RenderLinkProps) => {
   const { href, isAccountMessage, ...props } = attributes
   return (
     <Link href={href} {...props} variant="body1" color={isAccountMessage ? '#ffffff' : undefined}>
       {content}
     </Link>
   )
-}
+})
 
 interface MessageTextProps {
   message: Message
@@ -620,8 +608,8 @@ interface MessageTextProps {
   sentTime: Dayjs
 }
 
-const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup, sentTime }: MessageTextProps) => {
-  const { conversationColor } = useConversationPreferencesContext()
+const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup, sentTime }: MessageTextProps) => {
+  const { conversationColor } = useConversationPreferencesColorContext()
   const theme: Theme = useTheme()
 
   const position = isAccountMessage ? 'end' : 'start'
@@ -629,22 +617,10 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message])
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('md'))
-  const [isEdited, setIsEdited] = useState(false)
-  const { setReplyMessage } = useActionMessageContext()
+  const isDeleted = message.body === ''
+  const isEdited = message.editions !== undefined && message.editions.length > 0
+  const setReplyMessage = useGlobalSetReplyMessage()
   const isPreviewEnabled = localStorage.getItem('linkPreview') === 'true'
-  const [isDeleted, setIsDeleted] = useState(message.body === '')
-
-  useEffect(() => {
-    if (message.body === '') {
-      setIsDeleted(true)
-    }
-  }, [message.body, setIsDeleted])
-
-  useEffect(() => {
-    if (message.editions !== undefined && message.editions.length > 0) {
-      setIsEdited(true)
-    }
-  }, [message])
 
   const onDoubleClick = () => {
     if (isDeleted) {
@@ -689,9 +665,7 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
               deleted={isDeleted}
               hasReply={message['reply-to'] !== undefined}
             >
-              <Linkify options={{ render: RenderLink as any, attributes: { isAccountMessage } }}>
-                {message.body + '            '}
-              </Linkify>
+              <Linkify options={{ render: RenderLink as any }}>{message.body + '            '}</Linkify>
               <Box>{link && isPreviewEnabled && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}</Box>
             </Bubble>
           </Box>
@@ -702,7 +676,7 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
       </Box>
     </>
   )
-}
+})
 
 interface DateIndicatorProps {
   time: Dayjs
@@ -795,192 +769,191 @@ interface UserMessageRowProps {
   author: Account | Contact
 }
 
-const UserMessageRow = ({
-  message,
-  previousMessage,
-  nextMessage,
-  isAccountMessage,
-  showsTime,
-  author,
-}: UserMessageRowProps) => {
-  const authorName = author.getDisplayName()
-  const position = isAccountMessage ? 'end' : 'start'
-  const { t } = useTranslation()
-  const previousIsUserMessageType = checkIsUserMessageType(previousMessage?.type)
-  const nextIsUserMessageType = checkIsUserMessageType(nextMessage?.type)
-  const nextTime = dayjs.unix(Number(nextMessage?.timestamp))
-  const sentTime = dayjs.unix(Number(message.timestamp))
-  const nextShowsTime = checkShowsTime(nextTime, sentTime)
-  const isFirstOfGroup = showsTime || !previousIsUserMessageType || previousMessage?.author !== message.author
-  const isLastOfGroup = nextShowsTime || !nextIsUserMessageType || message.author !== nextMessage?.author
-  const { members } = useConversationContext()
-  const theme: Theme = useTheme()
-  const isReduced = useMediaQuery(theme.breakpoints.down('md'))
-  const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
-  const props = {
-    message,
-    isAccountMessage,
-    isFirstOfGroup,
-    isLastOfGroup,
-    sentTime,
-  }
-
-  let MessageComponent
-  switch (message.type) {
-    case 'text/plain':
-      MessageComponent = MessageText
-      break
-    case 'application/data-transfer+json':
-      MessageComponent = MessageDataTransfer
-      break
-    case 'application/call-history+json':
-      MessageComponent = MessageCall
-      break
-    default:
-      console.error(`${UserMessageRow.name} received unhandled message type: ${message.type}`)
-      return null
-  }
-
-  const participantNamePadding = isAccountMessage
-    ? bubblePadding
-    : parseInt(avatarSize) + parseInt(spacingBetweenAvatarAndBubble) + parseInt(bubblePadding) + 'px'
-
-  const replyMessage = message['reply-to']
-
-  function scrollToMessage(messageId: string) {
-    const messageElement = document.getElementById(`message-${messageId}`)
-    if (messageElement) {
-      messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+const UserMessageRow = memo(
+  ({ message, previousMessage, nextMessage, isAccountMessage, showsTime, author }: UserMessageRowProps) => {
+    const authorName = author.getDisplayName()
+    const position = isAccountMessage ? 'end' : 'start'
+    const { t } = useTranslation()
+    const previousIsUserMessageType = checkIsUserMessageType(previousMessage?.type)
+    const nextIsUserMessageType = checkIsUserMessageType(nextMessage?.type)
+    const nextTime = dayjs.unix(Number(nextMessage?.timestamp))
+    const sentTime = dayjs.unix(Number(message.timestamp))
+    const nextShowsTime = checkShowsTime(nextTime, sentTime)
+    const isFirstOfGroup = showsTime || !previousIsUserMessageType || previousMessage?.author !== message.author
+    const isLastOfGroup = nextShowsTime || !nextIsUserMessageType || message.author !== nextMessage?.author
+    const { members } = useConversationContext()
+    const theme: Theme = useTheme()
+    const isReduced = useMediaQuery(theme.breakpoints.down('md'))
+    const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
+    const props = {
+      message,
+      isAccountMessage,
+      isFirstOfGroup,
+      isLastOfGroup,
+      sentTime,
     }
-  }
+    let MessageComponent
 
-  function highlightReplyMessage(messageId: string) {
-    const replyMessageElement = document.getElementById(`message-${messageId}`)
-    if (replyMessageElement) {
-      replyMessageElement.style.transition = 'background-color 0.5s ease-in-out'
-      replyMessageElement.style.backgroundColor = theme.Buttons.hoverBackgroundColor
-      setTimeout(() => {
-        replyMessageElement.style.backgroundColor = ''
-      }, 1000)
+    const [replyMessage, setReplyMessage] = useState(message['reply-to'])
+
+    useEffect(() => {
+      setReplyMessage(message['reply-to'])
+    }, [message])
+
+    switch (message.type) {
+      case 'text/plain':
+        MessageComponent = MessageText
+        break
+      case 'application/data-transfer+json':
+        MessageComponent = MessageDataTransfer
+        break
+      case 'application/call-history+json':
+        MessageComponent = MessageCall
+        break
+      default:
+        console.error(`${UserMessageRow.name} received unhandled message type: ${message.type}`)
+        return null
     }
-  }
 
-  const getMaxReplyWidth = () => {
-    if (isMobile) {
-      return '300px'
+    const participantNamePadding = isAccountMessage
+      ? bubblePadding
+      : parseInt(avatarSize) + parseInt(spacingBetweenAvatarAndBubble) + parseInt(bubblePadding) + 'px'
+
+    function scrollToMessage(messageId: string) {
+      const messageElement = document.getElementById(`message-${messageId}`)
+      if (messageElement) {
+        messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
     }
-    if (isReduced) {
-      return '400px'
+
+    function highlightReplyMessage(messageId: string) {
+      const replyMessageElement = document.getElementById(`message-${messageId}`)
+      if (replyMessageElement) {
+        replyMessageElement.style.transition = 'background-color 0.5s ease-in-out'
+        replyMessageElement.style.backgroundColor = theme.Buttons.hoverBackgroundColor
+        setTimeout(() => {
+          replyMessageElement.style.backgroundColor = ''
+        }, 1000)
+      }
     }
-    return '600px'
-  }
 
-  let replyMessageComponent = <></>
+    const getMaxReplyWidth = () => {
+      if (isMobile) {
+        return '300px'
+      }
+      if (isReduced) {
+        return '400px'
+      }
+      return '600px'
+    }
 
-  if (typeof replyMessage !== 'object' && replyMessage !== undefined) {
-    console.error('reply-to is not a Message object')
-  } else if (replyMessage !== undefined) {
-    const member = members.find((member) => replyMessage?.author === member.contact.uri)
-    const bubbleColorReply = theme.ChatInterface.messageReplyColor
-    const name = member === undefined ? t('yourself') : member.contact.getDisplayName()
-    replyMessageComponent = (
-      <Box
-        sx={{ '&:hover': { cursor: 'pointer' } }}
-        onClick={() => {
-          scrollToMessage(replyMessage.id)
-          highlightReplyMessage(replyMessage.id)
-        }}
-      >
-        <Box sx={{ fontSize: '11px', color: 'grey', fontWeight: 'bolder', mt: 1, mr: 1.5, mb: 0 }}>
-          {t('replied_to') + ' ' + name}
+    let replyMessageComponent = <></>
+
+    if (typeof replyMessage === 'object' && replyMessage !== undefined) {
+      const member = members.find((member) => replyMessage?.author === member.contact.uri)
+      const bubbleColorReply = theme.ChatInterface.messageReplyColor
+      const name = member === undefined ? t('yourself') : member.contact.getDisplayName()
+      replyMessageComponent = (
+        <Box
+          sx={{ '&:hover': { cursor: 'pointer' } }}
+          onClick={() => {
+            scrollToMessage(replyMessage.id)
+            highlightReplyMessage(replyMessage.id)
+          }}
+        >
+          <Box sx={{ fontSize: '11px', color: 'grey', fontWeight: 'bolder', mt: 1, mr: 1.5, mb: 0 }}>
+            {t('replied_to') + ' ' + name}
+          </Box>
+          <Box data-cy="reply-message" sx={{ mb: '-16px', mr: 1.5 }}>
+            <Bubble
+              bubbleColor={bubbleColorReply}
+              position={position}
+              isFirstOfGroup={true}
+              isLastOfGroup={true}
+              maxWidth={getMaxReplyWidth()}
+              edited={false} // edited is not used in reply message
+              deleted={replyMessage.body === ''}
+            >
+              {replyMessage.type === 'text/plain' ? (
+                <Typography variant="body1" color={theme.MessageDataContent.textContentColor} textAlign={position}>
+                  {replyMessage?.body === '' ? t('message_deleted') : replyMessage?.body}
+                </Typography>
+              ) : replyMessage.type === 'application/data-transfer+json' ? (
+                <MessageDataContent
+                  isReply={true}
+                  displayName={replyMessage?.displayName || 'Unknown'}
+                  totalSize={Number(replyMessage?.totalSize)}
+                />
+              ) : (
+                t('cannot_load_messages')
+              )}
+            </Bubble>
+          </Box>
         </Box>
-        <Box data-cy="reply-message" sx={{ mb: '-16px', mr: 1.5 }}>
-          <Bubble
-            bubbleColor={bubbleColorReply}
-            position={position}
-            isFirstOfGroup={true}
-            isLastOfGroup={true}
-            maxWidth={getMaxReplyWidth()}
-            edited={false} // edited is not used in reply message
-            deleted={replyMessage.body === ''}
+      )
+    }
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+        <Stack alignItems={position} id={`message-${message.id}`}>
+          {isFirstOfGroup && (
+            <Box
+              padding={`0px ${participantNamePadding} 0 ${participantNamePadding}`}
+              sx={
+                isMobile
+                  ? {
+                      maxWidth: isAccountMessage ? 'unset' : '100px',
+                      textOverflow: 'ellipsis',
+                      textWrap: 'nowrap',
+                      marginLeft: !isAccountMessage ? '-8px' : '0',
+                    }
+                  : {}
+              }
+            >
+              <ParticipantName name={authorName} />
+            </Box>
+          )}
+          <Box sx={isAccountMessage ? { marginRight: '24px' } : { marginLeft: '48px' }}>{replyMessageComponent}</Box>
+
+          <Stack
+            direction="row"
+            justifyContent={position}
+            alignItems="end"
+            spacing={spacingBetweenAvatarAndBubble}
+            paddingTop="6px"
+            width="66.66%"
+            sx={{ zIndex: 1 }}
           >
-            {replyMessage.type === 'text/plain' ? (
-              <Typography variant="body1" color={theme.MessageDataContent.textContentColor} textAlign={position}>
-                {replyMessage?.body === '' ? t('message_deleted') : replyMessage?.body}
-              </Typography>
-            ) : replyMessage.type === 'application/data-transfer+json' ? (
-              <MessageDataContent
-                isReply={true}
-                displayName={replyMessage?.displayName || 'Unknown'}
-                totalSize={Number(replyMessage?.totalSize)}
-              />
-            ) : (
-              t('cannot_load_messages')
-            )}
-          </Bubble>
-        </Box>
+            <Box sx={{ width: avatarSize }}>
+              {!isAccountMessage && isLastOfGroup && (
+                <ConversationAvatar
+                  contactUri={'uri' in author ? author.uri : ''}
+                  displayName={authorName}
+                  sx={{ width: avatarSize, height: avatarSize, fontSize: '15px', marginLeft: '4px' }}
+                />
+              )}
+            </Box>
+            <motion.div
+              initial={message.animate ? { rotate: isAccountMessage ? 5 : -5, scale: 0.8, y: -10 } : undefined}
+              animate={message.animate ? { rotate: 0, scale: 1, y: 0 } : undefined}
+              transition={
+                message.animate
+                  ? {
+                      type: 'spring',
+                      stiffness: 300,
+                      damping: 10,
+                    }
+                  : undefined
+              }
+            >
+              <MessageComponent {...props} />
+            </motion.div>
+          </Stack>
+        </Stack>
+        {isAccountMessage && <MessageStatus message={message} />}
       </Box>
     )
-  }
-  return (
-    <Stack alignItems={position} id={`message-${message.id}`}>
-      {isFirstOfGroup && (
-        <Box
-          padding={`0px ${participantNamePadding} 0 ${participantNamePadding}`}
-          sx={
-            isMobile
-              ? {
-                  maxWidth: isAccountMessage ? 'unset' : '100px',
-                  textOverflow: 'ellipsis',
-                  textWrap: 'nowrap',
-                  marginLeft: !isAccountMessage ? '-8px' : '0',
-                }
-              : {}
-          }
-        >
-          <ParticipantName name={authorName} />
-        </Box>
-      )}
-      <Box sx={isAccountMessage ? { marginRight: '24px' } : { marginLeft: '48px' }}>{replyMessageComponent}</Box>
-
-      <Stack
-        direction="row"
-        justifyContent={position}
-        alignItems="end"
-        spacing={spacingBetweenAvatarAndBubble}
-        paddingTop="6px"
-        width="66.66%"
-        sx={{ zIndex: 2 }}
-      >
-        <Box sx={{ width: avatarSize }}>
-          {!isAccountMessage && isLastOfGroup && (
-            <ConversationAvatar
-              contactUri={'uri' in author ? author.uri : ''}
-              displayName={authorName}
-              sx={{ width: avatarSize, height: avatarSize, fontSize: '15px', marginLeft: '4px' }}
-            />
-          )}
-        </Box>
-        <motion.div
-          initial={message.animate ? { rotate: isAccountMessage ? 5 : -5, scale: 0.8, y: -10 } : undefined}
-          animate={message.animate ? { rotate: 0, scale: 1, y: 0 } : undefined}
-          transition={
-            message.animate
-              ? {
-                  type: 'spring',
-                  stiffness: 300,
-                  damping: 10,
-                }
-              : undefined
-          }
-        >
-          <MessageComponent {...props} />
-        </motion.div>
-        {isAccountMessage && <MessageStatus message={message} />}
-      </Stack>
-    </Stack>
-  )
-}
+  },
+)
 
 interface MessageTooltipProps {
   className?: string
@@ -993,16 +966,17 @@ interface MessageTooltipProps {
 }
 
 const MessageTooltip = styled(
-  ({ message, className, position, children, isDeleted, isMedia, handleDownload }: MessageTooltipProps) => {
+  memo(({ message, className, position, children, isDeleted, isMedia, handleDownload }: MessageTooltipProps) => {
     const { conversationId } = useConversationContext()
     const webSocket = useWebSocketContext()
     const { account } = useAuthContext()
     const [open, setOpen] = useState(false)
     const [transferModalOpen, setTransferModalOpen] = useState(false)
     const [emojiIsOpen, setEmojiIsOpen] = useState(false)
-    const { setReplyMessage } = useActionMessageContext()
+    const setReplyMessage = useGlobalSetReplyMessage()
+    const setEditMessage = useGlobalSetEditMessage()
+
     const [tooltipOpen, setTooltipOpen] = useState(false)
-    const { setEditMessage } = useActionMessageContext()
     const deleteMessageMutation = useDeleteMessageMutation(conversationId)
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
@@ -1014,6 +988,11 @@ const MessageTooltip = styled(
     }, [isMobile])
 
     const longPressProps = UseLongPress(handleLongPress, 500)
+
+    const onClose = () => {
+      setOpen(false)
+      setEmojiIsOpen(false)
+    }
 
     useEffect(() => {
       const handleClickOutside = (event: TouchEvent) => {
@@ -1027,6 +1006,21 @@ const MessageTooltip = styled(
       document.addEventListener('touchstart', handleClickOutside)
       return () => {
         document.removeEventListener('touchstart', handleClickOutside)
+      }
+    }, [])
+
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        const target = event.target as Element | null
+        if (target && !target.closest('.MuiTooltip-tooltip')) {
+          setTooltipOpen(false)
+          onClose()
+        }
+      }
+
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside)
       }
     }, [])
 
@@ -1089,10 +1083,6 @@ const MessageTooltip = styled(
     }
 
     const toggleMoreMenu = () => setOpen((open) => !open)
-    const onClose = () => {
-      setOpen(false)
-      setEmojiIsOpen(false)
-    }
 
     const onEmojiClickHandler = () => {
       setEmojiIsOpen(true)
@@ -1150,6 +1140,12 @@ const MessageTooltip = styled(
       setTooltipOpen(false)
       onClose()
     }
+
+    // No actions if message is deleted
+    if (isDeleted) {
+      return <>{children}</>
+    }
+
     return (
       <>
         <Tooltip
@@ -1212,7 +1208,7 @@ const MessageTooltip = styled(
         />
       </>
     )
-  },
+  }),
 )(({ position, theme }) => {
   const largeRadius = '20px'
   const smallRadius = '5px'
@@ -1243,127 +1239,131 @@ interface BubbleProps {
   hasReply?: boolean
 }
 
-const Bubble = ({
-  position,
-  isFirstOfGroup,
-  isLastOfGroup,
-  bubbleColor,
-  maxWidth,
-  children,
-  sentTime,
-  edited,
-  deleted,
-  isMedia,
-  isAudio,
-  hasReply,
-}: BubbleProps) => {
-  const { t } = useTranslation()
-  const largeRadius = '12px'
-  const smallRadius = '5px'
-  const theme = useTheme()
-  const radius = useMemo(() => {
-    if (position === 'start') {
-      return {
-        borderStartStartRadius: isFirstOfGroup ? largeRadius : smallRadius,
-        borderStartEndRadius: largeRadius,
-        borderEndStartRadius: isLastOfGroup ? largeRadius : smallRadius,
-        borderEndEndRadius: largeRadius,
+const Bubble = memo(
+  ({
+    position,
+    isFirstOfGroup,
+    isLastOfGroup,
+    bubbleColor,
+    maxWidth,
+    children,
+    sentTime,
+    edited,
+    deleted,
+    isMedia,
+    isAudio,
+    hasReply,
+  }: BubbleProps) => {
+    const { t } = useTranslation()
+    const largeRadius = '12px'
+    const smallRadius = '5px'
+    const theme = useTheme()
+    const radius = useMemo(() => {
+      if (position === 'start') {
+        return {
+          borderStartStartRadius: isFirstOfGroup ? largeRadius : smallRadius,
+          borderStartEndRadius: largeRadius,
+          borderEndStartRadius: isLastOfGroup ? largeRadius : smallRadius,
+          borderEndEndRadius: largeRadius,
+        }
       }
+      return {
+        borderStartStartRadius: largeRadius,
+        borderStartEndRadius: isFirstOfGroup ? largeRadius : smallRadius,
+        borderEndStartRadius: largeRadius,
+        borderEndEndRadius: isLastOfGroup ? largeRadius : smallRadius,
+      }
+    }, [isFirstOfGroup, isLastOfGroup, position])
+    const nonMediaBubbleStyle = {
+      border: hasReply ? theme.ChatInterface.replyBorderColor : 'unset',
+      color: position === 'start' ? theme.ChatInterface.fontColor : getTextColor(bubbleColor),
+      maxWidth: maxWidth || '100%',
+      backgroundColor: bubbleColor,
+      padding: isMedia && !deleted ? null : bubblePadding,
+      overflow: 'hidden',
+      wordWrap: 'break-word',
+      textWrap: 'wrap',
+      display: 'flex',
+      flexWrap: 'wrap',
+      whiteSpace: 'pre-wrap',
+      marginRight: '8px',
+      overflowWrap: 'break-word',
+      wordBreak: 'break-word',
+      height: 'auto',
+      ...radius,
     }
-    return {
-      borderStartStartRadius: largeRadius,
-      borderStartEndRadius: isFirstOfGroup ? largeRadius : smallRadius,
-      borderEndStartRadius: largeRadius,
-      borderEndEndRadius: isLastOfGroup ? largeRadius : smallRadius,
+    const mediaBubbleStyle = {
+      paddingTop: '15px',
+      marginRight: isAudio && position === 'start' ? '-25px' : '8px',
     }
-  }, [isFirstOfGroup, isLastOfGroup, position])
-  const nonMediaBubbleStyle = {
-    border: hasReply ? theme.ChatInterface.replyBorderColor : 'unset',
-    color: position === 'start' ? theme.ChatInterface.fontColor : getTextColor(bubbleColor),
-    maxWidth: maxWidth || '100%',
-    backgroundColor: bubbleColor,
-    padding: isMedia && !deleted ? null : bubblePadding,
-    overflow: 'hidden',
-    wordWrap: 'break-word',
-    textWrap: 'wrap',
-    display: 'flex',
-    flexWrap: 'wrap',
-    whiteSpace: 'pre-wrap',
-    marginRight: '8px',
-    overflowWrap: 'break-word',
-    wordBreak: 'break-word',
-    height: 'auto',
-    ...radius,
-  }
-  const mediaBubbleStyle = {
-    paddingTop: '15px',
-    marginRight: isAudio && position === 'start' ? '-25px' : '8px',
-  }
-  const messageContentBubbleStyle = {
-    wordWrap: 'break-word',
-  }
-  const sentTimeStyle = {
-    userSelect: 'none',
-    color: getSentTimeColor(bubbleColor),
-    fontSize: 11,
-    flexWrap: 'nowrap',
-    textWrap: 'nowrap',
-    whiteSpace: 'nowrap',
-  }
-  const boxedBubbleSentTime = {
-    zIndex: 3,
-    marginRight: '16px',
-    marginTop: '-24px',
-  }
-  const editedBoxedBubbleSentTime = {
-    ...boxedBubbleSentTime,
-    marginRight: position === 'start' ? '20px' : '16px',
-  }
+    const messageContentBubbleStyle = {
+      wordWrap: 'break-word',
+    }
+    const sentTimeStyle = {
+      userSelect: 'none',
+      color: getSentTimeColor(bubbleColor),
+      fontSize: 11,
+      flexWrap: 'nowrap',
+      textWrap: 'nowrap',
+      whiteSpace: 'nowrap',
+    }
 
-  const deletedMessageStyle = {
-    color: '#adaaaa',
-    fontStyle: 'italic',
-    backgroundColor: darken(bubbleColor, 0.5),
-  }
+    const boxedBubbleSentTime = {
+      zIndex: 3,
+      marginRight: '16px',
+      marginTop: '-24px',
+    }
 
-  const messageStyles = deleted
-    ? { ...nonMediaBubbleStyle, ...deletedMessageStyle }
-    : isMedia
-      ? mediaBubbleStyle
-      : nonMediaBubbleStyle
+    const editedBoxedBubbleSentTime = {
+      ...boxedBubbleSentTime,
+      marginRight: position === 'start' ? '20px' : '16px',
+    }
 
-  return (
-    <Box>
-      <Box sx={messageStyles}>
-        <Box
-          sx={
-            isMedia && !deleted
-              ? { userSelect: deleted ? 'none' : 'auto' }
-              : { ...messageContentBubbleStyle, userSelect: deleted ? 'none' : 'auto' }
-          }
-        >
-          {deleted ? t(isMedia ? 'media_deleted' : 'message_deleted') + '            ' : children}
+    const deletedMessageStyle = {
+      color: '#adaaaa',
+      fontStyle: 'italic',
+      backgroundColor: darken(bubbleColor, 0.5),
+    }
+
+    const messageStyles = deleted
+      ? { ...nonMediaBubbleStyle, ...deletedMessageStyle }
+      : isMedia
+        ? mediaBubbleStyle
+        : nonMediaBubbleStyle
+
+    return (
+      <Box>
+        <Box sx={messageStyles}>
+          <Box
+            sx={
+              isMedia && !deleted
+                ? { userSelect: deleted ? 'none' : 'auto' }
+                : { ...messageContentBubbleStyle, userSelect: deleted ? 'none' : 'auto' }
+            }
+          >
+            {deleted ? t(isMedia ? 'media_deleted' : 'message_deleted') + '            ' : children}
+          </Box>
         </Box>
+        {edited && !deleted ? (
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', ...sentTimeStyle }}>
+            <Box sx={{ marginLeft: '8px' }}>
+              <div data-cy={`message-edited`}>{t('edited_message')}</div>
+            </Box>
+            <Box sx={editedBoxedBubbleSentTime}>
+              {sentTime && <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>}
+            </Box>
+          </Box>
+        ) : (
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', ...sentTimeStyle }}>
+            <Box sx={boxedBubbleSentTime}>
+              {sentTime && <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>}
+            </Box>
+          </Box>
+        )}
       </Box>
-      {edited && !deleted ? (
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', ...sentTimeStyle }}>
-          <Box sx={{ marginLeft: '8px' }}>
-            <div data-cy={`message-edited`}>{t('edited')}</div>
-          </Box>
-          <Box sx={editedBoxedBubbleSentTime}>
-            {sentTime && <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>}
-          </Box>
-        </Box>
-      ) : (
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', ...sentTimeStyle }}>
-          <Box sx={boxedBubbleSentTime}>
-            {sentTime && <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>}
-          </Box>
-        </Box>
-      )}
-    </Box>
-  )
-}
+    )
+  },
+)
 
 interface ParticipantNameProps {
   name: string

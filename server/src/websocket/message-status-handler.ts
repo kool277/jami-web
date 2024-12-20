@@ -32,7 +32,7 @@ export function bindMessageStatusChangeCallbacks() {
 
       const valid = jamid.setMessageDisplayed(accountId, conversationId, messageId, status)
       if (!valid) {
-        console.error('Error setting message displayed')
+        console.error('Error setting message displayed ', accountId, conversationId, messageId, status)
       }
     },
   )

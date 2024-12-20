@@ -84,6 +84,7 @@ declare module '@mui/material/styles' {
     }
     StatusIcon: {
       color: string
+      border: string
     }
     TranferMessage: {
       inputColor: string
@@ -296,6 +297,7 @@ const palettes = {
     },
     StatusIcon: {
       color: 'black',
+      border: '4px solid white',
     },
     SettingsBackButton: {
       hoverBackgroundColor: '#E5E5E5',
@@ -393,6 +395,7 @@ const palettes = {
     },
     StatusIcon: {
       color: 'white',
+      border: '4px solid #121212',
     },
     SettingsBackButton: {
       hoverBackgroundColor: '#E5E5E5',

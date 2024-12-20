@@ -17,16 +17,18 @@
  */
 import { Box, Card, CardContent, TextareaAutosize, useTheme } from '@mui/material'
 import { Stack, useMediaQuery } from '@mui/system'
-import { Message, WebSocketMessageType } from 'jami-web-common'
+import { WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useActionMessageReadContext, useActionMessageWriteContext } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
-import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
+import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { ConversationMember } from '../models/conversation-member'
-import { FileHandler } from '../utils/files'
+import { useEditMessageMutation, useSendMessageMutation } from '../services/conversationQueries'
+import { useSendFilesMutation } from '../services/dataTransferQueries'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
 import {
   RecordVideoMessageButton,
@@ -37,14 +39,11 @@ import {
   UploadFileButton,
 } from './Button'
 
-type SendMessageFormProps = {
-  onSend: (message: string, audioFile?: File) => void
+interface SendMessageFormProps {
   openFilePicker: () => void
-  fileHandlers: FileHandler[]
-  editMessage?: Message
 }
 
-export default function SendMessageForm({ onSend, openFilePicker, editMessage, fileHandlers }: SendMessageFormProps) {
+export default function SendMessageForm({ openFilePicker }: SendMessageFormProps) {
   const webSocket = useWebSocketContext()
   const { members, conversationId } = useConversationContext()
   const [currentMessage, setCurrentMessage] = useState('')
@@ -63,7 +62,17 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
   const waveformDataRef = useRef<Array<{ data: Uint8Array; progress: number }>>([])
   const frameCountRef = useRef<number>(0)
   const scrollOffsetRef = useRef<number>(0)
-  const { conversationColor } = useConversationPreferencesContext()
+  const { conversationColor } = useConversationPreferencesColorContext()
+  const { editMessage, replyMessage: selectedReply, fileHandlers } = useActionMessageReadContext()
+  const {
+    setEditMessage: setIsEditing,
+    setReplyMessage: setSelectedReply,
+    setFileHandlers,
+  } = useActionMessageWriteContext()
+
+  const sendMessageMutation = useSendMessageMutation(conversationId)
+  const editMessageMutation = useEditMessageMutation(conversationId)
+  const sendFilesMutation = useSendFilesMutation(conversationId)
 
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
@@ -74,6 +83,65 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
   useEffect(() => {
     setCurrentMessage(editMessage?.body || '')
   }, [editMessage])
+
+  const sendMessage = useCallback(
+    (message: string) => {
+      if (message !== 'files-to-send') {
+        sendMessageMutation.mutate(JSON.stringify({ message, replyTo: selectedReply?.id }))
+      }
+
+      const data: FormData = new FormData()
+      for (const file of fileHandlers) {
+        data.append('file', file.file)
+      }
+
+      data.append('replyTo', selectedReply?.id || '')
+      sendFilesMutation.mutate(data)
+      setFileHandlers([])
+    },
+    [fileHandlers, selectedReply?.id, sendFilesMutation, sendMessageMutation, setFileHandlers],
+  )
+
+  const editMessageHandler = useCallback(
+    (message: string) => {
+      editMessageMutation.mutate(JSON.stringify({ message, messageId: editMessage?.id }))
+    },
+    [editMessage?.id, editMessageMutation],
+  )
+
+  const handleSendMessage = useCallback(
+    (message: string, audioFile?: File) => {
+      if (message === 'audio-message') {
+        if (audioFile) {
+          const data: FormData = new FormData()
+          data.append('file', audioFile)
+          data.append('replyTo', selectedReply?.id || '')
+          sendFilesMutation.mutate(data)
+        }
+        setSelectedReply(undefined)
+        return
+      }
+      if (editMessage) {
+        editMessageHandler(message)
+        setSelectedReply(undefined)
+        return
+      }
+      sendMessage(message)
+      setSelectedReply(undefined)
+      setIsEditing(undefined)
+      setFileHandlers([])
+    },
+    [
+      editMessage,
+      editMessageHandler,
+      selectedReply?.id,
+      sendFilesMutation,
+      sendMessage,
+      setFileHandlers,
+      setIsEditing,
+      setSelectedReply,
+    ],
+  )
 
   const notifyComposing = useCallback(() => {
     const currentTime = new Date().getTime()
@@ -94,29 +162,23 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
     (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
       if (currentMessage) {
-        onSend(currentMessage)
+        handleSendMessage(currentMessage)
         setCurrentMessage('')
         notifyStopcomposing()
       }
       if (fileHandlers.length > 0 && currentMessage === '') {
-        onSend('files-to-send')
+        handleSendMessage('files-to-send')
       }
     },
-    [currentMessage, fileHandlers.length, onSend, notifyStopcomposing],
+    [currentMessage, fileHandlers.length, handleSendMessage, notifyStopcomposing],
   )
 
-  const handleInputChange = useCallback(
-    (event: ChangeEvent<HTMLTextAreaElement>) => {
-      setCurrentMessage(event.target.value)
-      notifyComposing()
-    },
-    [notifyComposing],
-  )
+  const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setCurrentMessage(event.target.value)
+    notifyComposing()
+  }
 
-  const onEmojiSelected = useCallback(
-    (emoji: string) => setCurrentMessage((currentMessage) => currentMessage + emoji),
-    [setCurrentMessage],
-  )
+  const onEmojiSelected = (emoji: string) => setCurrentMessage((currentMessage) => currentMessage + emoji)
 
   const handleVoiceRecording = () => {
     setIsRecordingVoice((isRecordingVoice) => !isRecordingVoice)
@@ -128,6 +190,8 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
       stopRecording(true)
     } else {
       startRecording()
+      setFileHandlers([])
+      setCurrentMessage('')
     }
     setIsRecordingVoice((isRecordingVoice) => !isRecordingVoice)
   }
@@ -135,8 +199,8 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
   const sendAudioMessage = useCallback(() => {
     const blob = new Blob(chunksRef.current, { type: 'audio/ogg; codecs=opus' })
     const file = new File([blob], 'voicemessage.ogg', { type: 'audio/ogg; codecs=opus' })
-    onSend('audio-message', file)
-  }, [onSend])
+    handleSendMessage('audio-message', file)
+  }, [handleSendMessage])
 
   const startRecording = useCallback(async () => {
     try {
@@ -360,7 +424,6 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
       spacing="5px"
       paddingX="8px"
       marginBottom="-8px"
-      marginTop="-12px"
     >
       <Box sx={{ display: 'flex' }}>
         <RecordVoiceMessageButton

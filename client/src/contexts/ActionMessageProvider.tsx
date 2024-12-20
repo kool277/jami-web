@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Savoir-faire Linux Inc.
+ * Copyright (C) 2025 Savoir-faire Linux Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,55 +15,87 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-
 import { Message } from 'jami-web-common'
-import { useCallback, useMemo, useState } from 'react'
+import React, { createContext, useContext, useMemo, useState } from 'react'
 
-import { createOptionalContext } from '../hooks/createOptionalContext'
+import { FileHandler } from '../utils/files'
 import { WithChildren } from '../utils/utils'
 
-interface IActionMessageContext {
+interface IActionMessageReadContext {
   editMessage: Message | undefined
-  setEditMessage: (value: Message | undefined) => void
   replyMessage: Message | undefined
-  setReplyMessage: (value: Message | undefined) => void
+  fileHandlers: FileHandler[]
 }
 
-const optionalActionMessageContext = createOptionalContext<IActionMessageContext>('ActionMessageContext')
-const ActionMessageContext = optionalActionMessageContext.Context
-export const useActionMessageContext = optionalActionMessageContext.useOptionalContext
+interface IActionMessageWriteContext {
+  setEditMessage: (value: Message | undefined) => void
+  setReplyMessage: (value: Message | undefined) => void
+  setFileHandlers: (fileHandlers: FileHandler[]) => void
+}
+
+const ActionMessageReadContext = createContext<IActionMessageReadContext | undefined>(undefined)
+const ActionMessageWriteContext = createContext<IActionMessageWriteContext | undefined>(undefined)
+
+export const useActionMessageReadContext = () => {
+  const context = useContext(ActionMessageReadContext)
+  if (!context) {
+    throw new Error('useActionMessageReadContext must be used within an ActionMessageProvider')
+  }
+  return context
+}
+
+export const useActionMessageWriteContext = () => {
+  const context = useContext(ActionMessageWriteContext)
+  if (!context) {
+    throw new Error('useActionMessageWriteContext must be used within an ActionMessageProvider')
+  }
+  return context
+}
 
 const ActionMessageProvider: React.FC<WithChildren> = ({ children }) => {
   const [editMessage, setEditMessage] = useState<Message | undefined>(undefined)
   const [replyMessage, setReplyMessage] = useState<Message | undefined>(undefined)
+  const [fileHandlers, setFileHandlers] = useState<FileHandler[]>([])
 
-  const handleSetEditMessage = useCallback(
-    (value: Message | undefined) => {
-      setEditMessage(value)
-      setReplyMessage(undefined)
-    },
-    [setReplyMessage],
+  const writeContextValue = useMemo<IActionMessageWriteContext>(
+    () => ({
+      setEditMessage: (value: Message | undefined) => {
+        setEditMessage(value)
+        setReplyMessage(undefined)
+      },
+      setReplyMessage: (value: Message | undefined) => {
+        setReplyMessage(value)
+        setEditMessage(undefined)
+      },
+      setFileHandlers,
+    }),
+    [setFileHandlers],
   )
 
-  const handleSetReplyMessage = useCallback(
-    (value: Message | undefined) => {
-      setReplyMessage(value)
-      setEditMessage(undefined)
-    },
-    [setReplyMessage],
-  )
-
-  const value = useMemo(
+  const readContextValue = useMemo<IActionMessageReadContext>(
     () => ({
       editMessage,
       replyMessage,
-      setReplyMessage: handleSetReplyMessage,
-      setEditMessage: handleSetEditMessage,
+      fileHandlers,
     }),
-    [editMessage, handleSetEditMessage, handleSetReplyMessage, replyMessage],
+    [editMessage, replyMessage, fileHandlers],
   )
 
-  return <ActionMessageContext.Provider value={value}>{children}</ActionMessageContext.Provider>
+  return (
+    <ActionMessageWriteContext.Provider value={writeContextValue}>
+      <ActionMessageReadContext.Provider value={readContextValue}>{children}</ActionMessageReadContext.Provider>
+    </ActionMessageWriteContext.Provider>
+  )
 }
 
 export default ActionMessageProvider
+
+export const useGlobalSetEditMessage = () => {
+  const { setEditMessage } = useActionMessageWriteContext()
+  return setEditMessage
+}
+
+export const useGlobalSetReplyMessage = () => {
+  const { setReplyMessage } = useActionMessageWriteContext()
+  return setReplyMessage
+}

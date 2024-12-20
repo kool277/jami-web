@@ -20,7 +20,8 @@ import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
-import { useActionMessageContext } from '../contexts/ActionMessageProvider'
+import { useActionMessageReadContext } from '../contexts/ActionMessageProvider'
+import { useGlobalSetReplyMessage } from '../contexts/ActionMessageProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { SquareCancelPictureButton } from './Button'
@@ -31,7 +32,8 @@ export default function ReplyToMessage() {
   const { members } = useConversationContext()
   const { t } = useTranslation()
   const { account } = useAuthContext()
-  const { replyMessage: message, setReplyMessage: setMessage } = useActionMessageContext()
+  const { replyMessage: message } = useActionMessageReadContext()
+  const setMessage = useGlobalSetReplyMessage()
   const theme = useTheme()
   const isReduced: boolean = useMediaQuery(theme.breakpoints.down('sm'))
 

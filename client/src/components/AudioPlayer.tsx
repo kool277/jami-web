@@ -21,7 +21,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
 
-import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
+import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
 import AudioVisual from './AudioVisual'
 
 interface AudioPlayerProps {
@@ -38,7 +38,7 @@ function AudioPlayer({ blob, isAccountMessage }: AudioPlayerProps) {
   const [currentTime, setCurrentTime] = useState(0)
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-  const { conversationColor } = useConversationPreferencesContext()
+  const { conversationColor } = useConversationPreferencesColorContext()
 
   useEffect(() => {
     if (blob === undefined) {

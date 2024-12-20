@@ -17,7 +17,7 @@
  */
 import { Typography, useTheme } from '@mui/material'
 import { Box, Stack, useMediaQuery } from '@mui/system'
-import { Message, WebSocketMessageType } from 'jami-web-common'
+import { Message, MESSAGES_NUMBER_TO_LOAD, WebSocketMessageType } from 'jami-web-common'
 import { memo, MutableRefObject, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Waypoint } from 'react-waypoint'
@@ -27,7 +27,6 @@ import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { findNextVisibleMessage, findPreviousVisibleMessage, MessageRow } from './Message'
 import { ArrowDownIcon } from './SvgIcon'
-
 const MemoizedMessageRow = memo(MessageRow, (prevProps, nextProps) => {
   return (
     prevProps.message.id === nextProps.message.id &&
@@ -42,11 +41,9 @@ const MemoizedMessageRow = memo(MessageRow, (prevProps, nextProps) => {
     prevProps.nextMessage?.id === nextProps.nextMessage?.id
   )
 })
-
 interface MessageListProps {
   messages: Message[]
 }
-
 export default function MessageList({ messages }: MessageListProps) {
   const { account, accountId } = useAuthContext()
   const { members, conversationId } = useConversationContext()
@@ -54,17 +51,15 @@ export default function MessageList({ messages }: MessageListProps) {
   const listBottomRef = useRef<HTMLElement>()
   const webSocket = useWebSocketContext()
   const lastMessageId = messages[messages.length - 1]?.id
-
   const loadMoreMessages = () => {
     const args = {
       accountId,
       conversationId,
       lastMessageId,
-      limit: 32,
+      limit: MESSAGES_NUMBER_TO_LOAD,
     }
     webSocket.send(WebSocketMessageType.LoadMoreMessages, args)
   }
-
   return (
     <>
       <Stack flex={1} overflow="auto" padding="0px px" direction="column-reverse" marginBottom="-25px">
@@ -107,7 +102,7 @@ export default function MessageList({ messages }: MessageListProps) {
           onEnter={() => {
             loadMoreMessages()
           }}
-          topOffset="-100px"
+          topOffset="-1000px"
         />
       </Stack>
       {showScrollButton && (
@@ -120,11 +115,9 @@ export default function MessageList({ messages }: MessageListProps) {
     </>
   )
 }
-
 interface ScrollToEndButtonProps {
   listBottomRef: MutableRefObject<HTMLElement | undefined>
 }
-
 const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
   const { t } = useTranslation()
   const theme = useTheme()

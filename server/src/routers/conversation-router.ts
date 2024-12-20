@@ -18,7 +18,14 @@
 import { Request, Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { ContactDetails, HttpStatusCode, NewConversationRequestBody, NewMessageRequestBody } from 'jami-web-common'
+import {
+  ContactDetails,
+  HttpStatusCode,
+  MESSAGES_NUMBER_TO_LOAD,
+  NewConversationRequestBody,
+  NewMessageRequestBody,
+  SendMessageType,
+} from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
@@ -223,7 +230,7 @@ conversationRouter.get(
       res.status(HttpStatusCode.NotFound).send('No such conversation found')
       return
     }
-    const messages = await jamid.getSwarmMessages(accountId, conversationId, '', 16)
+    const messages = await jamid.getSwarmMessages(accountId, conversationId, '', MESSAGES_NUMBER_TO_LOAD)
 
     res.send(messages)
   }),
@@ -243,11 +250,7 @@ conversationRouter.post(
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
 
-    if (replyTo !== undefined) {
-      jamid.sendConversationMessage(accountId, conversationId, message, replyTo, 0)
-    } else {
-      jamid.sendConversationMessage(accountId, conversationId, message)
-    }
+    jamid.sendConversationMessage(accountId, conversationId, message, replyTo, SendMessageType.DEFAULT)
 
     res.sendStatus(HttpStatusCode.NoContent)
   },
@@ -314,14 +317,7 @@ conversationRouter.post(
     const message = data.message
     const messageId = data.messageId
 
-    const infos = jamid.getConversationInfos(accountId, conversationId)
-    if (Object.keys(infos).length === 0) {
-      res.status(HttpStatusCode.NotFound).send('No such conversation found')
-      return
-    }
-
-    jamid.sendConversationMessage(accountId, conversationId, message, messageId, 1)
-
+    jamid.sendConversationMessage(accountId, conversationId, message, messageId, SendMessageType.EDIT)
     res.sendStatus(HttpStatusCode.NoContent)
   },
 )

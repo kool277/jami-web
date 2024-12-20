@@ -28,6 +28,7 @@ export enum WebSocketMessageType {
   ProfileReceived = 'profile-received',
   MessageEdition = 'message-edition',
   LoadMoreMessages = 'load-more-messages',
+  LoadSwarmUntil = 'load-swarm-until',
 
   // calls (in the order they should be sent)
   sendCallInvite = 'sendCallInvite',

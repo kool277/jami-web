@@ -50,6 +50,12 @@ type ConversationSummaryListProps = {
 
 export const ConversationSummaryList = ({ conversationsSummaries }: ConversationSummaryListProps) => {
   const sortedConversations = useMemo(() => {
+    if (conversationsSummaries === undefined || conversationsSummaries.length === 0) {
+      return []
+    }
+    if (conversationsSummaries.length === 1) {
+      return conversationsSummaries
+    }
     if (conversationsSummaries.some((conversationSummary) => conversationSummary === null)) {
       return conversationsSummaries
     }
@@ -198,6 +204,9 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
           return getMessageMemberText(message, i18n)
         }
         case 'text/plain': {
+          return message.body
+        }
+        case 'application/update-profile': {
           return message.body
         }
         default: {

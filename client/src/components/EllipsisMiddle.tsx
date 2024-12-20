@@ -28,7 +28,6 @@ const EllipsisMiddle = ({ text }: EllipsisMiddleProps) => {
   }
 
   if (text.length < 12) {
-    console.log('text', text)
     return <span>{text}</span>
   }
 
