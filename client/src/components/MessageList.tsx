@@ -73,7 +73,7 @@ export default function MessageList({ messages }: MessageListProps) {
         <Waypoint
           onEnter={() => setShowScrollButton(false)}
           onLeave={() => setShowScrollButton(true)}
-          bottomOffset="-100px"
+          bottomOffset="-50px"
         />
         <Stack direction="column-reverse">
           {
@@ -107,7 +107,7 @@ export default function MessageList({ messages }: MessageListProps) {
           onEnter={() => {
             loadMoreMessages()
           }}
-          topOffset="-200px"
+          topOffset="-100px"
         />
       </Stack>
       {showScrollButton && (
