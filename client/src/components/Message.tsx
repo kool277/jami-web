@@ -63,6 +63,7 @@ import MessageStatus from './MessageStatus'
 import { isEmoji } from '../utils/utils'
 import MediaViewer from './MediaViewer'
 import UseLongPress from './UseLongPress'
+import TransferMessage from './TransferMessage'
 
 type MessagePosition = 'start' | 'end'
 
@@ -920,7 +921,7 @@ const UserMessageRow = ({
         spacing={spacingBetweenAvatarAndBubble}
         paddingTop="6px"
         width="66.66%"
-        sx={{ zIndex: 1 }}
+        sx={{ zIndex: 2 }}
       >
         <Box sx={{ width: avatarSize }}>
           {!isAccountMessage && isLastOfGroup && (
@@ -968,6 +969,7 @@ const MessageTooltip = styled(
     const webSocket = useWebSocketContext()
     const { account } = useAuthContext()
     const [open, setOpen] = useState(false)
+    const [transferModalOpen, setTransferModalOpen] = useState(false)
     const [emojiIsOpen, setEmojiIsOpen] = useState(false)
     const { setReplyMessage } = useActionMessageContext()
     const [tooltipOpen, setTooltipOpen] = useState(false)
@@ -1013,11 +1015,19 @@ const MessageTooltip = styled(
       })
     }
 
+    const handleTransfer = () => {
+      setTransferModalOpen(true)
+    }
+
+    const handleTransferClose = () => {
+      setTransferModalOpen(false)
+    }
+
     const additionalOptions: PopoverListItemData[] = [
       {
         Icon: OppositeArrowsIcon,
         label: 'Transfer',
-        onClick: () => {},
+        onClick: handleTransfer,
       },
     ]
 
@@ -1112,58 +1122,66 @@ const MessageTooltip = styled(
       onClose()
     }
     return (
-      <Tooltip
-        classes={{ tooltip: className }}
-        placement={position === 'start' ? 'right-start' : 'left-start'}
-        PopperProps={{
-          modifiers: [
-            {
-              name: 'offset',
-              options: {
-                offset: [-2, -50],
+      <>
+        <Tooltip
+          classes={{ tooltip: className }}
+          placement={position === 'start' ? 'right-start' : 'left-start'}
+          PopperProps={{
+            modifiers: [
+              {
+                name: 'offset',
+                options: {
+                  offset: [-2, -50],
+                },
               },
-            },
-          ],
-        }}
-        open={tooltipOpen}
-        disableHoverListener
-        disableFocusListener
-        disableTouchListener={!isMobile}
-        title={
-          <div onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
-            <Stack direction="row" spacing="16px" padding="16px" sx={{ cursor: 'pointer' }}>
-              <EmojiButton data-cy="emoji-reaction-button" emoji="😃" onClick={onEmojiClickHandler} />
-              <ReplyMessageButton data-cy="reply-button" onClick={onReply} />
-              {account.getUri() === message.author && (
-                <EditPictureButton
-                  data-cy="edit-button"
-                  onClick={onEdit}
-                  sx={{ minHeight: '20px', minWidth: '20px' }}
+            ],
+          }}
+          open={tooltipOpen}
+          disableHoverListener
+          disableFocusListener
+          disableTouchListener={!isMobile}
+          title={
+            <div onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
+              <Stack direction="row" spacing="16px" padding="16px" sx={{ cursor: 'pointer' }}>
+                <EmojiButton data-cy="emoji-reaction-button" emoji="😃" onClick={onEmojiClickHandler} />
+                <ReplyMessageButton data-cy="reply-button" onClick={onReply} />
+                {account.getUri() === message.author && (
+                  <EditPictureButton
+                    data-cy="edit-button"
+                    onClick={onEdit}
+                    sx={{ minHeight: '20px', minWidth: '20px' }}
+                  />
+                )}
+                <MoreButton onClick={toggleMoreMenu} />
+              </Stack>
+              {open && (
+                <>
+                  <Divider sx={{ marginX: '16px' }} />
+                  <PopoverList items={additionalOptions} />
+                </>
+              )}
+              {emojiIsOpen && (
+                <EmojiPicker
+                  theme={theme.EmojiPicker.backgroundColor}
+                  onEmojiClick={onEmojiClick}
+                  autoFocusSearch={false}
+                  skinTonesDisabled={true}
                 />
               )}
-              <MoreButton onClick={toggleMoreMenu} />
-            </Stack>
-            {open && (
-              <>
-                <Divider sx={{ marginX: '16px' }} />
-                <PopoverList items={additionalOptions} />
-              </>
-            )}
-            {emojiIsOpen && (
-              <EmojiPicker
-                theme={theme.EmojiPicker.backgroundColor}
-                onEmojiClick={onEmojiClick}
-                autoFocusSearch={false}
-                skinTonesDisabled={true}
-              />
-            )}
+            </div>
+          }
+        >
+          <div {...longPressProps} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            {children}
           </div>
-        }
-      >
-        <div {...longPressProps} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-          {children}
-        </div>
-      </Tooltip>
+        </Tooltip>
+        <TransferMessage
+          conversationId={conversationId}
+          message={message}
+          onClose={handleTransferClose}
+          open={transferModalOpen}
+        />
+      </>
     )
   },
 )(({ position, theme }) => {
@@ -1263,7 +1281,7 @@ const Bubble = ({
     whiteSpace: 'nowrap',
   }
   const boxedBubbleSentTime = {
-    zIndex: 99,
+    zIndex: 3,
     marginRight: '16px',
     marginTop: '-24px',
   }
@@ -1360,7 +1378,7 @@ export const MessageRow = memo(({ message, isAccountMessage, author, previousMes
   }
 
   return (
-    <Stack>
+    <Stack zIndex={2}>
       {showDate && (
         <Box sx={{ mt: '15px', mb: '15px' }}>
           <DateIndicator time={time} />

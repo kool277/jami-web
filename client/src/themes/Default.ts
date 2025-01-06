@@ -74,6 +74,11 @@ declare module '@mui/material/styles' {
     StatusIcon: {
       color: string
     }
+    TranferMessage: {
+      inputColor: string
+      fontColor: string
+      titleColor: string
+    }
   }
 
   interface ThemeOptions {
@@ -274,6 +279,11 @@ const palettes = {
       hoverBackgroundColor: '#E5E5E5',
       backgroundColor: 'white',
     },
+    TranferMessage: {
+      InputColor: 'white',
+      fontColor: 'black',
+      titleColor: 'black',
+    },
   },
   dark: {
     palette: {
@@ -354,6 +364,11 @@ const palettes = {
     SettingsBackButton: {
       hoverBackgroundColor: '#E5E5E5',
       backgroundColor: 'white',
+    },
+    TranferMessage: {
+      inputColor: '#585858',
+      fontColor: 'lightgrey',
+      titleColor: 'white',
     },
   },
 }
