@@ -22,6 +22,11 @@ interface EllipsisMiddleProps {
   text: string
 }
 const EllipsisMiddle = ({ text }: EllipsisMiddleProps) => {
+  if (!text) {
+    console.error('text is undefined')
+    return
+  }
+
   const firstPart = text.slice(0, -8)
   const lastPart = text.slice(-8)
 
