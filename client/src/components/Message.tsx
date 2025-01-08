@@ -153,7 +153,14 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
         <Icon
           sx={{ fontSize: '20px', color: isMissed ? theme.MessageCall.textColorMissed : textColor, marginLeft: '4px' }}
         />
-        <Typography fontStyle="italic" fontWeight={'bolder'} variant="body2" color={textColor} textAlign={'start'}>
+        <Typography
+          fontStyle="italic"
+          fontWeight={'bolder'}
+          variant="body2"
+          color={textColor}
+          textAlign={'start'}
+          sx={{ userSelect: 'none' }}
+        >
           {text + '              '}
         </Typography>
       </Stack>
@@ -486,7 +493,13 @@ const MessageDataTransfer = ({
             isAudio={fileType === FileType.Audio}
             deleted={isDeleted}
           >
-            {isDeleted ? <Box color={textColor}>{t('media_deleted')}</Box> : dataComponent()}
+            {isDeleted ? (
+              <Box sx={{ userSelect: 'none' }} color={textColor}>
+                {t('media_deleted')}
+              </Box>
+            ) : (
+              dataComponent()
+            )}
           </Bubble>
         </Box>
       </MessageTooltip>
@@ -1274,6 +1287,7 @@ const Bubble = ({
     wordWrap: 'break-word',
   }
   const sentTimeStyle = {
+    userSelect: 'none',
     color: getSentTimeColor(bubbleColor),
     fontSize: 11,
     flexWrap: 'nowrap',
@@ -1305,7 +1319,13 @@ const Bubble = ({
   return (
     <Box>
       <Box sx={messageStyles}>
-        <Box sx={isMedia && !deleted ? null : messageContentBubbleStyle}>
+        <Box
+          sx={
+            isMedia && !deleted
+              ? { userSelect: deleted ? 'none' : 'auto' }
+              : { ...messageContentBubbleStyle, userSelect: deleted ? 'none' : 'auto' }
+          }
+        >
           {deleted ? t(isMedia ? 'media_deleted' : 'message_deleted') + '            ' : children}
         </Box>
       </Box>
