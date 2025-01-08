@@ -152,4 +152,18 @@ export interface VolatileDetails {
   'Account.deviceID': string
 }
 
+export interface JamsSearchResultAccount {
+  email: string
+  faxNumber: string
+  firstName: string
+  id: string
+  lastName: string
+  mobileNumber: string
+  organisation: string
+  phoneNumber: string
+  phoneNumberExtension: string
+  profilePicture: string
+  username: string
+}
+
 export type Devices = Record<string, string>

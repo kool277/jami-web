@@ -15,10 +15,19 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { JamsSearchResultAccount } from './account'
+
 export interface LookupResult {
   state: RegisteredNameFoundState
   address: string
   username: string
+}
+
+export interface JamsSearchResult {
+  accountId: string
+  state: RegisteredNameFoundState
+  query: string
+  results: JamsSearchResultAccount[]
 }
 
 export enum RegisteredNameFoundState {

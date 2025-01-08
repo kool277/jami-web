@@ -73,6 +73,7 @@ import {
   SwarmLoaded,
   SwarmMessageReceived,
   SwarmMessageUpdated,
+  UserSearchEnded,
   VolatileDetailsChanged,
 } from './jami-signal-interfaces.js'
 import { JamiSwig, StringMap, stringMapToRecord, stringVectToArray, vectMapToRecordArray } from './jami-swig.js'
@@ -256,6 +257,16 @@ export class Jamid {
     handlers.ComposingStatusChanged = (accountId: string, conversationId: string, from: string, status: number) =>
       onComposingStatusChanged.next({ accountId, conversationId, from, status })
 
+    const onUserSearchEnded = new Subject<UserSearchEnded>()
+    handlers.UserSearchEnded = (
+      accountId: string,
+      state: RegisteredNameFoundState,
+      query: string,
+      results: Record<string, string>,
+    ) => {
+      onUserSearchEnded.next({ accountId, state, query, results })
+    }
+
     // Expose all signals in an events object to allow other handlers to subscribe after jamiSwig.init()
     this.events = {
       onAccountsChanged: onAccountsChanged.asObservable(),
@@ -284,6 +295,7 @@ export class Jamid {
       onReactionAdded: onReactionAdded.asObservable(),
       onReactionRemoved: onReactionRemoved.asObservable(),
       onProfileReceived: onProfileReceived.asObservable(),
+      onUserSearchEnded: onUserSearchEnded.asObservable(),
     }
 
     this.setupSignalHandlers()
@@ -400,6 +412,14 @@ export class Jamid {
         map((value) => value.state),
       ),
     )
+  }
+
+  async searchUser(accountId: string, username: string) {
+    const hasRingNs = this.jamiSwig.searchUser(accountId, username)
+    if (!hasRingNs) {
+      throw new Error('Jams does not have a nameserver')
+    }
+    return firstValueFrom(this.events.onUserSearchEnded.pipe(filter((value) => value.accountId === accountId)))
   }
 
   clearCache(accountId: string, conversationId: string): void {
@@ -876,6 +896,10 @@ export class Jamid {
       }
 
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.ComposingStatus, data)
+    })
+
+    this.events.onUserSearchEnded.subscribe((signal) => {
+      log.debug('Received UserSearchEnded:', JSON.stringify(signal))
     })
   }
 }

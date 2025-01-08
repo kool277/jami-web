@@ -106,6 +106,7 @@ export interface JamiSwig {
   lookupName(accountId: string, nameserver: string, username: string): boolean
   lookupAddress(accountId: string, nameserver: string, address: string): boolean
   registerName(accountId: string, username: string, scheme: string, password: string): boolean
+  searchUser(accountId: string, query: string): boolean
 
   getKnownRingDevices(accountId: string): StringMap
   revokeDevice(accountId: string, deviceId: string, scheme: string, password: string): boolean

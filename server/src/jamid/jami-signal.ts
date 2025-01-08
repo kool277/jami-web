@@ -38,6 +38,7 @@ export enum JamiSignal {
   IncomingAccountMessage = 'IncomingAccountMessage',
   AccountMessageStatusChanged = 'AccountMessageStatusChanged',
   ProfileReceived = 'ProfileReceived',
+  UserSearchEnded = 'UserSearchEnded',
 
   // libjami::CallSignal
   StateChange = 'StateChange',

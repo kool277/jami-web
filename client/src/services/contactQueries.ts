@@ -17,7 +17,7 @@
  */
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useQueryClient } from '@tanstack/react-query'
-import { ContactDetails, LookupResult } from 'jami-web-common'
+import { ContactDetails, JamsSearchResult, LookupResult } from 'jami-web-common'
 
 import { useAuthContext } from '../contexts/AuthProvider'
 import { Contact } from '../models/contact'
@@ -30,6 +30,22 @@ export const useContactsSearchQuery = (searchQuery: string) => {
     queryFn: async () => {
       const { data } = await axiosInstance.get<LookupResult>(`/ns/username/${searchQuery}`)
       return data ? [new Contact(data.address, data.username)] : []
+    },
+    enabled: !!searchQuery,
+  })
+}
+
+export const useJamsContactsSearchQuery = (searchQuery: string) => {
+  const { axiosInstance } = useAuthContext()
+  return useQuery({
+    queryKey: ['jams', 'username', searchQuery],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<JamsSearchResult>(`/ns/jams/${searchQuery}`)
+      if (data.state !== 0) {
+        return []
+      }
+      const contacts = data.results.map((contact) => new Contact(contact.id, contact.username))
+      return contacts
     },
     enabled: !!searchQuery,
   })

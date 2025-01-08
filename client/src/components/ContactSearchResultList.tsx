@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { Contact } from '../models/contact'
-import { useAddContactMutation, useContactsSearchQuery } from '../services/contactQueries'
+import { useAddContactMutation, useContactsSearchQuery, useJamsContactsSearchQuery } from '../services/contactQueries'
 import { useConversationsSummariesQuery } from '../services/conversationQueries'
 import ConversationAvatar from './ConversationAvatar'
 import { ConversationSummaryList } from './ConversationSummaryList'
@@ -37,6 +37,8 @@ export default ({ searchFilter }: ContactSearchResultListProps) => {
   const { t } = useTranslation()
 
   const contactsSearchQuery = useContactsSearchQuery(searchFilter)
+  const contactsJamsSearchQuery = useJamsContactsSearchQuery(searchFilter)
+
   // TODO: Filter conversations
   const conversationsSummariesQuery = useConversationsSummariesQuery()
 
@@ -48,16 +50,24 @@ export default ({ searchFilter }: ContactSearchResultListProps) => {
 
   const conversationsSummaries = conversationsSummariesQuery.data
   const contactsSearchResult = contactsSearchQuery.data
+  const contactsJamsSearchResult = contactsJamsSearchQuery.data
 
   return (
     <List>
+      <ListSubheader>{t('search_results')}</ListSubheader>
+
       {contactsSearchResult && contactsSearchResult.length > 0 && (
         <>
-          <ListSubheader>{t('search_results')}</ListSubheader>
           {contactsSearchResult?.map((contact) => <ContactSearchResultListItem key={contact.uri} contact={contact} />)}
         </>
       )}
-
+      {contactsJamsSearchResult && contactsJamsSearchResult.length > 0 && (
+        <>
+          {contactsJamsSearchResult?.map((contact) => (
+            <ContactSearchResultListItem key={contact.uri} contact={contact} />
+          ))}
+        </>
+      )}
       {conversationsSummaries && conversationsSummaries.length > 0 && (
         <>
           <ListSubheader>{t('conversations')}</ListSubheader>

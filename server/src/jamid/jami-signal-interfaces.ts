@@ -149,6 +149,13 @@ export interface ConversationMemberEvent {
   event: ConversationMemberEventCode
 }
 
+export interface UserSearchEnded {
+  accountId: string
+  state: RegisteredNameFoundState
+  query: string
+  results: Record<string, string>
+}
+
 export interface SwarmMessageReceived {
   accountId: string
   conversationId: string

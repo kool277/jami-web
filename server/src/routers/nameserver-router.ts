@@ -37,7 +37,47 @@ nameserverRouter.get(
   '/username/:username',
   asyncHandler(async (req, res) => {
     const nameserver = config.getNameServerAddress()
+    const jamsServer = config.getJamsServerUrl()
+    const accountId = res.locals.accountId
+    const details = jamid.getAccountDetails(accountId)
+    const endpoint = details['RingNS.uri']
+
+    if (jamsServer && endpoint.includes(jamsServer)) {
+      res.status(HttpStatusCode.Unauthorized)
+      return
+    }
+
     const result = await jamid.lookupUsername(req.params.username, nameserver, res.locals.accountId)
+    switch (result.state) {
+      case RegisteredNameFoundState.Found:
+        res.status(HttpStatusCode.Ok).send(result)
+        break
+      case RegisteredNameFoundState.InvalidResponse:
+        res.status(HttpStatusCode.BadRequest).send('Invalid username')
+        break
+      default:
+        res.status(HttpStatusCode.NotFound).send('No such username found')
+        break
+    }
+  }),
+)
+
+nameserverRouter.get(
+  '/jams/:username',
+  asyncHandler(async (req, res) => {
+    const accountId = res.locals.accountId
+    const details = jamid.getAccountDetails(accountId)
+    const endpoint = details['RingNS.uri']
+    const jamsServer = config.getJamsServerUrl()
+
+    if (!jamsServer || !endpoint.includes(jamsServer)) {
+      res.status(HttpStatusCode.Unauthorized)
+      return
+    }
+
+    const username = req.params.username
+
+    const result = await jamid.searchUser(accountId, username)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
         res.status(HttpStatusCode.Ok).send(result)
