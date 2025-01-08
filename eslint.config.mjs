@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Savoir-faire Linux Inc.
+ * Copyright (C) 2025 Savoir-faire Linux Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -75,7 +75,7 @@ export default [
           '',
           {
             pattern: ' \\* Copyright \\(C\\) (\\d{4}|(\\d{4}-\\d{4})) Savoir-faire Linux Inc\\.',
-            template: ' * Copyright (C) 2024 Savoir-faire Linux Inc.',
+            template: ' * Copyright (C) 2025 Savoir-faire Linux Inc.',
           },
           ' *',
           ' * This program is free software; you can redistribute it and/or modify',
