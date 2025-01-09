@@ -22,10 +22,8 @@ import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
-import { AdminAccount } from '../storage/admin-account.js'
 
 const jamid = Container.get(Jamid)
-const config = Container.get(AdminAccount)
 
 export const defaultModeratorsRouter = Router()
 
@@ -35,12 +33,11 @@ defaultModeratorsRouter.get(
   '/',
   asyncHandler(async (_req, res) => {
     const accountId = res.locals.accountId
-    const nameserver = config.getNameServerAddress()
     // Add usernames for default moderators
     const defaultModeratorUris = jamid.getDefaultModeratorUris(accountId)
     const namedDefaultModerators: IContact[] = []
     for (const defaultModeratorUri of defaultModeratorUris) {
-      const { username } = await jamid.lookupAddress(defaultModeratorUri, nameserver, accountId)
+      const { username } = await jamid.lookupAddress(defaultModeratorUri, '', accountId)
       namedDefaultModerators.push({
         uri: defaultModeratorUri,
         registeredName: username,

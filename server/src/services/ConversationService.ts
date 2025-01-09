@@ -21,14 +21,12 @@ import { Container, Service } from 'typedi'
 
 import { ConversationRequestMetadata } from '../jamid/conversation-request-metadata.js'
 import { Jamid } from '../jamid/jamid.js'
-import { AdminAccount } from '../storage/admin-account.js'
 import { WebSocketServer } from '../websocket/websocket-server.js'
 import { ContactService } from './ContactService.js'
 
 const jamid = Container.get(Jamid)
 const webSocketServer = Container.get(WebSocketServer)
 const contactService = Container.get(ContactService)
-const config = Container.get(AdminAccount)
 
 @Service()
 export class ConversationService {
@@ -98,7 +96,6 @@ export class ConversationService {
   async getMembersNames(accountId: string, conversationId: string): Promise<string[]> {
     // Retrieve the URI of the current account (Account.username actually stores the URI rather than the username)
     const accountUri = jamid.getAccountDetails(accountId)['Account.username']
-    const nameserver = config.getNameServerAddress()
     const members = jamid.getConversationMembers(accountId, conversationId)
 
     const membersNamesPromises = members.map(async (member) => {
@@ -106,7 +103,7 @@ export class ConversationService {
         return
       }
       // Add usernames for conversation members
-      const { username } = await jamid.lookupAddress(member.uri, nameserver, accountId)
+      const { username } = await jamid.lookupAddress(member.uri, '', accountId)
       return username || member.uri
     })
 

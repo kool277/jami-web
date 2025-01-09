@@ -25,11 +25,9 @@ import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 import { ConversationService } from '../services/ConversationService.js'
-import { AdminAccount } from '../storage/admin-account.js'
 
 const jamid = Container.get(Jamid)
 const conversationService = Container.get(ConversationService)
-const config = Container.get(AdminAccount)
 
 export const conversationRouter = Router()
 
@@ -186,10 +184,9 @@ conversationRouter.get(
     }
 
     const members = jamid.getConversationMembers(accountId, conversationId)
-    const nameserver = config.getNameServerAddress()
 
     const namedMembersPromises = members.map(async (member) => {
-      const { username } = await jamid.lookupAddress(member.uri, nameserver, accountId)
+      const { username } = await jamid.lookupAddress(member.uri, '', accountId)
       return {
         role: member.role,
         contact: {

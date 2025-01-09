@@ -23,10 +23,8 @@ import { Container } from 'typedi'
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateOptionalToken } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
-import { AdminAccount } from '../storage/admin-account.js'
 
 const jamid = Container.get(Jamid)
-const config = Container.get(AdminAccount)
 
 export const nameserverRouter = Router()
 
@@ -36,18 +34,7 @@ nameserverRouter.use(extendIfGuest)
 nameserverRouter.get(
   '/username/:username',
   asyncHandler(async (req, res) => {
-    const nameserver = config.getNameServerAddress()
-    const jamsServer = config.getJamsServerUrl()
-    const accountId = res.locals.accountId
-    const details = jamid.getAccountDetails(accountId)
-    const endpoint = details['RingNS.uri']
-
-    if (jamsServer && endpoint.includes(jamsServer)) {
-      res.status(HttpStatusCode.Unauthorized)
-      return
-    }
-
-    const result = await jamid.lookupUsername(req.params.username, nameserver, res.locals.accountId)
+    const result = await jamid.lookupUsername(req.params.username, '', res.locals.accountId)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
         res.status(HttpStatusCode.Ok).send(result)
@@ -65,19 +52,7 @@ nameserverRouter.get(
 nameserverRouter.get(
   '/jams/:username',
   asyncHandler(async (req, res) => {
-    const accountId = res.locals.accountId
-    const details = jamid.getAccountDetails(accountId)
-    const endpoint = details['RingNS.uri']
-    const jamsServer = config.getJamsServerUrl()
-
-    if (!jamsServer || !endpoint.includes(jamsServer)) {
-      res.status(HttpStatusCode.Unauthorized)
-      return
-    }
-
-    const username = req.params.username
-
-    const result = await jamid.searchUser(accountId, username)
+    const result = await jamid.searchUser(res.locals.accountId, req.params.username)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
         res.status(HttpStatusCode.Ok).send(result)
@@ -97,8 +72,7 @@ nameserverRouter.get(
   '/username/availability/:username', //
   asyncHandler(async (req, res) => {
     //This is using the same jamid service as the route /username/:username, except the responses are handled different
-    const nameserver = config.getNameServerAddress()
-    const result = await jamid.lookupUsername(req.params.username, nameserver, res.locals.accountId)
+    const result = await jamid.lookupUsername(req.params.username, '', res.locals.accountId)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
         res.status(HttpStatusCode.Ok).send('taken')
@@ -116,12 +90,11 @@ nameserverRouter.get(
 nameserverRouter.get(
   '/address/:address',
   asyncHandler(async (req, res) => {
-    const nameserver = config.getNameServerAddress()
     if (req.params.address === undefined) {
       res.status(HttpStatusCode.BadRequest).send('Invalid address')
       return
     }
-    const result = await jamid.lookupAddress(req.params.address, nameserver, res.locals.accountId)
+    const result = await jamid.lookupAddress(req.params.address, '', res.locals.accountId)
     switch (result.state) {
       case RegisteredNameFoundState.Found:
         res.send(result)
