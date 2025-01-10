@@ -62,6 +62,10 @@ export default function WelcomePage() {
     setIsMenuOpen(true)
   }
 
+  if (account.getRegisteredName() === undefined) {
+    setDisplayedInfo(account.getUri())
+  }
+
   const [informationsTips, setInformationsTips] = useState([
     {
       icon: <TipIcon style={{ color: theme.WelcomePage.iconsColor }} />,
@@ -104,6 +108,11 @@ export default function WelcomePage() {
   ])
 
   const handleMoreInfo = () => {
+    if (account.getRegisteredName() === undefined) {
+      //cannot switch between uri and registered name if registered name is undefined
+      return
+    }
+
     if (displayedInfo === account.getRegisteredName()) {
       setDisplayedInfo(account.getUri())
     } else {
