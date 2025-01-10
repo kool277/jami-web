@@ -27,14 +27,13 @@ import { useConversationContext } from '../contexts/ConversationProvider'
 import SendingIcon from '../icons/sendingIcon.svg?react'
 import SentIcon from '../icons/sentIcon.svg?react'
 import { currentLastSeenMessageContext } from '../pages/ChatInterface'
-import ConversationAvatar from './ConversationAvatar'
+import AvatarMouseOver from './AvatarMouseOver'
 
 export interface MessageStatusProps {
   message: Message
 }
 
 export default function MessageStatus({ message }: MessageStatusProps) {
-  const avatarSize: string = '15px'
   const { account } = useAuthContext()
   const [highestStatus, setHighestStatus] = useState<MessageStatusCode | undefined>()
   const { members } = useConversationContext()
@@ -66,11 +65,10 @@ export default function MessageStatus({ message }: MessageStatusProps) {
         return peers.map((peerId) => {
           const member = members.find((member) => peerId === member.contact.uri)
           return (
-            <ConversationAvatar
-              contactUri={peerId}
+            <AvatarMouseOver
               key={peerId}
-              displayName={member?.getDisplayName() || member?.contact.registeredName || ''}
-              sx={{ width: avatarSize, height: avatarSize, fontSize: '12px', ml: 0.1 }}
+              contactUri={peerId}
+              displayName={member?.getDisplayName() || member?.contact.registeredName || peerId}
             />
           )
         })
