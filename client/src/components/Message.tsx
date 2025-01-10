@@ -15,12 +15,12 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-// eslint-disable-next-line simple-import-sort/imports
 import { Box, Chip, Divider, Link, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material'
+import { styled, Theme, useTheme } from '@mui/material/styles'
 import { darken } from '@mui/system'
-import { Theme, useTheme, styled } from '@mui/material/styles'
 import dayjs, { Dayjs } from 'dayjs'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
+import { motion } from 'framer-motion'
 import { t } from 'i18next'
 import { Message, ReactionAdded, WebSocketMessageType } from 'jami-web-common'
 import Linkify from 'linkify-react'
@@ -29,41 +29,40 @@ import { memo, ReactElement, ReactNode, useCallback, useContext, useEffect, useM
 import { useTranslation } from 'react-i18next'
 
 import { useActionMessageContext } from '../contexts/ActionMessageProvider'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
+import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { Account } from '../models/account'
 import { Contact } from '../models/contact'
+import { useDeleteMessageMutation } from '../services/conversationQueries'
 import { GetDownloadedFile, useGetAutoDownloadLimit, useGetDownloadFileInfo } from '../services/dataTransferQueries'
 import { useLinkPreviewQuery } from '../services/linkPreviewQueries'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
 import { formatRelativeDate, formatTime } from '../utils/dates&times'
+import { getSentTimeColor, getTextColor } from '../utils/messagecolor'
+import { isEmoji } from '../utils/utils'
 import AudioPlayer from './AudioPlayer'
 import { EditPictureButton, EmojiButton, MoreButton, ReplyMessageButton } from './Button'
 import ConversationAvatar from './ConversationAvatar'
 import LoadingPage from './Loading'
+import MediaViewer from './MediaViewer'
 import MessageDataContent from './MessageDataContent'
+import MessageReaction from './MessageReaction'
+import MessageStatus from './MessageStatus'
 import PopoverList, { PopoverListItemData } from './PopoverList'
 import {
   ArrowLeftCurved,
   ArrowLeftDown,
   ArrowRightUp,
+  DownloadFileIcon,
   OppositeArrowsIcon,
   TrashBinIcon,
   TwoSheetsIcon,
-  DownloadFileIcon,
 } from './SvgIcon'
-import { getSentTimeColor, getTextColor } from '../utils/messagecolor'
-import { motion } from 'framer-motion'
-import { useDeleteMessageMutation } from '../services/conversationQueries'
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
-import { useConversationPreferencesContext } from '../contexts/ConversationPreferencesContext'
-import MessageReaction from './MessageReaction'
-import MessageStatus from './MessageStatus'
-import { isEmoji } from '../utils/utils'
-import MediaViewer from './MediaViewer'
-import UseLongPress from './UseLongPress'
 import TransferMessage from './TransferMessage'
+import UseLongPress from './UseLongPress'
 
 type MessagePosition = 'start' | 'end'
 
