@@ -37,13 +37,19 @@ defaultModeratorsRouter.get(
     const defaultModeratorUris = jamid.getDefaultModeratorUris(accountId)
     const namedDefaultModerators: IContact[] = []
     for (const defaultModeratorUri of defaultModeratorUris) {
-      const { username } = await jamid.lookupAddress(defaultModeratorUri, '', accountId)
-      namedDefaultModerators.push({
-        uri: defaultModeratorUri,
-        registeredName: username,
-      })
+      try {
+        const { username } = await jamid.lookupAddress(defaultModeratorUri, '', accountId)
+        namedDefaultModerators.push({
+          uri: defaultModeratorUri,
+          registeredName: username,
+        })
+      } catch (e) {
+        namedDefaultModerators.push({
+          uri: defaultModeratorUri,
+          registeredName: defaultModeratorUri,
+        })
+      }
     }
-
     res.send(namedDefaultModerators)
   }),
 )

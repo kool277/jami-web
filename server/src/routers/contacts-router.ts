@@ -33,8 +33,12 @@ contactsRouter.get('/', async (_req, res) => {
   const contacts = jamid.getContacts(res.locals.accountId)
   for (const contact of contacts) {
     contact.displayName = await getDisplayName(res.locals.accountId, contact.id)
-    const username = await jamid.lookupAddress(contact.id, '', res.locals.accountId)
-    contact.username = username.username
+    try {
+      const username = await jamid.lookupAddress(contact.id, '', res.locals.accountId)
+      contact.username = username.username
+    } catch (e) {
+      console.error(e)
+    }
   }
   res.send(contacts)
 })
@@ -47,16 +51,20 @@ contactsRouter.get('/:contactId', async (req, res) => {
     return
   }
 
-  const contactUsername = await jamid.lookupAddress(contactDetails.id, res.locals.accountId)
-  if (contactUsername.address === contactDetails.id) {
-    contactDetails.username = contactUsername.username
+  try {
+    const contactUsername = await jamid.lookupAddress(contactDetails.id, res.locals.accountId)
+    if (contactUsername.address === contactDetails.id) {
+      contactDetails.username = contactUsername.username
+    }
+    contactDetails.displayName = await getDisplayName(res.locals.accountId, contactDetails.id)
+    if (Object.keys(contactDetails).length === 0) {
+      res.status(HttpStatusCode.NotFound).send('No such contact found')
+      return
+    }
+    res.send(contactDetails)
+  } catch (e) {
+    res.status(HttpStatusCode.InternalServerError)
   }
-  contactDetails.displayName = await getDisplayName(res.locals.accountId, contactDetails.id)
-  if (Object.keys(contactDetails).length === 0) {
-    res.status(HttpStatusCode.NotFound).send('No such contact found')
-    return
-  }
-  res.send(contactDetails)
 })
 
 contactsRouter.put('/:contactId', (req, res) => {

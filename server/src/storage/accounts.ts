@@ -73,38 +73,42 @@ export class Accounts {
       this.accounts[authMethod as keyof AccountsFormat] = {}
     }
 
-    switch (authMethod) {
-      case 'jams':
-        if (JAMSAccountId !== undefined && typeof value === 'string') {
-          this.accounts['jams'][username.toLowerCase()] = {
-            password: value,
-            accountId: JAMSAccountId,
+    try {
+      switch (authMethod) {
+        case 'jams':
+          if (JAMSAccountId !== undefined && typeof value === 'string') {
+            this.accounts['jams'][username.toLowerCase()] = {
+              password: value,
+              accountId: JAMSAccountId,
+            }
+          } else {
+            throw new Error('JAMSAccountId is required for jams auth method')
           }
-        } else {
-          throw new Error('JAMSAccountId is required for jams auth method')
-        }
-        break
-      case 'local':
-        if (typeof value !== 'string') {
-          return
-        }
-        this.accounts['local'][username.toLowerCase()] = value
-        break
-      // TODO : Add support for guest and openid
-      case 'guest':
-        if (typeof value !== 'string') {
-          return
-        }
-        this.accounts['guest'][username.toLowerCase()] = value
-        break
-      case 'openid':
-        if (typeof value === 'string') {
-          return
-        }
-        this.accounts['openid'][username.toLowerCase()] = value
-        break
-      default:
-        throw new Error('Invalid auth method')
+          break
+        case 'local':
+          if (typeof value !== 'string') {
+            return
+          }
+          this.accounts['local'][username.toLowerCase()] = value
+          break
+        // TODO : Add support for guest and openid
+        case 'guest':
+          if (typeof value !== 'string') {
+            return
+          }
+          this.accounts['guest'][username.toLowerCase()] = value
+          break
+        case 'openid':
+          if (typeof value === 'string') {
+            return
+          }
+          this.accounts['openid'][username.toLowerCase()] = value
+          break
+        default:
+          throw new Error('Invalid auth method')
+      }
+    } catch (e) {
+      console.log(e)
     }
   }
 

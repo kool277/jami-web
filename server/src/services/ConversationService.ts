@@ -103,12 +103,14 @@ export class ConversationService {
         return
       }
       // Add usernames for conversation members
-      const { username } = await jamid.lookupAddress(member.uri, '', accountId)
-      return username || member.uri
+      try {
+        const { username } = await jamid.lookupAddress(member.uri, '', accountId)
+        return username || member.uri
+      } catch (e) {
+        return member.uri
+      }
     })
-
     const membersNames = (await Promise.all(membersNamesPromises)).filter((name): name is string => name !== undefined)
-
     return membersNames
   }
 }

@@ -67,21 +67,27 @@ authRouter.post(
     }
     const { accountId } = await jamid.addAccount(accountDetails)
 
-    const state = await jamid.registerUsername(accountId, username, '')
-    if (state !== NameRegistrationEndedState.Success) {
-      jamid.removeAccount(accountId)
-      switch (state) {
-        case NameRegistrationEndedState.InvalidName:
-          res.status(HttpStatusCode.BadRequest).send('Invalid username or password')
-          break
-        case NameRegistrationEndedState.AlreadyTaken:
-          res.status(HttpStatusCode.Conflict).send('Username already exists')
-          break
-        default:
-          throw new Error(`Unhandled state ${state}`)
+    try {
+      const state = await jamid.registerUsername(accountId, username, '')
+      if (state !== NameRegistrationEndedState.Success) {
+        jamid.removeAccount(accountId)
+        switch (state) {
+          case NameRegistrationEndedState.InvalidName:
+            res.status(HttpStatusCode.BadRequest).send('Invalid username or password')
+            break
+          case NameRegistrationEndedState.AlreadyTaken:
+            res.status(HttpStatusCode.Conflict).send('Username already exists')
+            break
+          default:
+            res.status(HttpStatusCode.InternalServerError).send('Error registering username')
+        }
+        return
       }
-      return
+    } catch (e: any) {
+      console.error(e)
+      res.status(HttpStatusCode.InternalServerError).send(e.message)
     }
+
     try {
       accounts.set(username, hashedPassword, 'local')
       await accounts.save()

@@ -34,17 +34,21 @@ nameserverRouter.use(extendIfGuest)
 nameserverRouter.get(
   '/username/:username',
   asyncHandler(async (req, res) => {
-    const result = await jamid.lookupUsername(req.params.username, '', res.locals.accountId)
-    switch (result.state) {
-      case RegisteredNameFoundState.Found:
-        res.status(HttpStatusCode.Ok).send(result)
-        break
-      case RegisteredNameFoundState.InvalidResponse:
-        res.status(HttpStatusCode.BadRequest).send('Invalid username')
-        break
-      default:
-        res.status(HttpStatusCode.NotFound).send('No such username found')
-        break
+    try {
+      const result = await jamid.lookupUsername(req.params.username, '', res.locals.accountId)
+      switch (result.state) {
+        case RegisteredNameFoundState.Found:
+          res.status(HttpStatusCode.Ok).send(result)
+          break
+        case RegisteredNameFoundState.InvalidResponse:
+          res.status(HttpStatusCode.BadRequest).send('Invalid username')
+          break
+        default:
+          res.status(HttpStatusCode.NotFound).send('No such username found')
+          break
+      }
+    } catch (e) {
+      res.status(HttpStatusCode.InternalServerError)
     }
   }),
 )
@@ -52,17 +56,21 @@ nameserverRouter.get(
 nameserverRouter.get(
   '/jams/:username',
   asyncHandler(async (req, res) => {
-    const result = await jamid.searchUser(res.locals.accountId, req.params.username)
-    switch (result.state) {
-      case RegisteredNameFoundState.Found:
-        res.status(HttpStatusCode.Ok).send(result)
-        break
-      case RegisteredNameFoundState.InvalidResponse:
-        res.status(HttpStatusCode.BadRequest).send('Invalid username')
-        break
-      default:
-        res.status(HttpStatusCode.NotFound).send('No such username found')
-        break
+    try {
+      const result = await jamid.searchUser(res.locals.accountId, req.params.username)
+      switch (result.state) {
+        case RegisteredNameFoundState.Found:
+          res.status(HttpStatusCode.Ok).send(result)
+          break
+        case RegisteredNameFoundState.InvalidResponse:
+          res.status(HttpStatusCode.BadRequest).send('Invalid username')
+          break
+        default:
+          res.status(HttpStatusCode.NotFound).send('No such username found')
+          break
+      }
+    } catch (e) {
+      res.status(HttpStatusCode.InternalServerError)
     }
   }),
 )
@@ -72,17 +80,21 @@ nameserverRouter.get(
   '/username/availability/:username', //
   asyncHandler(async (req, res) => {
     //This is using the same jamid service as the route /username/:username, except the responses are handled different
-    const result = await jamid.lookupUsername(req.params.username, '', res.locals.accountId)
-    switch (result.state) {
-      case RegisteredNameFoundState.Found:
-        res.status(HttpStatusCode.Ok).send('taken')
-        break
-      case RegisteredNameFoundState.InvalidResponse:
-        res.status(HttpStatusCode.BadRequest).send('invalid')
-        break
-      default:
-        res.status(HttpStatusCode.Ok).send('success')
-        break
+    try {
+      const result = await jamid.lookupUsername(req.params.username, '', res.locals.accountId)
+      switch (result.state) {
+        case RegisteredNameFoundState.Found:
+          res.status(HttpStatusCode.Ok).send('taken')
+          break
+        case RegisteredNameFoundState.InvalidResponse:
+          res.status(HttpStatusCode.BadRequest).send('invalid')
+          break
+        default:
+          res.status(HttpStatusCode.Ok).send('success')
+          break
+      }
+    } catch (e) {
+      res.status(HttpStatusCode.InternalServerError)
     }
   }),
 )
@@ -94,17 +106,21 @@ nameserverRouter.get(
       res.status(HttpStatusCode.BadRequest).send('Invalid address')
       return
     }
-    const result = await jamid.lookupAddress(req.params.address, '', res.locals.accountId)
-    switch (result.state) {
-      case RegisteredNameFoundState.Found:
-        res.send(result)
-        break
-      case RegisteredNameFoundState.InvalidResponse:
-        res.status(HttpStatusCode.BadRequest).send('Invalid address')
-        break
-      default:
-        res.status(HttpStatusCode.NotFound).send('No such address found')
-        break
+    try {
+      const result = await jamid.lookupAddress(req.params.address, '', res.locals.accountId)
+      switch (result.state) {
+        case RegisteredNameFoundState.Found:
+          res.send(result)
+          break
+        case RegisteredNameFoundState.InvalidResponse:
+          res.status(HttpStatusCode.BadRequest).send('Invalid address')
+          break
+        default:
+          res.status(HttpStatusCode.NotFound).send('No such address found')
+          break
+      }
+    } catch (e) {
+      res.status(HttpStatusCode.InternalServerError)
     }
   }),
 )
