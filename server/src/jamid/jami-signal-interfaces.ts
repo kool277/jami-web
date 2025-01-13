@@ -18,6 +18,7 @@
 import {
   AccountDetails,
   ConversationMemberEventCode,
+  DeviceRevocationState,
   Devices,
   Message,
   Reaction,
@@ -215,4 +216,10 @@ export interface ReactionRemoved {
   conversationId: string
   messageId: string
   reactionId: string
+}
+
+export interface DeviceRevocationEnded {
+  accountId: string
+  device: string
+  state: DeviceRevocationState
 }

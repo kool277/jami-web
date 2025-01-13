@@ -19,7 +19,7 @@ import { Request, Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import { ParamsDictionary } from 'express-serve-static-core'
 import fs from 'fs'
-import { AccountDetails, HttpStatusCode, IAccount, IContact } from 'jami-web-common'
+import { AccountDetails, DeviceRevocationState, HttpStatusCode, IAccount, IContact } from 'jami-web-common'
 import multer from 'multer'
 import { Container } from 'typedi'
 
@@ -124,15 +124,18 @@ accountRouter.post(
   asyncHandler(async (req, res) => {
     const accountId = res.locals.accountId
     const deviceId = req.params.deviceId
-    const password = req.body.password
-    const scheme = req.body.scheme
 
-    const value = jamid.revokeDevice(accountId, deviceId, scheme, password)
-    if (!value) {
-      res.status(HttpStatusCode.BadRequest).send('Failed to revoke device')
-      return
+    try {
+      const value = await jamid.revokeDevice(accountId, deviceId)
+      if (value.state === DeviceRevocationState.SUCCESS) {
+        res.sendStatus(HttpStatusCode.Ok)
+      } else {
+        res.status(HttpStatusCode.BadRequest).send(value.state)
+      }
+    } catch (e) {
+      console.error('Error revoking device', e)
+      res.status(HttpStatusCode.InternalServerError).send()
     }
-    res.sendStatus(HttpStatusCode.Ok)
   }),
 )
 

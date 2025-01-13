@@ -27,6 +27,7 @@ import {
   ConversationMemberEventCode,
   ConversationMessage,
   ConversationPreferences,
+  DeviceRevocationState,
   Devices,
   LookupResult,
   Message,
@@ -62,6 +63,7 @@ import {
   ConversationRemoved,
   ConversationRequestReceived,
   DataTransferEvent,
+  DeviceRevocationEnded,
   IncomingAccountMessage,
   KnownDevicesChanged,
   NameRegistrationEnded,
@@ -266,6 +268,9 @@ export class Jamid {
     ) => {
       onUserSearchEnded.next({ accountId, state, query, results })
     }
+    const onDeviceRevocationEnded = new Subject<DeviceRevocationEnded>()
+    handlers.DeviceRevocationEnded = (accountId: string, device: string, state: DeviceRevocationState) =>
+      onDeviceRevocationEnded.next({ accountId, device, state })
 
     // Expose all signals in an events object to allow other handlers to subscribe after jamiSwig.init()
     this.events = {
@@ -296,6 +301,7 @@ export class Jamid {
       onReactionRemoved: onReactionRemoved.asObservable(),
       onProfileReceived: onProfileReceived.asObservable(),
       onUserSearchEnded: onUserSearchEnded.asObservable(),
+      onDeviceRevocationEnded: onDeviceRevocationEnded.asObservable(),
     }
 
     this.setupSignalHandlers()
@@ -430,8 +436,20 @@ export class Jamid {
     return stringMapToRecord(this.jamiSwig.getKnownRingDevices(accountId))
   }
 
-  revokeDevice(accountId: string, deviceId: string, scheme: string = '', password: string = ''): boolean {
-    return this.jamiSwig.revokeDevice(accountId, deviceId, scheme, password)
+  revokeDevice(accountId: string, deviceId: string, scheme: string = 'password', password: string = '') {
+    const isOk = this.jamiSwig.revokeDevice(accountId, deviceId, scheme, password)
+
+    if (!isOk) {
+      log.error(`Error revoking device: accountId=${accountId}, deviceId=${deviceId}`)
+      throw new Error('Error revoking device. Please check the accountId and deviceId.')
+    }
+
+    return firstValueFrom(
+      this.events.onDeviceRevocationEnded.pipe(
+        filter((value) => value.accountId === accountId),
+        filter((value) => value.device === deviceId),
+      ),
+    )
   }
 
   addContact(accountId: string, contactId: string): void {
@@ -668,6 +686,10 @@ export class Jamid {
           fs.unlinkSync(filePath)
         }
       }
+    })
+
+    this.events.onDeviceRevocationEnded.subscribe((signal) => {
+      log.debug('Received DeviceRevocationEnded:', JSON.stringify(signal))
     })
 
     this.events.onAccountsChanged.subscribe(() => {

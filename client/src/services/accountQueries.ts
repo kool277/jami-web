@@ -59,7 +59,8 @@ export const useRemoveLinkedDevice = () => {
       })
     },
 
-    onError: () => {
+    onError: (e) => {
+      console.error('Error removing linked device', e)
       setAlertContent({
         messageI18nKey: 'removed_linked_device_error',
         severity: 'error',
