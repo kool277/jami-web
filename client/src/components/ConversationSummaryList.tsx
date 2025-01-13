@@ -39,6 +39,7 @@ import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './Contex
 import ConversationAvatar from './ConversationAvatar'
 import { CustomListItemButton } from './CustomListItemButton'
 import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog'
+import EllipsisMiddle from './EllipsisMiddle'
 import { PopoverListItemData } from './PopoverList'
 import RemoveConversationDialog from './RemoveComversationDialog'
 import { CancelIcon, MessageIcon, PersonIcon } from './SvgIcon'
@@ -134,7 +135,11 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
             src={conversationSummary.avatar}
           />
         }
-        primaryText={<Typography variant="body1">{conversationName}</Typography>}
+        primaryText={
+          <Box sx={{ maxWidth: '225px' }}>
+            <EllipsisMiddle text={conversationName}></EllipsisMiddle>
+          </Box>
+        }
         secondaryText={<SecondaryText conversationSummary={conversationSummary} isSelected={isSelected} />}
       />
     </Box>
