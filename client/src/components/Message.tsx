@@ -1143,7 +1143,7 @@ const MessageTooltip = styled(
               {
                 name: 'offset',
                 options: {
-                  offset: [-2, -50],
+                  offset: [-2, -18],
                 },
               },
             ],
