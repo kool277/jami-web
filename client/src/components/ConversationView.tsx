@@ -69,35 +69,32 @@ const ConversationHeader = () => {
 
   function getMaxWidth() {
     if (isMobile) {
-      return '100px'
+      return '120px'
     } else if (isMedium) {
-      return '70px'
+      return '200px'
     } else {
-      return '150px'
+      return '400px'
     }
   }
 
   const onMenuIconClick = () => {
-    if (isMobile) {
-      setIsMenuOpen(true)
-    }
+    setIsMenuOpen(true)
     if (location.pathname.startsWith('/conversation')) {
       navigate('/conversation')
     }
-    console.log('menu icon clicked')
   }
 
   return (
     <Stack direction="row" padding="10px" overflow="hidden">
       <Stack flex={1} justifyContent="center" whiteSpace="nowrap" overflow="hidden">
-        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4%' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '16px' }}>
           <ArrowBackIosNewIcon
-            sx={isMobile ? { '&:hover': { cursor: 'pointer' } } : { visibility: 'hidden', width: '0px', height: '0px' }}
+            sx={{ '&:hover': { cursor: 'pointer' } }}
             onClick={() => {
               onMenuIconClick()
             }}
           />
-          <Typography variant={'h6'} textOverflow="ellipsis" sx={{ maxWidth: getMaxWidth() }}>
+          <Typography textOverflow="ellipsis" sx={{ maxWidth: getMaxWidth(), fontSize: '1.1rem' }} noWrap>
             {conversationDisplayName}
           </Typography>
         </Box>

@@ -71,7 +71,9 @@ export default ({ children }: WithChildren) => {
   const conversationInfos = conversationInfosQuery.data
   const members = membersQuery.data
 
-  const conversationDisplayName = useConversationDisplayName(account, conversationInfos, members)
+  const filteredMembers = members?.filter((member) => member.contact.uri !== account.getUri())
+
+  const conversationDisplayName = useConversationDisplayName(account, conversationInfos, filteredMembers)
 
   const onComposingStatusChanged = useCallback(
     (data: ComposingStatus) => {
