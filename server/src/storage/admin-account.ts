@@ -15,17 +15,29 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
+import envPaths from 'env-paths'
 import { AdminWizardState, IAdminAccount, IAdminConfigState } from 'jami-web-common'
 import { Service } from 'typedi'
 
+const paths = envPaths('jami-web', { suffix: '' })
+const uploadPath = paths.data + '/uploads/'
+
+if (!existsSync(paths.data)) {
+  mkdirSync(paths.data, { recursive: true })
+}
+
+if (!existsSync(uploadPath)) {
+  mkdirSync(uploadPath, { recursive: true })
+}
+
 @Service()
 export class AdminAccount {
-  private readonly filename = 'admin.json'
+  private readonly filename = paths.data + '/admin.json'
   private adminAccount: IAdminAccount
-  private defaultUploadPath: string = 'uploads/'
+  private defaultUploadPath: string = uploadPath
 
   constructor() {
     let buffer: Buffer

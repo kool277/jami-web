@@ -5,7 +5,6 @@ jamid.node
 /accounts.json
 /admin.json
 /config.json
-/openid-providers.json
 
 profile-avatar/*
 uploads/*

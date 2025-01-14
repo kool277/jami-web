@@ -15,11 +15,18 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
+import envPaths from 'env-paths'
 import { OpenIdAccount } from 'jami-web-common'
 import { Service } from 'typedi'
+
+const paths = envPaths('jami-web', { suffix: '' })
+
+if (!existsSync(paths.data)) {
+  mkdirSync(paths.data, { recursive: true })
+}
 
 interface AccountsFormat {
   local: Record<string, string>
@@ -32,7 +39,7 @@ const METHODS = ['local', 'jams', 'guest', 'openid']
 
 @Service()
 export class Accounts {
-  private readonly filename = 'accounts.json'
+  private readonly filename = paths.data + '/accounts.json'
   private accounts: AccountsFormat
 
   constructor() {

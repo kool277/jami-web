@@ -39,71 +39,13 @@ export class OpenIdProviders {
       buffer = readFileSync(this.filename)
       this.providers = new Map(Object.entries(JSON.parse(buffer.toString())))
       if (this.providers === undefined) {
-        this.init()
-        this.save()
+        throw new Error('openid-providers.json is empty')
       }
     } catch (e) {
       buffer = Buffer.from('{}')
       this.providers = new Map(Object.entries(JSON.parse(buffer.toString())))
-      this.init()
       this.save()
     }
-  }
-
-  init(): void {
-    this.providers = new Map()
-    // init supported providers
-
-    this.providers.set('google', {
-      tokenUri: 'https://oauth2.googleapis.com/token',
-      infoUri: 'https://www.googleapis.com/oauth2/v3/userinfo',
-      authUri: 'https://accounts.google.com/o/oauth2/v2/auth',
-      displayName: 'Google',
-      documentation: 'https://developers.google.com/identity/protocols/oauth2',
-      icon: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg',
-      colorTheme: '#d9d9d9',
-    })
-
-    this.providers.set('github', {
-      tokenUri: 'https://github.com/login/oauth/access_token',
-      infoUri: 'https://api.github.com/user',
-      authUri: 'https://github.com/login/oauth/authorize',
-      displayName: 'GitHub',
-      documentation: 'https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/',
-      icon: 'https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg',
-      colorTheme: '#d9d9d9',
-    })
-
-    this.providers.set('sfl-gitlab', {
-      tokenUri: 'https://git.jami.net/oauth/token',
-      infoUri: 'https://git.jami.net/oauth/userinfo',
-      authUri: 'https://git.jami.net/oauth/authorize',
-      displayName: 'SFL GitLab',
-      documentation: 'https://docs.gitlab.com/ee/api/oauth2.html',
-      icon: 'https://upload.wikimedia.org/wikipedia/commons/3/35/GitLab_icon.svg',
-      colorTheme: '#d9d9d9',
-    })
-
-    this.providers.set('discord', {
-      tokenUri: 'https://discord.com/api/oauth2/token',
-      infoUri: 'https://discord.com/api/users/@me',
-      authUri: 'https://discord.com/api/oauth2/authorize',
-      displayName: 'Discord',
-      documentation: 'https://discord.com/developers/docs/topics/oauth2',
-      scope: 'identify+email',
-      icon: 'https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg',
-      colorTheme: '#d9d9d9',
-    })
-
-    this.providers.set('linkedin', {
-      tokenUri: 'https://www.linkedin.com/oauth/v2/accessToken',
-      infoUri: 'https://api.linkedin.com/v2/userinfo',
-      authUri: 'https://www.linkedin.com/oauth/v2/authorization',
-      displayName: 'LinkedIn',
-      documentation: 'https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow',
-      icon: 'https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg',
-      colorTheme: '#d9d9d9',
-    })
   }
 
   getProviders() {
