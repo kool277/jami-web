@@ -154,23 +154,11 @@ This allows you to avoid having to install all the dependencies needed to build 
 
 ### With Docker Compose
 
-1. Build the Docker image for the daemon:
-
+1. Build and Run both the daemon and Jami-Web in containers
    ```
-   docker-compose build jami-daemon
+   docker compose up --build -d
    ```
-
-2. Build the Docker image for Jami web:
-
-   ```
-   docker-compose build
-   ```
-
-3. Run the Docker container:
-
-   ```
-   docker-compose up
-   ```
+   Now that `the application is running on port 3000` of your local machine, to develop inside the container install the `Remote Development` extension in VSCode :
 
 ### Without Docker Compose
 
@@ -178,7 +166,7 @@ This allows you to avoid having to install all the dependencies needed to build 
 
    ```sh
    cd daemon
-   docker build --build-arg config_args="--with-nodejs" -t jami-daemon .
+   docker build --build-arg cmake_args=-DJAMI_NODEJS=ON -t jami-daemon .
    cd ..
    ```
 

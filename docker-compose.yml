@@ -24,4 +24,4 @@ services:
     build:
       context: ./daemon
       args:
-        config_args: '--with-nodejs'
+        cmake_args: '-DJAMI_NODEJS=ON'

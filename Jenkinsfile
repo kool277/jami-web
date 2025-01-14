@@ -56,7 +56,7 @@ pipeline {
         stage('Build jami-daemon') {
             steps {
                 dir("daemon") {
-                    sh "docker build --build-arg config_args=\"--with-nodejs\" -t jami-daemon ."
+                    sh "docker build --build-arg cmake_args=-DJAMI_NODEJS=ON -t jami-daemon ."
                 }
             }
         }
