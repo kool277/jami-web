@@ -70,9 +70,58 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    docker.build("jami-web:${env.BUILD_ID}", "--target build .")
+                sh '''#!/bin/bash
+
+                docker build -t jami-web:${BUILD_ID} --target production .
+
+                container_id=$(docker create jami-web:${BUILD_ID})
+
+                mkdir -p jami-web-production/{client,server,common}
+
+                for dir in server common client; do
+                    docker cp ${container_id}:/web-client/${dir}/dist jami-web-production/${dir}/
+                    docker cp ${container_id}:/web-client/${dir}/package.json jami-web-production/${dir}/
+                done
+
+                docker cp ${container_id}:/daemon/bin/nodejs/build/Release/jamid.node jami-web-production/server/
+                docker cp ${container_id}:/web-client/server/scripts jami-web-production/server/
+                docker cp ${container_id}:/web-client/server/openid-providers.json jami-web-production/server/
+
+                docker cp ${container_id}:/web-client/package.json jami-web-production/
+                docker cp ${container_id}:/web-client/install.sh jami-web-production/
+                docker cp ${container_id}:/web-client/jami-web.service jami-web-production/
+
+                tar -czf jami-web.tar.gz jami-web-production
+
+                docker rm ${container_id}
+                rm -rf jami-web-production
+                '''
                 }
             }
         }
+stage('Post') {
+    steps {
+        archiveArtifacts artifacts: 'jami-web.tar.gz',
+        fingerprint: true,
+        onlyIfSuccessful: true
+        }
+}
+stage('Cleanup') {
+    steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+            sh '''
+                docker container prune -f
+                docker image prune -f --filter "until=24h"
+                docker volume prune -f
+            '''
+        }
+    }
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
+
     }
 }

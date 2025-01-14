@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     liblldb-dev
 
 # Create a symlink to the daemon node app
-RUN mkdir server && ln -s /daemon/bin/nodejs/build/Release/jamid.node server/jamid.node
+RUN mkdir -p server && ln -s /daemon/bin/nodejs/build/Release/jamid.node server/jamid.node
 
 COPY package*.json ./
 COPY client/package*.json client/
