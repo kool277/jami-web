@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import DevicesIcon from '@mui/icons-material/Devices'
 import { Box } from '@mui/material'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -61,6 +62,7 @@ function LinkedDevices() {
           </Typography>
           <Typography gutterBottom variant="h5" component="h2">
             <ListItem>
+              <DevicesIcon sx={{ padding: '4px', margin: '4px', marginRight: '16px', height: '40px', width: '40px' }} />
               <ListItemText
                 id="switch-list-label-rendezvous"
                 primary={
@@ -80,6 +82,9 @@ function LinkedDevices() {
             </ListItem>
             {devices.map((device) => (
               <ListItem key={device[0]}>
+                <DevicesIcon
+                  sx={{ padding: '4px', margin: '4px', marginRight: '16px', height: '40px', width: '40px' }}
+                />
                 <ListItemText
                   id="switch-list-label-rendezvous"
                   primary={device[1]}
