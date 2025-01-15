@@ -20,7 +20,10 @@ COPY server/scripts server/scripts
 RUN npm ci
 COPY . .
 
+RUN touch server/.env
+
 FROM jami-web AS development
+RUN echo "NODE_ENV=development" >> server/.env;
 CMD ["npm", "start"]
 
 FROM jami-web AS test

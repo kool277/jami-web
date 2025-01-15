@@ -18,7 +18,7 @@ The repo is structured as 4 subprojects:
 
   - Build from source with the following instructions: <https://swig.org/svn.html>
 
-    > Note: you will need have Bison installed. On Ubuntu, this can be installed using `sudo apt install bison`.
+    > Note: you will need to have Bison installed. On Ubuntu, this can be installed using `sudo apt install bison`.
 
     ```sh
     git clone https://github.com/swig/swig.git
@@ -30,6 +30,9 @@ The repo is structured as 4 subprojects:
     ```
 
 ## Setup
+
+Before proceeding, you must initialize the Git submodule repositories by running the following command:
+`git submodule update --init --recursive`
 
 ### Build the Jami daemon with Node.js bindings
 
@@ -146,21 +149,37 @@ npm run format
 npm run clean
 ```
 
-## Using a Docker container for development
+## Using a Docker container
 
-You may instead wish to use a Docker container for development.
+You may instead wish to use a Docker container for development or to deploy the app.
 
-This allows you to avoid having to install all the dependencies needed to build the daemon on your computer. The container is meant for development: it uses bind mounts to mount the source code from your computer into the container, so that the container rebuilds the project whenever changes are made locally.
+This allows you to avoid having to install all the dependencies needed to build the daemon on your computer. The development container uses bind mounts to mount the source code from your computer into the container, so that the container rebuilds the project whenever changes are made locally.
+
+> Initialize Git submodule repositories by running the following command:
+> `git submodule update --init --recursive`
 
 ### With Docker Compose
 
-1. Build and Run both the daemon and Jami-Web in containers
-   ```
-   docker compose up --build -d
-   ```
-   Now that `the application is running on port 3000` of your local machine, to develop inside the container install the `Remote Development` extension in VSCode :
+`docker-compose` is required, it can be installed with the following command on linux :`sudo apt install docker-compose`
+
+#### Build for production
+
+```
+docker compose up --build -d
+```
+
+#### Build for development
+
+```
+docker-compose -f docker-compose.dev.yml up
+
+```
+
+The application is now `running on port 3000` of your local machine.
 
 ### Without Docker Compose
+
+#### Build for production
 
 1. Build the Docker image for the daemon:
 
@@ -170,14 +189,40 @@ This allows you to avoid having to install all the dependencies needed to build 
    cd ..
    ```
 
+> If you encounter the error `ERROR [internal] load metadata for docker.io/library/ubuntu:22.04`, simply open your `~/.docker/config.json` file and delete the line that contains `"credsStore": "desktop"`.
+
 2. Build the Docker image for Jami web:
 
    ```sh
-   docker build --target development --t jami-web .
+   docker build --target production -t jami-web .
    ```
 
 3. Run the Docker container:
+   ```
+   docker run -it \
+       -p 8080:8080 \
+       jami-web
+   ```
 
+#### Build for development
+
+1. Build the Docker image for the daemon:
+
+   ```sh
+   cd daemon
+   docker build --build-arg cmake_args=-DJAMI_NODEJS=ON -t jami-daemon .
+   cd ..
+   ```
+
+> If you encounter the error `ERROR [internal] load metadata for docker.io/library/ubuntu:22.04`, simply open your `~/.docker/config.json` file and delete the line that contains `"credsStore": "desktop"`.
+
+2. Build the Docker image for Jami web:
+
+   ```sh
+   docker build --target development -t jami-web .
+   ```
+
+3. Run the Docker container:
    ```
    docker run -it \
        -p 3000:3000 \
