@@ -52,7 +52,7 @@ export const SelectConversationList = ({
   }, [conversationsSummaries])
 
   return (
-    <Box sx={{ overflow: 'scroll', height: '100%' }}>
+    <Box sx={{ overflowY: 'scroll', height: '100%' }}>
       <List
         sx={{
           whiteSpace: 'nowrap',

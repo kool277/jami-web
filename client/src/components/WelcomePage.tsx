@@ -352,7 +352,7 @@ export default function WelcomePage() {
               marginLeft: '5%',
               marginRight: '5%',
               marginTop: '4%',
-              overflow: 'scroll',
+              overflowY: 'scroll',
               marginBottom: '5%',
             }}
           >

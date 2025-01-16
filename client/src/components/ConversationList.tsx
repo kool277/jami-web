@@ -56,7 +56,7 @@ export default function ConversationList() {
         <ContactSearchBar placeholder={t('find_users_and_conversations')} handleChange={handleInputChange} />
       </Box>
 
-      <Stack sx={{ overflow: 'scroll', height: '100%', paddingBottom: '100px' }}>
+      <Stack sx={{ overflowY: 'auto', height: '100%', paddingBottom: '100px' }}>
         {searchFilter ? <ContactSearchResultList searchFilter={searchFilter} /> : <ConversationTabs />}
       </Stack>
     </>
@@ -88,7 +88,7 @@ const ConversationTabs = () => {
   }, [])
 
   return (
-    <Tabs style={{ overflow: 'scroll' }} defaultValue={summariesTabIndex} value={tabIndex} onChange={onChange}>
+    <Tabs style={{ overflowY: 'auto' }} defaultValue={summariesTabIndex} value={tabIndex} onChange={onChange}>
       {isShowingTabMenu && (
         <TabsList>
           <Tab isSelected={tabIndex === summariesTabIndex}>{t('conversations')}</Tab>
@@ -108,7 +108,7 @@ const SummariesTabPanel = (props: TabPanelProps) => {
   const conversationsSummaries = conversationsSummariesQuery.data || []
 
   return (
-    <TabPanel sx={{ overflow: 'scroll', height: '100%' }} {...props}>
+    <TabPanel sx={{ overflowY: 'auto', height: '100%' }} {...props}>
       <ConversationSummaryList conversationsSummaries={conversationsSummaries} />
     </TabPanel>
   )

@@ -59,7 +59,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
   const mainWindowStyles = {
     height: isSettings ? 'auto' : '100vh',
     width: '100%',
-    overflow: isSettings ? 'scroll' : 'hidden',
+    overflowY: isSettings ? 'scroll' : 'hidden',
   }
 
   const mainWindowStylesMobile = {

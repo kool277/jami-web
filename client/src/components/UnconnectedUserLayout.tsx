@@ -42,7 +42,7 @@ export default function UnconnectedUserLayout({ pageName, children, message }: U
     padding: '1%',
     paddingTop: '3%',
     marginTop: isMobile ? '0' : '-5%',
-    overflow: 'scroll',
+    overflowY: 'scroll',
     borderRadius: isMobile ? '0' : 'auto',
   }
 
