@@ -27,10 +27,24 @@ const EllipsisMiddle = ({ text }: EllipsisMiddleProps) => {
     return
   }
 
+  if (text.length < 12) {
+    console.log('text', text)
+    return <span>{text}</span>
+  }
+
+  const startFixedChars = 5
+  const endFixedChars = 3
+
+  const startWidth = startFixedChars + 2
+  const endWidth = endFixedChars + 2
+
   const firstPart = text.slice(0, -8)
   const lastPart = text.slice(-8)
 
   const stylesCommon = {
+    display: 'inline-block',
+    verticalAlign: 'bottom',
+    whiteSpace: 'nowrap',
     overflow: 'hidden',
     height: 'inherit',
     flex: '0 1 auto',
@@ -39,16 +53,22 @@ const EllipsisMiddle = ({ text }: EllipsisMiddleProps) => {
   return (
     <Box
       sx={{
-        display: 'flex',
-        alignItems: 'baseline',
-        justifyContent: 'flex-start',
         textWrap: 'nowrap',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
       }}
     >
-      <span style={{ ...stylesCommon, wordBreak: 'break-all' }}>{firstPart}</span>
-      <span style={{ ...stylesCommon, direction: 'rtl', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-        {lastPart}
+      <span
+        style={{
+          ...stylesCommon,
+          maxWidth: `calc(100% - ${endWidth}em)`,
+          minWidth: startWidth,
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {firstPart}
       </span>
+      <span style={{ ...stylesCommon, maxWidth: `calc(100% - ${startWidth}em)`, direction: 'rtl' }}>{lastPart}</span>
     </Box>
   )
 }

@@ -457,12 +457,12 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
 
   const getBestWidth = () => {
     if (isMobile) {
-      return '100px'
+      return '165px'
     }
     if (isMedium) {
-      return '120px'
+      return '140px'
     }
-    return '100px'
+    return '135px'
   }
 
   return (
@@ -509,7 +509,7 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
           {' '}
           <ConversationAvatar contactUri={member.contact.uri} displayName={bestName} />
           <Box maxWidth={getBestWidth} marginLeft="8px">
-            <EllipsisMiddle text={bestName} />
+            {bestName.length > 15 ? <EllipsisMiddle text={bestName} /> : bestName}
           </Box>
         </Box>
         <Box

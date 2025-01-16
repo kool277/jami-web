@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, List, Stack, Typography } from '@mui/material'
+import { Box, List, Stack, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import dayjs from 'dayjs'
 import { IConversationSummary } from 'jami-web-common'
@@ -86,7 +86,8 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
   const navigate = useNavigate()
   const members = useMembersQuery(conversationSummary.id)
   const memberArray = members.data
-
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
   const filteredMembers = useMemo(() => {
     return memberArray?.filter((member) => member.contact.uri !== account.getUri()) || []
   }, [memberArray, account])
@@ -136,7 +137,7 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
           />
         }
         primaryText={
-          <Box sx={{ maxWidth: '225px' }}>
+          <Box sx={{ maxWidth: isMobile ? '250px' : '225px' }}>
             <EllipsisMiddle text={conversationName}></EllipsisMiddle>
           </Box>
         }
