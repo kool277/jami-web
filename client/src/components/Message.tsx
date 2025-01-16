@@ -201,7 +201,7 @@ const MessageDataTransfer = ({
   sentTime,
 }: MessageDataTransferProps) => {
   const theme: Theme = useTheme()
-  const { conversationId } = useConversationContext()
+  const { conversationId, members } = useConversationContext()
   const { setReplyMessage } = useActionMessageContext()
   const { conversationColor } = useConversationPreferencesContext()
   const bubbleColor = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
@@ -224,6 +224,8 @@ const MessageDataTransfer = ({
   const textColor = isAccountMessage ? 'white' : 'black'
   const position = isAccountMessage ? 'end' : 'start'
   const totalSize = Number(message.totalSize) / 1000000
+
+  const member = members.find((member) => member.contact.uri === message.author)
 
   useEffect(() => {
     if (message.fileId === '') {
@@ -467,7 +469,14 @@ const MessageDataTransfer = ({
   return (
     <>
       {preview && (
-        <MediaViewer blobUrl={preview} open={isMediaPreviewOpen} onClose={() => setIsMediaPreviewOpen(false)} />
+        <MediaViewer
+          blobUrl={preview}
+          open={isMediaPreviewOpen}
+          onClose={() => setIsMediaPreviewOpen(false)}
+          member={member}
+          handleDownload={handleDownload}
+          fileName={message.displayName}
+        />
       )}
       <MessageTooltip
         isDeleted={isDeleted}
