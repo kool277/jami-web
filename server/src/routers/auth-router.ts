@@ -341,55 +341,27 @@ authRouter.get(
 
     let key
 
-    const email = userInfo.email
-    const emailVerified = userInfo.email_verified
     const sub = userInfo.sub !== undefined ? String(userInfo.sub) : undefined
     const id = userInfo.id !== undefined ? String(userInfo.id) : undefined
 
-    key = email
-    if (!email || (emailVerified && emailVerified === false)) {
-      if (sub) {
-        key = sub
-      } else if (id) {
-        key = id
-      } else {
-        // if no email, sub or id, we cannot use this provider
-        res.status(HttpStatusCode.BadRequest).send('Cannot use this provider')
-        res.redirect(loginUrl)
-        return
-      }
+    key = sub
+    if (!sub) {
+      key = id
+    }
+
+    if (!key) {
+      res.status(HttpStatusCode.BadRequest).send('Cannot use this provider')
+      res.redirect(loginUrl)
+      return
     }
 
     // this duplicates the account storage for the same user but
     // ensure that the user can login with any of the keys
 
-    function fallBack(key: string, from: string) {
-      const account = accounts.getOpenIdAccount(key)
-      if (account !== undefined && from && accounts.getOpenIdAccount(from) === undefined) {
-        accounts.set(from, { accountId: account.accountId, service: [provider] }, 'openid') // now the user can cannot using either the sub or the email
-        accounts.save()
-      }
-    }
-
-    if (sub) {
-      fallBack(sub, email)
-    }
-    if (id) {
-      fallBack(id, email)
-    }
-
-    if (email) {
-      if (emailVerified && emailVerified === false) {
-        // we cannot use the mail as key to access
-        // the account
-        return
-      }
-      if (sub) {
-        fallBack(email, sub)
-      }
-      if (id) {
-        fallBack(email, id)
-      }
+    const savedAccount = accounts.getOpenIdAccount(key)
+    if (savedAccount !== undefined && accounts.getOpenIdAccount(key) === undefined) {
+      accounts.set(key, { accountId: savedAccount.accountId, service: [provider] }, 'openid') // now the user can cannot using either the sub or the email
+      accounts.save()
     }
 
     const jwt = await getJwt(key, name, provider)
@@ -399,6 +371,11 @@ authRouter.get(
     }
 
     const account = accounts.getOpenIdAccount(key)
+    if (account === undefined) {
+      res.status(HttpStatusCode.InternalServerError).send('Account not found')
+      res.redirect(loginUrl)
+      return
+    }
 
     if (userInfo.picture) {
       const base64Img = await getBase64Picture(userInfo.picture)
