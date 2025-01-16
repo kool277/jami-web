@@ -24,6 +24,8 @@ import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { apiUrl } from '../utils/constants'
 
+const fileCache = new Map<string, { blob: Blob; blobUrl: string }>()
+
 export const useSendFilesMutation = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
   const queryClient = useQueryClient()
@@ -109,10 +111,19 @@ export const GetDownloadedFile = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (content: Content) =>
-      axiosInstance.get(`/data/${conversationId}/${content.messageId}/${content.fileId}`, {
+    mutationFn: async (content: Content) => {
+      const cacheKey = `${conversationId}-${content.messageId}-${content.fileId}`
+      if (fileCache.has(cacheKey)) {
+        return fileCache.get(cacheKey)
+      }
+      const response = await axiosInstance.get(`/data/${conversationId}/${content.messageId}/${content.fileId}`, {
         responseType: 'blob',
-      }),
+      })
+      const blob = response.data
+      const blobUrl = URL.createObjectURL(blob)
+      fileCache.set(cacheKey, { blob, blobUrl })
+      return { blob, blobUrl }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['messages', conversationId] })
     },

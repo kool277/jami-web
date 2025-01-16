@@ -42,6 +42,10 @@ declare module '@mui/material/styles' {
       middleBoxBackgroundColor: string
       iconsColor: string
     }
+    MediaViewer: {
+      backgroundColor: string
+      fileBackgroundColor: string
+    }
     MessageCall: {
       textColorMissed: string
     }
@@ -255,6 +259,10 @@ const palettes = {
       middleBoxBackgroundColor: 'rgba(255, 255, 255, 0.5)',
       iconsColor: '#005699',
     },
+    MediaViewer: {
+      backgroundColor: 'white',
+      fileBackgroundColor: 'lightgrey',
+    },
     MessageCall: {
       textColorMissed: '#CC0022',
     },
@@ -347,6 +355,10 @@ const palettes = {
       tipsHoverBackgroundColor: 'rgba(0, 0, 0, 0.5)',
       middleBoxBackgroundColor: 'rgba(0, 0, 0, 0.8)',
       iconsColor: 'white',
+    },
+    MediaViewer: {
+      backgroundColor: '#181818',
+      fileBackgroundColor: '#393838',
     },
     MessageCall: {
       textColorMissed: '#FA2E30',

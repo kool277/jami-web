@@ -316,3 +316,14 @@ export const useConversationPreferencesMutation = (conversationId: string) => {
     },
   })
 }
+
+export const useGetAllFilesQuery = (conversationId: string) => {
+  const { axiosInstance } = useAuthContext()
+  return useQuery({
+    queryKey: ['conversations', conversationId, 'files'],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get(`/conversations/${conversationId}/files`)
+      return data
+    },
+  })
+}

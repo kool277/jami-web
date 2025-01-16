@@ -127,6 +127,18 @@ export interface JamiSwig {
   conversationInfos(accountId: string, conversationId: string): StringMap
   getConversationMembers(accountId: string, conversationId: string): VectMap
   removeConversation(accountId: string, conversationId: string): void
+  searchConversation(
+    accountId: string,
+    conversationId: string,
+    author: string,
+    lastId: string,
+    regexSearch: string,
+    type: string,
+    after: number,
+    before: number,
+    maxResult: number,
+    flag: number,
+  ): boolean
 
   getConversationRequests(accountId: string): VectMap
   acceptConversationRequest(accountId: string, conversationId: string): void

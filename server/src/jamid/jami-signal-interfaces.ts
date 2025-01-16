@@ -223,3 +223,10 @@ export interface DeviceRevocationEnded {
   device: string
   state: DeviceRevocationState
 }
+
+export interface MessageFound {
+  id: number
+  accountId: string
+  conversationId: string
+  messages: Message[]
+}

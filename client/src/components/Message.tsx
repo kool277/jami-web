@@ -235,20 +235,20 @@ const MessageDataTransfer = ({
 
   const getAudioBlob = useCallback(async () => {
     const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
-    if (!result.data) {
+    if (!result) {
       return
     }
-    const blob = new Blob([result.data], { type: 'audio/' + extension.toLowerCase() })
+    const blob = new Blob([result.blob], { type: 'audio/' + extension.toLowerCase() })
     setAudioBlob(blob)
   }, [downloadFile, message.id, message.fileId, extension])
 
   const getPreview = useCallback(
     async (isImage: boolean) => {
       const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
-      if (!result.data) {
+      if (!result) {
         return
       }
-      const blob = new Blob([result.data], {
+      const blob = new Blob([result.blob], {
         type: isImage ? 'image/' + extension.toLowerCase() : 'video/' + extension.toLowerCase(),
       })
       setPreview(URL.createObjectURL(blob))
@@ -315,6 +315,14 @@ const MessageDataTransfer = ({
     getPreview,
   ])
 
+  useEffect(() => {
+    return () => {
+      if (preview) {
+        URL.revokeObjectURL(preview)
+      }
+    }
+  }, [preview])
+
   if (message.fileId === undefined) {
     return null
   }
@@ -360,10 +368,10 @@ const MessageDataTransfer = ({
       document.body.removeChild(link)
     } else {
       const result = await downloadFile.mutateAsync({ messageId: message.id, fileId: message.fileId || '' })
-      if (!result.data) {
+      if (!result) {
         return
       }
-      const url = URL.createObjectURL(new Blob([result.data]))
+      const url = result.blobUrl
       const link = document.createElement('a')
       link.href = url
       link.setAttribute('href', url)

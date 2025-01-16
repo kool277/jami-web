@@ -16,28 +16,103 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import AttachFileIcon from '@mui/icons-material/AttachFile'
 import CloseIcon from '@mui/icons-material/Close'
 import DownloadIcon from '@mui/icons-material/Download'
 import LinkIcon from '@mui/icons-material/Link'
-import { Box, Modal, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Modal, Typography, useMediaQuery, useTheme } from '@mui/material'
+import dayjs from 'dayjs'
+import { useTranslation } from 'react-i18next'
 
 import { ConversationMember } from '../models/conversation-member'
+import AudioPlayer from './AudioPlayer'
 import ConversationAvatar from './ConversationAvatar'
 import EllipsisMiddle from './EllipsisMiddle'
 
 interface MediaViewerProps {
+  totalSize?: string
   fileName?: string
   blobUrl: string
+  blob?: Blob
   open: boolean
   onClose: () => void
   member?: ConversationMember
   handleDownload?: () => void
+  type?: string
+  timeStamp?: string
 }
 
-export default function MediaViewer({ fileName, blobUrl, open, onClose, member, handleDownload }: MediaViewerProps) {
+export default function MediaViewer({
+  totalSize,
+  fileName,
+  blobUrl,
+  open,
+  onClose,
+  member,
+  handleDownload,
+  type,
+  timeStamp,
+  blob,
+}: MediaViewerProps) {
   const theme = useTheme()
   const isMedium = useMediaQuery(theme.breakpoints.down('sm'))
   const isXs = useMediaQuery(theme.breakpoints.down(400))
+  const fileType = type || 'image'
+
+  const mediaStyle = {
+    maxWidth: '90%',
+    maxHeight: '80%',
+    border: 'none',
+    borderRadius: '10px',
+    marginTop: '10px',
+  }
+
+  const displayFile = () => {
+    switch (fileType) {
+      case 'pdf':
+        return (
+          <iframe
+            src={blobUrl}
+            style={{
+              border: 'none',
+              width: '100%',
+              height: '100%',
+              maxHeight: '80%',
+              maxWidth: '90%',
+              borderRadius: '10px',
+            }}
+          />
+        )
+      case 'text':
+        return (
+          <iframe
+            src={blobUrl}
+            style={{
+              backgroundColor: '#c4c4c2',
+              border: 'none',
+              width: '100%',
+              height: '100%',
+              maxHeight: '80%',
+              maxWidth: '90%',
+              borderRadius: '10px',
+            }}
+          />
+        )
+      case 'image':
+        return <img src={blobUrl} alt="media" style={mediaStyle} />
+      case 'video':
+        return <video style={mediaStyle} src={blobUrl} controls />
+      case 'audio':
+        return <AudioPlayer blob={blob} isAccountMessage={true} />
+      case 'none':
+        return <DefaultFile displayName={fileName || 'File'} totalSize={totalSize || ''} />
+      default:
+        return <img src={blobUrl} alt="media" style={mediaStyle} />
+    }
+  }
+
+  const displayTime = dayjs.unix(Number(timeStamp))
+  const formattedTime = displayTime.format('YYYY-MM-DD HH:mm')
 
   return (
     <Modal
@@ -72,6 +147,12 @@ export default function MediaViewer({ fileName, blobUrl, open, onClose, member, 
                 {member.contact.uri !== member.getDisplayName() && (
                   <Box maxWidth={isMedium ? '115px' : '160px'} sx={{ color: 'white', fontSize: '11px' }}>
                     {isMedium ? <EllipsisMiddle text={member.contact.uri} /> : member.contact.uri}
+                  </Box>
+                )}
+                {formattedTime && (
+                  <Box sx={{ color: 'white', fontSize: '11px' }}>
+                    {'Sent the '}
+                    {formattedTime}
                   </Box>
                 )}
               </Box>
@@ -110,17 +191,7 @@ export default function MediaViewer({ fileName, blobUrl, open, onClose, member, 
             marginTop: '50px',
           }}
         >
-          <img
-            src={blobUrl}
-            alt="media"
-            style={{
-              maxWidth: '90%',
-              maxHeight: isMedium ? '80%' : '80%',
-              border: 'none',
-              borderRadius: '10px',
-              marginTop: '10px',
-            }}
-          />
+          {displayFile()}
 
           {fileName && (
             <Box sx={{ textAlign: 'center', color: 'white', marginTop: '10px', maxWidth: '85%' }}>
@@ -134,5 +205,75 @@ export default function MediaViewer({ fileName, blobUrl, open, onClose, member, 
         </Box>
       </>
     </Modal>
+  )
+}
+
+interface DefaultFileProps {
+  displayName: string
+  totalSize: string
+}
+
+const DefaultFile = ({ displayName, totalSize }: DefaultFileProps) => {
+  const extension = displayName.includes('.') ? displayName.split('.').slice(1).join('.') : ''
+  const theme = useTheme()
+  const { t } = useTranslation()
+
+  return (
+    <Box
+      sx={{
+        backgroundColor: theme.MediaViewer.backgroundColor,
+        height: '200px',
+        width: '300px',
+        borderRadius: '8px',
+        display: 'flex',
+        flexDirection: 'row',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '10px',
+          width: '100%',
+          height: '100%',
+          borderRadius: '10px',
+          justifyContent: 'center',
+          alignItems: 'center',
+          alignContent: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            backgroundColor: theme.MediaViewer.fileBackgroundColor,
+            fontSize: '80px',
+            width: '80px',
+            height: '80px',
+            borderRadius: '10px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <AttachFileIcon sx={{ fontSize: '50px', color: theme.MessageDataContent.textColor }} />
+        </Box>
+      </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          width: '100%',
+          height: '100%',
+          padding: '20px',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          gap: '10px',
+          fontSize: '16px',
+          pl: '0px',
+          marginLeft: '-8px',
+        }}
+      >
+        <Typography variant="body2">{t('extension') + extension}</Typography>
+        <Typography variant="body2">{t('size') + totalSize}</Typography>
+      </Box>
+    </Box>
   )
 }

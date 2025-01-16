@@ -129,7 +129,6 @@ dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, re
   const acceptedAudioTypes = ['ogg', 'wav', 'mpeg', 'mp4', 'aac', 'flac']
   const acceptedImageTypes = ['apng', 'avif', 'jpg', 'JPG', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
 
-  // file is stored in /home/<username>/.local/share/jami/:accountId/conversation_data/:conversationId/:fileId
   const path = os.homedir() + '/.local/share/jami/' + accountId + '/conversation_data/' + conversationId + '/' + fileId
 
   if (fs.existsSync(path)) {
@@ -141,21 +140,18 @@ dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, re
       res.setHeader('Content-Type', 'image/' + extension)
     }
 
-    res.sendFile(path, (err) => {
+    return res.sendFile(path, (err) => {
       if (err) {
         console.error('Error sending file:', err)
-        res.status(HttpStatusCode.InternalServerError).send('Error sending file')
+        return res.status(HttpStatusCode.InternalServerError).send('Error sending file')
       }
     })
-    return
   }
 
-  // if the file is not found in the local storage, we download it from the daemon
   const status = jamid.downloadFile(accountId, conversationId, interactionId, fileId, downloadPathOnServer)
 
   if (status === 0) {
-    res.status(HttpStatusCode.NotFound).send('File not found')
-    return
+    return res.status(HttpStatusCode.NotFound).send('File not found')
   }
 
   let code = await jamid.waitForDataTransferEvent(accountId, conversationId, interactionId, fileId)
@@ -172,16 +168,14 @@ dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, re
 
   if (errors.includes(code.eventCode)) {
     console.error('Error code:', code)
-    res.status(HttpStatusCode.NotFound).send('Error ' + DataTransferEventCode[code.eventCode])
-    return
+    return res.status(HttpStatusCode.NotFound).send('Error ' + DataTransferEventCode[code.eventCode])
   }
 
   while (code.eventCode !== DataTransferEventCode.finished) {
     code = await jamid.waitForDataTransferEvent(accountId, conversationId, interactionId, fileId)
     if (errors.includes(code.eventCode)) {
       console.error('Error code:', code)
-      res.status(HttpStatusCode.NotFound).send('Error ' + DataTransferEventCode[code.eventCode])
-      return
+      return res.status(HttpStatusCode.NotFound).send('Error ' + DataTransferEventCode[code.eventCode])
     }
   }
 
@@ -191,10 +185,10 @@ dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, re
   } else if (acceptedImageTypes.includes(extension)) {
     res.setHeader('Content-Type', 'image/' + extension)
   }
-  res.sendFile(path, (err) => {
+  return res.sendFile(path, (err) => {
     if (err) {
       console.error('Error sending file:', err)
-      res.status(HttpStatusCode.InternalServerError).send('Error sending file')
+      return res.status(HttpStatusCode.InternalServerError).send('Error sending file')
     }
   })
 })

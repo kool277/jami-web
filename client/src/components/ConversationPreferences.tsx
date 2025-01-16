@@ -35,6 +35,7 @@ import {
   useTheme,
 } from '@mui/material'
 import { motion } from 'framer-motion'
+import { Message } from 'jami-web-common'
 import { memo, ReactElement, SetStateAction, useMemo, useState } from 'react'
 import { BlockPicker } from 'react-color'
 import { useTranslation } from 'react-i18next'
@@ -48,15 +49,18 @@ import { useBlockContactMutation, useContactQuery } from '../services/contactQue
 import {
   useConversationInfosMutation,
   useConversationPreferencesMutation,
+  useGetAllFilesQuery,
   useRemoveMemberFromSwarm,
 } from '../services/conversationQueries'
 import { messageColors } from '../utils/messagecolor'
 import ContactDetailDialog from './ContactDetailDialog'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
 import ConversationAvatar from './ConversationAvatar'
+import ConversationSettingsFileItem from './ConversationSettingsFileItem'
 import { ConfirmationDialog, useDialogHandler } from './Dialog'
 import EllipsisMiddle from './EllipsisMiddle'
 import { PopoverListItemData } from './PopoverList'
+import ProcessingRequest from './ProcessingRequest'
 import RemoveConversationDialog from './RemoveComversationDialog'
 import { BlockContactIcon, KickMemberIcon, MessageIcon, PersonIcon } from './SvgIcon'
 
@@ -540,8 +544,45 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
 const Files = () => {
   // TODO : Fetch store blob url of files alredy loaded
   // in the conversation to avoid loading them again
+  const { conversationId } = useConversationContext()
+  const filesQuery = useGetAllFilesQuery(conversationId)
+  const files = filesQuery.data
 
-  return <Box>Under construction ...</Box>
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
+
+  if (filesQuery.isLoading) {
+    ;<ProcessingRequest open={true} />
+  }
+
+  return (
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '8px',
+        width: '100%',
+        height: isMobile ? 'calc(70vh - 30px)' : '70vh',
+        overflowY: 'auto',
+        paddingBottom: '8px',
+        overflowX: 'hidden',
+      }}
+    >
+      {files?.map((file: Message) => {
+        return (
+          <ConversationSettingsFileItem
+            key={file.id + file.fileId}
+            displayName={file?.displayName || ''}
+            timeStamp={file.timestamp}
+            totalSize={Number(file?.totalSize) || 0}
+            fileId={file?.fileId || ''}
+            author={file.author}
+            messageId={file.id}
+          />
+        )
+      })}
+    </Box>
+  )
 }
 
 const Settings = () => {

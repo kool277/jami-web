@@ -354,3 +354,12 @@ conversationRouter.delete('/delete/:conversationId/:messageId', (req, res) => {
   jamid.deleteConversationMessage(res.locals.accountId, req.params.conversationId, req.params.messageId)
   res.sendStatus(HttpStatusCode.NoContent)
 })
+
+conversationRouter.get('/:conversationId/files', async (req, res) => {
+  try {
+    const files = await jamid.getAllFiles(res.locals.accountId, req.params.conversationId)
+    res.send(files)
+  } catch (e) {
+    res.status(HttpStatusCode.InternalServerError).send('Error getting files')
+  }
+})

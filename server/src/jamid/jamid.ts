@@ -66,6 +66,7 @@ import {
   DeviceRevocationEnded,
   IncomingAccountMessage,
   KnownDevicesChanged,
+  MessageFound,
   NameRegistrationEnded,
   ProfileReceived,
   ReactionAdded,
@@ -247,6 +248,16 @@ export class Jamid {
       onSwarmMessageUpdated.next({ accountId, conversationId, message })
     }
 
+    const onMessageFound = new Subject<MessageFound>()
+    handlers.MessagesFound = (id: number, accountId: string, conversationId: string, messages: Message[]) => {
+      onMessageFound.next({
+        id,
+        accountId,
+        conversationId,
+        messages,
+      })
+    }
+
     const onReactionAdded = new Subject<ReactionAdded>()
     handlers.ReactionAdded = (accountId: string, conversationId: string, messageId: string, reaction: Reaction) =>
       onReactionAdded.next({ accountId, conversationId, messageId, reaction })
@@ -302,6 +313,7 @@ export class Jamid {
       onProfileReceived: onProfileReceived.asObservable(),
       onUserSearchEnded: onUserSearchEnded.asObservable(),
       onDeviceRevocationEnded: onDeviceRevocationEnded.asObservable(),
+      onMessageFound: onMessageFound.asObservable(),
     }
 
     this.setupSignalHandlers()
@@ -494,6 +506,55 @@ export class Jamid {
 
   getConversationInfos(accountId: string, conversationId: string): ConversationInfos {
     return stringMapToRecord(this.jamiSwig.conversationInfos(accountId, conversationId)) as unknown as ConversationInfos
+  }
+
+  searchConversation(
+    accountId: string,
+    conversationId: string,
+    author: string = '',
+    lastId: string = '',
+    regexSearch: string = '',
+    type: string = '',
+    after: number = 0,
+    before: number = 0,
+    maxResult: number = 1,
+    flag: number = 0,
+  ) {
+    const searchId = this.jamiSwig.searchConversation(
+      accountId,
+      conversationId,
+      author,
+      lastId,
+      regexSearch,
+      type,
+      after,
+      before,
+      maxResult,
+      flag,
+    )
+    console.log('searchId', searchId)
+  }
+
+  async getAllFiles(accountId: string, conversationId: string): Promise<Message[]> {
+    const searchId = this.jamiSwig.searchConversation(
+      accountId,
+      conversationId,
+      '',
+      '',
+      '',
+      'application/data-transfer+json',
+      0,
+      0,
+      0,
+      0,
+    )
+
+    return firstValueFrom(
+      this.events.onMessageFound.pipe(
+        filter((value) => value.id === Number(searchId)),
+        map((value) => value.messages),
+      ),
+    )
   }
 
   getConversationMembers(accountId: string, conversationId: string): ConversationMemberInfos[] {
