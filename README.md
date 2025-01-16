@@ -226,7 +226,7 @@ The application is now `running on port 3000` of your local machine.
    ```
    docker run -it \
        -p 3000:3000 \
-       -p 5000:5000 \
+       -p 5002:5002 \
        --volume ${PWD}/client/src:/web-client/client/src \
        --volume ${PWD}/server/src:/web-client/server/src \
        --volume ${PWD}/client/.env.development:/web-client/client/.env.development \

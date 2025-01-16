@@ -402,7 +402,7 @@ adminRouter.get(
 
     const protocol = req.secure ? 'https' : 'http'
     const host = req.get('host')
-    const baseUrl = devMode ? 'http://localhost:5000' : `${protocol}://${host}`
+    const baseUrl = devMode ? 'http://localhost:5002' : `${protocol}://${host}`
 
     if (providerConfig === undefined) {
       res.status(HttpStatusCode.InternalServerError).send('Provider configuration not found')

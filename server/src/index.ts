@@ -35,7 +35,7 @@ const isDev = process.env.NODE_ENV === 'development' ? true : false
 
 log.setLevel(isDev ? 'trace' : 'error')
 
-const port: string | number = isDev ? 5000 : 8080
+const port: string | number = isDev ? 5002 : 8080
 
 await Container.get(SigningKeys).build()
 const jamid = Container.get(Jamid)
