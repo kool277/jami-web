@@ -569,28 +569,41 @@ export const TipIcon = (props: SvgIconProps) => {
 export const JamiIdIcon = (props: SvgIconProps) => {
   const theme = useTheme()
   return (
-    <SvgIcon {...props} viewBox="0 0 30 30" style={{ color: theme.WelcomePage.iconsColor }}>
-      <g transform="translate(7.328 6.159)">
-        <g transform="translate(0 0)">
+    <SvgIcon {...props} viewBox="0 0 24 24" sx={{ enableBackground: 'new 0 0 24 24;' }}>
+      <g>
+        <g id="Group_174" transform="translate(5.863 4.876)">
+          <g id="Group_171" transform="translate(0 0)">
+            <g id="Path_302">
+              <path
+                id="Path_272"
+                d="M1.6,4.6L1.6,4.6c0.2,0,0.5-0.1,0.7-0.2C2.4,4.2,2.5,4,2.5,3.8c0-0.2-0.1-0.4-0.2-0.5
+					C2.1,3.2,1.9,3.1,1.6,3.1h0C1.4,3.1,1.2,3.2,1,3.3c-0.3,0.3-0.3,0.7,0,1c0,0,0,0,0,0l0,0C1.2,4.5,1.4,4.6,1.6,4.6L1.6,4.6z"
+              />
+            </g>
+          </g>
+          <g id="Group_172" transform="translate(0.286 0.049)">
+            <g id="Path_303">
+              <path
+                id="Path_273"
+                d="M0.7,11.1h6c0.8,0,1.6-0.2,2.4-0.5c0.6-0.3,1.2-0.8,1.6-1.4c0.7-1.3,0.7-2.9,0-4.2
+					c-0.4-0.6-0.9-1.1-1.6-1.4C8.4,3.2,7.6,3.1,6.7,3.1H4.5v5.7h1.4V4.1h0.8c1.7-0.1,3.2,1.1,3.3,2.8c0.1,1.7-1.1,3.1-2.8,3.3
+					c0,0,0,0,0,0c-0.2,0-0.3,0-0.5,0H2v-4H0.7v4l0,0L0.7,11.1z"
+              />
+            </g>
+          </g>
+        </g>
+        <g id="Rectangle_103">
           <path
-            d="M-2124.191-3452.351h.007a1.335,1.335,0,0,0,.972-.341,1.106,1.106,0,0,0,.351-.847.958.958,0,0,0-.34-.76,1.407,1.407,0,0,0-.983-.337h-.012a1.365,1.365,0,0,0-.977.342,1.1,1.1,0,0,0-.053,1.549l.055.056a1.364,1.364,0,0,0,.973.341Z"
-            transform="translate(2125.521 3454.638)"
+            style={{ fill: 'none', stroke: theme.WelcomePage.iconsColor, strokeMiterlimit: 20 }}
+            className="st0"
+            d="M6.2,4.1h11.7c2.3,0,4.2,1.9,4.2,4.2v11.7l0,0H6.2c-2.3,0-4.2-1.9-4.2-4.2V8.2C2,5.9,3.9,4.1,6.2,4.1z"
           />
         </g>
-        <g transform="translate(0.358 0.062)">
-          <path
-            d="M-2123.846-3442.183h9.042a8,8,0,0,0,3.567-.767,5.651,5.651,0,0,0,2.353-2.118,6.555,6.555,0,0,0,0-6.4,5.651,5.651,0,0,0-2.351-2.114,7.975,7.975,0,0,0-3.562-.766h-3.427v8.653h2.057v-7.142h1.216a4.586,4.586,0,0,1,4.953,4.187,4.586,4.586,0,0,1-4.187,4.954,4.585,4.585,0,0,1-.772,0h-6.942v-6.035h-1.946v6.035h0Z"
-            transform="translate(2123.846 3454.35)"
-          />
-        </g>
-      </g>
-      <g className="a">
-        <path className="c" d="M5,0H25a5,5,0,0,1,5,5V24a0,0,0,0,1,0,0H5a5,5,0,0,1-5-5V5A5,5,0,0,1,5,0Z" />
-        <path d="M5,.75H25A4.25,4.25,0,0,1,29.25,5V22.5a.75.75,0,0,1-.75.75H5A4.25,4.25,0,0,1,.75,19V5A4.25,4.25,0,0,1,5,.75Z" />
       </g>
     </SvgIcon>
   )
 }
+
 export const DownloadFileIcon = (props: SvgIconProps) => {
   const theme = useTheme()
   return (

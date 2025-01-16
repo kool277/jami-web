@@ -182,7 +182,7 @@ export default function WelcomePage() {
           }}
         >
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <JamiLogo width={'auto'} height={'120px'} style={{ marginTop: '100px', marginBottom: '150px' }} />
+            <JamiLogo width={'auto'} height={'80px'} style={{ marginTop: '100px', marginBottom: '150px' }} />
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '-9vh' }}>
             <Typography color={'black'}>{t('welcome_page_text')}</Typography>
@@ -191,20 +191,23 @@ export default function WelcomePage() {
             <Box
               sx={{
                 ...middleBoxStyle,
+                maxWidth: isMedium ? '220px' : 'unset',
                 width: displayedInfo === account.getRegisteredName() ? '130px' : '400px',
               }}
               borderRadius={'5px 2px 2px 5px'}
             >
               <JamiIdIcon sx={{ marginBottom: '-4px', marginRight: '5px' }} />
-              <EllipsisMiddle text={displayedInfo} />
+              <Box maxWidth={isMedium ? '170px' : 'unset'}>
+                <EllipsisMiddle text={displayedInfo} />
+              </Box>
             </Box>
             <Box sx={{ ...middleBoxStyle, gap: '8px', width: '50px' }} borderRadius={'2px 5px 5px 2px'} width={'6%'}>
               <TwoSheetsIcon
-                sx={{ width: '20px', height: 'auto', '&:hover': { cursor: 'pointer' }, pl: '4px' }}
+                sx={{ width: '20px', height: '20px', '&:hover': { cursor: 'pointer' }, pl: '4px' }}
                 onClick={handleCopy}
               />
               <InfoIcon
-                sx={{ width: '20px', height: 'auto', '&:hover': { cursor: 'pointer' }, pr: '4px' }}
+                sx={{ width: '20px', height: '20px', '&:hover': { cursor: 'pointer' }, pr: '4px' }}
                 onClick={handleMoreInfo}
               />
             </Box>
@@ -232,7 +235,7 @@ export default function WelcomePage() {
               hiddenTitle=""
               onRemove={() => {}}
               onClickAction={() => {
-                window.location.assign('https://jami.net/whydonate/')
+                window.open('https://jami.net/whydonate/')
               }}
             ></WelcomeBox>
             {!isDisabled &&
@@ -351,7 +354,7 @@ export default function WelcomePage() {
               {t('about_jami_text_warranty')}
             </Typography>
             <Typography variant="body2" sx={{ marginLeft: '5%', marginTop: '2%' }}>
-              © 2015-2024 <Link href="https://savoirfairelinux.com/">Savoir-faire Linux</Link>
+              © 2015-2025 <Link href="https://savoirfairelinux.com/">Savoir-faire Linux</Link>
             </Typography>
           </Box>
           <Box
@@ -390,14 +393,14 @@ export default function WelcomePage() {
           <Box sx={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '2%' }}>
             <Button
               onClick={() => {
-                window.location.assign('https://jami.net/contribute/')
+                window.open('https://jami.net/contribute/', '_blank')
               }}
             >
               {t('contribute')}
             </Button>
             <Button
               onClick={() => {
-                window.location.assign('mailto:jami@gnu.org')
+                window.open('mailto:jami@gnu.org')
               }}
             >
               {t('comment')}
@@ -449,8 +452,8 @@ const WelcomeBox = ({ icon, title, text, hiddenTitle, hiddenText, onRemove, onCl
               display: 'flex',
               flexDirection: 'column',
               backgroundColor: theme.WelcomePage.tipsBackgroundColor,
-              width: '300px',
-              height: '220px',
+              width: '260px',
+              height: '200px',
               margin: '10px',
               transition: 'transform 0.6s',
               transformStyle: 'preserve-3d',
@@ -487,8 +490,8 @@ const WelcomeBox = ({ icon, title, text, hiddenTitle, hiddenText, onRemove, onCl
               display: 'flex',
               flexDirection: 'column',
               backgroundColor: theme.WelcomePage.tipsBackgroundColor,
-              width: '300px',
-              height: '220px',
+              width: '260px',
+              height: '200px',
               margin: '10px',
               transition: 'transform 0.6s',
               transformStyle: 'preserve-3d',
