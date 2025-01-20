@@ -21,7 +21,7 @@ import { Theme, useTheme } from '@mui/material/styles'
 import { AdminSettingSelection } from 'jami-web-common'
 import { FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 
 import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
 import jamiLogoIcon from '../icons/jamiLogoIcon.svg'
@@ -91,6 +91,20 @@ export default function AdminLogin() {
             &nbsp;&nbsp;
             <GroupAddRounded />
           </Fab>
+        </Box>
+        <Box
+          sx={{
+            mt: theme.typography.pxToRem(100),
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography variant="body1" fontSize={13}>
+            <Link style={{ color: theme.ChatInterface.inputColor }} to={'/'}>
+              {t('admin_login_to_main')}
+            </Link>
+          </Typography>
         </Box>
       </Box>
     </UnconnectedUserLayout>
