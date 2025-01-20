@@ -17,7 +17,7 @@
  */
 import Check from '@mui/icons-material/Check'
 import RefreshOutlined from '@mui/icons-material/RefreshOutlined'
-import { Avatar, AvatarProps, Box, Dialog, Stack, Typography } from '@mui/material'
+import { Avatar, AvatarProps, Box, Dialog, Stack, Typography, useTheme } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
@@ -78,6 +78,7 @@ export const AvatarEditor = () => {
   const [avatarHandler, setAvatarHandler] = useState<FileHandler | null>(null)
   const photoTakerHandler = useDialogHandler()
   const updateAvatarMutation = useUpdateAvatarMutation()
+  const theme = useTheme()
 
   const onFilesDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -144,12 +145,17 @@ export const AvatarEditor = () => {
           alignItems="center"
           justifyContent="center"
           position="absolute"
-          height="100%"
+          height="200px"
+          width="200px"
           zIndex={10}
-          spacing="26px"
-          sx={{ backgroundColor: 'white' }}
+          spacing={'26px'}
+          sx={{
+            backgroundColor: theme.ChatInterface.panelColor,
+            borderRadius: '10px',
+            boxShadow: '5px 5px 10px 0px #1f1f1f',
+          }}
         >
-          <Typography variant="h3">{t('change_picture')}</Typography>
+          <Typography sx={{ fontSize: '23px' }}>{t('change_picture')}</Typography>
           <Stack direction="row" alignItems="center" spacing="9px">
             <TakePictureButton onClick={openPhotoTaker} />
             <UploadPictureButton onClick={openFilePicker} />
