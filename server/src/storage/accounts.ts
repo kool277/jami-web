@@ -136,8 +136,8 @@ export class Accounts {
     delete this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
   }
 
-  extendSessionIfGuest(username: string) {
-    const guestExpiration = this.accounts.guest[username]
+  extendSessionIfGuest(accountId: string) {
+    const guestExpiration = this.accounts.guest[accountId]
     if (guestExpiration === undefined) {
       return
     }

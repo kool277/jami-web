@@ -27,15 +27,17 @@ import { NameRegistrationEndedState, RegistrationState } from '../jamid/state-en
 import { Accounts } from '../storage/accounts.js'
 import { AdminAccount } from '../storage/admin-account.js'
 import { OpenIdProviders } from '../storage/openid-providers.js'
+import { clearGuest, clearGuests } from '../utils/guests.js'
 import { signJwt, signJwtWithExpiration } from '../utils/jwt.js'
 import { exchangeCodeForToken, exchangeTokenForUserInfo, getBase64Picture, getJwt } from '../utils/openid.js'
-
 const jamid = Container.get(Jamid)
 const accounts = Container.get(Accounts)
 
 const config = Container.get(AdminAccount)
 const providers = Container.get(OpenIdProviders)
 export const authRouter = Router()
+
+clearGuests()
 
 authRouter.post(
   '/new-account',
@@ -110,7 +112,7 @@ authRouter.post(
       const jwt = await signJwtWithExpiration(accountId, '2h')
       const sessionTime = 2 * 60 * 60 * 1000
       const date = Date.now() + sessionTime
-      accounts.set(username, date.toString(), 'guest')
+      accounts.set(accountId, date.toString(), 'guest')
       accounts.save()
       res.send({ accessToken: jwt })
       setTimeout(() => {
@@ -210,36 +212,20 @@ authRouter.post(
   }),
 )
 
+// not used for now
 authRouter.post(
   '/guest/extend',
   asyncHandler(async (req, res) => {
     // extend the token for 24h
     const accountId = res.locals.accountId
-    const details = jamid.getAccountDetails(accountId)
-    const username = details['Account.username']
     const jwt = await signJwtWithExpiration(accountId, '2h')
     const date = Date.now() + 2 * 60 * 60 * 1000
-    accounts.set(username, date.toString(), 'guest')
+    accounts.set(accountId, date.toString(), 'guest')
     accounts.save()
     res.send({ accessToken: jwt })
   }),
 )
 
-function clearGuest(accId: string, username: string) {
-  const guests = accounts.getGuests()
-  if (guests[username] !== undefined) {
-    const date = Number(guests[username])
-    if (date < Date.now()) {
-      jamid.removeAccount(accId)
-      accounts.remove(username, 'guest')
-      accounts.save()
-      return
-    }
-    setTimeout(() => {
-      clearGuest(accId, username)
-    }, date - Date.now())
-  }
-}
 /*
  *  OAUTH2 FLOW WITH ANY PROVIDER
  */

@@ -18,10 +18,8 @@
 import { NextFunction } from 'express'
 import { Container } from 'typedi'
 
-import { Jamid } from '../jamid/jamid.js'
 import { Accounts } from '../storage/accounts.js'
 
-const jamid = Container.get(Jamid)
 const accounts = Container.get(Accounts)
 
 export const extendIfGuest = function (req: any, res: any, next: NextFunction) {
@@ -30,16 +28,7 @@ export const extendIfGuest = function (req: any, res: any, next: NextFunction) {
     next()
     return
   }
-  const details = jamid.getAccountDetails(accountId)
-  if (details === undefined) {
-    next()
-    return
-  }
-  const username = details['Account.username']
-  if (username === undefined) {
-    next()
-    return
-  }
-  accounts.extendSessionIfGuest(username)
+
+  accounts.extendSessionIfGuest(accountId)
   next()
 }
