@@ -99,7 +99,7 @@ export default function AdminConfigureNameServer() {
           <Box
             sx={{
               textAlign: 'start',
-              marginTop: isMobile ? '15%' : '8%',
+              marginTop: isMobile ? '30%' : '8%',
               display: 'flex',
               flexDirection: 'row',
               width: '100%',
@@ -117,8 +117,15 @@ export default function AdminConfigureNameServer() {
             </Box>
           </Box>
         </Box>
-        <Box sx={{ marginTop: isMobile ? '20%' : '10%' }}>
-          <Typography sx={{ fontSize: 'smaller' }}>{t('setting_can_be_changed_later')}</Typography>
+        <Box
+          sx={{
+            marginTop: isMobile ? '20%' : '10%',
+            width: isMobile ? '90vw' : 'unset',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography sx={{ fontSize: 'smaller', maxWidth: '500px' }}>{t('setting_can_be_changed_later')}</Typography>
         </Box>
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '20%' }}>

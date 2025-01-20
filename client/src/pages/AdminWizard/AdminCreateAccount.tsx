@@ -61,7 +61,7 @@ export default function AdminSetup() {
   const mainContentBoxStyle = {
     textAlign: 'center',
     marginBottom: 16,
-    marginTop: isMobile ? '30%' : '-15%',
+    marginTop: isMobile ? '30%' : '-40px',
   }
 
   return (
@@ -72,10 +72,10 @@ export default function AdminSetup() {
       }
     >
       <Box sx={mainContentBoxStyle}>
-        <div>
+        <div style={{ marginBottom: 16 }}>
           <Input value="admin" name="username" autoComplete="username" disabled />
         </div>
-        <div>
+        <div style={{ marginBottom: 4 }}>
           <Input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -99,7 +99,7 @@ export default function AdminSetup() {
           />
         </div>
       </Box>
-      <Box style={{ textAlign: 'center', marginTop: '20%', textWrap: 'nowrap' }}>
+      <Box style={{ textAlign: 'center', marginTop: '-24px', textWrap: 'nowrap' }}>
         <Fab variant="extended" color="primary" type="submit" disabled={isPending} onClick={handleSubmit}>
           <GroupAddRounded />
           <Typography sx={{ marginLeft: '4%' }}>{t('admin_page_create_button')}</Typography>

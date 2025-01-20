@@ -46,10 +46,6 @@ export default function UnconnectedUserLayout({ pageName, children, message }: U
     borderRadius: isMobile ? '0' : 'auto',
   }
 
-  const cardHeaderStyle = {
-    marginTop: isMobile ? '0' : '-5%',
-  }
-
   const backgroundStyle = {
     width: '100%',
     height: '100%',
@@ -70,7 +66,7 @@ export default function UnconnectedUserLayout({ pageName, children, message }: U
           transition={{ duration: 0.5 }}
         >
           <Card sx={cardStyle}>
-            <CardHeader sx={cardHeaderStyle} title={pageName} />
+            <CardHeader title={pageName} />
             <CardContent
               sx={
                 isMobile
