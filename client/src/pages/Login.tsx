@@ -132,7 +132,13 @@ function LoginForm() {
         <Form
           method="post"
           id="login-form"
-          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: '20px',
+          }}
         >
           <UsernameInput
             data-cy="username-input"
@@ -146,11 +152,11 @@ function LoginForm() {
             value={password}
             onChange={handlePassword}
             tooltipTitle={t('login_form_password_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '-32px' }}
+            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '-42px' }}
           />
           <FormControl
             sx={{
-              marginTop: '-16px',
+              marginTop: '-36px',
               width: '100%',
               alignItems: 'center',
               justifyContent: 'space-between',
