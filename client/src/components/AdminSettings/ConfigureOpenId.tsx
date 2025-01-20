@@ -129,7 +129,7 @@ export default function ConfigureOpenId() {
     <Box
       sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', alignContent: 'center' }}
     >
-      <Card sx={{ width: '420px', height: '580px' }}>
+      <Card sx={{ width: '420px', height: '580px', marginTop: '-50px' }}>
         <CardHeader
           title={
             <Typography sx={{ marginLeft: '-8px' }} variant="h3">
@@ -139,7 +139,9 @@ export default function ConfigureOpenId() {
           subheader={
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
               {'OAuth2 Provider'}
-              <a href={provider.data.documentation}>{'Documentation'}</a>
+              <a href={provider.data.documentation} target="_blank" rel="noopener noreferrer">
+                {'Documentation'}
+              </a>
             </Box>
           }
         ></CardHeader>

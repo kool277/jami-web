@@ -25,6 +25,7 @@ import {
   Switch,
   Theme,
   Typography,
+  useMediaQuery,
   useTheme,
 } from '@mui/material'
 import { ChangeEvent, useContext, useEffect, useState } from 'react'
@@ -53,6 +54,7 @@ const JamsAuthMethod = () => {
   const removeJamsUrlMutation = useRemoveJamsUrl()
   const [jamsUrl, setJamsUrl] = useState<string>('')
   const { setAlertContent } = useContext(AlertSnackbarContext)
+  const isWrapping = useMediaQuery(theme.breakpoints.down(500))
 
   const jamsCurrentUrl = jamsUrlQuery.data
 
@@ -142,14 +144,22 @@ const JamsAuthMethod = () => {
               variant="contained"
               type="submit"
               onClick={submitNewJamsUrl}
-              sx={{ mt: theme.typography.pxToRem(20), marginLeft: theme.typography.pxToRem(10), marginTop: '-4%' }}
+              sx={{
+                mt: theme.typography.pxToRem(20),
+                marginLeft: theme.typography.pxToRem(10),
+                marginTop: isWrapping ? '5px' : '-15px',
+              }}
             >
               {t('save_button')}
             </Button>
             <Button
               variant="contained"
               onClick={removeJamsUrl}
-              sx={{ mt: theme.typography.pxToRem(20), marginLeft: theme.typography.pxToRem(10), marginTop: '-4%' }}
+              sx={{
+                mt: theme.typography.pxToRem(20),
+                marginLeft: theme.typography.pxToRem(10),
+                marginTop: isWrapping ? '5px' : '-15px',
+              }}
             >
               {t('remove_jams_server')}
             </Button>

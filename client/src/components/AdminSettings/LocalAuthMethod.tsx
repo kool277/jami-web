@@ -25,6 +25,7 @@ import {
   Switch,
   Theme,
   Typography,
+  useMediaQuery,
   useTheme,
 } from '@mui/material'
 import { ChangeEvent, useContext, useEffect, useState } from 'react'
@@ -54,6 +55,7 @@ const LocalAuthMethod = () => {
   const nameserverSet = useGetNameServer()
   const resetServerNameMutation = useResetNameServer()
   const { setAlertContent } = useContext(AlertSnackbarContext)
+  const isWrapping = useMediaQuery(theme.breakpoints.down(500))
 
   const nameServerConfigured = nameserverSet.data
 
@@ -133,7 +135,11 @@ const LocalAuthMethod = () => {
               variant="contained"
               type="submit"
               onClick={submitNewNameServer}
-              sx={{ mt: theme.typography.pxToRem(20), marginLeft: theme.typography.pxToRem(10), marginTop: '-4%' }}
+              sx={{
+                mt: theme.typography.pxToRem(20),
+                marginLeft: theme.typography.pxToRem(10),
+                marginTop: isWrapping ? '5px' : '-15px',
+              }}
               disabled={nameServer === nameServerConfigured}
             >
               {t('save_button')}
@@ -141,7 +147,11 @@ const LocalAuthMethod = () => {
             <Button
               variant="contained"
               onClick={deleteNameServer}
-              sx={{ mt: theme.typography.pxToRem(20), marginLeft: theme.typography.pxToRem(10), marginTop: '-4%' }}
+              sx={{
+                mt: theme.typography.pxToRem(20),
+                marginLeft: theme.typography.pxToRem(10),
+                marginTop: isWrapping ? '5px' : '-15px',
+              }}
             >
               {t('reset_nameserver_button')}
             </Button>

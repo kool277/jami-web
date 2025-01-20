@@ -119,7 +119,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
       >
         {!isConversationOpen && (
           <ArrowBackIosNewIcon
-            sx={!isMenuOpen && isMobile ? { '&:hover': { cursor: 'pointer' } } : doNotDisplayStyles}
+            sx={!isMenuOpen && isMobile ? { '&:hover': { cursor: 'pointer' }, margin: '16px' } : doNotDisplayStyles}
             onClick={() => {
               onMenuIconClick()
             }}

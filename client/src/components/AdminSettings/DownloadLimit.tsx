@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Input, Typography } from '@mui/material'
+import { Box, Button, Input, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -31,6 +31,8 @@ export default function DownloadLimit() {
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const setAutoDownloadLimitMutation = useSetAutoDownloadLimit()
   const { t } = useTranslation()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   const configuredLimit = limitData.data
 
@@ -78,8 +80,10 @@ export default function DownloadLimit() {
         alignItems: 'center',
       }}
     >
-      <Typography variant="h3">{t('download_limit')}</Typography>
-      <Typography variant="body2" sx={{ width: '500px', pt: '1%', pb: '1%' }}>
+      <Typography variant="h3" sx={{ textAlign: 'center' }}>
+        {t('download_limit')}
+      </Typography>
+      <Typography variant="body2" sx={{ width: isMobile ? '300px' : '500px', pt: '1%', pb: '1%' }}>
         {t('download_limit_details')}
       </Typography>
       <Box>
