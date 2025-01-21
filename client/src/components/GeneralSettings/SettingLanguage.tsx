@@ -19,7 +19,7 @@
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { languagesInfos, LanguageTag } from '../../i18n'
+import { languagesInfos, LanguageTag, loadLanguageAsync } from '../../i18n'
 import { SettingSelect, SettingSelectProps } from '../Settings'
 
 interface SettingLanguageProps {
@@ -41,9 +41,11 @@ const SettingLanguage = ({ doNotDisplayLabel }: SettingLanguageProps) => {
   )
 
   const onChange = useCallback<SettingSelectProps<LanguageTag>['onChange']>(
-    (newValue) => {
+    async (newValue) => {
       if (newValue) {
-        i18n.changeLanguage(newValue.payload)
+        await loadLanguageAsync(newValue.payload).then(() => {
+          i18n.changeLanguage(newValue.payload)
+        })
       }
     },
     [i18n],

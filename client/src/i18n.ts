@@ -15,45 +15,73 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import i18n, { Resource, ResourceLanguage } from 'i18next'
+import i18n, { ResourceLanguage } from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
-import translationEn from './locale/en/translation.json'
-import translationFr from './locale/fr/translation.json'
-
-export type LanguageTag = 'en' | 'fr'
+import { apiUrl } from './utils/constants'
 
 interface LanguageInfo {
   readonly tag: LanguageTag
   readonly fullName: string
-  readonly translation: ResourceLanguage
 }
 
-export const languagesInfos: readonly LanguageInfo[] = [
-  {
-    tag: 'en',
-    fullName: 'English',
-    translation: translationEn,
-  },
-  {
-    tag: 'fr',
-    fullName: 'Français',
-    translation: translationFr,
-  },
-] as const
+async function getAvailableLanguages(): Promise<string[]> {
+  try {
+    const response = await fetch(apiUrl + '/config/languages')
+    const data = await response.json()
+    console.log('Available languages:', data)
+    return data
+  } catch (error) {
+    console.error('Error fetching available languages:', error)
+    return []
+  }
+}
 
-const resources = languagesInfos.reduce((resources: Resource, { tag, translation }) => {
-  resources[tag] = { translation }
-  return resources
-}, {})
+async function getTranslation(language: string): Promise<ResourceLanguage> {
+  try {
+    const response = await fetch(apiUrl + `/config/languages/${language}/`)
+    const data = await response.json()
+    console.log(`Translation for ${language}:`, data)
+    return data
+  } catch (error) {
+    console.error(`Error fetching translation for ${language}:`, error)
+    return {}
+  }
+}
 
-i18n.use(initReactI18next).init({
+const availableLanguages = await getAvailableLanguages()
+export type LanguageTag = (typeof availableLanguages)[number]
+
+const languagesInfosPromises = availableLanguages.map(async (item: any) => ({
+  tag: item.tag,
+  fullName: item.fullName,
+}))
+
+export const languagesInfos: readonly LanguageInfo[] = await Promise.all(languagesInfosPromises)
+
+const lastLanguage = localStorage.getItem('language')
+const defaultLanguage = lastLanguage ? lastLanguage : 'en'
+
+const initialResources = await getTranslation(defaultLanguage)
+
+await i18n.use(initReactI18next).init({
   debug: import.meta.env.DEV,
-  lng: 'en',
+  lng: defaultLanguage,
   interpolation: {
     escapeValue: false,
   },
-  resources,
 })
+
+i18n.addResourceBundle(defaultLanguage, 'translation', initialResources)
+i18n.changeLanguage(defaultLanguage)
+
+export const loadLanguageAsync = async (language: string) => {
+  localStorage.setItem('language', language)
+  if (i18n.hasResourceBundle(language, 'translation')) {
+    return
+  }
+  const translation = await getTranslation(language)
+  i18n.addResourceBundle(language, 'translation', translation)
+}
 
 export default i18n

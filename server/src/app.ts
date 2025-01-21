@@ -29,6 +29,7 @@ import { accountRouter } from './routers/account-router.js'
 import { adminRouter } from './routers/admin-router.js'
 import { authRouter } from './routers/auth-router.js'
 import { callRouter } from './routers/call-router.js'
+import { configRouter } from './routers/config.js'
 import { contactsRouter } from './routers/contacts-router.js'
 import { conversationRequestRouter } from './routers/conversation-request-router.js'
 import { conversationRouter } from './routers/conversation-router.js'
@@ -86,6 +87,7 @@ export class App {
     apiRouter.use('/link-preview', linkPreviewRouter)
     apiRouter.use('/ns', nameserverRouter)
     apiRouter.use('/data', dataTransferRouter)
+    apiRouter.use('/config', configRouter)
 
     if (!isDevMode) {
       // Serve static files from the client
