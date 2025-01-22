@@ -623,7 +623,7 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('md'))
   const [isEdited, setIsEdited] = useState(false)
   const { setReplyMessage } = useActionMessageContext()
-
+  const isPreviewEnabled = localStorage.getItem('linkPreview') === 'true'
   const [isDeleted, setIsDeleted] = useState(message.body === '')
 
   useEffect(() => {
@@ -684,7 +684,7 @@ const MessageText = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
               <Linkify options={{ render: RenderLink as any, attributes: { isAccountMessage } }}>
                 {message.body + '            '}
               </Linkify>
-              <Box>{link && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}</Box>
+              <Box>{link && isPreviewEnabled && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}</Box>
             </Bubble>
           </Box>
         </MessageTooltip>

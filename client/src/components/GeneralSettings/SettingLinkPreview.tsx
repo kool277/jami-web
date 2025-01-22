@@ -24,12 +24,17 @@ import { SettingSwitch } from '../Settings'
 
 const SettingLinkPreview = () => {
   const { t } = useTranslation()
+  const current = localStorage.getItem('linkPreview') === 'true'
+  const [isOn, setIsOn] = useState<boolean>(current)
 
-  const [isOn, setIsOn] = useState<boolean>(true)
+  const onChange = () => {
+    setIsOn((isOn) => !isOn)
+    localStorage.setItem('linkPreview', JSON.stringify(!isOn))
+  }
 
   return (
     <Box sx={{ mt: '2%', mb: '2%' }}>
-      <SettingSwitch label={t('settings_link_preview')} onChange={() => setIsOn((isOn) => !isOn)} checked={isOn} />{' '}
+      <SettingSwitch label={t('settings_link_preview')} onChange={onChange} checked={isOn} />{' '}
     </Box>
   )
 }
