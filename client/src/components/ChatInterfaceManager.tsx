@@ -15,7 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box } from '@mui/material'
 import {
   AccountMessageStatus,
   ConversationMessage,
@@ -565,9 +564,7 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
       <currentLastSeenMessageContext.Provider value={lastSeen}>
         <MessageList messages={messagesArray} />
       </currentLastSeenMessageContext.Provider>
-      <Box sx={{ mt: '14px' }}>
-        <ComposingMembersIndicator />
-      </Box>
+      <ComposingMembersIndicator />
       <FilePreviewsList />
       <ReplyToMessage />
       <EditMessage />
