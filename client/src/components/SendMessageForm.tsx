@@ -361,7 +361,6 @@ export default function SendMessageForm({ onSend, openFilePicker, editMessage, f
       paddingX="8px"
       marginBottom="-8px"
       marginTop="-12px"
-      sx={{ backgroundColor: 'rgba(255, 255, 255, 0.6)' }}
     >
       <Box sx={{ display: 'flex' }}>
         <RecordVoiceMessageButton
