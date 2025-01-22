@@ -425,7 +425,7 @@ const MessageDataTransfer = memo(
             return (
               <Box
                 onClick={() => {
-                  getPreview(false)
+                  getPreview(true)
                 }}
               >
                 <MessageDataContent
@@ -492,7 +492,7 @@ const MessageDataTransfer = memo(
               isLastOfGroup={isLastOfGroup}
               sentTime={sentTime}
               edited={false} // edited is not used in data-transfer message
-              isMedia={fileType !== FileType.Document ? true : false}
+              isMedia={fileType !== FileType.Document && (preview || audioBlob) ? true : false}
               isAudio={fileType === FileType.Audio}
               deleted={isDeleted}
             >

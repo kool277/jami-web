@@ -95,9 +95,30 @@ export default function ({
         }}
       >
         <EllipsisMiddle text={displayName} />
-        <Box>{isNotAvailable && <Typography sx={{ fontSize: '13px' }}>{t('ressource_not_available')}</Typography>}</Box>
-        <Box sx={{ fontSize: '11px', whiteSpace: 'nowrap', marginLeft: '2px' }}>
-          {String(byteSize(Number(totalSize)))}
+        <Box
+          sx={{
+            fontSize: '11px',
+            whiteSpace: 'nowrap',
+            marginLeft: '2px',
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? '0px' : '4px',
+          }}
+        >
+          {String(byteSize(Number(totalSize)))}{' '}
+          {isNotAvailable && (
+            <Typography
+              sx={{
+                fontSize: '11px',
+                fontStyle: 'italic',
+                marginTop: isMobile ? '-4px' : 'unset',
+                paddingBottom: isMobile ? '4px' : 'unset',
+                marginLeft: isMobile ? 'unset' : '4px',
+              }}
+            >
+              {t('ressource_not_available')}
+            </Typography>
+          )}
         </Box>
       </Box>
     </Box>
