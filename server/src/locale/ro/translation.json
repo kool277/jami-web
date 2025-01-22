@@ -57,7 +57,7 @@
   "contact_confirm_block": "Blochează",
   "contact_confirm_remove": "Șterge",
   "contact_details_dialog_title": "Informație",
-  "contact_remove": "Remove contact",
+  "contact_remove": "Șterge contactul",
   "contribute": "Contribuie",
   "contact_details_identifier": "Identificator",
   "contact_details_name": "Contact name",
@@ -65,7 +65,7 @@
   "contact_details_text": "Detaliile contactului",
   "leave_conversation": "Termină conversația",
   "conversation_add_contact": "Add member",
-  "conversation_add_contact_form": "Add contact",
+  "conversation_add_contact_form": "Adaugă contactul",
   "conversation_ask_confirm_block": "Do you want to block the conversation?",
   "conversation_ask_confirm_remove": "Do you want to remove the conversation?",
   "conversation_block": "Block conversation",
@@ -85,7 +85,7 @@
   "conversation_info": "Informație",
   "conversation_message": "Message",
   "conversation_request_accepted": "Conversation invitation accepted.",
-  "conversation_request_ask_join": "Hello,\nDo you want to join the conversation?",
+  "conversation_request_ask_join": "Vrei să participi la conversație?",
   "conversation_request_has_sent_request": "{{contact}} sent you a conversation invitation.",
   "conversation_request_waiting_for_sync": "Waiting for {{contact}}\nto connect to synchronize the conversation…",
   "conversation_start_audiocall": "Începe un apel vocal",
@@ -213,7 +213,7 @@
   "registration_success": "Account registered successfully. Logging in…",
   "resetting_display_name_success_alert": "Display name reset successfully.",
   "resetting_display_name_error_alert": "An error occurred while resetting the display name.",
-  "remove_jams_server": "Remove JAMS server",
+  "remove_jams_server": "Șterge",
   "removing_jams_server_success": "JAMS server address removed successfully.",
   "removing_jams_server_error": "An error occurred while removing the JAMS server.",
   "removed_linked_device_success": "Linked device removed successfully.",
@@ -288,5 +288,5 @@
   "welcome_text": "Bine ai venit pe Jami",
   "welcome_to_text": "Welcome to ",
   "welcome_page_text": "Împărtășește identificatorul tău Jami pentru a fi contactat mai ușor!",
-  "yourself": "You"
+  "yourself": "Tu"
 }

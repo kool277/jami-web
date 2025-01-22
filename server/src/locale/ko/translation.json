@@ -56,8 +56,8 @@
   "contact_block": "차단 접촉",
   "contact_confirm_block": "블록",
   "contact_confirm_remove": "제거",
-  "contact_details_dialog_title": "Information",
-  "contact_remove": "Remove contact",
+  "contact_details_dialog_title": "정보",
+  "contact_remove": "접촉을 제거",
   "contribute": "기여",
   "contact_details_identifier": "식별자",
   "contact_details_name": "Contact name",
@@ -65,7 +65,7 @@
   "contact_details_text": "연락처",
   "leave_conversation": "대화는 그만둬",
   "conversation_add_contact": "Add member",
-  "conversation_add_contact_form": "Add contact",
+  "conversation_add_contact_form": "연락처 추가",
   "conversation_ask_confirm_block": "Do you want to block the conversation?",
   "conversation_ask_confirm_remove": "Do you want to remove the conversation?",
   "conversation_block": "Block conversation",
@@ -213,7 +213,7 @@
   "registration_success": "Account registered successfully. Logging in…",
   "resetting_display_name_success_alert": "Display name reset successfully.",
   "resetting_display_name_error_alert": "An error occurred while resetting the display name.",
-  "remove_jams_server": "Remove JAMS server",
+  "remove_jams_server": "제거",
   "removing_jams_server_success": "JAMS server address removed successfully.",
   "removing_jams_server_error": "An error occurred while removing the JAMS server.",
   "removed_linked_device_success": "Linked device removed successfully.",
@@ -288,5 +288,5 @@
   "welcome_text": "자미에 오신 것을 환영합니다",
   "welcome_to_text": "Welcome to ",
   "welcome_page_text": "Share your Jami identifier in order to be contacted more easily!",
-  "yourself": "You"
+  "yourself": "- 네"
 }

@@ -56,8 +56,8 @@
   "contact_block": "തടയൽ കോൺടാക്റ്റ്",
   "contact_confirm_block": "തടയൽ",
   "contact_confirm_remove": "നീക്കം ചെയ്യുക",
-  "contact_details_dialog_title": "Information",
-  "contact_remove": "Remove contact",
+  "contact_details_dialog_title": "വിവരങ്ങള്",
+  "contact_remove": "ബന്ധം നീക്കം ചെയ്യുക",
   "contribute": "സംഭാവന ചെയ്യുക",
   "contact_details_identifier": "ഐഡന്റിഫയർ",
   "contact_details_name": "Contact name",
@@ -65,7 +65,7 @@
   "contact_details_text": "ബന്ധപ്പെടാനുള്ള വിവരങ്ങൾ",
   "leave_conversation": "സംഭാഷണം ഉപേക്ഷിക്കുക",
   "conversation_add_contact": "Add member",
-  "conversation_add_contact_form": "Add contact",
+  "conversation_add_contact_form": "കോൺടാക്റ്റ് ചേർക്കുക",
   "conversation_ask_confirm_block": "Do you want to block the conversation?",
   "conversation_ask_confirm_remove": "Do you want to remove the conversation?",
   "conversation_block": "Block conversation",
@@ -213,7 +213,7 @@
   "registration_success": "Account registered successfully. Logging in…",
   "resetting_display_name_success_alert": "Display name reset successfully.",
   "resetting_display_name_error_alert": "An error occurred while resetting the display name.",
-  "remove_jams_server": "Remove JAMS server",
+  "remove_jams_server": "നീക്കം ചെയ്യുക",
   "removing_jams_server_success": "JAMS server address removed successfully.",
   "removing_jams_server_error": "An error occurred while removing the JAMS server.",
   "removed_linked_device_success": "Linked device removed successfully.",
@@ -288,5 +288,5 @@
   "welcome_text": "ജാമിയിൽ സ്വാഗതം",
   "welcome_to_text": "Welcome to ",
   "welcome_page_text": "Share your Jami identifier in order to be contacted more easily!",
-  "yourself": "You"
+  "yourself": "നീ"
 }

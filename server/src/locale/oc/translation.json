@@ -56,8 +56,8 @@
   "contact_block": "Blocar contacte",
   "contact_confirm_block": "Blocar",
   "contact_confirm_remove": "Suprimir",
-  "contact_details_dialog_title": "Information",
-  "contact_remove": "Remove contact",
+  "contact_details_dialog_title": "Informacion",
+  "contact_remove": "Eliminar lo contacte",
   "contribute": "Contribucion",
   "contact_details_identifier": "Identificator",
   "contact_details_name": "Contact name",
@@ -65,7 +65,7 @@
   "contact_details_text": "Detalhs de contacte",
   "leave_conversation": "Quita la conversacion",
   "conversation_add_contact": "Add member",
-  "conversation_add_contact_form": "Add contact",
+  "conversation_add_contact_form": "Ajustar contacte",
   "conversation_ask_confirm_block": "Do you want to block the conversation?",
   "conversation_ask_confirm_remove": "Do you want to remove the conversation?",
   "conversation_block": "Block conversation",
@@ -213,7 +213,7 @@
   "registration_success": "Account registered successfully. Logging in…",
   "resetting_display_name_success_alert": "Display name reset successfully.",
   "resetting_display_name_error_alert": "An error occurred while resetting the display name.",
-  "remove_jams_server": "Remove JAMS server",
+  "remove_jams_server": "Suprimir",
   "removing_jams_server_success": "JAMS server address removed successfully.",
   "removing_jams_server_error": "An error occurred while removing the JAMS server.",
   "removed_linked_device_success": "Linked device removed successfully.",
@@ -288,5 +288,5 @@
   "welcome_text": "Benvenguts a Jami",
   "welcome_to_text": "Welcome to ",
   "welcome_page_text": "Share your Jami identifier in order to be contacted more easily!",
-  "yourself": "You"
+  "yourself": "Tu"
 }
