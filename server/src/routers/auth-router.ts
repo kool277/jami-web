@@ -56,6 +56,12 @@ authRouter.post(
       res.status(HttpStatusCode.BadRequest).send('Password may not be empty')
       return
     }
+
+    if (config.getConfig().localAuthEnabled === false) {
+      res.status(HttpStatusCode.BadRequest).send('Local authentication is disabled')
+      return
+    }
+
     const hashedPassword = password ? await argon2.hash(password, { type: argon2.argon2id }) : ''
     const accountDetails: Partial<AccountDetails> = {
       // TODO: Enable encrypted archives
@@ -106,6 +112,11 @@ authRouter.post(
     const { username, password, authMethod } = req.body
 
     if (authMethod === 'guest') {
+      if (config.getConfig().guestAccessEnabled === false) {
+        res.status(HttpStatusCode.BadRequest).send('Guest authentication is disabled')
+        return
+      }
+
       const { accountId } = await jamid.addAccount({})
       const details = jamid.getAccountDetails(accountId)
       const username = details['Account.username']
@@ -127,6 +138,10 @@ authRouter.post(
     }
     // Check if the account is stored on this daemon instance
     if (authMethod === 'jams') {
+      if (config.getConfig().jamsAuthEnabled === false) {
+        res.status(HttpStatusCode.BadRequest).send('Jams authentication is disabled')
+        return
+      }
       //When the user logs in for the first time, we need to set up their account by assigning the relevant details:
 
       //This sets the Jams Server URL (managerUri) and sends a request to add the account using addAccount.
@@ -189,6 +204,11 @@ authRouter.post(
       res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
       return
     } else if (authMethod === 'local') {
+      if (config.getConfig().localAuthEnabled === false) {
+        res.status(HttpStatusCode.BadRequest).send('Local authentication is disabled')
+        return
+      }
+
       const accountId = jamid.getAccountIdFromUsername(username)
       if (accountId === undefined) {
         res.status(HttpStatusCode.NotFound).send('Username not found')
@@ -254,15 +274,21 @@ authRouter.get(
   asyncHandler(async (req, res) => {
     const devMode = process.env.NODE_ENV === 'development'
     const provider = req.params.provider
-    const supportedProviders = providers.getOpenIdProvidersNames()
-    const configuredProviders = config.getOpenIdProvidersNames()
     const code = req.query.code
-
     const protocol = req.secure ? 'https' : 'http'
     const host = req.get('host')
     const baseUrl = `${protocol}://${host}`
 
     const loginUrl = devMode ? 'http://localhost:3000/login' : baseUrl + '/login'
+
+    if (config.getConfig().openIdAuthEnabled === false) {
+      res.status(HttpStatusCode.BadRequest).send('OpenID authentication is disabled')
+      res.redirect(loginUrl)
+      return
+    }
+
+    const supportedProviders = providers.getOpenIdProvidersNames()
+    const configuredProviders = config.getOpenIdProvidersNames()
 
     if (!provider) {
       res.status(HttpStatusCode.BadRequest).send('Missing provider in path')

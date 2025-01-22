@@ -20,7 +20,7 @@ import { Theme, useTheme } from '@mui/material/styles'
 import { HttpStatusCode } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Form, Link } from 'react-router-dom'
+import { Form, Link, useNavigate } from 'react-router-dom'
 
 import SettingLanguage from '../components/GeneralSettings/SettingLanguage'
 import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input'
@@ -57,7 +57,7 @@ function RegistrationForm() {
   const passwordOk = passwordStatus !== PasswordStrength.TooWeak
   const { data } = useGetAdminConfigQuery()
   const providers = useGetAllProviders()
-
+  const navigate = useNavigate()
   useEffect(() => {
     if (response !== undefined) {
       const { responseMessage } = response
@@ -76,6 +76,15 @@ function RegistrationForm() {
       clearTimeout(timeoutId)
     }
   }, [username])
+
+  useEffect(() => {
+    if (data === undefined || data.isPending) {
+      return
+    }
+    if (!data.localAuthEnabled) {
+      navigate('/login')
+    }
+  }, [data, navigate])
 
   if (data === undefined || providers.data === undefined) {
     return <ProcessingRequest open />

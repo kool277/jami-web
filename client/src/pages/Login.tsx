@@ -260,7 +260,7 @@ function LoginForm() {
             justifyContent: 'center',
           }}
         >
-          <Typography variant="body1" fontSize={13}>
+          <Typography variant="body1" sx={{ visibility: !data.localAuthEnabled ? 'hidden' : 'visible' }} fontSize={13}>
             {t('login_form_to_registration_text')} &nbsp;
             <Link style={{ color: theme.ChatInterface.inputColor }} data-cy="register-link" to={'/register'}>
               {t('login_form_to_registration_link')}
