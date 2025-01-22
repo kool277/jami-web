@@ -15,55 +15,52 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, useMediaQuery, useTheme } from '@mui/material'
-import { useCallback, useContext, useState } from 'react'
+import { Box, Stack, useMediaQuery, useTheme } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
-import { NotificationContext } from '../../contexts/NotificationsProvider'
-import { SettingsGroup, SettingSwitch } from '../Settings'
+import { SettingsGroup } from '../Settings'
 import SettingLanguage from './SettingLanguage'
+import SettingLinkPreview from './SettingLinkPreview'
+import SettingNotifications from './SettingNotifications'
+import SettingTheme from './SettingTheme'
+import SettingTips from './SettingTips'
 
 function System() {
   const { t } = useTranslation()
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+
+  const marginValue = '10px'
+  const style = { mt: marginValue, mb: marginValue }
+
   return (
     <Box sx={{ display: 'flex', justifyContent: isMobile ? 'center' : 'flex-start', padding: '2%' }}>
-      <SettingsGroup label={t('settings_title_system')}>
-        <Box sx={{ mt: '2%', mb: '2%' }}>
-          <SettingLanguage />
-        </Box>
-        <SettingLinkPreview />
-        <SettingNotifications />
-      </SettingsGroup>
+      <Stack
+        sx={{
+          padding: '3%',
+        }}
+      >
+        <SettingsGroup label={t('settings_title_system')}>
+          <Box sx={style}>
+            <SettingLanguage />
+          </Box>
+          <Box sx={style}>
+            <SettingNotifications />
+          </Box>
+          <Box sx={style}>
+            <SettingTheme />
+          </Box>
+          <SettingTips />
+          <Box sx={style}></Box>
+        </SettingsGroup>
+        <SettingsGroup label={t('settings_title_chat')}>
+          <Box sx={style}>
+            <SettingLinkPreview />
+          </Box>
+        </SettingsGroup>
+      </Stack>
     </Box>
   )
-}
-
-const SettingLinkPreview = () => {
-  const { t } = useTranslation()
-
-  const [isOn, setIsOn] = useState<boolean>(true)
-
-  return (
-    <Box sx={{ mt: '2%', mb: '2%' }}>
-      <SettingSwitch label={t('settings_link_preview')} onChange={() => setIsOn((isOn) => !isOn)} checked={isOn} />{' '}
-    </Box>
-  )
-}
-
-const SettingNotifications = () => {
-  const { t } = useTranslation()
-  const { enable, setIsEnabled } = useContext(NotificationContext)
-
-  const [isOn, setIsOn] = useState<boolean>(enable)
-
-  const onChange = useCallback(() => {
-    setIsEnabled(!isOn)
-    setIsOn((isOn) => !isOn)
-  }, [isOn, setIsEnabled])
-
-  return <SettingSwitch label={t('settings_menu_item_notifications')} onChange={onChange} checked={isOn} />
 }
 
 export default System

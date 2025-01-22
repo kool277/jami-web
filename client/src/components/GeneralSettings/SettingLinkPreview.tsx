@@ -17,32 +17,21 @@
  */
 
 import { Box } from '@mui/material'
-import { useContext } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { CustomThemeContext } from '../../contexts/CustomThemeProvider'
-import { SettingsGroup, SettingSwitch } from '../Settings'
-function Appearance() {
+import { SettingSwitch } from '../Settings'
+
+const SettingLinkPreview = () => {
   const { t } = useTranslation()
+
+  const [isOn, setIsOn] = useState<boolean>(true)
+
   return (
-    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-      <SettingsGroup label={t('settings_theme')}>
-        <SettingTheme />
-      </SettingsGroup>
+    <Box sx={{ mt: '2%', mb: '2%' }}>
+      <SettingSwitch label={t('settings_link_preview')} onChange={() => setIsOn((isOn) => !isOn)} checked={isOn} />{' '}
     </Box>
   )
 }
 
-const SettingTheme = () => {
-  const { t } = useTranslation()
-
-  const { mode, toggleMode } = useContext(CustomThemeContext)
-
-  return (
-    <Box sx={{ width: '180px', textAlign: 'start' }}>
-      <SettingSwitch label={t('settings_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />
-    </Box>
-  )
-}
-
-export default Appearance
+export default SettingLinkPreview
