@@ -110,7 +110,7 @@
   "dialog_confirm_title_default": "Confirm action",
   "disable_tips": "Disable tips",
   "download_limit": "Auto download limit",
-  "download_limit_details": "The automatic download limit is the maximum file size (in MB) that Jami can download automatically. If a file exceeds this limit, the user will need to confirm the download by pressing a button.",
+  "download_limit_details": "The automatic download limit is the maximum file size (in MB) that the application downloads automatically. If a file exceeds the limit, the user is required to accept the download.",
   "edited_message": "Edited ",
   "editing": "Editing…",
   "enter_password_info": "You need to authenticate to perform this action.",
