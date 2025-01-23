@@ -18,12 +18,20 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import svgr from 'vite-plugin-svgr'
+import topLevelAwait from 'vite-plugin-top-level-await'
 
 export default defineConfig({
   optimizeDeps: {
     include: ['@emotion/react', '@emotion/styled', '@mui/material/Tooltip'],
   },
-  plugins: [react(), svgr()],
+  plugins: [
+    react(),
+    svgr(),
+    topLevelAwait({
+      promiseExportName: '__tla',
+      promiseImportName: (i) => `__tla_${i}`,
+    }),
+  ],
   server: {
     host: '0.0.0.0',
     port: 3000,
