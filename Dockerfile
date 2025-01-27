@@ -16,6 +16,8 @@ COPY client/package*.json client/
 COPY server/package*.json server/
 COPY common common
 COPY server/scripts server/scripts
+COPY server/locale server/locale
+COPY server/available_languages.json server/available_languages.json
 
 RUN npm ci
 COPY . .

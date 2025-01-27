@@ -57,7 +57,7 @@ configRouter.get(
         return
       }
 
-      const path = `./src/locale/${language}/translation.json`
+      const path = `./locale/${language}/translation.json`
 
       if (!fs.existsSync(path)) {
         res.status(HttpStatusCode.InternalServerError).send({ error: 'Error reading language file' })

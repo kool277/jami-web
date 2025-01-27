@@ -6,7 +6,7 @@
 # systemctl stop jami-web.service
 
 # this service file assume that jami-web
-# is installed in /srv/jami-web
+# is installed in /opt/jami-web
 # and that the user www-data is used to run the service.
 
 [Unit]
@@ -16,8 +16,8 @@ After=syslog.target network.target network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/srv/jami-web/server
-ExecStart=/usr/bin/node /srv/jami-web/server/dist/index.js
+WorkingDirectory=/opt/jami-web/server
+ExecStart=/usr/bin/node /opt/jami-web/server/dist/index.js
 Restart=always
 RestartSec=10
 User=jamid

@@ -17,14 +17,14 @@ npm install
 # ===========Setting up the application =============
 
 echo "\nSetting up the service…"
-
 sudo cp jami-web.service /etc/systemd/system/jami-web.service
+
 cd ..
-sudo mv jami-web-production /srv/jami-web
+sudo mv jami-web-production /opt/jami-web
 
-sudo useradd -m -d /srv/jami-web/data jamid
+sudo useradd -m -d /opt/jami-web/data jamid
 
-sudo chown -R jamid:jamid /srv/jami-web
+sudo chown -R jamid:jamid /opt/jami-web
 
 sudo systemctl daemon-reload
 sudo systemctl enable jami-web.service

@@ -42,9 +42,14 @@ pipeline {
     }
 
     parameters {
-            string(name: 'GERRIT_REFSPEC',
-                   defaultValue: 'refs/heads/master',
-                   description: 'The Gerrit refspec to fetch.')
+        string(name: 'GERRIT_REFSPEC',
+               defaultValue: 'refs/heads/master',
+               description: 'The Gerrit refspec to fetch.')
+        choice(
+            name: 'BUILD_TYPE',
+            choices: ['default', 'release'],
+            description: 'Type of the build.'
+        )
     }
 
     stages {
@@ -84,6 +89,8 @@ pipeline {
                 done
 
                 docker cp ${container_id}:/daemon/bin/nodejs/build/Release/jamid.node jami-web-production/server/
+                docker cp ${container_id}:/web-client/server/locale jami-web-production/server/
+                docker cp ${container_id}:/web-client/server/available_languages.json jami-web-production/server/
                 docker cp ${container_id}:/web-client/server/scripts jami-web-production/server/
                 docker cp ${container_id}:/web-client/server/openid-providers.json jami-web-production/server/
 
@@ -92,36 +99,49 @@ pipeline {
                 docker cp ${container_id}:/web-client/jami-web.service jami-web-production/
 
                 tar -czf jami-web.tar.gz jami-web-production
-
                 docker rm ${container_id}
-                rm -rf jami-web-production
                 '''
                 }
             }
         }
-stage('Post') {
-    steps {
-        archiveArtifacts artifacts: 'jami-web.tar.gz',
-        fingerprint: true,
-        onlyIfSuccessful: true
+        stage('Deploy') {
+            when {
+                expression { env.BUILD_TYPE == 'release' }
+            }
+            steps {
+                script {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no jamid@jami.savoirfairelinux.com 'rm -rf /opt/jami-web'
+                    scp -o StrictHostKeyChecking=no -r jami-web-production jamid@jami.savoirfairelinux.com:/opt/jami-web
+                    ssh -o StrictHostKeyChecking=no jamid@jami.savoirfairelinux.com 'cd /opt/jami-web && npm install'
+                    ssh -o StrictHostKeyChecking=no jamid@jami.savoirfairelinux.com 'sudo systemctl restart jami-web.service'
+                    '''
+                }
+            }
         }
-}
-stage('Cleanup') {
-    steps {
-        catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
-            sh '''
-                docker container prune -f
-                docker image prune -f --filter "until=24h"
-                docker volume prune -f
-            '''
+        stage('Post') {
+            when {
+                expression { env.BUILD_TYPE == 'release' }
+            }
+            steps {
+                archiveArtifacts artifacts: 'jami-web.tar.gz', fingerprint: true, onlyIfSuccessful: true
+            }
         }
-    }
-    post {
-        always {
-            cleanWs()
+        stage('Cleanup') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    sh '''
+                        docker container prune -f
+                        docker image prune -f --filter "until=24h"
+                        docker volume prune -f
+                    '''
+                }
+            }
+            post {
+                always {
+                    cleanWs()
+                }
+            }
         }
-    }
-}
-
     }
 }
