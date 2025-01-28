@@ -20,8 +20,9 @@ import Box from '@mui/material/Box'
 
 interface EllipsisMiddleProps {
   text: string
+  centerItem?: boolean
 }
-const EllipsisMiddle = ({ text }: EllipsisMiddleProps) => {
+const EllipsisMiddle = ({ text, centerItem }: EllipsisMiddleProps) => {
   if (!text) {
     console.error('text is undefined')
     return
@@ -55,6 +56,8 @@ const EllipsisMiddle = ({ text }: EllipsisMiddleProps) => {
         textWrap: 'nowrap',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
+        display: centerItem ? 'flex' : 'unset',
+        justifyContent: centerItem ? 'center' : 'unset',
       }}
     >
       <span

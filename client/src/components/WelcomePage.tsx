@@ -192,13 +192,13 @@ export default function WelcomePage() {
               sx={{
                 ...middleBoxStyle,
                 maxWidth: isMedium ? '220px' : 'unset',
-                width: displayedInfo === account.getRegisteredName() ? '130px' : '400px',
+                width: displayedInfo === account.getRegisteredName() ? 'auto' : '400px',
               }}
               borderRadius={'5px 2px 2px 5px'}
             >
               <JamiIdIcon sx={{ marginBottom: '-4px', marginRight: '5px' }} />
               <Box maxWidth={isMedium ? '170px' : 'unset'}>
-                <EllipsisMiddle text={displayedInfo} />
+                <EllipsisMiddle text={displayedInfo} centerItem={true} />
               </Box>
             </Box>
             <Box sx={{ ...middleBoxStyle, gap: '8px', width: '50px' }} borderRadius={'2px 5px 5px 2px'} width={'6%'}>
