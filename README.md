@@ -9,6 +9,8 @@ The repo is structured as 4 subprojects:
 - `common`: the common code used by both `client` and `server`
 - `daemon`: a submodule containing the Jami daemon
 
+To view the deployment instructions for jami-web, refer to the [Deployment Guide](./deployment.md).
+
 ## Prerequisites
 
 - Linux
