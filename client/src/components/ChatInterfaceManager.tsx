@@ -27,7 +27,7 @@ import {
   WebSocketMessageType,
 } from 'jami-web-common'
 import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
-import { createContext, memo, useCallback, useEffect, useMemo, useReducer } from 'react'
+import { createContext, memo, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 
 import LoadingPage from '../components/Loading'
 import MessageList from '../components/MessageList'
@@ -95,6 +95,7 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
   const webSocket = useWebSocketContext()
   const { conversationId, members } = useConversationContext()
   const [state, dispatch] = useReducer(reducer, initialState)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const { messagesMap, messageOrder, replies, lastSeen, isLoading, error } = state
 
   useEffect(() => {
@@ -120,7 +121,7 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
       return
     }
 
-    if (messagesMap.size === 0 && messagesQuery.isSuccess) {
+    if (messagesMap.size === 0 && messagesQuery.isSuccess && !isLoadingMore) {
       let isIncomplete = false
       const userView = new Set<string>()
       const newMessagesMap = new Map<string, Message>()
@@ -165,6 +166,7 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
               firstSection: true,
             }
             webSocket.send(WebSocketMessageType.LoadSwarmUntil, data)
+            setIsLoadingMore(true)
             isIncomplete = true
           } else {
             message['reply-to'] = replyToMessage
@@ -196,6 +198,7 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
     webSocket,
     lastSeen,
     messagesMap.size,
+    isLoadingMore,
   ])
 
   const messageStatusChangeHandler = useCallback(
@@ -379,6 +382,7 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
       if (conversationId !== data.conversationId) {
         return
       }
+      setIsLoadingMore(true)
       const messages = data.messages
       if (messages === undefined) {
         return
@@ -430,6 +434,7 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
           }
         }
       }
+      setIsLoadingMore(false)
     },
     [account, conversationId, messageOrder, messagesMap, updateReplies, webSocket],
   )

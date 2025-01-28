@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Savoir-faire Linux Inc.
+ * Copyright (C) 2025 Savoir-faire Linux Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -17,6 +17,7 @@
  */
 import { Typography, useTheme } from '@mui/material'
 import { Box, Stack, useMediaQuery } from '@mui/system'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { Message, MESSAGES_NUMBER_TO_LOAD, WebSocketMessageType } from 'jami-web-common'
 import { memo, MutableRefObject, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -27,6 +28,7 @@ import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { findNextVisibleMessage, findPreviousVisibleMessage, MessageRow } from './Message'
 import { ArrowDownIcon } from './SvgIcon'
+
 const MemoizedMessageRow = memo(MessageRow, (prevProps, nextProps) => {
   return (
     prevProps.message.id === nextProps.message.id &&
@@ -41,9 +43,11 @@ const MemoizedMessageRow = memo(MessageRow, (prevProps, nextProps) => {
     prevProps.nextMessage?.id === nextProps.nextMessage?.id
   )
 })
+
 interface MessageListProps {
   messages: Message[]
 }
+
 export default function MessageList({ messages }: MessageListProps) {
   const { account, accountId } = useAuthContext()
   const { members, conversationId } = useConversationContext()
@@ -51,6 +55,19 @@ export default function MessageList({ messages }: MessageListProps) {
   const listBottomRef = useRef<HTMLElement>()
   const webSocket = useWebSocketContext()
   const lastMessageId = messages[messages.length - 1]?.id
+  const parentRef = useRef<HTMLDivElement>(null)
+
+  const count = messages.length
+  console.log('count ', count)
+
+  const virtualizer = useVirtualizer({
+    count,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 50,
+    overscan: 20,
+  })
+  const items = virtualizer.getVirtualItems()
+
   const loadMoreMessages = () => {
     const args = {
       accountId,
@@ -60,6 +77,9 @@ export default function MessageList({ messages }: MessageListProps) {
     }
     webSocket.send(WebSocketMessageType.LoadMoreMessages, args)
   }
+
+  const loadMessageGate = count - 5
+
   return (
     <>
       <Stack flex={1} overflow="auto" padding="0px px" direction="column-reverse" marginBottom="-25px">
@@ -70,10 +90,12 @@ export default function MessageList({ messages }: MessageListProps) {
           onLeave={() => setShowScrollButton(true)}
           bottomOffset="-50px"
         />
-        <Stack direction="column-reverse">
+        <Stack direction="column-reverse" ref={parentRef} sx={{ height: virtualizer.getTotalSize() }}>
           {
             // most recent messages first
-            messages.map((message, index) => {
+            items.map((virtualItem) => {
+              const index = virtualItem.index
+              const message = messages[index]
               const previousMessage = findPreviousVisibleMessage(messages, index)
               const nextMessage = findNextVisibleMessage(messages, index)
               const isAccountMessage = message.author === account.getUri()
@@ -94,16 +116,21 @@ export default function MessageList({ messages }: MessageListProps) {
                 previousMessage,
                 nextMessage,
               }
-              return <MemoizedMessageRow key={message.id} {...props} />
+              return (
+                <Box key={message.id}>
+                  <MemoizedMessageRow {...props} />
+                  {index === loadMessageGate && (
+                    <Waypoint
+                      onEnter={() => {
+                        loadMoreMessages()
+                      }}
+                    />
+                  )}
+                </Box>
+              )
             })
           }
         </Stack>
-        <Waypoint
-          onEnter={() => {
-            loadMoreMessages()
-          }}
-          topOffset="-1000px"
-        />
       </Stack>
       {showScrollButton && (
         <Box position="relative" bottom="15px">
@@ -115,9 +142,11 @@ export default function MessageList({ messages }: MessageListProps) {
     </>
   )
 }
+
 interface ScrollToEndButtonProps {
   listBottomRef: MutableRefObject<HTMLElement | undefined>
 }
+
 const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
   const { t } = useTranslation()
   const theme = useTheme()
