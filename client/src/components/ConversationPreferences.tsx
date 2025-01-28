@@ -574,6 +574,7 @@ const Files = () => {
         overflowY: 'auto',
         paddingBottom: '8px',
         overflowX: 'hidden',
+        alignContent: 'start',
       }}
     >
       {files?.map((file: Message) => {
