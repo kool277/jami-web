@@ -37,8 +37,6 @@ const AvatarMouseOver = ({ contactUri, displayName }: AvatarMouseOverProps) => {
             color: 'white',
             position: 'absolute',
             bottom: '16px',
-            left: '10px',
-            transform: 'translateX(-90%)',
             zIndex: 999999,
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
             padding: '0.2em 0.4em',
@@ -49,6 +47,7 @@ const AvatarMouseOver = ({ contactUri, displayName }: AvatarMouseOverProps) => {
             textOverflow: 'ellipsis',
             userSelect: 'none',
             marginBottom: '3px',
+            right: '0px',
           }}
         >
           {displayName || contactUri}
