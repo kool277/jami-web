@@ -75,7 +75,7 @@ export const ComposingMembersIndicator = () => {
   }, [composingMembers, t])
 
   return (
-    <Stack height="15px" padding="0 16px" justifyContent="center">
+    <Stack height="30px" padding="0 16px" justifyContent="center">
       <Fade in={composingMembers.length !== 0}>
         <Stack
           alignItems="center"
