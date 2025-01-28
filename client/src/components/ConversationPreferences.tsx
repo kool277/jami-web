@@ -31,6 +31,7 @@ import {
   Input,
   Popper,
   Switch,
+  Typography,
   useMediaQuery,
   useTheme,
 } from '@mui/material'
@@ -555,12 +556,20 @@ const Files = () => {
   const { conversationId } = useConversationContext()
   const filesQuery = useGetAllFilesQuery(conversationId)
   const files = filesQuery.data
-
+  const { t } = useTranslation()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
 
   if (filesQuery.isLoading) {
     ;<ProcessingRequest open={true} />
+  }
+
+  if (filesQuery.isSuccess && files.length === 0) {
+    return (
+      <Box>
+        <Typography>{t('no_files_found')}</Typography>
+      </Box>
+    )
   }
 
   return (

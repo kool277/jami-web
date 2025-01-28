@@ -199,6 +199,7 @@
   "mute_conversation": "Mute conversation",
   "nameserver_already_set": "The name server is already set.",
   "next": "Next",
+  "no_files_found": "No files yet.",
   "ongoing_call_muted": "Ongoing call (muted)",
   "ongoing_call_unmuted": "Ongoing call",
   "openid": "OpenID",
