@@ -203,7 +203,7 @@
   "permission_denied_details": "Les permissions de la caméra et du microphone doivent être autorisées pour pouvoir passer un appel. Activez-les pour pouvoir utiliser cette fonction.",
   "permission_denied_title": "Les permissions de la caméra et du microphone interdisent leur utilisation.",
   "previous": "Précédent",
-  "redirect_admin_setup_complete": "Vous êtes redirigés ici parce que vous avez déjà configuré le compte d'administration",
+  "redirect_admin_setup_complete": "The admin account is already set up for the server.",
   "redirect_uri": "URI de redirection",
   "decline_call": "Refuser l'appel",
   "registration_form_password_tooltip": "Choisissez un mot de passe d'au moins 10 caractères, qui sera difficile à deviner mais dont vous vous souviendrez facilement. Il est impossible de récupérer le compte si vous oubliez le mot de passe.\n\nCliquez pour plus de détails.",

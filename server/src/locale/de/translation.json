@@ -203,7 +203,7 @@
   "permission_denied_details": "Zum Starten eines Anrufs sind Kamera- und Mikrofonberechtigungen erforderlich. Aktivieren Sie diese, um diese Funktion nutzen zu können.",
   "permission_denied_title": "Die Berechtigungen für Kamera und Mikrofon sind deaktiviert",
   "previous": "Vorherige",
-  "redirect_admin_setup_complete": "Sie werden hierher weitergeleitet, weil Sie das Administratorkonto bereits eingerichtet haben",
+  "redirect_admin_setup_complete": "The admin account is already set up for the server.",
   "redirect_uri": "Umleitungs-URI",
   "decline_call": "Anruf ablehnen",
   "registration_form_password_tooltip": "Wählen Sie ein Passwort mit mindestens 10 Zeichen, das für andere schwer zu erraten, für Sie jedoch leicht zu merken ist. Wenn das Passwort vergessen wird, kann das Konto nicht wiederhergestellt werden!\n\nKlicken Sie hier für weitere Details.",

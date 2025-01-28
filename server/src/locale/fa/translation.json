@@ -203,7 +203,7 @@
   "permission_denied_details": "Starting a call requires the camera and microphone permissions. Enable them in order to use this feature.",
   "permission_denied_title": "Camera and microphone permissions are disabled",
   "previous": "پیشین",
-  "redirect_admin_setup_complete": "You are redirected here because you have already setup the admin account",
+  "redirect_admin_setup_complete": "The admin account is already set up for the server.",
   "redirect_uri": "Redirect URI",
   "decline_call": "رد کردن تماس",
   "registration_form_password_tooltip": "Choose a password, containing at least 10 characters, that is hard to guess for others but easy to remember for you. The account is unable to be recovered if the password is forgotten!\n\nClick for more details.",
