@@ -16,7 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Modal, useTheme } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import { Box, Modal, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Message, ReactionRemoved, WebSocketMessageType } from 'jami-web-common'
 import { memo, useCallback, useMemo, useState } from 'react'
@@ -26,6 +27,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
+import EllipsisMiddle from './EllipsisMiddle'
 
 export interface MessageReactionProps {
   message: Message
@@ -186,9 +188,19 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
           }}
         >
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-            <Button sx={{ marginRight: '2%' }} onClick={() => handleCloseModal()}>
-              X
-            </Button>
+            <CloseIcon
+              sx={{
+                padding: '5px',
+                fontSize: '30px',
+                borderRadius: '5px',
+                ':hover': {
+                  cursor: 'pointer',
+                  backgroundColor: theme.ChatInterface.reactionModalBackground,
+                  transition: 'background-color 0.25s ease-in-out',
+                },
+              }}
+              onClick={() => handleCloseModal()}
+            />
           </Box>
 
           <Box
@@ -203,12 +215,22 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
             {message.reactions.map((reaction) => {
               const author = membersMap.get(reaction.author)?.contact.uri
               return (
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4 }} key={reaction.id}>
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto',
+                    alignItems: 'center',
+                    gap: 2,
+                    width: '75%',
+                    textAlign: 'center',
+                  }}
+                  key={reaction.id}
+                >
                   {author === account.getUri() ? (
                     <>
                       <Box>{t('yourself')}</Box>
                       <Box
-                        sx={{ ':hover': { cursor: 'pointer', scale: 2 } }}
+                        sx={{ ':hover': { cursor: 'pointer', transform: 'scale(1.2)' } }}
                         onClick={() => reaction.id && handleDeleteReaction(reaction.id)}
                       >
                         {reaction.body}
@@ -216,7 +238,9 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
                     </>
                   ) : (
                     <>
-                      <Box>{author}</Box>
+                      <Box sx={{ maxWidth: '200px' }}>
+                        <EllipsisMiddle text={author || t('unknown')} />
+                      </Box>
                       <Box>{reaction.body}</Box>
                     </>
                   )}
