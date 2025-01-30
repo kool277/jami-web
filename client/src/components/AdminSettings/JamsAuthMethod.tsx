@@ -91,7 +91,7 @@ const JamsAuthMethod = () => {
 
   const submitNewJamsUrl = async () => {
     // verifies if the string is a server adress or name server
-    const regexValidation = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d{1,5})?(\/[^\s]*)?$/.test(jamsUrl)
+    const regexValidation = /^(https?:\/\/)?(localhost|([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?::\d{1,5})?(\/[^\s]*)?$/.test(jamsUrl)
 
     if (jamsUrl === jamsCurrentUrl) {
       setAlertContent({

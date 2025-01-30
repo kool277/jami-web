@@ -69,7 +69,7 @@ export default function AdminConfigureJams() {
   }
 
   const submitNewJamsUrl = async () => {
-    const regexValidation = /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d{1,5})?(\/[^\s]*)?$/.test(jamsUrl)
+    const regexValidation = /^(https?:\/\/)?(localhost|([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?::\d{1,5})?(\/[^\s]*)?$/.test(jamsUrl)
     if (jamsUrl === jamsCurrentUrl) {
       return
     }
