@@ -554,7 +554,7 @@ const LinkPreview = memo(({ isAccountMessage, link }: LinkPreviewProps) => {
   const linkPreview = linkPreviewQuery.data
 
   return (
-    <a href={link} style={{ textDecorationLine: 'none' }}>
+    <a href={link} style={{ textDecorationLine: 'none' }} target="_blank" rel="noopener noreferrer">
       <Stack>
         {imageIsWorking && linkPreview.image && (
           <img
@@ -665,7 +665,9 @@ const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfG
               deleted={isDeleted}
               hasReply={message['reply-to'] !== undefined}
             >
-              <Linkify options={{ render: RenderLink as any }}>{message.body + '            '}</Linkify>
+              <Linkify options={{ render: RenderLink as any, target: '_blank' }}>
+                {message.body + '            '}
+              </Linkify>
               <Box>{link && isPreviewEnabled && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}</Box>
             </Bubble>
           </Box>
