@@ -47,77 +47,98 @@ const ConversationSettingsFileItem = ({
   author,
   messageId,
 }: ConversationSettingsFileItemProps) => {
-  const { members, conversationId } = useConversationContext()
-  const downloadFile = GetDownloadedFile(conversationId)
-  const betterTotalSize = String(byteSize(totalSize))
-  const isImg = displayName.match(/\.(jpeg|jpg|gif|png|webp)$/)
-  const isVideo = displayName.match(/\.(mp4|webm|mov)$/)
-  const isAudio = displayName.match(/\.(mp3|wav|ogg)$/)
-  const isText = displayName.match(
-    /\.(txt|c|h|cpp|hpp|java|py|js|ts|css|sh|sql|php|sh|json|xml|yml|yaml|ini|md|log|conf|tex|csv)$/,
-  )
-  const isPdf = displayName.match(/\.(pdf)$/)
-  const [blobUrl, setBlobUrl] = useState<string | undefined>()
-  const [blob, setBlob] = useState<Blob>()
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const conversationMember = members.find((member) => member.contact.uri === author)
-  const content = { messageId: messageId, fileId: fileId || '' }
-  const limitData = useGetAutoDownloadLimit()
-  const isFileAlreadyInCache = useGetDownloadFileInfo({ content, conversationId })
-  const [isDownloaded, setIsDownloaded] = useState(false)
-  const extension = displayName.split('.').pop() || '' // get the extension of the file; This is not robust enough
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const { t } = useTranslation()
+  const { members, conversationId } = useConversationContext()
+  const limitData = useGetAutoDownloadLimit()
+
+  const downloadFile = GetDownloadedFile(conversationId)
+  const betterTotalSize = String(byteSize(totalSize))
+
+  const [blobUrl, setBlobUrl] = useState<string | undefined>()
+  const [blob, setBlob] = useState<Blob>()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isDownloaded, setIsDownloaded] = useState(false)
+
+  const conversationMember = members.find((member) => member.contact.uri === author)
+  const content = { messageId: messageId, fileId: fileId || '' }
+  const isFileAlreadyInCache = useGetDownloadFileInfo({ content, conversationId })
+
+  const extension = displayName.split('.').pop() || '' // get the extension of the file; This is not robust enough
 
   const getFileType = useCallback(() => {
-    if (isImg) {
-      return 'image'
+    const fileTypes: { [key: string]: string } = {
+      image: 'jpeg|jpg|gif|png|webp',
+      video: 'mp4|webm|mov',
+      audio: 'mp3|wav|ogg',
+      text: 'txt|c|h|cpp|hpp|java|py|js|ts|css|sh|sql|php|json|xml|yml|yaml|ini|md|log|conf|tex|csv',
+      pdf: 'pdf',
     }
-    if (isVideo) {
-      return 'video'
-    }
-    if (isAudio) {
-      return 'audio'
-    }
-    if (isPdf) {
-      return 'pdf'
-    }
-    if (isText) {
-      return 'text'
+
+    for (const [type, extensions] of Object.entries(fileTypes)) {
+      if (new RegExp(`\\.(${extensions})$`).test(displayName)) {
+        return type
+      }
     }
     return 'none'
-  }, [isImg, isVideo, isAudio, isPdf, isText])
+  }, [displayName])
 
   const getBlob = useCallback(
     async (type: string) => {
-      const result = await downloadFile.mutateAsync({ messageId: messageId, fileId: fileId })
-      if (!result) {
-        return
+      try {
+        const result = await downloadFile.mutateAsync({
+          messageId,
+          fileId,
+        })
+
+        if (!result) return
+
+        const mimeType = type === 'pdf' ? 'application/pdf' : `${type}/${extension.toLowerCase()}`
+
+        const blob = new Blob([result.blob], { type: mimeType })
+        const url = URL.createObjectURL(blob)
+
+        setBlob(blob)
+        setBlobUrl(url)
+        setIsDownloaded(true)
+
+        return url
+      } catch (error) {
+        console.error('Failed to get blob:', error)
       }
-      const blob = new Blob([result.blob], {
-        type: type === 'pdf' ? 'application' : type + '/' + extension.toLowerCase(),
-      })
-      setBlob(blob)
-      setBlobUrl(URL.createObjectURL(blob))
-      setIsDownloaded(true)
     },
     [downloadFile, messageId, fileId, extension],
   )
 
   useEffect(() => {
-    const fetchBlob = async () => {
-      if (limitData.isSuccess && limitData.data && isFileAlreadyInCache.isSuccess && isFileAlreadyInCache.data) {
-        const totalSizeMb = Number(totalSize) / 1000000
-        if (totalSizeMb < limitData.data.limit || isFileAlreadyInCache.data) {
-          await getBlob(getFileType())
+    const shouldFetchBlob =
+      limitData.isSuccess &&
+      limitData.data &&
+      isFileAlreadyInCache.isSuccess &&
+      isFileAlreadyInCache.data &&
+      !isDownloaded
+    if (!shouldFetchBlob) return
+
+    const totalSizeMb = totalSize / 1000000
+    const isUnderSizeLimit = totalSizeMb < limitData.data.limit
+
+    if (isUnderSizeLimit || isFileAlreadyInCache.data) {
+      const fileType = getFileType()
+      let isMounted = true
+
+      getBlob(fileType).then((url) => {
+        if (isMounted && url) {
           setIsDownloaded(true)
         }
-      }
-    }
+      })
 
-    if (!isDownloaded) {
-      fetchBlob()
+      return () => {
+        if (blobUrl) {
+          URL.revokeObjectURL(blobUrl)
+        }
+        isMounted = false
+      }
     }
   }, [
     limitData.isSuccess,
@@ -125,18 +146,11 @@ const ConversationSettingsFileItem = ({
     isFileAlreadyInCache.isSuccess,
     isFileAlreadyInCache.data,
     totalSize,
+    isDownloaded,
     getBlob,
     getFileType,
-    isDownloaded,
+    blobUrl,
   ])
-
-  useEffect(() => {
-    return () => {
-      if (blobUrl) {
-        URL.revokeObjectURL(blobUrl)
-      }
-    }
-  }, [blobUrl])
 
   // only for video, img and audio files
   const handleDownload = async () => {
@@ -173,16 +187,18 @@ const ConversationSettingsFileItem = ({
   const iconStyle = { color: 'white', fontSize: '40px', width: '100%', padding: '4px' }
 
   const getIcon = () => {
-    if (isImg) {
-      return undefined
-    } else if (isVideo) {
-      return <VideoFileIcon sx={iconStyle} />
-    } else if (isAudio) {
-      return <AudioFileIcon sx={iconStyle} />
-    } else if (isPdf) {
-      return <PictureAsPdfIcon sx={iconStyle} />
+    switch (getFileType()) {
+      case 'image':
+        return undefined
+      case 'video':
+        return <VideoFileIcon sx={iconStyle} />
+      case 'audio':
+        return <AudioFileIcon sx={iconStyle} />
+      case 'pdf':
+        return <PictureAsPdfIcon sx={iconStyle} />
+      default:
+        return <AttachFileIcon sx={iconStyle} />
     }
-    return <AttachFileIcon sx={iconStyle} />
   }
 
   if (fileId === '') {
@@ -226,7 +242,7 @@ const ConversationSettingsFileItem = ({
           >
             {getIcon()}
 
-            {!(isImg && isDownloaded) && (
+            {!(getFileType() === 'image' && isDownloaded) && (
               <>
                 <Box
                   sx={{
