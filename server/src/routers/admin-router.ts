@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import argon2 from 'argon2'
+import envPaths from 'env-paths'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import { ParamsDictionary, Request, Response } from 'express-serve-static-core'
@@ -28,7 +29,6 @@ import {
   HttpStatusCode,
   isMailAddress,
 } from 'jami-web-common'
-import os from 'os'
 import path from 'path'
 import { Container } from 'typedi'
 
@@ -47,6 +47,9 @@ const accounts = Container.get(Accounts)
 const providersSupport = Container.get(OpenIdProviders)
 
 export const adminRouter = Router()
+
+const paths = envPaths('jami', { suffix: '' })
+const dataPath = paths.data
 
 adminRouter.get('/check', (_req, res) => {
   const isSetupComplete = adminAccount.getPasswordHash() !== undefined
@@ -286,11 +289,26 @@ adminRouter.get(
   }),
 )
 
-const getSizeOnDisk = async (accountId: string) => {
-  const pathToAccount = os.homedir() + '/.local/share/jami/' + accountId
-  const files = await readdir(pathToAccount)
-  const stats = files.map((file) => stat(path.join(pathToAccount, file)))
-  return (await Promise.all(stats)).reduce((accumulator, { size }) => accumulator + size, 0)
+const getSizeOnDisk = async (directoryPath: string): Promise<number> => {
+  try {
+    const files = await readdir(directoryPath)
+    const sizes = await Promise.all(
+      files.map(async (file) => {
+        const filePath = path.join(directoryPath, file)
+        const stats = await stat(filePath)
+
+        if (stats.isDirectory()) {
+          return getSizeOnDisk(filePath)
+        }
+        return stats.size
+      }),
+    )
+
+    return sizes.reduce((total, size) => total + size, 0)
+  } catch {
+    console.error('Directory not found')
+    return 0
+  }
 }
 
 adminRouter.get(
@@ -304,12 +322,13 @@ adminRouter.get(
 
     for (const [username, account] of Object.entries(jamsAccounts)) {
       const accountUri = jamid.getAccountDetails(account.accountId)['Account.username']
+      const path = dataPath + '/' + account.accountId
       if (accountUri) {
         accountsList.push({
           username,
           accountUri,
           auth: 'jams',
-          storage: await getSizeOnDisk(account.accountId),
+          storage: await getSizeOnDisk(path),
         })
       }
     }
@@ -317,12 +336,13 @@ adminRouter.get(
       const accountId = jamid.getAccountIdFromUsername(username)
       if (accountId) {
         const accountUri = jamid.getAccountDetails(accountId)['Account.username']
+        const path = dataPath + '/' + accountId
         if (accountUri) {
           accountsList.push({
             username,
             accountUri,
             auth: 'local',
-            storage: await getSizeOnDisk(accountId),
+            storage: await getSizeOnDisk(path),
           })
         }
       }
@@ -340,12 +360,12 @@ adminRouter.get(
         if (addedAccount !== undefined && !isMailAddress(addedAccount)) {
           accountsList = accountsList.filter((account) => account.username !== addedAccount)
         }
-
+        const path = dataPath + '/' + account.accountId
         accountsList.push({
           username,
           accountUri,
           auth: account.service.join(', '),
-          storage: await getSizeOnDisk(account.accountId),
+          storage: await getSizeOnDisk(path),
         })
         alreadyAdded.set(account.accountId, username)
       }
