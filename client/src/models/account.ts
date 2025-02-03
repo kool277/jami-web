@@ -47,6 +47,10 @@ export class Account implements IAccount {
     return account
   }
 
+  setDevices(devices: Devices) {
+    this.devices = devices
+  }
+
   setDetails(details: AccountDetails) {
     this.details = details
   }

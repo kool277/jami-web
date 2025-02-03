@@ -27,6 +27,7 @@ import {
   ConversationMessage,
   ConversationView,
   IAccountDetails,
+  IKnownDevicesChanged,
   LoadMoreMessages,
   LoadSwarmUntil,
   ProfileReceived,
@@ -52,6 +53,7 @@ export interface WebSocketMessageTable {
   [WebSocketMessageType.ConversationMemberEvent]: ConversationMemberEvent
   [WebSocketMessageType.LoadMoreMessages]: LoadMoreMessages
   [WebSocketMessageType.LoadSwarmUntil]: LoadSwarmUntil
+  [WebSocketMessageType.KnownDevicesChanged]: IKnownDevicesChanged
 
   // calls (in the order they should be sent)
   [WebSocketMessageType.sendCallInvite]: CallInvite

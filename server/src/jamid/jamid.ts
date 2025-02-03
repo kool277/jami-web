@@ -445,7 +445,8 @@ export class Jamid {
   }
 
   getDevices(accountId: string): Devices {
-    return stringMapToRecord(this.jamiSwig.getKnownRingDevices(accountId))
+    const devices = stringMapToRecord(this.jamiSwig.getKnownRingDevices(accountId))
+    return devices
   }
 
   revokeDevice(accountId: string, deviceId: string, scheme: string = 'password', password: string = '') {
@@ -773,6 +774,7 @@ export class Jamid {
       const data = {
         details: signal.details,
       }
+      console.log('data', data)
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.AccountDetails, data)
     })
 
@@ -805,8 +807,9 @@ export class Jamid {
       log.debug('Received RegisteredNameFound:', JSON.stringify(signal))
     })
 
-    this.events.onKnownDevicesChanged.subscribe(({ accountId }) => {
-      log.debug(`Received KnownDevicesChanged: {"accountId":"${accountId}", ...}`)
+    this.events.onKnownDevicesChanged.subscribe((signal) => {
+      log.debug(`Received KnownDevicesChanged: {"accountId":"${signal.accountId}", "devices": ...}`)
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.KnownDevicesChanged, { devices: signal.devices })
     })
 
     this.events.onIncomingAccountMessage.subscribe(<T extends WebSocketMessageType>(signal: IncomingAccountMessage) => {

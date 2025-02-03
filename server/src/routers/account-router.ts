@@ -124,9 +124,9 @@ accountRouter.post(
   asyncHandler(async (req, res) => {
     const accountId = res.locals.accountId
     const deviceId = req.params.deviceId
-
+    const password = req.body.password
     try {
-      const value = await jamid.revokeDevice(accountId, deviceId)
+      const value = await jamid.revokeDevice(accountId, deviceId, 'password', password)
       if (value.state === DeviceRevocationState.SUCCESS) {
         res.sendStatus(HttpStatusCode.Ok)
       } else {

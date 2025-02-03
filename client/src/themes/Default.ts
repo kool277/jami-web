@@ -91,6 +91,9 @@ declare module '@mui/material/styles' {
       fontColor: string
       titleColor: string
     }
+    SettingsNeedPassword: {
+      backgroundColor: string
+    }
   }
 
   interface ThemeOptions {
@@ -308,6 +311,9 @@ const palettes = {
       fontColor: 'black',
       titleColor: 'black',
     },
+    SettingsNeedPassword: {
+      backgroundColor: '#F2F2F2',
+    },
   },
   dark: {
     palette: {
@@ -405,6 +411,9 @@ const palettes = {
       inputColor: '#585858',
       fontColor: 'lightgrey',
       titleColor: 'white',
+    },
+    SettingsNeedPassword: {
+      backgroundColor: '#393838',
     },
   },
 }

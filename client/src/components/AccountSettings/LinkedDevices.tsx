@@ -24,18 +24,20 @@ import Grid from '@mui/material/Grid'
 import ListItem from '@mui/material/ListItem'
 import ListItemText from '@mui/material/ListItemText'
 import Typography from '@mui/material/Typography'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuthContext } from '../../contexts/AuthProvider'
 import { useRemoveLinkedDevice } from '../../services/accountQueries'
 import EllipsisMiddle from '../EllipsisMiddle'
 import { TrashBinIcon } from '../SvgIcon'
+import PasswordRequiredModal from './PasswordRequiredModal'
 
 function LinkedDevices() {
   const { account } = useAuthContext()
   const { t } = useTranslation()
   const removeLinkedDeviceMutation = useRemoveLinkedDevice()
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null)
 
   const devices = useMemo(() => {
     const deviceList: string[][] = []
@@ -49,59 +51,84 @@ function LinkedDevices() {
     return deviceList
   }, [account.devices, account.volatileDetails])
 
-  function removeDevice(deviceId: string) {
-    removeLinkedDeviceMutation.mutate({ deviceId })
+  function selectDevice(deviceId: string) {
+    setSelectedDeviceId(deviceId)
+  }
+
+  function removeDevice(password: string) {
+    if (selectedDeviceId === null) return
+    removeLinkedDeviceMutation.mutate({ deviceId: selectedDeviceId, password })
+    onClose()
+  }
+
+  function onClose() {
+    setSelectedDeviceId(null)
   }
 
   return (
-    <Grid item xs={12} sm={12} aria-label="linked-device">
-      <Card>
-        <CardContent sx={{ width: '100%' }}>
-          <Typography sx={{}} color="textSecondary" gutterBottom>
-            {t('settings_linked_devices')}
-          </Typography>
-          <Typography gutterBottom variant="h5" component="h2">
-            <ListItem>
-              <DevicesIcon sx={{ padding: '4px', margin: '4px', marginRight: '16px', height: '40px', width: '40px' }} />
-              <ListItemText
-                id="switch-list-label-rendezvous"
-                primary={
-                  <>
-                    {account.details['Account.deviceName']}
-                    <span style={{ fontSize: 'small', fontWeight: 'bolder', marginLeft: '3%' }}>
-                      {t('current_device')}
-                    </span>
-                  </>
-                }
-                secondary={
-                  <Typography noWrap sx={{ textOverflow: 'ellipsis', overflow: 'hidden', maxWidth: '100%' }}>
-                    {account.volatileDetails['Account.deviceID']}
-                  </Typography>
-                }
-              />
-            </ListItem>
-            {devices.map((device) => (
-              <ListItem key={device[0]}>
+    <>
+      <Grid item xs={12} sm={12} aria-label="linked-device">
+        <Card>
+          <CardContent sx={{ width: '100%' }}>
+            <Typography sx={{}} color="textSecondary" gutterBottom>
+              {t('settings_linked_devices')}
+            </Typography>
+            <Typography gutterBottom variant="h5" component="h2">
+              <ListItem>
                 <DevicesIcon
                   sx={{ padding: '4px', margin: '4px', marginRight: '16px', height: '40px', width: '40px' }}
                 />
                 <ListItemText
                   id="switch-list-label-rendezvous"
-                  primary={device[1]}
+                  primary={
+                    <>
+                      {account.details['Account.deviceName']}
+                      <span style={{ fontSize: 'small', fontWeight: 'bolder', marginLeft: '3%' }}>
+                        {t('current_device')}
+                      </span>
+                    </>
+                  }
                   secondary={
-                    <Box maxWidth={'90%'}>
-                      <EllipsisMiddle text={device[0]} />
-                    </Box>
+                    <Typography noWrap sx={{ textOverflow: 'ellipsis', overflow: 'hidden', maxWidth: '100%' }}>
+                      {account.volatileDetails['Account.deviceID']}
+                    </Typography>
                   }
                 />
-                <TrashBinIcon sx={{ '&:hover': { cursor: 'pointer' } }} onClick={() => removeDevice(device[0])} />
               </ListItem>
-            ))}
-            {/* <ListItemTextsion> */}
-          </Typography>
-        </CardContent>
-      </Card>
-    </Grid>
+              {devices.map((device) => (
+                <ListItem key={device[0]}>
+                  <DevicesIcon
+                    sx={{ padding: '4px', margin: '4px', marginRight: '16px', height: '40px', width: '40px' }}
+                  />
+                  <ListItemText
+                    id="switch-list-label-rendezvous"
+                    primary={device[1]}
+                    secondary={
+                      <Box maxWidth={'90%'}>
+                        <EllipsisMiddle text={device[0]} />
+                      </Box>
+                    }
+                  />
+                  <TrashBinIcon sx={{ '&:hover': { cursor: 'pointer' } }} onClick={() => selectDevice(device[0])} />
+                </ListItem>
+              ))}
+              {/* <ListItemTextsion> */}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+      <PasswordRequiredModal
+        open={selectedDeviceId !== null}
+        onClose={onClose}
+        title={t('revoke_device')}
+        onValidation={removeDevice}
+        buttonText={t('revoke_device')}
+        info={t('revoke_device_info', {
+          device: selectedDeviceId,
+          deviceName: account.devices[selectedDeviceId || ''],
+        })}
+      />
+    </>
   )
 }
 

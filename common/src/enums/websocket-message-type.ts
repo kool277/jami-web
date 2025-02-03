@@ -29,6 +29,7 @@ export enum WebSocketMessageType {
   MessageEdition = 'message-edition',
   LoadMoreMessages = 'load-more-messages',
   LoadSwarmUntil = 'load-swarm-until',
+  KnownDevicesChanged = 'known-devices-changed',
 
   // calls (in the order they should be sent)
   sendCallInvite = 'sendCallInvite',

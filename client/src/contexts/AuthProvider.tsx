@@ -32,6 +32,7 @@ interface IAuthContext {
   accountId: string
   logout: () => void
   axiosInstance: AxiosInstance
+  updateDevices: (devices: IAccount['devices']) => void
 }
 
 const optionalAuthContext = createOptionalContext<IAuthContext>('AuthContext')
@@ -42,6 +43,17 @@ export default ({ children }: WithChildren) => {
   const [token, setToken] = useState<string | undefined>()
   const [account, setAccount] = useState<Account | undefined>()
   const navigate = useNavigate()
+
+  const updateDevices = useCallback((devices: IAccount['devices']) => {
+    setAccount((prev) => {
+      if (!prev) {
+        return undefined
+      }
+
+      prev.setDevices(devices)
+      return prev
+    })
+  }, [])
 
   const logout = useCallback(() => {
     localStorage.removeItem('accessToken')
@@ -105,8 +117,9 @@ export default ({ children }: WithChildren) => {
       account,
       accountId: account.id,
       axiosInstance,
+      updateDevices,
     }
-  }, [token, logout, account, axiosInstance])
+  }, [token, logout, account, axiosInstance, updateDevices])
 
   if (!value) {
     return <ProcessingRequest open />

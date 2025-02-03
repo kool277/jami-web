@@ -17,7 +17,7 @@
  */
 
 import { useQueryClient } from '@tanstack/react-query'
-import { IAccountDetails, ProfileReceived, WebSocketMessageType } from 'jami-web-common'
+import { IAccountDetails, IKnownDevicesChanged, ProfileReceived, WebSocketMessageType } from 'jami-web-common'
 import { useEffect } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider'
@@ -28,7 +28,7 @@ interface AccountDetailsListenerProps {
 }
 
 export default function AccountDetailsListener({ children }: AccountDetailsListenerProps) {
-  const { account } = useAuthContext()
+  const { account, updateDevices } = useAuthContext()
   const webSocket = useWebSocketContext()
   const queryClient = useQueryClient()
 
@@ -38,11 +38,18 @@ export default function AccountDetailsListener({ children }: AccountDetailsListe
       queryClient.removeQueries({ queryKey: ['picture', data.peer] })
       queryClient.refetchQueries({ queryKey: ['picture', data.peer] })
     }
+
+    const knownDevicesChangedHandler = (data: IKnownDevicesChanged) => {
+      updateDevices(data.devices)
+    }
+
+    webSocket.bind(WebSocketMessageType.KnownDevicesChanged, knownDevicesChangedHandler)
     webSocket.bind(WebSocketMessageType.ProfileReceived, profileReceivedHandler)
     return () => {
+      webSocket.unbind(WebSocketMessageType.KnownDevicesChanged, knownDevicesChangedHandler)
       webSocket.unbind(WebSocketMessageType.ProfileReceived, profileReceivedHandler)
     }
-  }, [queryClient, webSocket])
+  }, [queryClient, webSocket, account, updateDevices])
 
   useEffect(() => {
     const accountDetailsChangedListener = (data: IAccountDetails) => {

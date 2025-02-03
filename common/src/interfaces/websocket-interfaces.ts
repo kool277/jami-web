@@ -17,8 +17,12 @@
  */
 import { ConversationMemberEventCode } from '../enums/conversation-member-event-code.js'
 import { MessageStatusCode } from '../enums/message-status-code.js'
-import { AccountDetails } from './account.js'
+import { AccountDetails, Devices } from './account.js'
 import { Message, Reaction } from './conversation.js'
+
+export interface IKnownDevicesChanged {
+  devices: Devices
+}
 
 export interface IAccountDetails {
   details: AccountDetails

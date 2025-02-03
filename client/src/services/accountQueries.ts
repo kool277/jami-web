@@ -44,10 +44,14 @@ export const useRemoveLinkedDevice = () => {
 
   return useMutation({
     mutationFn: async (content: removedLinkedDeviceContent) => {
-      const { data } = await axiosInstance.post(`/account/${content.deviceId}/revoke/`, {
-        baseURL: apiUrl,
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      const { data } = await axiosInstance.post(
+        `/account/${content.deviceId}/revoke/`,
+        { password: content.password },
+        {
+          baseURL: apiUrl,
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      )
       return data
     },
 
