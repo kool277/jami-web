@@ -158,10 +158,11 @@ export class Jamid {
     const onRegisteredNameFound = new Subject<RegisteredNameFound>()
     handlers.RegisteredNameFound = (
       accountId: string,
+      query: string,
       state: RegisteredNameFoundState,
       address: string,
-      username: string,
-    ) => onRegisteredNameFound.next({ accountId, state, address, username })
+      name: string,
+    ) => onRegisteredNameFound.next({ accountId, query, state, address, name })
 
     const onKnownDevicesChanged = new Subject<KnownDevicesChanged>()
     handlers.KnownDevicesChanged = (accountId: string, devices: Devices) =>
@@ -394,12 +395,9 @@ export class Jamid {
     if (!hasRingNs) {
       throw new Error('Jami does not have a nameserver')
     }
-    return firstValueFrom(
-      this.events.onRegisteredNameFound.pipe(
-        filter((value) => value.username === username),
-        map(({ accountId: _, ...response }) => response), // Remove accountId from response
-      ),
-    )
+
+    const data = firstValueFrom(this.events.onRegisteredNameFound.pipe(filter((value) => value.query === username)))
+    return data
   }
 
   async lookupAddress(address: string, nameserver: string, accountId?: string): Promise<LookupResult> {
@@ -411,12 +409,9 @@ export class Jamid {
     if (!hasRingNs) {
       throw new Error('Jami does not have a nameserver')
     }
-    return firstValueFrom(
-      this.events.onRegisteredNameFound.pipe(
-        filter((value) => value.address === address),
-        map(({ accountId: _, ...response }) => response), // Remove accountId from response
-      ),
-    )
+
+    const data = firstValueFrom(this.events.onRegisteredNameFound.pipe(filter((value) => value.query === address)))
+    return data
   }
 
   async registerUsername(accountId: string, username: string, password: string): Promise<NameRegistrationEndedState> {

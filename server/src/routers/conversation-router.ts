@@ -193,12 +193,12 @@ conversationRouter.get(
     const members = jamid.getConversationMembers(accountId, conversationId)
     const namedMembersPromises = members.map(async (member) => {
       try {
-        const { username } = await jamid.lookupAddress(member.uri, '', accountId)
+        const { name } = await jamid.lookupAddress(member.uri, '', accountId)
         return {
           role: member.role,
           contact: {
             uri: member.uri,
-            registeredName: username,
+            registeredName: name,
           },
         }
       } catch (e) {

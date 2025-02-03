@@ -69,9 +69,10 @@ export interface NameRegistrationEnded {
 
 export interface RegisteredNameFound {
   accountId: string
+  query: string
   state: RegisteredNameFoundState
   address: string
-  username: string
+  name: string
 }
 
 export interface KnownDevicesChanged {

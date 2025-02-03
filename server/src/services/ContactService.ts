@@ -27,10 +27,10 @@ const jamid = Container.get(Jamid)
 export class ContactService {
   async getContactFromUri(accountId: string, contactUri: string): Promise<IContact> {
     try {
-      const { username } = await jamid.lookupAddress(contactUri, '', accountId)
+      const { name } = await jamid.lookupAddress(contactUri, '', accountId)
       return {
         uri: contactUri,
-        registeredName: username,
+        registeredName: name,
       }
     } catch (e) {
       return {

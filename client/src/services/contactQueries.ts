@@ -29,7 +29,7 @@ export const useContactsSearchQuery = (searchQuery: string) => {
     queryKey: ['ns', 'username', searchQuery],
     queryFn: async () => {
       const { data } = await axiosInstance.get<LookupResult>(`/ns/username/${searchQuery}`)
-      return data ? [new Contact(data.address, data.username)] : []
+      return data ? [new Contact(data.address, data.name)] : []
     },
     enabled: !!searchQuery,
   })
