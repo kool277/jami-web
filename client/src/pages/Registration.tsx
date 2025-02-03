@@ -202,27 +202,6 @@ function RegistrationForm() {
           </Box>
         </Form>
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: theme.typography.pxToRem(30) }}>
-          {data.openIdAuthEnabled && (
-            <Box sx={{ marginTop: '8px', display: 'flex', gap: '2px' }}>
-              {providers.data.map(
-                (item: { provider: string; url: string; displayName: string; colorTheme: string; icon: string }) => (
-                  <Button
-                    sx={{ backgroundColor: item.colorTheme ? item.colorTheme : 'unset' }}
-                    key={item.provider}
-                    variant="contained"
-                    onClick={() => {
-                      window.location.replace(item.url)
-                    }}
-                  >
-                    {item.icon ? <img width="25px" height="25px" src={item.icon}></img> : item.displayName}
-                  </Button>
-                ),
-              )}
-            </Box>
-          )}
-        </Box>
-
         <Box
           sx={{
             mt: theme.typography.pxToRem(10),

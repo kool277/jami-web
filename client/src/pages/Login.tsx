@@ -220,7 +220,7 @@ function LoginForm() {
           </Box>
         </Form>
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: theme.typography.pxToRem(30) }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: theme.typography.pxToRem(20) }}>
           {data.openIdAuthEnabled && (
             <Box sx={{ marginTop: '8px', display: 'flex', gap: '2px' }}>
               {providers.data.map(
