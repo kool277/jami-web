@@ -46,7 +46,6 @@ export default function WelcomePage() {
   const { t } = useTranslation()
   const theme = useTheme()
   const { account } = useAuthContext()
-  const [displayedInfo, setDisplayedInfo] = useState(account.getRegisteredName())
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const [isAboutOpen, setIsAboutOpen] = useState(false)
   const { setIsMenuOpen } = useMobileMenuStateContext()
@@ -57,13 +56,11 @@ export default function WelcomePage() {
 
   const { mode } = useContext(CustomThemeContext)
   const isDark = mode === 'dark'
+  const hasToRegisterName = account.getRegisteredName() === undefined
+  const [displayedInfo, setDisplayedInfo] = useState(hasToRegisterName ? account.getUri() : account.getRegisteredName())
 
   if (isMobile) {
     setIsMenuOpen(true)
-  }
-
-  if (account.getRegisteredName() === undefined) {
-    setDisplayedInfo(account.getUri())
   }
 
   const [informationsTips, setInformationsTips] = useState([
@@ -108,7 +105,7 @@ export default function WelcomePage() {
   ])
 
   const handleMoreInfo = () => {
-    if (account.getRegisteredName() === undefined) {
+    if (hasToRegisterName) {
       //cannot switch between uri and registered name if registered name is undefined
       return
     }
