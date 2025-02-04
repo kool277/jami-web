@@ -224,7 +224,7 @@
   "reset_to_default": "Reset to default",
   "reset_nameserver_button": "Reset to default",
   "ressource_not_available": "Resource unavailable",
-  "revoke_device": "Revoke device",
+  "revoke_device": "إبطال جهاز",
   "revoke_device_info": "You are about to revoke the device {{deviceName}}.\nThis will log out the device and remove it from the linked devices list.",
   "save_button": "سجل",
   "replying_to": "Replying to",
