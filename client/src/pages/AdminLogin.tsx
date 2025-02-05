@@ -24,7 +24,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, Navigate } from 'react-router-dom'
 
 import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
-import jamiLogoIcon from '../icons/jamiLogoIcon.svg'
+import logoIcon from '../icons/jamiLogoIcon.svg'
 import { useLoginAdminMutation } from '../services/adminQueries'
 
 export default function AdminLogin() {
@@ -56,41 +56,43 @@ export default function AdminLogin() {
   }
 
   return (
-    <UnconnectedUserLayout>
-      <Box sx={isMobile ? { ...titleStyle, marginTop: '-20%' } : { ...titleStyle, marginTop: '-40%' }}>
-        <img
-          src={jamiLogoIcon}
-          alt="Jami logo"
-          style={{ width: '20%', height: 'auto', borderRadius: borderRadius, marginRight: '15px' }}
-        />
-        <Typography variant="h4" style={{ marginTop: 10, marginRight: '15px' }}>
-          {t('admin_page_login_title')}
-        </Typography>
-      </Box>
-      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10%' }}>
-        <Typography>{t('admin_page_login_subtitle')}</Typography>
-      </Box>
-      <Box sx={isMobile ? { height: '60%' } : { marginTop: '20%' }}>
-        <Box style={{ textAlign: 'center', marginTop: 10 }}>
-          <div>
-            <Input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              name="password"
-              type="password"
-              placeholder={t('password_placeholder')}
-              autoComplete="new-password"
-              required
-              disabled={isPending}
-            />
-          </div>
+    <>
+      <UnconnectedUserLayout>
+        <Box sx={isMobile ? { ...titleStyle, marginTop: '-20%' } : { ...titleStyle, marginTop: '-40%' }}>
+          <img
+            src={logoIcon}
+            alt="Jami logo"
+            style={{ width: '20%', height: 'auto', borderRadius: borderRadius, marginRight: '15px' }}
+          />
+          <Typography variant="h4" style={{ marginTop: 10, marginRight: '15px' }}>
+            {t('admin_page_login_title')}
+          </Typography>
         </Box>
-        <Box style={{ textAlign: 'center', marginTop: 24 }} onClick={handleSubmit}>
-          <Fab variant="extended" color="primary" type="submit" disabled={isPending}>
-            {t('login_form_submit_button')}
-            &nbsp;&nbsp;
-            <GroupAddRounded />
-          </Fab>
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10%' }}>
+          <Typography>{t('admin_page_login_subtitle')}</Typography>
+        </Box>
+        <Box sx={isMobile ? { height: '60%' } : { marginTop: '20%' }}>
+          <Box style={{ textAlign: 'center', marginTop: 10 }}>
+            <div>
+              <Input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                name="password"
+                type="password"
+                placeholder={t('password_placeholder')}
+                autoComplete="new-password"
+                required
+                disabled={isPending}
+              />
+            </div>
+          </Box>
+          <Box style={{ textAlign: 'center', marginTop: 24 }} onClick={handleSubmit}>
+            <Fab variant="extended" color="primary" type="submit" disabled={isPending}>
+              {t('login_form_submit_button')}
+              &nbsp;&nbsp;
+              <GroupAddRounded />
+            </Fab>
+          </Box>
         </Box>
         <Box
           sx={{
@@ -106,7 +108,7 @@ export default function AdminLogin() {
             </Link>
           </Typography>
         </Box>
-      </Box>
-    </UnconnectedUserLayout>
+      </UnconnectedUserLayout>
+    </>
   )
 }

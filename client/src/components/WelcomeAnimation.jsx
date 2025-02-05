@@ -20,7 +20,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import JamiLogo from '../icons/jamiLogoIcon.svg?react'
+import Logo from '../icons/jamiLogoIcon.svg?react'
 
 const list = {
   hidden: { opacity: 0 },
@@ -80,7 +80,7 @@ export default function WelcomeAnimation(props) {
               }}
             >
               <motion.div style={{ width: '100%', display: 'flex', justifyContent: 'center' }} variants={item}>
-                <JamiLogo width="60%" />
+                <Logo width="60%" />
               </motion.div>
             </motion.div>
           )}

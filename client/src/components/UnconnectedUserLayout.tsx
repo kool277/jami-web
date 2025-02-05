@@ -18,6 +18,8 @@
 import { Box, Card, CardContent, CardHeader, Container, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 
+import SettingLanguage from './GeneralSettings/SettingLanguage'
+
 interface UnconnectedUserLayoutProps {
   pageName?: string
   children: React.ReactNode
@@ -58,47 +60,58 @@ export default function UnconnectedUserLayout({ pageName, children, message }: U
   }
 
   return (
-    <Box sx={backgroundStyle}>
-      <Container className="message-list" sx={mainContainerStyle}>
-        <motion.div
-          initial={{ y: isMobile ? 0 : -15, opacity: isMobile ? 1 : 0.5 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card sx={cardStyle}>
-            <CardHeader title={pageName} />
-            <CardContent
-              sx={
-                isMobile
-                  ? { width: '100%', height: '90%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }
-                  : {}
-              }
-              component="form"
-            >
-              <Box sx={{ height: '80px', width: '100%', display: 'flex', justifyContent: 'center' }}>
-                <Typography width="400px" variant="body2" style={{ textAlign: 'start' }}>
-                  {message}
-                </Typography>
-              </Box>
-              <Box
+    <>
+      <Box sx={{ position: 'absolute', right: '0', padding: '1px' }}>
+        <SettingLanguage doNotDisplayLabel={true}></SettingLanguage>
+      </Box>
+      <Box sx={backgroundStyle}>
+        <Container className="message-list" sx={mainContainerStyle}>
+          <motion.div
+            initial={{ y: isMobile ? 0 : -15, opacity: isMobile ? 1 : 0.5 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Card sx={cardStyle}>
+              <CardHeader title={pageName} />
+              <CardContent
                 sx={
                   isMobile
                     ? {
-                        height: '80%',
                         width: '100%',
+                        height: '90%',
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'space-between',
+                        justifyContent: 'center',
                       }
-                    : { marginTop: '18%' }
+                    : {}
                 }
+                component="form"
               >
-                {children}
-              </Box>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </Container>
-    </Box>
+                <Box sx={{ height: '80px', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                  <Typography width="400px" variant="body2" style={{ textAlign: 'start' }}>
+                    {message}
+                  </Typography>
+                </Box>
+                <Box
+                  sx={
+                    isMobile
+                      ? {
+                          height: '80%',
+                          width: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                        }
+                      : { marginTop: '18%' }
+                  }
+                >
+                  {children}
+                </Box>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </Container>
+      </Box>
+    </>
   )
 }
