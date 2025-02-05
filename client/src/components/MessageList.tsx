@@ -58,7 +58,6 @@ export default function MessageList({ messages }: MessageListProps) {
   const parentRef = useRef<HTMLDivElement>(null)
 
   const count = messages.length
-  console.log('count ', count)
 
   const virtualizer = useVirtualizer({
     count,
