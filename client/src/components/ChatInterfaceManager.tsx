@@ -100,6 +100,7 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
 
   useEffect(() => {
     dispatch({ type: 'RESET' })
+    setIsLoadingMore(false)
   }, [conversationId])
 
   const messagesQuery = useMessagesQuery(conversationId, messagesMap.size === 0)
