@@ -41,7 +41,8 @@ export default function MessageStatus({ message }: MessageStatusProps) {
 
   useEffect(() => {
     let highest = MessageStatusCode.sending
-    for (const [peerId, status] of Object.entries(message.status)) {
+
+    for (const [peerId, status] of message.status) {
       if (status > highest && peerId !== account.getUri()) {
         highest = status
       }

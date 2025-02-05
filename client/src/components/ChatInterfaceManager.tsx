@@ -129,7 +129,10 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
       let updatedMessageOrder: string[] = []
 
       messagesQuery.data.forEach((message) => {
-        for (const [peerId, status] of Object.entries(message.status)) {
+        // convert to map
+        message.status = new Map(Object.entries(message.status))
+
+        for (const [peerId, status] of message.status) {
           if (peerId === account.getUri()) {
             continue
           }
@@ -145,8 +148,7 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
           }
         }
 
-        const messageStatus = JSON.parse(JSON.stringify(message.status))
-        if (message.author !== account.getUri() && messageStatus[account.getUri()] !== MessageStatusCode.read) {
+        if (message.author !== account.getUri() && message.status.get(account.getUri()) !== MessageStatusCode.read) {
           const args = {
             messageId: message.id,
             peer: message.author,
@@ -214,10 +216,9 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
         return
       }
 
-      const statusObject = JSON.parse(JSON.stringify(currentMessage.status))
-      const cStatus = statusObject[peer]
+      const currentStatus = currentMessage.status.get(peer) || 0
       const updatedStatus = new Map(currentMessage.status)
-      if (messageStatus <= cStatus) {
+      if (messageStatus <= currentStatus) {
         return
       }
 
@@ -255,7 +256,7 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
 
       const args = {
         messageId: message.id,
-        peer: message.author,
+        peer: account.getUri(),
         conversationId: conversationId,
         status: MessageStatusCode.read,
       }
@@ -392,14 +393,16 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
       const newMessageOrder = [...messageOrder]
 
       for (const message of messages) {
+        message.status = new Map(Object.entries(message.status))
+
         if (messagesMap.has(message.id)) {
           continue
         }
-        const messageStatus = JSON.parse(JSON.stringify(message.status))
-        if (message.author !== account.getUri() && messageStatus[account.getUri()] !== MessageStatusCode.read) {
+        const messageStatus = message.status.get(account.getUri()) || 0
+        if (message.author !== account.getUri() && messageStatus !== MessageStatusCode.read) {
           const args = {
             messageId: message.id,
-            peer: message.author,
+            peer: account.getUri(),
             conversationId: conversationId,
             status: MessageStatusCode.read,
           }
@@ -453,14 +456,16 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
       const newMessageOrder = [...messageOrder]
 
       for (const message of messages) {
+        message.status = new Map(Object.entries(message.status))
+
         if (messagesMap.has(message.id)) {
           continue
         }
-        const messageStatus = JSON.parse(JSON.stringify(message.status))
-        if (message.author !== account.getUri() && messageStatus[account.getUri()] !== MessageStatusCode.read) {
+        const messageStatus = message.status.get(account.getUri()) || 0
+        if (message.author !== account.getUri() && messageStatus !== MessageStatusCode.read) {
           const args = {
             messageId: message.id,
-            peer: message.author,
+            peer: account.getUri(),
             conversationId: conversationId,
             status: MessageStatusCode.read,
           }
@@ -558,6 +563,29 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
   const messagesArray = useMemo(() => {
     return messageOrder.map((id) => messagesMap.get(id)).filter(Boolean) as Message[]
   }, [messageOrder, messagesMap])
+
+  useEffect(() => {
+    const accUri = account.getUri()
+    for (const message of messagesArray) {
+      if (!message) {
+        continue
+      }
+      const cStatus = message.status.get(accUri)
+      if (cStatus === MessageStatusCode.read) {
+        return
+      }
+
+      if (message) {
+        const args = {
+          messageId: message.id,
+          peer: accUri,
+          conversationId: conversationId,
+          status: MessageStatusCode.read,
+        }
+        webSocket.send(WebSocketMessageType.AccountMessageStatus, args)
+      }
+    }
+  }, [messagesArray, account, conversationId, webSocket])
 
   if (isLoading) {
     return <LoadingPage />
