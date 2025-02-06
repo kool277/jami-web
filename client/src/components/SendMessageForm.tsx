@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import DeleteIcon from '@mui/icons-material/Delete'
 import { Box, Card, CardContent, TextareaAutosize, useTheme } from '@mui/material'
 import { Stack, useMediaQuery } from '@mui/system'
 import { WebSocketMessageType } from 'jami-web-common'
@@ -35,7 +36,6 @@ import {
   RecordVoiceMessageButton,
   SelectEmojiButton,
   SendMessageButton,
-  SquareCancelPictureButton,
   UploadFileButton,
 } from './Button'
 
@@ -431,14 +431,14 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
           onClick={voiceRecordingStatusChange}
           disabled={editMessage || isRecordingVoice ? true : false}
         />
+        <RecordVideoMessageButton
+          sx={isReduced ? mobileOptionStyles : {}}
+          disabled={editMessage || isRecordingVoice ? true : false}
+        />
         <UploadFileButton
           sx={isReduced ? mobileOptionStyles : {}}
           disabled={editMessage || isRecordingVoice ? true : false}
           onClick={openFilePicker}
-        />
-        <RecordVideoMessageButton
-          sx={isReduced ? mobileOptionStyles : {}}
-          disabled={editMessage || isRecordingVoice ? true : false}
         />
       </Box>
       {isRecordingVoice ? (
@@ -490,11 +490,15 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
       )}
       <Box sx={{ display: 'flex', alignItems: 'center', alignContent: 'center' }}>
         {isRecordingVoice ? (
-          <SquareCancelPictureButton onClick={voiceRecordingStatusChange} />
+          <DeleteIcon
+            onClick={voiceRecordingStatusChange}
+            style={{ color: 'red', width: '30px', height: '30px', cursor: 'pointer' }}
+          />
         ) : (
           <SelectEmojiButton onEmojiSelected={onEmojiSelected} />
         )}
         <SendMessageButton
+          sx={{ ml: '4px' }}
           disabled={!(currentMessage || fileHandlers.length > 0) && !isRecordingVoice}
           onClick={isRecordingVoice ? handleVoiceRecording : () => {}}
           type={isRecordingVoice ? undefined : 'submit'}
