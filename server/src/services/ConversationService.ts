@@ -106,7 +106,6 @@ export class ConversationService {
       try {
         const data = await jamid.lookupAddress(member.uri, '', accountId)
         const username = data.name
-        console.log('data', username)
         return username || member.uri
       } catch (e) {
         return member.uri

@@ -87,7 +87,6 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
     if (location.pathname.startsWith('/conversation')) {
       navigate('/conversation')
     }
-    console.log('menu icon clicked')
   }
 
   const isConversationOpen = location.pathname.startsWith('/conversation') && !isMenuOpen

@@ -533,33 +533,6 @@ export class Jamid {
     return stringMapToRecord(this.jamiSwig.conversationInfos(accountId, conversationId)) as unknown as ConversationInfos
   }
 
-  searchConversation(
-    accountId: string,
-    conversationId: string,
-    author: string = '',
-    lastId: string = '',
-    regexSearch: string = '',
-    type: string = '',
-    after: number = 0,
-    before: number = 0,
-    maxResult: number = 1,
-    flag: number = 0,
-  ) {
-    const searchId = this.jamiSwig.searchConversation(
-      accountId,
-      conversationId,
-      author,
-      lastId,
-      regexSearch,
-      type,
-      after,
-      before,
-      maxResult,
-      flag,
-    )
-    console.log('searchId', searchId)
-  }
-
   async getAllFiles(accountId: string, conversationId: string): Promise<Message[]> {
     const searchId = this.jamiSwig.searchConversation(
       accountId,
@@ -840,7 +813,6 @@ export class Jamid {
       const data = {
         details: signal.details,
       }
-      console.log('data', data)
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.AccountDetails, data)
     })
 

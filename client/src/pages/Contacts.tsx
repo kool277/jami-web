@@ -18,7 +18,6 @@
 import { Box } from '@mui/material'
 
 import ContactList from '../components/ContactList'
-import EditSwarmDetails from '../components/EditSwamDetails'
 import Footer from '../components/Footer'
 
 export default function Contacts() {
@@ -38,9 +37,7 @@ export default function Contacts() {
             textAlign: 'center',
             marginTop: '20vh',
           }}
-        >
-          <EditSwarmDetails />
-        </Box>
+        ></Box>
       </Box>
     </Box>
   )
