@@ -16,9 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Divider, ListItem, ListItemAvatar, ListItemText } from '@mui/material'
+import { Box, ListItem, ListItemAvatar, ListItemText, useTheme } from '@mui/material'
 import List from '@mui/material/List'
-import { motion } from 'framer-motion'
 import { memo, SetStateAction, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -36,7 +35,7 @@ import { ConfirmationDialog, useDialogHandler } from './Dialog'
 import EllipsisMiddle from './EllipsisMiddle'
 import LoadingPage from './Loading'
 import { PopoverListItemData } from './PopoverList'
-import { BlockContactIcon, CancelIcon, CheckedIcon, PersonIcon } from './SvgIcon'
+import { BlockContactIcon, CancelIcon, PersonIcon } from './SvgIcon'
 
 interface ContactListProps {
   members?: string[]
@@ -55,6 +54,7 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
   const singleContactQuery = useContactQuery(currentContactId)
   const { data: contactDetail } = singleContactQuery
   const contextMenuHandler = useContextMenuHandler()
+  const theme = useTheme()
 
   const {
     props: { open: dialogOpen, onClose: closeContactDialog },
@@ -90,17 +90,12 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
     setFilterValue(event.target.value)
   }
 
-  const item = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-    },
-  }
-
   if (isLoading) {
     return <LoadingPage />
   }
+
+  const isSelected = (contactId: string): boolean =>
+    selectedContacts !== undefined && selectedContacts.includes(contactId)
 
   return (
     <>
@@ -124,7 +119,21 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
           <>
             <ListItem
               onClick={() => setSelectedContact && setSelectedContact(contact.id)}
-              sx={{ cursor: 'pointer' }}
+              sx={{
+                cursor: 'pointer',
+                backgroundColor: isSelected(contact.id) ? theme.ChatInterface.selectedColor : 'inherit',
+                '&:hover': {
+                  borderColor: theme.palette.primary.light,
+                  textShadow: '0 0 .01px black',
+                  backgroundColor: theme.Footer.backgroundColor,
+                },
+                '&.Mui-selected': {
+                  backgroundColor: theme.ChatInterface.selectedColor,
+                  color: theme.palette.primary.dark,
+                  borderColor: theme.ChatInterface.selectedColor,
+                  textShadow: `0 0 .01px ${theme.ChatInterface.selectedColor}`,
+                },
+              }}
               alignItems="flex-start"
               key={contact.id}
               onContextMenu={(e) => {
@@ -151,20 +160,13 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
                   width: '24px',
                   height: '24px',
                 }}
-              >
-                {selectedContacts !== undefined && selectedContacts.includes(contact.id) && (
-                  <motion.div variants={item} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
-                    <CheckedIcon />
-                  </motion.div>
-                )}
-              </Box>
+              ></Box>
             </ListItem>
-            {contact.id !== filteredContacts[filteredContacts.length - 1].id && <Divider variant="middle" />}
           </>
         ))}
       </List>
       {filteredContacts !== undefined && filteredContacts.length === 0 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', textAlign: 'center' }}>No contacts found</Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', textAlign: 'center' }}>{t('no_countact_found')}</Box>
       )}
     </>
   )
