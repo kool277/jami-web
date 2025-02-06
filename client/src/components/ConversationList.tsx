@@ -16,10 +16,16 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, Stack, Typography, useTheme } from '@mui/material'
+import { WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useConversationRequestsQuery, useConversationsSummariesQuery } from '../services/conversationQueries'
+import { useWebSocketContext } from '../contexts/WebSocketProvider'
+import {
+  useConversationRequestsQuery,
+  useConversationsSummariesQuery,
+  useRefreshConversationsSummaries,
+} from '../services/conversationQueries'
 import ContactSearchBar from './ContactSearchBar'
 import ContactSearchResultList from './ContactSearchResultList'
 import { ConversationRequestList } from './ConversationRequestList'
@@ -106,6 +112,20 @@ const ConversationTabs = () => {
 const SummariesTabPanel = (props: TabPanelProps) => {
   const conversationsSummariesQuery = useConversationsSummariesQuery()
   const conversationsSummaries = conversationsSummariesQuery.data || []
+  const websocket = useWebSocketContext()
+  const refreshConversationsSummaries = useRefreshConversationsSummaries()
+
+  useEffect(() => {
+    function conversationMessageListener() {
+      refreshConversationsSummaries()
+    }
+
+    websocket.bind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
+
+    return () => {
+      websocket.unbind(WebSocketMessageType.ConversationMessage, conversationMessageListener)
+    }
+  }, [websocket, refreshConversationsSummaries])
 
   return (
     <TabPanel sx={{ overflowY: 'auto', height: '100%' }} {...props}>
