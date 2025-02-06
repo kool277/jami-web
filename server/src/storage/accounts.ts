@@ -19,7 +19,6 @@ import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
 import envPaths from 'env-paths'
-import { OpenIdAccount } from 'jami-web-common'
 import { Service } from 'typedi'
 
 const paths = envPaths('jami-web', { suffix: '' })
@@ -29,10 +28,16 @@ if (!existsSync(paths.data)) {
 }
 
 interface AccountsFormat {
-  local: Record<string, string>
+  local: Record<string, { password: string; accountId: string }>
   jams: Record<string, { password: string; accountId: string }>
-  guest: Record<string, string>
-  openid: Record<string, OpenIdAccount>
+  guest: Record<string, string> // key is accountId, value is expiration date
+  openid: Record<
+    string,
+    {
+      accountId: string
+      service: string[]
+    }
+  >
 }
 
 const METHODS = ['local', 'jams', 'guest', 'openid']
@@ -51,6 +56,7 @@ export class Accounts {
     }
     this.accounts = JSON.parse(buffer.toString())
   }
+
   get(username: string, authMethod: string = 'local') {
     if (!METHODS.includes(authMethod)) {
       console.log('Invalid auth method')
@@ -62,15 +68,15 @@ export class Accounts {
     return this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
   }
 
-  getOpenIdAccount(email: string) {
-    return this.accounts['openid'][email.toLowerCase()]
+  getOpenIdAccount(key: string) {
+    return this.accounts['openid'][key.toLowerCase()]
   }
 
   isInJamsAccounts(username: string) {
     return username.toLowerCase() in this.accounts['jams']
   }
 
-  set(username: string, value: string | OpenIdAccount, authMethod: string = 'local', JAMSAccountId?: string): void {
+  set(username: string, value: string | string[], authMethod: string = 'local', accountId: string): void {
     if (!METHODS.includes(authMethod)) {
       console.log('Invalid auth method')
       return
@@ -83,10 +89,10 @@ export class Accounts {
     try {
       switch (authMethod) {
         case 'jams':
-          if (JAMSAccountId !== undefined && typeof value === 'string') {
+          if (accountId !== undefined && typeof value === 'string') {
             this.accounts['jams'][username.toLowerCase()] = {
               password: value,
-              accountId: JAMSAccountId,
+              accountId: accountId,
             }
           } else {
             throw new Error('JAMSAccountId is required for jams auth method')
@@ -96,9 +102,11 @@ export class Accounts {
           if (typeof value !== 'string') {
             return
           }
-          this.accounts['local'][username.toLowerCase()] = value
+          this.accounts['local'][username.toLowerCase()] = {
+            password: value,
+            accountId: accountId,
+          }
           break
-        // TODO : Add support for guest and openid
         case 'guest':
           if (typeof value !== 'string') {
             return
@@ -109,7 +117,11 @@ export class Accounts {
           if (typeof value === 'string') {
             return
           }
-          this.accounts['openid'][username.toLowerCase()] = value
+          this.accounts['openid'][username.toLowerCase()] = {
+            service: value,
+            accountId: accountId,
+          }
+
           break
         default:
           throw new Error('Invalid auth method')
@@ -137,6 +149,9 @@ export class Accounts {
   }
 
   extendSessionIfGuest(accountId: string) {
+    if (!(accountId in this.accounts.guest)) {
+      return
+    }
     const guestExpiration = this.accounts.guest[accountId]
     if (guestExpiration === undefined) {
       return

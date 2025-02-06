@@ -67,4 +67,6 @@ export interface AccountOverview {
   accountUri: string
   auth: string
   storage: number
+  accountId: string
+  expirationDate?: number
 }

@@ -97,7 +97,7 @@ authRouter.post(
     }
 
     try {
-      accounts.set(username, hashedPassword, 'local')
+      accounts.set(username, hashedPassword, 'local', accountId)
       await accounts.save()
       res.sendStatus(HttpStatusCode.Created)
     } catch (e: any) {
@@ -118,13 +118,17 @@ authRouter.post(
       }
 
       const { accountId } = await jamid.addAccount({})
+
+      const sessionTime = 2 * 60 * 60 * 1000
+      const date = Date.now() + sessionTime
+
+      accounts.set(accountId, date.toString(), 'guest', '')
+      accounts.save()
+
       const details = jamid.getAccountDetails(accountId)
       const username = details['Account.username']
       const jwt = await signJwtWithExpiration(accountId, '2h')
-      const sessionTime = 2 * 60 * 60 * 1000
-      const date = Date.now() + sessionTime
-      accounts.set(accountId, date.toString(), 'guest')
-      accounts.save()
+
       res.send({ accessToken: jwt })
       setTimeout(() => {
         clearGuest(accountId, username)
@@ -209,12 +213,25 @@ authRouter.post(
         return
       }
 
-      const accountId = jamid.getAccountIdFromUsername(username)
+      const data = accounts.get(username)
+      if (typeof data === 'string' || data === undefined) {
+        res.status(HttpStatusCode.NotFound).send('Username not found')
+        return
+      }
+
+      const accountId = data?.accountId
       if (accountId === undefined) {
         res.status(HttpStatusCode.NotFound).send('Username not found')
         return
       }
-      const hashedPassword = accounts.get(username, 'local')
+
+      if (!('password' in data)) {
+        res.status(HttpStatusCode.NotFound).send('Password not found')
+        return
+      }
+
+      const hashedPassword = data.password
+
       if (hashedPassword === undefined || typeof hashedPassword !== 'string') {
         res
           .status(HttpStatusCode.Unauthorized)
@@ -240,7 +257,7 @@ authRouter.post(
     const accountId = res.locals.accountId
     const jwt = await signJwtWithExpiration(accountId, '2h')
     const date = Date.now() + 2 * 60 * 60 * 1000
-    accounts.set(accountId, date.toString(), 'guest')
+    accounts.set(accountId, date.toString(), 'guest', '')
     accounts.save()
     res.send({ accessToken: jwt })
   }),
@@ -372,7 +389,7 @@ authRouter.get(
 
     const savedAccount = accounts.getOpenIdAccount(key)
     if (savedAccount !== undefined && accounts.getOpenIdAccount(key) === undefined) {
-      accounts.set(key, { accountId: savedAccount.accountId, service: [provider] }, 'openid') // now the user can cannot using either the sub or the email
+      accounts.set(key, [provider], 'openid', savedAccount.accountId) // now the user can cannot using either the sub or the email
       accounts.save()
     }
 

@@ -77,6 +77,12 @@ const headCells: readonly HeadCell[] = [
     label: t('admin_page_accounts_overview_title_username'),
   },
   {
+    id: 'accountId',
+    numeric: true,
+    disablePadding: false,
+    label: t('account_id'),
+  },
+  {
     id: 'auth',
     numeric: true,
     disablePadding: false,
@@ -298,6 +304,7 @@ export default function AccountsOverview() {
                         {row.username}
                         <Box sx={{ fontSize: '11px', color: 'grey' }}>{row.accountUri}</Box>
                       </TableCell>
+                      <TableCell align="right">{row.accountId}</TableCell>
                       <TableCell align="right">{row.auth}</TableCell>
                       <TableCell align="right">{String(byteSize(row.storage))}</TableCell>
                       <TableCell padding="checkbox">

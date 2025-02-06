@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import axios from 'axios'
-import { AccountDetails, OpenIdAccount } from 'jami-web-common'
+import { AccountDetails } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
@@ -105,12 +105,7 @@ export async function getJwt(email: string, userName: string, service: string) {
       return 'INVALID'
     }
 
-    const values: OpenIdAccount = {
-      accountId: accId,
-      service: [service],
-    }
-
-    accounts.set(email, values, 'openid')
+    accounts.set(email, [service], 'openid', accId)
     await accounts.save()
 
     const jwt = await signJwt(accId)
@@ -121,7 +116,7 @@ export async function getJwt(email: string, userName: string, service: string) {
   if (accountId && accountId !== '') {
     if (!accountData.service.includes(service)) {
       accountData.service.push(service)
-      accounts.set(email, accountData, 'openid')
+      accounts.set(email, accountData.service, 'openid', accountId)
       accounts.save()
     }
     const jwt = await signJwt(accountId)

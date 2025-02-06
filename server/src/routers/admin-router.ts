@@ -329,6 +329,7 @@ adminRouter.get(
           accountUri,
           auth: 'jams',
           storage: await getSizeOnDisk(path),
+          accountId: account.accountId,
         })
       }
     }
@@ -343,6 +344,7 @@ adminRouter.get(
             accountUri,
             auth: 'local',
             storage: await getSizeOnDisk(path),
+            accountId,
           })
         }
       }
@@ -366,10 +368,28 @@ adminRouter.get(
           accountUri,
           auth: account.service.join(', '),
           storage: await getSizeOnDisk(path),
+          accountId: account.accountId,
         })
         alreadyAdded.set(account.accountId, username)
       }
     }
+
+    for (const [accountId, expirationDate] of Object.entries(accounts.getGuests())) {
+      const accountUri = jamid.getAccountDetails(accountId)['Account.username']
+      if (accountUri) {
+        const path = dataPath + '/' + accountId
+        accountsList.push({
+          username: accountId,
+          accountUri,
+          auth: 'guest',
+          storage: await getSizeOnDisk(path),
+          accountId,
+          expirationDate: Number(expirationDate),
+        })
+        alreadyAdded.set(accountId, accountUri)
+      }
+    }
+
     res.send(accountsList)
   }),
 )
