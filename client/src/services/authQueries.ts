@@ -164,6 +164,8 @@ export const useLoginMutation = () => {
         //continue when the auth flow is clear
       } else if (status === HttpStatusCode.Unauthorized) {
         setAlertContent({ messageI18nKey: 'login_invalid_credentials', severity: 'error', alertOpen: true })
+      } else if (status === HttpStatusCode.TooManyRequests) {
+        setAlertContent({ messageI18nKey: 'too_many_requests', severity: 'error', alertOpen: true })
       } else {
         setAlertContent({ messageI18nKey: 'unknown_error_alert', severity: 'error', alertOpen: true })
       }

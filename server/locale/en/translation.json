@@ -296,6 +296,7 @@
   "share_window": "Share window",
   "size": "File size:",
   "submit": "Submit",
+  "too_many_requests": "Too many attemps, please try again later.",
   "transfer_message": "Transfer message",
   "unauthorized_access": "Unauthorized access",
   "unknown_error_alert": "An unexpected error occurred. Please try again.",

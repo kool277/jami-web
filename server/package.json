@@ -31,7 +31,8 @@
     "typedi": "^0.10.0",
     "vcard4-ts": "^0.4.1",
     "whatwg-url": "^14.0.0",
-    "ws": "^8.18.0"
+    "ws": "^8.18.0",
+    "express-rate-limit": "7.5.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

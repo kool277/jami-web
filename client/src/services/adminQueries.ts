@@ -94,6 +94,12 @@ export const useLoginAdminMutation = () => {
           severity: 'error',
           alertOpen: true,
         })
+      } else if (e.response?.status === HttpStatusCode.TooManyRequests) {
+        setAlertContent({
+          messageI18nKey: 'too_many_requests',
+          severity: 'error',
+          alertOpen: true,
+        })
       } else {
         setAlertContent({
           messageI18nKey: 'unknown_error_alert',

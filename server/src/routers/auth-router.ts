@@ -18,20 +18,25 @@
 import argon2 from 'argon2'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
+import rateLimit from 'express-rate-limit'
 import { ParamsDictionary, Request } from 'express-serve-static-core'
 import { AccessToken, AccountDetails, HttpStatusCode, UserCredentials } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { NameRegistrationEndedState, RegistrationState } from '../jamid/state-enums.js'
+import { LoginGuard } from '../services/LoginGuard.js'
 import { Accounts } from '../storage/accounts.js'
 import { AdminAccount } from '../storage/admin-account.js'
 import { OpenIdProviders } from '../storage/openid-providers.js'
 import { clearGuest, clearGuests } from '../utils/guests.js'
 import { signJwt, signJwtWithExpiration } from '../utils/jwt.js'
 import { exchangeCodeForToken, exchangeTokenForUserInfo, getBase64Picture, getJwt } from '../utils/openid.js'
+
 const jamid = Container.get(Jamid)
 const accounts = Container.get(Accounts)
+
+const guard = new LoginGuard()
 
 const config = Container.get(AdminAccount)
 const providers = Container.get(OpenIdProviders)
@@ -106,8 +111,17 @@ authRouter.post(
     }
   }),
 )
+
+const loginlimiter = rateLimit({
+  windowMs: 10 * 60 * 5000, // 5 minutes
+  max: 10, // Limit each IP to 3 requests per `window` (here, per 5 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
 authRouter.post(
   '/login',
+  loginlimiter,
   asyncHandler(async (req: Request<ParamsDictionary, AccessToken | string, Partial<UserCredentials>>, res) => {
     const { username, password, authMethod } = req.body
 
@@ -193,18 +207,25 @@ authRouter.post(
         res.status(HttpStatusCode.NotFound).send('Password not found')
         return
       }
+      const JAMSAccountId = data.accountId
+
+      if (guard.isBlocked(JAMSAccountId)) {
+        res.status(HttpStatusCode.TooManyRequests).send('Too many login attempts')
+        return
+      }
 
       const isPasswordVerified = await argon2.verify(data.password, password)
       if (!isPasswordVerified) {
+        guard.setFailedLogin(JAMSAccountId)
         res.status(HttpStatusCode.Unauthorized).send('Incorrect password')
         return
       }
-      const JAMSAccountId = data.accountId
       if (JAMSAccountId === undefined) {
         res.status(HttpStatusCode.NotFound).send('Username not found')
         return
       }
       const jwt = await signJwt(JAMSAccountId)
+      guard.resetAttempts(JAMSAccountId)
       res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
       return
     } else if (authMethod === 'local') {
@@ -225,6 +246,11 @@ authRouter.post(
         return
       }
 
+      if (guard.isBlocked(accountId)) {
+        res.status(HttpStatusCode.TooManyRequests).send('Too many login attempts')
+        return
+      }
+
       if (!('password' in data)) {
         res.status(HttpStatusCode.NotFound).send('Password not found')
         return
@@ -240,10 +266,12 @@ authRouter.post(
       }
       const isPasswordVerified = await argon2.verify(hashedPassword, password)
       if (!isPasswordVerified) {
+        guard.setFailedLogin(accountId)
         res.status(HttpStatusCode.Unauthorized).send('Incorrect password')
         return
       }
       const jwt = await signJwt(accountId)
+      guard.resetAttempts(accountId)
       res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
     }
   }),

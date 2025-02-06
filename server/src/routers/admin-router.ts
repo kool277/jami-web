@@ -19,6 +19,7 @@ import argon2 from 'argon2'
 import envPaths from 'env-paths'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
+import rateLimit from 'express-rate-limit'
 import { ParamsDictionary, Request, Response } from 'express-serve-static-core'
 import fs from 'fs'
 import { readdir, stat } from 'fs/promises'
@@ -96,8 +97,16 @@ adminRouter.post('/adminWizardState', (req: Request<ParamsDictionary, AdminWizar
   res.sendStatus(HttpStatusCode.Ok)
 })
 
+const loginlimiter = rateLimit({
+  windowMs: 10 * 60 * 5000, // 5 minutes
+  max: 3, // Limit each IP to 3 requests per `window` (here, per 5 minutes)
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
 adminRouter.post(
   '/login',
+  loginlimiter,
   asyncHandler(async (req: Request<ParamsDictionary, AccessToken | string, Partial<AdminCredentials>>, res) => {
     const { password } = req.body
     if (password === undefined) {
