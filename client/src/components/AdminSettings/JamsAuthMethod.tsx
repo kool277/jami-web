@@ -28,6 +28,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
+import { urlRegex } from 'jami-web-common'
 import { ChangeEvent, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
@@ -81,9 +82,7 @@ const JamsAuthMethod = () => {
 
   const submitNewJamsUrl = async () => {
     // verifies if the string is a server adress or name server
-    const regexValidation = /^(https?:\/\/)?(localhost|([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?::\d{1,5})?(\/[^\s]*)?$/.test(
-      jamsUrl,
-    )
+    const regexValidation = urlRegex.test(jamsUrl)
 
     if (jamsUrl === jamsCurrentUrl) {
       setAlertContent({

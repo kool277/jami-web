@@ -29,6 +29,7 @@ import {
   AdminWizardState,
   HttpStatusCode,
   isMailAddress,
+  urlRegex,
 } from 'jami-web-common'
 import path from 'path'
 import { Container } from 'typedi'
@@ -222,7 +223,7 @@ adminRouter.post(
       res.status(HttpStatusCode.BadRequest).send('Nameserver not provided')
       return
     }
-    if (!/^(http(s)?:\/\/)?([a-zA-Z0-9\-.]+)(:\d{1,5})?(\/.*)?$/g.test(nameserver)) {
+    if (!urlRegex.test(nameserver)) {
       res.status(HttpStatusCode.BadRequest).send('Invalid nameserver')
       return
     }
@@ -263,7 +264,7 @@ adminRouter.post(
       res.status(HttpStatusCode.BadRequest).send('Nameserver not provided')
       return
     }
-    if (!/^(http(s)?:\/\/)?([a-zA-Z0-9\-.]+)(:\d{1,5})?(\/.*)?$/g.test(jamsUrl)) {
+    if (!urlRegex.test(jamsUrl)) {
       res.status(HttpStatusCode.BadRequest).send('Invalid url')
       return
     }

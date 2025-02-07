@@ -28,6 +28,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
+import { urlRegex } from 'jami-web-common'
 import { ChangeEvent, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
@@ -88,10 +89,7 @@ const LocalAuthMethod = () => {
 
   const submitNewNameServer = async () => {
     // verifies if the string is a server address or name server
-    if (
-      /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d{1,5})?$/.test(nameServer) &&
-      nameServer !== nameServerConfigured
-    ) {
+    if (urlRegex.test(nameServer) && nameServer !== nameServerConfigured) {
       setNameServerMutation.mutate(nameServer)
       setNameServer('')
     } else {

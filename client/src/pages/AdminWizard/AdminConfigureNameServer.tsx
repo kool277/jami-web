@@ -17,7 +17,7 @@
  */
 
 import { Box, Button, Input, Switch, Typography, useMediaQuery, useTheme } from '@mui/material'
-import { AdminWizardState } from 'jami-web-common'
+import { AdminWizardState, urlRegex } from 'jami-web-common'
 import { ChangeEvent, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, useNavigate } from 'react-router-dom'
@@ -69,10 +69,7 @@ export default function AdminConfigureNameServer() {
   }
 
   const submitNewNameServer = async () => {
-    if (
-      /^(https?:\/\/)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?::\d{1,5})?$/.test(nameServer) &&
-      nameServer !== nameServerConfigured
-    ) {
+    if (urlRegex.test(nameServer) && nameServer !== nameServerConfigured) {
       setNameServerMutation.mutate(nameServer)
       setWizardStateMutation.mutate(AdminWizardState.jams)
       navigate('/admin/setup/jams')
