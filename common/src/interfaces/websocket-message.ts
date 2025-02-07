@@ -25,6 +25,7 @@ import {
   ComposingStatus,
   ConversationMemberEvent,
   ConversationMessage,
+  ConversationReady,
   ConversationView,
   IAccountDetails,
   IKnownDevicesChanged,
@@ -54,6 +55,7 @@ export interface WebSocketMessageTable {
   [WebSocketMessageType.LoadMoreMessages]: LoadMoreMessages
   [WebSocketMessageType.LoadSwarmUntil]: LoadSwarmUntil
   [WebSocketMessageType.KnownDevicesChanged]: IKnownDevicesChanged
+  [WebSocketMessageType.ConversationReady]: ConversationReady
 
   // calls (in the order they should be sent)
   [WebSocketMessageType.sendCallInvite]: CallInvite

@@ -856,6 +856,9 @@ export class Jamid {
 
     this.events.onConversationReady.subscribe((signal) => {
       log.debug('Received ConversationReady:', JSON.stringify(signal))
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.ConversationReady, {
+        conversationId: signal.conversationId,
+      })
     })
 
     this.events.onConversationRemoved.subscribe((signal) => {

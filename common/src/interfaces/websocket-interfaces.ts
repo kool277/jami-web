@@ -47,6 +47,10 @@ export interface ConversationView {
   conversationId: string
 }
 
+export interface ConversationReady {
+  conversationId: string
+}
+
 export interface AccountMessageStatus {
   conversationId: string
   peer: string
