@@ -16,8 +16,9 @@
  * <https://www.gnu.org/licenses/>.
  */
 import DeleteIcon from '@mui/icons-material/Delete'
-import { Box, Card, CardContent, TextareaAutosize, useTheme } from '@mui/material'
+import { Box, Card, CardContent, TextareaAutosize, Tooltip, useTheme } from '@mui/material'
 import { Stack, useMediaQuery } from '@mui/system'
+import { t } from 'i18next'
 import { WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -490,10 +491,12 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
       )}
       <Box sx={{ display: 'flex', alignItems: 'center', alignContent: 'center' }}>
         {isRecordingVoice ? (
-          <DeleteIcon
-            onClick={voiceRecordingStatusChange}
-            style={{ color: 'red', width: '30px', height: '30px', cursor: 'pointer' }}
-          />
+          <Tooltip title={t('button_cancel_voice_recording')}>
+            <DeleteIcon
+              onClick={voiceRecordingStatusChange}
+              style={{ color: 'red', width: '30px', height: '30px', cursor: 'pointer' }}
+            />
+          </Tooltip>
         ) : (
           <SelectEmojiButton onEmojiSelected={onEmojiSelected} />
         )}

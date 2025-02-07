@@ -34,10 +34,12 @@ import {
   RadioGroupProps,
   SvgIconProps,
   Theme,
+  Tooltip,
 } from '@mui/material'
 import { PaletteColor, styled, useTheme } from '@mui/material/styles'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { ComponentType, ReactNode, useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   Arrow2Icon,
@@ -66,6 +68,7 @@ import CustomTooltip from './Tooltip'
 
 export type ShapedButtonProps = IconButtonProps & {
   Icon: ComponentType<SvgIconProps>
+  tooltip?: string
 }
 
 export const RoundButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
@@ -363,10 +366,12 @@ export const ToggleVisibilityButton = styled(({ visible, ...props }: ToggleVisib
   },
 }))
 
-export const SquareButton = styled(({ Icon, ...props }: ShapedButtonProps) => (
-  <IconButton {...props} disableRipple={true}>
-    <Icon fontSize="inherit" />
-  </IconButton>
+export const SquareButton = styled(({ Icon, tooltip, ...props }: ShapedButtonProps) => (
+  <Tooltip title={tooltip}>
+    <IconButton {...props} disableRipple={true}>
+      <Icon fontSize="inherit" />
+    </IconButton>
+  </Tooltip>
 ))(({ theme }) => ({
   color: theme.Buttons.color,
   fontSize: '25px',
@@ -386,11 +391,27 @@ export const AddParticipantButton = (props: IconButtonProps) => {
 }
 
 export const RecordVideoMessageButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="record video message" Icon={CameraInBubbleIcon} />
+  const { t } = useTranslation()
+  return (
+    <SquareButton
+      tooltip={t('button_record_video_message')}
+      {...props}
+      aria-label="record video message"
+      Icon={CameraInBubbleIcon}
+    />
+  )
 }
 
 export const RecordVoiceMessageButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="record voice message" Icon={MicroInBubbleIcon} />
+  const { t } = useTranslation()
+  return (
+    <SquareButton
+      tooltip={t('button_record_voice_message')}
+      {...props}
+      aria-label="record voice message"
+      Icon={MicroInBubbleIcon}
+    />
+  )
 }
 
 export const ShowOptionsMenuButton = (props: IconButtonProps) => {
@@ -406,11 +427,13 @@ export const StartAudioCallButton = (props: IconButtonProps) => {
 }
 
 export const UploadFileButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="upload file" Icon={PaperClipIcon} />
+  const { t } = useTranslation()
+  return <SquareButton tooltip={t('button_upload_file')} {...props} aria-label="upload file" Icon={PaperClipIcon} />
 }
 
 export const SendMessageButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="send message" Icon={Arrow2Icon} />
+  const { t } = useTranslation()
+  return <SquareButton tooltip={t('button_send_message')} {...props} aria-label="send message" Icon={Arrow2Icon} />
 }
 
 export const ReplyMessageButton = styled((props: IconButtonProps) => (
@@ -447,7 +470,7 @@ type SelectEmojiButtonProps = {
 }
 export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
-
+  const { t } = useTranslation()
   const handleOpenEmojiPicker = useCallback((e: any) => setAnchorEl(anchorEl ? null : e.currentTarget), [anchorEl])
   const theme = useTheme()
   const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
@@ -471,6 +494,7 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
           aria-label="select emoji"
           Icon={EmojiIcon}
           onClick={handleOpenEmojiPicker}
+          tooltip={t('button_select_emoji')}
         />
         <Popper sx={{ zIndex: 2 }} id={id} open={open} anchorEl={anchorEl}>
           <EmojiPicker
