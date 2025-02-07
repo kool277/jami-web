@@ -8,6 +8,9 @@ services:
     build:
       context: .
       target: production
+    volumes:
+        - jami-web-data:/root/.local/share/jami-web
+        - jami-data:/root/.local/share/jami
     ports:
       - '8080:8080'
     stdin_open: true
@@ -20,3 +23,7 @@ services:
       context: ./daemon
       args:
         cmake_args: '-DJAMI_NODEJS=ON'
+
+volumes:
+  jami-web-data:
+  jami-data:
