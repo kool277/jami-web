@@ -20,6 +20,7 @@ import envPaths from 'env-paths'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import { ParamsDictionary, Request, Response } from 'express-serve-static-core'
+import fs from 'fs'
 import { readdir, stat } from 'fs/promises'
 import {
   AccessToken,
@@ -50,6 +51,11 @@ export const adminRouter = Router()
 
 const paths = envPaths('jami', { suffix: '' })
 const dataPath = paths.data
+
+const multerPath = adminAccount.getUploadPath()
+if (!fs.existsSync(multerPath)) {
+  fs.mkdirSync(multerPath)
+}
 
 adminRouter.get('/check', (_req, res) => {
   const isSetupComplete = adminAccount.getPasswordHash() !== undefined
@@ -399,18 +405,13 @@ adminRouter.delete(
   asyncHandler(async (req, res) => {
     const users = req.body
     for (const user of users) {
-      if (user.auth === 'local') {
-        const accountId = jamid.getAccountIdFromUsername(user.username)
-        if (accountId) {
-          jamid.removeAccount(accountId)
-        }
-      } else if (user.auth === 'jams') {
-        const account = accounts.get(user.username, user.auth)
-        if (typeof account === 'object') {
-          jamid.removeAccount(account.accountId)
-        }
-      }
+      const accountId = user.accountId
+      jamid.removeAccount(accountId)
       accounts.remove(user.username, user.auth)
+      const userFilePath = multerPath + accountId + '/'
+      if (fs.existsSync(userFilePath)) {
+        fs.rmdirSync(userFilePath, { recursive: true })
+      }
     }
     res.sendStatus(HttpStatusCode.Ok)
   }),
