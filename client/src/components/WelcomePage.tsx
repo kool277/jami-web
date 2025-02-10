@@ -25,6 +25,7 @@ import {
   CardHeader,
   Link,
   Modal,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -199,14 +200,30 @@ export default function WelcomePage() {
               </Box>
             </Box>
             <Box sx={{ ...middleBoxStyle, gap: '8px', width: '50px' }} borderRadius={'2px 5px 5px 2px'} width={'6%'}>
-              <TwoSheetsIcon
-                sx={{ width: '20px', height: '20px', '&:hover': { cursor: 'pointer' }, pl: '4px' }}
-                onClick={handleCopy}
-              />
-              <InfoIcon
-                sx={{ width: '20px', height: '20px', '&:hover': { cursor: 'pointer' }, pr: '4px' }}
-                onClick={handleMoreInfo}
-              />
+              <Tooltip title={t('copy_to_clipboard')}>
+                <span style={{ width: '20px', height: '20px' }}>
+                  <TwoSheetsIcon
+                    sx={{ width: '20px', height: '20px', '&:hover': { cursor: 'pointer' }, pl: '4px' }}
+                    onClick={handleCopy}
+                  />
+                </span>
+              </Tooltip>
+              <Tooltip
+                title={
+                  displayedInfo === account.getRegisteredName()
+                    ? t('welcome_page_view_uri')
+                    : hasToRegisterName
+                      ? t('welcome_page_register_username')
+                      : t('welcome_page_view_registered_name')
+                }
+              >
+                <span style={{ width: '20px', height: '20px' }}>
+                  <InfoIcon
+                    sx={{ width: '20px', height: '20px', '&:hover': { cursor: 'pointer' }, pr: '4px' }}
+                    onClick={handleMoreInfo}
+                  />
+                </span>
+              </Tooltip>
             </Box>
           </Box>
         </Box>

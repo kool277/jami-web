@@ -103,6 +103,7 @@
   "comment": "Comment",
   "created_by": "Created by",
   "copied_to_clipboard": "Copied to clipboard.",
+  "copy_to_clipboard": "Copy to clipboard",
   "current_device": "Current device",
   "devices": "Devices",
   "dialog_cancel": "Cancel",
@@ -295,5 +296,8 @@
   "welcome_text": "Welcome to Jami",
   "welcome_to_text": "Welcome to ",
   "welcome_page_text": "Share your Jami identifier in order to be contacted more easily!",
+  "welcome_page_register_username": "You can register a username to be contacted more easily.",
+  "welcome_page_view_registered_name": "Show registered name",
+  "welcome_page_view_uri": "Show fingerprint",
   "yourself": "You"
 }
