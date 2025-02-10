@@ -64,6 +64,7 @@ export default function ContactSearchBar({ placeholder, handleChange }: ContactS
           }}
         />
         <SquareButton
+          sx={/* FIXME: Hide button until the contact page is available */ { visibility: 'hidden' }}
           aria-label="start swarm"
           Icon={PeopleGroupIcon}
           onClick={() => {
