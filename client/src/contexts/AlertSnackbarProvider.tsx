@@ -39,6 +39,7 @@ export function AlertSnackbar({ severity, open, snackBarProps, children, ...aler
   return (
     <Snackbar
       open={open}
+      autoHideDuration={3000}
       {...snackBarProps}
       anchorOrigin={{
         vertical: 'top',
