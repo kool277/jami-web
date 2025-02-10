@@ -17,6 +17,7 @@
  */
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import DescriptionIcon from '@mui/icons-material/Description'
 import {
   Box,
   Button,
@@ -28,6 +29,8 @@ import {
   Input,
   Switch,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
 import { AdminSettingSelection } from 'jami-web-common'
 import { useContext, useState } from 'react'
@@ -46,6 +49,8 @@ export default function ConfigureOpenId() {
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const [clientId, setClientId] = useState<string>()
   const [clientSecret, setClientSecret] = useState('')
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   const providerName = location.pathname.split('/').at(-1)
 
@@ -129,22 +134,35 @@ export default function ConfigureOpenId() {
     <Box
       sx={{ display: 'flex', height: '100%', justifyContent: 'center', alignItems: 'center', alignContent: 'center' }}
     >
-      <Card sx={{ width: '420px', height: '580px', marginTop: '-50px' }}>
+      <Card
+        sx={{
+          width: '420px',
+          height: '580px',
+          marginTop: '-50px',
+          boxShadow: isMobile ? 'none' : undefined,
+          border: isMobile ? 'none' : undefined,
+        }}
+      >
         <CardHeader
           title={
-            <Typography sx={{ marginLeft: '-8px' }} variant="h3">
-              {provider.data.displayName}
-            </Typography>
-          }
-          subheader={
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              {'OAuth2 Provider'}
-              <a href={provider.data.documentation} target="_blank" rel="noopener noreferrer">
-                {'Documentation'}
-              </a>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'flex-start',
+                alignContent: 'center',
+                alignItems: 'center',
+                gap: '10px',
+              }}
+            >
+              <Typography sx={{ marginLeft: '-8px' }} variant="h3">
+                {provider.data.displayName}
+              </Typography>
+              <img src={provider.data.icon} style={{ width: '40px', height: '40px', marginTop: '5px' }} />
             </Box>
           }
-        ></CardHeader>
+          subheader={<Box sx={{ display: 'flex', flexDirection: 'column' }}>{t('oauth2_provider')}</Box>}
+        />
         <CardContent sx={{ display: 'flex', flexDirection: 'column', marginTop: '-16px' }}>
           <Box sx={{ marginBottom: '24px' }}>
             <Typography>{t('configure_oauth_provider_info')}</Typography>
@@ -161,7 +179,7 @@ export default function ConfigureOpenId() {
             }}
           >
             <span style={{ paddingRight: '10%' }}>
-              {t('setting_auth_change', { authMethod: AuthenticationMethods.OPENID })}
+              {t('setting_auth_change', { authMethod: provider.data.displayName })}
             </span>
             <FormGroup style={{ alignItems: 'center' }}>
               <FormControlLabel
@@ -204,9 +222,16 @@ export default function ConfigureOpenId() {
             ></Input>
             <ContentCopyIcon sx={{ ...contentCopyIconStyle, visibility: 'hidden' }} />
           </Box>
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+            <Button
+              color="primary"
+              onClick={() => window.open(provider.data.documentation, '_blank', 'noopener,noreferrer')}
+            >
+              <DescriptionIcon />
+              {t('documentation')}
+            </Button>
             <Button variant="contained" color="primary" onClick={onValidate}>
-              {t('submit')}
+              {t('save_button')}
             </Button>
           </Box>
         </CardContent>

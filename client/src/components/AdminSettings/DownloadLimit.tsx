@@ -16,13 +16,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Input, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Button, Input } from '@mui/material'
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
 import { useSetAutoDownloadLimit } from '../../services/adminQueries'
 import { useGetAutoDownloadLimit } from '../../services/dataTransferQueries'
+import LayoutSettings from '../LayoutSettings'
 import ProcessingRequest from '../ProcessingRequest'
 
 export default function DownloadLimit() {
@@ -31,8 +32,6 @@ export default function DownloadLimit() {
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const setAutoDownloadLimitMutation = useSetAutoDownloadLimit()
   const { t } = useTranslation()
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
 
   const configuredLimit = limitData.data
 
@@ -70,27 +69,14 @@ export default function DownloadLimit() {
   }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        justifyContent: 'center',
-        marginTop: '5%',
-        alignItems: 'center',
-      }}
-    >
-      <Typography variant="h3" sx={{ textAlign: 'center' }}>
-        {t('download_limit')}
-      </Typography>
-      <Typography variant="body2" sx={{ width: isMobile ? '300px' : '500px', pt: '1%', pb: '1%' }}>
-        {t('download_limit_details')}
-      </Typography>
-      <Box>
+    <LayoutSettings title={t('download_limit')} text={t('download_limit_details')}>
+      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: '10px' }}>
         {' '}
         <Input type="number" inputProps={{ min: '0' }} value={limit} onChange={handleLimitChange}></Input>
-        <Button onClick={onSave}>{t('save_button')}</Button>
+        <Button variant="contained" onClick={onSave}>
+          {t('save_button')}
+        </Button>
       </Box>
-    </Box>
+    </LayoutSettings>
   )
 }

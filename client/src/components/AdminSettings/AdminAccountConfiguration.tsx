@@ -15,12 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Input, Typography } from '@mui/material'
+import { Box, Button, Input } from '@mui/material'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useUpdateAdminPasswordMutation } from '../../services/adminQueries'
+import LayoutSettings from '../LayoutSettings'
 
 export default function AuthMethods() {
   const { t } = useTranslation()
@@ -59,68 +60,71 @@ export default function AuthMethods() {
   }
 
   return (
-    <Box
-      sx={{ marginTop: '10%', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
-    >
-      <Typography variant="h5" sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-        {' '}
-        {t('setting_change_admin_password')}{' '}
-      </Typography>
-      <AnimatePresence>
-        <motion.div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignContent: 'center',
-            marginTop: '2%',
-          }}
-          initial={{ x: -20 }}
-          animate={{ x: 0 }}
-          exit={{ x: 20 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Input
-              type="password"
-              value={oldPassword}
-              onChange={onOldPasswordChange}
-              placeholder={t('admin_page_password_old_placeholder')}
-            ></Input>
-            <Input
-              type="password"
-              value={newPassword}
-              onChange={onNewPasswordChange}
-              placeholder={t('admin_page_password_placeholder')}
-            ></Input>
-            {newPassword !== repeatPassword && newPassword !== '' && repeatPassword !== '' && (
-              <Box sx={{ fontSize: '11px', color: '#CC0022' }}>{t('password_input_helper_text_not_match')}</Box>
-            )}
-            <Input
-              type="password"
-              value={repeatPassword}
-              onChange={onRepeatPasswordChange}
-              placeholder={t('admin_page_password_repeat_placeholder')}
-            ></Input>
-            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', marginTop: '10%' }}>
-              <Button
-                variant="contained"
-                type="submit"
-                onClick={validatePasswordChange}
-                disabled={
-                  oldPassword === '' ||
-                  newPassword === '' ||
-                  repeatPassword === '' ||
-                  newPassword !== repeatPassword ||
-                  oldPassword === newPassword
-                }
-              >
-                {t('admin_page_password_submit')}
-              </Button>
+    <LayoutSettings title={t('setting_change_admin_password')} text={t('setting_change_admin_password_text')}>
+      <Box
+        sx={{
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          marginTop: '-20px',
+        }}
+      >
+        <AnimatePresence>
+          <motion.div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignContent: 'center',
+            }}
+            initial={{ x: -20 }}
+            animate={{ x: 0 }}
+            exit={{ x: 20 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Input
+                type="password"
+                value={oldPassword}
+                onChange={onOldPasswordChange}
+                placeholder={t('admin_page_password_old_placeholder')}
+              ></Input>
+              <Input
+                type="password"
+                value={newPassword}
+                onChange={onNewPasswordChange}
+                placeholder={t('admin_page_password_placeholder')}
+              ></Input>
+              {newPassword !== repeatPassword && newPassword !== '' && repeatPassword !== '' && (
+                <Box sx={{ fontSize: '11px', color: '#CC0022' }}>{t('password_input_helper_text_not_match')}</Box>
+              )}
+              <Input
+                type="password"
+                value={repeatPassword}
+                onChange={onRepeatPasswordChange}
+                placeholder={t('admin_page_password_repeat_placeholder')}
+              ></Input>
+              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', marginTop: '10%' }}>
+                <Button
+                  variant="contained"
+                  type="submit"
+                  onClick={validatePasswordChange}
+                  disabled={
+                    oldPassword === '' ||
+                    newPassword === '' ||
+                    repeatPassword === '' ||
+                    newPassword !== repeatPassword ||
+                    oldPassword === newPassword
+                  }
+                >
+                  {t('admin_page_password_submit')}
+                </Button>
+              </Box>
             </Box>
-          </Box>
-        </motion.div>
-      </AnimatePresence>
-    </Box>
+          </motion.div>
+        </AnimatePresence>
+      </Box>
+    </LayoutSettings>
   )
 }

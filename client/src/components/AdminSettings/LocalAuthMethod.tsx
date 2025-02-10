@@ -33,7 +33,6 @@ import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
-import { AuthenticationMethods } from '../../enums/authenticationMethods'
 import {
   useGetAdminConfigQuery,
   useGetNameServer,
@@ -41,6 +40,7 @@ import {
   useSetNameServer,
   useUpdateAdminConfigMutation,
 } from '../../services/adminQueries'
+import LayoutSettings from '../LayoutSettings'
 import ProcessingRequest from '../ProcessingRequest'
 
 const LocalAuthMethod = () => {
@@ -104,33 +104,46 @@ const LocalAuthMethod = () => {
   }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80%' }}>
-      <Box sx={{ textAlign: 'start' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignContent: 'center',
-            height: '3rem',
-          }}
-        >
-          <span style={{ paddingRight: '10%' }}>
-            {t('setting_auth_change', { authMethod: AuthenticationMethods.JAMI })}
-          </span>
-          <FormControl>
-            <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
-              <FormControlLabel
-                control={<Switch checked={data.localAuthEnabled} onChange={handleChange} />}
-                label={undefined}
-              />
-            </FormGroup>
-          </FormControl>
-        </Box>
-        <Box sx={{ textAlign: 'start', alignItems: 'start' }}>
-          <Typography>{t('setting_name_server')}</Typography>
-          <Form>
-            <Input value={nameServer} onChange={handleNameChangeNameServer} />
+    <LayoutSettings title={t('jami_authentication')} text={t('jami_authentication_info')}>
+      <Box sx={{ display: 'flex', justifyContent: 'start', alignItems: 'start', paddingBottom: '30px' }}>
+        <Box sx={{ textAlign: 'start', width: '100%', minWidth: '300px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignContent: 'start',
+              marginTop: '-30px',
+            }}
+          >
+            <span style={{ paddingRight: '10%' }}>{t('setting_auth_change', { authMethod: t('jami') })}</span>
+            <FormControl>
+              <FormGroup style={{ alignItems: 'start' }}>
+                <FormControlLabel
+                  control={<Switch checked={data.localAuthEnabled} onChange={handleChange} />}
+                  label={undefined}
+                />
+              </FormGroup>
+            </FormControl>
+          </Box>
+          <Box sx={{ textAlign: 'start', alignItems: 'start', marginTop: '-40px' }}>
+            <Typography>{t('setting_name_server')}</Typography>
+            <Form>
+              <Input value={nameServer} onChange={handleNameChangeNameServer} />
+            </Form>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '30px' }}>
+            <Button
+              variant="contained"
+              onClick={deleteNameServer}
+              sx={{
+                mt: theme.typography.pxToRem(20),
+                marginLeft: theme.typography.pxToRem(10),
+                marginTop: isWrapping ? '5px' : '-15px',
+              }}
+            >
+              {t('reset_nameserver_button')}
+            </Button>
             <Button
               variant="contained"
               type="submit"
@@ -144,24 +157,10 @@ const LocalAuthMethod = () => {
             >
               {t('save_button')}
             </Button>
-            <Button
-              variant="contained"
-              onClick={deleteNameServer}
-              sx={{
-                mt: theme.typography.pxToRem(20),
-                marginLeft: theme.typography.pxToRem(10),
-                marginTop: isWrapping ? '5px' : '-15px',
-              }}
-            >
-              {t('reset_nameserver_button')}
-            </Button>
-          </Form>
+          </Box>
         </Box>
-        {nameServer === nameServerConfigured && (
-          <Box style={{ fontSize: 'smaller', marginTop: '2%' }}>{t('nameserver_already_set')}</Box>
-        )}
       </Box>
-    </Box>
+    </LayoutSettings>
   )
 }
 

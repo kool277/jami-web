@@ -33,14 +33,13 @@ import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
-import { AuthenticationMethods } from '../../enums/authenticationMethods'
 import {
   useGetAdminConfigQuery,
   useGetJamsUrl,
-  useRemoveJamsUrl,
   useSetJamsUrl,
   useUpdateAdminConfigMutation,
 } from '../../services/adminQueries'
+import LayoutSettings from '../LayoutSettings'
 import ProcessingRequest from '../ProcessingRequest'
 
 const JamsAuthMethod = () => {
@@ -51,7 +50,6 @@ const JamsAuthMethod = () => {
   const theme: Theme = useTheme()
   const setJamsUrlMutation = useSetJamsUrl()
   const jamsUrlQuery = useGetJamsUrl()
-  const removeJamsUrlMutation = useRemoveJamsUrl()
   const [jamsUrl, setJamsUrl] = useState<string>('')
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const isWrapping = useMediaQuery(theme.breakpoints.down(500))
@@ -81,14 +79,6 @@ const JamsAuthMethod = () => {
     setJamsUrl(event.target.value)
   }
 
-  const removeJamsUrl = async () => {
-    removeJamsUrlMutation.mutate()
-    jamsUrlQuery.refetch()
-    if (jamsCurrentUrl !== undefined) {
-      setJamsUrl(jamsCurrentUrl)
-    }
-  }
-
   const submitNewJamsUrl = async () => {
     // verifies if the string is a server adress or name server
     const regexValidation = /^(https?:\/\/)?(localhost|([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?::\d{1,5})?(\/[^\s]*)?$/.test(
@@ -115,60 +105,53 @@ const JamsAuthMethod = () => {
   }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80%' }}>
-      <Box sx={{ textAlign: 'start', marginTop: '8%' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignContent: 'center',
-            height: '3rem',
-          }}
-        >
-          <span style={{ paddingRight: '10%' }}>
-            {t('setting_auth_change', { authMethod: AuthenticationMethods.JAMS })}
-          </span>
-          <FormControl>
-            <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
-              <FormControlLabel
-                control={<Switch checked={data.jamsAuthEnabled} onChange={handleChange} />}
-                label={undefined}
-              />
-            </FormGroup>
-          </FormControl>
-        </Box>
-        <Box sx={{ textAlign: 'start', alignItems: 'start' }}>
-          <Typography>JAMS URL </Typography>
-          <Form>
-            <Input value={jamsUrl} onChange={handleNameChangeJamsUrl} placeholder={t('enter_jams_server')} />
-            <Button
-              variant="contained"
-              type="submit"
-              onClick={submitNewJamsUrl}
-              sx={{
-                mt: theme.typography.pxToRem(20),
-                marginLeft: theme.typography.pxToRem(10),
-                marginTop: isWrapping ? '5px' : '-15px',
-              }}
-            >
-              {t('save_button')}
-            </Button>
-            <Button
-              variant="contained"
-              onClick={removeJamsUrl}
-              sx={{
-                mt: theme.typography.pxToRem(20),
-                marginLeft: theme.typography.pxToRem(10),
-                marginTop: isWrapping ? '5px' : '-15px',
-              }}
-            >
-              {t('remove_jams_server')}
-            </Button>
-          </Form>
+    <LayoutSettings title={t('jams_authentication')} text={t('jams_authentication_info')}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'start', alignItems: 'center', height: '80%', paddingBottom: '20px' }}
+      >
+        <Box sx={{ textAlign: 'start', width: '100%', minWidth: '300px' }}>
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignContent: 'start',
+            }}
+          >
+            {t('setting_auth_change', { authMethod: t('jams') })}
+            <FormControl>
+              <FormGroup style={{ alignItems: 'start' }}>
+                <FormControlLabel
+                  control={<Switch checked={data.jamsAuthEnabled} onChange={handleChange} />}
+                  label={undefined}
+                />
+              </FormGroup>
+            </FormControl>
+          </Box>
+          <Box sx={{ textAlign: 'start', alignItems: 'start', marginTop: '-40px' }}>
+            <Typography>{t('jams_url')}</Typography>
+            <Form>
+              <Input value={jamsUrl} onChange={handleNameChangeJamsUrl} placeholder={t('enter_jams_server')} />
+            </Form>
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+              <Button
+                variant="contained"
+                type="submit"
+                onClick={submitNewJamsUrl}
+                sx={{
+                  mt: theme.typography.pxToRem(20),
+                  marginLeft: theme.typography.pxToRem(10),
+                  marginTop: isWrapping ? '5px' : '-15px',
+                }}
+              >
+                {t('save_button')}
+              </Button>
+            </Box>
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </LayoutSettings>
   )
 }
 export default JamsAuthMethod

@@ -137,6 +137,10 @@ export class AdminAccount {
     }
   }
 
+  getNumberOfEnabledProviders() {
+    return Object.values(this.getOpenIdProviders()).filter((provider) => provider.isActive).length
+  }
+
   getLastWizardState(): string {
     return this.adminAccount.lastWizardState
   }

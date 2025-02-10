@@ -16,11 +16,11 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, FormControl, FormControlLabel, FormGroup, Switch, Typography } from '@mui/material'
+import { Box, FormControl, FormControlLabel, FormGroup, Switch } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
-import { AuthenticationMethods } from '../../enums/authenticationMethods'
 import { useGetAdminConfigQuery, useUpdateAdminConfigMutation } from '../../services/adminQueries'
+import LayoutSettings from '../LayoutSettings'
 import ProcessingRequest from '../ProcessingRequest'
 
 export default function GuestAuthMethod() {
@@ -38,33 +38,30 @@ export default function GuestAuthMethod() {
   }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80%', width: '100%' }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', width: '300px', gap: '20px' }}>
-        <Box>
-          <Typography variant="h6">{t('guest_authentication')}</Typography>
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignContent: 'center',
-            height: '3rem',
-          }}
-        >
-          <span style={{ paddingRight: '10%' }}>
-            {t('setting_auth_change', { authMethod: AuthenticationMethods.GUEST })}
-          </span>
-          <FormControl>
-            <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
-              <FormControlLabel
-                control={<Switch checked={data.guestAccessEnabled} onChange={handleChange} />}
-                label={undefined}
-              />
-            </FormGroup>
-          </FormControl>
+    <LayoutSettings title={t('guest_authentication')} text={t('guest_authentication_info')}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80%', width: '100%' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', width: '300px', gap: '20px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignContent: 'center',
+              height: '3rem',
+            }}
+          >
+            <span style={{ paddingRight: '10%' }}>{t('setting_auth_change', { authMethod: t('guest') })}</span>
+            <FormControl>
+              <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
+                <FormControlLabel
+                  control={<Switch checked={data.guestAccessEnabled} onChange={handleChange} />}
+                  label={undefined}
+                />
+              </FormGroup>
+            </FormControl>
+          </Box>
         </Box>
       </Box>
-    </Box>
+    </LayoutSettings>
   )
 }

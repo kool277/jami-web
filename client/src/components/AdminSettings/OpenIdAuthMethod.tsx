@@ -16,18 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import {
-  Box,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  List,
-  ListItem,
-  ListItemText,
-  Switch,
-  Typography,
-} from '@mui/material'
+import { Box, Divider, List, ListItem, ListItemText, Typography } from '@mui/material'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AdminSettingSelection } from 'jami-web-common'
 import { useTranslation } from 'react-i18next'
@@ -35,15 +24,10 @@ import { useNavigate } from 'react-router-dom'
 
 import { AuthenticationMethods } from '../../enums/authenticationMethods'
 import rightChevron from '../../icons/rightChevron.svg'
-import {
-  useGetAdminConfigQuery,
-  useGetAllOauthClients,
-  useUpdateAdminConfigMutation,
-} from '../../services/adminQueries'
+import { useGetAdminConfigQuery, useGetAllOauthClients } from '../../services/adminQueries'
 import ProcessingRequest from '../ProcessingRequest'
 
 export default function OpenIdAuthMethod() {
-  const saveAdminConfigMutation = useUpdateAdminConfigMutation()
   const navigate = useNavigate()
   const { t } = useTranslation()
   const { data } = useGetAdminConfigQuery()
@@ -83,10 +67,6 @@ export default function OpenIdAuthMethod() {
   const disabledColor = '#CC0022'
   const enabledColor = '#00796B'
 
-  const handleChange = () => {
-    saveAdminConfigMutation.mutate({ openIdAuthEnabled: !data.openIdAuthEnabled })
-  }
-
   const handleSelection = (provider: string) => {
     navigate(`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}/${provider}`)
   }
@@ -96,27 +76,6 @@ export default function OpenIdAuthMethod() {
       <Box sx={{ display: 'flex', flexDirection: 'column', width: '350px', gap: '20px' }}>
         <Box>
           <Typography variant="h6">{t('openid_authentication')}</Typography>
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignContent: 'center',
-            height: '3rem',
-          }}
-        >
-          <span style={{ paddingRight: '10%' }}>
-            {t('setting_auth_change', { authMethod: AuthenticationMethods.OPENID })}
-          </span>
-          <FormControl>
-            <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
-              <FormControlLabel
-                control={<Switch checked={data.openIdAuthEnabled} onChange={handleChange} />}
-                label={undefined}
-              />
-            </FormGroup>
-          </FormControl>
         </Box>
         <AnimatePresence>
           <motion.div

@@ -461,6 +461,7 @@ adminRouter.get(
       redirectUri: baseUrl + providersSupport.getRedirectUri(provider),
       documentation: providerConfig.documentation,
       displayName: providerConfig.displayName,
+      icon: providerConfig.icon,
     }
 
     res.send(data)
@@ -497,10 +498,18 @@ adminRouter.patch(
       }
     }
 
+    if (adminAccount.getNumberOfEnabledProviders() === 0) {
+      adminAccount.updateConfig({ openIdAuthEnabled: false })
+    } else {
+      adminAccount.updateConfig({ openIdAuthEnabled: true })
+    }
+
     adminAccount.save()
+
     res.sendStatus(HttpStatusCode.Ok)
   }),
 )
+
 adminRouter.post('/autoDownloadLimit', (req, res) => {
   const downloadLimit = Number(req.body.limit)
   if (!downloadLimit) {
