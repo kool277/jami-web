@@ -190,16 +190,16 @@ export default function WelcomePage() {
               sx={{
                 ...middleBoxStyle,
                 maxWidth: isMedium ? '220px' : 'unset',
-                width: displayedInfo === account.getRegisteredName() ? 'auto' : '400px',
+                width: 'auto',
               }}
               borderRadius={'5px 2px 2px 5px'}
             >
               <JamiIdIcon sx={{ marginBottom: '-4px', marginRight: '5px' }} />
-              <Box maxWidth={isMedium ? '170px' : 'unset'}>
-                <EllipsisMiddle text={displayedInfo} centerItem={true} />
+              <Box maxWidth={isMedium ? '170px' : 'unset'} sx={{ mb: '2px' }}>
+                <EllipsisMiddle text={displayedInfo} centerItem={true} padding="6px" />
               </Box>
             </Box>
-            <Box sx={{ ...middleBoxStyle, gap: '8px', width: '50px' }} borderRadius={'2px 5px 5px 2px'} width={'6%'}>
+            <Box sx={{ ...middleBoxStyle, gap: '8px', width: '65px' }} borderRadius={'2px 5px 5px 2px'} width={'6%'}>
               <Tooltip title={t('copy_to_clipboard')}>
                 <span style={{ width: '20px', height: '20px' }}>
                   <TwoSheetsIcon

@@ -21,15 +21,16 @@ import Box from '@mui/material/Box'
 interface EllipsisMiddleProps {
   text: string
   centerItem?: boolean
+  padding?: string
 }
-const EllipsisMiddle = ({ text, centerItem }: EllipsisMiddleProps) => {
+const EllipsisMiddle = ({ text, centerItem, padding }: EllipsisMiddleProps) => {
   if (!text) {
     console.error('text is undefined')
     return
   }
 
   if (text.length < 12) {
-    return <span>{text}</span>
+    return <span style={{ padding: padding }}>{text}</span>
   }
 
   const startFixedChars = 5
