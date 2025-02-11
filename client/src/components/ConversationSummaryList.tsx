@@ -50,16 +50,23 @@ type ConversationSummaryListProps = {
 
 export const ConversationSummaryList = ({ conversationsSummaries }: ConversationSummaryListProps) => {
   const sortedConversations = useMemo(() => {
-    if (conversationsSummaries === undefined || conversationsSummaries.length === 0) {
+    if (!conversationsSummaries || conversationsSummaries.length === 0) {
       return []
     }
+
     if (conversationsSummaries.length === 1) {
       return conversationsSummaries
     }
+
     if (conversationsSummaries.some((conversationSummary) => conversationSummary === null)) {
       return conversationsSummaries
     }
-    return [...conversationsSummaries].sort((a, b) => Number(b.lastMessage.timestamp) - Number(a.lastMessage.timestamp))
+
+    return [...conversationsSummaries].sort((a, b) => {
+      const aTimestamp = a?.lastMessage?.timestamp ? Number(a.lastMessage.timestamp) : 0
+      const bTimestamp = b?.lastMessage?.timestamp ? Number(b.lastMessage.timestamp) : 0
+      return bTimestamp - aTimestamp
+    })
   }, [conversationsSummaries])
 
   return (
