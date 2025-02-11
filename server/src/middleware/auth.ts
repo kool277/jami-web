@@ -17,8 +17,12 @@
  */
 import { NextFunction, Request, Response } from 'express'
 import { HttpStatusCode } from 'jami-web-common'
+import { Container } from 'typedi'
 
+import { Accounts } from '../storage/accounts.js'
 import { verifyJwt } from '../utils/jwt.js'
+
+const accounts = Container.get(Accounts)
 
 function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -42,7 +46,14 @@ function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
 
     try {
       const { payload } = await verifyJwt(token)
-      res.locals.accountId = payload.accountId
+      const accountId = String(payload.accountId)
+      const isValid = accounts.isValidAccountId(accountId)
+      if (!isValid) {
+        res.status(HttpStatusCode.Unauthorized).send('Invalid account ID')
+        return
+      }
+      res.locals.accountId = accountId
+      // si accId
       next()
     } catch (e) {
       res.status(HttpStatusCode.Unauthorized).send('Invalid access token')

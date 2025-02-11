@@ -46,6 +46,7 @@ const METHODS = ['local', 'jams', 'guest', 'openid']
 export class Accounts {
   private readonly filename = paths.data + '/accounts.json'
   private accounts: AccountsFormat
+  private accountsIds: Set<string>
 
   constructor() {
     let buffer: Buffer
@@ -55,6 +56,21 @@ export class Accounts {
       buffer = Buffer.from('{"local":{},"jams":{}, "guest":{}, "openid":{}}')
     }
     this.accounts = JSON.parse(buffer.toString())
+
+    this.accountsIds = new Set<string>()
+    // add the accountIds to the set
+    for (const accId of Object.keys(this.accounts.guest)) {
+      this.accountsIds.add(accId)
+    }
+    for (const key of Object.keys(this.accounts.jams)) {
+      this.accountsIds.add(this.accounts.jams[key].accountId)
+    }
+    for (const key of Object.keys(this.accounts.local)) {
+      this.accountsIds.add(this.accounts.local[key].accountId)
+    }
+    for (const key of Object.keys(this.accounts.openid)) {
+      this.accountsIds.add(this.accounts.openid[key].accountId)
+    }
   }
 
   get(username: string, authMethod: string = 'local') {
@@ -126,6 +142,7 @@ export class Accounts {
         default:
           throw new Error('Invalid auth method')
       }
+      this.accountsIds.add(accountId)
     } catch (e) {
       console.log(e)
     }
@@ -145,6 +162,14 @@ export class Accounts {
       return
     }
 
+    const account = this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
+    if (typeof account !== 'string') {
+      this.accountsIds.delete(account.accountId)
+    } else {
+      // guest removal
+      this.accountsIds.delete(username)
+    }
+
     delete this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
   }
 
@@ -162,6 +187,10 @@ export class Accounts {
 
   getGuests() {
     return this.accounts.guest
+  }
+
+  isValidAccountId(accountId: string) {
+    return this.accountsIds.has(accountId)
   }
 
   async save(): Promise<void> {
