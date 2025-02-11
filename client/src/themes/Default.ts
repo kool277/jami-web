@@ -32,6 +32,7 @@ declare module '@mui/material/styles' {
       replyBorderColor: string
       messageReplyColor: string
       reactionModalBackground: string
+      backgroundColor: string
     }
     LoginPage: {
       backgroundColor: string
@@ -254,6 +255,7 @@ const palettes = {
       replyBorderColor: '2px solid white',
       messageReplyColor: '#D3D3D3',
       reactionModalBackground: 'lightgrey',
+      backgroundColor: 'white',
     },
     LoginPage: {
       backgroundColor: '#f9fafc',
@@ -356,6 +358,7 @@ const palettes = {
       replyBorderColor: '3px solid #121212',
       messageReplyColor: '#404040',
       reactionModalBackground: '#1e1f1e',
+      backgroundColor: '#050505',
     },
     LoginPage: {
       backgroundColor: '#f9fafc',

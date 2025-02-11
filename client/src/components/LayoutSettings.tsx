@@ -22,9 +22,10 @@ interface LayoutSettingsProps {
   children: React.ReactNode
   title: string
   text?: string
+  disableMarginTop?: boolean
 }
 
-export default function LayoutSettings({ children, title, text }: LayoutSettingsProps) {
+export default function LayoutSettings({ children, title, text, disableMarginTop }: LayoutSettingsProps) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -45,17 +46,25 @@ export default function LayoutSettings({ children, title, text }: LayoutSettings
           padding: '20px',
           boxShadow: isMobile ? 'none' : undefined,
           border: isMobile ? 'none' : undefined,
+          backgroundColor: isMobile ? theme.ChatInterface.backgroundColor : 'unset',
         }}
       >
         <CardHeader
           title={<Typography variant="h5">{title}</Typography>}
           subheader={
-            <Box sx={{ mt: '40px' }}>
+            <Box sx={{ mt: disableMarginTop ? '0px' : '40px' }}>
               <Typography variant="body2">{text}</Typography>
             </Box>
           }
         />
-        <Box sx={{ marginTop: '50px', maxWidth: '100%', display: 'flex', justifyContent: 'center' }}>
+        <Box
+          sx={{
+            marginTop: disableMarginTop ? '0px' : '50px',
+            maxWidth: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
           <Box sx={{ maxWidth: '90%' }}>{children}</Box>
         </Box>
       </Card>

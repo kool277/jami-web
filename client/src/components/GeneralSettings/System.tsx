@@ -15,9 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Stack, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
+import LayoutSettings from '../LayoutSettings'
 import { SettingsGroup } from '../Settings'
 import SettingLanguage from './SettingLanguage'
 import SettingLinkPreview from './SettingLinkPreview'
@@ -27,14 +28,12 @@ import SettingTips from './SettingTips'
 
 function System() {
   const { t } = useTranslation()
-  const theme = useTheme()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
   const marginValue = '10px'
   const style = { mt: marginValue, mb: marginValue }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: isMobile ? 'center' : 'flex-start', padding: '2%' }}>
+    <LayoutSettings title={t('general_settings')} disableMarginTop={true}>
       <Stack
         sx={{
           padding: '3%',
@@ -59,7 +58,7 @@ function System() {
           </Box>
         </SettingsGroup>
       </Stack>
-    </Box>
+    </LayoutSettings>
   )
 }
 

@@ -90,7 +90,12 @@ interface SettingGroupProps {
 
 export const SettingsGroup = ({ label, children }: SettingGroupProps) => {
   return (
-    <List sx={{ width: '250px' }} subheader={<ListSubheader sx={{ paddingLeft: 0 }}>{label}</ListSubheader>}>
+    <List
+      sx={{ minWidth: '250px' }}
+      subheader={
+        <ListSubheader sx={{ paddingLeft: 0, backgroundColor: 'inherit', fontSize: '18px' }}>{label}</ListSubheader>
+      }
+    >
       {children}
     </List>
   )

@@ -136,6 +136,7 @@
   "file_not_downloaded": "File not downloaded on the server, please download the file before sharing.",
   "find_contacts": "Find contacts",
   "find_users_and_conversations": "Search…",
+  "general_settings": "General",
   "go_to_conversation": "Jump to conversation",
   "getting_name_server_error": "An error occurred while attempting to retrieve the name server.",
   "getting_oauth_clients_error": "An error occurred while attempting to retrieve the OAuth clients.",
