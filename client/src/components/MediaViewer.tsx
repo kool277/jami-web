@@ -39,7 +39,7 @@ interface MediaViewerProps {
   member?: ConversationMember
   handleDownload?: () => void
   type?: string
-  timeStamp?: string
+  timeStamp?: number
 }
 
 export default function MediaViewer({
@@ -111,7 +111,7 @@ export default function MediaViewer({
     }
   }
 
-  const displayTime = dayjs.unix(Number(timeStamp))
+  const displayTime = dayjs.unix(timeStamp || 0)
   const formattedTime = displayTime.format('YYYY-MM-DD HH:mm')
 
   return (

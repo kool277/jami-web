@@ -778,8 +778,8 @@ const UserMessageRow = memo(
     const { t } = useTranslation()
     const previousIsUserMessageType = checkIsUserMessageType(previousMessage?.type)
     const nextIsUserMessageType = checkIsUserMessageType(nextMessage?.type)
-    const nextTime = dayjs.unix(Number(nextMessage?.timestamp))
-    const sentTime = dayjs.unix(Number(message.timestamp))
+    const nextTime = dayjs.unix(nextMessage?.timestamp || 0)
+    const sentTime = dayjs.unix(message.timestamp)
     const nextShowsTime = checkShowsTime(nextTime, sentTime)
     const isFirstOfGroup = showsTime || !previousIsUserMessageType || previousMessage?.author !== message.author
     const isLastOfGroup = nextShowsTime || !nextIsUserMessageType || message.author !== nextMessage?.author
@@ -1388,8 +1388,8 @@ interface MessageProps {
 }
 
 export const MessageRow = memo(({ message, isAccountMessage, author, previousMessage, nextMessage }: MessageProps) => {
-  const time = dayjs.unix(Number(message.timestamp))
-  const previousTime = dayjs.unix(Number(previousMessage?.timestamp))
+  const time = dayjs.unix(message.timestamp)
+  const previousTime = dayjs.unix(previousMessage?.timestamp || 0)
   const showDate =
     message?.type === 'initial' || previousTime.year() !== time.year() || previousTime.dayOfYear() !== time.dayOfYear()
   const showTime = checkShowsTime(time, previousTime)

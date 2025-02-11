@@ -37,7 +37,7 @@ export interface Reaction {
 export interface Message {
   id: string
   author: string
-  timestamp: string
+  timestamp: number
   type:
     | 'application/call-history+json'
     | 'application/data-transfer+json'

@@ -32,7 +32,7 @@ import MediaViewer from './MediaViewer'
 
 interface ConversationSettingsFileItemProps {
   displayName: string
-  timeStamp: string
+  timeStamp: number
   totalSize: number
   fileId: string
   author: string

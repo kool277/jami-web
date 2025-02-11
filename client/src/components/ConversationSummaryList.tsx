@@ -61,12 +61,7 @@ export const ConversationSummaryList = ({ conversationsSummaries }: Conversation
     if (conversationsSummaries.some((conversationSummary) => conversationSummary === null)) {
       return conversationsSummaries
     }
-
-    return [...conversationsSummaries].sort((a, b) => {
-      const aTimestamp = a?.lastMessage?.timestamp ? Number(a.lastMessage.timestamp) : 0
-      const bTimestamp = b?.lastMessage?.timestamp ? Number(b.lastMessage.timestamp) : 0
-      return bTimestamp - aTimestamp
-    })
+    return [...conversationsSummaries].sort((a, b) => b.lastMessage.timestamp - a.lastMessage.timestamp)
   }, [conversationsSummaries])
 
   return (

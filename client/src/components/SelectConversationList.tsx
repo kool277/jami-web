@@ -51,7 +51,7 @@ export const SelectConversationList = ({
     if (conversationsSummaries.some((conversationSummary) => conversationSummary === null)) {
       return conversationsSummaries
     }
-    return [...conversationsSummaries].sort((a, b) => Number(b.lastMessage.timestamp) - Number(a.lastMessage.timestamp))
+    return [...conversationsSummaries].sort((a, b) => b.lastMessage.timestamp - a.lastMessage.timestamp)
   }, [conversationsSummaries])
 
   return (
