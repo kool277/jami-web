@@ -20,11 +20,14 @@ import { Duplex } from 'node:stream'
 
 import { WebSocketMessage, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common'
 import log from 'loglevel'
-import { Service } from 'typedi'
+import { Container, Service } from 'typedi'
 import { URL } from 'whatwg-url'
 import * as WebSocket from 'ws'
 
+import { PresenceService } from '../services/PresenceService.js'
 import { verifyJwt } from '../utils/jwt.js'
+
+const presenceService = Container.get(PresenceService)
 
 type WebSocketCallback<T extends WebSocketMessageType> = (accountId: string, data: WebSocketMessageTable[T]) => void
 
@@ -89,6 +92,8 @@ export class WebSocketServer {
         if (index !== -1) {
           accountSockets.splice(index, 1)
           if (accountSockets.length === 0) {
+            // Unsubscribe from all presence updates when the last socket is closed
+            presenceService.unsubscribeAll(accountId)
             this.sockets.delete(accountId)
           }
         }

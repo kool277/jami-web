@@ -42,6 +42,7 @@ import CallManagerProvider from './contexts/CallManagerProvider'
 import ConversationProvider from './contexts/ConversationProvider'
 import MessengerProvider from './contexts/MessengerProvider'
 import MobileMenuStateProvider from './contexts/MobileMenuStateProvider'
+import PresenceProvider from './contexts/PresenceProvider'
 import UserMediaProvider from './contexts/UserMediaProvider'
 import WebSocketProvider from './contexts/WebSocketProvider'
 import { AdminConfigurationOptions } from './enums/adminConfigurationOptions'
@@ -123,13 +124,15 @@ export const router = createBrowserRouter(
           element={
             <AuthProvider>
               <WebSocketProvider>
-                <AccountDetailsListener>
-                  <UserMediaProvider>
-                    <CallManagerProvider>
-                      <Outlet />
-                    </CallManagerProvider>
-                  </UserMediaProvider>
-                </AccountDetailsListener>
+                <PresenceProvider>
+                  <AccountDetailsListener>
+                    <UserMediaProvider>
+                      <CallManagerProvider>
+                        <Outlet />
+                      </CallManagerProvider>
+                    </UserMediaProvider>
+                  </AccountDetailsListener>
+                </PresenceProvider>
               </WebSocketProvider>
             </AuthProvider>
           }

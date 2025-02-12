@@ -18,11 +18,12 @@
 import Check from '@mui/icons-material/Check'
 import RefreshOutlined from '@mui/icons-material/RefreshOutlined'
 import { Avatar, AvatarProps, Box, Dialog, Stack, Typography, useTheme } from '@mui/material'
-import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { ReactNode, useCallback, useContext, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 
 import { useAuthContext } from '../contexts/AuthProvider'
+import { PresenceContext } from '../contexts/PresenceProvider'
 import CallPermissionDenied from '../pages/CallPermissionDenied'
 import { useUpdateAvatarMutation } from '../services/accountQueries'
 import { useContactProfilePicture } from '../services/contactQueries'
@@ -61,7 +62,7 @@ export default function ConversationAvatar({ displayName, contactUri, presence, 
 
   if (presence) {
     return (
-      <ConversationAvatarPresence>
+      <ConversationAvatarPresence buddy={contactUri}>
         <Avatar
           id={'avatar' + contactUri}
           {...props}
@@ -83,7 +84,21 @@ export default function ConversationAvatar({ displayName, contactUri, presence, 
   )
 }
 
-const ConversationAvatarPresence = ({ children }: { children: ReactNode }) => {
+const ConversationAvatarPresence = ({ children, buddy }: { children: ReactNode; buddy: string }) => {
+  const theme = useTheme()
+  const { getPresence, presence } = useContext(PresenceContext)
+  const [precenseState, setPrecenseState] = useState<number>(getPresence(buddy))
+
+  useEffect(() => {
+    setPrecenseState(getPresence(buddy))
+  }, [getPresence, presence, buddy])
+
+  if (!precenseState || precenseState === 0) {
+    return children
+  }
+
+  const presenceIconSize = '12px'
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', width: 'auto', height: 'auto' }}>
       {children}
@@ -99,11 +114,11 @@ const ConversationAvatarPresence = ({ children }: { children: ReactNode }) => {
       >
         <Box
           sx={{
-            width: '10px',
-            height: '10px',
-            backgroundColor: 'red',
+            width: presenceIconSize,
+            height: presenceIconSize,
+            backgroundColor: '#33cc33',
             borderRadius: '50%',
-            border: '2px solid',
+            border: '2px solid ' + theme.ChatInterface.panelColor,
           }}
         />
       </Box>

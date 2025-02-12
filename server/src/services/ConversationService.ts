@@ -23,8 +23,10 @@ import { ConversationRequestMetadata } from '../jamid/conversation-request-metad
 import { Jamid } from '../jamid/jamid.js'
 import { WebSocketServer } from '../websocket/websocket-server.js'
 import { ContactService } from './ContactService.js'
+import { PresenceService } from './PresenceService.js'
 
 const jamid = Container.get(Jamid)
+const presenceService = Container.get(PresenceService)
 const webSocketServer = Container.get(WebSocketServer)
 const contactService = Container.get(ContactService)
 
@@ -102,6 +104,9 @@ export class ConversationService {
       if (member.uri === accountUri) {
         return
       }
+
+      presenceService.subscribe(accountId, member.uri)
+
       // Add usernames for conversation members
       try {
         const data = await jamid.lookupAddress(member.uri, '', accountId)

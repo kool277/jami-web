@@ -519,7 +519,7 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
           }}
         >
           {' '}
-          <ConversationAvatar contactUri={member.contact.uri} displayName={bestName} />
+          <ConversationAvatar presence={true} contactUri={member.contact.uri} displayName={bestName} />
           <Box maxWidth={getBestWidth} marginLeft="8px">
             {bestName.length > 15 ? <EllipsisMiddle text={bestName} /> : bestName}
           </Box>

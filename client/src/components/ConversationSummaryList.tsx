@@ -137,6 +137,7 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
         onContextMenu={contextMenuHandler.handleAnchorPosition}
         icon={
           <ConversationAvatar
+            presence={true}
             contactUri={
               Number(conversationSummary.mode) === 0 && filteredMembers.length > 0 ? filteredMembers[0].contact.uri : ''
             }
