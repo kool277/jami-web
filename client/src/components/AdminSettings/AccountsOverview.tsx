@@ -40,6 +40,7 @@ import { ChangeEvent, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useDeleteAccounts, useGetAllAccounts } from '../../services/adminQueries'
+import ValidationRequiredModal from './ValidationRequiredModal'
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -200,6 +201,7 @@ export default function AccountsOverview() {
   const [rowsPerPage, setRowsPerPage] = useState(rowPerPagesOptions[0])
   const getAllAccounts = useGetAllAccounts()
   const accountDeletionMutation = useDeleteAccounts()
+  const [modalOpen, setModalOpen] = useState(false)
 
   const rows = useMemo(() => {
     if (getAllAccounts.data) {
@@ -240,6 +242,10 @@ export default function AccountsOverview() {
   }
 
   const handleSubmitDeletion = () => {
+    setModalOpen(true)
+  }
+
+  const handleSubmitDeletionValidation = () => {
     const accountsToDelete: AccountOverview[] = []
     for (const account of rows) {
       if (selected.includes(account.accountUri)) {
@@ -248,6 +254,7 @@ export default function AccountsOverview() {
     }
     accountDeletionMutation.mutate(accountsToDelete)
     setSelected([])
+    setModalOpen(false)
   }
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -344,6 +351,16 @@ export default function AccountsOverview() {
           />
         </Paper>
       </Box>
+      {modalOpen && (
+        <ValidationRequiredModal
+          info={t('remove_account_info')}
+          title={t('validation_required')}
+          buttonText={t('remove_button')}
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          onValidation={handleSubmitDeletionValidation}
+        />
+      )}
     </Box>
   )
 }
