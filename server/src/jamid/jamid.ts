@@ -65,6 +65,11 @@ import {
   DataTransferEvent,
   DeviceRevocationEnded,
   IncomingAccountMessage,
+  INearbyPeerNotification,
+  INewBuddyNotification,
+  INewServerSubscriptionRequest,
+  IServerError,
+  ISubscriptionStateChanged,
   KnownDevicesChanged,
   MessageFound,
   NameRegistrationEnded,
@@ -284,6 +289,25 @@ export class Jamid {
     handlers.DeviceRevocationEnded = (accountId: string, device: string, state: DeviceRevocationState) =>
       onDeviceRevocationEnded.next({ accountId, device, state })
 
+    const onSubscriptionStateChanged = new Subject<ISubscriptionStateChanged>()
+    handlers.SubscriptionStateChanged = (accountId: string, buddyUri: string, state: number) =>
+      onSubscriptionStateChanged.next({ accountId, buddyUri, state })
+
+    const onNearbyPeerNotification = new Subject<INearbyPeerNotification>()
+    handlers.NearbyPeerNotification = (accountId: string, buddyUri: string, state: number, displayName: string) =>
+      onNearbyPeerNotification.next({ accountId, buddyUri, state, displayName })
+
+    const onNewBuddyNotification = new Subject<INewBuddyNotification>()
+    handlers.NewBuddyNotification = (accountId: string, buddyUri: string, status: number, lineStatus: string) =>
+      onNewBuddyNotification.next({ accountId, buddyUri, status, lineStatus })
+
+    const onNewServerSubscriptionRequest = new Subject<INewServerSubscriptionRequest>()
+    handlers.NewServerSubscriptionRequest = (remote: string) => onNewServerSubscriptionRequest.next({ remote })
+
+    const onServerError = new Subject<IServerError>()
+    handlers.ServerError = (accountId: string, error: string, msg: string) =>
+      onServerError.next({ accountId, error, msg })
+
     // Expose all signals in an events object to allow other handlers to subscribe after jamiSwig.init()
     this.events = {
       onAccountsChanged: onAccountsChanged.asObservable(),
@@ -315,6 +339,11 @@ export class Jamid {
       onUserSearchEnded: onUserSearchEnded.asObservable(),
       onDeviceRevocationEnded: onDeviceRevocationEnded.asObservable(),
       onMessageFound: onMessageFound.asObservable(),
+      onSubscriptionStateChanged: onSubscriptionStateChanged.asObservable(),
+      onNearbyPeerNotification: onNearbyPeerNotification.asObservable(),
+      onNewBuddyNotification: onNewBuddyNotification.asObservable(),
+      onNewServerSubscriptionRequest: onNewServerSubscriptionRequest.asObservable(),
+      onServerError: onServerError.asObservable(),
     }
 
     this.setupSignalHandlers()
@@ -735,7 +764,47 @@ export class Jamid {
     )
   }
 
+  publish(accountId: string, status: boolean, note: string): void {
+    this.jamiSwig.publish(accountId, status, note)
+  }
+
+  answerServerRequest(uri: string, flag: boolean) {
+    this.jamiSwig.answerServerRequest(uri, flag)
+  }
+
+  subscribeBuddy(accountId: string, uri: string, flag: boolean): void {
+    this.jamiSwig.subscribeBuddy(accountId, uri, flag)
+  }
+
+  getSubscriptions(accountId: string) {
+    return vectMapToRecordArray(this.jamiSwig.getSubscriptions(accountId))
+  }
+
+  setSubscriptions(accountId: string, uris: string[]): void {
+    this.jamiSwig.setSubscriptions(accountId, uris)
+  }
+
   private setupSignalHandlers(): void {
+    this.events.onSubscriptionStateChanged.subscribe((signal) => {
+      log.debug('Received SubscriptionStateChanged:', JSON.stringify(signal))
+    })
+
+    this.events.onNearbyPeerNotification.subscribe((signal) => {
+      log.debug('Received NearbyPeerNotification:', JSON.stringify(signal))
+    })
+
+    this.events.onNewBuddyNotification.subscribe((signal) => {
+      log.debug('Received NewBuddyNotification:', JSON.stringify(signal))
+    })
+
+    this.events.onNewServerSubscriptionRequest.subscribe((signal) => {
+      log.debug('Received NewServerSubscriptionRequest:', JSON.stringify(signal))
+    })
+
+    this.events.onServerError.subscribe((signal) => {
+      log.debug('Received ServerError:', JSON.stringify(signal))
+    })
+
     this.events.onDataTransferEvent.subscribe((signal) => {
       log.debug('Received DataTransferEvent:', JSON.stringify(signal))
 

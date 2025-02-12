@@ -231,3 +231,33 @@ export interface MessageFound {
   conversationId: string
   messages: Message[]
 }
+
+export interface ISubscriptionStateChanged {
+  accountId: string
+  buddyUri: string
+  state: number
+}
+
+export interface INearbyPeerNotification {
+  accountId: string
+  buddyUri: string
+  state: number
+  displayName: string
+}
+
+export interface INewBuddyNotification {
+  accountId: string
+  buddyUri: string
+  status: number
+  lineStatus: string
+}
+
+export interface INewServerSubscriptionRequest {
+  remote: string
+}
+
+export interface IServerError {
+  accountId: string
+  error: string
+  msg: string
+}

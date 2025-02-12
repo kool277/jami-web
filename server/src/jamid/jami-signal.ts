@@ -67,4 +67,11 @@ export enum JamiSignal {
 
   // libjami::DataTransferSignal
   DataTransferEvent = 'DataTransferEvent',
+
+  // libjami::PresenceSignal
+  SubscriptionStateChanged = 'SubscriptionStateChanged',
+  NearbyPeerNotification = 'NearbyPeerNotification',
+  NewBuddyNotification = 'NewBuddyNotification',
+  NewServerSubscriptionRequest = 'NewServerSubscriptionRequest',
+  ServerError = 'ServerError',
 }

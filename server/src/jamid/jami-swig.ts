@@ -172,6 +172,13 @@ export interface JamiSwig {
     progress_out: number,
   ): DataTransferError
 
+  // Presence
+  publish(accountId: string, status: boolean, note: string): void
+  answerServerRequest(uri: string, flag: boolean): void
+  subscribeBuddy(accountId: string, uri: string, flag: boolean): void
+  getSubscriptions(accountId: string): VectMap
+  setSubscriptions(accountId: string, uris: string[]): void
+
   // IntVect: Constructable<IntVect>;
   // UintVect: Constructable<UintVect>;
   // FloatVect: Constructable<FloatVect>;
