@@ -11,6 +11,7 @@ services:
     volumes:
       - ./client/src:/web-client/client/src
       - ./server/src:/web-client/server/src
+      - ./server/locale:/web-client/server/locale
       - ./client/.env.development:/web-client/client/.env.development
       - ./server/openid-providers.json:/web-client/server/openid-providers.json
     ports:
