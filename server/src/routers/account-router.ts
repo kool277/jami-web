@@ -163,3 +163,12 @@ accountRouter.post('/displayName', (req, res) => {
   jamid.updateProfile(accountId, displayName, '', '', 10)
   res.sendStatus(HttpStatusCode.NoContent)
 })
+
+accountRouter.post('/subscribe', (req, res) => {
+  const accountId = res.locals.accountId
+  const subscribe = req.body.subscribe
+  const enable = req.body.enable
+
+  jamid.subscribeBuddy(accountId, subscribe, enable)
+  res.sendStatus(HttpStatusCode.Ok)
+})

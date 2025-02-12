@@ -135,3 +135,10 @@ export interface WebRtcSdp extends CallAction {
 export interface WebRtcIceCandidate extends CallAction {
   candidate: RTCIceCandidate
 }
+
+export interface NewBuddyNotification {
+  accountId: string
+  buddyUri: string
+  status: number
+  lineStatus: string
+}

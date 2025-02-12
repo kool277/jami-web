@@ -772,6 +772,7 @@ export class Jamid {
     this.jamiSwig.answerServerRequest(uri, flag)
   }
 
+  // false to stop tracking, true to start tracking
   subscribeBuddy(accountId: string, uri: string, flag: boolean): void {
     this.jamiSwig.subscribeBuddy(accountId, uri, flag)
   }
@@ -795,6 +796,7 @@ export class Jamid {
 
     this.events.onNewBuddyNotification.subscribe((signal) => {
       log.debug('Received NewBuddyNotification:', JSON.stringify(signal))
+      this.webSocketServer.send(signal.accountId, WebSocketMessageType.NewBuddyNotification, signal)
     })
 
     this.events.onNewServerSubscriptionRequest.subscribe((signal) => {

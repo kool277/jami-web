@@ -43,4 +43,7 @@ export enum WebSocketMessageType {
   onWebRtcDescription = 'onWebRtcDescription',
   sendWebRtcIceCandidate = 'sendWebRtcIceCandidate',
   onWebRtcIceCandidate = 'onWebRtcIceCandidate',
+
+  // Presence
+  NewBuddyNotification = 'new-buddy-notification',
 }

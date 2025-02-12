@@ -18,7 +18,7 @@
 import Check from '@mui/icons-material/Check'
 import RefreshOutlined from '@mui/icons-material/RefreshOutlined'
 import { Avatar, AvatarProps, Box, Dialog, Stack, Typography, useTheme } from '@mui/material'
-import { useCallback, useEffect, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 
@@ -44,9 +44,10 @@ import { CircleMaskOverlay, FileDragOverlay } from './Overlay'
 type ConversationAvatarProps = AvatarProps & {
   displayName: string
   contactUri: string
+  presence?: boolean
 }
 
-export default function ConversationAvatar({ displayName, contactUri, ...props }: ConversationAvatarProps) {
+export default function ConversationAvatar({ displayName, contactUri, presence, ...props }: ConversationAvatarProps) {
   const profilePictureQuery = useContactProfilePicture(contactUri)
   const url = profilePictureQuery.data
   const src = props.src || url || '/broken'
@@ -58,6 +59,19 @@ export default function ConversationAvatar({ displayName, contactUri, ...props }
     document.getElementById('avatar' + contactUri)?.setAttribute('src', updatedSrc)
   }, [contactUri, props.src, url])
 
+  if (presence) {
+    return (
+      <ConversationAvatarPresence>
+        <Avatar
+          id={'avatar' + contactUri}
+          {...props}
+          alt={displayName?.toUpperCase()}
+          src={src}
+          style={{ backgroundColor: color, color: '#E5E5E5' }}
+        />
+      </ConversationAvatarPresence>
+    )
+  }
   return (
     <Avatar
       id={'avatar' + contactUri}
@@ -66,6 +80,34 @@ export default function ConversationAvatar({ displayName, contactUri, ...props }
       src={src}
       style={{ backgroundColor: color, color: '#E5E5E5' }}
     />
+  )
+}
+
+const ConversationAvatarPresence = ({ children }: { children: ReactNode }) => {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', width: 'auto', height: 'auto' }}>
+      {children}
+      <Box
+        sx={{
+          display: 'flex',
+          width: '100%',
+          justifyContent: 'flex-end',
+          marginTop: '-7px',
+          marginLeft: '-3px',
+          zIndex: '100',
+        }}
+      >
+        <Box
+          sx={{
+            width: '10px',
+            height: '10px',
+            backgroundColor: 'red',
+            borderRadius: '50%',
+            border: '2px solid',
+          }}
+        />
+      </Box>
+    </Box>
   )
 }
 

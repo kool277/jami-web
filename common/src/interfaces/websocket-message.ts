@@ -31,6 +31,7 @@ import {
   IKnownDevicesChanged,
   LoadMoreMessages,
   LoadSwarmUntil,
+  NewBuddyNotification,
   ProfileReceived,
   ReactionAdded,
   ReactionRemoved,
@@ -68,6 +69,9 @@ export interface WebSocketMessageTable {
   [WebSocketMessageType.onWebRtcDescription]: WebRtcSdp & WithSender
   [WebSocketMessageType.sendWebRtcIceCandidate]: WebRtcIceCandidate & WithReceiver
   [WebSocketMessageType.onWebRtcIceCandidate]: WebRtcIceCandidate & WithSender
+
+  // Presence
+  [WebSocketMessageType.NewBuddyNotification]: NewBuddyNotification
 }
 
 export interface WebSocketMessage<T extends WebSocketMessageType> {
