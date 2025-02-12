@@ -15,12 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Input } from '@mui/material'
+import { Box, Button } from '@mui/material'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useUpdateAdminPasswordMutation } from '../../services/adminQueries'
+import { PasswordInput } from '../Input'
 import LayoutSettings from '../LayoutSettings'
 
 export default function AuthMethods() {
@@ -84,27 +85,45 @@ export default function AuthMethods() {
             transition={{ duration: 0.5 }}
           >
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Input
-                type="password"
-                value={oldPassword}
-                onChange={onOldPasswordChange}
-                placeholder={t('admin_page_password_old_placeholder')}
-              ></Input>
-              <Input
-                type="password"
-                value={newPassword}
-                onChange={onNewPasswordChange}
-                placeholder={t('admin_page_password_placeholder')}
-              ></Input>
-              {newPassword !== repeatPassword && newPassword !== '' && repeatPassword !== '' && (
-                <Box sx={{ fontSize: '11px', color: '#CC0022' }}>{t('password_input_helper_text_not_match')}</Box>
-              )}
-              <Input
-                type="password"
-                value={repeatPassword}
-                onChange={onRepeatPasswordChange}
-                placeholder={t('admin_page_password_repeat_placeholder')}
-              ></Input>
+              <Box sx={{ marginTop: '-20px' }}>
+                <PasswordInput
+                  value={oldPassword}
+                  onChange={onOldPasswordChange}
+                  placeholder={t('admin_page_password_old_placeholder')}
+                  tooltipTitle={t('admin_page_password_old_placeholder')}
+                  newPlaceHolder={t('admin_page_password_old_placeholder')}
+                />
+              </Box>
+              <Box sx={{ marginTop: '-25px' }}>
+                <PasswordInput
+                  value={newPassword}
+                  onChange={onNewPasswordChange}
+                  placeholder={t('admin_page_password_placeholder')}
+                  tooltipTitle={t('admin_page_password_placeholder')}
+                  newPlaceHolder={t('admin_page_password_placeholder')}
+                />
+              </Box>
+              <Box sx={{ marginTop: '-25px' }}>
+                <PasswordInput
+                  value={repeatPassword}
+                  onChange={onRepeatPasswordChange}
+                  placeholder={t('admin_page_password_repeat_placeholder')}
+                  tooltipTitle={t('admin_page_password_repeat_placeholder')}
+                  newPlaceHolder={t('admin_page_password_repeat_placeholder')}
+                />
+              </Box>
+              <Box
+                sx={{
+                  fontSize: '11px',
+                  color: '#CC0022',
+                  visibility:
+                    newPassword !== repeatPassword && newPassword !== '' && repeatPassword !== ''
+                      ? 'visible'
+                      : 'hidden',
+                }}
+              >
+                {t('password_input_helper_text_not_match')}
+              </Box>
               <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', marginTop: '10%' }}>
                 <Button
                   variant="contained"

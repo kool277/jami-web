@@ -48,6 +48,7 @@ export type InputProps<StatusType extends NameStatus | PasswordStatus> = TextFie
   status?: StatusType
   infoButtonProps?: IconButtonProps
   tooltipTitle: string
+  newPlaceHolder?: string
 }
 
 export const UsernameInput = ({
@@ -127,6 +128,7 @@ export const PasswordInput = ({
   infoButtonProps,
   status = 'default',
   tooltipTitle,
+  newPlaceHolder,
   ...props
 }: InputProps<PasswordStatus>) => {
   const { t } = useTranslation()
@@ -174,7 +176,7 @@ export const PasswordInput = ({
       <InfosDialog {...dialogHandler.props} title={t('password_rules_dialog_title')} content={<PasswordRules />} />
       <TextField
         error={passwordError}
-        label={t('password_input_label')}
+        label={newPlaceHolder ? newPlaceHolder : t('password_input_label')}
         type={showPassword ? 'text' : 'password'}
         variant="standard"
         autoComplete="current-password"
