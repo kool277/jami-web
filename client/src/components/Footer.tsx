@@ -17,7 +17,6 @@
  */
 import LogoutIcon from '@mui/icons-material/Logout'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
 import { Box, Card, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material'
 import { MouseEvent, useState } from 'react'
@@ -171,12 +170,12 @@ export default function Footer() {
                 </MenuItem>
               </>
             )}
-            <MenuItem onClick={() => closeMenuAndNavigate(`/contacts`)}>
+            {/*<MenuItem onClick={() => closeMenuAndNavigate(`/contacts`)}>
               <div style={menuItemStyle}>
                 <PeopleAltIcon sx={{ marginRight: '5%' }} />
                 {t('settings_menu_item_contacts')}
               </div>
-            </MenuItem>
+            </MenuItem>*/}
             <MenuItem onClick={() => closeMenuAndNavigate(`/settings/account/manage-account`)}>
               <div style={menuItemStyle}>
                 <ManageAccountsIcon sx={{ marginRight: '5%' }} />
