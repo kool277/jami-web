@@ -61,7 +61,7 @@ export default function AdminLogin() {
         <Box sx={isMobile ? { ...titleStyle, marginTop: '-20%' } : { ...titleStyle, marginTop: '-40%' }}>
           <img
             src={logoIcon}
-            alt="Jami logo"
+            alt={t('app_name')}
             style={{ width: '20%', height: 'auto', borderRadius: borderRadius, marginRight: '15px' }}
           />
           <Typography variant="h4" style={{ marginTop: 10, marginRight: '15px' }}>

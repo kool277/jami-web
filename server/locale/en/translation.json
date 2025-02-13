@@ -34,6 +34,7 @@
   "admin_page_setup_title": "Jami Web Admin Setup",
   "admin_page_welcome": "Jami Admin",
   "admin_password_changed_successfully": "Administrator password changed successfully.",
+  "app_name": "Jami",
   "are_composing_1": "{{member0}} is typing…",
   "are_composing_2": "{{member0}} and {{member1}} are typing…",
   "are_composing_3": "{{member0}}, {{member1}} and {{member2}} are typing…",
