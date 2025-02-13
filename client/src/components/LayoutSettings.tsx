@@ -47,6 +47,7 @@ export default function LayoutSettings({ children, title, text, disableMarginTop
           boxShadow: isMobile ? 'none' : undefined,
           border: isMobile ? 'none' : undefined,
           backgroundColor: isMobile ? theme.ChatInterface.backgroundColor : 'unset',
+          mb: '1px',
         }}
       >
         <CardHeader
