@@ -38,6 +38,7 @@ export default function LayoutSettings({ children, title, text, disableMarginTop
         maxHeight: '600px',
         justifyContent: 'center',
         marginTop: isMobile ? '0px' : '80px',
+        marginBottom: '50px',
       }}
     >
       <Card

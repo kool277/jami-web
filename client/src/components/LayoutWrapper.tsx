@@ -57,7 +57,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
   }
 
   const mainWindowStyles = {
-    height: isSettings ? 'auto' : '100vh',
+    height: '100vh',
     width: '100%',
     overflowY: isSettings ? 'scroll' : 'hidden',
   }
@@ -67,6 +67,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
     transition: 'width 0.3s',
     overflow: 'auto',
     height: '100vh',
+    widht: '100vw',
   }
 
   const footerStyles = {
@@ -112,7 +113,6 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
                 flexGrow: 1,
                 width: isMobile ? '100%' : 'unset',
                 height: '100vh',
-                padding: isSettings ? '3%' : 'unset',
               }
         }
       >
