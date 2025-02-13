@@ -117,6 +117,7 @@ type AlertMessageKeys =
   | 'getting_oauth_provider_info_error'
   | 'file_not_downloaded'
   | 'too_many_requests'
+  | 'ouath_provider_updated_success'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
 
@@ -220,6 +221,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('file_not_downloaded')
         case 'too_many_requests':
           return t('too_many_requests')
+        case 'ouath_provider_updated_success':
+          return t('ouath_provider_updated_success')
         default:
           return t('unknown_error_alert')
       }

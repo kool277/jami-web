@@ -619,6 +619,11 @@ export const useUpdateProviderInfo = (provider: string) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['oauth', 'provider', provider] })
+      setAlertContent({
+        messageI18nKey: 'ouath_provider_updated_success',
+        severity: 'success',
+        alertOpen: true,
+      })
     },
     onError: () => {
       setAlertContent({

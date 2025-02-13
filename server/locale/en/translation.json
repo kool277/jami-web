@@ -205,6 +205,7 @@
   "openid": "OpenID",
   "openid_authentication": "OpenID authentication",
   "oauth2_provider": "OAuth2 Provider",
+  "ouath_provider_updated_success": "OAuth provider updated successfully.",
   "outgoing_call": "Outgoing call",
   "password_input_helper_text": "",
   "password_input_helper_text_empty": "The password is missing.",
