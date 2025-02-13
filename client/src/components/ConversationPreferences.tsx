@@ -284,6 +284,7 @@ const Infos = () => {
         justifyContent: 'center',
         alignItems: 'center',
         alignContent: 'center',
+        width: '100%',
       }}
     >
       <SettingsItemWrapper title="Description">
@@ -292,7 +293,7 @@ const Infos = () => {
             type="text"
             disabled={!isAdmin}
             onChange={onDescriptionChange}
-            sx={{ maxWidth: '80%', textWrap: 'wrap' }}
+            sx={{ maxWidth: '80%', textWrap: 'wrap', marginTop: '-6px' }}
             value={description}
             onAbort={() => {
               setDescription(conversationInfos.description || '')
@@ -312,7 +313,11 @@ const Infos = () => {
         <Box>{conversationType}</Box>
       </SettingsItemWrapper>
       <SettingsItemWrapper title="Swarm ID">
-        <Box maxWidth={isMedium ? '220px' : '180px'} marginLeft={'16px'}>
+        <Box
+          maxWidth={isMedium ? '220px' : '180px'}
+          sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}
+          marginRight="-15px"
+        >
           <EllipsisMiddle text={conversationId} />
         </Box>
       </SettingsItemWrapper>
@@ -620,13 +625,15 @@ const Settings = () => {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
           alignItems: 'center',
           alignContent: 'center',
+          width: '100%',
         }}
       >
         <SettingsItemWrapper title={t('conversation_color')}>
-          <ColorPicker conversationId={conversationId} />
+          <Box sx={{ marginRight: '13px' }}>
+            <ColorPicker conversationId={conversationId} />
+          </Box>
         </SettingsItemWrapper>
         <SettingsItemWrapper title={t('mute_conversation')}>
           <Switch onChange={onConversationMuteChange} checked={ignoreNotifications} />
@@ -641,6 +648,7 @@ const Settings = () => {
             display: 'flex',
             justifyContent: 'space-evenly',
             '&:hover': { backgroundColor: 'red' },
+            maxWidth: '200px',
           }}
           onClick={() => {
             RemoveConversationDialogHandler.openDialog()
