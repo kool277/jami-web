@@ -51,6 +51,8 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   return 0
 }
 
+const rowPerPagesOptions = [10, 25, 50, 100]
+
 type Order = 'asc' | 'desc'
 
 function getComparator<Key extends keyof any>(
@@ -195,7 +197,7 @@ export default function AccountsOverview() {
   const [orderBy, setOrderBy] = useState<keyof AccountOverview>('auth')
   const [selected, setSelected] = useState<readonly string[]>([])
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(5)
+  const [rowsPerPage, setRowsPerPage] = useState(rowPerPagesOptions[0])
   const getAllAccounts = useGetAllAccounts()
   const accountDeletionMutation = useDeleteAccounts()
 
@@ -332,7 +334,7 @@ export default function AccountsOverview() {
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={rowPerPagesOptions}
             component="div"
             count={rows.length}
             rowsPerPage={rowsPerPage}
