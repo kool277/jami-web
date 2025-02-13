@@ -99,8 +99,8 @@ export default function ConversationPreferences() {
     backgroundColor: 'inherit',
     color: theme.palette.text.primary,
     border: 'none',
-    margin: '0.2vw',
-    height: '1.5vw',
+    margin: '0 5px',
+    height: '40px',
     '&:hover': { backgroundColor: 'inherit' },
   }
 
