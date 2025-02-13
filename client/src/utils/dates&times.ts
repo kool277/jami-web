@@ -24,12 +24,15 @@ export const formatTime = (time: Dayjs, i18n: i18n) => {
 }
 
 export const formatRelativeDate = (time: Dayjs, i18n: i18n) => {
+  let languageTag = i18n.language
+  languageTag = languageTag.replace(/_/g, '-')
+
   if (time.isToday()) {
-    return new Intl.RelativeTimeFormat(i18n.language, { numeric: 'auto' }).format(0, 'day')
+    return new Intl.RelativeTimeFormat(languageTag, { numeric: 'auto' }).format(0, 'day')
   } else if (time.isYesterday()) {
-    return new Intl.RelativeTimeFormat(i18n.language, { numeric: 'auto' }).format(-1, 'day')
+    return new Intl.RelativeTimeFormat(languageTag, { numeric: 'auto' }).format(-1, 'day')
   } else {
-    return dayjs(time).locale(i18n.language).format('L')
+    return dayjs(time).locale(languageTag).format('L')
   }
 }
 
