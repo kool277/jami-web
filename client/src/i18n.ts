@@ -58,7 +58,13 @@ const languagesInfosPromises = availableLanguages.map(async (item: any) => ({
 export const languagesInfos: readonly LanguageInfo[] = await Promise.all(languagesInfosPromises)
 
 const lastLanguage = localStorage.getItem('language')
-const defaultLanguage = lastLanguage ? lastLanguage : 'en'
+// transifex uses underscores instead of dashes
+const systemLanguage = navigator.language.replace('-', '_')
+const defaultLanguage = lastLanguage
+  ? lastLanguage
+  : availableLanguages.includes(systemLanguage)
+    ? systemLanguage
+    : 'en'
 
 const initialResources = await getTranslation(defaultLanguage)
 
