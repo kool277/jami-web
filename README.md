@@ -14,7 +14,7 @@ To view the deployment instructions for jami-web, refer to the [Deployment Guide
 ## Prerequisites
 
 - Linux
-- [Node.js 18](https://nodejs.org/en/)
+- [Node.js 22](https://nodejs.org/en/)
 - [npm](https://www.npmjs.com/)
 - [SWIG 4.1.0:](https://www.swig.org/)
 
