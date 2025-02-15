@@ -60,11 +60,7 @@ export const languagesInfos: readonly LanguageInfo[] = await Promise.all(languag
 const lastLanguage = localStorage.getItem('language')
 // transifex uses underscores instead of dashes
 const systemLanguage = navigator.language.replace('-', '_')
-const defaultLanguage = lastLanguage
-  ? lastLanguage
-  : availableLanguages.includes(systemLanguage)
-    ? systemLanguage
-    : 'en'
+const defaultLanguage = lastLanguage || (availableLanguages.includes(systemLanguage) ? systemLanguage : 'en')
 
 const initialResources = await getTranslation(defaultLanguage)
 
