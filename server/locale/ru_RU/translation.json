@@ -175,7 +175,7 @@
   "login_form_username_tooltip": "The username for the account.",
   "login_invalid_credentials": "Invalid credentials",
   "logout": "Log out",
-  "media_deleted": "Media deleted successfully.",
+  "media_deleted": "Медиафайл успешно удалён.",
   "Menu": "Меню",
   "member": "Участник",
   "message_call_incoming": "Входящий звонок - {{duration}}",
