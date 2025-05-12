@@ -26,7 +26,7 @@
   "admin_page_login_subtitle": "Log in to access the admin panel",
   "admin_page_password_placeholder": "Nytt passord",
   "admin_page_password_old_placeholder": "Nåværende passord",
-  "admin_page_password_repeat_placeholder": "Bekreft nytt passord",
+  "admin_page_password_repeat_placeholder": "Godta nytt passord",
   "admin_page_password_submit": "Endre passord",
   "admin_page_setup_complete": "Setup is already complete.",
   "admin_page_setup_intro": "Create a new administrator account to control access to the server configuration.",
