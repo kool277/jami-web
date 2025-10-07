@@ -35,7 +35,7 @@ const SettingLanguage = ({ doNotDisplayLabel }: SettingLanguageProps) => {
   }))
 
   const option = useMemo(
-    // TODO: Tell Typescript the result can't be undefined
+    // TODO: Tell Typescript the result is unable to be undefined
     () => settingLanguageOptions.find((option) => option.payload === i18n.language),
     [i18n.language, settingLanguageOptions],
   )
