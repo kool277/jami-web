@@ -46,8 +46,8 @@ export class ConversationService {
     const contact = await contactService.getContactFromUri(accountId, jamidRequest.from)
     const membersNames = await this.getMembersNames(accountId, jamidRequest.id)
 
-    // Currently, this does not actually works.
-    // It seems the members can't be accessed yet. Same on jami-android
+    // Currently, this does not work.
+    // It seems the members are unable to be accessed yet. Same on jami-android
     if (membersNames.length === 0) {
       membersNames.push(contact.registeredName || contact.uri)
     }
@@ -58,7 +58,7 @@ export class ConversationService {
       from: contact,
       infos: {
         // Build a dataUrl from the avatar
-        // TODO: Host the image and use a "normal" url instead
+        // TODO: Host the image and use a "normal" URL instead
         avatar: jamidRequest.avatar ? `data:image/jpeg;base64,${jamidRequest.avatar}` : undefined,
         description: jamidRequest.description,
         mode: jamidRequest.mode,
