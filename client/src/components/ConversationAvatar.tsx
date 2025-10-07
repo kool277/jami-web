@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+
 import Check from '@mui/icons-material/Check'
 import RefreshOutlined from '@mui/icons-material/RefreshOutlined'
 import { Avatar, AvatarProps, Box, Dialog, Stack, Typography, useTheme } from '@mui/material'
@@ -247,7 +248,7 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
   useEffect(() => {
     navigator.permissions
       // @ts-ignore
-      // Firefox can't query camera permissions. Hopefully this will work soon.
+      // Firefox is unable to query camera permissions. Hopefully this will work soon.
       .query({ name: 'camera' })
       .then((permissionStatus) => {
         setPermissionState(permissionStatus.state)
