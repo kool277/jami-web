@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+
 import { useMutation, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { passwordStrength } from 'check-password-strength'
@@ -154,7 +155,7 @@ export const useLoginMutation = () => {
       navigate('/conversation', { replace: true })
     },
     onError: (e: any) => {
-      //e: any is a simple workaround for type check since the error is of type unknown and we can't reference a property on an unknown
+      //e: any is a simple workaround for type check since the error is of type unknown and we are unable to reference a property on an unknown
       const { status } = e.response
       if (status === HttpStatusCode.BadRequest) {
         //TODO: the only bad request response defined in the server is missing credentials. add the response message to the locale.
