@@ -161,7 +161,7 @@ export const PasswordInput = ({
   t('password_input_helper_text_strong')
   t('password_input_helper_text_registration_failed')
    */
-  // TODO: The status is not string anymore, hence it can't be used as a context to fetch the correct translation.
+  // TODO: The status is not string anymore, hence it is unable to be used as a context to fetch the correct translation.
   // const helperText = t('password_input_helper_text', { context: `${status}` })
 
   const helper = (
