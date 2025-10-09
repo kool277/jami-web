@@ -39,7 +39,7 @@ import { CustomThemeContext } from '../contexts/CustomThemeProvider'
 import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
 import JamiLogo from '../icons/logo-jami-net.svg?react'
 import JamiLogoWhite from '../icons/logo-jami-net-white.svg?react'
-import { artworkContributors, contributors } from '../utils/contributors'
+import { contributorsDevelopers, contributorsMedia } from '../utils/contributors'
 import EllipsisMiddle from './EllipsisMiddle'
 import { InfoIcon, JamiIdIcon, TipIcon, TrashBinIcon, TwoSheetsIcon } from './SvgIcon'
 
@@ -385,7 +385,7 @@ export default function WelcomePage() {
             <Typography sx={{ fontWeight: 'bolder', marginLeft: '3%', marginTop: '3%', marginBottom: '2%' }}>
               {t('created_by')}
             </Typography>
-            {contributors.map((contributor, index) => (
+            {contributorsDevelopers.map((contributor, index) => (
               <Typography variant="body2" key={index} sx={{ marginLeft: '3%' }}>
                 {contributor}
               </Typography>
@@ -394,7 +394,7 @@ export default function WelcomePage() {
             <Typography sx={{ fontWeight: 'bolder', marginLeft: '3%', marginTop: '3%', marginBottom: '2%' }}>
               {t('artwork_by')}
             </Typography>
-            {artworkContributors.map((contributor, index) => (
+            {contributorsMedia.map((contributor, index) => (
               <Typography variant="body2" key={index} sx={{ marginLeft: '3%' }}>
                 {contributor}
               </Typography>
