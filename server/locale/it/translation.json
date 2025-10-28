@@ -172,7 +172,7 @@
   "invalid_code_provided": "Unrecognized new device identifier. Please follow the instructions below.",
   "incoming_call_video": "Incoming video call from {{member0}}",
   "incorrect_password": "Password errata",
-  "import_account": "Import account",
+  "import_account": "Importa account",
   "import_account_in_progress": "Account importing in progress…",
   "import_account_initiate_on_old_device_qr": "Initiate the import process on the current device by scanning the QR code below.",
   "import_account_enter_code_manually": "Alternatively, enter the following code manually:",
