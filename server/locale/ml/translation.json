@@ -267,7 +267,7 @@
   "previous": "Previous",
   "redirect_admin_setup_complete": "You are redirected here because you have already setup the admin account",
   "redirect_uri": "Redirect URI",
-  "decline_call": "Decline call",
+  "decline_call": "കോൾ നരിസിക്കുക",
   "registration_form_password_tooltip": "Choose a password, containing at least 10 characters, that is hard to guess for others but easy to remember for you. The account is unable to be recovered if the password is forgotten!\n\nClick for more details.",
   "registration_form_submit_button": "സൃഷ്ടിക്കുക",
   "registration_form_title": "Registration",
