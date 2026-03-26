@@ -46,32 +46,22 @@ Before proceeding, you must initialize the Git submodule repositories by running
    sudo apt install autoconf automake autopoint bison build-essential cmake curl git libarchive-dev libasio-dev libasound2-dev libdbus-1-dev libdbus-c++-dev libexpat1-dev libfmt-dev libgmp-dev nettle-dev libgnutls28-dev libjsoncpp-dev libmsgpack-dev libnatpmp-dev libopus-dev libpulse-dev libspeex-dev libspeexdsp-dev libssl-dev libtool libudev-dev libupnp-dev libva-dev libvdpau-dev libvpx-dev libx264-dev libyaml-cpp-dev libhttp-parser-dev libwebrtc-audio-processing-dev libsecp256k1-dev guile-3.0-dev nasm pkg-config yasm libpipewire-0.3-dev libsystemd-dev
    ```
 
-2. Compile the dependencies:
-
-   ```sh
-   cd daemon/contrib
-   mkdir native
-   cd native
-   ../bootstrap
-   make -j$(nproc)
-   ```
-
-3. Install `node-gyp` to build the daemon with Node.js bindings:
+2. Install `node-gyp` to build the daemon with Node.js bindings:
 
    ```
    npm install -g node-gyp
    ```
 
-4. Compile the daemon with Node.js bindings:
+3. Compile the daemon with Node.js bindings:
 
    ```sh
    cd ../..
    mkdir build && cd build
-   cmake .. -DJAMI_NODEJS=On -DBUILD_TESTING=Off
-   make -j$(nproc)
+   cmake .. -DJAMI_NODEJS=On -DBUILD_TESTING=Off -GNinja
+   ninja
    ```
 
-5. Create a symlink to `jamid.node` in `server`:
+4. Create a symlink to `jamid.node` in `server`:
 
    ```sh
    cd ../server
@@ -79,7 +69,7 @@ Before proceeding, you must initialize the Git submodule repositories by running
    cd ..
    ```
 
-6. Set the environement variables for development:
+5. Set the environement variables for development:
    in `server/.env` set `NODE_ENV=development`.
 
 ### Install npm dependencies and set up Git hooks

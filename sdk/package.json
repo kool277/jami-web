@@ -1,0 +1,69 @@
+{
+  "name": "@savoirfairelinux/jami-sdk",
+  "version": "0.1.0",
+  "description": "JavaScript/TypeScript SDK for interacting with Jami via jami-web",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "prepublishOnly": "npm run clean && npm run build && npm test",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src",
+    "lint:fix": "npm run lint -- --fix",
+    "format": "prettier --write src",
+    "format:check": "prettier --check src"
+  },
+  "dependencies": {
+    "jami-web-common": "1.0.0"
+  },
+  "bundleDependencies": [
+    "jami-web-common"
+  ],
+  "devDependencies": {
+    "typescript": "~5.5.4",
+    "vitest": "^4.1.1"
+  },
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://git.jami.net/savoirfairelinux/jami-web.git",
+    "directory": "sdk"
+  },
+  "homepage": "https://git.jami.net/savoirfairelinux/jami-web/-/tree/master/sdk",
+  "bugs": {
+    "url": "https://git.jami.net/savoirfairelinux/jami-web/-/issues"
+  },
+  "keywords": [
+    "jami",
+    "sdk",
+    "api",
+    "client",
+    "messaging",
+    "voip",
+    "peer-to-peer",
+    "webrtc"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false
+}

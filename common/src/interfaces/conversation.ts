@@ -84,7 +84,9 @@ export interface NewConversationRequestBody {
 }
 
 export interface NewMessageRequestBody {
-  message: string
+  body: string
+  replyTo?: string
+  messageId?: string
 }
 
 export interface IConversationSummary {

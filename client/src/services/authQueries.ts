@@ -57,11 +57,22 @@ export type LoginMethod = 'Jami' | 'JAMS'
 export const useCheckIfUsernameIsRegisteredQuery = (username: string) => {
   return useQuery({
     queryKey: ['username', username],
-    queryFn: async () => {
-      const res = await axios.get<NameStatus>(`/ns/username/availability/${username}`, {
-        baseURL: apiUrl,
-      })
-      return { responseMessage: res.data, statusCode: res.status }
+    queryFn: async (): Promise<{ responseMessage: NameStatus; statusCode: number }> => {
+      try {
+        const res = await axios.head(`/ns/name/${username}`, {
+          baseURL: apiUrl,
+        })
+        return { responseMessage: res.status === 200 ? 'taken' : 'success', statusCode: res.status }
+      } catch (e: any) {
+        const status = e?.response?.status
+        if (status === 404) {
+          return { responseMessage: 'success', statusCode: 404 }
+        }
+        if (status === 400) {
+          return { responseMessage: 'invalid', statusCode: 400 }
+        }
+        throw e
+      }
     },
     enabled: jamiUsernamePattern.test(username),
   })

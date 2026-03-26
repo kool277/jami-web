@@ -32,7 +32,7 @@ nameserverRouter.use(authenticateOptionalToken)
 nameserverRouter.use(extendIfGuest)
 
 nameserverRouter.get(
-  '/username/:username',
+  '/name/:username',
   asyncHandler(async (req, res) => {
     try {
       const result = await jamid.lookupUsername(req.params.username, '', res.locals.accountId)
@@ -75,26 +75,24 @@ nameserverRouter.get(
   }),
 )
 
-//Check if the username provided exists or not, if it doesn't exist, it is allowed for registration
-nameserverRouter.get(
-  '/username/availability/:username', //
+nameserverRouter.head(
+  '/name/:username',
   asyncHandler(async (req, res) => {
-    //This is using the same jamid service as the route /username/:username, except the responses are handled different
     try {
       const result = await jamid.lookupUsername(req.params.username, '', res.locals.accountId)
       switch (result.state) {
         case RegisteredNameFoundState.Found:
-          res.status(HttpStatusCode.Ok).send('taken')
+          res.status(HttpStatusCode.Ok).end()
           break
         case RegisteredNameFoundState.InvalidResponse:
-          res.status(HttpStatusCode.BadRequest).send('invalid')
+          res.status(HttpStatusCode.BadRequest).end()
           break
         default:
-          res.status(HttpStatusCode.Ok).send('success')
+          res.status(HttpStatusCode.NotFound).end()
           break
       }
     } catch (e) {
-      res.status(HttpStatusCode.InternalServerError)
+      res.status(HttpStatusCode.InternalServerError).end()
     }
   }),
 )

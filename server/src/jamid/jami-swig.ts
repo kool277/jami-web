@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Savoir-faire Linux Inc.
+ * Copyright (C) 2022-2026 Savoir-faire Linux Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,183 +15,16 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { DataTransferError } from 'jami-web-common/src/enums/datatransfer-error-code.js'
 
-import { Constructable } from '../interfaces/constructable.js'
-
-interface SwigVect<T> {
-  size(): number
-  get(index: number): T | undefined
-}
-
-interface SwigMap<T, U> {
-  keys(): SwigVect<T>
-  get(key: T): U | undefined
-  set(key: T, value: U): void
-}
-
-// export type IntVect = SwigVect<number>;
-// export type UintVect = SwigVect<number>;
-// export type FloatVect = SwigVect<number>;
-export type StringVect = SwigVect<string>
-// export type IntegerMap = SwigMap<string, number>;
-export type StringMap = SwigMap<string, string>
-export type VectMap = SwigVect<StringMap>
-export type Blob = SwigVect<number>
-
-function* swigVectToIt<T>(swigVect: SwigVect<T>) {
-  const size = swigVect.size()
-  for (let i = 0; i < size; i++) {
-    yield swigVect.get(i)!
-  }
-}
-
-function* swigMapToIt<T, U>(swigMap: SwigMap<T, U>) {
-  const keys = swigVectToIt(swigMap.keys())
-  for (const key of keys) {
-    const value = swigMap.get(key)!
-    yield [key, value]
-  }
-}
-
-export function stringVectToArray(stringVect: StringVect): string[] {
-  const elements = swigVectToIt(stringVect)
-  return Array.from(elements)
-}
-
-export function stringMapToRecord(stringMap: StringMap): Record<string, string> {
-  const keyValuePairs = swigMapToIt(stringMap)
-  const record: Record<string, string> = {}
-  for (const [key, value] of keyValuePairs) {
-    record[key] = value
-  }
-  return record
-}
-
-export function vectMapToRecordArray(vectMap: VectMap): Record<string, string>[] {
-  const stringMaps = swigVectToIt(vectMap)
-  const records = []
-  for (const stringMap of stringMaps) {
-    const record = stringMapToRecord(stringMap)
-    records.push(record)
-  }
-  return records
-}
-
-/**
- * Non-exhaustive list of properties for JamiSwig.
- *
- * The full list of methods can be found in SWIG interface files (`.i`) in `daemon/bin/nodejs`.
- */
-export interface JamiSwig {
-  init(args: Record<string, unknown>): void
-  fini(): void
-
-  monitor(continuous: boolean): void
-
-  clearCache(accountId: string, conversationId: string): void
-
-  getAccountDetails(accountId: string): StringMap
-  getVolatileAccountDetails(accountId: string): StringMap
-  setAccountDetails(accountId: string, details: StringMap): void
-
-  addAccount(details: StringMap): string
-  removeAccount(accountId: string): void
-  updateProfile(accountId: string, displayName: string, avatarPath: string, fileType: string, flag: number): void
-
-  getAccountList(): StringVect
-
-  sendAccountTextMessage(accountId: string, contactId: string, message: StringMap, flag: number): void
-
-  lookupName(accountId: string, nameserver: string, username: string): boolean
-  lookupAddress(accountId: string, nameserver: string, address: string): boolean
-  registerName(accountId: string, username: string, scheme: string, password: string): boolean
-  searchUser(accountId: string, query: string): boolean
-
-  getKnownRingDevices(accountId: string): StringMap
-  revokeDevice(accountId: string, deviceId: string, scheme: string, password: string): boolean
-
-  addDevice(accountId: string, uri: string): boolean
-  confirmAddDevice(accountId: string, opId: number): boolean
-  cancelAddDevice(accountId: string, opId: number): boolean
-
-  provideAccountAuthentication(accountId: string, credentials: string, scheme: string): boolean
-
-  addContact(accountId: string, contactId: string): void
-  removeContact(accountId: string, contactId: string, ban: boolean): void
-  getContacts(accountId: string): VectMap
-  getContactDetails(accountId: string, contactId: string): StringMap
-  sendTrustRequest(accountId: string, to: string, payload: Blob): void
-  acceptTrustRequest(accountId: string, from: string): boolean
-  discardTrustRequest(accountId: string, from: string): boolean
-
-  getDefaultModerators(accountId: string): StringVect
-  setDefaultModerator(accountId: string, uri: string, state: boolean): void
-
-  startConversation(accountId: string): string
-  getConversations(accountId: string): StringVect
-  conversationInfos(accountId: string, conversationId: string): StringMap
-  getConversationMembers(accountId: string, conversationId: string): VectMap
-  removeConversation(accountId: string, conversationId: string): void
-  searchConversation(
-    accountId: string,
-    conversationId: string,
-    author: string,
-    lastId: string,
-    regexSearch: string,
-    type: string,
-    after: number,
-    before: number,
-    maxResult: number,
-    flag: number,
-  ): boolean
-
-  getConversationRequests(accountId: string): VectMap
-  acceptConversationRequest(accountId: string, conversationId: string): void
-  declineConversationRequest(accountId: string, conversationId: string): void
-  addConversationMember(accountId: string, conversationId: string, uri: string): void
-  removeConversationMember(accountId: string, conversationId: string, uri: string): void
-  getConversationPreferences(accountId: string, conversationId: string): StringMap
-  setConversationPreferences(accountId: string, conversationId: string, preferences: StringMap): void
-  updateConversationInfos(accountId: string, conversationId: string, infos: StringMap): void
-
-  sendMessage(accountId: string, conversationId: string, message: string, replyTo: string, flag: number): void
-  loadConversationMessages(accountId: string, conversationId: string, fromMessage: string, n: number): number
-  loadConversation(accountId: string, conversationId: string, fromMessage: string, n: number): number
-  loadSwarmUntil(accountId: string, conversationId: string, fromMessage: string, toMessage: string): number
-  setIsComposing(accountId: string, conversationId: string, isWriting: boolean): void
-  setMessageDisplayed(accountId: string, conversationId: string, messageId: string, status: number): boolean
-
-  getCallList(accountId: string): StringVect
-  getCallDetails(accountId: string, callId: string): StringMap
-
-  // File transfer
-  sendFile(accountId: string, conversationId: string, path: string, displayName: string, replyTo: string): void
-  downloadFile(accountId: string, conversationId: string, interactionId: string, fileId: string, path: string): number
-  cancelDataTransfer(accountId: string, conversationId: string, fileId: string): DataTransferError
-  fileTransferInfo(
-    accountId: string,
-    conversationId: string,
-    fileId: string,
-    path_out: string,
-    total_out: number,
-    progress_out: number,
-  ): DataTransferError
-
-  // Presence
-  publish(accountId: string, status: boolean, note: string): void
-  answerServerRequest(uri: string, flag: boolean): void
-  subscribeBuddy(accountId: string, uri: string, flag: boolean): void
-  getSubscriptions(accountId: string): VectMap
-  setSubscriptions(accountId: string, uris: string[]): void
-
-  // IntVect: Constructable<IntVect>;
-  // UintVect: Constructable<UintVect>;
-  // FloatVect: Constructable<FloatVect>;
-  // StringVect: Constructable<StringVect>;
-  // IntegerMap: Constructable<IntegerMap>
-  StringMap: Constructable<StringMap>
-  // VectMap: Constructable<VectMap>;
-  // IntegerMap: Constructable<IntegerMap>;
-  Blob: Constructable<Blob>
-}
+// Re-export everything from jami-core — single source of truth for SWIG types
+export {
+  type Blob,
+  type Constructable,
+  type JamiSwig,
+  type StringMap,
+  stringMapToRecord,
+  type StringVect,
+  stringVectToArray,
+  type VectMap,
+  vectMapToRecordArray,
+} from '@savoirfairelinux/jami-core'

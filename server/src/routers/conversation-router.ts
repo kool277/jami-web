@@ -238,19 +238,19 @@ conversationRouter.get(
 
 conversationRouter.post(
   '/:conversationId/messages',
-  (req: Request<ParamsDictionary, string, Partial<NewMessageRequestBody>>, res) => {
-    if (req.body.message === undefined) {
-      res.status(HttpStatusCode.BadRequest).send('Missing message in body')
-      return
-    }
-
-    const data = JSON.parse(req.body.message)
-    const message = data.message
-    const replyTo = data.replyTo
+  (req: Request<ParamsDictionary, string, Record<string, unknown>>, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
 
-    jamid.sendConversationMessage(accountId, conversationId, message, replyTo, SendMessageType.DEFAULT)
+    const messageBody = typeof req.body.body === 'string' ? req.body.body : ''
+    const replyTo = typeof req.body.replyTo === 'string' ? req.body.replyTo : undefined
+
+    if (!messageBody) {
+      res.status(HttpStatusCode.BadRequest).send('Missing body in request')
+      return
+    }
+
+    jamid.sendConversationMessage(accountId, conversationId, messageBody, replyTo, SendMessageType.DEFAULT)
 
     res.sendStatus(HttpStatusCode.NoContent)
   },
@@ -306,18 +306,17 @@ conversationRouter.post('/:conversationId/remove-from-swarm', (req, res) => {
 conversationRouter.post(
   '/:conversationId/editmessage',
   (req: Request<ParamsDictionary, string, Partial<NewMessageRequestBody>>, res) => {
-    if (req.body.message === undefined) {
-      res.status(HttpStatusCode.BadRequest).send('Missing message in body')
+    const body = req.body.body
+    const messageId = req.body.messageId
+    if (!body || !messageId) {
+      res.status(HttpStatusCode.BadRequest).send('Missing body or messageId in request')
       return
     }
 
-    const data = JSON.parse(req.body.message)
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
-    const message = data.message
-    const messageId = data.messageId
 
-    jamid.sendConversationMessage(accountId, conversationId, message, messageId, SendMessageType.EDIT)
+    jamid.sendConversationMessage(accountId, conversationId, body, messageId, SendMessageType.EDIT)
     res.sendStatus(HttpStatusCode.NoContent)
   },
 )

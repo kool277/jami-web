@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "workspaces": [
     "common",
+    "core",
     "client",
-    "server"
+    "server",
+    "sdk"
   ],
   "scripts": {
     "start": "concurrently \"npm start --workspace server\" \"npm start --workspace client\"",

@@ -15,6 +15,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "references": [{ "path": "../common" }],
+  "references": [{ "path": "../common" }, { "path": "../core" }],
   "exclude": ["uploads"]
 }

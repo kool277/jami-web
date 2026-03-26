@@ -129,9 +129,10 @@ export const useSendMessageMutation = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (message: string) =>
+    mutationFn: ({ body, replyTo }: { body: string; replyTo?: string }) =>
       axiosInstance.post(`/conversations/${conversationId}/messages`, {
-        message,
+        body,
+        replyTo,
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
   })
@@ -171,9 +172,10 @@ export const useEditMessageMutation = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (message: string) =>
+    mutationFn: ({ body, messageId }: { body: string; messageId: string }) =>
       axiosInstance.post(`/conversations/${conversationId}/editmessage`, {
-        message,
+        body,
+        messageId,
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
   })

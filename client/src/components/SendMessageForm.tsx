@@ -88,7 +88,7 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
   const sendMessage = useCallback(
     (message: string) => {
       if (message !== 'files-to-send') {
-        sendMessageMutation.mutate(JSON.stringify({ message, replyTo: selectedReply?.id }))
+        sendMessageMutation.mutate({ body: message, replyTo: selectedReply?.id })
       }
 
       const data: FormData = new FormData()
@@ -105,7 +105,7 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
 
   const editMessageHandler = useCallback(
     (message: string) => {
-      editMessageMutation.mutate(JSON.stringify({ message, messageId: editMessage?.id }))
+      editMessageMutation.mutate({ body: message, messageId: editMessage!.id })
     },
     [editMessage?.id, editMessageMutation],
   )
