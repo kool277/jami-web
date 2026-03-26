@@ -20,9 +20,13 @@ import { HttpStatusCode } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { Accounts } from '../storage/accounts.js'
+import { ApiTokenStore } from '../storage/api-tokens.js'
 import { verifyJwt } from '../utils/jwt.js'
 
 const accounts = Container.get(Accounts)
+const tokenStore = Container.get(ApiTokenStore)
+
+const API_TOKEN_PREFIX = 'jm_sk_'
 
 function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -31,7 +35,6 @@ function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
       if (isAuthenticationRequired) {
         res.status(HttpStatusCode.Unauthorized).send('Missing Authorization header')
       } else {
-        // Skip authentication if it is optional, in which case the Authorization header should not have been set
         res.locals.accountId = undefined
         next()
       }
@@ -40,10 +43,24 @@ function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
 
     const token = authorizationHeader.split(' ')[1]
     if (token === undefined) {
-      res.status(HttpStatusCode.BadRequest).send('Missing JSON web token')
+      res.status(HttpStatusCode.BadRequest).send('Missing access token')
       return
     }
 
+    // API token authentication (prefixed with jm_sk_)
+    if (token.startsWith(API_TOKEN_PREFIX)) {
+      const result = tokenStore.validateToken(token)
+      if (!result) {
+        res.status(HttpStatusCode.Unauthorized).send('Invalid or expired API token')
+        return
+      }
+      res.locals.accountId = result.accountId
+      res.locals.tokenScopes = result.scopes
+      next()
+      return
+    }
+
+    // JWT authentication (default)
     try {
       const { payload } = await verifyJwt(token)
       const accountId = String(payload.accountId)

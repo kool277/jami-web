@@ -26,8 +26,12 @@ import * as WebSocket from 'ws'
 
 import { PresenceService } from '../services/PresenceService.js'
 import { Accounts } from '../storage/accounts.js'
+import { ApiTokenStore } from '../storage/api-tokens.js'
 import { verifyJwt } from '../utils/jwt.js'
 const accounts = Container.get(Accounts)
+const tokenStore = Container.get(ApiTokenStore)
+
+const API_TOKEN_PREFIX = 'jm_sk_'
 
 const presenceService = Container.get(PresenceService)
 
@@ -120,8 +124,21 @@ export class WebSocketServer {
     }
 
     try {
-      const { payload } = await verifyJwt(token)
-      const accountId = payload.accountId as string
+      let accountId: string
+
+      if (token.startsWith(API_TOKEN_PREFIX)) {
+        const result = tokenStore.validateToken(token)
+        if (!result) {
+          socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
+          socket.destroy()
+          return
+        }
+        accountId = result.accountId
+      } else {
+        const { payload } = await verifyJwt(token)
+        accountId = payload.accountId as string
+      }
+
       log.info('Authentication successful for account', accountId)
       this.wss.handleUpgrade(request, socket, head, (ws) => {
         this.wss.emit('connection', ws, request, accountId)
