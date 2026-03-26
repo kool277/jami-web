@@ -1,0 +1,16 @@
+{
+  "name": "jami-chatbot-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@savoirfairelinux/jami-sdk": "file:../../sdk"
+  },
+  "devDependencies": {
+    "typescript": "~5.5.4"
+  }
+}
