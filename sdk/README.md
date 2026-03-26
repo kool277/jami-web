@@ -1,40 +1,19 @@
-# @jami/sdk
+# @savoirfairelinux/jami-sdk
 
 TypeScript SDK for interacting with a [Jami](https://jami.net) account through the jami-web server REST API and WebSocket API.
 
 ## Installation
 
 ```bash
-npm install @jami/sdk
+npm install @savoirfairelinux/jami-sdk
 ```
 
 ## Quick Start
 
-### Authentication with credentials
-
-```typescript
-import { JamiClient } from '@jami/sdk'
-
-const client = new JamiClient({
-  server: 'http://localhost:5002',
-  credentials: {
-    username: 'alice',
-    password: 'secret',
-  },
-})
-
-// List conversations
-const conversations = await client.conversations.list()
-console.log(conversations)
-
-// Send a message
-await client.conversations.sendMessage(conversations[0].id, 'Hello!')
-```
-
 ### Authentication with an API token
 
 ```typescript
-import { JamiClient } from '@jami/sdk'
+import { JamiClient } from '@savoirfairelinux/jami-sdk'
 
 const client = new JamiClient({
   server: 'https://jami.example.com',
@@ -54,6 +33,27 @@ const { token, info } = await client.tokens.create({
   expiresIn: '30d',
 })
 console.log('Token:', token) // Save this — it cannot be retrieved later
+```
+
+### Authentication with credentials
+
+```typescript
+import { JamiClient } from '@savoirfairelinux/jami-sdk'
+
+const client = new JamiClient({
+  server: 'http://localhost:8080',
+  credentials: {
+    username: 'alice',
+    password: 'secret',
+  },
+})
+
+// List conversations
+const conversations = await client.conversations.list()
+console.log(conversations)
+
+// Send a message
+await client.conversations.sendMessage(conversations[0].id, 'Hello!')
 ```
 
 ## API Reference
@@ -110,7 +110,7 @@ await client.conversationRequests.block(conversationId)
 All API methods throw `HttpError` on failure:
 
 ```typescript
-import { HttpError } from '@jami/sdk'
+import { HttpError } from '@savoirfairelinux/jami-sdk'
 
 try {
   await client.contacts.get('nonexistent')

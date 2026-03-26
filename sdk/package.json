@@ -1,6 +1,6 @@
 {
   "name": "@savoirfairelinux/jami-sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "JavaScript/TypeScript SDK for interacting with Jami via jami-web",
   "type": "module",
   "main": "dist/index.js",
