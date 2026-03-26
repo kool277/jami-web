@@ -17,3 +17,20 @@ client/**/cypress.env.json
 
 jami-web-production
 jami-web.tar.gz
+
+# Temporary test/dev scripts
+.npmrc
+test-*.mjs
+e2e-test.mjs
+check-gateway.sh
+examples/**/test-*.mjs
+examples/**/.env.sh
+examples/**/cleanup.mjs
+examples/**/start-gateway-and-test.sh
+extensions/**/test-*.mjs
+
+# Generated config duplicates
+client/vite.config.js
+
+# Editor/agent data
+.github/copilot/
