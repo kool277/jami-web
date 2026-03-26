@@ -16,7 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import type { AccessToken } from 'jami-web-common'
+import type { AccessToken, ConversationMessage, IConversationRequest } from 'jami-web-common'
+import { WebSocketMessageType } from 'jami-web-common'
 
 import { AccountApi } from './api/account.js'
 import { CallApi } from './api/calls.js'
@@ -44,8 +45,19 @@ export interface CredentialAuthOptions {
 
 export type JamiClientOptions = TokenAuthOptions | CredentialAuthOptions
 
+/** High-level event map for JamiClient.on() */
+export interface JamiEventMap {
+  message: ConversationMessage
+  conversationRequest: IConversationRequest
+}
+
 function isTokenAuth(opts: JamiClientOptions): opts is TokenAuthOptions {
   return 'token' in opts
+}
+
+const eventToWsType: { [K in keyof JamiEventMap]: WebSocketMessageType } = {
+  message: WebSocketMessageType.ConversationMessage,
+  conversationRequest: WebSocketMessageType.ConversationRequest,
 }
 
 export class JamiClient {
@@ -82,6 +94,22 @@ export class JamiClient {
     this.tokens = new TokenApi(this.http)
     this.conversationRequests = new ConversationRequestApi(this.http)
     this.events = new EventClient(this.server, () => this.getToken(options))
+  }
+
+  /** Subscribe to high-level client events. Returns an unsubscribe function. */
+  on<K extends keyof JamiEventMap>(event: K, handler: (data: JamiEventMap[K]) => void): () => void {
+    const wsType = eventToWsType[event]
+    return this.events.on(wsType, handler as any)
+  }
+
+  /** Connect the realtime event stream (WebSocket). */
+  async connect(): Promise<void> {
+    return this.events.connect()
+  }
+
+  /** Disconnect the realtime event stream. */
+  disconnect(): void {
+    this.events.disconnect()
   }
 
   private async getToken(options: JamiClientOptions): Promise<string> {

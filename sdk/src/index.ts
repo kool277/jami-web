@@ -25,7 +25,7 @@ export { DataTransferApi } from './api/data-transfer.js'
 export { TokenApi } from './api/tokens.js'
 export type { ApiTokenInfo, CreateTokenRequest, CreateTokenResponse, TokenScope } from './auth.js'
 export { TOKEN_SCOPES } from './auth.js'
-export type { CredentialAuthOptions, JamiClientOptions, TokenAuthOptions } from './client.js'
+export type { CredentialAuthOptions, JamiClientOptions, JamiEventMap, TokenAuthOptions } from './client.js'
 export { JamiClient } from './client.js'
 export { HttpError } from './http.js'
 export { EventClient } from './realtime/event-client.js'
@@ -35,6 +35,7 @@ export type {
   AccountDetails,
   ContactDetails,
   ConversationInfos,
+  ConversationMessage,
   IContact,
   IConversationMember,
   IConversationRequest,
