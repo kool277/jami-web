@@ -20,9 +20,12 @@
   "scripts": {
     "build": "tsc --build",
     "clean": "rm -rf dist *.tsbuildinfo",
-    "prepublishOnly": "npm run clean && npm run build"
+    "prepublishOnly": "npm run clean && npm run build",
+    "pack-native": "node scripts/pack-native.mjs",
+    "publish-platform": "node scripts/pack-native.mjs && npm publish --workspace npm/$(node -e \"process.stdout.write(process.platform+'-'+process.arch)\")"
   },
   "optionalDependencies": {
+    "@savoirfairelinux/jami-core-darwin-arm64": "0.1.0",
     "@savoirfairelinux/jami-core-linux-x64": "0.1.0",
     "@savoirfairelinux/jami-core-linux-arm64": "0.1.0"
   },
