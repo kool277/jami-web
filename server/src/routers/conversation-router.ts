@@ -222,6 +222,9 @@ conversationRouter.get(
   asyncHandler(async (req, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
+    const from = typeof req.query.from === 'string' ? req.query.from : ''
+    const requestedLimit = typeof req.query.limit === 'string' ? Number.parseInt(req.query.limit, 10) : NaN
+    const limit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? requestedLimit : MESSAGES_NUMBER_TO_LOAD
     const infos = jamid.getConversationInfos(accountId, conversationId)
 
     jamid.clearCache(accountId, conversationId)
@@ -230,7 +233,7 @@ conversationRouter.get(
       res.status(HttpStatusCode.NotFound).send('No such conversation found')
       return
     }
-    const messages = await jamid.getSwarmMessages(accountId, conversationId, '', MESSAGES_NUMBER_TO_LOAD)
+    const messages = await jamid.getSwarmMessages(accountId, conversationId, from, limit)
 
     res.send(messages)
   }),

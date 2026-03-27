@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import type { AccessToken, ConversationMessage, IConversationRequest } from 'jami-web-common'
+import type { AccessToken, ConversationMessage, IConversationRequest, WebSocketMessageTable } from 'jami-web-common'
 import { WebSocketMessageType } from 'jami-web-common'
 
 import { AccountApi } from './api/account.js'
@@ -49,6 +49,8 @@ export type JamiClientOptions = TokenAuthOptions | CredentialAuthOptions
 export interface JamiEventMap {
   message: ConversationMessage
   conversationRequest: IConversationRequest
+  reactionAdded: WebSocketMessageTable[WebSocketMessageType.ReactionAdded]
+  reactionRemoved: WebSocketMessageTable[WebSocketMessageType.ReactionRemoved]
 }
 
 function isTokenAuth(opts: JamiClientOptions): opts is TokenAuthOptions {
@@ -58,6 +60,8 @@ function isTokenAuth(opts: JamiClientOptions): opts is TokenAuthOptions {
 const eventToWsType: { [K in keyof JamiEventMap]: WebSocketMessageType } = {
   message: WebSocketMessageType.ConversationMessage,
   conversationRequest: WebSocketMessageType.ConversationRequest,
+  reactionAdded: WebSocketMessageType.ReactionAdded,
+  reactionRemoved: WebSocketMessageType.ReactionRemoved,
 }
 
 export class JamiClient {

@@ -73,6 +73,11 @@ export class ConversationApi {
     return this.http.get<Message[]>(path)
   }
 
+  async getMessage(conversationId: string, messageId: string): Promise<Message | undefined> {
+    const messages = await this.getMessages(conversationId, { from: messageId, limit: 1 })
+    return messages.find((message) => message.id === messageId)
+  }
+
   async sendMessage(conversationId: string, body: string, replyTo?: string): Promise<void> {
     return this.http.post(`/conversations/${encodeURIComponent(conversationId)}/messages`, {
       body,

@@ -125,6 +125,28 @@ describe('ConversationApi', () => {
     })
   })
 
+  describe('getMessage()', () => {
+    it('should request one message from the target id and return an exact match', async () => {
+      vi.mocked(http.get).mockResolvedValue([
+        { id: 'msg-42', body: 'hello' },
+        { id: 'msg-41', body: 'older' },
+      ] as any)
+
+      const result = await api.getMessage('c1', 'msg-42')
+
+      expect(http.get).toHaveBeenCalledWith('/conversations/c1/messages?from=msg-42&limit=1')
+      expect(result).toEqual({ id: 'msg-42', body: 'hello' })
+    })
+
+    it('should return undefined when the server page does not contain the target id', async () => {
+      vi.mocked(http.get).mockResolvedValue([{ id: 'msg-41', body: 'older' }] as any)
+
+      const result = await api.getMessage('c1', 'msg-42')
+
+      expect(result).toBeUndefined()
+    })
+  })
+
   it('sendMessage() should POST message', async () => {
     vi.mocked(http.post).mockResolvedValue(undefined)
     await api.sendMessage('c1', 'Hello!')

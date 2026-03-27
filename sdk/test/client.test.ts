@@ -27,6 +27,7 @@ import { TokenApi } from '../src/api/tokens.js'
 import { ConversationRequestApi } from '../src/api/conversation-requests.js'
 import { EventClient } from '../src/realtime/event-client.js'
 import { mockResponse, mockErrorResponse } from './helpers.js'
+import { WebSocketMessageType } from 'jami-web-common'
 
 describe('JamiClient', () => {
   afterEach(() => {
@@ -151,6 +152,30 @@ describe('JamiClient', () => {
       })
 
       await expect(client.account.get()).rejects.toThrow('Authentication failed')
+    })
+  })
+
+  describe('high-level events', () => {
+    beforeEach(() => {
+      vi.spyOn(EventClient.prototype, 'on').mockReturnValue(() => {})
+    })
+
+    it('maps reactionAdded to the ReactionAdded websocket event', () => {
+      const handler = vi.fn()
+      const client = new JamiClient({ server: 'https://jami.example.com', token: 'tok' })
+
+      client.on('reactionAdded', handler)
+
+      expect(EventClient.prototype.on).toHaveBeenCalledWith(WebSocketMessageType.ReactionAdded, handler)
+    })
+
+    it('maps reactionRemoved to the ReactionRemoved websocket event', () => {
+      const handler = vi.fn()
+      const client = new JamiClient({ server: 'https://jami.example.com', token: 'tok' })
+
+      client.on('reactionRemoved', handler)
+
+      expect(EventClient.prototype.on).toHaveBeenCalledWith(WebSocketMessageType.ReactionRemoved, handler)
     })
   })
 })
