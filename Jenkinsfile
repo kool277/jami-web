@@ -61,7 +61,7 @@ pipeline {
         stage('Build jami-daemon') {
             steps {
                 dir("daemon") {
-                    sh "docker build --build-arg cmake_args=-DJAMI_NODEJS=ON -t jami-daemon ."
+                    sh "docker build --build-arg cmake_args='-DJAMI_NODEJS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON' -t jami-daemon ."
                 }
             }
         }
@@ -88,7 +88,7 @@ pipeline {
                     docker cp ${container_id}:/web-client/${dir}/package.json jami-web-production/${dir}/
                 done
 
-                docker cp ${container_id}:/daemon/bin/nodejs/build/Release/jamid.node jami-web-production/server/
+                docker cp ${container_id}:/web-client/core jami-web-production/core
                 docker cp ${container_id}:/web-client/server/locale jami-web-production/server/
                 docker cp ${container_id}:/web-client/server/available_languages.json jami-web-production/server/
                 docker cp ${container_id}:/web-client/server/scripts jami-web-production/server/

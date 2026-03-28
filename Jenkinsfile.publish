@@ -166,7 +166,7 @@ pipeline {
  */
 void buildNativeAddon(String platform, String arch) {
     dir('daemon') {
-        sh "docker build --build-arg cmake_args='-DJAMI_NODEJS=ON' -t jami-daemon-${platform}-${arch}:${env.BUILD_ID} ."
+        sh "docker build --build-arg cmake_args='-DJAMI_NODEJS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON' -t jami-daemon-${platform}-${arch}:${env.BUILD_ID} ."
     }
     sh """
         container_id=\$(docker create jami-daemon-${platform}-${arch}:${env.BUILD_ID})

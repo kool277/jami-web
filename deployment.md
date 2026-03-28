@@ -43,7 +43,7 @@ The application is now running on port 8080 of your local machine. To set up the
 
 ### Depedencies
 
-**WARNING:** Currently, as the `tar.gz` files are built using an `ubuntu:22.04` container, the `jamid.node` binary can only be executed on this operating system due to dependency issues. This limitation may be resolved in the future. However, for now, if you wish to deploy Jami, please ensure it is installed on an `ubuntu:22.04` machine.
+**WARNING:** Currently, as the `tar.gz` files are built using an `ubuntu:24.04` container, the `jamid.node` binary can only be executed on compatible Linux distributions. The native addon is published as an npm package (`@savoirfairelinux/jami-core`) that automatically downloads the correct binary for your platform (linux-x64 or linux-arm64).
 If you still want to deploy Jami on your current OS, please see deployment using Docker containers.
 
 To ensure the application runs correctly, please install the required dependencies.
