@@ -112,10 +112,7 @@ export const contributorsDevelopers = [
   'Vsevolod Ivanov',
   'Xavier Jouslin de Noray',
   'Yang Wang',
-  'Ziwei Wang'
+  'Ziwei Wang',
 ]
 
-export const contributorsMedia = [
-  'Charlotte Hoffmann',
-  'Marianne Forget'
-]
+export const contributorsMedia = ['Charlotte Hoffmann', 'Marianne Forget']
