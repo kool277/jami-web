@@ -9,11 +9,11 @@ git submodule update --init --recursive
 cd daemon
 mkdir build
 cd build
-cmake .. -DJAMI_NODEJS=ON -DBUILD_TESTING=OFF
+cmake .. -DJAMI_NODEJS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
 make -j4
 cd ..
-cp bin/nodejs/build/Release/jamid.node ../server
 cd ..
+npm run pack-native --workspace=core
 
 # ============Cleaning the app==============
 echo "Cleaning the app…"
@@ -29,23 +29,25 @@ npm run build
 
 echo "Copying files to production folder…"
 
-mkdir jami-web-production jami-web-production/client jami-web-production/server jami-web-production/common
+mkdir jami-web-production jami-web-production/client jami-web-production/server jami-web-production/common jami-web-production/core
 
 cp -r server/dist jami-web-production/server
 cp -r common/dist jami-web-production/common
 cp -r client/dist jami-web-production/client
+cp -r core/dist jami-web-production/core
+cp -r core/npm jami-web-production/core
 
 cp package*.json jami-web-production
 cp server/package*.json jami-web-production/server
 cp common/package*.json jami-web-production/common
 cp client/package*.json jami-web-production/client
+cp core/package*.json jami-web-production/core
 
 cp server/tsconfig.tsbuildinfo jami-web-production/server
 cp client/tsconfig.tsbuildinfo jami-web-production/client
 cp common/tsconfig.tsbuildinfo jami-web-production/common
 
 cp -r server/scripts jami-web-production/server
-cp server/jamid.node jami-web-production/server
 cp server/.env jami-web-production/server
 
 cp install.sh jami-web-production

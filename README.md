@@ -17,7 +17,6 @@ To view the deployment instructions for jami-web, refer to the [Deployment Guide
 - [Node.js 22](https://nodejs.org/en/)
 - [npm](https://www.npmjs.com/)
 - [SWIG >= 4.3:](https://www.swig.org/) (required for N-API support)
-
   - Build from source with the following instructions: <https://swig.org/svn.html>
 
     > Note: you will need to have Bison installed. On Ubuntu, this can be installed using `sudo apt install bison`.
@@ -61,12 +60,11 @@ Before proceeding, you must initialize the Git submodule repositories by running
    ninja
    ```
 
-4. Create a symlink to `jamid.node` in `server`:
+4. Pack the native addon into the platform-specific core package:
 
    ```sh
-   cd ../server
-   ln -s ../daemon/bin/nodejs/build/Release/jamid.node jamid.node
-   cd ..
+   cd ../..
+   npm run pack-native --workspace=core
    ```
 
 5. Set the environement variables for development:
@@ -87,7 +85,7 @@ This will install the relevant dependencies for all subprojects and configure Gi
 Start both the client and server:
 
 ```sh
-LD_LIBRARY_PATH="${PWD}/daemon/src/.libs" npm start
+npm start
 ```
 
 > Keep in mind that this script runs the --mode option on the client, allowing it to utilize development variables. Do not use npm start to launch the application in a production environment.
@@ -96,12 +94,12 @@ You can also start the client and server individually:
 
 ```sh
 npm start --workspace client
-LD_LIBRARY_PATH="${PWD}/daemon/src/.libs" npm start --workspace server
+npm start --workspace server
 ```
 
 Open <http://localhost:3000> in your browser to view the app.
 
-> Note: Many people experience a problem with the calls to the nameserver. For example, this problem prevents the registration of new users (and other issues): jami-web will not be able to validate whether the new username is available or not. If you experience this problem, you can try to launch the server this way: `LD_LIBRARY_PATH="${PWD}/daemon/src/.libs" HOME=/tmp npm start --workspace server`. This is a temporary solution. It brings other problems related to the fact it makes the data non-persistent. For example, the users you created will be deleted after a certain amount of time.
+> Note: Many people experience a problem with the calls to the nameserver. For example, this problem prevents the registration of new users (and other issues): jami-web will not be able to validate whether the new username is available or not. If you experience this problem, you can try to launch the server this way: `HOME=/tmp npm start --workspace server`. This is a temporary solution. It brings other problems related to the fact it makes the data non-persistent. For example, the users you created will be deleted after a certain amount of time.
 
 ### Build for production
 
@@ -114,7 +112,7 @@ npm run build
 Set the environement variables for production: in `server/.env` set `NODE_ENV=production`, if NODE_ENV isn't provided then the server will run for production anyway.
 
 ```sh
-LD_LIBRARY_PATH="${PWD}/daemon/src/.libs" npm run start:prod
+npm run start:prod
 ```
 
 ### Lint files

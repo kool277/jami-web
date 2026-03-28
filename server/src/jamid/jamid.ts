@@ -15,8 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { createRequire } from 'node:module'
-
+import {
+  JamiSignal,
+  type JamiSwig,
+  loadNativeModule,
+  type StringMap,
+  stringMapToRecord,
+  stringVectToArray,
+  vectMapToRecordArray,
+} from '@savoirfairelinux/jami-core'
 import fs from 'fs'
 import {
   AccountDetails,
@@ -48,7 +55,6 @@ import { getAvatar } from '../utils/vCard.js'
 import { WebSocketServer } from '../websocket/websocket-server.js'
 import { ConversationMemberInfos } from './conversation-member-infos.js'
 import { ConversationRequestMetadata } from './conversation-request-metadata.js'
-import { JamiSignal } from './jami-signal.js'
 import {
   AccountDetailsChanged,
   AccountMessageStatusChanged,
@@ -86,10 +92,7 @@ import {
   UserSearchEnded,
   VolatileDetailsChanged,
 } from './jami-signal-interfaces.js'
-import { JamiSwig, StringMap, stringMapToRecord, stringVectToArray, vectMapToRecordArray } from './jami-swig.js'
 import { DataTransferEventCode, MessageState, NameRegistrationEndedState, RegistrationState } from './state-enums.js'
-
-const require = createRequire(import.meta.url)
 
 @Service()
 export class Jamid {
@@ -122,7 +125,7 @@ export class Jamid {
   }
 
   constructor(private webSocketServer: WebSocketServer) {
-    this.jamiSwig = require('../../jamid.node') as JamiSwig
+    this.jamiSwig = loadNativeModule()
 
     // Setup signal handlers
     const handlers: Record<string, unknown> = {}

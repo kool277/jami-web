@@ -26,4 +26,4 @@ services:
     build:
       context: ./daemon
       args:
-        cmake_args: '-DJAMI_NODEJS=ON'
+        cmake_args: '-DJAMI_NODEJS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release'

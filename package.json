@@ -11,7 +11,7 @@
   "scripts": {
     "start": "concurrently \"npm start --workspace server\" \"npm start --workspace client\"",
     "start:prod": " npm run start:prod --workspace server",
-    "start:debug-server": "LD_LIBRARY_PATH='${PWD}/daemon/src/.libs' HOME=/tmp npm start --workspace server",
+    "start:debug-server": "HOME=/tmp npm start --workspace server",
     "build": "npm run build --workspaces",
     "clean": "npm run clean --workspaces",
     "clean:all": "npm run clean && find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",

@@ -1,15 +1,16 @@
 FROM jami-daemon AS jami-web
 
 WORKDIR /web-client
-ENV LD_LIBRARY_PATH=/daemon/src/.libs
 
 # Install dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     lldb \
     liblldb-dev
 
-# Create a symlink to the daemon node app
-RUN mkdir -p server && ln -s /daemon/bin/nodejs/build/Release/jamid.node server/jamid.node
+# Copy core package structure and pack the native addon
+COPY core/scripts core/scripts
+COPY core/npm core/npm
+RUN node core/scripts/pack-native.mjs /daemon/bin/nodejs/build/Release/jamid.node
 
 COPY package*.json ./
 COPY client/package*.json client/

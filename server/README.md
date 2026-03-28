@@ -13,7 +13,7 @@ npm install
 ### Run with hot-reload for development
 
 ```sh
-LD_LIBRARY_PATH="../daemon/src/.libs" npm start
+npm start
 ```
 
 ### Build for production
@@ -25,7 +25,7 @@ npm run build
 ### Preview the production build
 
 ```sh
-LD_LIBRARY_PATH="../daemon/src/.libs" npm run start:prod
+npm run start:prod
 ```
 
 ### Lint files
