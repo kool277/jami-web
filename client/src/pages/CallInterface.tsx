@@ -59,7 +59,7 @@ import CallPermissionDenied from './CallPermissionDenied'
 
 export default () => {
   const { callStatus, isChatShown, isFullscreen } = useCallManagerContext()
-  const callInterfaceRef = useRef<HTMLDivElement>()
+  const callInterfaceRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!callInterfaceRef.current) {
@@ -141,13 +141,13 @@ const CallInterface = () => {
           />
         </Box>
         <Grid container>
-          <Grid item xs />
-          <Grid item sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Grid size="grow" />
+          <Grid sx={{ display: 'flex', justifyContent: 'center' }}>
             <div>
               <CallInterfacePrimaryButtons />
             </div>
           </Grid>
-          <Grid item xs sx={{ display: 'flex', justifyContent: 'flex-end' }} ref={gridItemRef}>
+          <Grid size="grow" sx={{ display: 'flex', justifyContent: 'flex-end' }} ref={gridItemRef}>
             <CallInterfaceSecondaryButtons showVolumeButton={hasSetSinkId} gridItemRef={gridItemRef} />
           </Grid>
         </Grid>
@@ -211,7 +211,7 @@ const SECONDARY_BUTTONS = [
 const CallInterfaceSecondaryButtons = ({
   gridItemRef,
   showVolumeButton,
-}: Props & { showVolumeButton: boolean; gridItemRef: RefObject<HTMLElement> }) => {
+}: Props & { showVolumeButton: boolean; gridItemRef: RefObject<HTMLElement | null> }) => {
   const stackRef = useRef<HTMLDivElement>(null)
 
   const [initialMeasurementDone, setInitialMeasurementDone] = useState(false)

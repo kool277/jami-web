@@ -27,7 +27,7 @@ export default function LinkedDevicesPage() {
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', maxWidth: '100%' }}>
-      <Grid container xs={10} sm={12} sx={styles}>
+      <Grid container size={{ xs: 10, sm: 12 }} sx={styles}>
         <LinkedDevices />
       </Grid>
     </Box>

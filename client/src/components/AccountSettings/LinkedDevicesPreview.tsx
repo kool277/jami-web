@@ -44,7 +44,7 @@ function LinkedDevicesPreview() {
   }
 
   return (
-    <Grid item xs={12} sm={12} aria-label="linked-device">
+    <Grid size={12} aria-label="linked-device">
       <Card>
         <CardContent sx={{ width: '100%' }}>
           <Typography sx={{}} color="textSecondary" gutterBottom>

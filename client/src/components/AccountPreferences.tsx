@@ -112,20 +112,20 @@ export default function AccountPreferences() {
       </Box>
       <Grid container spacing={3} style={{ marginBottom: 16 }}>
         {isJamiAccount && (
-          <Grid item xs={12}>
+          <Grid size={12}>
             <motion.div variants={thumbnailVariants}>
               <JamiIdCard account={account} />
             </motion.div>
           </Grid>
         )}
 
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <motion.div variants={thumbnailVariants}>
             <ConversationsOverviewCard />
           </motion.div>
         </Grid>
 
-        <Grid item xs={12} sm={6}>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <motion.div variants={thumbnailVariants}>
             <Card>
               <CardContent>
@@ -140,7 +140,7 @@ export default function AccountPreferences() {
           </motion.div>
         </Grid>
 
-        <Grid item xs={12} sm={12}>
+        <Grid size={12}>
           <motion.div variants={thumbnailVariants} style={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
             <LinkedDevicesPreview />
           </motion.div>

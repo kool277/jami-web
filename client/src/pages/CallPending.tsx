@@ -132,7 +132,7 @@ const CallPendingDetails = ({
       <Box width="50%">
         <Grid container justifyContent="center">
           {buttons.map(({ ButtonComponent, title: buttonTitle }, i) => (
-            <Grid item key={i} xs={4}>
+            <Grid key={i} size={4}>
               <Stack direction="column" alignItems="center" spacing={1} sx={{}}>
                 <ButtonComponent color="inherit" size="large" />
                 <Typography variant="body2" color="white" sx={{ opacity: 0.75 }}>

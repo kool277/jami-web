@@ -84,8 +84,10 @@ export const UsernameInput = ({
   const helperText = t('username_input_helper_text', { context: `${status}` })
 
   const helper = (
-    <Box sx={{ width: '230px', display: 'flex', justifyContent: 'center', marginTop: '-40px' }}>
-      <Typography sx={{ textWrap: 'nowrap', fontSize: '11px' }}>{status !== 'default' ? helperText : ''}</Typography>
+    <Box component="span" sx={{ width: '230px', display: 'flex', justifyContent: 'center', marginTop: '-40px' }}>
+      <Typography component="span" sx={{ textWrap: 'nowrap', fontSize: '11px' }}>
+        {status !== 'default' ? helperText : ''}
+      </Typography>
     </Box>
   )
 
@@ -165,8 +167,8 @@ export const PasswordInput = ({
   // const helperText = t('password_input_helper_text', { context: `${status}` })
 
   const helper = (
-    <Box sx={{ width: '230px', display: 'flex', justifyContent: 'center', marginTop: '-40px' }}>
-      <Typography sx={{ textWrap: 'nowrap', fontSize: '11px' }}>
+    <Box component="span" sx={{ width: '230px', display: 'flex', justifyContent: 'center', marginTop: '-40px' }}>
+      <Typography component="span" sx={{ textWrap: 'nowrap', fontSize: '11px' }}>
         {status === PasswordStrength.TooWeak ? t('password_input_helper_text_too_weak') : ''}
       </Typography>
     </Box>

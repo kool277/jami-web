@@ -30,7 +30,7 @@ import ContactSearchBar from './ContactSearchBar'
 import ContactSearchResultList from './ContactSearchResultList'
 import { ConversationRequestList } from './ConversationRequestList'
 import { ConversationSummaryList } from './ConversationSummaryList'
-import { Tab, TabPanel, TabPanelProps, Tabs, TabsList, TabsProps } from './Tabs'
+import { Tab, TabPanel, TabPanelProps, Tabs } from './Tabs'
 
 export default function ConversationList() {
   const { t } = useTranslation()
@@ -87,25 +87,23 @@ const ConversationTabs = () => {
     }
   }, [conversationRequestsLength])
 
-  const onChange = useCallback<NonNullable<TabsProps['onChange']>>((_event, value) => {
+  const onChange = useCallback((_event: React.SyntheticEvent, value: number) => {
     if (typeof value === 'number') {
       setTabIndex(value)
     }
   }, [])
 
   return (
-    <Tabs style={{ overflowY: 'auto' }} defaultValue={summariesTabIndex} value={tabIndex} onChange={onChange}>
+    <Box style={{ overflowY: 'auto' }}>
       {isShowingTabMenu && (
-        <TabsList>
-          <Tab isSelected={tabIndex === summariesTabIndex}>{t('conversations')}</Tab>
-          <Tab isSelected={tabIndex === invitationsTabIndex}>
-            {t('invitations')} {conversationRequestsLength}
-          </Tab>
-        </TabsList>
+        <Tabs value={tabIndex} onChange={onChange}>
+          <Tab label={t('conversations')} />
+          <Tab label={`${t('invitations')} ${conversationRequestsLength}`} />
+        </Tabs>
       )}
-      <SummariesTabPanel value={summariesTabIndex} />
-      <InvitationsTabPanel value={invitationsTabIndex} />
-    </Tabs>
+      <SummariesTabPanel index={summariesTabIndex} value={tabIndex} />
+      <InvitationsTabPanel index={invitationsTabIndex} value={tabIndex} />
+    </Box>
   )
 }
 

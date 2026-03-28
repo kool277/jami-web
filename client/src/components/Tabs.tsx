@@ -15,17 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import {
-  Tab as MuiTab,
-  TabPanel as MuiTabPanel,
-  TabPanelProps as MuiTabPanelProps,
-  TabProps as MuiTabProps,
-  Tabs as MuiTabs,
-  TabsList as MuiTabsList,
-  TabsProps as MuiTabsProps,
-} from '@mui/base'
-import { Theme } from '@mui/material/styles'
-import { styled } from '@mui/system'
+import { Tab as MuiTab, TabProps as MuiTabProps, Tabs as MuiTabs, TabsProps as MuiTabsProps } from '@mui/material'
+import { type BoxProps, Theme } from '@mui/material'
+import Box from '@mui/material/Box'
+import { styled } from '@mui/material/styles'
 
 type TabProps = MuiTabProps & {
   theme?: Theme
@@ -67,13 +60,19 @@ export const Tab = styled(MuiTab)<TabProps>(({ theme, isSelected }) => ({
   },
 }))
 
-export type TabPanelProps = MuiTabPanelProps
+export interface TabPanelProps extends BoxProps {
+  index: number
+  value: number
+  children?: React.ReactNode
+}
 
-export const TabPanel = styled(MuiTabPanel)(() => ({
-  width: '100%',
-}))
+export const TabPanel = ({ index, value, children, ...props }: TabPanelProps) => (
+  <Box role="tabpanel" hidden={value !== index} sx={{ width: '100%' }} {...props}>
+    {value === index && children}
+  </Box>
+)
 
-export const TabsList = styled(MuiTabsList)(() => ({
+export const TabsList = styled(Box)(() => ({
   display: 'flex',
   alignItems: 'center',
   placeContent: 'space-evenly',

@@ -25,7 +25,7 @@ interface QrReader {
 }
 
 const QrReader = ({ setScannedResult }: QrReader) => {
-  const scanner = useRef<QrScanner>()
+  const scanner = useRef<QrScanner>(null)
   const videoEl = useRef<HTMLVideoElement>(null)
   const qrBoxEl = useRef<HTMLDivElement>(null)
   const [qrOn, setQrOn] = useState<boolean>(true)

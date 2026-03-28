@@ -19,7 +19,7 @@ import { Typography, useTheme } from '@mui/material'
 import { Box, Stack, useMediaQuery } from '@mui/system'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { Message, MESSAGES_NUMBER_TO_LOAD, WebSocketMessageType } from 'jami-web-common'
-import { memo, MutableRefObject, useRef, useState } from 'react'
+import { memo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Waypoint } from 'react-waypoint'
 
@@ -52,7 +52,7 @@ export default function MessageList({ messages }: MessageListProps) {
   const { account, accountId } = useAuthContext()
   const { members, conversationId } = useConversationContext()
   const [showScrollButton, setShowScrollButton] = useState(false)
-  const listBottomRef = useRef<HTMLElement>()
+  const listBottomRef = useRef<HTMLElement>(null)
   const webSocket = useWebSocketContext()
   const lastMessageId = messages[messages.length - 1]?.id
   const parentRef = useRef<HTMLDivElement>(null)
@@ -151,7 +151,7 @@ export default function MessageList({ messages }: MessageListProps) {
 }
 
 interface ScrollToEndButtonProps {
-  listBottomRef: MutableRefObject<HTMLElement | undefined>
+  listBottomRef: React.RefObject<HTMLElement | null>
 }
 
 const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {

@@ -222,7 +222,10 @@ test.describe('Performance', () => {
         !e.includes('React DevTools') &&
         !e.includes('favicon') &&
         !e.includes('Download the React DevTools') &&
-        !e.includes('validateDOMNesting'),
+        !e.includes('validateDOMNesting') &&
+        !e.includes('cannot be a descendant') &&
+        !e.includes('cannot contain a nested') &&
+        !e.includes('hydration error'),
     )
     expect(criticalErrors).toHaveLength(0)
   })

@@ -40,7 +40,7 @@ function ManageAccount() {
       </Typography>
       <Grid container spacing={3} style={{ marginBottom: 16 }}>
         {isJamiAccount && (
-          <Grid item xs={12}>
+          <Grid size={12}>
             <JamiIdCard account={account} />
           </Grid>
         )}
