@@ -15,48 +15,34 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Tab as MuiTab, TabProps as MuiTabProps, Tabs as MuiTabs, TabsProps as MuiTabsProps } from '@mui/material'
-import { type BoxProps, Theme } from '@mui/material'
-import Box from '@mui/material/Box'
+import {
+  Box,
+  type BoxProps,
+  Tab as MuiTab,
+  type TabProps as MuiTabProps,
+  Tabs as MuiTabs,
+  type TabsProps as MuiTabsProps,
+  type Theme,
+} from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 type TabProps = MuiTabProps & {
   theme?: Theme
-  isSelected?: boolean
 }
 
-export const Tab = styled(MuiTab)<TabProps>(({ theme, isSelected }) => ({
+export const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   fontFamily: theme.typography.fontFamily,
   ...theme.typography.body1,
-  color: isSelected ? 'black' : '#666666',
-  cursor: 'pointer',
-  border: 'none',
-  display: 'flex',
-  justifyContent: 'center',
-  borderBottom: isSelected ? '2px solid grey' : 'none',
-  backgroundColor: 'inherit',
-  padding: '9px 0',
+  color: theme.palette.text.secondary,
+  textTransform: 'none',
+  minWidth: 0,
+  padding: '9px 16px',
   '&:hover': {
-    color: 'black',
-    borderColor: theme.palette.primary.light,
-    // Attempt to change boldess while keeping same container size
-    // https://stackoverflow.com/a/14978871
-    textShadow: '0 0 .01px black',
+    color: theme.palette.text.primary,
   },
   '&.Mui-selected': {
     color: theme.palette.primary.dark,
-    borderColor: theme.palette.primary.dark,
-    // https://stackoverflow.com/a/14978871
-    textShadow: `0 0 .01px ${theme.palette.primary.dark}`,
-  },
-  '&:before': {
-    display: 'block',
-    content: 'attr(content)',
-    fontWeight: 'bold',
-    height: '15px',
-    color: 'transparent',
-    overflow: 'hidden',
-    visibility: 'hidden',
+    fontWeight: 600,
   },
 }))
 
@@ -71,12 +57,6 @@ export const TabPanel = ({ index, value, children, ...props }: TabPanelProps) =>
     {value === index && children}
   </Box>
 )
-
-export const TabsList = styled(Box)(() => ({
-  display: 'flex',
-  alignItems: 'center',
-  placeContent: 'space-evenly',
-}))
 
 export type TabsProps = MuiTabsProps
 
