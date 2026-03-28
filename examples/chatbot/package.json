@@ -8,7 +8,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@savoirfairelinux/jami-sdk": "file:../../sdk"
+    "@savoirfairelinux/jami-sdk": "0.2.0"
   },
   "devDependencies": {
     "typescript": "~5.5.4"

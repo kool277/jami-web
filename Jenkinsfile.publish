@@ -20,7 +20,6 @@
 //   @savoirfairelinux/jami-core-linux-x64
 //   @savoirfairelinux/jami-core-linux-arm64
 //   @savoirfairelinux/jami-core
-//   @savoirfairelinux/jami-sdk
 //   @savoirfairelinux/jami-openclaw
 //
 // Requirements:
@@ -52,7 +51,6 @@ pipeline {
     environment {
         SCOPE = '@savoirfairelinux'
         CORE_PKG = "${SCOPE}/jami-core"
-        SDK_PKG = "${SCOPE}/jami-sdk"
         OPENCLAW_PKG = "${SCOPE}/jami-openclaw"
     }
 
@@ -103,7 +101,7 @@ pipeline {
 
                 stage('Build TypeScript') {
                     steps {
-                        sh 'npm run build --workspace=common --workspace=@savoirfairelinux/jami-core --workspace=sdk'
+                        sh 'npm run build --workspace=common --workspace=@savoirfairelinux/jami-core'
                         dir('extensions/jami') {
                             sh 'npm ci && npm run build'
                         }
@@ -125,14 +123,6 @@ pipeline {
                 stage('Publish jami-core') {
                     steps {
                         dir('daemon/bin/nodejs') {
-                            npmPublishOrPack()
-                        }
-                    }
-                }
-
-                stage('Publish jami-sdk') {
-                    steps {
-                        dir('sdk') {
                             npmPublishOrPack()
                         }
                     }
@@ -218,7 +208,6 @@ void setVersionIfRequested() {
     def version = params.RELEASE_VERSION.trim()
     def files = [
         'daemon/bin/nodejs/package.json',
-        'sdk/package.json',
         'extensions/jami/package.json',
     ]
 

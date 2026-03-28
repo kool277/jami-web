@@ -5,8 +5,7 @@
     "common",
     "daemon/bin/nodejs",
     "client",
-    "server",
-    "sdk"
+    "server"
   ],
   "scripts": {
     "start": "concurrently \"npm start --workspace server\" \"npm start --workspace client\"",
