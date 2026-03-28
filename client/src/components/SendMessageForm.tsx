@@ -107,7 +107,7 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
     (message: string) => {
       editMessageMutation.mutate({ body: message, messageId: editMessage!.id })
     },
-    [editMessage?.id, editMessageMutation],
+    [editMessage, editMessageMutation],
   )
 
   const handleSendMessage = useCallback(

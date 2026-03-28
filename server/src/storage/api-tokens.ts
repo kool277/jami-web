@@ -24,7 +24,7 @@ import { Service } from 'typedi'
 
 const paths = envPaths('jami-web', { suffix: '' })
 
-const TOKEN_SCOPES = [
+const _TOKEN_SCOPES = [
   'conversations:read',
   'conversations:write',
   'contacts:read',
@@ -37,7 +37,7 @@ const TOKEN_SCOPES = [
   'account:write',
 ] as const
 
-export type TokenScope = (typeof TOKEN_SCOPES)[number]
+export type TokenScope = (typeof _TOKEN_SCOPES)[number]
 
 export interface StoredApiToken {
   id: string
