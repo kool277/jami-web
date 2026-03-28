@@ -81,14 +81,14 @@ pipeline {
 
                 container_id=$(docker create jami-web:${BUILD_ID})
 
-                mkdir -p jami-web-production/{client,server,common}
+                mkdir -p jami-web-production/{client,server,common,daemon/bin}
 
                 for dir in server common client; do
                     docker cp ${container_id}:/web-client/${dir}/dist jami-web-production/${dir}/
                     docker cp ${container_id}:/web-client/${dir}/package.json jami-web-production/${dir}/
                 done
 
-                docker cp ${container_id}:/web-client/core jami-web-production/core
+                docker cp ${container_id}:/web-client/daemon/bin/nodejs jami-web-production/daemon/bin/nodejs
                 docker cp ${container_id}:/web-client/server/locale jami-web-production/server/
                 docker cp ${container_id}:/web-client/server/available_languages.json jami-web-production/server/
                 docker cp ${container_id}:/web-client/server/scripts jami-web-production/server/

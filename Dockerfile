@@ -7,10 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     lldb \
     liblldb-dev
 
-# Copy core package structure and pack the native addon
-COPY core/scripts core/scripts
-COPY core/npm core/npm
-RUN node core/scripts/pack-native.mjs /daemon/bin/nodejs/build/Release/jamid.node
+# Pack the native addon (scripts and npm dirs are already in the daemon image)
+RUN node /daemon/bin/nodejs/scripts/pack-native.mjs /daemon/bin/nodejs/build/Release/jamid.node
 
 COPY package*.json ./
 COPY client/package*.json client/

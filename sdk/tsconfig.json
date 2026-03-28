@@ -14,7 +14,7 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "references": [{ "path": "../common" }, { "path": "../core" }],
+  "references": [{ "path": "../common" }],
   "include": ["src"],
   "exclude": ["test", "vitest.config.ts", "native"]
 }

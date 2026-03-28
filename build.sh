@@ -13,7 +13,7 @@ cmake .. -DJAMI_NODEJS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE
 make -j4
 cd ..
 cd ..
-npm run pack-native --workspace=core
+npm run pack-native --workspace=@savoirfairelinux/jami-core
 
 # ============Cleaning the app==============
 echo "Cleaning the app…"
@@ -29,19 +29,19 @@ npm run build
 
 echo "Copying files to production folder…"
 
-mkdir jami-web-production jami-web-production/client jami-web-production/server jami-web-production/common jami-web-production/core
+mkdir jami-web-production jami-web-production/client jami-web-production/server jami-web-production/common jami-web-production/daemon jami-web-production/daemon/bin jami-web-production/daemon/bin/nodejs
 
 cp -r server/dist jami-web-production/server
 cp -r common/dist jami-web-production/common
 cp -r client/dist jami-web-production/client
-cp -r core/dist jami-web-production/core
-cp -r core/npm jami-web-production/core
+cp -r daemon/bin/nodejs/dist jami-web-production/daemon/bin/nodejs
+cp -r daemon/bin/nodejs/npm jami-web-production/daemon/bin/nodejs
 
 cp package*.json jami-web-production
 cp server/package*.json jami-web-production/server
 cp common/package*.json jami-web-production/common
 cp client/package*.json jami-web-production/client
-cp core/package*.json jami-web-production/core
+cp daemon/bin/nodejs/package*.json jami-web-production/daemon/bin/nodejs
 
 cp server/tsconfig.tsbuildinfo jami-web-production/server
 cp client/tsconfig.tsbuildinfo jami-web-production/client

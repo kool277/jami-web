@@ -64,7 +64,7 @@ Before proceeding, you must initialize the Git submodule repositories by running
 
    ```sh
    cd ../..
-   npm run pack-native --workspace=core
+   npm run pack-native --workspace=@savoirfairelinux/jami-core
    ```
 
 5. Set the environement variables for development:

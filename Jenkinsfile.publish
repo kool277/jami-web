@@ -103,7 +103,7 @@ pipeline {
 
                 stage('Build TypeScript') {
                     steps {
-                        sh 'npm run build --workspace=common --workspace=core --workspace=sdk'
+                        sh 'npm run build --workspace=common --workspace=@savoirfairelinux/jami-core --workspace=sdk'
                         dir('extensions/jami') {
                             sh 'npm ci && npm run build'
                         }
@@ -124,7 +124,7 @@ pipeline {
 
                 stage('Publish jami-core') {
                     steps {
-                        dir('core') {
+                        dir('daemon/bin/nodejs') {
                             npmPublishOrPack()
                         }
                     }
@@ -217,7 +217,7 @@ void setVersionIfRequested() {
 
     def version = params.RELEASE_VERSION.trim()
     def files = [
-        'core/package.json',
+        'daemon/bin/nodejs/package.json',
         'sdk/package.json',
         'extensions/jami/package.json',
     ]
@@ -226,9 +226,9 @@ void setVersionIfRequested() {
         sh "npm version ${version} --no-git-tag-version --prefix \$(dirname ${f})"
     }
 
-    // Keep optionalDependencies in core/package.json in sync
+    // Keep optionalDependencies in daemon/bin/nodejs/package.json in sync
     sh """
-        cd core
+        cd daemon/bin/nodejs
         node -e "
             const fs = require('fs');
             const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'));

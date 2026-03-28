@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "workspaces": [
     "common",
-    "core",
+    "daemon/bin/nodejs",
     "client",
     "server",
     "sdk"
