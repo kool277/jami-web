@@ -72,6 +72,14 @@ pipeline {
                 }
             }
         }
+        stage('E2E tests (Playwright)') {
+            steps {
+                script {
+                    docker.build("jami-web-playwright:${env.BUILD_ID}", "-f Dockerfile.playwright .")
+                    sh "docker run --rm jami-web-playwright:${env.BUILD_ID}"
+                }
+            }
+        }
         stage('Build') {
             steps {
                 script {

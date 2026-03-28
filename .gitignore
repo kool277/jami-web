@@ -33,4 +33,11 @@ extensions/**/test-*.mjs
 client/vite.config.js
 
 # Editor/agent data
-.github/copilot/
+.github/copilot/client/vite.config.d.ts
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

@@ -118,9 +118,11 @@ const SummariesTabPanel = (props: TabPanelProps) => {
   useEffect(() => {
     websocket.bind(WebSocketMessageType.ConversationMessage, refreshConversationsSummaries)
     websocket.bind(WebSocketMessageType.ConversationReady, refreshConversationsSummaries)
+    websocket.bind(WebSocketMessageType.MessageEdition, refreshConversationsSummaries)
     return () => {
       websocket.unbind(WebSocketMessageType.ConversationMessage, refreshConversationsSummaries)
       websocket.unbind(WebSocketMessageType.ConversationReady, refreshConversationsSummaries)
+      websocket.unbind(WebSocketMessageType.MessageEdition, refreshConversationsSummaries)
     }
   }, [websocket, refreshConversationsSummaries])
 

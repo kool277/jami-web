@@ -1,0 +1,35 @@
+# Playwright E2E tests – lightweight image, does NOT require jami-daemon.
+# Uses a mock API server instead of the real backend.
+#
+# Build & run:
+#   docker build -f Dockerfile.playwright -t jami-web-playwright .
+#   docker run --rm jami-web-playwright
+#
+FROM mcr.microsoft.com/playwright:v1.50.1-noble
+
+WORKDIR /app
+
+# Copy only what's needed for client + common + mock server + tests
+COPY package.json ./
+COPY common/ common/
+COPY client/ client/
+
+# Create a minimal server package.json so npm workspaces doesn't fail
+# (we don't install real server deps — the mock server is used instead)
+RUN mkdir -p server && echo '{"name":"jami-web-server","version":"1.0.0","private":true}' > server/package.json
+RUN mkdir -p daemon/bin/nodejs && echo '{"name":"jamid","version":"1.0.0","private":true}' > daemon/bin/nodejs/package.json
+
+# Install dependencies (common + client only; server/daemon stubs are empty)
+RUN npm install --ignore-scripts 2>&1 || true
+# Build common workspace (client depends on it)
+RUN npm run build --workspace=common 2>&1 || true
+
+# Copy test infrastructure
+COPY playwright.config.ts ./
+COPY tests/ tests/
+
+# Install Playwright browsers
+RUN npx playwright install --with-deps chromium
+
+# Run tests (chromium only in CI for speed)
+CMD ["npx", "playwright", "test", "--project=chromium"]

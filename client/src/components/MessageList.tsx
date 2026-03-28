@@ -88,6 +88,7 @@ export default function MessageList({ messages }: MessageListProps) {
         direction="column-reverse"
         marginBottom="-25px"
         sx={{ overflowX: 'hidden' }}
+        data-testid="message-list"
       >
         {/* Here is the bottom of the list of messages because of 'column-reverse' */}
         <Box ref={listBottomRef} />
