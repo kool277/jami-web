@@ -16,7 +16,7 @@ To view the deployment instructions for jami-web, refer to the [Deployment Guide
 - Linux
 - [Node.js 22](https://nodejs.org/en/)
 - [npm](https://www.npmjs.com/)
-- [SWIG 4.1.0:](https://www.swig.org/)
+- [SWIG >= 4.3:](https://www.swig.org/) (required for N-API support)
 
   - Build from source with the following instructions: <https://swig.org/svn.html>
 
@@ -46,10 +46,10 @@ Before proceeding, you must initialize the Git submodule repositories by running
    sudo apt install autoconf automake autopoint bison build-essential cmake curl git libarchive-dev libasio-dev libasound2-dev libdbus-1-dev libdbus-c++-dev libexpat1-dev libfmt-dev libgmp-dev nettle-dev libgnutls28-dev libjsoncpp-dev libmsgpack-dev libnatpmp-dev libopus-dev libpulse-dev libspeex-dev libspeexdsp-dev libssl-dev libtool libudev-dev libupnp-dev libva-dev libvdpau-dev libvpx-dev libx264-dev libyaml-cpp-dev libhttp-parser-dev libwebrtc-audio-processing-dev libsecp256k1-dev guile-3.0-dev nasm pkg-config yasm libpipewire-0.3-dev libsystemd-dev
    ```
 
-2. Install `node-gyp` to build the daemon with Node.js bindings:
+2. Install `node-gyp` and `node-addon-api` to build the daemon with Node.js bindings:
 
    ```
-   npm install -g node-gyp
+   npm install -g node-gyp node-addon-api
    ```
 
 3. Compile the daemon with Node.js bindings:
