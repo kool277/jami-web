@@ -31,6 +31,7 @@ interface MockServerState {
     guestAccessEnabled: boolean
     openIdAuthEnabled: boolean
     uploadPath: string
+    jamsUrl?: string
   }
   users: Record<string, { password: string; accountId: string }>
 }
@@ -124,7 +125,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   })
 
   api.get('/admin/nameserver', (_req, res) => {
-    res.json({ nameserver: '' })
+    res.send('')
   })
 
   api.get('/admin/accounts', (_req, res) => {
@@ -133,6 +134,33 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
 
   api.get('/admin/oauth/providers', (_req, res) => {
     res.json([])
+  })
+
+  // --- JAMS URL routes ---
+
+  api.get('/admin/jamsurl', (_req, res) => {
+    if (!state.config.jamsUrl) {
+      res.status(204).send('JAMS server URL is not set')
+      return
+    }
+    res.send(state.config.jamsUrl)
+  })
+
+  api.post('/admin/jamsurl', (req, res) => {
+    const jamsUrl = req.body.url
+    if (!jamsUrl || jamsUrl === '') {
+      res.status(400).send('URL not provided')
+      return
+    }
+    state.config.jamsUrl = jamsUrl
+    state.config.jamsAuthEnabled = true
+    res.sendStatus(200)
+  })
+
+  api.delete('/admin/jamsurl', (_req, res) => {
+    delete state.config.jamsUrl
+    state.config.jamsAuthEnabled = false
+    res.sendStatus(200)
   })
 
   // --- Auth routes ---
@@ -208,6 +236,40 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
       admin_page_setup_subtitle: 'Create an admin password',
       admin_page_password_placeholder: 'Enter password',
       admin_page_password_repeat_placeholder: 'Repeat password',
+      admin_page_create_button: 'Create admin account',
+      configure_nameserver: 'Configure the name server for your users.',
+      setting_name_server: 'Name Server',
+      setting_can_be_changed_later: 'This setting can be changed later.',
+      next: 'Next',
+      previous: 'Previous',
+      configure_jams_server: 'Configure the JAMS server for enterprise authentication.',
+      enter_jams_server: 'Enter JAMS server URL',
+      admin_page_welcome: 'Welcome to Jami Administration',
+      go_to_login_page: 'Go to login page',
+      admin_account_configuration: 'Account Configuration',
+      accounts: 'Accounts',
+      authentication: 'Authentication',
+      logout: 'Logout',
+      admin_page_accounts_overview_title: 'Accounts Overview',
+      username_input_label: 'Username',
+      password_input_label: 'Password',
+      connect_from_another_device: 'Connect from another device',
+      login_form_to_registration_text: "Don't have an account? ",
+      login_form_to_registration_link: 'Register',
+      registration_form_to_login_text: 'Already have an account? ',
+      registration_form_to_login_link: 'Log in',
+      conversations: 'Conversations',
+      find_users_and_conversations: 'Find users and conversations',
+      welcome_page_text: 'Welcome to Jami Web',
+      about_jami: 'About Jami',
+      message_input_placeholder_2: 'Write a message...',
+      select_placeholder: 'Select...',
+      severity: 'Severity',
+      extending_session_success_alert: 'Session extended successfully',
+      extending_session_error_alert: 'Failed to extend session',
+      unknown_error_alert: 'An unknown error occurred',
+      username_input_helper_text: 'Username available',
+      today: 'Today',
     })
     /* eslint-enable camelcase */
   })

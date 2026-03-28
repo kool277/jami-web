@@ -157,7 +157,7 @@ test.describe('Login Page Details', () => {
     await expect(usernameInput).toBeVisible({ timeout: 30_000 })
 
     // Check "connect from another device" button
-    const importButton = page.getByRole('button', { name: /connect_from_another_device/i })
+    const importButton = page.getByRole('button', { name: /connect.from.another.device/i })
     await expect(importButton).toBeVisible({ timeout: 5_000 })
   })
 })

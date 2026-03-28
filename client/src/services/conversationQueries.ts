@@ -295,6 +295,7 @@ export const useConversationPreferencesQuery = (conversationId: string) => {
       const { data } = await axiosInstance.get(`/conversations/${conversationId}/preferences`)
       return data
     },
+    enabled: !!conversationId,
   })
 }
 
