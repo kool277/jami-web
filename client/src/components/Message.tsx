@@ -689,32 +689,20 @@ const DateIndicator = ({ time }: DateIndicatorProps) => {
   const textDate = useMemo(() => formatRelativeDate(time, i18n), [time, i18n])
 
   return (
-    <Box>
-      <Divider
+    <Box sx={{ display: 'flex', justifyContent: 'center', py: '12px' }}>
+      <Typography
+        variant="caption"
+        fontWeight={600}
         sx={{
-          '.MuiDivider-wrapper': {
-            margin: 0,
-            padding: 0,
-          },
-          '&::before': {
-            borderTop: '1px solid #E5E5E5',
-          },
-          '&::after': {
-            borderTop: '1px solid #E5E5E5',
-          },
+          backgroundColor: 'rgba(0,0,0,0.06)',
+          borderRadius: '16px',
+          padding: '6px 16px',
+          textTransform: 'capitalize',
+          color: 'text.secondary',
         }}
       >
-        <Typography
-          variant="caption"
-          fontWeight={700}
-          border="1px solid #E5E5E5"
-          borderRadius="5px"
-          padding="10px 16px"
-          textTransform="capitalize"
-        >
-          {textDate}
-        </Typography>
-      </Divider>
+        {textDate}
+      </Typography>
     </Box>
   )
 }
@@ -1292,6 +1280,7 @@ const Bubble = memo(
       overflowWrap: 'break-word',
       wordBreak: 'break-word',
       height: 'auto',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
       ...radius,
     }
     const mediaBubbleStyle = {

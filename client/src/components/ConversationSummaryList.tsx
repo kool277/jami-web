@@ -146,9 +146,12 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
           />
         }
         primaryText={
-          <Box sx={{ maxWidth: isMobile ? '250px' : '225px' }}>
-            <EllipsisMiddle text={conversationName}></EllipsisMiddle>
-          </Box>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ width: '100%' }}>
+            <Box sx={{ maxWidth: isMobile ? '180px' : '170px' }}>
+              <EllipsisMiddle text={conversationName}></EllipsisMiddle>
+            </Box>
+            <TimeIndicator conversationSummary={conversationSummary} />
+          </Stack>
         }
         secondaryText={<SecondaryText conversationSummary={conversationSummary} isSelected={isSelected} />}
       />
@@ -161,11 +164,8 @@ type SecondaryTextProps = {
   isSelected: boolean
 }
 
-const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) => {
-  const { account } = useAuthContext()
-  const { callData, callStatus, isAudioOn } = useCallManagerContext()
-  const { t, i18n } = useTranslation()
-
+const TimeIndicator = ({ conversationSummary }: { conversationSummary: IConversationSummary }) => {
+  const { i18n } = useTranslation()
   const timeIndicator = useMemo(() => {
     const message = conversationSummary.lastMessage
     const time = dayjs.unix(Number(message.timestamp))
@@ -175,6 +175,18 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
       return formatRelativeDate(time, i18n)
     }
   }, [conversationSummary, i18n])
+
+  return (
+    <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
+      {timeIndicator}
+    </Typography>
+  )
+}
+
+const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) => {
+  const { account } = useAuthContext()
+  const { callData, callStatus, isAudioOn } = useCallManagerContext()
+  const { t, i18n } = useTranslation()
 
   const [isRead, setIsRead] = useState(false)
 
@@ -233,24 +245,18 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
   const lastMessageStyle = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    maxWidth: '140px',
+    whiteSpace: 'nowrap' as const,
   }
 
   return (
-    <Stack direction="row" spacing="5px">
-      <Typography variant="body2" fontWeight={isSelected ? 'bold' : isRead ? 'normal' : 'bold'}>
-        {timeIndicator}
-      </Typography>
-      {isRead ? (
-        <Typography sx={lastMessageStyle} variant="body2">
-          {lastMessageText}
-        </Typography>
-      ) : (
-        <Typography sx={lastMessageStyle} fontWeight={'bolder'} variant="body2">
-          {lastMessageText}
-        </Typography>
-      )}
-    </Stack>
+    <Typography
+      variant="body2"
+      color="text.secondary"
+      fontWeight={isSelected ? 'bold' : isRead ? 'normal' : 'bold'}
+      sx={lastMessageStyle}
+    >
+      {lastMessageText}
+    </Typography>
   )
 }
 

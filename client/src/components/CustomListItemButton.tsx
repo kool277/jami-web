@@ -29,10 +29,10 @@ type CustomListItemButtonProps = ListItemButtonProps & {
 // This component exists in order to keep consistency in lists nevertheless
 export const CustomListItemButton = ({ icon, primaryText, secondaryText, ...props }: CustomListItemButtonProps) => {
   return (
-    <ListItemButton alignItems="flex-start" {...props}>
-      <Stack direction="row" spacing="10px">
+    <ListItemButton alignItems="flex-start" sx={{ borderRadius: '12px', mx: '4px', py: '10px' }} {...props}>
+      <Stack direction="row" spacing="12px" sx={{ width: '100%' }}>
         {icon}
-        <Stack justifyContent="center">
+        <Stack justifyContent="center" sx={{ flex: 1, minWidth: 0 }}>
           {primaryText}
           {secondaryText}
         </Stack>

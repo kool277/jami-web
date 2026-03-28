@@ -249,18 +249,18 @@ const palettes = {
       },
     },
     ChatInterface: {
-      panelColor: '#f2f2f2',
+      panelColor: '#FAF6F0',
       inputColor: 'black',
-      messageColor: '#E5E5E5',
+      messageColor: '#F0EBE3',
       fontColor: 'black',
       replyBorderColor: '2px solid white',
-      messageReplyColor: '#D3D3D3',
-      reactionModalBackground: 'lightgrey',
-      selectedColor: '#D5E3EE',
-      backgroundColor: 'white',
+      messageReplyColor: '#E8E2D9',
+      reactionModalBackground: '#F0EBE3',
+      selectedColor: '#EDE7DD',
+      backgroundColor: '#FEFCF9',
     },
     LoginPage: {
-      backgroundColor: '#f9fafc',
+      backgroundColor: '#FAF6F0',
     },
     WelcomePage: {
       infoBackgroundColor: '#f0efef',
@@ -282,8 +282,8 @@ const palettes = {
       textContentColor: '#555555',
     },
     Footer: {
-      backgroundColor: '#dbd9d9',
-      iconsColor: 'black',
+      backgroundColor: '#F0EBE3',
+      iconsColor: '#333333',
     },
     EmojiPicker: {
       backgroundColor: EmojiTheme.LIGHT,
@@ -292,12 +292,12 @@ const palettes = {
       backgroundColor: 'white',
     },
     ConversationPreferences: {
-      backgroundColor: '#f2f2f2',
-      border: '0.5px lightgrey solid',
+      backgroundColor: '#FAF6F0',
+      border: '0.5px #E0D9CF solid',
     },
     SvgIcons: {
       color: '#0071C9',
-      hoverBackgroundColor: '#E5E5E5',
+      hoverBackgroundColor: '#F0EBE3',
     },
     Buttons: {
       hoverBackgroundColor: '#E5EEF5',
@@ -309,8 +309,8 @@ const palettes = {
       border: '4px solid white',
     },
     SettingsBackButton: {
-      hoverBackgroundColor: '#E5E5E5',
-      backgroundColor: 'white',
+      hoverBackgroundColor: '#F0EBE3',
+      backgroundColor: '#FEFCF9',
     },
     TranferMessage: {
       InputColor: 'white',
@@ -318,7 +318,7 @@ const palettes = {
       titleColor: 'black',
     },
     SettingsNeedPassword: {
-      backgroundColor: '#F2F2F2',
+      backgroundColor: '#FAF6F0',
     },
   },
   dark: {
