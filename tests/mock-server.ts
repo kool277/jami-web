@@ -78,8 +78,12 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
 
   api.post('/admin/create', (req, res) => {
     const { password } = req.body
-    if (!password) {
-      res.status(400).send('Invalid password')
+    if (state.isSetupComplete) {
+      res.status(403).send('Admin account already exists')
+      return
+    }
+    if (!password || typeof password !== 'string' || password.length < 8) {
+      res.status(400).send('Password must be at least 8 characters long')
       return
     }
     state.adminPassword = password
@@ -169,6 +173,10 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     const { username, password } = req.body
     if (!username || !password) {
       res.status(400).send('Missing username or password in body')
+      return
+    }
+    if (typeof password !== 'string' || password.length < 8) {
+      res.status(400).send('Password must be at least 8 characters long')
       return
     }
     if (state.users[username]) {
