@@ -247,6 +247,7 @@
   "password_input_helper_text_registration_failed": "Choose another password!",
   "password_input_helper_text_strong": "Strong",
   "password_input_helper_text_too_weak": "Too weak",
+  "password_input_helper_text_too_short": "Password must be at least 8 characters long.",
   "password_setter_request_failed": "An error occurred while setting the password. Please try again.",
   "password_setter_request_failed_not_found": "An error occurred while linking the account. Username not found. Please try again. If the problem persists, contact your system administrator.",
   "password_input_helper_text_weak": "Weak",

@@ -83,6 +83,7 @@ type AlertMessageKeys =
   | 'unknown_error_alert'
   | 'username_input_helper_text_empty'
   | 'password_input_helper_text_empty'
+  | 'password_input_helper_text_too_short'
   | 'login_invalid_credentials'
   | 'registration_success'
   | 'incorrect_password'
@@ -152,6 +153,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('username_input_helper_text_empty')
         case 'password_input_helper_text_empty':
           return t('password_input_helper_text_empty')
+        case 'password_input_helper_text_too_short':
+          return t('password_input_helper_text_too_short')
         case 'login_invalid_credentials':
           return t('login_invalid_credentials')
         case 'registration_success':

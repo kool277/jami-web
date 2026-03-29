@@ -15,12 +15,12 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import GroupAddRounded from '@mui/icons-material/GroupAddRounded'
-import { Box, Fab, Input, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Fab, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { FormEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { GroupAddRoundedIcon as GroupAddRounded } from '../../components/SvgIcon'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
 import { useSetupAdminMutation } from '../../services/adminQueries'
@@ -36,11 +36,13 @@ export default function AdminSetup() {
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
+  const MIN_PASSWORD_LENGTH = 8
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    if (!password) {
+    if (!password || password.length < MIN_PASSWORD_LENGTH) {
       setAlertContent({
-        messageI18nKey: 'password_input_helper_text_empty',
+        messageI18nKey: 'password_input_helper_text_too_short',
         severity: 'error',
         alertOpen: true,
       })
@@ -55,13 +57,11 @@ export default function AdminSetup() {
       return
     }
     setupAdminMutation.mutate(password)
-    navigate('/admin/setup/ns')
   }
 
   const mainContentBoxStyle = {
     textAlign: 'center',
-    marginBottom: 16,
-    marginTop: isMobile ? '30%' : '-40px',
+    marginTop: isMobile ? '30%' : 0,
   }
 
   return (
@@ -72,34 +72,36 @@ export default function AdminSetup() {
       }
     >
       <Box sx={mainContentBoxStyle}>
-        <div style={{ marginBottom: 16 }}>
-          <Input value="admin" name="username" autoComplete="username" disabled />
+        <div>
+          <TextField value="admin" name="username" autoComplete="username" disabled size="small" label="Username" />
         </div>
-        <div style={{ marginBottom: 4 }}>
-          <Input
+        <div>
+          <TextField
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             name="password"
             type="password"
-            placeholder={t('admin_page_password_placeholder')}
+            label={t('admin_page_password_placeholder')}
             autoComplete="new-password"
             disabled={isPending}
+            size="small"
           />
         </div>
         <div>
-          <Input
+          <TextField
             value={passwordRepeat}
             onChange={(e) => setPasswordRepeat(e.target.value)}
             name="password"
             error={passwordRepeat !== password}
             type="password"
-            placeholder={t('admin_page_password_repeat_placeholder')}
+            label={t('admin_page_password_repeat_placeholder')}
             autoComplete="new-password"
             disabled={isPending}
+            size="small"
           />
         </div>
       </Box>
-      <Box style={{ textAlign: 'center', marginTop: '-24px', textWrap: 'nowrap' }}>
+      <Box style={{ textAlign: 'center', marginTop: '16px', textWrap: 'nowrap' }}>
         <Fab variant="extended" color="primary" type="submit" disabled={isPending} onClick={handleSubmit}>
           <GroupAddRounded />
           <Typography sx={{ marginLeft: '4%' }}>{t('admin_page_create_button')}</Typography>
