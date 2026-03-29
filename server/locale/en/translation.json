@@ -226,7 +226,7 @@
   "message_swarm_created": "Group created",
   "messages_scroll_to_end": "Scroll to end",
   "nameserver_already_set": "The name server is already set.",
-  "new_device_found": "New device found at the following IP address. Is that you? To continue the export account operation, click Confirm."
+  "new_device_found": "New device found at the following IP address. Is that you? To continue the export account operation, click Confirm.",
   "new_device_found_address": "New device IP address:",
   "new_device_found_confirmation": "Do you want to transfer the account? To continue, click Confirm.",
   "mute_conversation": "Mute conversation",
