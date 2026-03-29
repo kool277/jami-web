@@ -69,36 +69,48 @@ adminRouter.get('/adminWizardState', (_req, res) => {
   res.send({ lastWizardState })
 })
 
+const createLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+const MIN_ADMIN_PASSWORD_LENGTH = 8
+
 adminRouter.post(
   '/create',
+  createLimiter,
   asyncHandler(async (req: Request<ParamsDictionary, AccessToken | string, Partial<AdminCredentials>>, res) => {
-    const { password } = req.body
-    if (password) {
-      const hashedPassword = await argon2.hash(password, { type: argon2.argon2id })
-
-      adminAccount.setPasswordHash(hashedPassword)
-      await adminAccount.save()
-
-      const jwt = await signJwt('admin')
-      adminAccount.setLastWizardState(AdminWizardState.local)
-      res.send({ accessToken: jwt })
+    // Prevent overwriting an existing admin account
+    if (adminAccount.getPasswordHash() !== undefined) {
+      res.status(HttpStatusCode.Forbidden).send('Admin account already exists')
       return
     }
 
-    res.status(HttpStatusCode.BadRequest).send('Invalid password')
+    const { password } = req.body
+    if (!password || typeof password !== 'string' || password.length < MIN_ADMIN_PASSWORD_LENGTH) {
+      res
+        .status(HttpStatusCode.BadRequest)
+        .send(`Password must be at least ${MIN_ADMIN_PASSWORD_LENGTH} characters long`)
+      return
+    }
+
+    const hashedPassword = await argon2.hash(password, { type: argon2.argon2id })
+
+    adminAccount.setPasswordHash(hashedPassword)
+    await adminAccount.save()
+
+    const jwt = await signJwt('admin')
+    adminAccount.setLastWizardState(AdminWizardState.local)
+    res.send({ accessToken: jwt })
   }),
 )
 //Requests below require a successful setup
 adminRouter.use(checkAdminSetup)
 
-adminRouter.post('/adminWizardState', (req: Request<ParamsDictionary, AdminWizardState>, res) => {
-  const lastWizardState = req.body.state
-  adminAccount.setLastWizardState(lastWizardState)
-  res.sendStatus(HttpStatusCode.Ok)
-})
-
 const loginlimiter = rateLimit({
-  windowMs: 10 * 60 * 5000, // 5 minutes
+  windowMs: 5 * 60 * 1000, // 5 minutes
   max: 3, // Limit each IP to 3 requests per `window` (here, per 5 minutes)
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
@@ -149,6 +161,12 @@ adminRouter.get(
 
 //Requests below require authentication
 adminRouter.use(adminAuthenticationMiddleware)
+
+adminRouter.post('/adminWizardState', (req: Request<ParamsDictionary, AdminWizardState>, res) => {
+  const lastWizardState = req.body.state
+  adminAccount.setLastWizardState(lastWizardState)
+  res.sendStatus(HttpStatusCode.Ok)
+})
 
 adminRouter.get(
   '/isTokenValid',
