@@ -59,8 +59,18 @@ function clearPendingAccounts() {
 
 clearGuests()
 
+const MIN_PASSWORD_LENGTH = 8
+
+const newAccountLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
 authRouter.post(
   '/new-account',
+  newAccountLimiter,
   asyncHandler(async (req: Request<ParamsDictionary, string, Partial<UserCredentials>>, res) => {
     const { username, password } = req.body
     if (username === undefined || password === undefined) {
@@ -72,8 +82,8 @@ authRouter.post(
       res.status(HttpStatusCode.Conflict).send('Username already exists locally')
       return
     }
-    if (password === '') {
-      res.status(HttpStatusCode.BadRequest).send('Password may not be empty')
+    if (!password || typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
+      res.status(HttpStatusCode.BadRequest).send(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`)
       return
     }
 
@@ -128,8 +138,8 @@ authRouter.post(
 )
 
 const loginlimiter = rateLimit({
-  windowMs: 10 * 60 * 5000, // 5 minutes
-  max: 10, // Limit each IP to 3 requests per `window` (here, per 5 minutes)
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 10,
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 })
