@@ -16,13 +16,12 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import PauseIcon from '@mui/icons-material/Pause'
-import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
 
 import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
 import AudioVisual from './AudioVisual'
+import { PauseIcon, PlayArrowIcon } from './SvgIcon'
 
 interface AudioPlayerProps {
   blob?: Blob

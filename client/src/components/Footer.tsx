@@ -15,10 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import LogoutIcon from '@mui/icons-material/Logout'
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
-import QuestionAnswerIcon from '@mui/icons-material/QuestionAnswer'
-import { Box, Card, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Card, IconButton, Menu, MenuItem, Stack, useMediaQuery, useTheme } from '@mui/material'
 import { MouseEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -27,6 +24,7 @@ import { useAuthContext } from '../contexts/AuthProvider'
 import { useContactProfilePicture } from '../services/contactQueries'
 import ConversationAvatar from './ConversationAvatar'
 import QrCodeModal from './QrCodeModal'
+import { LogoutIcon, ManageAccountsIcon, QuestionAnswerIcon } from './SvgIcon'
 import { RoundCloseIcon, SettingsIcon } from './SvgIcon'
 //TODO:  remove 'settings-account' and 'settings' when migration is finished
 type NavigateURL =
@@ -77,22 +75,21 @@ export default function Footer() {
           alignItems: 'center',
           maxWidth: isMobile ? 'none' : '360px',
           height: '50px',
-          margin: '4px',
-          borderRadius: '10px',
+          margin: theme.Panel.padding,
+          borderRadius: '9999px',
         }}
       >
         <Box
           sx={{
-            marginLeft: '4px',
-            paddingLeft: '4px',
             fontSize: '13px',
             display: 'flex',
             alignItems: 'center',
             width: '100%',
             maxWidth: isMobile ? 'none' : '200px',
             '&:hover': { cursor: 'pointer' },
-            textAlign: 'right',
-            padding: '4px',
+            pl: theme.Panel.padding,
+            py: theme.Panel.itemPadding,
+            pr: 0,
             height: '100%',
           }}
           onClick={(event: MouseEvent<HTMLDivElement>) => {
@@ -100,12 +97,12 @@ export default function Footer() {
           }}
         >
           <ConversationAvatar
-            sx={{ marginLeft: '3px', marginRight: '2%' }}
+            sx={{ mr: theme.Panel.padding }}
             displayName={account.getDisplayName() || account.getRegisteredName()}
             contactUri={account.getUri()}
             src={profilePictureQuery.data}
           />
-          <Box sx={{ display: 'flex', flexDirection: 'column', marginLeft: '8px', height: '100%', marginTop: '8px' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <Box
               sx={{
                 justifyContent: 'flex-start',
@@ -127,7 +124,7 @@ export default function Footer() {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 maxWidth: isMobile ? '200px' : '120px',
-                color: 'grey',
+                color: 'text.secondary',
                 marginLeft: '1px',
               }}
             >
@@ -146,8 +143,8 @@ export default function Footer() {
               width: 'auto',
               backgroundColor: theme.palette.background.paper,
               color: theme.palette.text.primary,
-              borderRadius: '20px 5px 20px 5px',
-              boxShadow: '3px 3px 7px #00000029',
+              borderRadius: '20px 12px 20px 12px',
+              boxShadow: '3px 3px 7px rgba(0, 0, 0, 0.16)',
             }),
           }}
           anchorOrigin={{
@@ -191,33 +188,38 @@ export default function Footer() {
           </div>
         </Menu>
 
-        <Box
-          style={{
-            display: 'flex',
+        <Stack
+          direction="row"
+          sx={{
             alignItems: 'center',
             color: theme.Footer.iconsColor,
-            gap: '10px',
-            margin: '8px',
+            pr: theme.Panel.itemPadding,
           }}
         >
           <QrCodeModal account={account} />
 
           {!currentUrl.includes('settings') ? (
-            <SettingsIcon
-              sx={footerIcons}
+            <IconButton
+              size="small"
+              sx={{ color: 'inherit' }}
               onClick={() => {
                 closeMenuAndNavigate('/settings/account/manage-account')
               }}
-            />
+            >
+              <SettingsIcon />
+            </IconButton>
           ) : (
-            <RoundCloseIcon
-              sx={footerIcons}
+            <IconButton
+              size="small"
+              sx={{ color: 'inherit' }}
               onClick={() => {
                 closeMenuAndNavigate('/')
               }}
-            />
+            >
+              <RoundCloseIcon />
+            </IconButton>
           )}
-        </Box>
+        </Stack>
       </Card>
     </>
   )

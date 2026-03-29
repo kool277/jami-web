@@ -16,7 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import DoneIcon from '@mui/icons-material/Done'
 import { Box, Button, Typography } from '@mui/material'
 import { DeviceAuthStateCode } from 'jami-web-common'
 import { useEffect, useState } from 'react'
@@ -25,6 +24,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { PasswordInput, PasswordStatus, RepeatPasswordInput } from '../../components/Input'
 import JamiWelcomeLogo from '../../components/JamiWelcomeLogo'
+import { DoneIcon } from '../../components/SvgIcon'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout'
 import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider'
 import { PasswordStrength } from '../../enums/passwordStrength'

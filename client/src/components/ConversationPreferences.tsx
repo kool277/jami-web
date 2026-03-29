@@ -16,12 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
-import AttachFileIcon from '@mui/icons-material/AttachFile'
-import ExitToAppIcon from '@mui/icons-material/ExitToApp'
-import GroupsIcon from '@mui/icons-material/Groups'
-import InfoIcon from '@mui/icons-material/Info'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import {
   Box,
   Button,
@@ -65,6 +59,14 @@ import EllipsisMiddle from './EllipsisMiddle'
 import { PopoverListItemData } from './PopoverList'
 import ProcessingRequest from './ProcessingRequest'
 import RemoveConversationDialog from './RemoveComversationDialog'
+import {
+  AdminPanelSettingsIcon,
+  AttachFileIcon,
+  ExitToAppIcon,
+  GroupsIcon,
+  InfoOutlinedIcon as InfoIcon,
+  MoreHorizIcon,
+} from './SvgIcon'
 import { BlockContactIcon, KickMemberIcon, MessageIcon, PersonIcon } from './SvgIcon'
 
 enum TABS {
@@ -140,10 +142,14 @@ export default function ConversationPreferences() {
       <Card
         sx={{
           backgroundColor: theme.ConversationPreferences.backgroundColor,
-          height: '98.5%',
+          height: 'calc(100vh - 16px)',
           margin: '8px',
+          ml: 0,
           border: theme.ConversationPreferences.border,
+          borderRadius: theme.Panel.borderRadius,
+          boxShadow: theme.Panel.shadow,
           fontSize: '15px',
+          overflow: 'hidden',
         }}
       >
         <CardHeader
@@ -175,7 +181,7 @@ export default function ConversationPreferences() {
               displayName={conversationDisplayName}
             />
           }
-          sx={{ backgroundColor: conversationColor, height: '12%', borderRadius: '5px' }}
+          sx={{ backgroundColor: conversationColor, height: '12%', borderRadius: '12px' }}
         />
         <CardContent>
           <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '1vh' }}>

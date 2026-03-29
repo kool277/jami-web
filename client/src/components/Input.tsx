@@ -15,8 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import GppMaybe from '@mui/icons-material/GppMaybe'
-import Warning from '@mui/icons-material/Warning'
 import { Box, IconButtonProps, Stack, TextField, TextFieldProps, Typography } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react'
@@ -25,6 +23,7 @@ import { useTranslation } from 'react-i18next'
 import { PasswordStrength } from '../enums/passwordStrength'
 import { InfoButton, ToggleVisibilityButton } from './Button'
 import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog'
+import { GppMaybeIcon as GppMaybe, WarningIcon as Warning } from './SvgIcon'
 import { CheckedIcon, LockIcon, PenIcon, PersonIcon, RoundSaltireIcon } from './SvgIcon'
 
 const iconsHeight = '16px'
@@ -84,7 +83,7 @@ export const UsernameInput = ({
   const helperText = t('username_input_helper_text', { context: `${status}` })
 
   const helper = (
-    <Box component="span" sx={{ width: '230px', display: 'flex', justifyContent: 'center', marginTop: '-40px' }}>
+    <Box component="span" sx={{ width: '230px', display: 'flex', justifyContent: 'center' }}>
       <Typography component="span" sx={{ textWrap: 'nowrap', fontSize: '11px' }}>
         {status !== 'default' ? helperText : ''}
       </Typography>
@@ -97,7 +96,6 @@ export const UsernameInput = ({
       <TextField
         error={usernameError}
         label={t('username_input_label')}
-        variant="standard"
         helperText={helper}
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
@@ -105,7 +103,6 @@ export const UsernameInput = ({
         InputLabelProps={{
           sx: {
             visibility: status !== 'default' ? 'hidden' : 'visible',
-            transformOrigin: 'top left',
           },
           shrink: !!(isSelected || props.value),
           ...props.InputLabelProps,
@@ -167,7 +164,7 @@ export const PasswordInput = ({
   // const helperText = t('password_input_helper_text', { context: `${status}` })
 
   const helper = (
-    <Box component="span" sx={{ width: '230px', display: 'flex', justifyContent: 'center', marginTop: '-40px' }}>
+    <Box component="span" sx={{ width: '230px', display: 'flex', justifyContent: 'center' }}>
       <Typography component="span" sx={{ textWrap: 'nowrap', fontSize: '11px' }}>
         {status === PasswordStrength.TooWeak ? t('password_input_helper_text_too_weak') : ''}
       </Typography>
@@ -181,7 +178,6 @@ export const PasswordInput = ({
         error={passwordError}
         label={newPlaceHolder ? newPlaceHolder : t('password_input_label')}
         type={showPassword ? 'text' : 'password'}
-        variant="standard"
         autoComplete="current-password"
         helperText={helper}
         onFocus={() => setIsSelected(true)}
@@ -190,7 +186,6 @@ export const PasswordInput = ({
         InputLabelProps={{
           sx: {
             visibility: status !== 'default' ? 'hidden' : 'visible',
-            transformOrigin: 'top left',
           },
           shrink: !!(isSelected || props.value),
           ...props.InputLabelProps,
@@ -237,7 +232,6 @@ export const RepeatPasswordInput = ({ isEqual, tooltipTitle, ...props }: InputPr
         error={passwordError}
         label={t('password_input_label_repeat')}
         type={showPassword ? 'text' : 'password'}
-        variant="standard"
         autoComplete="current-password"
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
@@ -279,7 +273,6 @@ export const NickNameInput = ({ onChange: _onChange, ...props }: TextFieldProps)
     <TextField
       {...props}
       label="Nickname, surname..."
-      variant="standard"
       InputLabelProps={{ shrink: !!(isSelected || input) }}
       onChange={onChange}
       InputProps={{
@@ -314,7 +307,6 @@ export const RegularInput = ({ onChange: _onChange, ...props }: TextFieldProps) 
   return (
     <TextField
       {...props}
-      variant="standard"
       InputLabelProps={{ shrink: !!(isSelected || input) }}
       onChange={onChange}
       InputProps={{

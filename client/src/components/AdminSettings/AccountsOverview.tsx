@@ -15,7 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import DeleteIcon from '@mui/icons-material/Delete'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import IconButton from '@mui/material/IconButton'
@@ -40,6 +39,7 @@ import { ChangeEvent, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useDeleteAccounts, useGetAllAccounts } from '../../services/adminQueries'
+import { DeleteIcon } from '../SvgIcon'
 import ValidationRequiredModal from './ValidationRequiredModal'
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -277,7 +277,7 @@ export default function AccountsOverview() {
   return (
     <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
       <Box sx={{ width: '85%', marginTop: '5%' }}>
-        <Paper sx={{ width: '100%', mb: 2, borderRadius: '10px' }}>
+        <Paper sx={{ width: '100%', mb: 2, borderRadius: '16px' }}>
           <EnhancedTableToolbar
             numSelected={selected.length}
             accountsNumber={rows.length}

@@ -16,8 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import Check from '@mui/icons-material/Check'
-import RefreshOutlined from '@mui/icons-material/RefreshOutlined'
 import { Avatar, AvatarProps, Box, Dialog, Stack, Typography, useTheme } from '@mui/material'
 import { ReactNode, useCallback, useContext, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
@@ -42,6 +40,7 @@ import {
 } from './Button'
 import { InfosDialog, useDialogHandler } from './Dialog'
 import { CircleMaskOverlay, FileDragOverlay } from './Overlay'
+import { CheckMarkIcon as Check, RefreshOutlinedIcon as RefreshOutlined } from './SvgIcon'
 
 type ConversationAvatarProps = AvatarProps & {
   displayName: string

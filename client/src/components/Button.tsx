@@ -15,9 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import QuestionMark from '@mui/icons-material/AddCircle'
-import RadioButtonChecked from '@mui/icons-material/AddCircle'
-import RadioButtonUnchecked from '@mui/icons-material/AddCircle'
 import {
   Box,
   ClickAwayListener,
@@ -41,6 +38,11 @@ import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { ComponentType, ReactNode, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import {
+  AddCircleIcon as QuestionMark,
+  CancelIcon as RadioButtonUnchecked,
+  CheckedIcon as RadioButtonChecked,
+} from './SvgIcon'
 import {
   Arrow2Icon,
   Arrow3Icon,
@@ -198,7 +200,7 @@ export const ExpandableButton = ({
               fontSize="small"
               sx={{
                 backgroundColor: '#444444',
-                borderRadius: '5px',
+                borderRadius: '50%',
               }}
             />
           </IconButton>
@@ -292,8 +294,8 @@ export const BackButton = styled((props: IconButtonProps) => {
   color: theme.SvgIcons.color,
   fontSize: '15px',
   height: '30px',
-  width: '51px',
-  borderRadius: '5px',
+  width: '30px',
+  borderRadius: '50%',
   '&:hover': {
     background: theme.SvgIcons.hoverBackgroundColor,
   },
@@ -340,7 +342,7 @@ export const CloseButton = styled((props: IconButtonProps) => {
   fontSize: '15px',
   height: '30px',
   width: '30px',
-  borderRadius: '5px',
+  borderRadius: '50%',
   '&:hover': {
     background: theme.SvgIcons.hoverBackgroundColor,
   },
@@ -377,7 +379,7 @@ export const SquareButton = styled(({ Icon, tooltip, ...props }: ShapedButtonPro
   fontSize: '25px',
   height: '36px',
   width: '36px',
-  borderRadius: '5px',
+  borderRadius: '50%',
   '&:hover': {
     background: theme.SvgIcons.hoverBackgroundColor,
   },
@@ -445,7 +447,7 @@ export const ReplyMessageButton = styled((props: IconButtonProps) => (
   fontSize: '20px',
   height: '20px',
   width: '20px',
-  borderRadius: '5px',
+  borderRadius: '50%',
   '&:hover': {
     background: theme.SvgIcons.hoverBackgroundColor,
   },

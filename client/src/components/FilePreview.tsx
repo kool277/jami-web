@@ -15,13 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import AttachFile from '@mui/icons-material/AttachFile'
 import { IconButton, IconButtonProps, Stack, Typography } from '@mui/material'
 import mime from 'mime'
 import { useRef } from 'react'
 
 import { FileHandler } from '../utils/files'
 import { useDataSizeUnits } from '../utils/units'
+import { AttachFileIcon as AttachFile } from './SvgIcon'
 import { SaltireIcon } from './SvgIcon'
 
 interface FilePreviewIconProps {
@@ -120,7 +120,7 @@ export const FilePreviewRemovable = ({ fileHandler, remove, borderColor }: FileP
           width: iconSize,
           minWidth: iconSize,
           marginRight: '16px',
-          borderRadius: '5px',
+          borderRadius: '12px',
           borderWidth: '3px',
           borderColor: borderColor,
           borderStyle: 'solid',

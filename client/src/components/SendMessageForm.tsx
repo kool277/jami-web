@@ -15,8 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import DeleteIcon from '@mui/icons-material/Delete'
-import { Box, Card, CardContent, TextareaAutosize, Tooltip, useTheme } from '@mui/material'
+import { Box, Card, CardContent, Divider, IconButton, TextareaAutosize, Tooltip, useTheme } from '@mui/material'
 import { Stack, useMediaQuery } from '@mui/system'
 import { t } from 'i18next'
 import { WebSocketMessageType } from 'jami-web-common'
@@ -39,6 +38,18 @@ import {
   SendMessageButton,
   UploadFileButton,
 } from './Button'
+import { DeleteIcon } from './SvgIcon'
+import {
+  FormatBoldIcon,
+  FormatCodeIcon,
+  FormatItalicIcon,
+  FormatListBulletedIcon,
+  FormatListNumberedIcon,
+  FormatQuoteIcon,
+  FormatStrikethroughIcon,
+  FormatTitleIcon,
+  LinkIcon,
+} from './SvgIcon'
 
 interface SendMessageFormProps {
   openFilePicker: () => void
@@ -55,6 +66,7 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
   const [startTime, setStartTime] = useState(0)
   const [firstTime, setFirstTime] = useState(-1)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioContextRef = useRef<AudioContext | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
@@ -158,6 +170,53 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
     composingNotificationTimeRef.current = 0
     webSocket?.send(WebSocketMessageType.ComposingStatus, { conversationId, isWriting: false })
   }, [webSocket, conversationId])
+
+  const applyFormatting = useCallback(
+    (prefix: string, suffix: string, placeholder: string) => {
+      const textarea = textareaRef.current
+      if (!textarea) return
+      const start = textarea.selectionStart ?? 0
+      const end = textarea.selectionEnd ?? 0
+      const selected = currentMessage.substring(start, end)
+      const text = selected || placeholder
+      const newText = currentMessage.substring(0, start) + prefix + text + suffix + currentMessage.substring(end)
+      setCurrentMessage(newText)
+      notifyComposing()
+      setTimeout(() => {
+        textarea.focus()
+        const selStart = start + prefix.length
+        const selEnd = selStart + text.length
+        textarea.setSelectionRange(selStart, selEnd)
+      }, 0)
+    },
+    [currentMessage, notifyComposing],
+  )
+
+  const applyLinePrefix = useCallback(
+    (linePrefix: string) => {
+      const textarea = textareaRef.current
+      if (!textarea) return
+      const start = textarea.selectionStart ?? 0
+      const lineStart = currentMessage.lastIndexOf('\n', start - 1) + 1
+      const alreadyHasPrefix = currentMessage.substring(lineStart).startsWith(linePrefix)
+      let newText: string
+      let newCursor: number
+      if (alreadyHasPrefix) {
+        newText = currentMessage.substring(0, lineStart) + currentMessage.substring(lineStart + linePrefix.length)
+        newCursor = Math.max(lineStart, start - linePrefix.length)
+      } else {
+        newText = currentMessage.substring(0, lineStart) + linePrefix + currentMessage.substring(lineStart)
+        newCursor = start + linePrefix.length
+      }
+      setCurrentMessage(newText)
+      notifyComposing()
+      setTimeout(() => {
+        textarea.focus()
+        textarea.setSelectionRange(newCursor, newCursor)
+      }, 0)
+    },
+    [currentMessage, notifyComposing],
+  )
 
   const handleSubmit = useCallback(
     (e: FormEvent<HTMLFormElement>) => {
@@ -372,7 +431,7 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
     display: 'flex',
     alignItems: 'center',
     backgroundColor: conversationColor,
-    borderRadius: '15px',
+    borderRadius: '20px',
     padding: '7px 20px',
     width: getAudioWavePercentageWidth(),
     justifyContent: 'space-between',
@@ -424,47 +483,49 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
       alignItems="center"
       spacing="5px"
       paddingX="8px"
-      marginBottom="-8px"
+      marginBottom="0px"
     >
-      <Box sx={{ display: 'flex' }}>
-        <RecordVoiceMessageButton
-          sx={isReduced ? mobileOptionStyles : {}}
-          onClick={voiceRecordingStatusChange}
-          disabled={editMessage || isRecordingVoice ? true : false}
-        />
-        <RecordVideoMessageButton
-          sx={isReduced ? mobileOptionStyles : {}}
-          disabled={editMessage || isRecordingVoice ? true : false}
-        />
-        <UploadFileButton
-          sx={isReduced ? mobileOptionStyles : {}}
-          disabled={editMessage || isRecordingVoice ? true : false}
-          onClick={openFilePicker}
-        />
-      </Box>
       {isRecordingVoice ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-          <div style={containerStyles}>
-            <div style={waveformContainerStyles}>
-              {/* canvas not responsible for now */}
-              <canvas ref={canvasRef} width={getAudioWavePixelWidth()} height={30} style={{ display: 'block' }} />
+        <>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+            <div style={containerStyles}>
+              <div style={waveformContainerStyles}>
+                {/* canvas not responsible for now */}
+                <canvas ref={canvasRef} width={getAudioWavePixelWidth()} height={30} style={{ display: 'block' }} />
+              </div>
+              <span style={durationStyles}>{formatTime(currentTime)}</span>
             </div>
-            <span style={durationStyles}>{formatTime(currentTime)}</span>
-          </div>
-        </Box>
+          </Box>
+          <Tooltip title={t('button_cancel_voice_recording')}>
+            <DeleteIcon
+              onClick={voiceRecordingStatusChange}
+              style={{ color: 'red', width: '30px', height: '30px', cursor: 'pointer' }}
+            />
+          </Tooltip>
+          <SendMessageButton disabled={false} onClick={handleVoiceRecording} />
+        </>
       ) : (
-        <Card variant="elevation" sx={{ width: '100%', borderRadius: '10px', minWidth: '100px' }}>
+        <Card
+          variant="elevation"
+          sx={{
+            width: '100%',
+            borderRadius: '20px',
+            minWidth: '100px',
+            boxShadow: (t) => t.shadows[2],
+          }}
+        >
           <CardContent
             sx={{
               width: '100%',
               display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'flex-start',
-              padding: '10px',
+              flexDirection: 'column',
+              padding: '10px 12px 0 12px',
+              '&:last-child': { paddingBottom: '6px' },
             }}
           >
             <Stack flexGrow={1}>
               <TextareaAutosize
+                ref={textareaRef}
                 value={currentMessage}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
@@ -472,6 +533,7 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
                 maxRows={4}
                 style={{
                   font: 'inherit',
+                  color: 'inherit',
                   fontSize: '14px',
                   width: '100%',
                   resize: 'none',
@@ -480,33 +542,116 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
                   overflowY: 'auto',
                   backgroundColor: 'transparent',
                   textAlign: 'start',
-                  marginBottom: '-12px',
                   whiteSpace: currentMessage ? 'pre-wrap' : 'nowrap',
                   textOverflow: currentMessage ? 'clip' : 'ellipsis',
                 }}
               />
             </Stack>
+            <Box sx={{ display: 'flex', alignItems: 'center', mt: '2px', gap: '0px', flexWrap: 'nowrap' }}>
+              <Tooltip title="Bold">
+                <IconButton
+                  size="small"
+                  onClick={() => applyFormatting('**', '**', 'bold')}
+                  sx={{ fontSize: '18px', color: 'inherit', '&:hover': { bgcolor: 'action.hover' } }}
+                >
+                  <FormatBoldIcon fontSize="inherit" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Italic">
+                <IconButton
+                  size="small"
+                  onClick={() => applyFormatting('*', '*', 'italic')}
+                  sx={{ fontSize: '18px', color: 'inherit', '&:hover': { bgcolor: 'action.hover' } }}
+                >
+                  <FormatItalicIcon fontSize="inherit" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Strikethrough">
+                <IconButton
+                  size="small"
+                  onClick={() => applyFormatting('~~', '~~', 'strikethrough')}
+                  sx={{ fontSize: '18px', color: 'inherit', '&:hover': { bgcolor: 'action.hover' } }}
+                >
+                  <FormatStrikethroughIcon fontSize="inherit" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Heading">
+                <IconButton
+                  size="small"
+                  onClick={() => applyLinePrefix('# ')}
+                  sx={{ fontSize: '18px', color: 'inherit', '&:hover': { bgcolor: 'action.hover' } }}
+                >
+                  <FormatTitleIcon fontSize="inherit" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Link">
+                <IconButton
+                  size="small"
+                  onClick={() => applyFormatting('[', '](url)', 'link text')}
+                  sx={{ fontSize: '18px', color: 'inherit', '&:hover': { bgcolor: 'action.hover' } }}
+                >
+                  <LinkIcon fontSize="inherit" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Code">
+                <IconButton
+                  size="small"
+                  onClick={() => applyFormatting('`', '`', 'code')}
+                  sx={{ fontSize: '18px', color: 'inherit', '&:hover': { bgcolor: 'action.hover' } }}
+                >
+                  <FormatCodeIcon fontSize="inherit" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Quote">
+                <IconButton
+                  size="small"
+                  onClick={() => applyLinePrefix('> ')}
+                  sx={{ fontSize: '18px', color: 'inherit', '&:hover': { bgcolor: 'action.hover' } }}
+                >
+                  <FormatQuoteIcon fontSize="inherit" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Unordered list">
+                <IconButton
+                  size="small"
+                  onClick={() => applyLinePrefix('- ')}
+                  sx={{ fontSize: '18px', color: 'inherit', '&:hover': { bgcolor: 'action.hover' } }}
+                >
+                  <FormatListBulletedIcon fontSize="inherit" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Ordered list">
+                <IconButton
+                  size="small"
+                  onClick={() => applyLinePrefix('1. ')}
+                  sx={{ fontSize: '18px', color: 'inherit', '&:hover': { bgcolor: 'action.hover' } }}
+                >
+                  <FormatListNumberedIcon fontSize="inherit" />
+                </IconButton>
+              </Tooltip>
+              <Box sx={{ flex: 1 }} />
+              <Divider orientation="vertical" flexItem sx={{ mx: '4px', my: '4px' }} />
+              <RecordVoiceMessageButton
+                sx={isReduced ? mobileOptionStyles : {}}
+                onClick={voiceRecordingStatusChange}
+                disabled={!!editMessage}
+              />
+              <RecordVideoMessageButton sx={isReduced ? mobileOptionStyles : {}} disabled={!!editMessage} />
+              <UploadFileButton
+                sx={isReduced ? mobileOptionStyles : {}}
+                disabled={!!editMessage}
+                onClick={openFilePicker}
+              />
+              <SelectEmojiButton onEmojiSelected={onEmojiSelected} />
+              <SendMessageButton
+                sx={{ ml: '4px' }}
+                disabled={!(currentMessage || fileHandlers.length > 0)}
+                type="submit"
+              />
+            </Box>
           </CardContent>
         </Card>
       )}
-      <Box sx={{ display: 'flex', alignItems: 'center', alignContent: 'center' }}>
-        {isRecordingVoice ? (
-          <Tooltip title={t('button_cancel_voice_recording')}>
-            <DeleteIcon
-              onClick={voiceRecordingStatusChange}
-              style={{ color: 'red', width: '30px', height: '30px', cursor: 'pointer' }}
-            />
-          </Tooltip>
-        ) : (
-          <SelectEmojiButton onEmojiSelected={onEmojiSelected} />
-        )}
-        <SendMessageButton
-          sx={{ ml: '4px' }}
-          disabled={!(currentMessage || fileHandlers.length > 0) && !isRecordingVoice}
-          onClick={isRecordingVoice ? handleVoiceRecording : () => {}}
-          type={isRecordingVoice ? undefined : 'submit'}
-        />
-      </Box>
     </Stack>
   )
 }

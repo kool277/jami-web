@@ -16,7 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import CloseIcon from '@mui/icons-material/Close'
 import { Box, Modal, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Message, ReactionRemoved, WebSocketMessageType } from 'jami-web-common'
@@ -28,6 +27,7 @@ import { useAuthContext } from '../contexts/AuthProvider'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import EllipsisMiddle from './EllipsisMiddle'
+import { CloseIcon } from './SvgIcon'
 
 export interface MessageReactionProps {
   message: Message
@@ -192,7 +192,7 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
               sx={{
                 padding: '5px',
                 fontSize: '30px',
-                borderRadius: '5px',
+                borderRadius: '12px',
                 ':hover': {
                   cursor: 'pointer',
                   backgroundColor: theme.ChatInterface.reactionModalBackground,

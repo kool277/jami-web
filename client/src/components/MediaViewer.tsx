@@ -16,10 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import AttachFileIcon from '@mui/icons-material/AttachFile'
-import CloseIcon from '@mui/icons-material/Close'
-import DownloadIcon from '@mui/icons-material/Download'
-import LinkIcon from '@mui/icons-material/Link'
 import { Box, Modal, Typography, useMediaQuery, useTheme } from '@mui/material'
 import dayjs from 'dayjs'
 import { useTranslation } from 'react-i18next'
@@ -28,6 +24,7 @@ import { ConversationMember } from '../models/conversation-member'
 import AudioPlayer from './AudioPlayer'
 import ConversationAvatar from './ConversationAvatar'
 import EllipsisMiddle from './EllipsisMiddle'
+import { AttachFileIcon, CloseIcon, DownloadIcon, LinkIcon } from './SvgIcon'
 
 interface MediaViewerProps {
   totalSize?: string

@@ -16,7 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import VolunteerActivismIcon from '@mui/icons-material/VolunteerActivism'
 import {
   Box,
   Button,
@@ -41,6 +40,7 @@ import JamiLogo from '../icons/logo-jami-net.svg?react'
 import JamiLogoWhite from '../icons/logo-jami-net-white.svg?react'
 import { contributorsDevelopers, contributorsMedia } from '../utils/contributors'
 import EllipsisMiddle from './EllipsisMiddle'
+import { VolunteerActivismIcon } from './SvgIcon'
 import { InfoIcon, JamiIdIcon, TipIcon, TrashBinIcon, TwoSheetsIcon } from './SvgIcon'
 
 export default function WelcomePage() {
@@ -153,10 +153,6 @@ export default function WelcomePage() {
         width: '100%',
         height: '100%',
         display: 'flex',
-        backgroundImage: `url(./admin/background.jpg)`,
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
         overflowX: 'hidden',
         boxSizing: 'border-box',
       }}
@@ -344,7 +340,7 @@ export default function WelcomePage() {
             <Box
               sx={{
                 backgroundColor: theme.WelcomePage.infoBackgroundColor,
-                borderRadius: '5px',
+                borderRadius: '12px',
                 height: 'auto',
                 maxHeight: '80px',
                 maxWidth: '200px',
@@ -374,7 +370,7 @@ export default function WelcomePage() {
           <Box
             sx={{
               backgroundColor: theme.WelcomePage.infoBackgroundColor,
-              borderRadius: '5px',
+              borderRadius: '12px',
               marginLeft: '5%',
               marginRight: '5%',
               marginTop: '4%',

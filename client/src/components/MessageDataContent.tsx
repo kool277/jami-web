@@ -15,7 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import AttachFileIcon from '@mui/icons-material/AttachFile'
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { darken } from '@mui/system'
 import byteSize from 'byte-size'
@@ -24,6 +23,7 @@ import { useTranslation } from 'react-i18next'
 import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
 import { getTextColor } from '../utils/messagecolor'
 import EllipsisMiddle from './EllipsisMiddle'
+import { AttachFileIcon } from './SvgIcon'
 
 interface MessageDataContentProps {
   displayName: string
@@ -78,7 +78,7 @@ export default function ({
           minWidth: '50px',
           padding: 0,
           backgroundColor: backgroundColor,
-          borderRadius: '6px',
+          borderRadius: '12px',
           marginTop: '-7px',
           marginBottom: '-15px',
           boxSizing: 'border-box',

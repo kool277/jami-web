@@ -16,12 +16,12 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import SearchRounded from '@mui/icons-material/SearchRounded'
-import { Box, InputBase, Stack } from '@mui/material'
+import { Box, InputBase, Stack, useTheme } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 
 import { SquareButton } from './Button'
-import { PeopleGroupIcon } from './SvgIcon'
+import { SearchRoundedIcon as SearchRounded } from './SvgIcon'
+import { PeopleWithPlusSignIcon } from './SvgIcon'
 
 interface ContactSearchBarProps {
   placeholder: string
@@ -30,17 +30,23 @@ interface ContactSearchBarProps {
 
 export default function ContactSearchBar({ placeholder, handleChange }: ContactSearchBarProps) {
   const navigate = useNavigate()
+  const theme = useTheme()
+
+  // Concentricity: margin + height/2 = Panel.borderRadius
+  const searchBarMargin = `calc(${theme.Panel.padding} + ${theme.Panel.itemPadding})`
+  const searchBarHeight = `calc(2 * (${theme.Panel.borderRadius} - ${theme.Panel.padding} - ${theme.Panel.itemPadding}))`
 
   return (
     <Stack direction="row">
       <Box
         sx={{
-          width: '99%',
           display: 'flex',
-          justifyContent: 'center',
-          borderRadius: '7px',
-          backgroundColor: 'white',
-          margin: '2%',
+          alignItems: 'center',
+          borderRadius: '9999px',
+          backgroundColor: theme.palette.background.paper,
+          m: searchBarMargin,
+          height: searchBarHeight,
+          flex: 1,
         }}
       >
         <InputBase
@@ -64,9 +70,8 @@ export default function ContactSearchBar({ placeholder, handleChange }: ContactS
           }}
         />
         <SquareButton
-          sx={/* FIXME: Hide button until the contact page is available */ { visibility: 'hidden' }}
-          aria-label="start swarm"
-          Icon={PeopleGroupIcon}
+          aria-label="add contact"
+          Icon={PeopleWithPlusSignIcon}
           onClick={() => {
             navigate('/contacts')
           }}

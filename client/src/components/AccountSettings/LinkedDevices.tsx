@@ -15,8 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import DeleteIcon from '@mui/icons-material/Delete'
-import DevicesIcon from '@mui/icons-material/Devices'
 import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
@@ -41,6 +39,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuthContext } from '../../contexts/AuthProvider'
 import { useRemoveLinkedDevice } from '../../services/accountQueries'
 import EllipsisMiddle from '../EllipsisMiddle'
+import { DeleteIcon, DevicesIcon } from '../SvgIcon'
 import PasswordRequiredModal from './PasswordRequiredModal'
 
 interface DeviceRow {
@@ -320,7 +319,7 @@ export default function LinkedDevices() {
   return (
     <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
       <Box sx={{ width: '85%', marginTop: '5%' }}>
-        <Paper sx={{ width: '100%', mb: 2, borderRadius: '10px', overflow: 'hidden' }}>
+        <Paper sx={{ width: '100%', mb: 2, borderRadius: '16px', overflow: 'hidden' }}>
           <EnhancedTableToolbar
             numSelected={selected.length}
             devicesNumber={rows.length}

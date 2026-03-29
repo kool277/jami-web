@@ -16,10 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import AttachFileIcon from '@mui/icons-material/AttachFile'
-import AudioFileIcon from '@mui/icons-material/AudioFile'
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
-import VideoFileIcon from '@mui/icons-material/VideoFile'
 import { Box, useMediaQuery, useTheme } from '@mui/material'
 import byteSize from 'byte-size'
 import { useCallback, useEffect, useState } from 'react'
@@ -29,6 +25,7 @@ import { useConversationContext } from '../contexts/ConversationProvider'
 import { GetDownloadedFile, useGetAutoDownloadLimit, useGetDownloadFileInfo } from '../services/dataTransferQueries'
 import EllipsisMiddle from './EllipsisMiddle'
 import MediaViewer from './MediaViewer'
+import { AttachFileIcon, AudioFileIcon, PictureAsPdfIcon, VideoFileIcon } from './SvgIcon'
 
 interface ConversationSettingsFileItemProps {
   displayName: string

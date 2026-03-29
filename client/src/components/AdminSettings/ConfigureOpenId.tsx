@@ -16,8 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import DescriptionIcon from '@mui/icons-material/Description'
 import {
   Box,
   Button,
@@ -41,6 +39,7 @@ import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
 import { AuthenticationMethods } from '../../enums/authenticationMethods'
 import { useGetProviderInfo, useUpdateProviderInfo } from '../../services/adminQueries'
 import ProcessingRequest from '../ProcessingRequest'
+import { ContentCopyIcon, DescriptionIcon } from '../SvgIcon'
 
 export default function ConfigureOpenId() {
   const location = useLocation()

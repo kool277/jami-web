@@ -15,7 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import LogoutIcon from '@mui/icons-material/Logout'
 import { Box, Button, useMediaQuery, useTheme } from '@mui/material'
 import { AdminSettingSelection } from 'jami-web-common'
 import { useMemo } from 'react'
@@ -24,6 +23,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { AdminConfigurationOptions } from '../../enums/adminConfigurationOptions'
 import SettingSidebar from '../SettingSidebar'
+import { LogoutIcon } from '../SvgIcon'
 
 //Settings meta structure
 interface ISettingItem {

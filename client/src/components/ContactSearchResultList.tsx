@@ -15,7 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import GroupAddRounded from '@mui/icons-material/GroupAddRounded'
 import { Box, Dialog, DialogProps, Fab, List, ListSubheader, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -28,6 +27,7 @@ import { ConversationSummaryList } from './ConversationSummaryList'
 import { CustomListItemButton } from './CustomListItemButton'
 import { useDialogHandler } from './Dialog'
 import LoadingPage from './Loading'
+import { GroupAddRoundedIcon as GroupAddRounded } from './SvgIcon'
 
 type ContactSearchResultListProps = {
   searchFilter: string
@@ -58,7 +58,9 @@ export default ({ searchFilter }: ContactSearchResultListProps) => {
 
       {contactsSearchResult && contactsSearchResult.length > 0 && (
         <>
-          {contactsSearchResult?.map((contact) => <ContactSearchResultListItem key={contact.uri} contact={contact} />)}
+          {contactsSearchResult?.map((contact) => (
+            <ContactSearchResultListItem key={contact.uri} contact={contact} />
+          ))}
         </>
       )}
       {contactsJamsSearchResult && contactsJamsSearchResult.length > 0 && (

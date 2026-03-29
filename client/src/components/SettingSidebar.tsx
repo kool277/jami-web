@@ -15,8 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import LoginIcon from '@mui/icons-material/Login'
 import { Button, Typography } from '@mui/material'
 import Collapse from '@mui/material/Collapse'
 import List from '@mui/material/List'
@@ -32,6 +30,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
 import { ISettingItem } from '../utils/utils'
+import { ArrowBackIcon, LoginIcon } from './SvgIcon'
 
 interface SettingSidebarProps {
   settingMeta: ISettingItem[]
@@ -63,7 +62,7 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
       backgroundColor: theme.SettingsBackButton.hoverBackgroundColor,
     },
     height: '36px',
-    borderRadius: '7px',
+    borderRadius: '12px',
   }
 
   return (

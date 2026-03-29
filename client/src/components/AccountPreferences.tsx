@@ -15,10 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import AddCircle from '@mui/icons-material/AddCircle'
-import DeleteRounded from '@mui/icons-material/AddCircle'
-import GroupRounded from '@mui/icons-material/AddCircle'
-import PhoneCallbackRounded from '@mui/icons-material/AddCircle'
 import {
   Box,
   Card,
@@ -48,6 +44,12 @@ import LinkedDevicesPreview from './AccountSettings/LinkedDevicesPreview'
 import ConversationAvatar from './ConversationAvatar'
 import ConversationsOverviewCard from './ConversationsOverviewCard'
 import JamiIdCard from './JamiIdCard'
+import {
+  AddCircleIcon as AddCircle,
+  AudioCallIcon as PhoneCallbackRounded,
+  DeleteIcon as DeleteRounded,
+  GroupsIcon as GroupRounded,
+} from './SvgIcon'
 
 const transition = { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }
 
