@@ -231,7 +231,7 @@ test.describe('Conversation UI Elements', () => {
     await page.waitForTimeout(5_000)
 
     // ConversationHeader renders an ArrowBackIosNewIcon for navigation
-    const backButton = page.locator('[data-testid="ArrowBackIosNewIcon"]')
+    const backButton = page.locator('text=arrow_back_ios_new')
     await expect(backButton.first()).toBeVisible({ timeout: 15_000 })
   })
 
@@ -255,7 +255,7 @@ test.describe('Conversation UI Elements', () => {
     await page.goto('/conversation/conv-1')
     await page.waitForTimeout(5_000)
 
-    const backButton = page.locator('[data-testid="ArrowBackIosNewIcon"]').first()
+    const backButton = page.locator('text=arrow_back_ios_new').first()
     await expect(backButton).toBeVisible({ timeout: 15_000 })
     await backButton.click()
 
