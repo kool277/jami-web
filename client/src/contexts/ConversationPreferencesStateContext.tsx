@@ -23,6 +23,10 @@ import { WithChildren } from '../utils/utils'
 interface ConversationPreferencesStateContext {
   isOpen: boolean
   setIsOpen: (value: boolean) => void
+  isSearchOpen: boolean
+  setIsSearchOpen: (value: boolean) => void
+  searchQuery: string
+  setSearchQuery: (value: string) => void
 }
 
 const optionalConversationPreferencesStateContext = createOptionalContext<ConversationPreferencesStateContext>(
@@ -33,13 +37,19 @@ export const useConversationPreferencesStateContext = optionalConversationPrefer
 
 const ConversationPreferencesStateProvider: React.FC<WithChildren> = ({ children }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false)
+  const [searchQuery, setSearchQuery] = useState<string>('')
 
   const value = useMemo(
     () => ({
       isOpen,
       setIsOpen,
+      isSearchOpen,
+      setIsSearchOpen,
+      searchQuery,
+      setSearchQuery,
     }),
-    [isOpen],
+    [isOpen, isSearchOpen, searchQuery],
   )
 
   return (

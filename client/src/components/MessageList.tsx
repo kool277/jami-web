@@ -162,7 +162,7 @@ const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
   return (
     <Stack
       direction="row"
-      borderRadius="5px"
+      borderRadius="12px"
       height={isMobile ? '35px' : '30px'}
       alignItems="center"
       padding="0 16px"

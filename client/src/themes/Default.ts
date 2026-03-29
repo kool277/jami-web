@@ -68,6 +68,14 @@ declare module '@mui/material/styles' {
       backgroundColor: string
       hoverColor: string
     }
+    Panel: {
+      outerBackground: string
+      borderRadius: string
+      padding: string
+      shadow: string
+      itemBorderRadius: string
+      itemPadding: string
+    }
     ConversationPreferences: {
       backgroundColor: string
       border: string
@@ -295,6 +303,14 @@ const palettes = {
       backgroundColor: '#FAF6F0',
       border: '0.5px #E0D9CF solid',
     },
+    Panel: {
+      outerBackground: '#E8E2D8',
+      borderRadius: '32px',
+      padding: '8px',
+      shadow: '0 2px 16px rgba(0, 0, 0, 0.06)',
+      itemBorderRadius: '24px',
+      itemPadding: '4px',
+    },
     SvgIcons: {
       color: '#0071C9',
       hoverBackgroundColor: '#F0EBE3',
@@ -399,6 +415,14 @@ const palettes = {
       backgroundColor: '#181818',
       border: '0.5px darkgrey solid',
     },
+    Panel: {
+      outerBackground: '#0A0A0A',
+      borderRadius: '32px',
+      padding: '8px',
+      shadow: '0 2px 16px rgba(0, 0, 0, 0.25)',
+      itemBorderRadius: '24px',
+      itemPadding: '4px',
+    },
     SvgIcons: {
       color: 'white',
       hoverBackgroundColor: '#2A2A2A',
@@ -428,14 +452,37 @@ const palettes = {
 }
 
 export const buildDefaultTheme = (mode: PaletteMode) => {
-  //return createTheme({ ...palettes[mode] /*, ...fonts*/ })
-  // Attemps to set the fonts on the second "createTheme" has resulted with wrong font-families
-  const partialTheme = createTheme({ ...palettes[mode] /*, ...fonts*/ })
+  const partialTheme = createTheme({ ...palettes[mode] })
   const palette = partialTheme.palette
   const ChatInterface = partialTheme.ChatInterface
   const Buttons = partialTheme.Buttons
+  const Panel = partialTheme.Panel
+  const isDark = mode === 'dark'
+
+  // Unified shadow system
+  const shadows = {
+    subtle: isDark ? '0 1px 4px rgba(0,0,0,0.3)' : '0 1px 4px rgba(0,0,0,0.06)',
+    low: isDark ? '0 2px 8px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.08)',
+    medium: isDark ? '0 4px 24px rgba(0,0,0,0.5)' : '0 4px 24px rgba(0,0,0,0.10)',
+    high: isDark ? '0 8px 40px rgba(0,0,0,0.6)' : '0 8px 40px rgba(0,0,0,0.12)',
+    float: isDark
+      ? '0 2px 16px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)'
+      : '0 2px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.03)',
+  }
 
   return createTheme(partialTheme, {
+    shape: {
+      borderRadius: 20,
+    },
+    shadows: (() => {
+      const s = [...Array(25)].map(() => 'none') as string[]
+      s[1] = shadows.subtle
+      s[2] = shadows.low
+      s[3] = shadows.medium
+      s[4] = shadows.high
+      s[8] = shadows.float
+      return s
+    })(),
     components: {
       MuiButton: {
         styleOverrides: {
@@ -445,7 +492,7 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
             fontSize: '15px',
             lineHeight: '17px',
             textTransform: 'none',
-            borderRadius: '9px',
+            borderRadius: '20px',
           },
           sizeSmall: {
             height: '26px',
@@ -457,7 +504,7 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
             },
           },
           outlined: {
-            background: '#FFF',
+            background: palette.background.paper,
             borderColor: '#0056995C',
             color: palette.primary.dark,
             '&:hover': {
@@ -466,7 +513,7 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
             },
           },
           text: {
-            background: '#fff',
+            background: palette.background.paper,
             color: palette.primary.dark,
             '&:hover': {
               background: Buttons.hoverBackgroundColor,
@@ -474,12 +521,32 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
           },
         },
       },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: Panel.itemBorderRadius,
+            boxShadow: shadows.low,
+          },
+        },
+      },
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            borderRadius: Panel.itemBorderRadius,
+          },
+          elevation1: { boxShadow: shadows.subtle },
+          elevation2: { boxShadow: shadows.low },
+          elevation3: { boxShadow: shadows.medium },
+          elevation4: { boxShadow: shadows.high },
+          elevation8: { boxShadow: shadows.float },
+        },
+      },
       MuiDialog: {
         styleOverrides: {
           paper: {
             padding: '16px',
-            boxShadow: '3px 3px 7px #00000029',
-            borderRadius: '20px',
+            boxShadow: shadows.high,
+            borderRadius: '24px',
           },
         },
       },
@@ -576,19 +643,25 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
           },
         },
       },
+      MuiFab: {
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+          },
+        },
+      },
       MuiFormControl: {
         styleOverrides: {
           root: {
-            height: '90px',
+            marginBottom: '12px',
           },
         },
       },
       MuiFormHelperText: {
         styleOverrides: {
           root: {
-            position: 'absolute',
-            bottom: '0px',
-            fontSize: '15px',
+            fontSize: '12px',
+            textAlign: 'center',
           },
         },
       },
@@ -597,45 +670,51 @@ export const buildDefaultTheme = (mode: PaletteMode) => {
           root: {
             color: ChatInterface.inputColor,
             fontSize: '15px',
-            right: '-50%',
-            transition: 'left .2s, transform .2s',
-          },
-          shrink: {
-            color: ChatInterface.inputColor,
-            left: 0,
-            transform: 'translate(0, 50px) scale(0.75)',
-            transition: 'left .2s, transform .2s',
-            '&.Mui-focused, &.Mui-error': {
-              color: ChatInterface.inputColor,
-            },
           },
         },
       },
       MuiLink: {
         styleOverrides: {
           root: {
-            color: '#005699',
+            color: palette.primary.dark,
           },
         },
       },
-      /*MuiListItemButton: {
+      MuiIconButton: {
         styleOverrides: {
           root: {
+            borderRadius: '50%',
+          },
+        },
+      },
+      MuiTextField: {
+        defaultProps: {
+          variant: 'outlined',
+        },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: {
+          root: {
+            borderRadius: '9999px',
+          },
+        },
+      },
+      MuiListItemButton: {
+        styleOverrides: {
+          root: {
+            borderRadius: '9999px',
             '&.Mui-selected': {
-              backgroundColor: '#cccccc',
-              opacity: 1,
+              backgroundColor: ChatInterface.selectedColor,
               '&:hover': {
-                backgroundColor: '#cccccc',
-                opacity: 1,
+                backgroundColor: ChatInterface.selectedColor,
               },
             },
             '&:hover': {
-              backgroundColor: '#d5d5d5',
-              opacity: 1,
+              backgroundColor: `${ChatInterface.selectedColor}80`,
             },
           },
         },
-      },*/
+      },
     },
   })
 }

@@ -39,20 +39,21 @@ export default function UnconnectedUserLayout({ pageName, children, message }: U
   }
 
   const cardStyle = {
-    height: isMobile ? '100vh' : '535px',
     width: isMobile ? '100vw' : '450px',
-    padding: '1%',
-    paddingTop: '3%',
+    padding: isMobile ? '8px' : '16px 24px',
     marginTop: isMobile ? '0' : '-5%',
-    overflowY: 'scroll',
-    borderRadius: isMobile ? '0' : 'auto',
+    overflowY: 'auto',
+    borderRadius: isMobile ? '0' : '24px',
   }
+
+  const isDark = theme.palette.mode === 'dark'
+  const bgImage = isDark ? './admin/background_dark.jpg' : './admin/background.jpg'
 
   const backgroundStyle = {
     width: '100%',
     height: '100%',
     display: 'flex',
-    backgroundImage: `url(./admin/background.jpg)`,
+    backgroundImage: `url(${bgImage})`,
     backgroundRepeat: 'no-repeat',
     backgroundPosition: 'center',
     backgroundSize: 'cover',
@@ -87,7 +88,7 @@ export default function UnconnectedUserLayout({ pageName, children, message }: U
                 }
                 component="div"
               >
-                <Box sx={{ height: '80px', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 2 }}>
                   <Typography width="400px" variant="body2" style={{ textAlign: 'start' }}>
                     {message}
                   </Typography>
@@ -102,7 +103,7 @@ export default function UnconnectedUserLayout({ pageName, children, message }: U
                           flexDirection: 'column',
                           justifyContent: 'space-between',
                         }
-                      : { marginTop: '18%' }
+                      : {}
                   }
                 >
                   {children}

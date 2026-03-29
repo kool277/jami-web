@@ -163,7 +163,7 @@ const TransferMessage = ({ conversationId, message, onClose, open }: TransferMes
               onChange={(e) => setComment(e.target.value)}
               variant="outlined"
               sx={{
-                borderRadius: '6px',
+                borderRadius: '12px',
                 textAlign: 'start',
                 border: 'none',
                 maxHeight: '50px',

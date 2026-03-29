@@ -15,13 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew'
 import { Box, useMediaQuery, useTheme } from '@mui/material'
+import { alpha, darken, lighten } from '@mui/material/styles'
 import { ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
+import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider'
 import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
 import Footer from './Footer'
+import { ArrowBackIosNewIcon } from './SvgIcon'
 
 interface LayoutWrapperProps {
   sidebar: ReactNode
@@ -32,32 +34,45 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const { isMenuOpen, setIsMenuOpen } = useMobileMenuStateContext()
+  const { tintColor } = useAppBackgroundContext()
   const location = useLocation()
   const isSettings = location.pathname.startsWith('/settings') || location.pathname.startsWith('/contacts')
   const isAdminPanel = location.pathname.startsWith('/admin')
   const navigate = useNavigate()
+  const isDark = theme.palette.mode === 'dark'
+  const bgImage = isDark ? './admin/background_dark.jpg' : './admin/background.jpg'
 
   const sidebarStyles = {
     width: '300px',
-    top: 0,
-    left: 0,
+    minWidth: '300px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
-    height: '100vh',
-    bgcolor: theme.ChatInterface.panelColor,
+    height: 'calc(100vh - 16px)',
+    bgcolor: alpha(theme.ChatInterface.panelColor, 0.85),
+    backdropFilter: 'blur(24px)',
+    WebkitBackdropFilter: 'blur(24px)',
+    m: '8px',
+    mr: 0,
+    borderRadius: theme.Panel.borderRadius,
+    boxShadow: theme.Panel.shadow,
+    overflow: 'hidden',
+    zIndex: 10,
+    position: 'relative',
   }
 
   const sidebarStylesMobile = {
     ...sidebarStyles,
-    overflow: 'hidden',
-    width: isMenuOpen ? '100%' : '0px',
-    transition: 'width 0.3s',
+    width: isMenuOpen ? 'calc(100% - 16px)' : '0px',
+    minWidth: isMenuOpen ? 'calc(100% - 16px)' : '0px',
+    m: isMenuOpen ? '8px' : 0,
+    height: isMenuOpen ? 'calc(100vh - 16px)' : '100vh',
+    transition: 'width 0.3s, min-width 0.3s, margin 0.3s, height 0.3s',
     zIndex: 99,
   }
 
   const mainWindowStyles = {
-    height: '100vh',
+    height: '100%',
     width: '100%',
     overflowY: isSettings ? 'scroll' : 'hidden',
   }
@@ -66,8 +81,31 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
     width: isMobile && !isMenuOpen ? '100%' : '0px',
     transition: 'width 0.3s',
     overflow: 'auto',
+    height: '100%',
+  }
+
+  // Main panel is the app surface itself — no separate card/shadow
+  const mainPanelStyles = {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    width: isMobile ? '100%' : 'unset',
     height: '100vh',
-    widht: '100vw',
+    overflow: 'hidden',
+    position: 'relative',
+    zIndex: 1,
+  }
+
+  const mainPanelStylesMobile = {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    width: isMobile ? '100%' : 'unset',
+    height: isMenuOpen ? '0px' : '100vh',
+    overflow: 'hidden',
+    transition: 'height 0.3s',
+    zIndex: 1,
+    position: 'relative',
   }
 
   const footerStyles = {
@@ -92,10 +130,33 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
 
   const isConversationOpen = location.pathname.startsWith('/conversation') && !isMenuOpen
 
+  const tintOverlay = tintColor ? (isDark ? darken(tintColor, 0.85) : lighten(tintColor, 0.85)) : null
+
   return (
-    <Box display={'flex'}>
+    <Box
+      display={'flex'}
+      sx={{
+        height: '100vh',
+        overflow: 'hidden',
+        backgroundImage: `url(${bgImage})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        position: 'relative',
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          inset: 0,
+          background: tintOverlay ?? 'transparent',
+          opacity: tintOverlay ? 1 : 0,
+          transition: 'opacity 0.6s ease-in-out',
+          pointerEvents: 'none',
+          zIndex: 0,
+        },
+      }}
+    >
       <Box sx={isMobile ? sidebarStylesMobile : sidebarStyles}>
-        <Box sx={{ overflow: 'hidden' }}>{sidebar}</Box>
+        <Box sx={{ overflow: 'hidden', flex: 1, minHeight: 0 }}>{sidebar}</Box>
         {!isAdminPanel && (
           <Box sx={footerStyles}>
             <Footer />
@@ -103,19 +164,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
         )}
       </Box>
 
-      <Box
-        sx={
-          isMenuOpen
-            ? doNotDisplayStyles
-            : {
-                display: 'flex',
-                flexDirection: 'column',
-                flexGrow: 1,
-                width: isMobile ? '100%' : 'unset',
-                height: '100vh',
-              }
-        }
-      >
+      <Box sx={isMobile ? mainPanelStylesMobile : mainPanelStyles}>
         {!isConversationOpen && (
           <ArrowBackIosNewIcon
             sx={!isMenuOpen && isMobile ? { '&:hover': { cursor: 'pointer' }, margin: '16px' } : doNotDisplayStyles}

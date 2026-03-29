@@ -15,12 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Stack, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Stack, useMediaQuery, useTheme } from '@mui/material'
 import { memo, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 
 import ChatInterfaceManager from '../components/ChatInterfaceManager'
 import ConversationPreferences from '../components/ConversationPreferences'
+import { ConversationHeader } from '../components/ConversationView'
 import { FileDragOverlay } from '../components/Overlay'
 import { useActionMessageReadContext, useActionMessageWriteContext } from '../contexts/ActionMessageProvider'
 import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext'
@@ -61,11 +62,15 @@ const ChatInterface = () => {
         overflow="hidden"
         {...getRootProps()}
         paddingBottom="16px"
+        sx={{ position: 'relative' }}
       >
+        <ConversationHeader />
         {isDragActive && <FileDragOverlay />}
         <input {...getInputProps()} />
 
-        <ChatInterfaceManager openFilePicker={openFilePicker} />
+        <Box sx={{ pt: '56px', pb: '8px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          <ChatInterfaceManager openFilePicker={openFilePicker} />
+        </Box>
       </Stack>
       <ConversationPreferences />
     </Stack>

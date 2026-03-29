@@ -30,6 +30,6 @@ export default styled(({ className, title, ...props }: TooltipProps) => (
     maxWidth: 220,
     fontSize: theme.typography.pxToRem(15),
     boxShadow: '3px 3px 7px #00000029',
-    borderRadius: '5px',
+    borderRadius: '12px',
   },
 }))

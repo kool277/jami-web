@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Stack, Typography, useTheme } from '@mui/material'
+import { Box, Stack, useTheme } from '@mui/material'
 import { WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -47,18 +47,9 @@ export default function ConversationList() {
           position: 'sticky',
           top: 0,
           zIndex: 99,
-          backgroundColor: theme.ChatInterface.panelColor,
           overflow: 'hidden',
         }}
       >
-        <Box sx={{ display: 'flex' }}>
-          <Typography
-            sx={{ marginLeft: '16px', marginTop: '24px', marginBottom: '8px', fontWeight: 'bolder' }}
-            variant="h6"
-          >
-            {t('conversations')}
-          </Typography>
-        </Box>
         <ContactSearchBar placeholder={t('find_users_and_conversations')} handleChange={handleInputChange} />
       </Box>
 

@@ -32,6 +32,7 @@ import { createContext, memo, useCallback, useEffect, useMemo, useReducer, useSt
 import LoadingPage from '../components/Loading'
 import MessageList from '../components/MessageList'
 import { useAuthContext } from '../contexts/AuthProvider'
+import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext'
 import { useConversationContext } from '../contexts/ConversationProvider'
 import { useWebSocketContext } from '../contexts/WebSocketProvider'
 import { useMessagesQuery } from '../services/conversationQueries'
@@ -564,6 +565,14 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
     return messageOrder.map((id) => messagesMap.get(id)).filter(Boolean) as Message[]
   }, [messageOrder, messagesMap])
 
+  const { searchQuery } = useConversationPreferencesStateContext()
+
+  const filteredMessages = useMemo(() => {
+    if (!searchQuery) return messagesArray
+    const q = searchQuery.toLowerCase()
+    return messagesArray.filter((msg) => msg.body?.toLowerCase().includes(q))
+  }, [messagesArray, searchQuery])
+
   useEffect(() => {
     const accUri = account.getUri()
     for (const message of messagesArray) {
@@ -596,7 +605,7 @@ const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => 
   return (
     <>
       <currentLastSeenMessageContext.Provider value={lastSeen}>
-        <MessageList messages={messagesArray} />
+        <MessageList messages={filteredMessages} />
       </currentLastSeenMessageContext.Provider>
       <ComposingMembersIndicator />
       <FilePreviewsList />

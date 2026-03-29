@@ -36,7 +36,7 @@ type InputProps = InputBaseProps & {
 const Input = styled(({ popupOpen, ...props }: InputProps) => <InputBase {...props} />)(({ theme, popupOpen }) => ({
   width,
   height: '46px',
-  borderRadius: '5px',
+  borderRadius: '12px',
   border: `1px solid ${popupOpen ? theme.palette.primary.dark : '#0056995C'}`,
   boxSizing: 'border-box',
   fontSize: '15px',

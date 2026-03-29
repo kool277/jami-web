@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ListItemButton, ListItemButtonProps, Stack } from '@mui/material'
+import { ListItemButton, ListItemButtonProps, Stack, useTheme } from '@mui/material'
 import { ReactNode } from 'react'
 
 type CustomListItemButtonProps = ListItemButtonProps & {
@@ -28,9 +28,20 @@ type CustomListItemButtonProps = ListItemButtonProps & {
 // plus 'primary' and 'secondary' props on ListItemText do not accept block elements such as div.
 // This component exists in order to keep consistency in lists nevertheless
 export const CustomListItemButton = ({ icon, primaryText, secondaryText, ...props }: CustomListItemButtonProps) => {
+  const theme = useTheme()
   return (
-    <ListItemButton alignItems="flex-start" sx={{ borderRadius: '12px', mx: '4px', py: '10px' }} {...props}>
-      <Stack direction="row" spacing="12px" sx={{ width: '100%' }}>
+    <ListItemButton
+      alignItems="center"
+      sx={{
+        borderRadius: '9999px',
+        mx: theme.Panel.padding,
+        py: theme.Panel.itemPadding,
+        pl: theme.Panel.padding,
+        pr: '12px',
+      }}
+      {...props}
+    >
+      <Stack direction="row" spacing={theme.Panel.padding} alignItems="center" sx={{ width: '100%' }}>
         {icon}
         <Stack justifyContent="center" sx={{ flex: 1, minWidth: 0 }}>
           {primaryText}

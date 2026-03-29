@@ -69,7 +69,7 @@ const ContextMenu = styled(({ items, ...props }: ContextMenuProps) => (
   </Menu>
 ))(() => ({
   '& .MuiPaper-root': {
-    borderRadius: '5px 20px 20px 20px',
+    borderRadius: '12px 20px 20px 20px',
     boxShadow: '3px 3px 7px #00000029',
   },
   '& .MuiMenu-list': {

@@ -40,7 +40,7 @@ const AvatarMouseOver = ({ contactUri, displayName }: AvatarMouseOverProps) => {
             zIndex: 999999,
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
             padding: '0.2em 0.4em',
-            borderRadius: '5px',
+            borderRadius: '12px',
             fontSize: '0.8em',
             whiteSpace: 'nowrap',
             overflow: 'hidden',

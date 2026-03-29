@@ -109,9 +109,8 @@ const SelectConversationListItem = ({
   )
 
   return (
-    <Box sx={{ margin: '4px' }}>
+    <Box>
       <CustomListItemButton
-        sx={{ borderRadius: '5px' }}
         selected={isSelected}
         onClick={onClick}
         icon={

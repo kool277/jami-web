@@ -128,8 +128,7 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   const darkColor = darken(messageColor, 0.3)
 
   const bubbleColor = isAccountMessage ? darkColor : theme.ChatInterface.messageColor
-  //const textColor = isAccountMessage ? getTextColor(darkColor) : '#adaaaa'
-  const textColor = '#adaaaa'
+  const textColor = theme.palette.text.secondary
 
   const callDuration = dayjs.duration(parseInt(message?.duration || ''))
   const text = getMessageCallText(isAccountMessage, message, i18n)
@@ -415,7 +414,7 @@ const MessageDataTransfer = memo(
           }
           return (
             <img
-              style={{ maxHeight: '250px', maxWidth: getMaxWidth(), borderRadius: '10px' }}
+              style={{ maxHeight: '250px', maxWidth: getMaxWidth(), borderRadius: '16px' }}
               src={preview}
               alt={message.displayName}
             />
@@ -447,7 +446,7 @@ const MessageDataTransfer = memo(
                 alignItems: 'center',
               }}
             >
-              <video style={{ maxWidth: getMaxWidth(), borderRadius: '10px' }} src={preview} controls />
+              <video style={{ maxWidth: getMaxWidth(), borderRadius: '16px' }} src={preview} controls />
             </Box>
           )
         default: // includes document
@@ -851,7 +850,7 @@ const UserMessageRow = memo(
             highlightReplyMessage(replyMessage.id)
           }}
         >
-          <Box sx={{ fontSize: '11px', color: 'grey', fontWeight: 'bolder', mt: 1, mr: 1.5, mb: 0 }}>
+          <Box sx={{ fontSize: '11px', color: 'text.secondary', fontWeight: 'bolder', mt: 1, mr: 1.5, mb: 0 }}>
             {t('replied_to') + ' ' + name}
           </Box>
           <Box data-cy="reply-message" sx={{ mb: '-16px', mr: 1.5 }}>
@@ -918,7 +917,7 @@ const UserMessageRow = memo(
                 <ConversationAvatar
                   contactUri={'uri' in author ? author.uri : ''}
                   displayName={authorName}
-                  sx={{ width: avatarSize, height: avatarSize, fontSize: '15px', marginLeft: '4px' }}
+                  sx={{ width: avatarSize, height: avatarSize, fontSize: '10px' }}
                 />
               )}
             </Box>
@@ -1245,8 +1244,8 @@ const Bubble = memo(
     hasReply,
   }: BubbleProps) => {
     const { t } = useTranslation()
-    const largeRadius = '12px'
-    const smallRadius = '5px'
+    const largeRadius = '20px'
+    const smallRadius = '8px'
     const theme = useTheme()
     const radius = useMemo(() => {
       if (position === 'start') {
@@ -1311,7 +1310,7 @@ const Bubble = memo(
     }
 
     const deletedMessageStyle = {
-      color: '#adaaaa',
+      color: theme.palette.text.disabled,
       fontStyle: 'italic',
       backgroundColor: darken(bubbleColor, 0.5),
     }

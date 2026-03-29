@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Modal } from '@mui/material'
+import { Box, Button, IconButton, Modal } from '@mui/material'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useState } from 'react'
 
@@ -59,17 +59,9 @@ const QrCodeModal = ({ account }: QrCodeProps) => {
 
   return (
     <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'center' }}>
-      <QrCodeIcon
-        onClick={handleOpen}
-        sx={{
-          height: '30px',
-          width: '30px',
-          borderRadius: '5px',
-          color: 'inherit',
-          padding: '2px',
-          ':hover': { cursor: 'pointer', backgroundColor: 'inherit' },
-        }}
-      />
+      <IconButton size="small" onClick={handleOpen} sx={{ color: 'inherit' }}>
+        <QrCodeIcon />
+      </IconButton>
       <Modal
         open={open}
         onClose={handleClose}
@@ -91,7 +83,7 @@ const QrCodeModal = ({ account }: QrCodeProps) => {
             </Button>
           </Box>
 
-          <QRCodeCanvas style={{ borderRadius: '5px' }} size={qrCodeSize} value={account.getUri()} />
+          <QRCodeCanvas style={{ borderRadius: '12px' }} size={qrCodeSize} value={account.getUri()} />
         </Box>
       </Modal>
     </div>
