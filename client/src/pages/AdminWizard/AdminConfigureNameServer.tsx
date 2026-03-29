@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Input, Switch, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Button, Switch, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { AdminWizardState, urlRegex } from 'jami-web-common'
 import { ChangeEvent, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -91,12 +91,12 @@ export default function AdminConfigureNameServer() {
 
   return (
     <UnconnectedUserLayout pageName={t('admin_page_setup_title')} message={t('configure_nameserver')}>
-      <Box sx={{ marginTop: isMobile ? '10%' : 'unset' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', mt: '-10%', mb: '2%' }}>
+      <Box>
+        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', mb: 2 }}>
           <Box
             sx={{
               textAlign: 'start',
-              marginTop: isMobile ? '30%' : '8%',
+              marginTop: isMobile ? '16px' : 0,
               display: 'flex',
               flexDirection: 'row',
               width: '100%',
@@ -109,14 +109,14 @@ export default function AdminConfigureNameServer() {
             <Box sx={{ textAlign: 'start', alignItems: 'start', textWrap: 'nowrap' }}>
               <Typography>{t('setting_name_server')}</Typography>
               <Form>
-                <Input value={nameServer} onChange={handleNameChangeNameServer} />
+                <TextField value={nameServer} onChange={handleNameChangeNameServer} size="small" />
               </Form>
             </Box>
           </Box>
         </Box>
         <Box
           sx={{
-            marginTop: isMobile ? '20%' : '10%',
+            marginTop: '16px',
             width: isMobile ? '90vw' : 'unset',
             display: 'flex',
             justifyContent: 'center',
@@ -125,7 +125,7 @@ export default function AdminConfigureNameServer() {
           <Typography sx={{ fontSize: 'smaller', maxWidth: '500px' }}>{t('setting_can_be_changed_later')}</Typography>
         </Box>
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '20%' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '24px' }}>
         <Button sx={{ visibility: 'hidden' }}>{t('previous')}</Button>
         <Button onClick={submitNewNameServer}>{t('next')}</Button>
       </Box>

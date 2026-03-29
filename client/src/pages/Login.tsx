@@ -118,8 +118,6 @@ function LoginForm() {
             flexDirection: 'row',
             color: 'black',
             justifyContent: 'center',
-            marginTop: isMobile ? '-25%' : '-50%',
-            marginBottom: '-80px',
           }}
         >
           <JamiWelcomeLogo logoWidth={jamiAuthLogoSize} logoHeight={jamiAuthLogoSize} />
@@ -141,18 +139,18 @@ function LoginForm() {
             value={username}
             onChange={handleUsername}
             tooltipTitle={t('login_form_username_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '56px' }}
+            sx={{ width: theme.typography.pxToRem(inputWidth) }}
           />
           <PasswordInput
             data-cy="password-input"
             value={password}
             onChange={handlePassword}
             tooltipTitle={t('login_form_password_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '-42px' }}
+            sx={{ width: theme.typography.pxToRem(inputWidth) }}
           />
           <FormControl
             sx={{
-              marginTop: '-36px',
+              marginTop: '16px',
               width: '100%',
               alignItems: 'center',
               justifyContent: 'space-between',
@@ -186,7 +184,7 @@ function LoginForm() {
               justifyContent: 'center',
               alignContent: 'center',
               alignItems: 'center',
-              marginTop: '-32px',
+              marginTop: '-16px',
               gap: '8px',
             }}
           >

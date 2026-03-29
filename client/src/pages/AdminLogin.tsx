@@ -15,14 +15,14 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import GroupAddRounded from '@mui/icons-material/GroupAddRounded'
-import { Box, Fab, Input, Typography, useMediaQuery } from '@mui/material'
+import { Box, Fab, TextField, Typography, useMediaQuery } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { AdminSettingSelection } from 'jami-web-common'
 import { FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate } from 'react-router-dom'
 
+import { GroupAddRoundedIcon as GroupAddRounded } from '../components/SvgIcon'
 import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
 import logoIcon from '../icons/jamiLogoIcon.svg'
 import { useLoginAdminMutation } from '../services/adminQueries'
@@ -58,7 +58,7 @@ export default function AdminLogin() {
   return (
     <>
       <UnconnectedUserLayout>
-        <Box sx={isMobile ? { ...titleStyle, marginTop: '-20%' } : { ...titleStyle, marginTop: '-40%' }}>
+        <Box sx={{ ...titleStyle }}>
           <img
             src={logoIcon}
             alt={t('app_name')}
@@ -68,21 +68,22 @@ export default function AdminLogin() {
             {t('admin_page_login_title')}
           </Typography>
         </Box>
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '10%' }}>
+        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mt: 2 }}>
           <Typography>{t('admin_page_login_subtitle')}</Typography>
         </Box>
-        <Box sx={isMobile ? { height: '60%' } : { marginTop: '20%' }}>
+        <Box sx={isMobile ? { height: '60%' } : { mt: 2 }}>
           <Box style={{ textAlign: 'center', marginTop: 10 }}>
             <div>
-              <Input
+              <TextField
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 name="password"
                 type="password"
-                placeholder={t('password_placeholder')}
+                label={t('password_placeholder')}
                 autoComplete="new-password"
                 required
                 disabled={isPending}
+                size="small"
               />
             </div>
           </Box>
@@ -96,7 +97,7 @@ export default function AdminLogin() {
         </Box>
         <Box
           sx={{
-            mt: theme.typography.pxToRem(100),
+            mt: theme.typography.pxToRem(32),
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'center',

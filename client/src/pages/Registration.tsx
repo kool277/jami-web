@@ -154,8 +154,6 @@ function RegistrationForm() {
             flexDirection: 'row',
             color: 'black',
             justifyContent: 'center',
-            marginTop: isMobile ? '-25%' : '-50%',
-            marginBottom: '-80px',
           }}
         >
           <JamiWelcomeLogo logoWidth={jamiAuthLogoSize} logoHeight={jamiAuthLogoSize} />
@@ -172,7 +170,7 @@ function RegistrationForm() {
             onChange={handleUsername}
             status={usernameStatus}
             tooltipTitle={t('registration_form_username_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '80px' }}
+            sx={{ width: theme.typography.pxToRem(inputWidth) }}
           />
 
           <PasswordInput
@@ -181,9 +179,9 @@ function RegistrationForm() {
             onChange={handlePassword}
             status={passwordStatus}
             tooltipTitle={t('registration_form_password_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth), marginTop: '-42px' }}
+            sx={{ width: theme.typography.pxToRem(inputWidth) }}
           />
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: isMobile ? '-3%' : '-5%' }}>
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
             <Button
               disabled={!usernameOk || !passwordOk}
               data-cy="register-button"

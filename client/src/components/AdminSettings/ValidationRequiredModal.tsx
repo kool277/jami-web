@@ -59,7 +59,7 @@ export default function ValidationRequiredModal({
           width: '350px',
           height: '350px',
           backgroundColor: theme.SettingsNeedPassword.backgroundColor,
-          borderRadius: '6px',
+          borderRadius: '16px',
           border: 'none',
         }}
       >

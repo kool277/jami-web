@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Input, Switch, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Button, Switch, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { AdminWizardState, urlRegex } from 'jami-web-common'
 import { ChangeEvent, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -90,12 +90,12 @@ export default function AdminConfigureJams() {
 
   return (
     <UnconnectedUserLayout pageName={t('admin_page_setup_title')} message={t('configure_jams_server')}>
-      <Box sx={{ marginTop: isMobile ? '10%' : 'unset' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', mt: '-10%', mb: '2%' }}>
+      <Box>
+        <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', mb: 2 }}>
           <Box
             sx={{
               textAlign: 'start',
-              marginTop: isMobile ? '15%' : '8%',
+              marginTop: isMobile ? '16px' : 0,
               display: 'flex',
               flexDirection: 'row',
               width: '100%',
@@ -108,17 +108,22 @@ export default function AdminConfigureJams() {
             <Box sx={{ textAlign: 'start', alignItems: 'start', textWrap: 'nowrap' }}>
               <Typography>Jams URL </Typography>
               <Form>
-                <Input value={jamsUrl} onChange={handleNameChangeJamsUrl} placeholder={t('enter_jams_server')} />
+                <TextField
+                  value={jamsUrl}
+                  onChange={handleNameChangeJamsUrl}
+                  label={t('enter_jams_server')}
+                  size="small"
+                />
               </Form>
             </Box>
           </Box>
         </Box>
 
-        <Box sx={{ marginTop: isMobile ? '20%' : '10%' }}>
+        <Box sx={{ marginTop: '16px' }}>
           <Typography sx={{ fontSize: 'smaller' }}>{t('setting_can_be_changed_later')}</Typography>
         </Box>
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '20%' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '24px' }}>
         <Button
           onClick={() => {
             submitNewJamsUrl()

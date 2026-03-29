@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Card, CardContent, Input, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Button, Card, CardContent, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { t } from 'i18next'
 import { DeviceAuthStateCode } from 'jami-web-common'
 import { useContext, useEffect, useState } from 'react'
@@ -153,7 +153,7 @@ export default function ImportAccountLock() {
                 {t('unlock_to_continue')}
               </Typography>
             </Box>
-            <Input onChange={onChangepassword}></Input>
+            <TextField onChange={onChangepassword} size="small" />
           </>
         )}
         <Button variant="contained" onClick={handleSubmit} disabled={hasPassword && password === ''}>

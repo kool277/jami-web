@@ -67,7 +67,7 @@ export default function PasswordRequiredModal({
           width: '400px',
           height: '450px',
           backgroundColor: theme.SettingsNeedPassword.backgroundColor,
-          borderRadius: '6px',
+          borderRadius: '16px',
           border: 'none',
         }}
       >

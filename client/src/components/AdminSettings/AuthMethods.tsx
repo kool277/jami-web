@@ -71,7 +71,7 @@ export default function AuthMethods() {
 
   const listItemStyle = {
     width: '100%',
-    borderRadius: '7px',
+    borderRadius: '12px',
     textAlign: 'center',
     ':hover': { cursor: 'pointer' },
   }

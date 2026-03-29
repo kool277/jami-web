@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Input } from '@mui/material'
+import { Box, Button, TextField } from '@mui/material'
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -72,7 +72,7 @@ export default function DownloadLimit() {
     <LayoutSettings title={t('download_limit')} text={t('download_limit_details')}>
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: '10px' }}>
         {' '}
-        <Input type="number" inputProps={{ min: '0' }} value={limit} onChange={handleLimitChange}></Input>
+        <TextField type="number" inputProps={{ min: '0' }} value={limit} onChange={handleLimitChange} size="small" />
         <Button variant="contained" onClick={onSave}>
           {t('save_button')}
         </Button>

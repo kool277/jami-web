@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Card, CardContent, CardHeader, Input, Typography } from '@mui/material'
+import { Box, Button, Card, CardContent, CardHeader, TextField, Typography } from '@mui/material'
 import { AddDeviceStateChanged, DeviceAuthError, DeviceAuthStateCode, WebSocketMessageType } from 'jami-web-common'
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -381,7 +381,7 @@ const EnterCode = ({ setCode }: EnterCodeProps) => {
                   marginTop: '100px',
                 }}
               >
-                <Input value={tmpCode} onChange={onCodeChange}></Input>
+                <TextField value={tmpCode} onChange={onCodeChange} size="small" />
                 <Button onClick={onConnect} variant="contained" color="primary">
                   {t('connect')}
                 </Button>
