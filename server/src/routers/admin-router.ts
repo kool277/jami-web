@@ -15,7 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import argon2 from 'argon2'
 import envPaths from 'env-paths'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
@@ -43,6 +42,7 @@ import { AdminAccount } from '../storage/admin-account.js'
 import { OpenIdProviders } from '../storage/openid-providers.js'
 import { isConfigValid } from '../utils/admin.js'
 import { signJwt } from '../utils/jwt.js'
+import { hashPassword, verifyPassword } from '../utils/password.js'
 
 const jamid = Container.get(Jamid)
 const adminAccount = Container.get(AdminAccount)
@@ -96,7 +96,7 @@ adminRouter.post(
       return
     }
 
-    const hashedPassword = await argon2.hash(password, { type: argon2.argon2id })
+    const hashedPassword = await hashPassword(password)
 
     adminAccount.setPasswordHash(hashedPassword)
     await adminAccount.save()
@@ -132,7 +132,7 @@ adminRouter.post(
       return
     }
 
-    const isPasswordVerified = await argon2.verify(hashedPassword, password)
+    const isPasswordVerified = await verifyPassword(hashedPassword, password)
     if (!isPasswordVerified) {
       res.status(HttpStatusCode.Unauthorized).send('Incorrect password')
       return
@@ -211,7 +211,7 @@ adminRouter.patch(
       return
     }
 
-    const isPasswordVerified = await argon2.verify(oldPasswordHash, oldPassword)
+    const isPasswordVerified = await verifyPassword(oldPasswordHash, oldPassword)
     if (!isPasswordVerified) {
       res.status(HttpStatusCode.Unauthorized).send('Incorrect password')
       return
@@ -223,7 +223,7 @@ adminRouter.patch(
     }
     if (newPassword) {
       try {
-        const hashedPassword = await argon2.hash(newPassword, { type: argon2.argon2id })
+        const hashedPassword = await hashPassword(newPassword)
         adminAccount.setPasswordHash(hashedPassword)
         await adminAccount.save()
         res.sendStatus(HttpStatusCode.Ok)

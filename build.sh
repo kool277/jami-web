@@ -9,8 +9,8 @@ git submodule update --init --recursive
 cd daemon
 mkdir build
 cd build
-cmake .. -DJAMI_NODEJS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
-make -j4
+cmake .. -DJAMI_NODEJS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON -GNinja
+ninja
 cd ..
 cd ..
 npm run pack-native --workspace=@savoirfairelinux/jami-core
@@ -47,7 +47,7 @@ cp server/tsconfig.tsbuildinfo jami-web-production/server
 cp client/tsconfig.tsbuildinfo jami-web-production/client
 cp common/tsconfig.tsbuildinfo jami-web-production/common
 
-cp -r server/scripts jami-web-production/server
+cp -r server/scripts jami-web-production/server 2>/dev/null || true
 cp server/.env jami-web-production/server
 
 cp install.sh jami-web-production

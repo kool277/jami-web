@@ -1,7 +1,20 @@
 {
   "name": "jami-web-server",
   "version": "1.0.0",
+  "description": "Jami Web server — provides the backend API and admin CLI for Jami Web",
   "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "main": "dist/index.js",
+  "bin": {
+    "jami-web": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "available_languages.json",
+    "openid-providers.json",
+    "openapi.yaml",
+    "locale"
+  ],
   "scripts": {
     "start": "tsc-watch --build --onSuccess \"node dist/index.js\"",
     "start:prod": "env NODE_ENV=production node dist/index.js",
@@ -11,8 +24,8 @@
     "lint:fix": "eslint --fix src",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
-    "prepare": "npm run genkeys",
-    "genkeys": "sh scripts/genkeys.sh"
+    "prepare": "npm run build && npm run genkeys",
+    "genkeys": "node dist/cli.js genkeys"
   },
   "dependencies": {
     "@savoirfairelinux/jami-core": "0.3.1",
@@ -42,7 +55,6 @@
     "@types/node": "^22.4.0",
     "@types/whatwg-url": "^11.0.5",
     "@types/ws": "^8.5.12",
-    "dotenv-cli": "^7.4.2",
     "tsc-watch": "^6.2.0",
     "typescript": "~5.5.4"
   }

@@ -15,7 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import argon2 from 'argon2'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import rateLimit from 'express-rate-limit'
@@ -32,6 +31,7 @@ import { OpenIdProviders } from '../storage/openid-providers.js'
 import { clearGuest, clearGuests } from '../utils/guests.js'
 import { signJwt, signJwtWithExpiration } from '../utils/jwt.js'
 import { exchangeCodeForToken, exchangeTokenForUserInfo, getBase64Picture, getJwt } from '../utils/openid.js'
+import { hashPassword, verifyPassword } from '../utils/password.js'
 
 const jamid = Container.get(Jamid)
 const accounts = Container.get(Accounts)
@@ -92,7 +92,7 @@ authRouter.post(
       return
     }
 
-    const hashedPassword = password ? await argon2.hash(password, { type: argon2.argon2id }) : ''
+    const hashedPassword = password ? await hashPassword(password) : ''
     const accountDetails: Partial<AccountDetails> = {
       // TODO: Enable encrypted archives
       // 'Account.archivePassword': password
@@ -210,7 +210,7 @@ authRouter.post(
           jamid.removeAccount(JAMSAccountId)
           res.status(HttpStatusCode.Unauthorized).send('Invalid JAMS credentials')
         } else {
-          const hashedPassword = await argon2.hash(password, { type: argon2.argon2id })
+          const hashedPassword = await hashPassword(password)
           try {
             accounts.set(username, hashedPassword, authMethod, JAMSAccountId)
             await accounts.save()
@@ -239,7 +239,7 @@ authRouter.post(
         return
       }
 
-      const isPasswordVerified = await argon2.verify(data.password, password)
+      const isPasswordVerified = await verifyPassword(data.password, password)
       if (!isPasswordVerified) {
         guard.setFailedLogin(JAMSAccountId)
         res.status(HttpStatusCode.Unauthorized).send('Incorrect password')
@@ -289,7 +289,7 @@ authRouter.post(
           .send('Password not found (the account does not have a password set on the server)')
         return
       }
-      const isPasswordVerified = await argon2.verify(hashedPassword, password)
+      const isPasswordVerified = await verifyPassword(hashedPassword, password)
       if (!isPasswordVerified) {
         guard.setFailedLogin(accountId)
         res.status(HttpStatusCode.Unauthorized).send('Incorrect password')
@@ -351,7 +351,7 @@ authRouter.post(
   asyncHandler(async (req, res) => {
     const accountId = req.body.accountId
     const password = req.body.password
-    const hashedPassword = await argon2.hash(password, { type: argon2.argon2id })
+    const hashedPassword = await hashPassword(password)
 
     const volatileDetails = jamid.getVolatileAccountDetails(accountId)
     const details = jamid.getAccountDetails(accountId)
