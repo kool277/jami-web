@@ -1,7 +1,8 @@
 {
   "name": "jami-web",
   "version": "1.0.0",
-  "main": "electron/dist/main.js",
+  "main": ".vite/build/main.js",
+  "type": "module",
   "workspaces": [
     "common",
     "daemon/bin/nodejs",
@@ -22,9 +23,9 @@
     "prepare": "if [ -e '.git' ]; then git config core.hooksPath .hooks; fi",
     "test": "npx cypress run  --project ./client",
     "electron:build": "npm run build && npx tsc --project electron/tsconfig.json",
-    "electron:start": "npm run electron:build && npx electron electron/dist/main.js",
-    "electron:pack": "npm run electron:build && npx electron-builder --dir",
-    "electron:dist": "npm run electron:build && npx electron-builder"
+    "electron:start": "npm run build && electron-forge start",
+    "electron:package": "npm run build && electron-forge package",
+    "electron:make": "npm run build && electron-forge make"
   },
   "lint-staged": {
     "**/*.{ts,tsx,js,jsx,cjs,html}": [
@@ -36,6 +37,14 @@
     ]
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.11.1",
+    "@electron-forge/core": "^7.11.1",
+    "@electron-forge/maker-deb": "^7.11.1",
+    "@electron-forge/maker-rpm": "^7.11.1",
+    "@electron-forge/maker-squirrel": "^7.11.1",
+    "@electron-forge/maker-zip": "^7.11.1",
+    "@electron-forge/plugin-vite": "^7.11.1",
+    "@electron-forge/shared-types": "^7.11.1",
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.9.0",
     "@playwright/test": "^1.58.2",
@@ -64,31 +73,7 @@
     "qr-scanner": "^1.4.2",
     "vcard4-ts": "^0.4.1"
   },
-  "build": {
-    "appId": "net.jami.web",
-    "productName": "Jami",
-    "files": [
-      "electron/dist/**/*",
-      "server/dist/**/*",
-      "server/available_languages.json",
-      "server/openid-providers.json",
-      "server/openapi.yaml",
-      "server/locale/**/*",
-      "client/dist/**/*",
-      "common/dist/**/*",
-      "node_modules/**/*"
-    ],
-    "mac": {
-      "target": "dmg"
-    },
-    "win": {
-      "target": "nsis"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "deb"
-      ]
-    }
+  "config": {
+    "forge": "forge.config.js"
   }
 }
