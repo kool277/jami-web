@@ -15,8 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { importPKCS8, importSPKI, KeyLike } from 'jose'
+
+import { generateKeyPair, importPKCS8, importSPKI, KeyLike } from 'jose'
 import { Service } from 'typedi'
+
+import { isElectronMode } from '../utils/electron.js'
 
 @Service()
 export class SigningKeys {
@@ -28,6 +31,13 @@ export class SigningKeys {
     const publicKey = process.env.PUBLIC_KEY
 
     if (privatekey === undefined || publicKey === undefined) {
+      if (isElectronMode) {
+        // Auto-generate keys in Electron mode
+        const keyPair = await generateKeyPair('EdDSA', { crv: 'Ed25519' })
+        this.privateKey = keyPair.privateKey
+        this.publicKey = keyPair.publicKey
+        return this
+      }
       throw new Error('Missing private or public key environment variables. Try running "npm run genkeys"')
     }
 

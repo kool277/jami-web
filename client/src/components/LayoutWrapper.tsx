@@ -22,6 +22,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider'
 import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
+import { isElectronMode } from '../utils/electron'
 import Footer from './Footer'
 import { ArrowBackIosNewIcon } from './SvgIcon'
 
@@ -41,6 +42,8 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
   const navigate = useNavigate()
   const isDark = theme.palette.mode === 'dark'
   const bgImage = isDark ? './admin/background_dark.jpg' : './admin/background.jpg'
+
+  const electron = isElectronMode()
 
   const sidebarStyles = {
     width: '300px',
@@ -138,6 +141,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
       sx={{
         height: '100vh',
         overflow: 'hidden',
+        ...(electron && { WebkitAppRegion: 'drag' }),
         backgroundImage: `url(${bgImage})`,
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
@@ -155,7 +159,9 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
         },
       }}
     >
-      <Box sx={isMobile ? sidebarStylesMobile : sidebarStyles}>
+      <Box
+        sx={{ ...(isMobile ? sidebarStylesMobile : sidebarStyles), ...(electron && { WebkitAppRegion: 'no-drag' }) }}
+      >
         <Box sx={{ overflow: 'hidden', flex: 1, minHeight: 0 }}>{sidebar}</Box>
         {!isAdminPanel && (
           <Box sx={footerStyles}>
@@ -164,7 +170,12 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
         )}
       </Box>
 
-      <Box sx={isMobile ? mainPanelStylesMobile : mainPanelStyles}>
+      <Box
+        sx={{
+          ...(isMobile ? mainPanelStylesMobile : mainPanelStyles),
+          ...(electron && { WebkitAppRegion: 'no-drag' }),
+        }}
+      >
         {!isConversationOpen && (
           <ArrowBackIosNewIcon
             sx={!isMenuOpen && isMobile ? { '&:hover': { cursor: 'pointer' }, margin: '16px' } : doNotDisplayStyles}

@@ -61,7 +61,7 @@ const ChatInterface = () => {
         width={isOpen && (isMobile || isMedium) ? '0px' : '100%'}
         overflow="hidden"
         {...getRootProps()}
-        paddingBottom="16px"
+        paddingBottom="6px"
         sx={{ position: 'relative' }}
       >
         <ConversationHeader />

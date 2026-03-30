@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
 import { useCheckAdminTokenValidity } from '../../services/adminQueries'
+import { isElectronMode } from '../../utils/electron'
 import LoadingPage from '../Loading'
 
 interface AdminAuthWrapperProps {
@@ -31,9 +32,14 @@ export default function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const navigate = useNavigate()
   const verifyAdminToken = useCheckAdminTokenValidity()
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(!isElectronMode())
 
   useEffect(() => {
+    // In Electron mode, admin auth is bypassed
+    if (isElectronMode()) {
+      return
+    }
+
     if (!localStorage.getItem('adminAccessToken')) {
       navigate('/admin/login')
       return

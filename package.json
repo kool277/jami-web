@@ -1,6 +1,7 @@
 {
   "name": "jami-web",
   "version": "1.0.0",
+  "main": "electron/dist/main.js",
   "workspaces": [
     "common",
     "daemon/bin/nodejs",
@@ -19,7 +20,11 @@
     "format": "npm run format --workspaces",
     "format:check": "npm run format:check --workspaces",
     "prepare": "if [ -e '.git' ]; then git config core.hooksPath .hooks; fi",
-    "test": "npx cypress run  --project ./client"
+    "test": "npx cypress run  --project ./client",
+    "electron:build": "npm run build && npx tsc --project electron/tsconfig.json",
+    "electron:start": "npm run electron:build && npx electron electron/dist/main.js",
+    "electron:pack": "npm run electron:build && npx electron-builder --dir",
+    "electron:dist": "npm run electron:build && npx electron-builder"
   },
   "lint-staged": {
     "**/*.{ts,tsx,js,jsx,cjs,html}": [
@@ -39,6 +44,8 @@
     "@typescript-eslint/eslint-plugin": "^8.24.0",
     "@typescript-eslint/parser": "^8.24.0",
     "concurrently": "^8.2.2",
+    "electron": "^41.1.0",
+    "electron-builder": "^26.8.1",
     "eslint": "^9.20.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-cypress": "^3.5.0",
@@ -56,5 +63,32 @@
     "multer": "^1.4.5-lts.1",
     "qr-scanner": "^1.4.2",
     "vcard4-ts": "^0.4.1"
+  },
+  "build": {
+    "appId": "net.jami.web",
+    "productName": "Jami",
+    "files": [
+      "electron/dist/**/*",
+      "server/dist/**/*",
+      "server/available_languages.json",
+      "server/openid-providers.json",
+      "server/openapi.yaml",
+      "server/locale/**/*",
+      "client/dist/**/*",
+      "common/dist/**/*",
+      "node_modules/**/*"
+    ],
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
   }
 }

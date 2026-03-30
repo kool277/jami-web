@@ -15,16 +15,20 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Card, IconButton, Menu, MenuItem, Stack, useMediaQuery, useTheme } from '@mui/material'
-import { MouseEvent, useState } from 'react'
+import { Box, Card, Divider, IconButton, Menu, MenuItem, Stack, useMediaQuery, useTheme } from '@mui/material'
+import axios from 'axios'
+import { MouseEvent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useAuthContext } from '../contexts/AuthProvider'
+import { setAccessToken } from '../services/authQueries'
 import { useContactProfilePicture } from '../services/contactQueries'
+import { apiUrl } from '../utils/constants'
+import { isElectronMode } from '../utils/electron'
 import ConversationAvatar from './ConversationAvatar'
 import QrCodeModal from './QrCodeModal'
-import { LogoutIcon, ManageAccountsIcon, QuestionAnswerIcon } from './SvgIcon'
+import { LogoutIcon, ManageAccountsIcon, PeopleIcon, QuestionAnswerIcon } from './SvgIcon'
 import { RoundCloseIcon, SettingsIcon } from './SvgIcon'
 //TODO:  remove 'settings-account' and 'settings' when migration is finished
 type NavigateURL =
@@ -39,16 +43,36 @@ export default function Footer() {
   const { logout } = useAuthContext()
   const { account } = useAuthContext()
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
+  const [localAccounts, setLocalAccounts] = useState<string[]>([])
   const navigate = useNavigate()
   const theme = useTheme()
   const profilePictureQuery = useContactProfilePicture(account.getUri())
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const electron = isElectronMode()
+
+  useEffect(() => {
+    if (!electron) return
+    axios.get<{ usernames: string[] }>('/auth/local-accounts', { baseURL: apiUrl }).then(({ data }) => {
+      setLocalAccounts(data.usernames)
+    })
+  }, [electron])
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget)
   const closeMenuAndNavigate = (navigateUrl?: NavigateURL) => {
     setAnchorEl(null)
     if (navigateUrl) {
       navigate(navigateUrl)
     }
+  }
+
+  const switchAccount = async (username: string) => {
+    setAnchorEl(null)
+    const { data } = await axios.post(
+      '/auth/login',
+      { username, password: '', authMethod: 'local' },
+      { baseURL: apiUrl },
+    )
+    setAccessToken(data.accessToken)
+    window.location.href = '/conversation'
   }
   const componentColor = theme.Footer.backgroundColor
 
@@ -157,6 +181,21 @@ export default function Footer() {
           }}
         >
           <div>
+            {electron && localAccounts.length > 1 && (
+              <>
+                {localAccounts
+                  .filter((username) => username !== account.getRegisteredName())
+                  .map((username) => (
+                    <MenuItem key={username} onClick={() => switchAccount(username)}>
+                      <div style={menuItemStyle}>
+                        <PeopleIcon sx={{ marginRight: '5%' }} />
+                        {username}
+                      </div>
+                    </MenuItem>
+                  ))}
+                <Divider />
+              </>
+            )}
             {currentUrl.split('/').pop() !== '' && (
               <>
                 <MenuItem onClick={() => closeMenuAndNavigate(`/`)}>

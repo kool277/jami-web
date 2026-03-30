@@ -43,6 +43,7 @@ import { useGetAdminConfigQuery } from '../services/adminQueries'
 import { useGetAllProviders, useLoginMutation } from '../services/authQueries'
 import { usePasskeyLoginMutation } from '../services/passkeyQueries'
 import { inputWidth, jamiAuthLogoSize, submitButtonWidth } from '../utils/constants'
+import { isElectronMode } from '../utils/electron'
 
 function LoginForm() {
   const currentUrl = window.location.href
@@ -109,7 +110,8 @@ function LoginForm() {
       setAlertContent({ messageI18nKey: 'username_input_helper_text_empty', severity: 'error', alertOpen: true })
       return
     }
-    if (password === '') {
+    // In Electron mode, local accounts don't require a password
+    if (password === '' && !(isElectronMode() && authMethod === 'local')) {
       setAlertContent({ messageI18nKey: 'password_input_helper_text_empty', severity: 'error', alertOpen: true })
       return
     }
@@ -157,13 +159,16 @@ function LoginForm() {
             tooltipTitle={t('login_form_username_tooltip')}
             sx={{ width: theme.typography.pxToRem(inputWidth) }}
           />
-          <PasswordInput
-            data-cy="password-input"
-            value={password}
-            onChange={handlePassword}
-            tooltipTitle={t('login_form_password_tooltip')}
-            sx={{ width: theme.typography.pxToRem(inputWidth) }}
-          />
+          {/* In Electron mode, local accounts don't require a password */}
+          {!(isElectronMode() && authMethod === 'local') && (
+            <PasswordInput
+              data-cy="password-input"
+              value={password}
+              onChange={handlePassword}
+              tooltipTitle={t('login_form_password_tooltip')}
+              sx={{ width: theme.typography.pxToRem(inputWidth) }}
+            />
+          )}
           <FormControl
             sx={{
               marginTop: '16px',
@@ -222,7 +227,10 @@ function LoginForm() {
                 type="submit"
                 onClick={login}
                 sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
-                disabled={authMethod !== AuthenticationMethods.GUEST && (username === '' || password === '')}
+                disabled={
+                  authMethod !== AuthenticationMethods.GUEST &&
+                  (username === '' || (password === '' && !(isElectronMode() && authMethod === 'local')))
+                }
               >
                 {t('login_form_submit_button')}
               </Button>

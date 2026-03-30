@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 'use strict'
+import 'material-symbols/outlined.css'
 import './index.scss'
 import './i18n'
 

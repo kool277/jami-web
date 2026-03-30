@@ -28,6 +28,7 @@ import { LoginGuard } from '../services/LoginGuard.js'
 import { Accounts } from '../storage/accounts.js'
 import { AdminAccount } from '../storage/admin-account.js'
 import { OpenIdProviders } from '../storage/openid-providers.js'
+import { isElectronMode } from '../utils/electron.js'
 import { clearGuest, clearGuests } from '../utils/guests.js'
 import { signJwt, signJwtWithExpiration } from '../utils/jwt.js'
 import { exchangeCodeForToken, exchangeTokenForUserInfo, getBase64Picture, getJwt } from '../utils/openid.js'
@@ -60,6 +61,18 @@ function clearPendingAccounts() {
 clearGuests()
 
 const MIN_PASSWORD_LENGTH = 8
+
+// In Electron mode, expose local account usernames for auto-login
+if (isElectronMode) {
+  authRouter.get(
+    '/local-accounts',
+    asyncHandler(async (_req, res) => {
+      const allAccounts = accounts.getAll()
+      const localUsernames = Object.keys(allAccounts.local)
+      res.json({ usernames: localUsernames })
+    }),
+  )
+}
 
 const newAccountLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -175,7 +188,7 @@ authRouter.post(
       return
     }
 
-    if (username === undefined || password === undefined) {
+    if (username === undefined || (password === undefined && !(isElectronMode && authMethod === 'local'))) {
       res.status(HttpStatusCode.BadRequest).send('Missing username or password in body')
       return
     }
@@ -210,7 +223,7 @@ authRouter.post(
           jamid.removeAccount(JAMSAccountId)
           res.status(HttpStatusCode.Unauthorized).send('Invalid JAMS credentials')
         } else {
-          const hashedPassword = await hashPassword(password)
+          const hashedPassword = await hashPassword(password!)
           try {
             accounts.set(username, hashedPassword, authMethod, JAMSAccountId)
             await accounts.save()
@@ -239,7 +252,7 @@ authRouter.post(
         return
       }
 
-      const isPasswordVerified = await verifyPassword(data.password, password)
+      const isPasswordVerified = await verifyPassword(data.password, password!)
       if (!isPasswordVerified) {
         guard.setFailedLogin(JAMSAccountId)
         res.status(HttpStatusCode.Unauthorized).send('Incorrect password')
@@ -276,6 +289,14 @@ authRouter.post(
         return
       }
 
+      // In Electron mode, local accounts can be accessed without a password
+      if (isElectronMode) {
+        const jwt = await signJwt(accountId)
+        guard.resetAttempts(accountId)
+        res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
+        return
+      }
+
       if (!('password' in data)) {
         res.status(HttpStatusCode.NotFound).send('Password not found')
         return
@@ -289,7 +310,7 @@ authRouter.post(
           .send('Password not found (the account does not have a password set on the server)')
         return
       }
-      const isPasswordVerified = await verifyPassword(hashedPassword, password)
+      const isPasswordVerified = await verifyPassword(hashedPassword, password!)
       if (!isPasswordVerified) {
         guard.setFailedLogin(accountId)
         res.status(HttpStatusCode.Unauthorized).send('Incorrect password')

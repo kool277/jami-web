@@ -17,19 +17,57 @@
  */
 import './dayjsInitializer' // Initialized once and globally to ensure available locales are always imported
 
+import axios from 'axios'
 import { AdminWizardState } from 'jami-web-common'
 import { useState } from 'react'
 import { json, LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
 
 import WelcomeAnimation from './components/WelcomeAnimation'
 import { checkAdminSetupStatus, checkWizardStatus } from './services/adminQueries'
-import { getAccessToken } from './services/authQueries'
+import { getAccessToken, setAccessToken } from './services/authQueries'
+import { apiUrl } from './utils/constants'
+import { setElectronMode } from './utils/electron'
 
 export async function appLoader({ request }: LoaderFunctionArgs) {
   const initialUrl = new URL(request.url)
-  const isSetupComplete = await checkAdminSetupStatus()
-  const lastWizardState = await checkWizardStatus()
+  const { isSetupComplete, electronMode } = await checkAdminSetupStatus()
+  setElectronMode(electronMode ?? false)
+
   const path = initialUrl.pathname
+
+  // In Electron mode, admin setup is bypassed and auto-login is attempted
+  if (electronMode) {
+    // If user is navigating to admin panel, let them through
+    if (path.startsWith('/admin')) {
+      return json({ isSetupComplete: true }, { status: 200 })
+    }
+
+    // If already authenticated, proceed normally
+    if (getAccessToken()) {
+      return json({ isSetupComplete: true }, { status: 200 })
+    }
+
+    // Try auto-login: fetch local accounts and login to the first one
+    try {
+      const { data } = await axios.get<{ usernames: string[] }>('/auth/local-accounts', { baseURL: apiUrl })
+      if (data.usernames.length === 1) {
+        const { data: loginData } = await axios.post(
+          '/auth/login',
+          { username: data.usernames[0], password: '', authMethod: 'local' },
+          { baseURL: apiUrl },
+        )
+        setAccessToken(loginData.accessToken)
+        return redirect('/conversation')
+      }
+      // Multiple accounts or no accounts: let the user pick or register
+    } catch {
+      // Auto-login failed, fall through to normal routing
+    }
+
+    return json({ isSetupComplete: true }, { status: 200 })
+  }
+
+  const lastWizardState = await checkWizardStatus()
 
   if (
     lastWizardState !== undefined &&
@@ -61,7 +99,11 @@ const App = () => {
     return <WelcomeAnimation onComplete={() => setDisplayWelcome(false)} />
   }
 
-  return <Outlet />
+  return (
+    <>
+      <Outlet />
+    </>
+  )
 }
 
 export default App

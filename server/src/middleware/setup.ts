@@ -20,10 +20,16 @@ import { HttpStatusCode } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { AdminAccount } from '../storage/admin-account.js'
+import { isElectronMode } from '../utils/electron.js'
 
 const adminAccount = Container.get(AdminAccount)
 
 export async function checkAdminSetup(_req: Request, res: Response, next: NextFunction) {
+  if (isElectronMode) {
+    next()
+    return
+  }
+
   const isSetupComplete = adminAccount.getPasswordHash() !== undefined
 
   if (!isSetupComplete) {

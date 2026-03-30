@@ -116,10 +116,13 @@ export const useLoginAdminMutation = () => {
 // use for the password
 export const checkAdminSetupStatus = async () => {
   try {
-    const { data } = await axios.get<{ isSetupComplete: boolean }>('/admin/check', { baseURL: apiUrl })
-    return data.isSetupComplete
+    const { data } = await axios.get<{ isSetupComplete: boolean; electronMode?: boolean }>('/admin/check', {
+      baseURL: apiUrl,
+    })
+    return data
   } catch (e) {
     console.log(e)
+    return { isSetupComplete: false, electronMode: false }
   }
 }
 

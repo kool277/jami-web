@@ -73,7 +73,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   // --- Admin routes ---
 
   api.get('/admin/check', (_req, res) => {
-    res.json({ isSetupComplete: state.isSetupComplete })
+    res.json({ isSetupComplete: state.isSetupComplete, electronMode: false })
   })
 
   api.get('/admin/adminWizardState', (_req, res) => {

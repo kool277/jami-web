@@ -52,6 +52,7 @@ import { OpenIdProviders } from '../storage/openid-providers.js'
 import { PasskeyStore } from '../storage/passkey-store.js'
 import { isConfigValid } from '../utils/admin.js'
 import { ChallengeStore } from '../utils/challenge-store.js'
+import { isElectronMode } from '../utils/electron.js'
 import { signJwt } from '../utils/jwt.js'
 import { hashPassword, verifyPassword } from '../utils/password.js'
 
@@ -77,11 +78,15 @@ if (!fs.existsSync(multerPath)) {
 }
 
 adminRouter.get('/check', (_req, res) => {
-  const isSetupComplete = adminAccount.getPasswordHash() !== undefined
-  res.send({ isSetupComplete })
+  const isSetupComplete = isElectronMode || adminAccount.getPasswordHash() !== undefined
+  res.send({ isSetupComplete, electronMode: isElectronMode })
 })
 
 adminRouter.get('/adminWizardState', (_req, res) => {
+  if (isElectronMode) {
+    res.send({ lastWizardState: AdminWizardState.complete })
+    return
+  }
   const lastWizardState = adminAccount.getLastWizardState()
   res.send({ lastWizardState })
 })
@@ -268,7 +273,7 @@ adminRouter.get(
 
     const config = adminAccount.getConfig()
     if (config !== undefined) {
-      res.status(HttpStatusCode.Ok).send(config)
+      res.status(HttpStatusCode.Ok).send({ ...config, electronMode: isElectronMode })
       return
     }
     res.sendStatus(HttpStatusCode.InternalServerError)

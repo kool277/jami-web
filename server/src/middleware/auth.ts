@@ -21,6 +21,7 @@ import { Container } from 'typedi'
 
 import { Accounts } from '../storage/accounts.js'
 import { ApiTokenStore } from '../storage/api-tokens.js'
+import { isElectronMode } from '../utils/electron.js'
 import { verifyJwt } from '../utils/jwt.js'
 
 const accounts = Container.get(Accounts)
@@ -83,6 +84,11 @@ export const authenticateToken = createAuthenticationMiddleware(true)
 export const authenticateOptionalToken = createAuthenticationMiddleware(false)
 
 export const adminAuthenticationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+  if (isElectronMode) {
+    next()
+    return
+  }
+
   const authorizationHeader = req.headers.authorization
   if (!authorizationHeader) {
     res.sendStatus(HttpStatusCode.Unauthorized)
