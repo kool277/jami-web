@@ -17,7 +17,7 @@
  */
 import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { alpha, darken, lighten } from '@mui/material/styles'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider'
@@ -133,7 +133,21 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
 
   const isConversationOpen = location.pathname.startsWith('/conversation') && !isMenuOpen
 
-  const tintOverlay = tintColor ? (isDark ? darken(tintColor, 0.85) : lighten(tintColor, 0.85)) : null
+  // Keep the last non-null tint color rendered so opacity can fade out
+  // while the color is still painted, then smoothly fade back in.
+  const [renderedColor, setRenderedColor] = useState<string | null>(null)
+  useEffect(() => {
+    if (tintColor) {
+      setRenderedColor(tintColor)
+    }
+  }, [tintColor])
+
+  const overlayBg = renderedColor
+    ? isDark
+      ? darken(renderedColor, 0.85)
+      : lighten(renderedColor, 0.85)
+    : 'transparent'
+  const overlayVisible = tintColor !== null
 
   return (
     <Box
@@ -142,23 +156,40 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
         height: '100vh',
         overflow: 'hidden',
         ...(electron && { WebkitAppRegion: 'drag' }),
-        backgroundImage: `url(${bgImage})`,
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
         position: 'relative',
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          inset: 0,
-          background: tintOverlay ?? 'transparent',
-          opacity: tintOverlay ? 1 : 0,
-          transition: 'opacity 0.6s ease-in-out',
-          pointerEvents: 'none',
-          zIndex: 0,
-        },
       }}
     >
+      {/* Background image layer — blurred with a dark/light scrim */}
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: '-20px',
+          backgroundImage: `url(${bgImage})`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
+          filter: 'blur(16px)',
+          zIndex: 0,
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            background: isDark ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.35)',
+          },
+        }}
+      />
+      {/* Tint color overlay — fades in/out via opacity */}
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          background: overlayBg,
+          opacity: overlayVisible ? 1 : 0,
+          transition: 'opacity 0.6s ease-in-out, background 0.6s ease-in-out',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
       <Box
         sx={{ ...(isMobile ? sidebarStylesMobile : sidebarStyles), ...(electron && { WebkitAppRegion: 'no-drag' }) }}
       >

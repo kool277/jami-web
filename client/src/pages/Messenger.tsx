@@ -15,17 +15,16 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ReactNode } from 'react'
+import { Outlet } from 'react-router-dom'
 
 import ConversationList from '../components/ConversationList'
 import LayoutWrapper from '../components/LayoutWrapper'
-import WelcomePage from '../components/WelcomePage'
 import { AppBackgroundProvider } from '../contexts/AppBackgroundProvider'
 
-const Messenger = ({ children }: { children?: ReactNode }) => {
+const Messenger = () => {
   return (
     <AppBackgroundProvider>
-      <LayoutWrapper sidebar={<ConversationList />} main={children !== undefined ? children : <WelcomePage />} />
+      <LayoutWrapper sidebar={<ConversationList />} main={<Outlet />} />
     </AppBackgroundProvider>
   )
 }

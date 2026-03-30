@@ -36,6 +36,7 @@ import ConversationView from './components/ConversationView'
 import LayoutWrapper from './components/LayoutWrapper'
 import NotificationHandler from './components/NotificationHandler'
 import UserSettingsSelection from './components/UserSettingsSelection'
+import WelcomePage from './components/WelcomePage'
 import ActionMessageProvider from './contexts/ActionMessageProvider'
 import AuthProvider from './contexts/AuthProvider'
 import CallManagerProvider from './contexts/CallManagerProvider'
@@ -67,6 +68,7 @@ import ImportAccountTransferInProgress from './pages/LinkExistingDevice/ImportAc
 import Login from './pages/Login'
 import Messenger from './pages/Messenger'
 import Registration from './pages/Registration'
+
 export type ConversationRouteParams = RouteParams<{ conversationId?: string }, Record<string, never>>
 
 export const router = createBrowserRouter(
@@ -167,22 +169,22 @@ export const router = createBrowserRouter(
               </MessengerProvider>
             }
           >
-            <Route index element={<Messenger />} />
-            <Route path="conversation" element={<Messenger />} />
-            <Route
-              path="conversation/:conversationId"
-              element={
-                <ActionMessageProvider>
-                  <Messenger>
+            <Route element={<Messenger />}>
+              <Route index element={<WelcomePage />} />
+              <Route path="conversation" element={<WelcomePage />} />
+              <Route
+                path="conversation/:conversationId"
+                element={
+                  <ActionMessageProvider>
                     <ConversationProvider>
                       <NotificationHandler>
                         <ConversationView />
                       </NotificationHandler>
                     </ConversationProvider>
-                  </Messenger>
-                </ActionMessageProvider>
-              }
-            />
+                  </ActionMessageProvider>
+                }
+              />
+            </Route>
           </Route>
           <Route
             element={
