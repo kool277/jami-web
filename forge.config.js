@@ -145,14 +145,14 @@ export default {
 
       // ── 1. Production node_modules ─────────────────────────────────────
       // Use npm ls to get the complete transitive production dep list for
-      // the server and common workspaces, then copy each package from the
-      // monorepo root node_modules into the packaged app.
+      // the root, server and common workspaces, then copy each package
+      // from the monorepo root node_modules into the packaged app.
       const nmSrc = path.join(PROJECT_ROOT, 'node_modules')
       const nmDest = path.join(buildPath, 'node_modules')
       mkdirSync(nmDest, { recursive: true })
 
       const lsOutput = execSync(
-        'npm ls --workspace=jami-web-server --workspace=jami-web-common --all --omit=dev --parseable 2>/dev/null || true',
+        'npm ls --include-workspace-root --workspace=jami-web-server --workspace=jami-web-common --all --omit=dev --parseable 2>/dev/null || true',
         { cwd: PROJECT_ROOT, encoding: 'utf8' },
       )
       const prodPkgs = new Set()
