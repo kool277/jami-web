@@ -39,6 +39,7 @@ export default {
     prune: false,
     name: 'Jami',
     appBundleId: 'net.jami.web',
+    icon: 'electron/icons/jami',
     // Use a function-based ignore so the Forge Vite plugin's auto-ignore
     // is bypassed.  We keep .vite/ and package.json; node_modules is
     // rebuilt from scratch by the hook so we exclude the source copy.
