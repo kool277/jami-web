@@ -129,12 +129,12 @@ export default function WelcomePage() {
 
   const middleBoxStyle = {
     backgroundColor: theme.WelcomePage.middleBoxBackgroundColor,
-    padding: '0.4%',
+    padding: '6px 14px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-evenly',
     color: theme.WelcomePage.iconsColor,
-    height: '30px',
+    boxSizing: 'border-box',
   }
 
   const getAmountOfBox = () => {
@@ -188,20 +188,17 @@ export default function WelcomePage() {
                 maxWidth: isMedium ? '220px' : 'unset',
                 width: 'auto',
               }}
-              borderRadius={'5px 2px 2px 5px'}
+              borderRadius={'18px 2px 2px 18px'}
             >
               <JamiIdIcon sx={{ marginBottom: '-4px', marginRight: '5px' }} />
               <Box maxWidth={isMedium ? '170px' : 'unset'} sx={{ mb: '2px' }}>
                 <EllipsisMiddle text={displayedInfo} centerItem={true} padding="6px" />
               </Box>
             </Box>
-            <Box sx={{ ...middleBoxStyle, gap: '8px', width: '65px' }} borderRadius={'2px 5px 5px 2px'} width={'6%'}>
+            <Box sx={{ ...middleBoxStyle, gap: '10px' }} borderRadius={'2px 18px 18px 2px'}>
               <Tooltip title={t('copy_to_clipboard')}>
-                <span style={{ width: '20px', height: '20px' }}>
-                  <TwoSheetsIcon
-                    sx={{ width: '20px', height: '20px', '&:hover': { cursor: 'pointer' }, pl: '4px' }}
-                    onClick={handleCopy}
-                  />
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <TwoSheetsIcon sx={{ fontSize: '20px', '&:hover': { cursor: 'pointer' } }} onClick={handleCopy} />
                 </span>
               </Tooltip>
               <Tooltip
@@ -213,11 +210,8 @@ export default function WelcomePage() {
                       : t('welcome_page_view_registered_name')
                 }
               >
-                <span style={{ width: '20px', height: '20px' }}>
-                  <InfoIcon
-                    sx={{ width: '20px', height: '20px', '&:hover': { cursor: 'pointer' }, pr: '4px' }}
-                    onClick={handleMoreInfo}
-                  />
+                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <InfoIcon sx={{ fontSize: '20px', '&:hover': { cursor: 'pointer' } }} onClick={handleMoreInfo} />
                 </span>
               </Tooltip>
             </Box>
