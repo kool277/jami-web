@@ -60,10 +60,12 @@ export default {
   rebuildConfig: {},
 
   makers: [
-    // macOS: ZIP archive (universal distributable)
+    // macOS: DMG installer
     {
-      name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
+      name: '@electron-forge/maker-dmg',
+      config: {
+        format: 'ULFO',
+      },
     },
     // Windows: Squirrel installer
     {
