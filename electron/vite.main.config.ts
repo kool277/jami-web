@@ -26,9 +26,18 @@
  */
 import { defineConfig } from 'vite'
 
+// The Forge Vite plugin builds the main process as CJS by default.
+// Override to ESM so it matches the "type": "module" in package.json.
 export default defineConfig({
+  build: {
+    lib: {
+      // Must match the `entry` declared in forge.config.js.
+      entry: 'electron/main.ts',
+      formats: ['es'],
+      fileName: () => '[name].js',
+    },
+  },
   resolve: {
-    // Main process never uses browser field — resolve Node/CJS paths.
     browserField: false,
     mainFields: ['module', 'jsnext:main', 'jsnext'],
     conditions: ['node'],

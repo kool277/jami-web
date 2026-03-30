@@ -24,4 +24,16 @@
  */
 import { defineConfig } from 'vite'
 
-export default defineConfig({})
+// The Forge Vite plugin builds preload scripts as CJS by default.
+// Override to ESM (supported since Electron 28) to match "type": "module".
+// Also disable inlineDynamicImports which is incompatible with ESM format.
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        format: 'es',
+        inlineDynamicImports: false,
+      },
+    },
+  },
+})
