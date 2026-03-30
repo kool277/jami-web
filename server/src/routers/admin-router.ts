@@ -15,6 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { randomUUID } from 'node:crypto'
+
 import {
   generateAuthenticationOptions,
   generateRegistrationOptions,
@@ -187,8 +189,9 @@ adminRouter.post(
       userVerification: 'preferred',
       allowCredentials,
     })
-    adminAuthenticationChallenges.set('admin', options.challenge)
-    res.json(options)
+    const challengeKey = randomUUID()
+    adminAuthenticationChallenges.set(challengeKey, options.challenge)
+    res.json({ ...options, challengeKey })
   }),
 )
 
@@ -196,12 +199,12 @@ adminRouter.post(
   '/passkey/login/verify',
   loginlimiter,
   asyncHandler(async (req, res) => {
-    const { credential } = req.body
-    if (!credential) {
-      res.status(HttpStatusCode.BadRequest).send('Missing credential')
+    const { credential, challengeKey } = req.body
+    if (!credential || !challengeKey) {
+      res.status(HttpStatusCode.BadRequest).send('Missing credential or challengeKey')
       return
     }
-    const expectedChallenge = adminAuthenticationChallenges.consume('admin')
+    const expectedChallenge = adminAuthenticationChallenges.consume(challengeKey)
     if (!expectedChallenge) {
       res.status(HttpStatusCode.BadRequest).send('No pending authentication challenge')
       return
@@ -313,7 +316,8 @@ adminRouter.post(
     }
     const { rpId, origin } = getAdminRpConfig(req)
     const { body } = req
-    const name = typeof body.name === 'string' && body.name.trim() ? body.name.trim() : 'Passkey'
+    const rawName = typeof body.name === 'string' ? body.name.trim().slice(0, 64) : ''
+    const name = rawName || 'Passkey'
     let verification
     try {
       verification = await verifyRegistrationResponse({

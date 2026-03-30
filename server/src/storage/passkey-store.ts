@@ -99,6 +99,6 @@ export class PasskeyStore {
   }
 
   async save(): Promise<void> {
-    await writeFile(this.filename, JSON.stringify(this.data, null, 2) + '\n')
+    await writeFile(this.filename, JSON.stringify(this.data, null, 2) + '\n', { mode: 0o600 })
   }
 }

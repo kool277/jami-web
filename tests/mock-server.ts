@@ -34,6 +34,8 @@ interface MockServerState {
     jamsUrl?: string
   }
   users: Record<string, { password: string; accountId: string }>
+  adminPasskeys: { credentialId: string; name: string; createdAt: string }[]
+  userPasskeys: Record<string, { credentialId: string; name: string; createdAt: string }[]>
 }
 
 const defaultState: MockServerState = {
@@ -48,6 +50,8 @@ const defaultState: MockServerState = {
     uploadPath: '/tmp/jami-uploads',
   },
   users: {},
+  adminPasskeys: [],
+  userPasskeys: {},
 }
 
 export function createMockServer(initialState: Partial<MockServerState> = {}): {
@@ -128,9 +132,92 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.sendStatus(200)
   })
 
-  // Admin passkey availability (always false in mock — no real WebAuthn)
+  // Admin passkey availability
   api.get('/admin/passkey/available', (_req, res) => {
-    res.json({ available: false })
+    res.json({ available: state.adminPasskeys.length > 0 })
+  })
+
+  // Admin passkey login/options — returns mock options (WebAuthn ceremony can't run in mock)
+  api.post('/admin/passkey/login/options', (_req, res) => {
+    if (state.adminPasskeys.length === 0) {
+      res.status(404).send('No passkeys registered for admin')
+      return
+    }
+    res.json({
+      challenge: 'mock-admin-challenge',
+      challengeKey: 'mock-admin-challenge-key',
+      rpId: 'localhost',
+      allowCredentials: state.adminPasskeys.map((pk) => ({ id: pk.credentialId })),
+    })
+  })
+
+  // Admin passkey login/verify — always fails in mock (no real WebAuthn)
+  api.post('/admin/passkey/login/verify', (_req, res) => {
+    res.status(401).send('WebAuthn not available in mock')
+  })
+
+  // Admin passkey credentials (authenticated)
+  api.get('/admin/passkey/credentials', (_req, res) => {
+    res.json(state.adminPasskeys)
+  })
+
+  // Admin passkey register/options
+  api.post('/admin/passkey/register/options', (_req, res) => {
+    res.json({ challenge: 'mock-reg-challenge', rpId: 'localhost', rp: { name: 'Jami Web' } })
+  })
+
+  // Admin passkey register/verify — always fails in mock
+  api.post('/admin/passkey/register/verify', (_req, res) => {
+    res.status(400).send('WebAuthn not available in mock')
+  })
+
+  // Admin passkey delete
+  api.delete('/admin/passkey/credentials/:credentialId', (req, res) => {
+    const idx = state.adminPasskeys.findIndex((pk) => pk.credentialId === req.params.credentialId)
+    if (idx === -1) {
+      res.status(404).send('Credential not found')
+      return
+    }
+    state.adminPasskeys.splice(idx, 1)
+    res.sendStatus(204)
+  })
+
+  // --- User passkey endpoints ---
+
+  // User passkey login/options
+  api.post('/passkey/login/options', (_req, res) => {
+    res.json({
+      challenge: 'mock-user-challenge',
+      challengeKey: 'mock-user-challenge-key',
+      rpId: 'localhost',
+      allowCredentials: [],
+    })
+  })
+
+  // User passkey login/verify — always fails in mock
+  api.post('/passkey/login/verify', (_req, res) => {
+    res.status(401).send('WebAuthn not available in mock')
+  })
+
+  // User passkey credentials (authenticated)
+  api.get('/passkey/credentials', (_req, res) => {
+    const userPasskeys = state.userPasskeys['testuser'] ?? []
+    res.json(userPasskeys)
+  })
+
+  // User passkey register/options
+  api.post('/passkey/register/options', (_req, res) => {
+    res.json({ challenge: 'mock-reg-challenge', rpId: 'localhost', rp: { name: 'Jami Web' } })
+  })
+
+  // User passkey register/verify — always fails in mock
+  api.post('/passkey/register/verify', (_req, res) => {
+    res.status(400).send('WebAuthn not available in mock')
+  })
+
+  // User passkey delete
+  api.delete('/passkey/credentials/:credentialId', (_req, res) => {
+    res.sendStatus(204)
   })
 
   api.get('/admin/nameserver', (_req, res) => {
@@ -289,8 +376,13 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
 
   // --- Test helper: reset state ---
   app.post('/__reset', (_req, res) => {
-    Object.assign(state, { ...defaultState, ...initialState })
+    // Deep copy state to avoid shared references with defaultState
+    const merged = { ...defaultState, ...initialState }
+    Object.assign(state, merged)
+    state.config = { ...defaultState.config, ...initialState.config }
     state.users = {}
+    state.adminPasskeys = []
+    state.userPasskeys = {}
     res.sendStatus(200)
   })
 
@@ -513,6 +605,17 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
       }
     }
     res.json({ sent: wsClients.size })
+  })
+
+  // --- Test helper: add a mock admin passkey ---
+  app.post('/__add-admin-passkey', (req, res) => {
+    const { credentialId, name } = req.body
+    state.adminPasskeys.push({
+      credentialId: credentialId || 'mock-cred-' + Date.now(),
+      name: name || 'Test Passkey',
+      createdAt: new Date().toISOString(),
+    })
+    res.sendStatus(200)
   })
 
   // --- Catch-all for unimplemented routes ---

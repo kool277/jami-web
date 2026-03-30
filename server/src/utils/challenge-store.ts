@@ -23,9 +23,13 @@
 export class ChallengeStore {
   private challenges = new Map<string, { challenge: string; expiresAt: number }>()
   private readonly ttlMs: number
+  private cleanupTimer: ReturnType<typeof setInterval> | undefined
 
   constructor(ttlMs = 5 * 60 * 1000) {
     this.ttlMs = ttlMs
+    // Periodically purge expired entries to prevent memory leaks
+    this.cleanupTimer = setInterval(() => this.cleanup(), ttlMs)
+    this.cleanupTimer.unref() // Don't prevent Node.js from exiting
   }
 
   set(key: string, challenge: string): void {
@@ -38,5 +42,12 @@ export class ChallengeStore {
     if (!entry) return undefined
     if (Date.now() > entry.expiresAt) return undefined
     return entry.challenge
+  }
+
+  private cleanup(): void {
+    const now = Date.now()
+    for (const [key, entry] of this.challenges) {
+      if (now > entry.expiresAt) this.challenges.delete(key)
+    }
   }
 }

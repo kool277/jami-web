@@ -700,9 +700,14 @@ export const useAdminPasskeyLoginMutation = () => {
   return useMutation({
     mutationKey: ['admin', 'passkey', 'login'],
     mutationFn: async () => {
-      const { data: optionsJSON } = await axios.post('/admin/passkey/login/options', {}, { baseURL: apiUrl })
+      const { data: options } = await axios.post('/admin/passkey/login/options', {}, { baseURL: apiUrl })
+      const { challengeKey, ...optionsJSON } = options
       const credential = await startAuthentication({ optionsJSON })
-      const { data } = await axios.post<AccessToken>('/admin/passkey/login/verify', { credential }, { baseURL: apiUrl })
+      const { data } = await axios.post<AccessToken>(
+        '/admin/passkey/login/verify',
+        { challengeKey, credential },
+        { baseURL: apiUrl },
+      )
       return data
     },
     onMutate: () => closeAlert(),

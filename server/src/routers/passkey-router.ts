@@ -15,6 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { randomUUID } from 'node:crypto'
+
 import {
   generateAuthenticationOptions,
   generateRegistrationOptions,
@@ -125,7 +127,8 @@ passkeyRouter.post(
     const { rpId, origin } = getRpConfig(req)
 
     const { body } = req
-    const name = typeof body.name === 'string' && body.name.trim() ? body.name.trim() : 'Passkey'
+    const rawName = typeof body.name === 'string' ? body.name.trim().slice(0, 64) : ''
+    const name = rawName || 'Passkey'
 
     let verification
     try {
@@ -184,10 +187,7 @@ passkeyRouter.post(
     let allowCredentials: { id: string; transports?: AuthenticatorTransport[] }[] | undefined
     if (username) {
       const userPasskeys = passkeyStore.getByUsername(username)
-      if (userPasskeys.length === 0) {
-        res.status(HttpStatusCode.NotFound).send('No passkeys registered for this user')
-        return
-      }
+      // Return empty allowCredentials (not 404) to avoid user enumeration
       allowCredentials = userPasskeys.map((pk) => ({
         id: pk.credentialId,
         transports: pk.transports,
@@ -200,8 +200,8 @@ passkeyRouter.post(
       allowCredentials,
     })
 
-    // Key the challenge by username or a random session identifier
-    const challengeKey = username ?? `anon_${options.challenge}`
+    // Use a random key to avoid leaking the challenge value or enabling user enumeration
+    const challengeKey = randomUUID()
     authenticationChallenges.set(challengeKey, options.challenge)
     res.json({ ...options, challengeKey })
   }),
