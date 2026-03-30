@@ -367,5 +367,20 @@
   "welcome_page_register_username": "Register a username to help others more easily find and reach you on Jami.",
   "welcome_page_view_registered_name": "Show registered name",
   "welcome_page_view_uri": "Show fingerprint",
-  "yourself": "You"
+  "yourself": "You",
+  "passkey_login_button": "Sign in with a passkey",
+  "passkey_register_button": "Register a passkey",
+  "passkey_register_success": "Passkey registered successfully",
+  "passkey_register_error": "Failed to register passkey",
+  "passkey_login_error": "Passkey authentication failed",
+  "passkey_delete_success": "Passkey removed",
+  "passkey_delete_error": "Failed to remove passkey",
+  "passkey_name_label": "Passkey name",
+  "passkey_name_placeholder": "e.g. MacBook Touch ID",
+  "passkey_section_title": "Passkeys",
+  "passkey_section_description": "Use fingerprint, face recognition, or a security key to sign in without a password.",
+  "passkey_no_credentials": "No passkeys registered yet.",
+  "passkey_registered_on": "Registered on {{date}}",
+  "passkey_not_available": "Passkeys are not supported by this browser.",
+  "passkey_no_passkeys_for_user": "No passkeys found for this account."
 }

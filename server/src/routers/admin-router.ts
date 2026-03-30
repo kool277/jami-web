@@ -15,6 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import {
+  generateAuthenticationOptions,
+  generateRegistrationOptions,
+  verifyAuthenticationResponse,
+  verifyRegistrationResponse,
+} from '@simplewebauthn/server'
+import { isoBase64URL } from '@simplewebauthn/server/helpers'
 import envPaths from 'env-paths'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
@@ -40,7 +47,9 @@ import { checkAdminSetup } from '../middleware/setup.js'
 import { Accounts } from '../storage/accounts.js'
 import { AdminAccount } from '../storage/admin-account.js'
 import { OpenIdProviders } from '../storage/openid-providers.js'
+import { PasskeyStore } from '../storage/passkey-store.js'
 import { isConfigValid } from '../utils/admin.js'
+import { ChallengeStore } from '../utils/challenge-store.js'
 import { signJwt } from '../utils/jwt.js'
 import { hashPassword, verifyPassword } from '../utils/password.js'
 
@@ -48,6 +57,12 @@ const jamid = Container.get(Jamid)
 const adminAccount = Container.get(AdminAccount)
 const accounts = Container.get(Accounts)
 const providersSupport = Container.get(OpenIdProviders)
+const passkeyStore = Container.get(PasskeyStore)
+
+const ADMIN_PASSKEY_USERNAME = '__admin__'
+const rpName = 'Jami Web'
+const adminRegistrationChallenges = new ChallengeStore()
+const adminAuthenticationChallenges = new ChallengeStore()
 
 export const adminRouter = Router()
 
@@ -143,6 +158,104 @@ adminRouter.post(
   }),
 )
 
+// ─── Admin passkey login (public, after setup check) ───────────────────────
+
+function getAdminRpConfig(req: import('express').Request) {
+  const host = req.hostname
+  const protocol = req.protocol
+  const port = req.get('host')?.split(':')[1]
+  const origin = port ? `${protocol}://${host}:${port}` : `${protocol}://${host}`
+  return { rpId: host, origin }
+}
+
+adminRouter.post(
+  '/passkey/login/options',
+  loginlimiter,
+  asyncHandler(async (req, res) => {
+    const adminPasskeys = passkeyStore.getByUsername(ADMIN_PASSKEY_USERNAME)
+    if (adminPasskeys.length === 0) {
+      res.status(HttpStatusCode.NotFound).send('No passkeys registered for admin')
+      return
+    }
+    const { rpId } = getAdminRpConfig(req)
+    const allowCredentials = adminPasskeys.map((pk) => ({
+      id: pk.credentialId,
+      transports: pk.transports,
+    }))
+    const options = await generateAuthenticationOptions({
+      rpID: rpId,
+      userVerification: 'preferred',
+      allowCredentials,
+    })
+    adminAuthenticationChallenges.set('admin', options.challenge)
+    res.json(options)
+  }),
+)
+
+adminRouter.post(
+  '/passkey/login/verify',
+  loginlimiter,
+  asyncHandler(async (req, res) => {
+    const { credential } = req.body
+    if (!credential) {
+      res.status(HttpStatusCode.BadRequest).send('Missing credential')
+      return
+    }
+    const expectedChallenge = adminAuthenticationChallenges.consume('admin')
+    if (!expectedChallenge) {
+      res.status(HttpStatusCode.BadRequest).send('No pending authentication challenge')
+      return
+    }
+    const credentialIdB64 =
+      typeof credential.id === 'string' ? credential.id : isoBase64URL.fromBuffer(credential.rawId)
+    const match = passkeyStore.findByCredentialId(credentialIdB64)
+    if (!match || match.username !== ADMIN_PASSKEY_USERNAME) {
+      res.status(HttpStatusCode.Unauthorized).send('Unknown credential')
+      return
+    }
+    const { rpId, origin } = getAdminRpConfig(req)
+    let verification
+    try {
+      verification = await verifyAuthenticationResponse({
+        response: credential,
+        expectedChallenge,
+        expectedOrigin: origin,
+        expectedRPID: rpId,
+        credential: {
+          id: match.passkey.credentialId,
+          publicKey: isoBase64URL.toBuffer(match.passkey.publicKey),
+          counter: match.passkey.counter,
+          transports: match.passkey.transports,
+        },
+      })
+    } catch (e: any) {
+      console.error('Admin passkey authentication failed:', e.message)
+      res.status(HttpStatusCode.Unauthorized).send('Verification failed')
+      return
+    }
+    if (!verification.verified) {
+      res.status(HttpStatusCode.Unauthorized).send('Verification failed')
+      return
+    }
+    passkeyStore.updateCounter(
+      ADMIN_PASSKEY_USERNAME,
+      match.passkey.credentialId,
+      verification.authenticationInfo.newCounter,
+    )
+    await passkeyStore.save()
+    const jwt = await signJwt('admin')
+    res.json({ accessToken: jwt })
+  }),
+)
+
+adminRouter.get(
+  '/passkey/available',
+  asyncHandler(async (_req, res) => {
+    const adminPasskeys = passkeyStore.getByUsername(ADMIN_PASSKEY_USERNAME)
+    res.json({ available: adminPasskeys.length > 0 })
+  }),
+)
+
 adminRouter.get(
   '/config',
   asyncHandler(async (_, res: Response) => {
@@ -161,6 +274,102 @@ adminRouter.get(
 
 //Requests below require authentication
 adminRouter.use(adminAuthenticationMiddleware)
+
+// ─── Admin passkey registration & management (authenticated) ─────────────────
+
+adminRouter.post(
+  '/passkey/register/options',
+  asyncHandler(async (req, res) => {
+    const { rpId } = getAdminRpConfig(req)
+    const existingPasskeys = passkeyStore.getByUsername(ADMIN_PASSKEY_USERNAME)
+    const excludeCredentials = existingPasskeys.map((pk) => ({
+      id: pk.credentialId,
+      transports: pk.transports,
+    }))
+    const options = await generateRegistrationOptions({
+      rpName,
+      rpID: rpId,
+      userName: 'admin',
+      userDisplayName: 'Admin',
+      attestationType: 'none',
+      excludeCredentials,
+      authenticatorSelection: {
+        residentKey: 'preferred',
+        userVerification: 'preferred',
+      },
+    })
+    adminRegistrationChallenges.set('admin', options.challenge)
+    res.json(options)
+  }),
+)
+
+adminRouter.post(
+  '/passkey/register/verify',
+  asyncHandler(async (req, res) => {
+    const expectedChallenge = adminRegistrationChallenges.consume('admin')
+    if (!expectedChallenge) {
+      res.status(HttpStatusCode.BadRequest).send('No pending registration challenge')
+      return
+    }
+    const { rpId, origin } = getAdminRpConfig(req)
+    const { body } = req
+    const name = typeof body.name === 'string' && body.name.trim() ? body.name.trim() : 'Passkey'
+    let verification
+    try {
+      verification = await verifyRegistrationResponse({
+        response: body.credential,
+        expectedChallenge,
+        expectedOrigin: origin,
+        expectedRPID: rpId,
+      })
+    } catch (e: any) {
+      console.error('Admin passkey registration verification failed:', e.message)
+      res.status(HttpStatusCode.BadRequest).send('Verification failed')
+      return
+    }
+    if (!verification.verified || !verification.registrationInfo) {
+      res.status(HttpStatusCode.BadRequest).send('Verification failed')
+      return
+    }
+    const { credential } = verification.registrationInfo
+    passkeyStore.add(ADMIN_PASSKEY_USERNAME, {
+      credentialId: credential.id,
+      publicKey: isoBase64URL.fromBuffer(credential.publicKey),
+      counter: credential.counter,
+      transports: body.credential?.response?.transports,
+      createdAt: new Date().toISOString(),
+      name,
+    })
+    await passkeyStore.save()
+    res.json({ verified: true })
+  }),
+)
+
+adminRouter.get(
+  '/passkey/credentials',
+  asyncHandler(async (_req, res) => {
+    const passkeys = passkeyStore.getByUsername(ADMIN_PASSKEY_USERNAME).map((pk) => ({
+      credentialId: pk.credentialId,
+      name: pk.name,
+      createdAt: pk.createdAt,
+    }))
+    res.json(passkeys)
+  }),
+)
+
+adminRouter.delete(
+  '/passkey/credentials/:credentialId',
+  asyncHandler(async (req, res) => {
+    const { credentialId } = req.params
+    const removed = passkeyStore.remove(ADMIN_PASSKEY_USERNAME, credentialId)
+    if (!removed) {
+      res.status(HttpStatusCode.NotFound).send('Credential not found')
+      return
+    }
+    await passkeyStore.save()
+    res.sendStatus(HttpStatusCode.NoContent)
+  }),
+)
 
 adminRouter.post('/adminWizardState', (req: Request<ParamsDictionary, AdminWizardState>, res) => {
   const lastWizardState = req.body.state

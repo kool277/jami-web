@@ -15,8 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Fab, TextField, Typography, useMediaQuery } from '@mui/material'
+import Fingerprint from '@mui/icons-material/Fingerprint'
+import { Box, Button, Divider, Fab, TextField, Typography, useMediaQuery } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
+import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 import { AdminSettingSelection } from 'jami-web-common'
 import { FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -25,13 +27,21 @@ import { Link, Navigate } from 'react-router-dom'
 import { GroupAddRoundedIcon as GroupAddRounded } from '../components/SvgIcon'
 import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
 import logoIcon from '../icons/jamiLogoIcon.svg'
-import { useLoginAdminMutation } from '../services/adminQueries'
+import {
+  useAdminPasskeyAvailableQuery,
+  useAdminPasskeyLoginMutation,
+  useLoginAdminMutation,
+} from '../services/adminQueries'
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('')
   const { t } = useTranslation()
   const loginAdminMutation = useLoginAdminMutation()
+  const passkeyLoginMutation = useAdminPasskeyLoginMutation()
+  const { data: passkeyAvailable } = useAdminPasskeyAvailableQuery()
   const { isPending } = loginAdminMutation
+  const isPasskeyPending = passkeyLoginMutation.isPending
+  const passkeySupported = browserSupportsWebAuthn()
   const theme: Theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const borderRadius = 30
@@ -88,12 +98,25 @@ export default function AdminLogin() {
             </div>
           </Box>
           <Box style={{ textAlign: 'center', marginTop: 24 }} onClick={handleSubmit}>
-            <Fab variant="extended" color="primary" type="submit" disabled={isPending}>
+            <Fab variant="extended" color="primary" type="submit" disabled={isPending || isPasskeyPending}>
               {t('login_form_submit_button')}
               &nbsp;&nbsp;
               <GroupAddRounded />
             </Fab>
           </Box>
+          {passkeySupported && passkeyAvailable && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 3 }}>
+              <Divider sx={{ width: '60%', mb: 2 }} />
+              <Button
+                variant="outlined"
+                startIcon={<Fingerprint />}
+                onClick={() => passkeyLoginMutation.mutate()}
+                disabled={isPasskeyPending}
+              >
+                {t('passkey_login_button')}
+              </Button>
+            </Box>
+          )}
         </Box>
         <Box
           sx={{

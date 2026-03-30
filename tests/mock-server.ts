@@ -128,6 +128,11 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.sendStatus(200)
   })
 
+  // Admin passkey availability (always false in mock — no real WebAuthn)
+  api.get('/admin/passkey/available', (_req, res) => {
+    res.json({ available: false })
+  })
+
   api.get('/admin/nameserver', (_req, res) => {
     res.send('')
   })

@@ -37,6 +37,7 @@ import { dataTransferRouter } from './routers/data-transfer.js'
 import { defaultModeratorsRouter } from './routers/default-moderators-router.js'
 import { linkPreviewRouter } from './routers/link-preview-router.js'
 import { nameserverRouter } from './routers/nameserver-router.js'
+import { passkeyRouter } from './routers/passkey-router.js'
 import { tokenRouter } from './routers/token-router.js'
 import { bindChatCallbacks } from './websocket/chat-handler.js'
 import { bindReactionAddedCallBack } from './websocket/chat-reactionadded-handler.js'
@@ -91,6 +92,7 @@ export class App {
     apiRouter.use('/data', dataTransferRouter)
     apiRouter.use('/config', configRouter)
     apiRouter.use('/tokens', tokenRouter)
+    apiRouter.use('/passkey', passkeyRouter)
 
     if (!isDevMode) {
       // Serve static files from the client

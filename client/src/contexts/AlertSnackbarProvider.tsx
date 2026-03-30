@@ -126,6 +126,11 @@ type AlertMessageKeys =
   | 'file_not_downloaded'
   | 'too_many_requests'
   | 'ouath_provider_updated_success'
+  | 'passkey_register_success'
+  | 'passkey_register_error'
+  | 'passkey_login_error'
+  | 'passkey_delete_success'
+  | 'passkey_delete_error'
 
 export const AlertSnackbarContext = createContext<IAlertSnackbarContext>(defaultAlertSnackbarContext)
 
@@ -247,6 +252,16 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('too_many_requests')
         case 'ouath_provider_updated_success':
           return t('ouath_provider_updated_success')
+        case 'passkey_register_success':
+          return t('passkey_register_success')
+        case 'passkey_register_error':
+          return t('passkey_register_error')
+        case 'passkey_login_error':
+          return t('passkey_login_error')
+        case 'passkey_delete_success':
+          return t('passkey_delete_success')
+        case 'passkey_delete_error':
+          return t('passkey_delete_error')
         default:
           return t('unknown_error_alert')
       }

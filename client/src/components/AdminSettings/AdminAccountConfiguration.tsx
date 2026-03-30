@@ -15,14 +15,37 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button } from '@mui/material'
+import Fingerprint from '@mui/icons-material/Fingerprint'
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  ListItemText,
+  TextField,
+  Typography,
+} from '@mui/material'
+import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useUpdateAdminPasswordMutation } from '../../services/adminQueries'
+import {
+  useAdminDeletePasskeyMutation,
+  useAdminPasskeyCredentialsQuery,
+  useAdminRegisterPasskeyMutation,
+  useUpdateAdminPasswordMutation,
+} from '../../services/adminQueries'
 import { PasswordInput } from '../Input'
 import LayoutSettings from '../LayoutSettings'
+import { DeleteIcon } from '../SvgIcon'
 
 export default function AuthMethods() {
   const { t } = useTranslation()
@@ -61,89 +84,177 @@ export default function AuthMethods() {
   }
 
   return (
-    <LayoutSettings title={t('setting_change_admin_password')} text={t('setting_change_admin_password_text')}>
-      <Box
-        sx={{
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          marginTop: '-20px',
-        }}
-      >
-        <AnimatePresence>
-          <motion.div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignContent: 'center',
-            }}
-            initial={{ x: -20 }}
-            animate={{ x: 0 }}
-            exit={{ x: 20 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-              <Box sx={{ marginTop: '-20px' }}>
-                <PasswordInput
-                  value={oldPassword}
-                  onChange={onOldPasswordChange}
-                  placeholder={t('admin_page_password_old_placeholder')}
-                  tooltipTitle={t('admin_page_password_old_placeholder')}
-                  newPlaceHolder={t('admin_page_password_old_placeholder')}
-                />
-              </Box>
-              <Box sx={{ marginTop: '-25px' }}>
-                <PasswordInput
-                  value={newPassword}
-                  onChange={onNewPasswordChange}
-                  placeholder={t('admin_page_password_placeholder')}
-                  tooltipTitle={t('admin_page_password_placeholder')}
-                  newPlaceHolder={t('admin_page_password_placeholder')}
-                />
-              </Box>
-              <Box sx={{ marginTop: '-25px' }}>
-                <PasswordInput
-                  value={repeatPassword}
-                  onChange={onRepeatPasswordChange}
-                  placeholder={t('admin_page_password_repeat_placeholder')}
-                  tooltipTitle={t('admin_page_password_repeat_placeholder')}
-                  newPlaceHolder={t('admin_page_password_repeat_placeholder')}
-                />
-              </Box>
-              <Box
-                sx={{
-                  fontSize: '11px',
-                  color: '#CC0022',
-                  visibility:
-                    newPassword !== repeatPassword && newPassword !== '' && repeatPassword !== ''
-                      ? 'visible'
-                      : 'hidden',
-                }}
-              >
-                {t('password_input_helper_text_not_match')}
-              </Box>
-              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', marginTop: '10%' }}>
-                <Button
-                  variant="contained"
-                  type="submit"
-                  onClick={validatePasswordChange}
-                  disabled={
-                    oldPassword === '' ||
-                    newPassword === '' ||
-                    repeatPassword === '' ||
-                    newPassword !== repeatPassword ||
-                    oldPassword === newPassword
-                  }
+    <>
+      <LayoutSettings title={t('setting_change_admin_password')} text={t('setting_change_admin_password_text')}>
+        <Box
+          sx={{
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            marginTop: '-20px',
+          }}
+        >
+          <AnimatePresence>
+            <motion.div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignContent: 'center',
+              }}
+              initial={{ x: -20 }}
+              animate={{ x: 0 }}
+              exit={{ x: 20 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ marginTop: '-20px' }}>
+                  <PasswordInput
+                    value={oldPassword}
+                    onChange={onOldPasswordChange}
+                    placeholder={t('admin_page_password_old_placeholder')}
+                    tooltipTitle={t('admin_page_password_old_placeholder')}
+                    newPlaceHolder={t('admin_page_password_old_placeholder')}
+                  />
+                </Box>
+                <Box sx={{ marginTop: '-25px' }}>
+                  <PasswordInput
+                    value={newPassword}
+                    onChange={onNewPasswordChange}
+                    placeholder={t('admin_page_password_placeholder')}
+                    tooltipTitle={t('admin_page_password_placeholder')}
+                    newPlaceHolder={t('admin_page_password_placeholder')}
+                  />
+                </Box>
+                <Box sx={{ marginTop: '-25px' }}>
+                  <PasswordInput
+                    value={repeatPassword}
+                    onChange={onRepeatPasswordChange}
+                    placeholder={t('admin_page_password_repeat_placeholder')}
+                    tooltipTitle={t('admin_page_password_repeat_placeholder')}
+                    newPlaceHolder={t('admin_page_password_repeat_placeholder')}
+                  />
+                </Box>
+                <Box
+                  sx={{
+                    fontSize: '11px',
+                    color: '#CC0022',
+                    visibility:
+                      newPassword !== repeatPassword && newPassword !== '' && repeatPassword !== ''
+                        ? 'visible'
+                        : 'hidden',
+                  }}
                 >
-                  {t('admin_page_password_submit')}
-                </Button>
+                  {t('password_input_helper_text_not_match')}
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', marginTop: '10%' }}>
+                  <Button
+                    variant="contained"
+                    type="submit"
+                    onClick={validatePasswordChange}
+                    disabled={
+                      oldPassword === '' ||
+                      newPassword === '' ||
+                      repeatPassword === '' ||
+                      newPassword !== repeatPassword ||
+                      oldPassword === newPassword
+                    }
+                  >
+                    {t('admin_page_password_submit')}
+                  </Button>
+                </Box>
               </Box>
-            </Box>
-          </motion.div>
-        </AnimatePresence>
+            </motion.div>
+          </AnimatePresence>
+        </Box>
+      </LayoutSettings>
+
+      {browserSupportsWebAuthn() && <AdminPasskeySection />}
+    </>
+  )
+}
+
+function AdminPasskeySection() {
+  const { t } = useTranslation()
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [passkeyName, setPasskeyName] = useState('')
+
+  const { data: passkeys, isLoading } = useAdminPasskeyCredentialsQuery()
+  const registerMutation = useAdminRegisterPasskeyMutation()
+  const deleteMutation = useAdminDeletePasskeyMutation()
+
+  const handleRegister = async () => {
+    await registerMutation.mutateAsync(passkeyName || 'Passkey')
+    setDialogOpen(false)
+    setPasskeyName('')
+  }
+
+  return (
+    <LayoutSettings title={t('passkey_section_title')} text={t('passkey_section_description')}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {isLoading ? null : passkeys && passkeys.length > 0 ? (
+          <List dense sx={{ width: '100%', maxWidth: 400 }}>
+            {passkeys.map((pk) => (
+              <ListItem key={pk.credentialId}>
+                <ListItemIcon>
+                  <Fingerprint />
+                </ListItemIcon>
+                <ListItemText
+                  primary={pk.name}
+                  secondary={t('passkey_registered_on', {
+                    date: new Date(pk.createdAt).toLocaleDateString(),
+                  })}
+                />
+                <ListItemSecondaryAction>
+                  <IconButton
+                    edge="end"
+                    onClick={() => deleteMutation.mutate(pk.credentialId)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </ListItemSecondaryAction>
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+            {t('passkey_no_credentials')}
+          </Typography>
+        )}
+
+        <Button
+          variant="outlined"
+          startIcon={<Fingerprint />}
+          onClick={() => setDialogOpen(true)}
+          disabled={registerMutation.isPending}
+          sx={{ mt: 1 }}
+        >
+          {t('passkey_register_button')}
+        </Button>
       </Box>
+
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <DialogTitle>{t('passkey_register_button')}</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label={t('passkey_name_label')}
+            placeholder={t('passkey_name_placeholder')}
+            fullWidth
+            value={passkeyName}
+            onChange={(e) => setPasskeyName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDialogOpen(false)}>{t('cancel')}</Button>
+          <Button onClick={handleRegister} disabled={registerMutation.isPending} variant="contained">
+            {t('passkey_register_button')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </LayoutSettings>
   )
 }

@@ -41,6 +41,7 @@ import { useState } from 'react'
 import { useAuthContext } from '../contexts/AuthProvider'
 import CustomizeProfile from './AccountSettings/CustomizeProfile'
 import LinkedDevicesPreview from './AccountSettings/LinkedDevicesPreview'
+import PasskeyManager from './AccountSettings/PasskeyManager'
 import ConversationAvatar from './ConversationAvatar'
 import ConversationsOverviewCard from './ConversationsOverviewCard'
 import JamiIdCard from './JamiIdCard'
@@ -145,6 +146,12 @@ export default function AccountPreferences() {
         <Grid size={12}>
           <motion.div variants={thumbnailVariants} style={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
             <LinkedDevicesPreview />
+          </motion.div>
+        </Grid>
+
+        <Grid size={12}>
+          <motion.div variants={thumbnailVariants}>
+            <PasskeyManager />
           </motion.div>
         </Grid>
       </Grid>

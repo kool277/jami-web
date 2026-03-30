@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
 import { AccessToken, AccountOverview, AdminSettingSelection, IAdminConfigState } from 'jami-web-common'
@@ -668,6 +669,118 @@ export const useSetAutoDownloadLimit = () => {
         severity: 'error',
         alertOpen: true,
       })
+    },
+  })
+}
+
+// ─── Admin passkey hooks ─────────────────────────────────────────────────────
+
+export interface AdminPasskeyInfo {
+  credentialId: string
+  name: string
+  createdAt: string
+}
+
+/** Check if admin has any registered passkeys */
+export const useAdminPasskeyAvailableQuery = () => {
+  return useQuery({
+    queryKey: ['admin', 'passkey', 'available'],
+    queryFn: async (): Promise<boolean> => {
+      const { data } = await axios.get<{ available: boolean }>('/admin/passkey/available', { baseURL: apiUrl })
+      return data.available
+    },
+  })
+}
+
+/** Login to admin panel with passkey */
+export const useAdminPasskeyLoginMutation = () => {
+  const navigate = useNavigate()
+  const { setAlertContent, closeAlert } = useContext(AlertSnackbarContext)
+
+  return useMutation({
+    mutationKey: ['admin', 'passkey', 'login'],
+    mutationFn: async () => {
+      const { data: optionsJSON } = await axios.post('/admin/passkey/login/options', {}, { baseURL: apiUrl })
+      const credential = await startAuthentication({ optionsJSON })
+      const { data } = await axios.post<AccessToken>('/admin/passkey/login/verify', { credential }, { baseURL: apiUrl })
+      return data
+    },
+    onMutate: () => closeAlert(),
+    onSuccess: (data) => {
+      localStorage.setItem('adminAccessToken', data.accessToken)
+      navigate('/admin')
+    },
+    onError: () => {
+      setAlertContent({ messageI18nKey: 'passkey_login_error', severity: 'error', alertOpen: true })
+    },
+  })
+}
+
+/** Register a new passkey for admin */
+export const useAdminRegisterPasskeyMutation = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationKey: ['admin', 'passkey', 'register'],
+    mutationFn: async (name: string) => {
+      const headers = { Authorization: `Bearer ${token}` }
+      const { data: options } = await axios.post('/admin/passkey/register/options', {}, { baseURL: apiUrl, headers })
+      const credential = await startRegistration({ optionsJSON: options })
+      const { data } = await axios.post(
+        '/admin/passkey/register/verify',
+        { credential, name },
+        { baseURL: apiUrl, headers },
+      )
+      return data
+    },
+    onSuccess: () => {
+      setAlertContent({ messageI18nKey: 'passkey_register_success', severity: 'success', alertOpen: true })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'passkey'] })
+    },
+    onError: () => {
+      setAlertContent({ messageI18nKey: 'passkey_register_error', severity: 'error', alertOpen: true })
+    },
+  })
+}
+
+/** List admin passkeys */
+export const useAdminPasskeyCredentialsQuery = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  return useQuery({
+    queryKey: ['admin', 'passkey', 'credentials'],
+    queryFn: async (): Promise<AdminPasskeyInfo[]> => {
+      const { data } = await axios.get('/admin/passkey/credentials', {
+        baseURL: apiUrl,
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      return data
+    },
+    enabled: !!token,
+  })
+}
+
+/** Delete an admin passkey */
+export const useAdminDeletePasskeyMutation = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationKey: ['admin', 'passkey', 'delete'],
+    mutationFn: async (credentialId: string) => {
+      await axios.delete(`/admin/passkey/credentials/${encodeURIComponent(credentialId)}`, {
+        baseURL: apiUrl,
+        headers: { Authorization: `Bearer ${token}` },
+      })
+    },
+    onSuccess: () => {
+      setAlertContent({ messageI18nKey: 'passkey_delete_success', severity: 'success', alertOpen: true })
+      queryClient.invalidateQueries({ queryKey: ['admin', 'passkey'] })
+    },
+    onError: () => {
+      setAlertContent({ messageI18nKey: 'passkey_delete_error', severity: 'error', alertOpen: true })
     },
   })
 }

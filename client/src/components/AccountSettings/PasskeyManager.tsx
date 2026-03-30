@@ -1,0 +1,151 @@
+/*
+ * Copyright (C) 2022-2025 Savoir-faire Linux Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation; either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public
+ * License along with this program.  If not, see
+ * <https://www.gnu.org/licenses/>.
+ */
+import Fingerprint from '@mui/icons-material/Fingerprint'
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemSecondaryAction,
+  ListItemText,
+  TextField,
+  Typography,
+} from '@mui/material'
+import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
+import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import {
+  useDeletePasskeyMutation,
+  usePasskeyCredentialsQuery,
+  useRegisterPasskeyMutation,
+} from '../../services/passkeyQueries'
+import { DeleteIcon } from '../SvgIcon'
+
+export default function PasskeyManager() {
+  const { t } = useTranslation()
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [passkeyName, setPasskeyName] = useState('')
+
+  const { data: passkeys, isLoading } = usePasskeyCredentialsQuery()
+  const registerMutation = useRegisterPasskeyMutation()
+  const deleteMutation = useDeletePasskeyMutation()
+
+  if (!browserSupportsWebAuthn()) {
+    return (
+      <Card>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            {t('passkey_section_title')}
+          </Typography>
+          <Typography color="textSecondary">{t('passkey_not_available')}</Typography>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  const handleRegister = async () => {
+    await registerMutation.mutateAsync(passkeyName || 'Passkey')
+    setDialogOpen(false)
+    setPasskeyName('')
+  }
+
+  return (
+    <Card>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          {t('passkey_section_title')}
+        </Typography>
+        <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+          {t('passkey_section_description')}
+        </Typography>
+
+        {isLoading ? null : passkeys && passkeys.length > 0 ? (
+          <List dense>
+            {passkeys.map((pk) => (
+              <ListItem key={pk.credentialId}>
+                <ListItemIcon>
+                  <Fingerprint />
+                </ListItemIcon>
+                <ListItemText
+                  primary={pk.name}
+                  secondary={t('passkey_registered_on', {
+                    date: new Date(pk.createdAt).toLocaleDateString(),
+                  })}
+                />
+                <ListItemSecondaryAction>
+                  <IconButton
+                    edge="end"
+                    onClick={() => deleteMutation.mutate(pk.credentialId)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </ListItemSecondaryAction>
+              </ListItem>
+            ))}
+          </List>
+        ) : (
+          <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+            {t('passkey_no_credentials')}
+          </Typography>
+        )}
+
+        <Box sx={{ mt: 1 }}>
+          <Button
+            variant="outlined"
+            startIcon={<Fingerprint />}
+            onClick={() => setDialogOpen(true)}
+            disabled={registerMutation.isPending}
+          >
+            {t('passkey_register_button')}
+          </Button>
+        </Box>
+      </CardContent>
+
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <DialogTitle>{t('passkey_register_button')}</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label={t('passkey_name_label')}
+            placeholder={t('passkey_name_placeholder')}
+            fullWidth
+            value={passkeyName}
+            onChange={(e) => setPasskeyName(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDialogOpen(false)}>{t('cancel')}</Button>
+          <Button onClick={handleRegister} disabled={registerMutation.isPending} variant="contained">
+            {t('passkey_register_button')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Card>
+  )
+}

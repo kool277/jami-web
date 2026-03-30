@@ -15,8 +15,20 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, FormControl, FormControlLabel, Radio, RadioGroup, Typography, useMediaQuery } from '@mui/material'
+import Fingerprint from '@mui/icons-material/Fingerprint'
+import {
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Typography,
+  useMediaQuery,
+} from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
+import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 import { ChangeEvent, FormEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Link, useNavigate } from 'react-router-dom'
@@ -29,6 +41,7 @@ import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
 import { AuthenticationMethods } from '../enums/authenticationMethods'
 import { useGetAdminConfigQuery } from '../services/adminQueries'
 import { useGetAllProviders, useLoginMutation } from '../services/authQueries'
+import { usePasskeyLoginMutation } from '../services/passkeyQueries'
 import { inputWidth, jamiAuthLogoSize, submitButtonWidth } from '../utils/constants'
 
 function LoginForm() {
@@ -49,8 +62,11 @@ function LoginForm() {
   const { data } = useGetAdminConfigQuery()
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const loginMutation = useLoginMutation()
+  const passkeyLoginMutation = usePasskeyLoginMutation()
   const { isPending } = loginMutation
+  const isPasskeyPending = passkeyLoginMutation.isPending
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const passkeySupported = browserSupportsWebAuthn()
   const providers = useGetAllProviders()
 
   if (data === undefined || providers.data === undefined) {
@@ -109,7 +125,7 @@ function LoginForm() {
 
   return (
     <>
-      <ProcessingRequest open={isPending} />
+      <ProcessingRequest open={isPending || isPasskeyPending} />
       <UnconnectedUserLayout>
         <Box
           sx={{
@@ -231,6 +247,21 @@ function LoginForm() {
             </Button>
           </Box>
         </Form>
+
+        {data.localAuthEnabled && passkeySupported && (
+          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2 }}>
+            <Divider sx={{ width: '60%', mb: 2 }} />
+            <Button
+              variant="outlined"
+              startIcon={<Fingerprint />}
+              onClick={() => passkeyLoginMutation.mutate(username || undefined)}
+              disabled={isPasskeyPending}
+              sx={{ width: theme.typography.pxToRem(submitButtonWidth) + 100 }}
+            >
+              {t('passkey_login_button')}
+            </Button>
+          </Box>
+        )}
 
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: theme.typography.pxToRem(20) }}>
           {data.openIdAuthEnabled && (
