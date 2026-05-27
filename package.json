@@ -22,6 +22,8 @@
     "format:check": "npm run format:check --workspaces",
     "prepare": "if [ -e '.git' ]; then git config core.hooksPath .hooks; fi",
     "test": "npx cypress run  --project ./client",
+    "npm:pack": "npm pack --workspace @savoirfairelinux/jami-web",
+    "npm:publish": "npm publish --workspace @savoirfairelinux/jami-web",
     "electron:build": "npm run build && npx tsc --project electron/tsconfig.json",
     "electron:start": "npm run build && electron-forge start",
     "electron:package": "npm run build && electron-forge package",

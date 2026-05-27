@@ -16,10 +16,15 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import { appendFileSync, mkdirSync } from 'node:fs'
+import { dirname } from 'node:path'
+
 import { generateKeyPair, importPKCS8, importSPKI, KeyLike } from 'jose'
 import { Service } from 'typedi'
 
 import { isElectronMode } from '../utils/electron.js'
+import { defaultEnvPath } from '../utils/env.js'
+import { formatSigningKeyEnv, generateSigningKeyPairPem } from '../utils/signing-key-pem.js'
 
 @Service()
 export class SigningKeys {
@@ -27,8 +32,8 @@ export class SigningKeys {
   publicKey!: KeyLike
 
   async build() {
-    const privatekey = process.env.PRIVATE_KEY
-    const publicKey = process.env.PUBLIC_KEY
+    let privatekey = process.env.PRIVATE_KEY
+    let publicKey = process.env.PUBLIC_KEY
 
     if (privatekey === undefined || publicKey === undefined) {
       if (isElectronMode) {
@@ -38,7 +43,15 @@ export class SigningKeys {
         this.publicKey = keyPair.publicKey
         return this
       }
-      throw new Error('Missing private or public key environment variables. Try running "npm run genkeys"')
+      if (privatekey === undefined && publicKey === undefined) {
+        const keyPair = generateSigningKeyPairPem()
+        mkdirSync(dirname(defaultEnvPath), { recursive: true })
+        appendFileSync(defaultEnvPath, formatSigningKeyEnv(keyPair))
+        privatekey = keyPair.privateKey
+        publicKey = keyPair.publicKey
+      } else {
+        throw new Error('Missing private or public key environment variables. Try running "jami-web genkeys --force"')
+      }
     }
 
     this.privateKey = await importPKCS8(privatekey, 'EdDSA')

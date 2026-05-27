@@ -15,8 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { existsSync } from 'node:fs'
+
 import cors from 'cors'
-import * as dotenv from 'dotenv'
 import express, { json, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
 import { HttpStatusCode } from 'jami-web-common'
@@ -39,6 +40,7 @@ import { linkPreviewRouter } from './routers/link-preview-router.js'
 import { nameserverRouter } from './routers/nameserver-router.js'
 import { passkeyRouter } from './routers/passkey-router.js'
 import { tokenRouter } from './routers/token-router.js'
+import { loadEnv } from './utils/env.js'
 import { bindChatCallbacks } from './websocket/chat-handler.js'
 import { bindReactionAddedCallBack } from './websocket/chat-reactionadded-handler.js'
 import { bindReactionRemovedCallBack } from './websocket/chat-reactionremoved-handler.js'
@@ -47,11 +49,20 @@ import { bindLoadSwarmUntilCallback } from './websocket/load-swarm-until-handler
 import { bindMessageStatusChangeCallbacks } from './websocket/message-status-handler.js'
 import { bindWebRtcCallbacks } from './websocket/webrtc-handler.js'
 
-dotenv.config()
+loadEnv()
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const isDevMode = process.env.NODE_ENV === 'development' ? true : false
+
+function getClientDistPath(): string {
+  const candidates = [path.join(__dirname, '../client/dist'), path.join(__dirname, '../../client/dist')]
+  const clientDistPath = candidates.find((candidate) => existsSync(path.join(candidate, 'index.html')))
+  if (!clientDistPath) {
+    throw new Error('Client build not found. Run npm run build before starting Jami Web in production mode.')
+  }
+  return clientDistPath
+}
 
 @Service()
 export class App {
@@ -95,11 +106,13 @@ export class App {
     apiRouter.use('/passkey', passkeyRouter)
 
     if (!isDevMode) {
+      const clientDistPath = getClientDistPath()
+
       // Serve static files from the client
-      this.app.use(express.static(path.join(__dirname, '../../client/dist')))
+      this.app.use(express.static(clientDistPath))
 
       this.app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../../client/dist', 'index.html'))
+        res.sendFile(path.join(clientDistPath, 'index.html'))
       })
     }
 

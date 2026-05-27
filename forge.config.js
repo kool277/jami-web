@@ -152,7 +152,7 @@ export default {
       mkdirSync(nmDest, { recursive: true })
 
       const lsOutput = execSync(
-        'npm ls --include-workspace-root --workspace=jami-web-server --workspace=jami-web-common --all --omit=dev --parseable 2>/dev/null || true',
+        'npm ls --include-workspace-root --workspace=@savoirfairelinux/jami-web --workspace=jami-web-common --all --omit=dev --parseable 2>/dev/null || true',
         { cwd: PROJECT_ROOT, encoding: 'utf8' },
       )
       const prodPkgs = new Set()
@@ -184,7 +184,7 @@ export default {
       copy(path.join(serverSrc, 'locale'), path.join(serverDest, 'locale'))
 
       // ── 3. Pre-built React SPA ─────────────────────────────────────────
-      copy(path.join(PROJECT_ROOT, 'client', 'dist'), path.join(buildPath, 'client', 'dist'))
+      copy(path.join(PROJECT_ROOT, 'server', 'client', 'dist'), path.join(buildPath, 'client', 'dist'))
     },
   },
 }

@@ -39,6 +39,10 @@ export default defineConfig({
   preview: {
     port: 8080,
   },
+  build: {
+    outDir: '../server/client/dist',
+    emptyOutDir: true,
+  },
   define: {
     global: {},
   },

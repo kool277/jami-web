@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "es2022",
+    "target": "es2025",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "module": "es2022",
+    "module": "nodenext",
     "rootDir": "src",
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "sourceMap": true,
     "outDir": "dist",
     "isolatedModules": true,

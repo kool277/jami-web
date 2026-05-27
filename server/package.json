@@ -1,7 +1,7 @@
 {
-  "name": "jami-web-server",
+  "name": "@savoirfairelinux/jami-web",
   "version": "1.0.0",
-  "description": "Jami Web server — provides the backend API and admin CLI for Jami Web",
+  "description": "Jami Web server and web client, packaged for npm.",
   "type": "module",
   "license": "AGPL-3.0-or-later",
   "main": "dist/index.js",
@@ -10,6 +10,7 @@
   },
   "files": [
     "dist",
+    "client/dist",
     "available_languages.json",
     "openid-providers.json",
     "openapi.yaml",
@@ -24,11 +25,11 @@
     "lint:fix": "eslint --fix src",
     "format": "prettier --write src",
     "format:check": "prettier --check src",
-    "prepare": "npm run build && npm run genkeys",
+    "prepack": "cd .. && npm run build --workspace client && npm run clean --workspace @savoirfairelinux/jami-web && npm run build --workspace @savoirfairelinux/jami-web",
     "genkeys": "node dist/cli.js genkeys"
   },
   "dependencies": {
-    "@savoirfairelinux/jami-core": "0.3.1",
+    "@savoirfairelinux/jami-core": "0.3.2",
     "@simplewebauthn/server": "^13.3.0",
     "argon2": "^0.40.3",
     "cors": "^2.8.5",
@@ -38,6 +39,7 @@
     "express-async-handler": "^1.2.0",
     "express-rate-limit": "7.5.0",
     "helmet": "^7.1.0",
+    "jami-web-common": "1.0.0",
     "jose": "^5.6.3",
     "link-preview-js": "^3.0.5",
     "linkifyjs": "^4.1.3",
@@ -57,6 +59,17 @@
     "@types/whatwg-url": "^11.0.5",
     "@types/ws": "^8.5.12",
     "tsc-watch": "^6.2.0",
-    "typescript": "~5.5.4"
+    "typescript": "~6.0.3"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.jami.net/savoirfairelinux/jami-web.git",
+    "directory": "server"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

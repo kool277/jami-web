@@ -17,10 +17,6 @@
  */
 import 'reflect-metadata'
 
-import * as dotenv from 'dotenv'
-
-dotenv.config()
-
 import { createServer } from 'node:http'
 
 import log from 'loglevel'
@@ -29,13 +25,22 @@ import { Container } from 'typedi'
 import { App } from './app.js'
 import { Jamid } from './jamid/jamid.js'
 import { SigningKeys } from './storage/signing-keys.js'
+import { loadEnv } from './utils/env.js'
 import { WebSocketServer } from './websocket/websocket-server.js'
+
+loadEnv()
 
 const isDev = process.env.NODE_ENV === 'development' ? true : false
 
 log.setLevel(isDev ? 'trace' : 'error')
 
-const port: string | number = isDev ? 5002 : 8080
+const defaultPort = isDev ? 5002 : 8080
+const port = process.env.PORT ? Number.parseInt(process.env.PORT, 10) : defaultPort
+const host = process.env.HOST
+
+if (Number.isNaN(port)) {
+  throw new Error(`Invalid PORT value: ${process.env.PORT}`)
+}
 
 await Container.get(SigningKeys).build()
 const jamid = Container.get(Jamid)
@@ -47,7 +52,7 @@ const server = createServer()
 server.on('request', app.app)
 server.on('upgrade', webSocketServer.upgrade.bind(webSocketServer))
 
-server.listen(port)
+server.listen(port, host)
 server.on('error', onError)
 server.on('listening', onListening)
 
@@ -77,7 +82,7 @@ function onError(error: NodeJS.ErrnoException) {
 
 function onListening() {
   const address = server.address()
-  const bind = typeof address === 'string' ? `pipe ${address}` : `port ${address?.port}`
+  const bind = typeof address === 'string' ? `pipe ${address}` : `${address?.address}:${address?.port}`
   log.debug('Listening on ' + bind)
 }
 

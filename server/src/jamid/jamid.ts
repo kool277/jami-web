@@ -34,6 +34,7 @@ import {
   ConversationMemberEventCode,
   ConversationMessage,
   ConversationPreferences,
+  DataTransferError,
   DeviceRevocationState,
   Devices,
   LookupResult,
@@ -44,7 +45,6 @@ import {
   WebSocketMessage,
   WebSocketMessageType,
 } from 'jami-web-common'
-import { DataTransferError } from 'jami-web-common/src/enums/datatransfer-error-code.js'
 import log from 'loglevel'
 import os from 'os'
 import path from 'path'

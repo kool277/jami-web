@@ -7,7 +7,7 @@
     "start": "tsc-watch --build ../common --onSuccess \"vite --mode development\"",
     "start:prod": "vite preview --mode production",
     "build": "tsc --build && vite build --mode production",
-    "clean": "rm -rf dist *.tsbuildinfo",
+    "clean": "rm -rf dist ../server/client/dist *.tsbuildinfo",
     "cy": "cypress run",
     "cy:open": "cypress open",
     "lint": "eslint .",

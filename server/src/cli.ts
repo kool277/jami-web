@@ -24,13 +24,13 @@ const args = process.argv.slice(2)
 const command = args[0]
 
 function printUsage() {
-  console.log(`Usage: jami-web <command> [options]
+  console.log(`Usage: jami-web [command] [options]
 
 Commands:
+  start       Start the Jami Web server (default)
   setup       Interactive setup wizard (create admin account and configure server)
   genkeys     Generate JWT signing keys and write them to .env
   config      Show or update server configuration
-  start       Start the Jami Web server
 
 Options:
   --help      Show this help message
@@ -38,10 +38,20 @@ Options:
 Run 'jami-web <command> --help' for more information on a command.`)
 }
 
+async function startCommand() {
+  process.env.NODE_ENV = process.env.NODE_ENV || 'production'
+  await import('./index.js')
+}
+
 async function main() {
-  if (!command || command === '--help' || command === '-h') {
+  if (command === '--help' || command === '-h') {
     printUsage()
     process.exit(0)
+  }
+
+  if (!command) {
+    await startCommand()
+    return
   }
 
   switch (command) {
@@ -55,8 +65,7 @@ async function main() {
       await configCommand(args.slice(1))
       break
     case 'start': {
-      // Dynamically import the server entry point
-      await import('./index.js')
+      await startCommand()
       break
     }
     default:

@@ -15,9 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { generateKeyPairSync } from 'node:crypto'
-import { appendFileSync, existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
+
+import { defaultEnvPath } from '../utils/env.js'
+import { formatSigningKeyEnv, generateSigningKeyPairPem } from '../utils/signing-key-pem.js'
 
 function hasEnvKeys(envPath: string): boolean {
   if (!existsSync(envPath)) return false
@@ -33,14 +35,16 @@ Generate Ed25519 JWT signing keys and append them to .env
 
 Options:
   --force     Overwrite existing keys
-  --env-file  Path to the .env file (default: .env)
+  --env-file  Path to the .env file (default: ${defaultEnvPath})
   --help      Show this help message`)
     return
   }
 
   const force = args.includes('--force')
   const envFileIdx = args.indexOf('--env-file')
-  const envPath = resolve(envFileIdx !== -1 && args[envFileIdx + 1] ? args[envFileIdx + 1] : '.env')
+  const envPath = resolve(envFileIdx !== -1 && args[envFileIdx + 1] ? args[envFileIdx + 1] : defaultEnvPath)
+
+  mkdirSync(dirname(envPath), { recursive: true })
 
   if (!force && hasEnvKeys(envPath)) {
     console.log('Public and private keys are already defined in', envPath)
@@ -48,10 +52,7 @@ Options:
     return
   }
 
-  const { publicKey, privateKey } = generateKeyPairSync('ed25519', {
-    publicKeyEncoding: { type: 'spki', format: 'pem' },
-    privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
-  })
+  const keyPair = generateSigningKeyPairPem()
 
   // If forcing, we need to remove old keys and rewrite
   if (force && existsSync(envPath)) {
@@ -67,7 +68,6 @@ Options:
     writeFileSync(envPath, filtered.replace(/\n{3,}/g, '\n\n'))
   }
 
-  const envContent = `PRIVATE_KEY="${privateKey.trim()}"\nPUBLIC_KEY="${publicKey.trim()}"\n`
-  appendFileSync(envPath, envContent)
+  appendFileSync(envPath, formatSigningKeyEnv(keyPair))
   console.log('JWT signing keys written to', envPath)
 }

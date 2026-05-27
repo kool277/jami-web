@@ -1,5 +1,7 @@
 # Server
 
+This workspace is the npm package published as `@savoirfairelinux/jami-web`. It exposes the `jami-web` command, bundles the built React client during packing, and uses `@savoirfairelinux/jami-core` for the daemon native module.
+
 ## Setup
 
 ### Install npm dependencies and generate a private/public key pair
@@ -26,6 +28,12 @@ npm run build
 
 ```sh
 npm run start:prod
+```
+
+After publishing or installing globally, start the server from any directory with:
+
+```sh
+jami-web
 ```
 
 ### Lint files

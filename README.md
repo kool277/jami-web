@@ -30,6 +30,56 @@ To view the deployment instructions for jami-web, refer to the [Deployment Guide
     sudo make install
     ```
 
+## Install from npm
+
+Jami Web is published as `@savoirfairelinux/jami-web`. The package installs a `jami-web` command and depends on `@savoirfairelinux/jami-core`, which provides the native daemon module for the current platform.
+
+```sh
+npm install -g @savoirfairelinux/jami-web
+jami-web
+```
+
+By default the server listens on port `8080`. Set `PORT` to override it:
+
+```sh
+PORT=8081 jami-web
+```
+
+The setup wizard stores signing keys and server data in the operating system's Jami Web application data directory, so the `jami-web` command can be started from any working directory.
+
+The first start automatically creates persistent JWT signing keys when they do not already exist. You can still run `jami-web setup` for the interactive CLI setup wizard.
+
+### Publishing the npm package
+
+Publish the fixed native module packages first. The existing `@savoirfairelinux/jami-core@0.3.1` registry metadata still advertises a `node-gyp rebuild` install step, so Jami Web depends on `@savoirfairelinux/jami-core@0.3.2`.
+
+For each supported platform, build `jamid.node`, copy it into the matching platform package, and publish that platform package:
+
+```sh
+npm run pack-native --workspace @savoirfairelinux/jami-core
+npm publish daemon/bin/nodejs/npm/$(node -e "process.stdout.write(process.platform + '-' + process.arch)") --access public
+```
+
+Then publish the core wrapper:
+
+```sh
+npm publish --workspace @savoirfairelinux/jami-core
+```
+
+From the repository root, build and inspect the package tarball with:
+
+```sh
+npm run npm:pack
+```
+
+Publish it with:
+
+```sh
+npm run npm:publish
+```
+
+The published package is produced from the `server` workspace and includes the compiled server plus the built React client.
+
 ## Setup
 
 Before proceeding, you must initialize the Git submodule repositories by running the following command:
