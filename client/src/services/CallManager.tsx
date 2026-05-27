@@ -186,7 +186,7 @@ export const useCallManager = () => {
         for (const track of stream.getTracks()) {
           track.addEventListener('ended', () => {
             console.warn('Browser ended screen sharing')
-            updateVideoStatus(VideoStatus.Off)
+            setVideoStatus(VideoStatus.Off)
           })
         }
       }

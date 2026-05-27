@@ -16,17 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import Fingerprint from '@mui/icons-material/Fingerprint'
-import {
-  Box,
-  Button,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-  Typography,
-  useMediaQuery,
-} from '@mui/material'
+import { Box, Button, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 import { ChangeEvent, FormEvent, useContext, useState } from 'react'
@@ -66,7 +56,6 @@ function LoginForm() {
   const passkeyLoginMutation = usePasskeyLoginMutation()
   const { isPending } = loginMutation
   const isPasskeyPending = passkeyLoginMutation.isPending
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const passkeySupported = browserSupportsWebAuthn()
   const providers = useGetAllProviders()
 

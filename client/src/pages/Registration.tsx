@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Typography, useMediaQuery } from '@mui/material'
+import { Box, Button, Typography } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { HttpStatusCode } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
@@ -50,7 +50,6 @@ function RegistrationForm() {
   const { isPending: isRegisterLoading } = registerMutation
   const { isPending: isLoginLoading } = loginMutation
   const isPending = isRegisterLoading || isLoginLoading
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername)
   const usernameOk = usernameStatus === 'success'
   const passwordOk = passwordStatus !== PasswordStrength.TooWeak

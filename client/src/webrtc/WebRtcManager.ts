@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useMemo, useRef, useSyncExternalStore } from 'react'
+import { useCallback, useMemo, useState, useSyncExternalStore } from 'react'
 
 import { IWebSocketContext } from '../contexts/WebSocketProvider.js'
 import { Account } from '../models/account.js'
@@ -24,21 +24,20 @@ import { Listener } from '../utils/utils.js'
 import { RTCPeerConnectionHandler, RTCPeerConnectionInfos } from './RtcPeerConnectionHandler.js'
 
 export const useWebRtcManager = () => {
-  const webRtcManagerRef = useRef(new WebRtcManager())
-  const connectionsInfos = useSyncExternalStore(
-    webRtcManagerRef.current.subscribe.bind(webRtcManagerRef.current),
-    webRtcManagerRef.current.getSnapshot.bind(webRtcManagerRef.current),
-  )
+  const [webRtcManager] = useState(() => new WebRtcManager())
+  const subscribe = useCallback((listener: Listener) => webRtcManager.subscribe(listener), [webRtcManager])
+  const getSnapshot = useCallback(() => webRtcManager.getSnapshot(), [webRtcManager])
+  const connectionsInfos = useSyncExternalStore(subscribe, getSnapshot)
 
   return useMemo(
     () => ({
-      addConnection: webRtcManagerRef.current.addConnection.bind(webRtcManagerRef.current),
-      removeConnection: webRtcManagerRef.current.removeConnection.bind(webRtcManagerRef.current),
-      updateLocalStreams: webRtcManagerRef.current.updateLocalStreams.bind(webRtcManagerRef.current),
-      clean: webRtcManagerRef.current.clean.bind(webRtcManagerRef.current),
+      addConnection: webRtcManager.addConnection.bind(webRtcManager),
+      removeConnection: webRtcManager.removeConnection.bind(webRtcManager),
+      updateLocalStreams: webRtcManager.updateLocalStreams.bind(webRtcManager),
+      clean: webRtcManager.clean.bind(webRtcManager),
       connectionsInfos: connectionsInfos,
     }),
-    [connectionsInfos],
+    [connectionsInfos, webRtcManager],
   )
 }
 

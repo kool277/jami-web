@@ -361,8 +361,8 @@ const ContactMenu = ({
   const { t } = useTranslation()
   const navigate = useNavigate()
   const kickMemberMutation = useRemoveMemberFromSwarm(currentConversationId)
-  const menuOptions: PopoverListItemData[] = useMemo(
-    () => [
+  const menuOptions: PopoverListItemData[] = useMemo(() => {
+    const options: PopoverListItemData[] = [
       {
         label: t('contact_details_text'),
         Icon: PersonIcon,
@@ -378,27 +378,45 @@ const ContactMenu = ({
           setIsBlocking(true)
         },
       },
-    ],
-    [t, setIsBlocking, setContactDetailDialogOpen, openContactDialog],
-  )
-  if (conversationId && !menuOptions.some((option) => option.label === t('go_to_conversation'))) {
-    menuOptions.unshift({
-      label: t('go_to_conversation'),
-      Icon: MessageIcon,
-      onClick: () => {
-        navigate(`/conversation/${conversationId}`)
-      },
-    })
-  }
-  if (isAdmin && !isBanned && !menuOptions.some((option) => option.label === t('kick_member'))) {
-    menuOptions.push({
-      label: t('kick_member'),
-      Icon: KickMemberIcon,
-      onClick: () => {
-        kickMemberMutation.mutate(memberUri)
-      },
-    })
-  }
+    ]
+
+    return [
+      ...(conversationId
+        ? [
+            {
+              label: t('go_to_conversation'),
+              Icon: MessageIcon,
+              onClick: () => {
+                navigate(`/conversation/${conversationId}`)
+              },
+            },
+          ]
+        : []),
+      ...options,
+      ...(isAdmin && !isBanned
+        ? [
+            {
+              label: t('kick_member'),
+              Icon: KickMemberIcon,
+              onClick: () => {
+                kickMemberMutation.mutate(memberUri)
+              },
+            },
+          ]
+        : []),
+    ]
+  }, [
+    conversationId,
+    isAdmin,
+    isBanned,
+    kickMemberMutation,
+    memberUri,
+    navigate,
+    openContactDialog,
+    setContactDetailDialogOpen,
+    setIsBlocking,
+    t,
+  ])
 
   return <ContextMenu {...contextMenuProps} items={menuOptions} />
 }

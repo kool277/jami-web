@@ -18,7 +18,6 @@
 import { Box, Fab, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { FormEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 
 import { GroupAddRoundedIcon as GroupAddRounded } from '../../components/SvgIcon.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
@@ -29,7 +28,6 @@ export default function AdminSetup() {
   const [password, setPassword] = useState('')
   const [passwordRepeat, setPasswordRepeat] = useState('')
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const setupAdminMutation = useSetupAdminMutation()
   const { isPending } = setupAdminMutation
   const { setAlertContent } = useContext(AlertSnackbarContext)

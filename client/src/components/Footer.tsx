@@ -80,8 +80,6 @@ export default function Footer() {
   }
   const componentColor = theme.Footer.backgroundColor
 
-  const componentSize = '25px'
-
   const location = useLocation()
   const currentUrl = location.pathname
 
@@ -90,8 +88,6 @@ export default function Footer() {
     justifyContent: 'flex-start',
     width: '100%',
   }
-
-  const footerIcons = { padding: '2px', height: componentSize, width: componentSize, '&:hover': { cursor: 'pointer' } }
 
   return (
     <>

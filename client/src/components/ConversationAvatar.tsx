@@ -17,7 +17,7 @@
  */
 
 import { Avatar, AvatarProps, Box, Dialog, Stack, Typography, useTheme } from '@mui/material'
-import { ReactNode, useCallback, useContext, useEffect, useState } from 'react'
+import { ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 
@@ -86,14 +86,10 @@ export default function ConversationAvatar({ displayName, contactUri, presence, 
 
 const ConversationAvatarPresence = ({ children, buddy }: { children: ReactNode; buddy: string }) => {
   const theme = useTheme()
-  const { getPresence, presence } = useContext(PresenceContext)
-  const [precenseState, setPrecenseState] = useState<number>(getPresence(buddy))
+  const { getPresence } = useContext(PresenceContext)
+  const presenceState = getPresence(buddy)
 
-  useEffect(() => {
-    setPrecenseState(getPresence(buddy))
-  }, [getPresence, presence, buddy])
-
-  if (!precenseState || precenseState === 0) {
+  if (!presenceState || presenceState === 0) {
     return children
   }
 
@@ -251,12 +247,12 @@ type PhotoTakerProps = {
 const circleLengthPercentage = '50%'
 const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
   const [isPaused, setIsPaused] = useState(false)
-  const [video, setVideo] = useState<HTMLVideoElement | null>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
   const [stream, setStream] = useState<MediaStream | null>(null) // video.srcObject is not reliable
   const [permissionState, setPermissionState] = useState<PermissionState>('prompt')
 
-  const videoRef = useCallback((node: HTMLVideoElement) => {
-    setVideo(node)
+  const setVideoRef = useCallback((node: HTMLVideoElement | null) => {
+    videoRef.current = node
   }, [])
 
   useEffect(() => {
@@ -298,6 +294,7 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
   }, [open, stream, permissionState])
 
   useEffect(() => {
+    const video = videoRef.current
     if (video) {
       if (stream) {
         video.srcObject = stream
@@ -307,19 +304,22 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
         video.srcObject = null
       }
     }
-  }, [video, stream])
+  }, [stream])
 
   const takePhoto = useCallback(() => {
+    const video = videoRef.current
     video?.pause()
     setIsPaused(true)
-  }, [video])
+  }, [])
 
   const cancelPhoto = useCallback(() => {
+    const video = videoRef.current
     video?.play()
     setIsPaused(false)
-  }, [video])
+  }, [])
 
   const savePhoto = useCallback(async () => {
+    const video = videoRef.current
     if (video) {
       // The PhotoTaker shows a circle in the middle of the camera's image.
       // We have to cut the picture, otherwise the avatar would be larger to what the user saw in boundaries of the circle
@@ -345,7 +345,7 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
         onClose()
       }
     }
-  }, [onConfirm, onClose, video])
+  }, [onConfirm, onClose])
 
   if (permissionState === 'denied') {
     // TODO: UI needs to be improved
@@ -362,7 +362,7 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
         >
           <CornerCloseButton onClick={onClose} />
           {stream && <CircleMaskOverlay size={circleLengthPercentage} />}
-          <video ref={videoRef} style={{ transform: 'rotateY(180deg)' /* mirror */ }} />
+          <video ref={setVideoRef} style={{ transform: 'rotateY(180deg)' /* mirror */ }} />
         </Stack>
         <Stack
           direction="row"

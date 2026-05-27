@@ -120,7 +120,7 @@ const CallInterface = () => {
     }
   }, [videoStatus, localStream, screenShareLocalStream])
 
-  const hasSetSinkId = remoteVideoRef.current?.setSinkId != null
+  const hasSetSinkId = typeof HTMLMediaElement !== 'undefined' && 'setSinkId' in HTMLMediaElement.prototype
 
   // TODO: For now, `remoteStream` is the first remote stream in the array.
   //       There should only be one in the array, but we should make sure this is right.
@@ -183,9 +183,7 @@ const CallInterface = () => {
 const CallInterfaceInformation = () => {
   const { callStartTime } = useCallManagerContext()
   const { conversationDisplayName } = useConversationContext()
-  const [elapsedTime, setElapsedTime] = useState<Duration>(
-    dayjs.duration(callStartTime ? Date.now() - callStartTime : 0),
-  )
+  const [elapsedTime, setElapsedTime] = useState<Duration>(dayjs.duration(0))
 
   useEffect(() => {
     if (callStartTime) {

@@ -17,7 +17,7 @@
  */
 import { Box, IconButtonProps, Stack, TextField, TextFieldProps, Typography } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import { ChangeEvent, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PasswordStrength } from '../enums/passwordStrength.js'
@@ -286,7 +286,7 @@ export const RepeatPasswordInput = ({
 export const NickNameInput = ({ onChange: _onChange, ...props }: TextFieldProps) => {
   const [isSelected, setIsSelected] = useState(false)
   const [input, setInput] = useState(props.defaultValue)
-  const [startAdornmentVisibility, setStartAdornmentVisibility] = useState<'visible' | 'hidden'>('hidden')
+  const startAdornmentVisibility = isSelected || input ? 'visible' : 'hidden'
 
   const onChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -295,10 +295,6 @@ export const NickNameInput = ({ onChange: _onChange, ...props }: TextFieldProps)
     },
     [_onChange],
   )
-
-  useEffect(() => {
-    setStartAdornmentVisibility(isSelected || input ? 'visible' : 'hidden')
-  }, [isSelected, input])
 
   return (
     <TextField
@@ -322,8 +318,8 @@ export const NickNameInput = ({ onChange: _onChange, ...props }: TextFieldProps)
 export const RegularInput = ({ onChange: _onChange, ...props }: TextFieldProps) => {
   const [isSelected, setIsSelected] = useState(false)
   const [input, setInput] = useState(props.defaultValue)
-  const [startAdornmentVisibility, setStartAdornmentVisibility] = useState<'visible' | 'hidden'>('hidden')
-  const [endAdornmentVisibility, setEndAdornmentVisibility] = useState<'visible' | 'hidden'>('visible')
+  const startAdornmentVisibility = isSelected || input ? 'visible' : 'hidden'
+  const endAdornmentVisibility = isSelected || input ? 'hidden' : 'visible'
 
   const onChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -332,11 +328,6 @@ export const RegularInput = ({ onChange: _onChange, ...props }: TextFieldProps) 
     },
     [_onChange],
   )
-
-  useEffect(() => {
-    setStartAdornmentVisibility(isSelected || input ? 'visible' : 'hidden')
-    setEndAdornmentVisibility(isSelected || input ? 'hidden' : 'visible')
-  }, [isSelected, input])
 
   return (
     <TextField

@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Stack, useTheme } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import { WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -38,8 +38,6 @@ export default function ConversationList() {
   const handleInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setSearchFilter(event.target.value)
   }, [])
-  const theme = useTheme()
-
   return (
     <>
       <Box
