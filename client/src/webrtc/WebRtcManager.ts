@@ -17,11 +17,11 @@
  */
 import { useMemo, useRef, useSyncExternalStore } from 'react'
 
-import { IWebSocketContext } from '../contexts/WebSocketProvider'
-import { Account } from '../models/account'
-import { CallData } from '../services/CallManager'
-import { Listener } from '../utils/utils'
-import { RTCPeerConnectionHandler, RTCPeerConnectionInfos } from './RtcPeerConnectionHandler'
+import { IWebSocketContext } from '../contexts/WebSocketProvider.js'
+import { Account } from '../models/account.js'
+import { CallData } from '../services/CallManager.js'
+import { Listener } from '../utils/utils.js'
+import { RTCPeerConnectionHandler, RTCPeerConnectionInfos } from './RtcPeerConnectionHandler.js'
 
 export const useWebRtcManager = () => {
   const webRtcManagerRef = useRef(new WebRtcManager())

@@ -25,24 +25,24 @@ import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { useAuthContext } from '../contexts/AuthProvider'
-import { useCallManagerContext } from '../contexts/CallManagerProvider'
-import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName'
-import { useUrlParams } from '../hooks/useUrlParams'
-import { ConversationRouteParams } from '../router'
-import { CallStatus } from '../services/CallManager'
-import { useMembersQuery } from '../services/conversationQueries'
-import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages'
-import { formatRelativeDate, formatTime } from '../utils/dates&times'
-import { getColor } from '../utils/messagecolor'
-import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
-import ConversationAvatar from './ConversationAvatar'
-import { CustomListItemButton } from './CustomListItemButton'
-import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog'
-import EllipsisMiddle from './EllipsisMiddle'
-import { PopoverListItemData } from './PopoverList'
-import RemoveConversationDialog from './RemoveComversationDialog'
-import { CancelIcon, MessageIcon, PersonIcon } from './SvgIcon'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
+import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName.js'
+import { useUrlParams } from '../hooks/useUrlParams.js'
+import { ConversationRouteParams } from '../router.js'
+import { CallStatus } from '../services/CallManager.js'
+import { useMembersQuery } from '../services/conversationQueries.js'
+import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages.js'
+import { formatRelativeDate, formatTime } from '../utils/dates&times.js'
+import { getColor } from '../utils/messagecolor.js'
+import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
+import ConversationAvatar from './ConversationAvatar.js'
+import { CustomListItemButton } from './CustomListItemButton.js'
+import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog.js'
+import EllipsisMiddle from './EllipsisMiddle.js'
+import { PopoverListItemData } from './PopoverList.js'
+import RemoveConversationDialog from './RemoveComversationDialog.js'
+import { CancelIcon, MessageIcon, PersonIcon } from './SvgIcon.js'
 
 type ConversationSummaryListProps = {
   conversationsSummaries: IConversationSummary[]
@@ -61,7 +61,7 @@ export const ConversationSummaryList = ({ conversationsSummaries }: Conversation
     if (conversationsSummaries.some((conversationSummary) => conversationSummary === null)) {
       return conversationsSummaries
     }
-    return [...conversationsSummaries].sort((a, b) => b.lastMessage.timestamp - a.lastMessage.timestamp)
+    return [...conversationsSummaries].sort((a, b) => (b.lastMessage?.timestamp ?? 0) - (a.lastMessage?.timestamp ?? 0))
   }, [conversationsSummaries])
 
   return (
@@ -168,6 +168,9 @@ const TimeIndicator = ({ conversationSummary }: { conversationSummary: IConversa
   const { i18n } = useTranslation()
   const timeIndicator = useMemo(() => {
     const message = conversationSummary.lastMessage
+    if (!message?.timestamp) {
+      return ''
+    }
     const time = dayjs.unix(Number(message.timestamp))
     if (time.isToday()) {
       return formatTime(time, i18n)
@@ -191,8 +194,13 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
   const [isRead, setIsRead] = useState(false)
 
   useEffect(() => {
-    const status = JSON.parse(JSON.stringify(conversationSummary.lastMessage.status))[account.getUri()]
-    if (conversationSummary.lastMessage.author === account.getUri()) {
+    const lastMessage = conversationSummary.lastMessage
+    if (!lastMessage) {
+      setIsRead(true)
+      return
+    }
+    const status = JSON.parse(JSON.stringify(lastMessage.status))[account.getUri()]
+    if (lastMessage.author === account.getUri()) {
       setIsRead(true)
     } else if (status === MessageStatusCode.read) {
       setIsRead(true)
@@ -204,6 +212,9 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
   const lastMessageText = useMemo(() => {
     if (!callData || callData.conversationId !== conversationSummary.id) {
       const message = conversationSummary.lastMessage
+      if (!message) {
+        return ''
+      }
       switch (message.type) {
         case 'initial': {
           return t('message_swarm_created')

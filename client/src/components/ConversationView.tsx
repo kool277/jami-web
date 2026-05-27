@@ -15,30 +15,30 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { InputBase, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { IconButton, InputBase, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider'
-import { useAuthContext } from '../contexts/AuthProvider'
-import { useCallManagerContext } from '../contexts/CallManagerProvider'
+import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider.js'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
 import ConversationPreferencesColorProvider, {
   useConversationPreferencesColorContext,
-} from '../contexts/ConversationPreferencesColorContext'
-import ConversationPreferencesNotificationsProvider from '../contexts/ConversationPreferencesNotificationsContext'
+} from '../contexts/ConversationPreferencesColorContext.js'
+import ConversationPreferencesNotificationsProvider from '../contexts/ConversationPreferencesNotificationsContext.js'
 import ConversationPreferencesStateProvider, {
   useConversationPreferencesStateContext,
-} from '../contexts/ConversationPreferencesStateContext'
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
-import CallInterface from '../pages/CallInterface'
-import ChatInterface from '../pages/ChatInterface'
-import { StartAudioCallButton, StartVideoCallButton } from './Button'
-import { ShowOptionsMenuButton } from './Button'
-import ConversationAvatar from './ConversationAvatar'
-import { ArrowBackIosNewIcon } from './SvgIcon'
-import { SearchRoundedIcon } from './SvgIcon'
+} from '../contexts/ConversationPreferencesStateContext.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider.js'
+import CallInterface from '../pages/CallInterface.js'
+import ChatInterface from '../pages/ChatInterface.js'
+import { StartAudioCallButton, StartVideoCallButton } from './Button.js'
+import { ShowOptionsMenuButton } from './Button.js'
+import ConversationAvatar from './ConversationAvatar.js'
+import { ArrowBackIosNewIcon } from './SvgIcon.js'
+import { SearchRoundedIcon } from './SvgIcon.js'
 
 const ConversationView = () => {
   const { conversationId } = useConversationContext()
@@ -112,7 +112,7 @@ export const ConversationHeader = () => {
   return (
     <Stack
       direction="row"
-      padding="4px 6px 4px 16px"
+      padding="4px 6px 4px 4px"
       overflow="hidden"
       alignItems="center"
       sx={{
@@ -132,10 +132,19 @@ export const ConversationHeader = () => {
     >
       {isSearchOpen ? (
         <>
-          <ArrowBackIosNewIcon
-            sx={{ fontSize: 20, mr: 1, flexShrink: 0, '&:hover': { cursor: 'pointer' } }}
+          <IconButton
             onClick={handleSearchClose}
-          />
+            sx={{
+              flexShrink: 0,
+              height: '36px',
+              width: '36px',
+              borderRadius: '50%',
+              color: theme.Buttons.color,
+              '&:hover': { background: theme.SvgIcons.hoverBackgroundColor },
+            }}
+          >
+            <ArrowBackIosNewIcon sx={{ fontSize: 20 }} />
+          </IconButton>
           <InputBase
             autoFocus
             placeholder="Search in conversation…"
@@ -146,10 +155,18 @@ export const ConversationHeader = () => {
       ) : (
         <>
           <Stack flex={1} direction="row" alignItems="center" overflow="hidden" spacing="12px">
-            <ArrowBackIosNewIcon
-              sx={{ fontSize: 20, '&:hover': { cursor: 'pointer' } }}
+            <IconButton
               onClick={() => onMenuIconClick()}
-            />
+              sx={{
+                height: '36px',
+                width: '36px',
+                borderRadius: '50%',
+                color: theme.Buttons.color,
+                '&:hover': { background: theme.SvgIcons.hoverBackgroundColor },
+              }}
+            >
+              <ArrowBackIosNewIcon sx={{ fontSize: 20 }} />
+            </IconButton>
             {contactUri && (
               <ConversationAvatar
                 displayName={conversationDisplayName}
@@ -188,15 +205,18 @@ export const ConversationHeader = () => {
           <Stack direction="row" spacing="12px" alignItems="center">
             <StartAudioCallButton onClick={() => startCall(conversationId)} />
             <StartVideoCallButton onClick={() => startCall(conversationId, true)} />
-            <SearchRoundedIcon
-              sx={{
-                fontSize: 22,
-                cursor: 'pointer',
-                color: theme.Buttons.color,
-                '&:hover': { color: theme.palette.text.primary },
-              }}
+            <IconButton
               onClick={() => setIsSearchOpen(true)}
-            />
+              sx={{
+                height: '36px',
+                width: '36px',
+                borderRadius: '50%',
+                color: theme.Buttons.color,
+                '&:hover': { background: theme.SvgIcons.hoverBackgroundColor, color: theme.palette.text.primary },
+              }}
+            >
+              <SearchRoundedIcon sx={{ fontSize: 22 }} />
+            </IconButton>
             <ShowOptionsMenuButton
               onClick={() => {
                 setIsOpen(!isOpen)

@@ -4,15 +4,15 @@
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "jsx": "react-jsx",
     "useDefineForClassFields": true,
-    "module": "es2022",
-    "moduleResolution": "node",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "types": ["cypress", "node", "vite/client", "vite-plugin-svgr/client"],
     "resolveJsonModule": true,
     "allowJs": true, // TODO: Set this to false
     "noEmit": true,
     "isolatedModules": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": false,
+    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true

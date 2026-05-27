@@ -19,10 +19,10 @@
 import { Box } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
-import { useActionMessageReadContext } from '../contexts/ActionMessageProvider'
-import { useGlobalSetEditMessage } from '../contexts/ActionMessageProvider'
-import { SquareCancelPictureButton } from './Button'
-import { PenIcon } from './SvgIcon'
+import { useActionMessageReadContext } from '../contexts/ActionMessageProvider.js'
+import { useGlobalSetEditMessage } from '../contexts/ActionMessageProvider.js'
+import { SquareCancelPictureButton } from './Button.js'
+import { PenIcon } from './SvgIcon.js'
 
 export default function EditMessage() {
   const { editMessage } = useActionMessageReadContext()

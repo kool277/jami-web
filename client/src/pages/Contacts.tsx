@@ -17,8 +17,8 @@
  */
 import { Box } from '@mui/material'
 
-import ContactList from '../components/ContactList'
-import Footer from '../components/Footer'
+import ContactList from '../components/ContactList.js'
+import Footer from '../components/Footer.js'
 
 export default function Contacts() {
   return (

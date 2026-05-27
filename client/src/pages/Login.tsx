@@ -33,17 +33,17 @@ import { ChangeEvent, FormEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Link, useNavigate } from 'react-router-dom'
 
-import { PasswordInput, UsernameInput } from '../components/Input'
-import JamiWelcomeLogo from '../components/JamiWelcomeLogo'
-import ProcessingRequest from '../components/ProcessingRequest'
-import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
-import { AuthenticationMethods } from '../enums/authenticationMethods'
-import { useGetAdminConfigQuery } from '../services/adminQueries'
-import { useGetAllProviders, useLoginMutation } from '../services/authQueries'
-import { usePasskeyLoginMutation } from '../services/passkeyQueries'
-import { inputWidth, jamiAuthLogoSize, submitButtonWidth } from '../utils/constants'
-import { isElectronMode } from '../utils/electron'
+import { PasswordInput, UsernameInput } from '../components/Input.js'
+import JamiWelcomeLogo from '../components/JamiWelcomeLogo.js'
+import ProcessingRequest from '../components/ProcessingRequest.js'
+import UnconnectedUserLayout from '../components/UnconnectedUserLayout.js'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
+import { AuthenticationMethods } from '../enums/authenticationMethods.js'
+import { useGetAdminConfigQuery } from '../services/adminQueries.js'
+import { useGetAllProviders, useLoginMutation } from '../services/authQueries.js'
+import { usePasskeyLoginMutation } from '../services/passkeyQueries.js'
+import { inputWidth, jamiAuthLogoSize, submitButtonWidth } from '../utils/constants.js'
+import { isElectronMode } from '../utils/electron.js'
 
 function LoginForm() {
   const currentUrl = window.location.href
@@ -123,8 +123,6 @@ function LoginForm() {
     loginMutation.mutate({ username, password, authMethod: 'guest' })
   }
 
-  const authChoicesStyle = { visibility: isAlone ? 'hidden' : 'visible' }
-
   return (
     <>
       <ProcessingRequest open={isPending || isPasskeyPending} />
@@ -134,11 +132,11 @@ function LoginForm() {
             width: '100%',
             display: 'flex',
             flexDirection: 'row',
-            color: 'black',
+            color: 'text.primary',
             justifyContent: 'center',
           }}
         >
-          <JamiWelcomeLogo logoWidth={jamiAuthLogoSize} logoHeight={jamiAuthLogoSize} />
+          <JamiWelcomeLogo logoWidth={jamiAuthLogoSize} />
         </Box>
 
         <Form
@@ -149,7 +147,7 @@ function LoginForm() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            marginTop: '20px',
+            marginTop: '36px',
           }}
         >
           <UsernameInput
@@ -169,43 +167,41 @@ function LoginForm() {
               sx={{ width: theme.typography.pxToRem(inputWidth) }}
             />
           )}
-          <FormControl
-            sx={{
-              marginTop: '16px',
-              width: '100%',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <RadioGroup
+          {!isAlone && (
+            <FormControl
               sx={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                marginTop: '16px',
                 width: '100%',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                maxWidth: '200px',
-                marginLeft: '16px',
               }}
-              row
-              onChange={handleSelectionChange}
-              value={authMethod}
             >
-              {data.localAuthEnabled && (
-                <FormControlLabel value="local" control={<Radio />} label={t('jami')} sx={authChoicesStyle} />
-              )}
-              {data.jamsAuthEnabled && (
-                <FormControlLabel value="jams" control={<Radio />} label={t('jams')} sx={authChoicesStyle} />
-              )}
-            </RadioGroup>
-          </FormControl>
+              <RadioGroup
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  width: '100%',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  maxWidth: '200px',
+                  marginLeft: '16px',
+                }}
+                row
+                onChange={handleSelectionChange}
+                value={authMethod}
+              >
+                {data.localAuthEnabled && <FormControlLabel value="local" control={<Radio />} label={t('jami')} />}
+                {data.jamsAuthEnabled && <FormControlLabel value="jams" control={<Radio />} label={t('jams')} />}
+              </RadioGroup>
+            </FormControl>
+          )}
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'center',
               alignContent: 'center',
               alignItems: 'center',
-              marginTop: '-16px',
+              marginTop: '12px',
               gap: '8px',
             }}
           >
@@ -249,7 +245,7 @@ function LoginForm() {
               variant="contained"
               type="submit"
               onClick={() => navigate('/import-account')}
-              sx={{ width: theme.typography.pxToRem(submitButtonWidth) + 100, mt: '3%', mb: '-4%' }}
+              sx={{ width: theme.typography.pxToRem(submitButtonWidth) + 100, mt: '3%' }}
             >
               {t('connect_from_another_device')}
             </Button>
@@ -305,7 +301,8 @@ function LoginForm() {
 
         <Box
           sx={{
-            mt: theme.typography.pxToRem(10),
+            mt: theme.typography.pxToRem(6),
+            mb: theme.typography.pxToRem(-16),
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'center',

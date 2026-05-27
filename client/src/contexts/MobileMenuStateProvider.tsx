@@ -18,8 +18,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { createOptionalContext } from '../hooks/createOptionalContext'
-import { WithChildren } from '../utils/utils'
+import { createOptionalContext } from '../hooks/createOptionalContext.js'
+import { WithChildren } from '../utils/utils.js'
 
 interface IMobileMenuStateContext {
   isMenuOpen: boolean

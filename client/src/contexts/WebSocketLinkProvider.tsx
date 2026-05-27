@@ -17,10 +17,10 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { createOptionalContext } from '../hooks/createOptionalContext'
-import { WebSocketClient } from '../services/WebSocketClient'
-import { apiUrl } from '../utils/constants'
-import { WithChildren } from '../utils/utils'
+import { createOptionalContext } from '../hooks/createOptionalContext.js'
+import { WebSocketClient } from '../services/WebSocketClient.js'
+import { apiUrl } from '../utils/constants.js'
+import { WithChildren } from '../utils/utils.js'
 
 export interface IWebSocketLinkContext {
   bind: WebSocketClient['bind']

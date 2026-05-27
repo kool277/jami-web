@@ -19,8 +19,8 @@ import { Box } from '@mui/material'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ISettingItem } from '../utils/utils'
-import SettingSidebar from './SettingSidebar'
+import { ISettingItem } from '../utils/utils.js'
+import SettingSidebar from './SettingSidebar.js'
 
 function UserSettingsSelection() {
   const { t } = useTranslation()

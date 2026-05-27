@@ -20,11 +20,11 @@ import { Box, Button, TextField } from '@mui/material'
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
-import { useSetAutoDownloadLimit } from '../../services/adminQueries'
-import { useGetAutoDownloadLimit } from '../../services/dataTransferQueries'
-import LayoutSettings from '../LayoutSettings'
-import ProcessingRequest from '../ProcessingRequest'
+import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
+import { useSetAutoDownloadLimit } from '../../services/adminQueries.js'
+import { useGetAutoDownloadLimit } from '../../services/dataTransferQueries.js'
+import LayoutSettings from '../LayoutSettings.js'
+import ProcessingRequest from '../ProcessingRequest.js'
 
 export default function DownloadLimit() {
   const limitData = useGetAutoDownloadLimit()
@@ -46,7 +46,14 @@ export default function DownloadLimit() {
   }
 
   const onSave = () => {
-    if (limit === undefined) {
+    if (limit === undefined || limitData.data === undefined) {
+      return
+    } else if (limit < 0) {
+      setAlertContent({
+        messageI18nKey: 'limit_cannot_be_negative',
+        severity: 'error',
+        alertOpen: true,
+      })
       return
     } else if (limit === limitData.data.limit) {
       setAlertContent({
@@ -54,12 +61,7 @@ export default function DownloadLimit() {
         severity: 'error',
         alertOpen: true,
       })
-    } else if (limit < 0) {
-      setAlertContent({
-        messageI18nKey: 'limit_cannot_be_negative',
-        severity: 'error',
-        alertOpen: true,
-      })
+      return
     }
     setAutoDownloadLimitMutation.mutate(limit)
   }

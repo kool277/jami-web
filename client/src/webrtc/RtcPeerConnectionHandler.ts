@@ -18,10 +18,10 @@
 
 import { WebRtcIceCandidate, WebRtcSdp, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common'
 
-import { IWebSocketContext } from '../contexts/WebSocketProvider'
-import { Account } from '../models/account'
-import { CallData } from '../services/CallManager'
-import { Listener } from '../utils/utils'
+import { IWebSocketContext } from '../contexts/WebSocketProvider.js'
+import { Account } from '../models/account.js'
+import { CallData } from '../services/CallManager.js'
+import { Listener } from '../utils/utils.js'
 
 export type RTCPeerConnectionInfos = {
   remoteStreams: readonly MediaStream[]

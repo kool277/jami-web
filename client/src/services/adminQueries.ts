@@ -24,9 +24,9 @@ import { AdminWizardState, HttpStatusCode } from 'jami-web-common'
 import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
-import { AuthenticationMethods } from '../enums/authenticationMethods'
-import { apiUrl } from '../utils/constants'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
+import { AuthenticationMethods } from '../enums/authenticationMethods.js'
+import { apiUrl } from '../utils/constants.js'
 
 export const useSetupAdminMutation = () => {
   const navigate = useNavigate()

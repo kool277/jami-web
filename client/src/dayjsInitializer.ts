@@ -19,12 +19,12 @@ import 'dayjs/locale/en'
 import 'dayjs/locale/fr'
 
 import dayjs from 'dayjs'
-import dayOfYear from 'dayjs/plugin/dayOfYear'
-import duration from 'dayjs/plugin/duration'
-import isBetween from 'dayjs/plugin/isBetween'
-import isToday from 'dayjs/plugin/isToday'
-import isYesterday from 'dayjs/plugin/isYesterday'
-import localizedFormat from 'dayjs/plugin/localizedFormat'
+import dayOfYear from 'dayjs/plugin/dayOfYear.js'
+import duration from 'dayjs/plugin/duration.js'
+import isBetween from 'dayjs/plugin/isBetween.js'
+import isToday from 'dayjs/plugin/isToday.js'
+import isYesterday from 'dayjs/plugin/isYesterday.js'
+import localizedFormat from 'dayjs/plugin/localizedFormat.js'
 
 dayjs.extend(dayOfYear)
 dayjs.extend(duration)

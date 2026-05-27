@@ -20,10 +20,10 @@ import { Box, Button, Modal, Paper, useMediaQuery, useTheme } from '@mui/materia
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { useAddMemberToSwarm } from '../services/conversationQueries'
-import ContactList from './ContactList'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { useAddMemberToSwarm } from '../services/conversationQueries.js'
+import ContactList from './ContactList.js'
 
 interface AddUserToSwarmModalProps {
   open: boolean

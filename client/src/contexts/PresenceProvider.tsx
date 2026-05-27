@@ -19,7 +19,7 @@
 import { NewBuddyNotification, WebSocketMessageType } from 'jami-web-common'
 import { createContext, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useWebSocketContext } from '../contexts/WebSocketProvider'
+import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
 
 interface IPresenceContext {
   getPresence: (buddy: string) => number

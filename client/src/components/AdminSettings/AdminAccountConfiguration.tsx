@@ -42,10 +42,10 @@ import {
   useAdminPasskeyCredentialsQuery,
   useAdminRegisterPasskeyMutation,
   useUpdateAdminPasswordMutation,
-} from '../../services/adminQueries'
-import { PasswordInput } from '../Input'
-import LayoutSettings from '../LayoutSettings'
-import { DeleteIcon } from '../SvgIcon'
+} from '../../services/adminQueries.js'
+import { PasswordInput } from '../Input.js'
+import LayoutSettings from '../LayoutSettings.js'
+import { DeleteIcon } from '../SvgIcon.js'
 
 export default function AuthMethods() {
   const { t } = useTranslation()
@@ -88,11 +88,9 @@ export default function AuthMethods() {
       <LayoutSettings title={t('setting_change_admin_password')} text={t('setting_change_admin_password_text')}>
         <Box
           sx={{
-            overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            marginTop: '-20px',
           }}
         >
           <AnimatePresence>
@@ -109,33 +107,27 @@ export default function AuthMethods() {
               transition={{ duration: 0.5 }}
             >
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ marginTop: '-20px' }}>
-                  <PasswordInput
-                    value={oldPassword}
-                    onChange={onOldPasswordChange}
-                    placeholder={t('admin_page_password_old_placeholder')}
-                    tooltipTitle={t('admin_page_password_old_placeholder')}
-                    newPlaceHolder={t('admin_page_password_old_placeholder')}
-                  />
-                </Box>
-                <Box sx={{ marginTop: '-25px' }}>
-                  <PasswordInput
-                    value={newPassword}
-                    onChange={onNewPasswordChange}
-                    placeholder={t('admin_page_password_placeholder')}
-                    tooltipTitle={t('admin_page_password_placeholder')}
-                    newPlaceHolder={t('admin_page_password_placeholder')}
-                  />
-                </Box>
-                <Box sx={{ marginTop: '-25px' }}>
-                  <PasswordInput
-                    value={repeatPassword}
-                    onChange={onRepeatPasswordChange}
-                    placeholder={t('admin_page_password_repeat_placeholder')}
-                    tooltipTitle={t('admin_page_password_repeat_placeholder')}
-                    newPlaceHolder={t('admin_page_password_repeat_placeholder')}
-                  />
-                </Box>
+                <PasswordInput
+                  value={oldPassword}
+                  onChange={onOldPasswordChange}
+                  placeholder={t('admin_page_password_old_placeholder')}
+                  tooltipTitle={t('admin_page_password_old_placeholder')}
+                  newPlaceHolder={t('admin_page_password_old_placeholder')}
+                />
+                <PasswordInput
+                  value={newPassword}
+                  onChange={onNewPasswordChange}
+                  placeholder={t('admin_page_password_placeholder')}
+                  tooltipTitle={t('admin_page_password_placeholder')}
+                  newPlaceHolder={t('admin_page_password_placeholder')}
+                />
+                <PasswordInput
+                  value={repeatPassword}
+                  onChange={onRepeatPasswordChange}
+                  placeholder={t('admin_page_password_repeat_placeholder')}
+                  tooltipTitle={t('admin_page_password_repeat_placeholder')}
+                  newPlaceHolder={t('admin_page_password_repeat_placeholder')}
+                />
                 <Box
                   sx={{
                     fontSize: '11px',

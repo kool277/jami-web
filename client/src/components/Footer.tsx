@@ -21,15 +21,14 @@ import { MouseEvent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { useAuthContext } from '../contexts/AuthProvider'
-import { setAccessToken } from '../services/authQueries'
-import { useContactProfilePicture } from '../services/contactQueries'
-import { apiUrl } from '../utils/constants'
-import { isElectronMode } from '../utils/electron'
-import ConversationAvatar from './ConversationAvatar'
-import QrCodeModal from './QrCodeModal'
-import { LogoutIcon, ManageAccountsIcon, PeopleIcon, QuestionAnswerIcon } from './SvgIcon'
-import { RoundCloseIcon, SettingsIcon } from './SvgIcon'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { useContactProfilePicture } from '../services/contactQueries.js'
+import { apiUrl } from '../utils/constants.js'
+import { isElectronMode } from '../utils/electron.js'
+import ConversationAvatar from './ConversationAvatar.js'
+import QrCodeModal from './QrCodeModal.js'
+import { LogoutIcon, ManageAccountsIcon, PeopleIcon, QuestionAnswerIcon } from './SvgIcon.js'
+import { RoundCloseIcon, SettingsIcon } from './SvgIcon.js'
 //TODO:  remove 'settings-account' and 'settings' when migration is finished
 type NavigateURL =
   | '/'
@@ -40,10 +39,11 @@ type NavigateURL =
 
 export default function Footer() {
   const { t } = useTranslation()
-  const { logout } = useAuthContext()
-  const { account } = useAuthContext()
+  const { logout, switchAccount: authSwitchAccount, account } = useAuthContext()
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
-  const [localAccounts, setLocalAccounts] = useState<string[]>([])
+  const [localAccounts, setLocalAccounts] = useState<
+    Array<{ id: string; registeredName: string; displayName: string }>
+  >([])
   const navigate = useNavigate()
   const theme = useTheme()
   const profilePictureQuery = useContactProfilePicture(account.getUri())
@@ -52,9 +52,13 @@ export default function Footer() {
 
   useEffect(() => {
     if (!electron) return
-    axios.get<{ usernames: string[] }>('/auth/local-accounts', { baseURL: apiUrl }).then(({ data }) => {
-      setLocalAccounts(data.usernames)
-    })
+    axios
+      .get<{
+        accounts: Array<{ id: string; registeredName: string; displayName: string }>
+      }>('/auth/local-accounts', { baseURL: apiUrl })
+      .then(({ data }) => {
+        setLocalAccounts(data.accounts)
+      })
   }, [electron])
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => setAnchorEl(event.currentTarget)
   const closeMenuAndNavigate = (navigateUrl?: NavigateURL) => {
@@ -64,15 +68,15 @@ export default function Footer() {
     }
   }
 
-  const switchAccount = async (username: string) => {
+  const switchAccount = async (id: string) => {
     setAnchorEl(null)
-    const { data } = await axios.post(
-      '/auth/login',
-      { username, password: '', authMethod: 'local' },
-      { baseURL: apiUrl },
-    )
-    setAccessToken(data.accessToken)
-    window.location.href = '/conversation'
+    try {
+      const { data } = await axios.post('/auth/switch-account', { accountId: id }, { baseURL: apiUrl })
+      localStorage.setItem('lastLoginAccountId', id)
+      authSwitchAccount(data.accessToken)
+    } catch (e) {
+      console.error('Failed to switch account', e)
+    }
   }
   const componentColor = theme.Footer.backgroundColor
 
@@ -111,7 +115,7 @@ export default function Footer() {
             width: '100%',
             maxWidth: isMobile ? 'none' : '200px',
             '&:hover': { cursor: 'pointer' },
-            pl: theme.Panel.padding,
+            pl: '5px',
             py: theme.Panel.itemPadding,
             pr: 0,
             height: '100%',
@@ -184,12 +188,12 @@ export default function Footer() {
             {electron && localAccounts.length > 1 && (
               <>
                 {localAccounts
-                  .filter((username) => username !== account.getRegisteredName())
-                  .map((username) => (
-                    <MenuItem key={username} onClick={() => switchAccount(username)}>
+                  .filter((a) => a.id !== account.id)
+                  .map((a) => (
+                    <MenuItem key={a.id} onClick={() => switchAccount(a.id)}>
                       <div style={menuItemStyle}>
                         <PeopleIcon sx={{ marginRight: '5%' }} />
-                        {username}
+                        {a.registeredName || a.displayName || a.id.slice(0, 8) + '…'}
                       </div>
                     </MenuItem>
                   ))}
@@ -232,7 +236,7 @@ export default function Footer() {
           sx={{
             alignItems: 'center',
             color: theme.Footer.iconsColor,
-            pr: theme.Panel.itemPadding,
+            pr: '10px',
           }}
         >
           <QrCodeModal account={account} />

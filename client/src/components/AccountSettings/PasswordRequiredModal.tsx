@@ -21,8 +21,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form } from 'react-router-dom'
 
-import { useAuthContext } from '../../contexts/AuthProvider'
-import { PasswordInput } from '../Input'
+import { useAuthContext } from '../../contexts/AuthProvider.js'
+import { PasswordInput } from '../Input.js'
 
 interface PasswordRequiredModalProps {
   open: boolean

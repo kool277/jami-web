@@ -18,7 +18,7 @@
 
 import { WebSocketMessage, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common'
 
-import { isDevMode } from '../utils/constants'
+import { isDevMode } from '../utils/constants.js'
 type WebSocketCallback<T extends WebSocketMessageType> = (data: WebSocketMessageTable[T]) => void
 
 type WebSocketCallbacks = {

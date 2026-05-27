@@ -28,10 +28,10 @@ import {
 } from 'jami-web-common'
 import { useCallback, useContext } from 'react'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
-import { useAuthContext } from '../contexts/AuthProvider'
-import { ConversationMember } from '../models/conversation-member'
-import { useAddToCache, useRemoveFromCache } from '../utils/reactquery'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { ConversationMember } from '../models/conversation-member.js'
+import { useAddToCache, useRemoveFromCache } from '../utils/reactquery.js'
 
 export const useConversationInfosQuery = (conversationId?: string) => {
   const { axiosInstance } = useAuthContext()

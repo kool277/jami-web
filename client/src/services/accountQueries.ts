@@ -20,10 +20,10 @@ import axios from 'axios'
 import { removedLinkedDeviceContent } from 'jami-web-common'
 import { useContext } from 'react'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
-import { useAuthContext } from '../contexts/AuthProvider'
-import { apiUrl } from '../utils/constants'
-import { IProvideAccountAuthentication } from '../utils/utils'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { apiUrl } from '../utils/constants.js'
+import { IProvideAccountAuthentication } from '../utils/utils.js'
 
 export const useUpdateAvatarMutation = () => {
   const { axiosInstance } = useAuthContext()

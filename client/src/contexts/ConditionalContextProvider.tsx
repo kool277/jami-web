@@ -17,8 +17,8 @@
  */
 import { Context, useCallback, useState } from 'react'
 
-import HookComponent from '../hooks/HookComponent'
-import { isRequired, PartialNotOptional, WithChildren } from '../utils/utils'
+import HookComponent from '../hooks/HookComponent.js'
+import { isRequired, PartialNotOptional, WithChildren } from '../utils/utils.js'
 
 export type ConditionalContextProviderProps<T, B extends object> = WithChildren & {
   Context: Context<T>

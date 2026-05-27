@@ -22,20 +22,20 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Link, useNavigate } from 'react-router-dom'
 
-import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input'
-import JamiWelcomeLogo from '../components/JamiWelcomeLogo'
-import ProcessingRequest from '../components/ProcessingRequest'
-import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
-import { PasswordStrength } from '../enums/passwordStrength'
-import { useGetAdminConfigQuery } from '../services/adminQueries'
+import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input.js'
+import JamiWelcomeLogo from '../components/JamiWelcomeLogo.js'
+import ProcessingRequest from '../components/ProcessingRequest.js'
+import UnconnectedUserLayout from '../components/UnconnectedUserLayout.js'
+import { PasswordStrength } from '../enums/passwordStrength.js'
+import { useGetAdminConfigQuery } from '../services/adminQueries.js'
 import {
   checkPasswordStrength,
   useCheckIfUsernameIsRegisteredQuery,
   useGetAllProviders,
   useLoginMutation,
   useRegisterMutation,
-} from '../services/authQueries'
-import { inputWidth, jamiAuthLogoSize, jamiUsernamePattern, submitButtonWidth } from '../utils/constants'
+} from '../services/authQueries.js'
+import { inputWidth, jamiAuthLogoSize, jamiUsernamePattern, submitButtonWidth } from '../utils/constants.js'
 
 function RegistrationForm() {
   const theme: Theme = useTheme()
@@ -152,11 +152,11 @@ function RegistrationForm() {
             width: '100%',
             display: 'flex',
             flexDirection: 'row',
-            color: 'black',
+            color: 'text.primary',
             justifyContent: 'center',
           }}
         >
-          <JamiWelcomeLogo logoWidth={jamiAuthLogoSize} logoHeight={jamiAuthLogoSize} />
+          <JamiWelcomeLogo logoWidth={jamiAuthLogoSize} />
         </Box>
 
         <Form

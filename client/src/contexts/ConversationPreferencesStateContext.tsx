@@ -17,8 +17,8 @@
  */
 import { useMemo, useState } from 'react'
 
-import { createOptionalContext } from '../hooks/createOptionalContext'
-import { WithChildren } from '../utils/utils'
+import { createOptionalContext } from '../hooks/createOptionalContext.js'
+import { WithChildren } from '../utils/utils.js'
 
 interface ConversationPreferencesStateContext {
   isOpen: boolean

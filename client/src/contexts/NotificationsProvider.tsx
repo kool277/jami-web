@@ -17,7 +17,7 @@
  */
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { WithChildren } from '../utils/utils'
+import { WithChildren } from '../utils/utils.js'
 
 interface INotificationContext {
   enable: boolean

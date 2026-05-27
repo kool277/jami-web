@@ -17,7 +17,7 @@
  */
 import { Container } from '@mui/material'
 
-import AccountPreferences from '../components/AccountPreferences'
+import AccountPreferences from '../components/AccountPreferences.js'
 
 export default function AccountSettings() {
   // TODO: Improve component and sub-components UI.

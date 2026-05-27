@@ -20,7 +20,7 @@ import { MUIStyledCommonProps } from '@mui/system'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ArrowHeadDown, ArrowHeadUp } from './SvgIcon'
+import { ArrowHeadDown, ArrowHeadUp } from './SvgIcon.js'
 
 export interface SelectOption<Payload> {
   label: string
@@ -36,7 +36,7 @@ type InputProps = InputBaseProps & {
 const Input = styled(({ popupOpen, ...props }: InputProps) => <InputBase {...props} />)(({ theme, popupOpen }) => ({
   width,
   height: '46px',
-  borderRadius: '12px',
+  borderRadius: '9999px',
   border: `1px solid ${popupOpen ? theme.palette.primary.dark : '#0056995C'}`,
   boxSizing: 'border-box',
   fontSize: '15px',
@@ -66,14 +66,13 @@ const Listbox = styled('ul')(({ theme }) => ({
   paddingBottom: '8.5px',
   zIndex: 100,
   position: 'absolute',
-  top: '-5px',
+  top: '4px',
   listStyle: 'none',
-  backgroundColor: 'white',
+  backgroundColor: theme.palette.background.paper,
   overflow: 'auto',
   border: `1px solid ${theme.palette.primary.dark}`,
-  borderEndEndRadius: '5px',
-  borderEndStartRadius: '5px',
-  borderTop: 'none',
+  borderRadius: theme.Panel.itemBorderRadius,
+  boxShadow: theme.shadows[8],
 }))
 
 const Option = styled('li')(({ theme }) => ({

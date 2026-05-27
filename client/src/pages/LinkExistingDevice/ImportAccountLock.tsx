@@ -22,12 +22,12 @@ import { DeviceAuthStateCode } from 'jami-web-common'
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import EllipsisMiddle from '../../components/EllipsisMiddle'
-import UnconnectedUserLayout from '../../components/UnconnectedUserLayout'
-import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
-import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider'
-import { useProvideAccountAuthentication } from '../../services/accountQueries'
-import { IProvideAccountAuthentication } from '../../utils/utils'
+import EllipsisMiddle from '../../components/EllipsisMiddle.js'
+import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
+import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
+import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
+import { useProvideAccountAuthentication } from '../../services/accountQueries.js'
+import { IProvideAccountAuthentication } from '../../utils/utils.js'
 
 export default function ImportAccountLock() {
   const theme = useTheme()

@@ -20,9 +20,9 @@ import axios from 'axios'
 import { HttpStatusCode } from 'jami-web-common'
 import { useContext } from 'react'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
-import { useAuthContext } from '../contexts/AuthProvider'
-import { apiUrl } from '../utils/constants'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { apiUrl } from '../utils/constants.js'
 
 const fileCache = new Map<string, { blob: Blob; blobUrl: string }>()
 

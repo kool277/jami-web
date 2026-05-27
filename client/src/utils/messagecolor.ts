@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import MD5 from 'crypto-js/md5'
+import CryptoJS from 'crypto-js'
 
 // do not modify the order of the colors
 export const colors = [
@@ -76,7 +76,7 @@ export function getColor(canonicalUri: string): string {
   if (canonicalUri === '') {
     return '#9E9E9E' // default color
   }
-  const hash: string = MD5(canonicalUri).toString()
+  const hash: string = CryptoJS.MD5(canonicalUri).toString()
   if (hash === '') {
     return '#9E9E9E'
   }

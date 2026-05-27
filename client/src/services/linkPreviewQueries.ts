@@ -19,7 +19,7 @@ import { useQuery } from '@tanstack/react-query'
 import { LinkPreview } from 'jami-web-common'
 import { useEffect, useState } from 'react'
 
-import { useAuthContext } from '../contexts/AuthProvider'
+import { useAuthContext } from '../contexts/AuthProvider.js'
 
 export const useLinkPreviewQuery = (url: string) => {
   const { axiosInstance } = useAuthContext()

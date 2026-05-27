@@ -23,11 +23,11 @@ import { memo, useCallback, useMemo, useState } from 'react'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthContext } from '../contexts/AuthProvider'
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { useWebSocketContext } from '../contexts/WebSocketProvider'
-import EllipsisMiddle from './EllipsisMiddle'
-import { CloseIcon } from './SvgIcon'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
+import EllipsisMiddle from './EllipsisMiddle.js'
+import { CloseIcon } from './SvgIcon.js'
 
 export interface MessageReactionProps {
   message: Message

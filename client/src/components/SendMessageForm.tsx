@@ -22,23 +22,23 @@ import { WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useActionMessageReadContext, useActionMessageWriteContext } from '../contexts/ActionMessageProvider'
-import { useAuthContext } from '../contexts/AuthProvider'
-import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { useWebSocketContext } from '../contexts/WebSocketProvider'
-import { ConversationMember } from '../models/conversation-member'
-import { useEditMessageMutation, useSendMessageMutation } from '../services/conversationQueries'
-import { useSendFilesMutation } from '../services/dataTransferQueries'
-import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
+import { useActionMessageReadContext, useActionMessageWriteContext } from '../contexts/ActionMessageProvider.js'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
+import { ConversationMember } from '../models/conversation-member.js'
+import { useEditMessageMutation, useSendMessageMutation } from '../services/conversationQueries.js'
+import { useSendFilesMutation } from '../services/dataTransferQueries.js'
+import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations.js'
 import {
   RecordVideoMessageButton,
   RecordVoiceMessageButton,
   SelectEmojiButton,
   SendMessageButton,
   UploadFileButton,
-} from './Button'
-import { DeleteIcon } from './SvgIcon'
+} from './Button.js'
+import { DeleteIcon } from './SvgIcon.js'
 import {
   FormatBoldIcon,
   FormatCodeIcon,
@@ -49,7 +49,7 @@ import {
   FormatStrikethroughIcon,
   FormatTitleIcon,
   LinkIcon,
-} from './SvgIcon'
+} from './SvgIcon.js'
 
 interface SendMessageFormProps {
   openFilePicker: () => void
@@ -331,6 +331,8 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
       if (analyserRef.current === null || dataArrayRef.current === null) {
         return
       }
+
+      // @ts-ignore -- Uint8Array<ArrayBuffer> requires TS ≥5.7; the runtime type is correct
       analyserRef.current.getByteFrequencyData(dataArrayRef.current)
 
       frameCountRef.current++

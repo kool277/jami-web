@@ -26,16 +26,16 @@ import {
   useContactListQuery,
   useContactQuery,
   useRemoveContactMutation,
-} from '../services/contactQueries'
-import ContactDetailDialog from './ContactDetailDialog'
-import ContactSearchBar from './ContactSearchBar'
-import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
-import ConversationAvatar from './ConversationAvatar'
-import { ConfirmationDialog, useDialogHandler } from './Dialog'
-import EllipsisMiddle from './EllipsisMiddle'
-import LoadingPage from './Loading'
-import { PopoverListItemData } from './PopoverList'
-import { BlockContactIcon, CancelIcon, PersonIcon } from './SvgIcon'
+} from '../services/contactQueries.js'
+import ContactDetailDialog from './ContactDetailDialog.js'
+import ContactSearchBar from './ContactSearchBar.js'
+import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
+import ConversationAvatar from './ConversationAvatar.js'
+import { ConfirmationDialog, useDialogHandler } from './Dialog.js'
+import EllipsisMiddle from './EllipsisMiddle.js'
+import LoadingPage from './Loading.js'
+import { PopoverListItemData } from './PopoverList.js'
+import { BlockContactIcon, CancelIcon, PersonIcon } from './SvgIcon.js'
 
 interface ContactListProps {
   members?: string[]

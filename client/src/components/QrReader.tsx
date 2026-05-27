@@ -17,15 +17,16 @@
  */
 
 import { Box } from '@mui/material'
-import QrScanner from 'qr-scanner'
 import { useEffect, useRef, useState } from 'react'
+
+import { QrScanner, type QrScannerInstance, type QrScanResult } from '../utils/qrScanner.js'
 
 interface QrReader {
   setScannedResult: (result: string | undefined) => void
 }
 
 const QrReader = ({ setScannedResult }: QrReader) => {
-  const scanner = useRef<QrScanner>(null)
+  const scanner = useRef<QrScannerInstance>(null)
   const videoEl = useRef<HTMLVideoElement>(null)
   const qrBoxEl = useRef<HTMLDivElement>(null)
   const [qrOn, setQrOn] = useState<boolean>(true)
@@ -35,7 +36,7 @@ const QrReader = ({ setScannedResult }: QrReader) => {
   }
 
   useEffect(() => {
-    const onScanSuccess = (result: QrScanner.ScanResult) => {
+    const onScanSuccess = (result: QrScanResult) => {
       setScannedResult(result?.data)
     }
 
@@ -54,7 +55,7 @@ const QrReader = ({ setScannedResult }: QrReader) => {
       scanner?.current
         ?.start()
         .then(() => setQrOn(true))
-        .catch((err) => {
+        .catch((err: unknown) => {
           if (err) setQrOn(false)
         })
     }

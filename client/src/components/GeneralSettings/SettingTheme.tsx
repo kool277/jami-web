@@ -20,8 +20,8 @@ import { Box } from '@mui/material'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { CustomThemeContext } from '../../contexts/CustomThemeProvider'
-import { SettingSwitch } from '../Settings'
+import { CustomThemeContext } from '../../contexts/CustomThemeProvider.js'
+import { SettingSwitch } from '../Settings.js'
 
 const SettingTheme = () => {
   const { t } = useTranslation()

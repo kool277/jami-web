@@ -17,9 +17,9 @@
  */
 import { Outlet } from 'react-router-dom'
 
-import ConversationList from '../components/ConversationList'
-import LayoutWrapper from '../components/LayoutWrapper'
-import { AppBackgroundProvider } from '../contexts/AppBackgroundProvider'
+import ConversationList from '../components/ConversationList.js'
+import LayoutWrapper from '../components/LayoutWrapper.js'
+import { AppBackgroundProvider } from '../contexts/AppBackgroundProvider.js'
 
 const Messenger = () => {
   return (

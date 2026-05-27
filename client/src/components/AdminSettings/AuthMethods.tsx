@@ -22,10 +22,10 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
 
-import ProcessingRequest from '../../components/ProcessingRequest'
-import { AuthenticationMethods } from '../../enums/authenticationMethods'
+import ProcessingRequest from '../../components/ProcessingRequest.js'
+import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
 import rightChevron from '../../icons/rightChevron.svg'
-import { useGetAdminConfigQuery } from '../../services/adminQueries'
+import { useGetAdminConfigQuery } from '../../services/adminQueries.js'
 
 export default function AuthMethods() {
   const { t } = useTranslation()

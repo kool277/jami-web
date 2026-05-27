@@ -24,16 +24,16 @@ import {
 } from 'jami-web-common'
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 
-import LoadingPage from '../components/Loading'
-import { createOptionalContext } from '../hooks/createOptionalContext'
-import { useConversationDisplayName } from '../hooks/useConversationDisplayName'
-import { useUrlParams } from '../hooks/useUrlParams'
-import { ConversationMember } from '../models/conversation-member'
-import { ConversationRouteParams } from '../router'
-import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries'
-import { WithChildren } from '../utils/utils'
-import { useAuthContext } from './AuthProvider'
-import { useWebSocketContext } from './WebSocketProvider'
+import LoadingPage from '../components/Loading.js'
+import { createOptionalContext } from '../hooks/createOptionalContext.js'
+import { useConversationDisplayName } from '../hooks/useConversationDisplayName.js'
+import { useUrlParams } from '../hooks/useUrlParams.js'
+import { ConversationMember } from '../models/conversation-member.js'
+import { ConversationRouteParams } from '../router.js'
+import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries.js'
+import { WithChildren } from '../utils/utils.js'
+import { useAuthContext } from './AuthProvider.js'
+import { useWebSocketContext } from './WebSocketProvider.js'
 
 interface IConversationContext {
   conversationId: string

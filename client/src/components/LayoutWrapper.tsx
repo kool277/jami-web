@@ -20,11 +20,11 @@ import { alpha, darken, lighten } from '@mui/material/styles'
 import { ReactNode, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider'
-import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
-import { isElectronMode } from '../utils/electron'
-import Footer from './Footer'
-import { ArrowBackIosNewIcon } from './SvgIcon'
+import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider.js'
+import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider.js'
+import { isElectronMode } from '../utils/electron.js'
+import Footer from './Footer.js'
+import { ArrowBackIosNewIcon } from './SvgIcon.js'
 
 interface LayoutWrapperProps {
   sidebar: ReactNode
@@ -77,7 +77,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
   const mainWindowStyles = {
     height: '100%',
     width: '100%',
-    overflowY: isSettings ? 'scroll' : 'hidden',
+    overflowY: isSettings || isAdminPanel ? 'scroll' : 'hidden',
   }
 
   const mainWindowStylesMobile = {
@@ -193,6 +193,18 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
       <Box
         sx={{ ...(isMobile ? sidebarStylesMobile : sidebarStyles), ...(electron && { WebkitAppRegion: 'no-drag' }) }}
       >
+        {/* Invisible drag strip at top of sidebar (electron only): lets user drag the
+            window from the empty area above the search bar. On macOS this also
+            clears space for the native traffic-light buttons (minimize/maximize/close). */}
+        {electron && (
+          <Box
+            sx={{
+              height: '36px',
+              flexShrink: 0,
+              WebkitAppRegion: 'drag',
+            }}
+          />
+        )}
         <Box sx={{ overflow: 'hidden', flex: 1, minHeight: 0 }}>{sidebar}</Box>
         {!isAdminPanel && (
           <Box sx={footerStyles}>

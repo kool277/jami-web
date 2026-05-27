@@ -42,8 +42,8 @@ import {
   useDeletePasskeyMutation,
   usePasskeyCredentialsQuery,
   useRegisterPasskeyMutation,
-} from '../../services/passkeyQueries'
-import { DeleteIcon } from '../SvgIcon'
+} from '../../services/passkeyQueries.js'
+import { DeleteIcon } from '../SvgIcon.js'
 
 export default function PasskeyManager() {
   const { t } = useTranslation()

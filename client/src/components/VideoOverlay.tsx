@@ -20,10 +20,10 @@ import { useRef, useState } from 'react'
 import Draggable, { DraggableEventHandler } from 'react-draggable'
 import { useNavigate } from 'react-router-dom'
 
-import { useCallManagerContext } from '../contexts/CallManagerProvider'
-import { useUserMediaContext } from '../contexts/UserMediaProvider'
-import { VideoElementWithSinkId } from '../utils/utils'
-import VideoStream, { VideoStreamProps } from './VideoStream'
+import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
+import { useUserMediaContext } from '../contexts/UserMediaProvider.js'
+import { VideoElementWithSinkId } from '../utils/utils.js'
+import VideoStream, { VideoStreamProps } from './VideoStream.js'
 
 type Size = 'small' | 'medium' | 'large'
 export type VideoOverlayProps = VideoStreamProps & {

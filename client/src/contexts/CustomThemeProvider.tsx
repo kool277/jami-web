@@ -20,8 +20,8 @@ import { ThemeProvider } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { buildDefaultTheme } from '../themes/Default'
-import { WithChildren } from '../utils/utils'
+import { buildDefaultTheme } from '../themes/Default.js'
+import { WithChildren } from '../utils/utils.js'
 
 interface ICustomThemeContext {
   mode: PaletteMode

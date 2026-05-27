@@ -18,7 +18,7 @@
 import i18n, { ResourceLanguage } from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
-import { apiUrl } from './utils/constants'
+import { apiUrl } from './utils/constants.js'
 
 interface LanguageInfo {
   readonly tag: LanguageTag

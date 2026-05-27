@@ -19,8 +19,8 @@ import { Box, Button, IconButton, Modal } from '@mui/material'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useState } from 'react'
 
-import { Account } from '../models/account'
-import { QrCodeIcon } from './SvgIcon'
+import { Account } from '../models/account.js'
+import { QrCodeIcon } from './SvgIcon.js'
 
 interface QrCodeProps {
   account: Account

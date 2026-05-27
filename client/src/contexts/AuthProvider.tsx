@@ -20,17 +20,19 @@ import { HttpStatusCode, IAccount } from 'jami-web-common'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import ProcessingRequest from '../components/ProcessingRequest'
-import { createOptionalContext } from '../hooks/createOptionalContext'
-import { Account } from '../models/account'
-import { apiUrl } from '../utils/constants'
-import { WithChildren } from '../utils/utils'
+import ProcessingRequest from '../components/ProcessingRequest.js'
+import { createOptionalContext } from '../hooks/createOptionalContext.js'
+import { Account } from '../models/account.js'
+import { apiUrl } from '../utils/constants.js'
+import { isElectronMode } from '../utils/electron.js'
+import { WithChildren } from '../utils/utils.js'
 
 interface IAuthContext {
   token: string
   account: Account
   accountId: string
   logout: () => void
+  switchAccount: (newToken: string) => void
   axiosInstance: AxiosInstance
   updateDevices: (devices: IAccount['devices']) => void
 }
@@ -57,8 +59,14 @@ export default ({ children }: WithChildren) => {
 
   const logout = useCallback(() => {
     localStorage.removeItem('accessToken')
-    navigate('/login')
+    navigate(isElectronMode() ? '/register' : '/login')
   }, [navigate])
+
+  const switchAccount = useCallback((newToken: string) => {
+    localStorage.setItem('accessToken', newToken)
+    setAccount(undefined)
+    setToken(newToken)
+  }, [])
 
   const axiosInstance = useMemo(() => {
     if (!token) {
@@ -114,12 +122,13 @@ export default ({ children }: WithChildren) => {
     return {
       token,
       logout,
+      switchAccount,
       account,
       accountId: account.id,
       axiosInstance,
       updateDevices,
     }
-  }, [token, logout, account, axiosInstance, updateDevices])
+  }, [token, logout, switchAccount, account, axiosInstance, updateDevices])
 
   if (!value) {
     return <ProcessingRequest open />

@@ -20,9 +20,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { ContactDetails, JamsSearchResult, LookupResult } from 'jami-web-common'
 
-import { useAuthContext } from '../contexts/AuthProvider'
-import { Contact } from '../models/contact'
-import { useRefreshConversationsSummaries } from './conversationQueries'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { Contact } from '../models/contact.js'
+import { useRefreshConversationsSummaries } from './conversationQueries.js'
 
 export const useContactsSearchQuery = (searchQuery: string) => {
   const { axiosInstance } = useAuthContext()

@@ -26,13 +26,13 @@ import {
   CallingAnswerVideoButton,
   CallingCancelButton,
   CallingRefuseButton,
-} from '../components/CallButtons'
-import ConversationAvatar from '../components/ConversationAvatar'
-import { useCallManagerContext } from '../contexts/CallManagerProvider'
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { useUserMediaContext } from '../contexts/UserMediaProvider'
-import { CallStatus } from '../services/CallManager'
-import { VideoElementWithSinkId } from '../utils/utils'
+} from '../components/CallButtons.js'
+import ConversationAvatar from '../components/ConversationAvatar.js'
+import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { useUserMediaContext } from '../contexts/UserMediaProvider.js'
+import { CallStatus } from '../services/CallManager.js'
+import { VideoElementWithSinkId } from '../utils/utils.js'
 
 export const CallPending = () => {
   const { conversationDisplayName } = useConversationContext()

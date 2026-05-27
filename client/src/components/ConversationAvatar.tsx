@@ -21,13 +21,13 @@ import { ReactNode, useCallback, useContext, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthContext } from '../contexts/AuthProvider'
-import { PresenceContext } from '../contexts/PresenceProvider'
-import CallPermissionDenied from '../pages/CallPermissionDenied'
-import { useUpdateAvatarMutation } from '../services/accountQueries'
-import { useContactProfilePicture } from '../services/contactQueries'
-import { FileHandler } from '../utils/files'
-import { getColor } from '../utils/messagecolor'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { PresenceContext } from '../contexts/PresenceProvider.js'
+import CallPermissionDenied from '../pages/CallPermissionDenied.js'
+import { useUpdateAvatarMutation } from '../services/accountQueries.js'
+import { useContactProfilePicture } from '../services/contactQueries.js'
+import { FileHandler } from '../utils/files.js'
+import { getColor } from '../utils/messagecolor.js'
 import {
   CancelPictureButton,
   CloseButton,
@@ -37,10 +37,10 @@ import {
   RoundButton,
   TakePictureButton,
   UploadPictureButton,
-} from './Button'
-import { InfosDialog, useDialogHandler } from './Dialog'
-import { CircleMaskOverlay, FileDragOverlay } from './Overlay'
-import { CheckMarkIcon as Check, RefreshOutlinedIcon as RefreshOutlined } from './SvgIcon'
+} from './Button.js'
+import { InfosDialog, useDialogHandler } from './Dialog.js'
+import { CircleMaskOverlay, FileDragOverlay } from './Overlay.js'
+import { CheckMarkIcon as Check, RefreshOutlinedIcon as RefreshOutlined } from './SvgIcon.js'
 
 type ConversationAvatarProps = AvatarProps & {
   displayName: string

@@ -19,7 +19,7 @@ import dayjs from 'dayjs'
 import { i18n } from 'i18next'
 import { Message } from 'jami-web-common'
 
-import { formatCallDuration } from './dates&times'
+import { formatCallDuration } from './dates&times.js'
 
 export const getMessageCallText = (isAccountMessage: boolean, message: Message, i18n: i18n) => {
   if (!message?.duration) {

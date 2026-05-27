@@ -19,9 +19,9 @@
 import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
 
-import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
-import AudioVisual from './AudioVisual'
-import { PauseIcon, PlayArrowIcon } from './SvgIcon'
+import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext.js'
+import AudioVisual from './AudioVisual.js'
+import { PauseIcon, PlayArrowIcon } from './SvgIcon.js'
 
 interface AudioPlayerProps {
   blob?: Blob

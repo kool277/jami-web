@@ -17,13 +17,13 @@
  */
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { darken } from '@mui/system'
-import byteSize from 'byte-size'
 import { useTranslation } from 'react-i18next'
 
-import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
-import { getTextColor } from '../utils/messagecolor'
-import EllipsisMiddle from './EllipsisMiddle'
-import { AttachFileIcon } from './SvgIcon'
+import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext.js'
+import { getTextColor } from '../utils/messagecolor.js'
+import { useDataSizeUnits } from '../utils/units.js'
+import EllipsisMiddle from './EllipsisMiddle.js'
+import { AttachFileIcon } from './SvgIcon.js'
 
 interface MessageDataContentProps {
   displayName: string
@@ -49,6 +49,7 @@ export default function ({
   const color = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
   const backgroundColor = darken(color, 0.3)
   const textColor = isAccountMessage ? getTextColor(color) : theme.MessageDataContent.textColor
+  const formattedTotalSize = useDataSizeUnits(totalSize)
   return (
     <Box
       sx={{
@@ -105,7 +106,7 @@ export default function ({
             gap: isMobile ? '0px' : '4px',
           }}
         >
-          {String(byteSize(Number(totalSize)))}{' '}
+          {formattedTotalSize}{' '}
           {isNotAvailable && (
             <Typography
               sx={{

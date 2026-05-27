@@ -20,8 +20,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { IAccountDetails, IKnownDevicesChanged, ProfileReceived, WebSocketMessageType } from 'jami-web-common'
 import { useEffect } from 'react'
 
-import { useAuthContext } from '../contexts/AuthProvider'
-import { useWebSocketContext } from '../contexts/WebSocketProvider'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
 
 interface AccountDetailsListenerProps {
   children: React.ReactNode

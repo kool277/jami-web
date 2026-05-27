@@ -20,10 +20,10 @@ import { DeviceAuthError, DeviceAuthStateChanged, DeviceAuthStateCode, WebSocket
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { createOptionalContext } from '../hooks/createOptionalContext'
-import { WithChildren } from '../utils/utils'
-import { AlertSnackbarContext } from './AlertSnackbarProvider'
-import { useWebSocketLinkContext } from './WebSocketLinkProvider'
+import { createOptionalContext } from '../hooks/createOptionalContext.js'
+import { WithChildren } from '../utils/utils.js'
+import { AlertSnackbarContext } from './AlertSnackbarProvider.js'
+import { useWebSocketLinkContext } from './WebSocketLinkProvider.js'
 
 interface IImportDeviceContext {
   accountId: string

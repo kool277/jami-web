@@ -17,11 +17,11 @@
  */
 import { useEffect, useMemo, useState } from 'react'
 
-import { createOptionalContext } from '../hooks/createOptionalContext'
-import { useConversationPreferencesQuery } from '../services/conversationQueries'
-import { getColor } from '../utils/messagecolor'
-import { WithChildren } from '../utils/utils'
-import { useConversationContext } from './ConversationProvider'
+import { createOptionalContext } from '../hooks/createOptionalContext.js'
+import { useConversationPreferencesQuery } from '../services/conversationQueries.js'
+import { getColor } from '../utils/messagecolor.js'
+import { WithChildren } from '../utils/utils.js'
+import { useConversationContext } from './ConversationProvider.js'
 
 interface ConversationPreferencesColorContext {
   conversationColor: string

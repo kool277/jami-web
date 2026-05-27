@@ -17,8 +17,8 @@
  */
 import { ReactElement } from 'react'
 
-import MainSettingsSelection from '../components/AdminSettings/MainSettingsSelection'
-import LayoutWrapper from '../components/LayoutWrapper'
+import MainSettingsSelection from '../components/AdminSettings/MainSettingsSelection.js'
+import LayoutWrapper from '../components/LayoutWrapper.js'
 
 interface AdminPanelProps {
   children: ReactElement

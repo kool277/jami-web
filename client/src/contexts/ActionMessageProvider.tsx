@@ -18,8 +18,8 @@
 import { Message } from 'jami-web-common'
 import React, { createContext, useContext, useMemo, useState } from 'react'
 
-import { FileHandler } from '../utils/files'
-import { WithChildren } from '../utils/utils'
+import { FileHandler } from '../utils/files.js'
+import { WithChildren } from '../utils/utils.js'
 
 interface IActionMessageReadContext {
   editMessage: Message | undefined

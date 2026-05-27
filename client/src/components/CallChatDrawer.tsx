@@ -17,10 +17,10 @@
  */
 import { Divider, Stack, Typography } from '@mui/material'
 
-import { useCallManagerContext } from '../contexts/CallManagerProvider'
-import { useConversationContext } from '../contexts/ConversationProvider'
-import ChatInterface from '../pages/ChatInterface'
-import { CloseButton } from './Button'
+import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import ChatInterface from '../pages/ChatInterface.js'
+import { CloseButton } from './Button.js'
 
 export default () => {
   return (

@@ -22,10 +22,10 @@ import { AccessToken } from 'jami-web-common'
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
-import { useAuthContext } from '../contexts/AuthProvider'
-import { apiUrl } from '../utils/constants'
-import { setAccessToken } from './authQueries'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { apiUrl } from '../utils/constants.js'
+import { setAccessToken } from './authQueries.js'
 
 export interface PasskeyCredentialInfo {
   credentialId: string

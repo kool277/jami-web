@@ -19,7 +19,7 @@ import { Alert, AlertColor, AlertProps, AlertTitle, Snackbar, SnackbarProps } fr
 import { createContext, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { SetState, WithChildren } from '../utils/utils'
+import { SetState, WithChildren } from '../utils/utils.js'
 type AlertSnackbarProps = AlertProps & {
   severity: AlertColor
   open?: boolean

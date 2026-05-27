@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import dayjs, { Dayjs } from 'dayjs'
-import { Duration } from 'dayjs/plugin/duration'
+import { Duration } from 'dayjs/plugin/duration.js'
 import { i18n } from 'i18next'
 
 export const formatTime = (time: Dayjs, i18n: i18n) => {

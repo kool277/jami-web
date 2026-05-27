@@ -20,11 +20,11 @@ import { styled } from '@mui/material/styles'
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { PasswordStrength } from '../enums/passwordStrength'
-import { InfoButton, ToggleVisibilityButton } from './Button'
-import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog'
-import { GppMaybeIcon as GppMaybe, WarningIcon as Warning } from './SvgIcon'
-import { CheckedIcon, LockIcon, PenIcon, PersonIcon, RoundSaltireIcon } from './SvgIcon'
+import { PasswordStrength } from '../enums/passwordStrength.js'
+import { InfoButton, ToggleVisibilityButton } from './Button.js'
+import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog.js'
+import { GppMaybeIcon as GppMaybe, WarningIcon as Warning } from './SvgIcon.js'
+import { CheckedIcon, LockIcon, PenIcon, PersonIcon, RoundSaltireIcon } from './SvgIcon.js'
 
 const iconsHeight = '16px'
 const StyledCheckedIconSuccess = styled(CheckedIcon)(({ theme }) => ({
@@ -55,6 +55,7 @@ export const UsernameInput = ({
   infoButtonProps,
   status = 'default',
   tooltipTitle,
+  size = 'small',
   ...props
 }: InputProps<NameStatus>) => {
   const { t } = useTranslation()
@@ -97,6 +98,7 @@ export const UsernameInput = ({
         error={usernameError}
         label={t('username_input_label')}
         helperText={helper}
+        size={size}
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}
@@ -129,6 +131,7 @@ export const PasswordInput = ({
   status = 'default',
   tooltipTitle,
   newPlaceHolder,
+  size = 'small',
   ...props
 }: InputProps<PasswordStatus>) => {
   const { t } = useTranslation()
@@ -180,6 +183,7 @@ export const PasswordInput = ({
         type={showPassword ? 'text' : 'password'}
         autoComplete="current-password"
         helperText={helper}
+        size={size}
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}
@@ -205,7 +209,12 @@ export const PasswordInput = ({
   )
 }
 
-export const RepeatPasswordInput = ({ isEqual, tooltipTitle, ...props }: InputProps<PasswordStatus>) => {
+export const RepeatPasswordInput = ({
+  isEqual,
+  tooltipTitle,
+  size = 'small',
+  ...props
+}: InputProps<PasswordStatus>) => {
   const { t } = useTranslation()
   const [showPassword, setShowPassword] = useState(false)
   const [isSelected, setIsSelected] = useState(false)
@@ -233,6 +242,7 @@ export const RepeatPasswordInput = ({ isEqual, tooltipTitle, ...props }: InputPr
         label={t('password_input_label_repeat')}
         type={showPassword ? 'text' : 'password'}
         autoComplete="current-password"
+        size={size}
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}

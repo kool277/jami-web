@@ -19,7 +19,7 @@
 import { Box, Typography } from '@mui/material'
 import { useState } from 'react'
 
-import ConversationAvatar from './ConversationAvatar'
+import ConversationAvatar from './ConversationAvatar.js'
 
 interface AvatarMouseOverProps {
   contactUri: string

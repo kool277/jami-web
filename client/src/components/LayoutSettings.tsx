@@ -47,7 +47,7 @@ export default function LayoutSettings({ children, title, text, disableMarginTop
           padding: '20px',
           boxShadow: isMobile ? 'none' : undefined,
           border: isMobile ? 'none' : undefined,
-          backgroundColor: isMobile ? theme.ChatInterface.backgroundColor : 'unset',
+          backgroundColor: isMobile ? theme.ChatInterface.backgroundColor : undefined,
           mb: '1px',
         }}
       >

@@ -32,15 +32,15 @@ import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 import { visuallyHidden } from '@mui/utils'
-import byteSize from 'byte-size'
 import { t } from 'i18next'
 import { AccountOverview } from 'jami-web-common'
 import { ChangeEvent, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useDeleteAccounts, useGetAllAccounts } from '../../services/adminQueries'
-import { DeleteIcon } from '../SvgIcon'
-import ValidationRequiredModal from './ValidationRequiredModal'
+import { useDeleteAccounts, useGetAllAccounts } from '../../services/adminQueries.js'
+import { getDataSizeUnits } from '../../utils/units.js'
+import { DeleteIcon } from '../SvgIcon.js'
+import ValidationRequiredModal from './ValidationRequiredModal.js'
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -194,6 +194,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
   )
 }
 export default function AccountsOverview() {
+  const { i18n } = useTranslation()
   const [order, setOrder] = useState<Order>('asc')
   const [orderBy, setOrderBy] = useState<keyof AccountOverview>('auth')
   const [selected, setSelected] = useState<readonly string[]>([])
@@ -315,7 +316,7 @@ export default function AccountsOverview() {
                       </TableCell>
                       <TableCell align="right">{row.accountId}</TableCell>
                       <TableCell align="right">{row.auth}</TableCell>
-                      <TableCell align="right">{String(byteSize(row.storage))}</TableCell>
+                      <TableCell align="right">{getDataSizeUnits(row.storage, i18n.language)}</TableCell>
                       <TableCell padding="checkbox">
                         <Checkbox
                           color="primary"

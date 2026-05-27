@@ -33,15 +33,15 @@ import { ChangeEvent, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
-import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
+import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import {
   useGetAdminConfigQuery,
   useGetJamsUrl,
   useSetJamsUrl,
   useUpdateAdminConfigMutation,
-} from '../../services/adminQueries'
-import LayoutSettings from '../LayoutSettings'
-import ProcessingRequest from '../ProcessingRequest'
+} from '../../services/adminQueries.js'
+import LayoutSettings from '../LayoutSettings.js'
+import ProcessingRequest from '../ProcessingRequest.js'
 
 const JamsAuthMethod = () => {
   const { t } = useTranslation()

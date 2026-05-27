@@ -18,7 +18,7 @@
 import { Card, CardActionArea, CardContent, CircularProgress, Typography } from '@mui/material'
 import { useNavigate } from 'react-router'
 
-import { useConversationsSummariesQuery } from '../services/conversationQueries'
+import { useConversationsSummariesQuery } from '../services/conversationQueries.js'
 
 export default function ConversationsOverviewCard() {
   const navigate = useNavigate()

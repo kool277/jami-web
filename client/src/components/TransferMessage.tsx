@@ -21,10 +21,10 @@ import { Message } from 'jami-web-common'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useTransferMessageMutation } from '../services/conversationQueries'
-import { useTransferFileMutation } from '../services/dataTransferQueries'
-import { SendMessageButton } from './Button'
-import { SelectConversationList } from './SelectConversationList'
+import { useTransferMessageMutation } from '../services/conversationQueries.js'
+import { useTransferFileMutation } from '../services/dataTransferQueries.js'
+import { SendMessageButton } from './Button.js'
+import { SelectConversationList } from './SelectConversationList.js'
 
 interface TransferMessageProps {
   conversationId: string

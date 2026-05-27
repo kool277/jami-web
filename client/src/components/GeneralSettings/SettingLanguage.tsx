@@ -19,8 +19,8 @@
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { languagesInfos, LanguageTag, loadLanguageAsync } from '../../i18n'
-import { SettingSelect, SettingSelectProps } from '../Settings'
+import { languagesInfos, LanguageTag, loadLanguageAsync } from '../../i18n.js'
+import { SettingSelect, SettingSelectProps } from '../Settings.js'
 
 interface SettingLanguageProps {
   doNotDisplayLabel?: boolean

@@ -21,9 +21,9 @@ import { motion } from 'framer-motion'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { ConversationMember } from '../models/conversation-member'
-import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { ConversationMember } from '../models/conversation-member.js'
+import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations.js'
 
 const SingleDot = ({ delay }: { delay: number }) => (
   <Box

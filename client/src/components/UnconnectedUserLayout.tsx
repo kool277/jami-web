@@ -18,7 +18,7 @@
 import { Box, Card, CardContent, CardHeader, Container, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 
-import SettingLanguage from './GeneralSettings/SettingLanguage'
+import SettingLanguage from './GeneralSettings/SettingLanguage.js'
 
 interface UnconnectedUserLayoutProps {
   pageName?: string

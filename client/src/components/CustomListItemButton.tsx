@@ -36,7 +36,7 @@ export const CustomListItemButton = ({ icon, primaryText, secondaryText, ...prop
         borderRadius: '9999px',
         mx: theme.Panel.padding,
         py: theme.Panel.itemPadding,
-        pl: theme.Panel.padding,
+        pl: '6px',
         pr: '12px',
       }}
       {...props}

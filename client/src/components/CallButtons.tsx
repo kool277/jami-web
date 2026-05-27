@@ -20,16 +20,16 @@ import { IconButtonProps } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { ChangeEvent, useMemo } from 'react'
 
-import { useCallManagerContext } from '../contexts/CallManagerProvider'
-import { useUserMediaContext } from '../contexts/UserMediaProvider'
-import { CallStatus, VideoStatus } from '../services/CallManager'
+import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
+import { useUserMediaContext } from '../contexts/UserMediaProvider.js'
+import { CallStatus, VideoStatus } from '../services/CallManager.js'
 import {
   ColoredRoundButton,
   ExpandableButton,
   ExpandableButtonProps,
   ExpandMenuRadioOption,
   ToggleIconButton,
-} from './Button'
+} from './Button.js'
 import {
   CallEndIcon,
   ChatBubbleIcon,
@@ -47,7 +47,7 @@ import {
   VideoCameraIcon,
   VideoCameraOffIcon,
   VolumeIcon,
-} from './SvgIcon'
+} from './SvgIcon.js'
 
 const CallButton = styled((props: ExpandableButtonProps) => {
   return <ExpandableButton {...props} />

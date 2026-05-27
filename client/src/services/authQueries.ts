@@ -24,11 +24,11 @@ import { HttpStatusCode } from 'jami-web-common'
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { NameStatus } from '../components/Input'
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
-import { PasswordStrength } from '../enums/passwordStrength'
-import { apiUrl } from '../utils/constants'
-import { jamiUsernamePattern } from '../utils/constants'
+import { NameStatus } from '../components/Input.js'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
+import { PasswordStrength } from '../enums/passwordStrength.js'
+import { apiUrl } from '../utils/constants.js'
+import { jamiUsernamePattern } from '../utils/constants.js'
 interface PasswordStrengthResult {
   id: number
   value: string

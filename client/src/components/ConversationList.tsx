@@ -20,17 +20,17 @@ import { WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useWebSocketContext } from '../contexts/WebSocketProvider'
+import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
 import {
   useConversationRequestsQuery,
   useConversationsSummariesQuery,
   useRefreshConversationsSummaries,
-} from '../services/conversationQueries'
-import ContactSearchBar from './ContactSearchBar'
-import ContactSearchResultList from './ContactSearchResultList'
-import { ConversationRequestList } from './ConversationRequestList'
-import { ConversationSummaryList } from './ConversationSummaryList'
-import { Tab, TabPanel, TabPanelProps, Tabs } from './Tabs'
+} from '../services/conversationQueries.js'
+import ContactSearchBar from './ContactSearchBar.js'
+import ContactSearchResultList from './ContactSearchResultList.js'
+import { ConversationRequestList } from './ConversationRequestList.js'
+import { ConversationSummaryList } from './ConversationSummaryList.js'
+import { Tab, TabPanel, TabPanelProps, Tabs } from './Tabs.js'
 
 export default function ConversationList() {
   const { t } = useTranslation()

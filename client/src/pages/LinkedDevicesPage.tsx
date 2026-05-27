@@ -18,7 +18,7 @@
 
 import { Box, Grid } from '@mui/material'
 
-import LinkedDevices from '../components/AccountSettings/LinkedDevices'
+import LinkedDevices from '../components/AccountSettings/LinkedDevices.js'
 
 export default function LinkedDevicesPage() {
   const styles = {

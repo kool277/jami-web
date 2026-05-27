@@ -19,13 +19,13 @@ import { Box, Stack, useMediaQuery, useTheme } from '@mui/material'
 import { memo, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 
-import ChatInterfaceManager from '../components/ChatInterfaceManager'
-import ConversationPreferences from '../components/ConversationPreferences'
-import { ConversationHeader } from '../components/ConversationView'
-import { FileDragOverlay } from '../components/Overlay'
-import { useActionMessageReadContext, useActionMessageWriteContext } from '../contexts/ActionMessageProvider'
-import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext'
-import { FileHandler } from '../utils/files'
+import ChatInterfaceManager from '../components/ChatInterfaceManager.js'
+import ConversationPreferences from '../components/ConversationPreferences.js'
+import { ConversationHeader } from '../components/ConversationView.js'
+import { FileDragOverlay } from '../components/Overlay.js'
+import { useActionMessageReadContext, useActionMessageWriteContext } from '../contexts/ActionMessageProvider.js'
+import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext.js'
+import { FileHandler } from '../utils/files.js'
 
 const ChatInterface = () => {
   const { setFileHandlers } = useActionMessageWriteContext()
@@ -61,7 +61,6 @@ const ChatInterface = () => {
         width={isOpen && (isMobile || isMedium) ? '0px' : '100%'}
         overflow="hidden"
         {...getRootProps()}
-        paddingBottom="6px"
         sx={{ position: 'relative' }}
       >
         <ConversationHeader />

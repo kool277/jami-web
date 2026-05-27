@@ -19,15 +19,19 @@ import { Box, Dialog, DialogProps, Fab, List, ListSubheader, Typography } from '
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { Contact } from '../models/contact'
-import { useAddContactMutation, useContactsSearchQuery, useJamsContactsSearchQuery } from '../services/contactQueries'
-import { useConversationsSummariesQuery } from '../services/conversationQueries'
-import ConversationAvatar from './ConversationAvatar'
-import { ConversationSummaryList } from './ConversationSummaryList'
-import { CustomListItemButton } from './CustomListItemButton'
-import { useDialogHandler } from './Dialog'
-import LoadingPage from './Loading'
-import { GroupAddRoundedIcon as GroupAddRounded } from './SvgIcon'
+import { Contact } from '../models/contact.js'
+import {
+  useAddContactMutation,
+  useContactsSearchQuery,
+  useJamsContactsSearchQuery,
+} from '../services/contactQueries.js'
+import { useConversationsSummariesQuery } from '../services/conversationQueries.js'
+import ConversationAvatar from './ConversationAvatar.js'
+import { ConversationSummaryList } from './ConversationSummaryList.js'
+import { CustomListItemButton } from './CustomListItemButton.js'
+import { useDialogHandler } from './Dialog.js'
+import LoadingPage from './Loading.js'
+import { GroupAddRoundedIcon as GroupAddRounded } from './SvgIcon.js'
 
 type ContactSearchResultListProps = {
   searchFilter: string

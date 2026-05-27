@@ -22,10 +22,10 @@ import { AdminSettingSelection } from 'jami-web-common'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { AuthenticationMethods } from '../../enums/authenticationMethods'
+import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
 import rightChevron from '../../icons/rightChevron.svg'
-import { useGetAdminConfigQuery, useGetAllOauthClients } from '../../services/adminQueries'
-import ProcessingRequest from '../ProcessingRequest'
+import { useGetAdminConfigQuery, useGetAllOauthClients } from '../../services/adminQueries.js'
+import ProcessingRequest from '../ProcessingRequest.js'
 
 export default function OpenIdAuthMethod() {
   const navigate = useNavigate()

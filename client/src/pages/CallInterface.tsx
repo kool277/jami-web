@@ -17,7 +17,7 @@
  */
 import { Box, Card, Grid, Stack, Typography } from '@mui/material'
 import dayjs from 'dayjs'
-import { Duration } from 'dayjs/plugin/duration'
+import { Duration } from 'dayjs/plugin/duration.js'
 import {
   ComponentType,
   Fragment,
@@ -31,7 +31,7 @@ import {
   useState,
 } from 'react'
 
-import { ExpandableButtonProps } from '../components/Button'
+import { ExpandableButtonProps } from '../components/Button.js'
 import {
   CallingChatButton,
   CallingEndButton,
@@ -44,18 +44,18 @@ import {
   CallingScreenShareButton,
   CallingVideoCameraButton,
   CallingVolumeButton,
-} from '../components/CallButtons'
-import CallChatDrawer from '../components/CallChatDrawer'
-import VideoOverlay from '../components/VideoOverlay'
-import VideoStream from '../components/VideoStream'
-import { useCallManagerContext } from '../contexts/CallManagerProvider'
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { useUserMediaContext } from '../contexts/UserMediaProvider'
-import { CallStatus, VideoStatus } from '../services/CallManager'
-import { formatCallDuration } from '../utils/dates&times'
-import { VideoElementWithSinkId } from '../utils/utils'
-import { CallPending } from './CallPending'
-import CallPermissionDenied from './CallPermissionDenied'
+} from '../components/CallButtons.js'
+import CallChatDrawer from '../components/CallChatDrawer.js'
+import VideoOverlay from '../components/VideoOverlay.js'
+import VideoStream from '../components/VideoStream.js'
+import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { useUserMediaContext } from '../contexts/UserMediaProvider.js'
+import { CallStatus, VideoStatus } from '../services/CallManager.js'
+import { formatCallDuration } from '../utils/dates&times.js'
+import { VideoElementWithSinkId } from '../utils/utils.js'
+import { CallPending } from './CallPending.js'
+import CallPermissionDenied from './CallPermissionDenied.js'
 
 export default () => {
   const { callStatus, isChatShown, isFullscreen } = useCallManagerContext()

@@ -17,7 +17,7 @@
  */
 import { AccountDetails, Devices, IAccount, VolatileDetails } from 'jami-web-common'
 
-import { Contact } from './contact'
+import { Contact } from './contact.js'
 
 export type AccountType = 'RING' | 'SIP'
 

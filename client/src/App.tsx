@@ -15,18 +15,18 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import './dayjsInitializer' // Initialized once and globally to ensure available locales are always imported
+import './dayjsInitializer.js' // Initialized once and globally to ensure available locales are always imported
 
 import axios from 'axios'
 import { AdminWizardState } from 'jami-web-common'
 import { useState } from 'react'
 import { json, LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
 
-import WelcomeAnimation from './components/WelcomeAnimation'
-import { checkAdminSetupStatus, checkWizardStatus } from './services/adminQueries'
-import { getAccessToken, setAccessToken } from './services/authQueries'
-import { apiUrl } from './utils/constants'
-import { setElectronMode } from './utils/electron'
+import WelcomeAnimation from './components/WelcomeAnimation.jsx'
+import { checkAdminSetupStatus, checkWizardStatus } from './services/adminQueries.js'
+import { getAccessToken, setAccessToken } from './services/authQueries.js'
+import { apiUrl } from './utils/constants.js'
+import { setElectronMode } from './utils/electron.js'
 
 export async function appLoader({ request }: LoaderFunctionArgs) {
   const initialUrl = new URL(request.url)
@@ -49,17 +49,22 @@ export async function appLoader({ request }: LoaderFunctionArgs) {
 
     // Try auto-login: fetch local accounts and login to the first one
     try {
-      const { data } = await axios.get<{ usernames: string[] }>('/auth/local-accounts', { baseURL: apiUrl })
-      if (data.usernames.length === 1) {
+      const { data } = await axios.get<{
+        accounts: Array<{ id: string; registeredName: string; displayName: string }>
+      }>('/auth/local-accounts', { baseURL: apiUrl })
+      if (data.accounts.length >= 1) {
+        const lastUsedId = localStorage.getItem('lastLoginAccountId')
+        const target = (lastUsedId && data.accounts.find((a) => a.id === lastUsedId)) || data.accounts[0]
         const { data: loginData } = await axios.post(
-          '/auth/login',
-          { username: data.usernames[0], password: '', authMethod: 'local' },
+          '/auth/switch-account',
+          { accountId: target.id },
           { baseURL: apiUrl },
         )
         setAccessToken(loginData.accessToken)
+        localStorage.setItem('lastLoginAccountId', target.id)
         return redirect('/conversation')
       }
-      // Multiple accounts or no accounts: let the user pick or register
+      // No accounts: send to registration
     } catch {
       // Auto-login failed, fall through to normal routing
     }

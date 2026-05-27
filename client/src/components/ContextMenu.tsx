@@ -18,7 +18,7 @@
 import { Menu, MenuProps, PopoverPosition, PopoverReference, styled } from '@mui/material'
 import { MouseEventHandler, useCallback, useMemo, useState } from 'react'
 
-import PopoverList, { PopoverListItemData } from './PopoverList'
+import PopoverList, { PopoverListItemData } from './PopoverList.js'
 
 export interface ContextMenuHandler {
   props: {

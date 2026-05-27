@@ -18,7 +18,7 @@
 import { Stack, StackProps } from '@mui/material'
 import { useContext } from 'react'
 
-import { CustomThemeContext } from '../contexts/CustomThemeProvider'
+import { CustomThemeContext } from '../contexts/CustomThemeProvider.js'
 import JamiLogo from '../icons/logo-jami-net.svg?react'
 import JamiLogoWhite from '../icons/logo-jami-net-white.svg?react'
 

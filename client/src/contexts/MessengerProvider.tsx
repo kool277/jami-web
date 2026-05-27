@@ -18,8 +18,8 @@
 import { IConversationRequest, WebSocketMessageType } from 'jami-web-common'
 import { createContext, ReactNode, useEffect, useMemo } from 'react'
 
-import { useAddConversationRequestToCache } from '../services/conversationQueries'
-import { useWebSocketContext } from './WebSocketProvider'
+import { useAddConversationRequestToCache } from '../services/conversationQueries.js'
+import { useWebSocketContext } from './WebSocketProvider.js'
 
 // It is not sure yet we want this context to have no value
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

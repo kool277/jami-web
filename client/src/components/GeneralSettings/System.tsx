@@ -18,13 +18,13 @@
 import { Box, Stack } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
-import LayoutSettings from '../LayoutSettings'
-import { SettingsGroup } from '../Settings'
-import SettingLanguage from './SettingLanguage'
-import SettingLinkPreview from './SettingLinkPreview'
-import SettingNotifications from './SettingNotifications'
-import SettingTheme from './SettingTheme'
-import SettingTips from './SettingTips'
+import LayoutSettings from '../LayoutSettings.js'
+import { SettingsGroup } from '../Settings.js'
+import SettingLanguage from './SettingLanguage.js'
+import SettingLinkPreview from './SettingLinkPreview.js'
+import SettingNotifications from './SettingNotifications.js'
+import SettingTheme from './SettingTheme.js'
+import SettingTips from './SettingTips.js'
 
 function System() {
   const { t } = useTranslation()

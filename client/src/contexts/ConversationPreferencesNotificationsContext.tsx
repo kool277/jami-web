@@ -17,10 +17,10 @@
  */
 import { useEffect, useMemo, useState } from 'react'
 
-import { createOptionalContext } from '../hooks/createOptionalContext'
-import { useConversationPreferencesQuery } from '../services/conversationQueries'
-import { WithChildren } from '../utils/utils'
-import { useConversationContext } from './ConversationProvider'
+import { createOptionalContext } from '../hooks/createOptionalContext.js'
+import { useConversationPreferencesQuery } from '../services/conversationQueries.js'
+import { WithChildren } from '../utils/utils.js'
+import { useConversationContext } from './ConversationProvider.js'
 
 interface ConversationPreferencesNotificationsContext {
   ignoreNotifications: boolean

@@ -34,15 +34,15 @@ import {
   Tooltip,
 } from '@mui/material'
 import { PaletteColor, styled, useTheme } from '@mui/material/styles'
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { ComponentType, ReactNode, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { type EmojiClickData, EmojiPicker } from '../utils/emojiPicker.js'
 import {
   AddCircleIcon as QuestionMark,
   CancelIcon as RadioButtonUnchecked,
   CheckedIcon as RadioButtonChecked,
-} from './SvgIcon'
+} from './SvgIcon.js'
 import {
   Arrow2Icon,
   Arrow3Icon,
@@ -65,8 +65,8 @@ import {
   PeopleWithPlusSignIcon,
   SaltireIcon,
   VideoCallIcon,
-} from './SvgIcon'
-import CustomTooltip from './Tooltip'
+} from './SvgIcon.js'
+import CustomTooltip from './Tooltip.js'
 
 export type ShapedButtonProps = IconButtonProps & {
   Icon: ComponentType<SvgIconProps>

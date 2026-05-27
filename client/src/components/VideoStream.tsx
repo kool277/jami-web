@@ -17,7 +17,7 @@
  */
 import { forwardRef, useEffect, useRef, VideoHTMLAttributes } from 'react'
 
-import { VideoElementWithSinkId } from '../utils/utils'
+import { VideoElementWithSinkId } from '../utils/utils.js'
 
 export type VideoStreamProps = Partial<VideoHTMLAttributes<VideoElementWithSinkId>> & {
   stream: MediaStream | undefined

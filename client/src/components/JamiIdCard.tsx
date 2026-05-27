@@ -17,7 +17,7 @@
  */
 import { Box, Card, CardContent, Typography } from '@mui/material'
 
-import { Account } from '../models/account'
+import { Account } from '../models/account.js'
 
 type JamiIdCardProps = {
   account: Account

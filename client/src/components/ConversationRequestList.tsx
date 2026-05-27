@@ -22,20 +22,20 @@ import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName'
-import { Contact } from '../models/contact'
+import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName.js'
+import { Contact } from '../models/contact.js'
 import {
   useAcceptConversationRequestMutation,
   useBlockConversationRequestMutation,
   useConversationRequestsQuery,
   useDeclineConversationRequestMutation,
-} from '../services/conversationQueries'
-import { ColoredRoundButton } from './Button'
-import ConversationAvatar from './ConversationAvatar'
-import { CustomListItemButton } from './CustomListItemButton'
-import { useDialogHandler } from './Dialog'
-import LoadingPage from './Loading'
-import { CheckMarkIcon, PersonWithCrossMarkIcon, SaltireIcon } from './SvgIcon'
+} from '../services/conversationQueries.js'
+import { ColoredRoundButton } from './Button.js'
+import ConversationAvatar from './ConversationAvatar.js'
+import { CustomListItemButton } from './CustomListItemButton.js'
+import { useDialogHandler } from './Dialog.js'
+import LoadingPage from './Loading.js'
+import { CheckMarkIcon, PersonWithCrossMarkIcon, SaltireIcon } from './SvgIcon.js'
 
 export const ConversationRequestList = () => {
   const conversationRequestsQuery = useConversationRequestsQuery()

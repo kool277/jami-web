@@ -20,11 +20,11 @@ import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
 
-import ProcessingRequest from '../../components/ProcessingRequest'
-import UnconnectedUserLayout from '../../components/UnconnectedUserLayout'
-import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider'
-import { useWebSocketLinkContext } from '../../contexts/WebSocketLinkProvider'
-import { useGetLinkTokenQuery } from '../../services/authQueries'
+import ProcessingRequest from '../../components/ProcessingRequest.js'
+import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
+import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
+import { useWebSocketLinkContext } from '../../contexts/WebSocketLinkProvider.js'
+import { useGetLinkTokenQuery } from '../../services/authQueries.js'
 
 export default function ImportAccount() {
   const theme = useTheme()

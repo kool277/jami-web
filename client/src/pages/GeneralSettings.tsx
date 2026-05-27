@@ -17,7 +17,7 @@
  */
 import { Box } from '@mui/material'
 
-import System from '../components/GeneralSettings/System'
+import System from '../components/GeneralSettings/System.js'
 
 export default function GeneralPreferences() {
   return (

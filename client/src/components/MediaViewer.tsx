@@ -20,11 +20,11 @@ import { Box, Modal, Typography, useMediaQuery, useTheme } from '@mui/material'
 import dayjs from 'dayjs'
 import { useTranslation } from 'react-i18next'
 
-import { ConversationMember } from '../models/conversation-member'
-import AudioPlayer from './AudioPlayer'
-import ConversationAvatar from './ConversationAvatar'
-import EllipsisMiddle from './EllipsisMiddle'
-import { AttachFileIcon, CloseIcon, DownloadIcon, LinkIcon } from './SvgIcon'
+import { ConversationMember } from '../models/conversation-member.js'
+import AudioPlayer from './AudioPlayer.js'
+import ConversationAvatar from './ConversationAvatar.js'
+import EllipsisMiddle from './EllipsisMiddle.js'
+import { AttachFileIcon, CloseIcon, DownloadIcon, LinkIcon } from './SvgIcon.js'
 
 interface MediaViewerProps {
   totalSize?: string

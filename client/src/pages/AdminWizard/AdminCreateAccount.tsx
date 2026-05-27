@@ -20,10 +20,10 @@ import { FormEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { GroupAddRoundedIcon as GroupAddRounded } from '../../components/SvgIcon'
-import UnconnectedUserLayout from '../../components/UnconnectedUserLayout'
-import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
-import { useSetupAdminMutation } from '../../services/adminQueries'
+import { GroupAddRoundedIcon as GroupAddRounded } from '../../components/SvgIcon.js'
+import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
+import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
+import { useSetupAdminMutation } from '../../services/adminQueries.js'
 
 export default function AdminSetup() {
   const [password, setPassword] = useState('')

@@ -19,7 +19,7 @@ import { Button, FormLabel, List, ListItem, ListSubheader, Stack, Switch, Switch
 import { Box } from '@mui/system'
 import { MouseEventHandler, ReactElement } from 'react'
 
-import { CustomSelect, CustomSelectProps } from './CustomSelect'
+import { CustomSelect, CustomSelectProps } from './CustomSelect.js'
 
 interface Setting {
   label: string

@@ -19,9 +19,9 @@
 import { Box, InputBase, Stack, useTheme } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 
-import { SquareButton } from './Button'
-import { SearchRoundedIcon as SearchRounded } from './SvgIcon'
-import { PeopleWithPlusSignIcon } from './SvgIcon'
+import { SquareButton } from './Button.js'
+import { SearchRoundedIcon as SearchRounded } from './SvgIcon.js'
+import { PeopleWithPlusSignIcon } from './SvgIcon.js'
 
 interface ContactSearchBarProps {
   placeholder: string
@@ -64,9 +64,8 @@ export default function ContactSearchBar({ placeholder, handleChange }: ContactS
           }
           sx={{
             flexGrow: 1,
-            // color and placeholder color does not change in dark mode
-            '& .MuiInputBase-input::placeholder': { color: 'grey.600' },
-            color: 'grey.900',
+            '& .MuiInputBase-input::placeholder': { color: 'text.secondary', opacity: 1 },
+            color: 'text.primary',
           }}
         />
         <SquareButton

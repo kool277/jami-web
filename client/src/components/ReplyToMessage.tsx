@@ -20,13 +20,13 @@ import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
-import { useActionMessageReadContext } from '../contexts/ActionMessageProvider'
-import { useGlobalSetReplyMessage } from '../contexts/ActionMessageProvider'
-import { useAuthContext } from '../contexts/AuthProvider'
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { SquareCancelPictureButton } from './Button'
-import MessageDataContent from './MessageDataContent'
-import { Arrow4Icon as ReplyIcon } from './SvgIcon'
+import { useActionMessageReadContext } from '../contexts/ActionMessageProvider.js'
+import { useGlobalSetReplyMessage } from '../contexts/ActionMessageProvider.js'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { SquareCancelPictureButton } from './Button.js'
+import MessageDataContent from './MessageDataContent.js'
+import { Arrow4Icon as ReplyIcon } from './SvgIcon.js'
 
 export default function ReplyToMessage() {
   const { members } = useConversationContext()

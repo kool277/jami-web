@@ -29,13 +29,15 @@ const dataSizeSymbols: Record<string, Record<string, string>> = {
   default: { B: 'B', kB: 'kB', MB: 'MB', GB: 'GB', TB: 'TB', PB: 'PB', EB: 'EB', ZB: 'ZB', YB: 'YB' },
 }
 
+export const getDataSizeUnits = (nbBytes: number, language: string) => {
+  const options = {
+    symbols: dataSizeSymbols[language] || dataSizeSymbols['default'], // undefined is not supported
+    locale: language,
+  }
+  return filesize(nbBytes, options)
+}
+
 export const useDataSizeUnits = (nbBytes: number) => {
   const { i18n } = useTranslation()
-  return useMemo(() => {
-    const options = {
-      symbols: dataSizeSymbols[i18n.language] || dataSizeSymbols['default'], // undefined is not supported
-      locale: i18n.language,
-    }
-    return filesize(nbBytes, options)
-  }, [i18n, nbBytes])
+  return useMemo(() => getDataSizeUnits(nbBytes, i18n.language), [i18n.language, nbBytes])
 }

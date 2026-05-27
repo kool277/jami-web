@@ -38,19 +38,19 @@ import { motion } from 'framer-motion'
 import { AccountDetails } from 'jami-web-common'
 import { useState } from 'react'
 
-import { useAuthContext } from '../contexts/AuthProvider'
-import CustomizeProfile from './AccountSettings/CustomizeProfile'
-import LinkedDevicesPreview from './AccountSettings/LinkedDevicesPreview'
-import PasskeyManager from './AccountSettings/PasskeyManager'
-import ConversationAvatar from './ConversationAvatar'
-import ConversationsOverviewCard from './ConversationsOverviewCard'
-import JamiIdCard from './JamiIdCard'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import CustomizeProfile from './AccountSettings/CustomizeProfile.js'
+import LinkedDevicesPreview from './AccountSettings/LinkedDevicesPreview.js'
+import PasskeyManager from './AccountSettings/PasskeyManager.js'
+import ConversationAvatar from './ConversationAvatar.js'
+import ConversationsOverviewCard from './ConversationsOverviewCard.js'
+import JamiIdCard from './JamiIdCard.js'
 import {
   AddCircleIcon as AddCircle,
   AudioCallIcon as PhoneCallbackRounded,
   DeleteIcon as DeleteRounded,
   GroupsIcon as GroupRounded,
-} from './SvgIcon'
+} from './SvgIcon.js'
 
 const transition = { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }
 
@@ -210,6 +210,7 @@ export default function AccountPreferences() {
                   onChange={(e) => setDefaultModeratorUri(e.target.value)}
                   label="Add new default moderator"
                   placeholder="Enter new moderator name or URI"
+                  size="small"
                   fullWidth
                 />
                 <ListItemSecondaryAction>

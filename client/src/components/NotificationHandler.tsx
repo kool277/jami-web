@@ -18,11 +18,11 @@
 import { ConversationMessage, WebSocketMessageType } from 'jami-web-common'
 import { useContext, useEffect, useState } from 'react'
 
-import { useAuthContext } from '../contexts/AuthProvider'
-import { NotificationContext } from '../contexts/NotificationsProvider'
-import { useWebSocketContext } from '../contexts/WebSocketProvider'
-import { useContactQuery } from '../services/contactQueries'
-import { useConversationPreferencesQuery } from '../services/conversationQueries'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { NotificationContext } from '../contexts/NotificationsProvider.js'
+import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
+import { useContactQuery } from '../services/contactQueries.js'
+import { useConversationPreferencesQuery } from '../services/conversationQueries.js'
 
 const SendNotification = (message: string, username: string) => {
   if (Notification.permission !== 'granted') {

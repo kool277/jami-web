@@ -32,16 +32,16 @@ import {
 import React, { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider'
-import { useAuthContext } from '../contexts/AuthProvider'
-import { CustomThemeContext } from '../contexts/CustomThemeProvider'
-import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { CustomThemeContext } from '../contexts/CustomThemeProvider.js'
+import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider.js'
 import JamiLogo from '../icons/logo-jami-net.svg?react'
 import JamiLogoWhite from '../icons/logo-jami-net-white.svg?react'
-import { contributorsDevelopers, contributorsMedia } from '../utils/contributors'
-import EllipsisMiddle from './EllipsisMiddle'
-import { VolunteerActivismIcon } from './SvgIcon'
-import { InfoIcon, JamiIdIcon, TipIcon, TrashBinIcon, TwoSheetsIcon } from './SvgIcon'
+import { contributorsDevelopers, contributorsMedia } from '../utils/contributors.js'
+import EllipsisMiddle from './EllipsisMiddle.js'
+import { VolunteerActivismIcon } from './SvgIcon.js'
+import { InfoIcon, JamiIdIcon, TipIcon, TrashBinIcon, TwoSheetsIcon } from './SvgIcon.js'
 
 export default function WelcomePage() {
   const { t } = useTranslation()
@@ -129,7 +129,7 @@ export default function WelcomePage() {
 
   const middleBoxStyle = {
     backgroundColor: theme.WelcomePage.middleBoxBackgroundColor,
-    padding: '6px 14px',
+    padding: '6px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-evenly',
@@ -176,10 +176,14 @@ export default function WelcomePage() {
           }}
         >
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <JamiLogo width={'auto'} height={'80px'} style={{ marginTop: '100px', marginBottom: '150px' }} />
+            {isDark ? (
+              <JamiLogoWhite width={'auto'} height={'80px'} style={{ marginTop: '100px', marginBottom: '150px' }} />
+            ) : (
+              <JamiLogo width={'auto'} height={'80px'} style={{ marginTop: '100px', marginBottom: '150px' }} />
+            )}
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '-9vh' }}>
-            <Typography color={'black'}>{t('welcome_page_text')}</Typography>
+            <Typography color={'text.primary'}>{t('welcome_page_text')}</Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '2%', width: '100%' }}>
             <Box
@@ -190,7 +194,7 @@ export default function WelcomePage() {
               }}
               borderRadius={'18px 2px 2px 18px'}
             >
-              <JamiIdIcon sx={{ marginBottom: '-4px', marginRight: '5px' }} />
+              <JamiIdIcon sx={{ marginRight: '5px' }} />
               <Box maxWidth={isMedium ? '170px' : 'unset'} sx={{ mb: '2px' }}>
                 <EllipsisMiddle text={displayedInfo} centerItem={true} padding="6px" />
               </Box>

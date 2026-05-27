@@ -15,10 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { type SvgIconProps } from '@mui/material'
+import { Box, type SvgIconProps } from '@mui/material'
 import React from 'react'
 
-import MaterialSymbol from './MaterialSymbol'
+import JamiIDLogoSvg from '../icons/jami-id-logo.svg?react'
+import MaterialSymbol from './MaterialSymbol.js'
 
 const ms = (symbol: string, filled?: boolean) => {
   const Comp = (props: any) => <MaterialSymbol symbol={symbol} filled={filled} {...props} />
@@ -63,7 +64,11 @@ export const QrCodeIcon = ms('qr_code')
 export const MessageIcon = ms('chat')
 export const PaintIcon = ms('palette')
 export const TipIcon = ms('lightbulb')
-export const JamiIdIcon = ms('fingerprint')
+export const JamiIdIcon = ({ sx }: SvgIconProps) => (
+  <Box sx={{ display: 'inline-flex', alignItems: 'center', ...sx }}>
+    <JamiIDLogoSvg style={{ width: '24px', height: 'auto' }} />
+  </Box>
+)
 export const DownloadFileIcon = ms('download')
 export const MoreVerticalIcon = ms('more_vert')
 export const MicroIcon = ms('mic')

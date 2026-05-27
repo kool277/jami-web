@@ -20,8 +20,8 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { useRemoveConversationMutation } from '../services/conversationQueries'
-import { ConfirmationDialog } from './Dialog'
+import { useRemoveConversationMutation } from '../services/conversationQueries.js'
+import { ConfirmationDialog } from './Dialog.js'
 
 interface RemoveConversationDialogProps {
   conversationId: string

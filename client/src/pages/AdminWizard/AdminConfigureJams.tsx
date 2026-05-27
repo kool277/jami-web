@@ -22,9 +22,9 @@ import { ChangeEvent, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, useNavigate } from 'react-router-dom'
 
-import ProcessingRequest from '../../components/ProcessingRequest'
-import UnconnectedUserLayout from '../../components/UnconnectedUserLayout'
-import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
+import ProcessingRequest from '../../components/ProcessingRequest.js'
+import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
+import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import {
   useGetAdminConfigQuery,
   useGetJamsUrl,
@@ -32,7 +32,7 @@ import {
   useSetJamsUrl,
   useSetWizardStateMutation,
   useUpdateAdminConfigMutation,
-} from '../../services/adminQueries'
+} from '../../services/adminQueries.js'
 
 export default function AdminConfigureJams() {
   const navigate = useNavigate()

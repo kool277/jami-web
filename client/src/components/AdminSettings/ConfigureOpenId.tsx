@@ -35,11 +35,11 @@ import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
-import { AuthenticationMethods } from '../../enums/authenticationMethods'
-import { useGetProviderInfo, useUpdateProviderInfo } from '../../services/adminQueries'
-import ProcessingRequest from '../ProcessingRequest'
-import { ContentCopyIcon, DescriptionIcon } from '../SvgIcon'
+import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
+import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
+import { useGetProviderInfo, useUpdateProviderInfo } from '../../services/adminQueries.js'
+import ProcessingRequest from '../ProcessingRequest.js'
+import { ContentCopyIcon, DescriptionIcon } from '../SvgIcon.js'
 
 export default function ConfigureOpenId() {
   const location = useLocation()

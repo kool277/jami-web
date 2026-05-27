@@ -19,10 +19,10 @@ import { ContactDetails as ContactDetailType } from 'jami-web-common'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
 
-import ConversationAvatar from './ConversationAvatar'
-import { InfosDialog } from './Dialog'
-import { DialogContentList } from './Dialog'
-import LoadingPage from './Loading'
+import ConversationAvatar from './ConversationAvatar.js'
+import { InfosDialog } from './Dialog.js'
+import { DialogContentList } from './Dialog.js'
+import LoadingPage from './Loading.js'
 
 interface ContactDetailDialogProps {
   contactDetail: ContactDetailType | undefined

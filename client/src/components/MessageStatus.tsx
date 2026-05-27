@@ -22,12 +22,12 @@ import { Message } from 'jami-web-common'
 import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
 import { useCallback, useContext, useEffect, useState } from 'react'
 
-import { currentLastSeenMessageContext } from '../components/ChatInterfaceManager'
-import { useAuthContext } from '../contexts/AuthProvider'
-import { useConversationContext } from '../contexts/ConversationProvider'
+import { currentLastSeenMessageContext } from '../components/ChatInterfaceManager.js'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
 import SendingIcon from '../icons/sendingIcon.svg?react'
 import SentIcon from '../icons/sentIcon.svg?react'
-import AvatarMouseOver from './AvatarMouseOver'
+import AvatarMouseOver from './AvatarMouseOver.js'
 
 export interface MessageStatusProps {
   message: Message

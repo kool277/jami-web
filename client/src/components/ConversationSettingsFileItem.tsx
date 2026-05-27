@@ -17,15 +17,15 @@
  */
 
 import { Box, useMediaQuery, useTheme } from '@mui/material'
-import byteSize from 'byte-size'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { GetDownloadedFile, useGetAutoDownloadLimit, useGetDownloadFileInfo } from '../services/dataTransferQueries'
-import EllipsisMiddle from './EllipsisMiddle'
-import MediaViewer from './MediaViewer'
-import { AttachFileIcon, AudioFileIcon, PictureAsPdfIcon, VideoFileIcon } from './SvgIcon'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { GetDownloadedFile, useGetAutoDownloadLimit, useGetDownloadFileInfo } from '../services/dataTransferQueries.js'
+import { useDataSizeUnits } from '../utils/units.js'
+import EllipsisMiddle from './EllipsisMiddle.js'
+import MediaViewer from './MediaViewer.js'
+import { AttachFileIcon, AudioFileIcon, PictureAsPdfIcon, VideoFileIcon } from './SvgIcon.js'
 
 interface ConversationSettingsFileItemProps {
   displayName: string
@@ -51,7 +51,7 @@ const ConversationSettingsFileItem = ({
   const limitData = useGetAutoDownloadLimit()
 
   const downloadFile = GetDownloadedFile(conversationId)
-  const betterTotalSize = String(byteSize(totalSize))
+  const betterTotalSize = useDataSizeUnits(totalSize)
 
   const [blobUrl, setBlobUrl] = useState<string | undefined>()
   const [blob, setBlob] = useState<Blob>()

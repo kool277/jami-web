@@ -15,12 +15,12 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { RemoteVideoOverlay } from '../components/VideoOverlay'
-import { createOptionalContext } from '../hooks/createOptionalContext'
-import { useUrlParams } from '../hooks/useUrlParams'
-import { ConversationRouteParams } from '../router'
-import { ICallManager, useCallManager } from '../services/CallManager'
-import { WithChildren } from '../utils/utils'
+import { RemoteVideoOverlay } from '../components/VideoOverlay.js'
+import { createOptionalContext } from '../hooks/createOptionalContext.js'
+import { useUrlParams } from '../hooks/useUrlParams.js'
+import { ConversationRouteParams } from '../router.js'
+import { ICallManager, useCallManager } from '../services/CallManager.js'
+import { WithChildren } from '../utils/utils.js'
 
 const optionalCallManagerContext = createOptionalContext<ICallManager>('CallManagerContext')
 export const useCallManagerContext = optionalCallManagerContext.useOptionalContext

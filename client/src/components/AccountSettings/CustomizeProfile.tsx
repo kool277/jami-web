@@ -19,9 +19,9 @@
 import { Box, Button, TextField } from '@mui/material'
 import { useEffect, useState } from 'react'
 
-import { useAuthContext } from '../../contexts/AuthProvider'
-import { useResetDisplayName, useSetDisplayName } from '../../services/accountQueries'
-import { AvatarEditor } from '../ConversationAvatar'
+import { useAuthContext } from '../../contexts/AuthProvider.js'
+import { useResetDisplayName, useSetDisplayName } from '../../services/accountQueries.js'
+import { AvatarEditor } from '../ConversationAvatar.js'
 
 function CustomizeProfile() {
   const { account } = useAuthContext()

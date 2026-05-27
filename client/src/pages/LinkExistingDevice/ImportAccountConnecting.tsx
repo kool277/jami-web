@@ -22,8 +22,8 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import UnconnectedUserLayout from '../../components/UnconnectedUserLayout'
-import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider'
+import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
+import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 
 export default function ImportAccountConnecting() {
   const theme = useTheme()

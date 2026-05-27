@@ -22,14 +22,14 @@ import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import QrReader from '../../components/QrReader'
-import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider'
-import { useWebSocketContext } from '../../contexts/WebSocketProvider'
+import QrReader from '../../components/QrReader.js'
+import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
+import { useWebSocketContext } from '../../contexts/WebSocketProvider.js'
 import {
   useCancelAddDeviceMutation,
   useConfirmAddDeviceMutation,
   useExportAccountMutation,
-} from '../../services/accountQueries'
+} from '../../services/accountQueries.js'
 
 export function ExportToAnotherDevice() {
   const { setAlertContent } = useContext(AlertSnackbarContext)

@@ -19,9 +19,9 @@ import { ConversationInfos } from 'jami-web-common'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Account } from '../models/account'
-import { ConversationMember } from '../models/conversation-member'
-import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations'
+import { Account } from '../models/account.js'
+import { ConversationMember } from '../models/conversation-member.js'
+import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations.js'
 
 export const useConversationDisplayName = (
   account: Account,

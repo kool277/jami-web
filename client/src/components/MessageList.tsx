@@ -21,13 +21,13 @@ import { useVirtualizer } from '@tanstack/react-virtual'
 import { Message, MESSAGES_NUMBER_TO_LOAD, WebSocketMessageType } from 'jami-web-common'
 import { memo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Waypoint } from 'react-waypoint'
+import { InView } from 'react-intersection-observer'
 
-import { useAuthContext } from '../contexts/AuthProvider'
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { useWebSocketContext } from '../contexts/WebSocketProvider'
-import { findNextVisibleMessage, findPreviousVisibleMessage, MessageRow } from './Message'
-import { ArrowDownIcon } from './SvgIcon'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
+import { findNextVisibleMessage, findPreviousVisibleMessage, MessageRow } from './Message.js'
+import { ArrowDownIcon } from './SvgIcon.js'
 
 const MemoizedMessageRow = memo(MessageRow, (prevProps, nextProps) => {
   return (
@@ -52,6 +52,7 @@ export default function MessageList({ messages }: MessageListProps) {
   const { account, accountId } = useAuthContext()
   const { members, conversationId } = useConversationContext()
   const [showScrollButton, setShowScrollButton] = useState(false)
+  const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null)
   const listBottomRef = useRef<HTMLElement>(null)
   const webSocket = useWebSocketContext()
   const lastMessageId = messages[messages.length - 1]?.id
@@ -84,18 +85,21 @@ export default function MessageList({ messages }: MessageListProps) {
       <Stack
         flex={1}
         overflow="auto"
-        padding="0px px"
+        padding="16px 8px 8px 16px"
         direction="column-reverse"
         marginBottom="-25px"
         sx={{ overflowX: 'hidden' }}
         data-testid="message-list"
+        ref={setScrollContainer}
       >
         {/* Here is the bottom of the list of messages because of 'column-reverse' */}
         <Box ref={listBottomRef} />
-        <Waypoint
-          onEnter={() => setShowScrollButton(false)}
-          onLeave={() => setShowScrollButton(true)}
-          bottomOffset="-50px"
+        <InView
+          as="span"
+          root={scrollContainer}
+          rootMargin="0px 0px 50px 0px"
+          style={{ fontSize: 0 }}
+          onChange={(inView) => setShowScrollButton(!inView)}
         />
         <Stack direction="column-reverse" ref={parentRef} sx={{ height: virtualizer.getTotalSize() }}>
           {
@@ -127,8 +131,14 @@ export default function MessageList({ messages }: MessageListProps) {
                 <Box key={message.id}>
                   <MemoizedMessageRow {...props} />
                   {index === loadMessageGate && (
-                    <Waypoint
-                      onEnter={() => {
+                    <InView
+                      as="span"
+                      root={scrollContainer}
+                      style={{ fontSize: 0 }}
+                      onChange={(inView) => {
+                        if (!inView) {
+                          return
+                        }
                         loadMoreMessages()
                       }}
                     />

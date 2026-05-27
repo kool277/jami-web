@@ -20,12 +20,12 @@ import { Box, List, Typography } from '@mui/material'
 import { IConversationSummary } from 'jami-web-common'
 import { useMemo } from 'react'
 
-import { useAuthContext } from '../contexts/AuthProvider'
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName'
-import { useConversationsSummariesQuery, useMembersQuery } from '../services/conversationQueries'
-import ConversationAvatar from './ConversationAvatar'
-import { CustomListItemButton } from './CustomListItemButton'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName.js'
+import { useConversationsSummariesQuery, useMembersQuery } from '../services/conversationQueries.js'
+import ConversationAvatar from './ConversationAvatar.js'
+import { CustomListItemButton } from './CustomListItemButton.js'
 
 interface SelectConversationListProps {
   selectedConversationIds: string[]
@@ -51,7 +51,7 @@ export const SelectConversationList = ({
     if (conversationsSummaries.some((conversationSummary) => conversationSummary === null)) {
       return conversationsSummaries
     }
-    return [...conversationsSummaries].sort((a, b) => b.lastMessage.timestamp - a.lastMessage.timestamp)
+    return [...conversationsSummaries].sort((a, b) => (b.lastMessage?.timestamp ?? 0) - (a.lastMessage?.timestamp ?? 0))
   }, [conversationsSummaries])
 
   return (

@@ -28,9 +28,9 @@ import Box from '@mui/system/Box'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider'
-import { ISettingItem } from '../utils/utils'
-import { ArrowBackIcon, LoginIcon } from './SvgIcon'
+import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider.js'
+import { ISettingItem } from '../utils/utils.js'
+import { ArrowBackIcon, LoginIcon } from './SvgIcon.js'
 
 interface SettingSidebarProps {
   settingMeta: ISettingItem[]

@@ -22,13 +22,13 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { PasswordInput, PasswordStatus, RepeatPasswordInput } from '../../components/Input'
-import JamiWelcomeLogo from '../../components/JamiWelcomeLogo'
-import { DoneIcon } from '../../components/SvgIcon'
-import UnconnectedUserLayout from '../../components/UnconnectedUserLayout'
-import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider'
-import { PasswordStrength } from '../../enums/passwordStrength'
-import { checkPasswordStrength, useSetPasswordMutation } from '../../services/authQueries'
+import { PasswordInput, PasswordStatus, RepeatPasswordInput } from '../../components/Input.js'
+import JamiWelcomeLogo from '../../components/JamiWelcomeLogo.js'
+import { DoneIcon } from '../../components/SvgIcon.js'
+import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
+import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
+import { PasswordStrength } from '../../enums/passwordStrength.js'
+import { checkPasswordStrength, useSetPasswordMutation } from '../../services/authQueries.js'
 
 export default function ImportAccountConfirmation() {
   const { t } = useTranslation()

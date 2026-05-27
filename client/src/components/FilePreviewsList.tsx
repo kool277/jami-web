@@ -18,9 +18,9 @@
 
 import { Stack } from '@mui/material'
 
-import { useActionMessageReadContext, useActionMessageWriteContext } from '../contexts/ActionMessageProvider'
-import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
-import { FilePreviewRemovable } from './FilePreview'
+import { useActionMessageReadContext, useActionMessageWriteContext } from '../contexts/ActionMessageProvider.js'
+import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext.js'
+import { FilePreviewRemovable } from './FilePreview.js'
 
 const FilePreviewsList = () => {
   const { setFileHandlers } = useActionMessageWriteContext()

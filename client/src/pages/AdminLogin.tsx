@@ -24,14 +24,14 @@ import { FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate } from 'react-router-dom'
 
-import { GroupAddRoundedIcon as GroupAddRounded } from '../components/SvgIcon'
-import UnconnectedUserLayout from '../components/UnconnectedUserLayout'
+import { GroupAddRoundedIcon as GroupAddRounded } from '../components/SvgIcon.js'
+import UnconnectedUserLayout from '../components/UnconnectedUserLayout.js'
 import logoIcon from '../icons/jamiLogoIcon.svg'
 import {
   useAdminPasskeyAvailableQuery,
   useAdminPasskeyLoginMutation,
   useLoginAdminMutation,
-} from '../services/adminQueries'
+} from '../services/adminQueries.js'
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('')

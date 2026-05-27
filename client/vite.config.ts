@@ -16,9 +16,16 @@
  * <https://www.gnu.org/licenses/>.
  */
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import svgr from 'vite-plugin-svgr'
-import topLevelAwait from 'vite-plugin-top-level-await'
+import * as topLevelAwait from 'vite-plugin-top-level-await'
+
+type TopLevelAwaitOptions = {
+  promiseExportName?: string
+  promiseImportName?: (i: number) => string
+}
+
+const topLevelAwaitPlugin = topLevelAwait.default as unknown as (options?: TopLevelAwaitOptions) => Plugin
 
 export default defineConfig({
   optimizeDeps: {
@@ -27,7 +34,7 @@ export default defineConfig({
   plugins: [
     react(),
     svgr(),
-    topLevelAwait({
+    topLevelAwaitPlugin({
       promiseExportName: '__tla',
       promiseImportName: (i) => `__tla_${i}`,
     }),

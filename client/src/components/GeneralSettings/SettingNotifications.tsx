@@ -19,8 +19,8 @@
 import { useCallback, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { NotificationContext } from '../../contexts/NotificationsProvider'
-import { SettingSwitch } from '../Settings'
+import { NotificationContext } from '../../contexts/NotificationsProvider.js'
+import { SettingSwitch } from '../Settings.js'
 
 const SettingNotifications = () => {
   const { t } = useTranslation()

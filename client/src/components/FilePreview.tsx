@@ -19,10 +19,10 @@ import { IconButton, IconButtonProps, Stack, Typography } from '@mui/material'
 import mime from 'mime'
 import { useRef } from 'react'
 
-import { FileHandler } from '../utils/files'
-import { useDataSizeUnits } from '../utils/units'
-import { AttachFileIcon as AttachFile } from './SvgIcon'
-import { SaltireIcon } from './SvgIcon'
+import { FileHandler } from '../utils/files.js'
+import { useDataSizeUnits } from '../utils/units.js'
+import { AttachFileIcon as AttachFile } from './SvgIcon.js'
+import { SaltireIcon } from './SvgIcon.js'
 
 interface FilePreviewIconProps {
   fileHandler: FileHandler

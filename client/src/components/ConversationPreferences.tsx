@@ -36,29 +36,29 @@ import { BlockPicker } from 'react-color'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { useAuthContext } from '../contexts/AuthProvider'
-import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext'
-import { useConversationPreferencesNotificationsContext } from '../contexts/ConversationPreferencesNotificationsContext'
-import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext'
-import { useConversationContext } from '../contexts/ConversationProvider'
-import { ConversationMember } from '../models/conversation-member'
-import { useBlockContactMutation, useContactQuery } from '../services/contactQueries'
+import { useAuthContext } from '../contexts/AuthProvider.js'
+import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext.js'
+import { useConversationPreferencesNotificationsContext } from '../contexts/ConversationPreferencesNotificationsContext.js'
+import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext.js'
+import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { ConversationMember } from '../models/conversation-member.js'
+import { useBlockContactMutation, useContactQuery } from '../services/contactQueries.js'
 import {
   useConversationInfosMutation,
   useConversationPreferencesMutation,
   useGetAllFilesQuery,
   useRemoveMemberFromSwarm,
-} from '../services/conversationQueries'
-import { messageColors } from '../utils/messagecolor'
-import ContactDetailDialog from './ContactDetailDialog'
-import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu'
-import ConversationAvatar from './ConversationAvatar'
-import ConversationSettingsFileItem from './ConversationSettingsFileItem'
-import { ConfirmationDialog, useDialogHandler } from './Dialog'
-import EllipsisMiddle from './EllipsisMiddle'
-import { PopoverListItemData } from './PopoverList'
-import ProcessingRequest from './ProcessingRequest'
-import RemoveConversationDialog from './RemoveComversationDialog'
+} from '../services/conversationQueries.js'
+import { messageColors } from '../utils/messagecolor.js'
+import ContactDetailDialog from './ContactDetailDialog.js'
+import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
+import ConversationAvatar from './ConversationAvatar.js'
+import ConversationSettingsFileItem from './ConversationSettingsFileItem.js'
+import { ConfirmationDialog, useDialogHandler } from './Dialog.js'
+import EllipsisMiddle from './EllipsisMiddle.js'
+import { PopoverListItemData } from './PopoverList.js'
+import ProcessingRequest from './ProcessingRequest.js'
+import RemoveConversationDialog from './RemoveComversationDialog.js'
 import {
   AdminPanelSettingsIcon,
   AttachFileIcon,
@@ -66,8 +66,8 @@ import {
   GroupsIcon,
   InfoOutlinedIcon as InfoIcon,
   MoreHorizIcon,
-} from './SvgIcon'
-import { BlockContactIcon, KickMemberIcon, MessageIcon, PersonIcon } from './SvgIcon'
+} from './SvgIcon.js'
+import { BlockContactIcon, KickMemberIcon, MessageIcon, PersonIcon } from './SvgIcon.js'
 
 enum TABS {
   MEMBERS = 0,
