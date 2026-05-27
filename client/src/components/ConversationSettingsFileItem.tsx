@@ -122,19 +122,13 @@ const ConversationSettingsFileItem = ({
 
     if (isUnderSizeLimit || isFileAlreadyInCache.data) {
       const fileType = getFileType()
-      let isMounted = true
 
-      getBlob(fileType).then((url) => {
-        if (isMounted && url) {
-          setIsDownloaded(true)
-        }
-      })
+      void Promise.resolve().then(() => getBlob(fileType))
 
       return () => {
         if (blobUrl) {
           URL.revokeObjectURL(blobUrl)
         }
-        isMounted = false
       }
     }
   }, [

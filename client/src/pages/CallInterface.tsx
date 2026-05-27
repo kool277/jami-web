@@ -249,6 +249,7 @@ const CallInterfaceSecondaryButtons = ({
   const stackRef = useRef<HTMLDivElement>(null)
 
   const [initialMeasurementDone, setInitialMeasurementDone] = useState(false)
+  const initialMeasurementDoneRef = useRef(false)
   const [hiddenStackCount, setHiddenStackCount] = useState(0)
   const [hiddenMenuVisible, setHiddenMenuVisible] = useState(false)
 
@@ -273,9 +274,10 @@ const CallInterfaceSecondaryButtons = ({
 
   useLayoutEffect(() => {
     // Run once, at the beginning, for initial measurements
-    if (!initialMeasurementDone) {
+    if (!initialMeasurementDoneRef.current) {
       calculateStackCount()
-      setInitialMeasurementDone(true)
+      initialMeasurementDoneRef.current = true
+      void Promise.resolve().then(() => setInitialMeasurementDone(true))
     }
 
     const onResize = () => {
@@ -285,7 +287,7 @@ const CallInterfaceSecondaryButtons = ({
     return () => {
       window.removeEventListener('resize', onResize)
     }
-  }, [calculateStackCount, initialMeasurementDone])
+  }, [calculateStackCount])
 
   const { displayedButtons, hiddenButtons } = useMemo(() => {
     const displayedButtons: ComponentType<ExpandableButtonProps>[] = []

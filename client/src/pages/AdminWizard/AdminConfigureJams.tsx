@@ -18,7 +18,7 @@
 
 import { Box, Button, Switch, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { AdminWizardState, urlRegex } from 'jami-web-common'
-import { ChangeEvent, useContext, useEffect, useState } from 'react'
+import { ChangeEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, useNavigate } from 'react-router-dom'
 
@@ -35,30 +35,35 @@ import {
 } from '../../services/adminQueries.js'
 
 export default function AdminConfigureJams() {
-  const navigate = useNavigate()
-  const { t } = useTranslation()
-  const saveAdminConfigMutation = useUpdateAdminConfigMutation()
   const { data } = useGetAdminConfigQuery()
-  const setJamsUrlMutation = useSetJamsUrl()
   const jamsUrlQuery = useGetJamsUrl()
-  const removeJamsUrlMutation = useRemoveJamsUrl()
-  const [jamsUrl, setJamsUrl] = useState<string>('')
-  const { setAlertContent } = useContext(AlertSnackbarContext)
-  const setWizardStateMutation = useSetWizardStateMutation()
-  const theme = useTheme()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const jamsCurrentUrl = jamsUrlQuery.data
-
-  useEffect(() => {
-    if (jamsCurrentUrl !== undefined) {
-      setJamsUrl(jamsCurrentUrl)
-    }
-  }, [jamsCurrentUrl])
 
   // TODO: handle error and notify the user that something went wrong
   if (data === undefined || jamsCurrentUrl === undefined) {
     return <ProcessingRequest open />
   }
+
+  return <AdminConfigureJamsForm key={jamsCurrentUrl} data={data} jamsCurrentUrl={jamsCurrentUrl} />
+}
+
+const AdminConfigureJamsForm = ({
+  data,
+  jamsCurrentUrl,
+}: {
+  data: NonNullable<ReturnType<typeof useGetAdminConfigQuery>['data']>
+  jamsCurrentUrl: string
+}) => {
+  const navigate = useNavigate()
+  const { t } = useTranslation()
+  const saveAdminConfigMutation = useUpdateAdminConfigMutation()
+  const setJamsUrlMutation = useSetJamsUrl()
+  const removeJamsUrlMutation = useRemoveJamsUrl()
+  const [jamsUrl, setJamsUrl] = useState<string>(jamsCurrentUrl)
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const setWizardStateMutation = useSetWizardStateMutation()
+  const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
   const handleChange = () => {
     saveAdminConfigMutation.mutate({ jamsAuthEnabled: !data.jamsAuthEnabled })

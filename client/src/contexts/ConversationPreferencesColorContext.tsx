@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { createOptionalContext } from '../hooks/createOptionalContext.js'
 import { useConversationPreferencesQuery } from '../services/conversationQueries.js'
@@ -25,7 +25,6 @@ import { useConversationContext } from './ConversationProvider.js'
 
 interface ConversationPreferencesColorContext {
   conversationColor: string
-  setConversationColor: (value: string) => void
 }
 
 const optionalConversationPreferencesColorContext = createOptionalContext<ConversationPreferencesColorContext>(
@@ -38,22 +37,11 @@ const ConversationPreferencesColorProvider: React.FC<WithChildren> = ({ children
   const { conversationId } = useConversationContext()
   const preferencesQuery = useConversationPreferencesQuery(conversationId)
 
-  const [conversationColor, setConversationColor] = useState<string>(
-    preferencesQuery.data?.color || getColor(conversationId),
-  )
-
-  useEffect(() => {
-    if (preferencesQuery.data) {
-      setConversationColor(preferencesQuery.data.color || getColor(conversationId))
-      return
-    }
-    setConversationColor(getColor(conversationId))
-  }, [preferencesQuery.data, conversationId])
+  const conversationColor = preferencesQuery.data?.color || getColor(conversationId)
 
   const value = useMemo(
     () => ({
       conversationColor,
-      setConversationColor,
     }),
     [conversationColor],
   )

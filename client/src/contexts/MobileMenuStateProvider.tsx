@@ -38,12 +38,12 @@ const MobileMenuStateProvider: React.FC<WithChildren> = ({ children }) => {
   useEffect(() => {
     const pageName = url.split('/').pop()
     if (pageName === '' || pageName === 'conversation') {
-      setIsMenuOpen(true)
+      void Promise.resolve().then(() => setIsMenuOpen(true))
     } else if (url.includes('settings')) {
       // do nothing
     } else {
       // conversation case
-      setIsMenuOpen(false)
+      void Promise.resolve().then(() => setIsMenuOpen(false))
     }
   }, [url])
 

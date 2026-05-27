@@ -29,7 +29,7 @@ import {
   useTheme,
 } from '@mui/material'
 import { urlRegex } from 'jami-web-common'
-import { ChangeEvent, useContext, useEffect, useState } from 'react'
+import { ChangeEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
@@ -44,24 +44,10 @@ import LayoutSettings from '../LayoutSettings.js'
 import ProcessingRequest from '../ProcessingRequest.js'
 
 const JamsAuthMethod = () => {
-  const { t } = useTranslation()
   const accessToken = localStorage.getItem('adminAccessToken')
-  const saveAdminConfigMutation = useUpdateAdminConfigMutation()
   const { data } = useGetAdminConfigQuery()
-  const theme: Theme = useTheme()
-  const setJamsUrlMutation = useSetJamsUrl()
   const jamsUrlQuery = useGetJamsUrl()
-  const [jamsUrl, setJamsUrl] = useState<string>('')
-  const { setAlertContent } = useContext(AlertSnackbarContext)
-  const isWrapping = useMediaQuery(theme.breakpoints.down(500))
-
   const jamsCurrentUrl = jamsUrlQuery.data
-
-  useEffect(() => {
-    if (jamsCurrentUrl !== undefined) {
-      setJamsUrl(jamsCurrentUrl)
-    }
-  }, [jamsCurrentUrl])
 
   if (!accessToken) {
     return <Navigate to="/admin/login" replace />
@@ -71,6 +57,24 @@ const JamsAuthMethod = () => {
   if (data === undefined || jamsCurrentUrl === undefined) {
     return <ProcessingRequest open />
   }
+
+  return <JamsAuthMethodForm key={jamsCurrentUrl} data={data} jamsCurrentUrl={jamsCurrentUrl} />
+}
+
+const JamsAuthMethodForm = ({
+  data,
+  jamsCurrentUrl,
+}: {
+  data: NonNullable<ReturnType<typeof useGetAdminConfigQuery>['data']>
+  jamsCurrentUrl: string
+}) => {
+  const { t } = useTranslation()
+  const saveAdminConfigMutation = useUpdateAdminConfigMutation()
+  const theme: Theme = useTheme()
+  const setJamsUrlMutation = useSetJamsUrl()
+  const [jamsUrl, setJamsUrl] = useState<string>(jamsCurrentUrl)
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const isWrapping = useMediaQuery(theme.breakpoints.down(500))
 
   const handleChange = () => {
     saveAdminConfigMutation.mutate({ jamsAuthEnabled: !data.jamsAuthEnabled })

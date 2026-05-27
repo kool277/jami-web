@@ -29,7 +29,7 @@ import {
   useTheme,
 } from '@mui/material'
 import { urlRegex } from 'jami-web-common'
-import { ChangeEvent, useContext, useEffect, useState } from 'react'
+import { ChangeEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
@@ -45,26 +45,10 @@ import LayoutSettings from '../LayoutSettings.js'
 import ProcessingRequest from '../ProcessingRequest.js'
 
 const LocalAuthMethod = () => {
-  const { t } = useTranslation()
-
   const accessToken = localStorage.getItem('adminAccessToken')
-  const saveAdminConfigMutation = useUpdateAdminConfigMutation()
-  const [nameServer, setNameServer] = useState<string>('')
   const { data } = useGetAdminConfigQuery()
-  const theme: Theme = useTheme()
-  const setNameServerMutation = useSetNameServer()
   const nameserverSet = useGetNameServer()
-  const resetServerNameMutation = useResetNameServer()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
-  const isWrapping = useMediaQuery(theme.breakpoints.down(500))
-
   const nameServerConfigured = nameserverSet.data
-
-  useEffect(() => {
-    if (nameServerConfigured !== undefined) {
-      setNameServer(nameServerConfigured)
-    }
-  }, [nameServerConfigured])
 
   if (!accessToken) {
     return <Navigate to="/admin/login" replace />
@@ -74,6 +58,25 @@ const LocalAuthMethod = () => {
   if (data === undefined || nameServerConfigured === undefined) {
     return <ProcessingRequest open />
   }
+
+  return <LocalAuthMethodForm key={nameServerConfigured} data={data} nameServerConfigured={nameServerConfigured} />
+}
+
+const LocalAuthMethodForm = ({
+  data,
+  nameServerConfigured,
+}: {
+  data: NonNullable<ReturnType<typeof useGetAdminConfigQuery>['data']>
+  nameServerConfigured: string
+}) => {
+  const { t } = useTranslation()
+  const saveAdminConfigMutation = useUpdateAdminConfigMutation()
+  const [nameServer, setNameServer] = useState<string>(nameServerConfigured)
+  const theme: Theme = useTheme()
+  const setNameServerMutation = useSetNameServer()
+  const resetServerNameMutation = useResetNameServer()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const isWrapping = useMediaQuery(theme.breakpoints.down(500))
 
   const handleChange = () => {
     saveAdminConfigMutation.mutate({ localAuthEnabled: !data.localAuthEnabled })

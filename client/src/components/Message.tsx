@@ -819,11 +819,7 @@ const UserMessageRow = memo(
     }
     let MessageComponent
 
-    const [replyMessage, setReplyMessage] = useState(message['reply-to'])
-
-    useEffect(() => {
-      setReplyMessage(message['reply-to'])
-    }, [message])
+    const replyMessage = message['reply-to']
 
     switch (message.type) {
       case 'text/plain':

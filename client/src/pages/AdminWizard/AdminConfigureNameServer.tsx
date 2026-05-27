@@ -18,7 +18,7 @@
 
 import { Box, Button, Switch, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { AdminWizardState, urlRegex } from 'jami-web-common'
-import { ChangeEvent, useContext, useEffect, useState } from 'react'
+import { ChangeEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, useNavigate } from 'react-router-dom'
 
@@ -35,30 +35,37 @@ import {
 } from '../../services/adminQueries.js'
 
 export default function AdminConfigureNameServer() {
+  const nameserverSet = useGetNameServer()
+  const nameServerConfigured = nameserverSet.data
+  const { data } = useGetAdminConfigQuery()
+
+  if (data === undefined || nameServerConfigured === undefined) {
+    return <ProcessingRequest open />
+  }
+
+  return (
+    <AdminConfigureNameServerForm key={nameServerConfigured} data={data} nameServerConfigured={nameServerConfigured} />
+  )
+}
+
+const AdminConfigureNameServerForm = ({
+  data,
+  nameServerConfigured,
+}: {
+  data: NonNullable<ReturnType<typeof useGetAdminConfigQuery>['data']>
+  nameServerConfigured: string
+}) => {
   const { t } = useTranslation()
 
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const navigate = useNavigate()
   const setNameServerMutation = useSetNameServer()
-  const nameserverSet = useGetNameServer()
   const saveAdminConfigMutation = useUpdateAdminConfigMutation()
   const resetServerNameMutation = useResetNameServer()
-  const nameServerConfigured = nameserverSet.data
-  const [nameServer, setNameServer] = useState<string>('') // call the server to get the current value
-  const { data } = useGetAdminConfigQuery()
+  const [nameServer, setNameServer] = useState<string>(nameServerConfigured)
   const setWizardStateMutation = useSetWizardStateMutation()
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-
-  useEffect(() => {
-    if (nameServerConfigured !== undefined) {
-      setNameServer(nameServerConfigured)
-    }
-  }, [nameServerConfigured])
-
-  if (data === undefined || nameServerConfigured === undefined) {
-    return <ProcessingRequest open />
-  }
 
   const handleChange = () => {
     saveAdminConfigMutation.mutate({ localAuthEnabled: !data.localAuthEnabled })

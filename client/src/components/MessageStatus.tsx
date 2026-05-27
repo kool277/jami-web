@@ -20,7 +20,7 @@ import { Box } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Message } from 'jami-web-common'
 import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 
 import { currentLastSeenMessageContext } from '../components/ChatInterfaceManager.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
@@ -34,25 +34,25 @@ export interface MessageStatusProps {
 }
 export default function MessageStatus({ message }: MessageStatusProps) {
   const { account } = useAuthContext()
-  const [highestStatus, setHighestStatus] = useState<MessageStatusCode | undefined>()
+  const accountUri = account.getUri()
   const { members } = useConversationContext()
   const messageStatus = useContext(currentLastSeenMessageContext)
   const theme = useTheme()
 
-  useEffect(() => {
+  const highestStatus = useMemo(() => {
     let highest = MessageStatusCode.sending
 
     for (const [peerId, status] of message.status) {
-      if (status > highest && peerId !== account.getUri()) {
+      if (status > highest && peerId !== accountUri) {
         highest = status
       }
     }
-    setHighestStatus(highest)
-  }, [message, messageStatus, account])
+    return highest
+  }, [accountUri, message.status])
 
   const DisplayedIcon = useCallback(
     (message: Message) => {
-      if (message.author !== account.getUri()) {
+      if (message.author !== accountUri) {
         return <></>
       }
       const peers = []
@@ -115,7 +115,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
         }
       }
     },
-    [account, highestStatus, members, messageStatus, theme],
+    [accountUri, highestStatus, members, messageStatus, theme],
   )
 
   const Icon = DisplayedIcon(message)

@@ -17,7 +17,7 @@
  */
 
 import { Box, Button, TextField } from '@mui/material'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
@@ -28,34 +28,35 @@ import ProcessingRequest from '../ProcessingRequest.js'
 
 export default function DownloadLimit() {
   const limitData = useGetAutoDownloadLimit()
-  const [limit, setLimit] = useState<number>(0)
+
+  if (limitData.data === undefined || limitData.isLoading) {
+    return <ProcessingRequest open />
+  }
+
+  return <DownloadLimitForm key={limitData.data.limit} configuredLimit={limitData.data.limit} />
+}
+
+const DownloadLimitForm = ({ configuredLimit }: { configuredLimit: number }) => {
+  const [currentLimit, setCurrentLimit] = useState<number>(configuredLimit)
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const setAutoDownloadLimitMutation = useSetAutoDownloadLimit()
   const { t } = useTranslation()
 
-  const configuredLimit = limitData.data
-
-  useEffect(() => {
-    if (configuredLimit) {
-      setLimit(configuredLimit.limit)
-    }
-  }, [configuredLimit])
-
   const handleLimitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setLimit(Number(event.target.value))
+    setCurrentLimit(Number(event.target.value))
   }
 
   const onSave = () => {
-    if (limit === undefined || limitData.data === undefined) {
+    if (currentLimit === undefined) {
       return
-    } else if (limit < 0) {
+    } else if (currentLimit < 0) {
       setAlertContent({
         messageI18nKey: 'limit_cannot_be_negative',
         severity: 'error',
         alertOpen: true,
       })
       return
-    } else if (limit === limitData.data.limit) {
+    } else if (currentLimit === configuredLimit) {
       setAlertContent({
         messageI18nKey: 'same_limit_error',
         severity: 'error',
@@ -63,11 +64,7 @@ export default function DownloadLimit() {
       })
       return
     }
-    setAutoDownloadLimitMutation.mutate(limit)
-  }
-
-  if (limitData.data === undefined || limit === undefined || limitData.isLoading) {
-    return <ProcessingRequest open />
+    setAutoDownloadLimitMutation.mutate(currentLimit)
   }
 
   return (
@@ -76,7 +73,7 @@ export default function DownloadLimit() {
         {' '}
         <TextField
           type="number"
-          value={limit}
+          value={currentLimit}
           onChange={handleLimitChange}
           size="small"
           slotProps={{

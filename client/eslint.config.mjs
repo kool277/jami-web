@@ -51,7 +51,6 @@ export default [
     rules: {
       'react-hooks/exhaustive-deps': 'error',
       'react-hooks/incompatible-library': 'off',
-      'react-hooks/set-state-in-effect': 'off',
       'react/display-name': 'off',
       'react/jsx-uses-react': 'off',
       'react/prop-types': 'off',

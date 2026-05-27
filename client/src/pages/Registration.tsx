@@ -18,7 +18,7 @@
 import { Box, Button, Typography } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { HttpStatusCode } from 'jami-web-common'
-import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Link, useNavigate } from 'react-router-dom'
 
@@ -43,7 +43,7 @@ function RegistrationForm() {
   const [username, setUsername] = useState<string>('')
   const [debouncedUsername, setDebouncedUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  const [usernameStatus, setUsernameStatus] = useState<NameStatus>('default')
+  const [usernameInputStatus, setUsernameInputStatus] = useState<NameStatus>('default')
   const [passwordStatus, setPasswordStatus] = useState<PasswordStatus>('default')
   const registerMutation = useRegisterMutation()
   const loginMutation = useLoginMutation()
@@ -51,20 +51,23 @@ function RegistrationForm() {
   const { isPending: isLoginLoading } = loginMutation
   const isPending = isRegisterLoading || isLoginLoading
   const { data: response, isError } = useCheckIfUsernameIsRegisteredQuery(debouncedUsername)
+  const usernameStatus = useMemo(() => {
+    if (usernameInputStatus !== 'valid' || debouncedUsername !== username) {
+      return usernameInputStatus
+    }
+    if (response !== undefined) {
+      return response.responseMessage
+    }
+    if (isError) {
+      return 'invalid'
+    }
+    return usernameInputStatus
+  }, [debouncedUsername, isError, response, username, usernameInputStatus])
   const usernameOk = usernameStatus === 'success'
   const passwordOk = passwordStatus !== PasswordStrength.TooWeak
   const { data } = useGetAdminConfigQuery()
   const providers = useGetAllProviders()
   const navigate = useNavigate()
-  useEffect(() => {
-    if (response !== undefined) {
-      const { responseMessage } = response
-      setUsernameStatus(responseMessage)
-    }
-    if (isError) {
-      setUsernameStatus('invalid')
-    }
-  }, [response, isError])
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -105,15 +108,15 @@ function RegistrationForm() {
     const usernameValue: string = event.target.value
     setUsername(usernameValue)
     if (usernameValue === '') {
-      setUsernameStatus('default')
+      setUsernameInputStatus('default')
       return
     }
     if (!jamiUsernamePattern.test(usernameValue)) {
-      setUsernameStatus('invalid')
+      setUsernameInputStatus('invalid')
       return
     }
     //The valid state is when the username passes the Regex test and is ready for availability check.
-    setUsernameStatus('valid')
+    setUsernameInputStatus('valid')
   }
 
   const handlePassword = (event: ChangeEvent<HTMLInputElement>) => {
@@ -134,7 +137,7 @@ function RegistrationForm() {
       createAccount()
     } else {
       if (!usernameOk) {
-        setUsernameStatus('registration_failed')
+        setUsernameInputStatus('registration_failed')
       }
       if (!passwordOk) {
         setPasswordStatus('registration_failed')

@@ -17,7 +17,7 @@
  */
 
 import { Box, Button, TextField } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { useAuthContext } from '../../contexts/AuthProvider.js'
 import { useResetDisplayName, useSetDisplayName } from '../../services/accountQueries.js'
@@ -29,6 +29,10 @@ function CustomizeProfile() {
   const registeredName = account.getRegisteredName()
   const displayName = account.getDisplayName()
 
+  return <CustomizeProfileForm key={displayName} registeredName={registeredName} displayName={displayName} />
+}
+
+const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName: string; displayName: string }) => {
   const [name, setName] = useState(displayName)
 
   const setDisplayName = useSetDisplayName()
@@ -45,10 +49,6 @@ function CustomizeProfile() {
   const handleReset = () => {
     resetDisplayName.mutate()
   }
-
-  useEffect(() => {
-    setName(displayName)
-  }, [registeredName, displayName])
 
   return (
     <Box

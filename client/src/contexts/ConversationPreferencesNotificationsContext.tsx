@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { createOptionalContext } from '../hooks/createOptionalContext.js'
 import { useConversationPreferencesQuery } from '../services/conversationQueries.js'
@@ -24,7 +24,6 @@ import { useConversationContext } from './ConversationProvider.js'
 
 interface ConversationPreferencesNotificationsContext {
   ignoreNotifications: boolean
-  setIgnoreNotifications: (value: boolean) => void
 }
 
 const optionalConversationPreferencesNotificationsContext =
@@ -37,18 +36,11 @@ const ConversationPreferencesNotificationsProvider: React.FC<WithChildren> = ({ 
   const { conversationId } = useConversationContext()
   const preferencesQuery = useConversationPreferencesQuery(conversationId)
 
-  const [ignoreNotifications, setIgnoreNotifications] = useState<boolean>(false)
-
-  useEffect(() => {
-    if (preferencesQuery.data) {
-      setIgnoreNotifications(preferencesQuery.data.ignoreNotifications ?? false)
-    }
-  }, [preferencesQuery.data, conversationId])
+  const ignoreNotifications = preferencesQuery.data?.ignoreNotifications ?? false
 
   const value = useMemo(
     () => ({
       ignoreNotifications,
-      setIgnoreNotifications,
     }),
     [ignoreNotifications],
   )

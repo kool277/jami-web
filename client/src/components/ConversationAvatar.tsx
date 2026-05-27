@@ -279,6 +279,7 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
         .getUserMedia({ video: true })
         .then((stream) => {
           setStream(stream)
+          setIsPaused(false)
           // This would be useless if we could query 'camera' permission on Firefox
           setPermissionState('granted')
         })
@@ -289,7 +290,7 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
     }
     if (!open) {
       stream?.getTracks()?.forEach((track) => track.stop())
-      setStream(null)
+      void Promise.resolve().then(() => setStream(null))
     }
   }, [open, stream, permissionState])
 
@@ -299,7 +300,6 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
       if (stream) {
         video.srcObject = stream
         video.play()
-        setIsPaused(false)
       } else {
         video.srcObject = null
       }

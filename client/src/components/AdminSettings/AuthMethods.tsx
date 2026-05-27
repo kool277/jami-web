@@ -18,7 +18,6 @@
 import { Box, Divider, List, ListItem, ListItemText } from '@mui/material'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AdminSettingSelection } from 'jami-web-common'
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
 
@@ -31,20 +30,7 @@ export default function AuthMethods() {
   const { t } = useTranslation()
   const accessToken = localStorage.getItem('adminAccessToken')
   const { data } = useGetAdminConfigQuery()
-  const [isLocalEnabled, setIsLocalEnabled] = useState(false)
-  const [isJamsEnabled, setIsJamsEnabled] = useState(false)
-  const [isOpenIdEnabled, setIsOpenIdEnabled] = useState(false)
-  const [isGuestEnabled, setIsGuestEnabled] = useState(false)
   const navigate = useNavigate()
-
-  useEffect(() => {
-    if (data) {
-      setIsLocalEnabled(data.localAuthEnabled)
-      setIsJamsEnabled(data.jamsAuthEnabled)
-      setIsOpenIdEnabled(data.openIdAuthEnabled)
-      setIsGuestEnabled(data.guestAccessEnabled)
-    }
-  }, [data])
 
   if (!accessToken) {
     return <Navigate to="/admin/login" replace />
@@ -52,6 +38,11 @@ export default function AuthMethods() {
   if (data === undefined) {
     return <ProcessingRequest open />
   }
+
+  const isLocalEnabled = data.localAuthEnabled
+  const isJamsEnabled = data.jamsAuthEnabled
+  const isOpenIdEnabled = data.openIdAuthEnabled
+  const isGuestEnabled = data.guestAccessEnabled
 
   const handleAuthMethodSelection = async (authMethod: AuthenticationMethods) => {
     await new Promise((r) => setTimeout(r, 200))

@@ -21,7 +21,7 @@ import dayjs from 'dayjs'
 import { IConversationSummary } from 'jami-web-common'
 import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
 import { QRCodeCanvas } from 'qrcode.react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -202,26 +202,18 @@ const TimeIndicator = ({ conversationSummary }: { conversationSummary: IConversa
 
 const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) => {
   const { account } = useAuthContext()
+  const accountUri = account.getUri()
   const { callData, callStatus, isAudioOn } = useCallManagerContext()
   const { t, i18n } = useTranslation()
 
-  const [isRead, setIsRead] = useState(false)
-
-  useEffect(() => {
+  const isRead = useMemo(() => {
     const lastMessage = conversationSummary.lastMessage
     if (!lastMessage) {
-      setIsRead(true)
-      return
+      return true
     }
-    const status = JSON.parse(JSON.stringify(lastMessage.status))[account.getUri()]
-    if (lastMessage.author === account.getUri()) {
-      setIsRead(true)
-    } else if (status === MessageStatusCode.read) {
-      setIsRead(true)
-    } else {
-      setIsRead(false)
-    }
-  }, [account, conversationSummary, conversationSummary.lastMessage])
+    const status = JSON.parse(JSON.stringify(lastMessage.status))[accountUri]
+    return lastMessage.author === accountUri || status === MessageStatusCode.read
+  }, [accountUri, conversationSummary.lastMessage])
 
   const lastMessageText = useMemo(() => {
     if (!callData || callData.conversationId !== conversationSummary.id) {

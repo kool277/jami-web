@@ -56,9 +56,16 @@ interface SendMessageFormProps {
 }
 
 export default function SendMessageForm({ openFilePicker }: SendMessageFormProps) {
+  const { editMessage } = useActionMessageReadContext()
+
+  return <SendMessageFormContent key={editMessage?.id ?? 'new-message'} openFilePicker={openFilePicker} />
+}
+
+const SendMessageFormContent = ({ openFilePicker }: SendMessageFormProps) => {
   const webSocket = useWebSocketContext()
   const { members, conversationId } = useConversationContext()
-  const [currentMessage, setCurrentMessage] = useState('')
+  const { editMessage, replyMessage: selectedReply, fileHandlers } = useActionMessageReadContext()
+  const [currentMessage, setCurrentMessage] = useState<string>(editMessage?.body || '')
   const composingNotificationTimeRef = useRef(0)
   const placeholder = usePlaceholder(members)
   const [isRecordingVoice, setIsRecordingVoice] = useState(false)
@@ -76,7 +83,6 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
   const frameCountRef = useRef<number>(0)
   const scrollOffsetRef = useRef<number>(0)
   const { conversationColor } = useConversationPreferencesColorContext()
-  const { editMessage, replyMessage: selectedReply, fileHandlers } = useActionMessageReadContext()
   const {
     setEditMessage: setIsEditing,
     setReplyMessage: setSelectedReply,
@@ -92,10 +98,6 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
   const isMoreThanMedium: boolean = useMediaQuery(theme.breakpoints.up('md'))
   const isReduced = isMobile || isMedium
-
-  useEffect(() => {
-    setCurrentMessage(editMessage?.body || '')
-  }, [editMessage])
 
   const sendMessage = useCallback(
     (message: string) => {

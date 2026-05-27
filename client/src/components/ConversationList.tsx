@@ -65,16 +65,9 @@ const ConversationTabs = () => {
   const conversationRequestsQuery = useConversationRequestsQuery()
   const conversationRequestsLength = conversationRequestsQuery.data?.length
 
-  const [isShowingTabMenu, setIsShowingTabMenu] = useState(false)
+  const isShowingTabMenu = !!conversationRequestsLength
   const [tabIndex, setTabIndex] = useState(summariesTabIndex)
-
-  useEffect(() => {
-    const newIsShowingTabMenu = !!conversationRequestsLength
-    setIsShowingTabMenu(newIsShowingTabMenu)
-    if (!newIsShowingTabMenu) {
-      setTabIndex(summariesTabIndex)
-    }
-  }, [conversationRequestsLength])
+  const visibleTabIndex = isShowingTabMenu ? tabIndex : summariesTabIndex
 
   const onChange = useCallback((_event: React.SyntheticEvent, value: number) => {
     if (typeof value === 'number') {
@@ -85,13 +78,13 @@ const ConversationTabs = () => {
   return (
     <Box style={{ overflowY: 'auto' }}>
       {isShowingTabMenu && (
-        <Tabs value={tabIndex} onChange={onChange}>
+        <Tabs value={visibleTabIndex} onChange={onChange}>
           <Tab label={t('conversations')} />
           <Tab label={`${t('invitations')} ${conversationRequestsLength}`} />
         </Tabs>
       )}
-      <SummariesTabPanel index={summariesTabIndex} value={tabIndex} />
-      <InvitationsTabPanel index={invitationsTabIndex} value={tabIndex} />
+      <SummariesTabPanel index={summariesTabIndex} value={visibleTabIndex} />
+      <InvitationsTabPanel index={invitationsTabIndex} value={visibleTabIndex} />
     </Box>
   )
 }

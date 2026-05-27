@@ -93,16 +93,17 @@ const reducer = (state: State, action: Action): State => {
 }
 
 const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => {
+  const { conversationId } = useConversationContext()
+
+  return <ChatInterfaceManagerContent key={conversationId} openFilePicker={openFilePicker} />
+}
+
+const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerProps) => {
   const webSocket = useWebSocketContext()
   const { conversationId, members } = useConversationContext()
   const [state, dispatch] = useReducer(reducer, initialState)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const { messagesMap, messageOrder, replies, lastSeen, isLoading, error } = state
-
-  useEffect(() => {
-    dispatch({ type: 'RESET' })
-    setIsLoadingMore(false)
-  }, [conversationId])
 
   const messagesQuery = useMessagesQuery(conversationId, messagesMap.size === 0)
   const { account } = useAuthContext()

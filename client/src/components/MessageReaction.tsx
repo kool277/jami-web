@@ -19,8 +19,7 @@
 import { Box, Modal, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { Message, ReactionRemoved, WebSocketMessageType } from 'jami-web-common'
-import { memo, useCallback, useMemo, useState } from 'react'
-import { useEffect } from 'react'
+import { memo, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
@@ -48,7 +47,7 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
   const isAccount = account.getUri() === message.author
   const membersMap = useMemo(() => new Map(members.map((member) => [member.contact.uri, member])), [members])
   const theme = useTheme()
-  const generateReactionsArray = useCallback(() => {
+  const reactionsArray = useMemo(() => {
     const reactionAttributesArray: Array<ReactionAttributes> = []
 
     for (const reaction of message.reactions) {
@@ -66,15 +65,6 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
 
     return reactionAttributesArray
   }, [message.reactions])
-
-  const [reactionsArray, setReactionsArray] = useState<Array<ReactionAttributes>>(() => generateReactionsArray())
-
-  useEffect(() => {
-    setReactionsArray(() => generateReactionsArray())
-    if (message.reactions.length === 0) {
-      setIsOpen(false)
-    }
-  }, [generateReactionsArray, message.reactions])
 
   const container = {
     hidden: { opacity: 1, scale: 1.25 },
@@ -156,7 +146,7 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
       </Box>
 
       <Modal
-        open={isOpen}
+        open={isOpen && reactionsArray.length > 0}
         onClose={handleCloseModal}
         sx={{
           width: '350px',

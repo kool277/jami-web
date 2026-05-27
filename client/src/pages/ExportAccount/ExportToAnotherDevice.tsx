@@ -18,7 +18,7 @@
 
 import { Box, Button, Card, CardContent, CardHeader, TextField, Typography } from '@mui/material'
 import { AddDeviceStateChanged, DeviceAuthError, DeviceAuthStateCode, WebSocketMessageType } from 'jami-web-common'
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -38,7 +38,7 @@ export function ExportToAnotherDevice() {
   const navigate = useNavigate()
   const [opId, setOpId] = useState<number | undefined>()
   const [uri, setPeer] = useState<string | undefined>()
-  const [isSent, setIsSent] = useState(false)
+  const isSentRef = useRef(false)
   const [state, setState] = useState(DeviceAuthStateCode.Init)
   const [peerAddress, setPeerAddress] = useState<string | undefined>()
 
@@ -69,7 +69,7 @@ export function ExportToAnotherDevice() {
         case DeviceAuthStateCode.Authenticating:
           // accept or not authentication
           setPeerAddress(details['peer_address'])
-          setIsSent(true)
+          isSentRef.current = true
           break
         case DeviceAuthStateCode.Done:
           if (details['error'] === DeviceAuthError.Authentication) {
@@ -109,11 +109,11 @@ export function ExportToAnotherDevice() {
   }, [navigate, opId, setAlertContent, webSocket])
 
   useEffect(() => {
-    if (uri && !isSent) {
+    if (uri && !isSentRef.current) {
       exportAccountMutation.mutate(uri)
-      setIsSent(true)
+      isSentRef.current = true
     }
-  }, [uri, exportAccountMutation, isSent])
+  }, [uri, exportAccountMutation])
 
   return (
     <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
@@ -276,20 +276,26 @@ const EnterCode = ({ setCode }: EnterCodeProps) => {
   const [isQrCodeSelected, setIsQrCodeSelected] = useState(true)
   const { setAlertContent } = useContext(AlertSnackbarContext)
   const { t } = useTranslation()
-  useEffect(() => {
-    if (tmpCode && isQrCodeSelected) {
-      if (!tmpCode.includes('jami-auth://')) {
+
+  const handleScannedCode = useCallback(
+    (code: string | undefined) => {
+      setTmpCode(code)
+      if (!code) {
+        return
+      }
+      if (!code.includes('jami-auth://')) {
         setAlertContent({
           messageI18nKey: 'invalid_code_provided',
           severity: 'error',
           alertOpen: true,
         })
         setTmpCode(undefined)
-      } else {
-        setCode(tmpCode)
+        return
       }
-    }
-  }, [isQrCodeSelected, setAlertContent, setCode, tmpCode])
+      setCode(code)
+    },
+    [setAlertContent, setCode],
+  )
 
   const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTmpCode(event.target.value)
@@ -358,7 +364,7 @@ const EnterCode = ({ setCode }: EnterCodeProps) => {
           {isQrCodeSelected ? (
             <>
               <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                <QrReader setScannedResult={setTmpCode} />
+                <QrReader setScannedResult={handleScannedCode} />
               </Box>
               <Box
                 sx={modifyMethodStyles}

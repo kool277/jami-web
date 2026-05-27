@@ -342,15 +342,17 @@ export const useCallManager = () => {
       (iceConnectionState === 'connected' || iceConnectionState === 'completed')
     ) {
       console.info('Changing call status to InCall')
-      setCallStatus(CallStatus.InCall)
-      setCallStartTime(Date.now())
+      void Promise.resolve().then(() => {
+        setCallStatus(CallStatus.InCall)
+        setCallStartTime(Date.now())
+      })
     }
   }, [iceConnectionState, callStatus])
 
   useEffect(() => {
     if (iceConnectionState === 'disconnected' || iceConnectionState === 'failed') {
       console.info('ICE connection disconnected or failed, ending call')
-      endCall()
+      void Promise.resolve().then(endCall)
     }
   }, [iceConnectionState, callStatus, videoStatus, endCall])
 
