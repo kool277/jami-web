@@ -89,7 +89,13 @@ export default function UnconnectedUserLayout({ pageName, children, message }: U
                 component="div"
               >
                 <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 2 }}>
-                  <Typography width="400px" variant="body2" style={{ textAlign: 'start' }}>
+                  <Typography
+                    variant="body2"
+                    style={{ textAlign: 'start' }}
+                    sx={{
+                      width: '400px',
+                    }}
+                  >
                     {message}
                   </Typography>
                 </Box>

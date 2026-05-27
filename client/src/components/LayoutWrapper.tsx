@@ -151,8 +151,8 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
 
   return (
     <Box
-      display={'flex'}
       sx={{
+        display: 'flex',
         height: '100vh',
         overflow: 'hidden',
         ...(electron && { WebkitAppRegion: 'drag' }),
@@ -212,7 +212,6 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
           </Box>
         )}
       </Box>
-
       <Box
         sx={{
           ...(isMobile ? mainPanelStylesMobile : mainPanelStyles),

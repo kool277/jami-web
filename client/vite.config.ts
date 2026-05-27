@@ -49,6 +49,7 @@ export default defineConfig({
   build: {
     outDir: '../server/client/dist',
     emptyOutDir: true,
+    target: ['chrome117', 'edge121', 'firefox121', 'safari17'],
   },
   define: {
     global: {},

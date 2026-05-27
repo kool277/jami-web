@@ -320,9 +320,13 @@ const Infos = () => {
       </SettingsItemWrapper>
       <SettingsItemWrapper title="Swarm ID">
         <Box
-          maxWidth={isMedium ? '220px' : '180px'}
-          sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}
-          marginRight="-15px"
+          sx={{
+            maxWidth: isMedium ? '220px' : '180px',
+            marginRight: '-15px',
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+          }}
         >
           <EllipsisMiddle text={conversationId} />
         </Box>
@@ -498,7 +502,6 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
         currentContactId={member.contact.uri}
       />
       {ContactDetailDialogElement}
-
       <ContactMenu
         memberUri={member.contact.uri}
         isBanned={isBanned}
@@ -532,7 +535,12 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
         >
           {' '}
           <ConversationAvatar presence={true} contactUri={member.contact.uri} displayName={bestName} />
-          <Box maxWidth={getBestWidth} marginLeft="8px">
+          <Box
+            sx={{
+              maxWidth: getBestWidth,
+              marginLeft: '8px',
+            }}
+          >
             {bestName.length > 15 ? <EllipsisMiddle text={bestName} /> : bestName}
           </Box>
         </Box>

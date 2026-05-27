@@ -70,10 +70,10 @@ const ConversationContent = () => {
 
   return (
     <Stack
-      flexGrow={1}
-      height="100%"
-      width="100%"
       sx={{
+        flexGrow: 1,
+        height: '100%',
+        width: '100%',
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -112,10 +112,10 @@ export const ConversationHeader = () => {
   return (
     <Stack
       direction="row"
-      padding="4px 6px 4px 4px"
-      overflow="hidden"
-      alignItems="center"
       sx={{
+        padding: '4px 6px 4px 4px',
+        overflow: 'hidden',
+        alignItems: 'center',
         position: 'absolute',
         top: 8,
         left: 12,
@@ -154,7 +154,15 @@ export const ConversationHeader = () => {
         </>
       ) : (
         <>
-          <Stack flex={1} direction="row" alignItems="center" overflow="hidden" spacing="12px">
+          <Stack
+            direction="row"
+            spacing="12px"
+            sx={{
+              flex: 1,
+              alignItems: 'center',
+              overflow: 'hidden',
+            }}
+          >
             <IconButton
               onClick={() => onMenuIconClick()}
               sx={{
@@ -175,11 +183,16 @@ export const ConversationHeader = () => {
                 sx={{ width: 36, height: 36, fontSize: '0.9rem' }}
               />
             )}
-            <Stack overflow="hidden" justifyContent="center">
+            <Stack
+              sx={{
+                overflow: 'hidden',
+                justifyContent: 'center',
+              }}
+            >
               <Typography
                 noWrap
-                textOverflow="ellipsis"
                 sx={{
+                  textOverflow: 'ellipsis',
                   fontSize: '0.95rem',
                   fontWeight: 500,
                   maxWidth: isMobile ? '120px' : '400px',
@@ -190,8 +203,8 @@ export const ConversationHeader = () => {
               {subtitle && subtitle !== conversationDisplayName && (
                 <Typography
                   noWrap
-                  textOverflow="ellipsis"
                   sx={{
+                    textOverflow: 'ellipsis',
                     fontSize: '0.75rem',
                     color: theme.palette.text.secondary,
                     maxWidth: isMobile ? '120px' : '400px',
@@ -202,7 +215,13 @@ export const ConversationHeader = () => {
               )}
             </Stack>
           </Stack>
-          <Stack direction="row" spacing="12px" alignItems="center">
+          <Stack
+            direction="row"
+            spacing="12px"
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             <StartAudioCallButton onClick={() => startCall(conversationId)} />
             <StartVideoCallButton onClick={() => startCall(conversationId, true)} />
             <IconButton

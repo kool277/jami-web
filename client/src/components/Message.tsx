@@ -148,17 +148,26 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
       isMedia={false}
       deleted={false} // deleted is not used in call message
     >
-      <Stack direction="row" spacing="10px" alignItems="center" paddingLeft="8px">
+      <Stack
+        direction="row"
+        spacing="10px"
+        sx={{
+          alignItems: 'center',
+          paddingLeft: '8px',
+        }}
+      >
         <Icon
           sx={{ fontSize: '20px', color: isMissed ? theme.MessageCall.textColorMissed : textColor, marginLeft: '4px' }}
         />
         <Typography
-          fontStyle="italic"
-          fontWeight={'bolder'}
           variant="body2"
           color={textColor}
-          textAlign={'start'}
-          sx={{ userSelect: 'none' }}
+          sx={{
+            fontStyle: 'italic',
+            fontWeight: 'bolder',
+            textAlign: 'start',
+            userSelect: 'none',
+          }}
         >
           {text + '              '}
         </Typography>
@@ -172,7 +181,12 @@ const MessageInitial = () => {
   const isReduced = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'))
 
   return (
-    <Typography maxWidth={isReduced ? '200px' : 'unset'} variant="body1">
+    <Typography
+      variant="body1"
+      sx={{
+        maxWidth: isReduced ? '200px' : 'unset',
+      }}
+    >
       {t('message_swarm_created')}
     </Typography>
   )
@@ -496,7 +510,12 @@ const MessageDataTransfer = memo(
               deleted={isDeleted}
             >
               {isDeleted ? (
-                <Box sx={{ userSelect: 'none' }} color={textColor}>
+                <Box
+                  sx={{
+                    color: textColor,
+                    userSelect: 'none',
+                  }}
+                >
                   {t('media_deleted')}
                 </Box>
               ) : (
@@ -691,8 +710,8 @@ const DateIndicator = ({ time }: DateIndicatorProps) => {
     <Box sx={{ display: 'flex', justifyContent: 'center', py: '12px' }}>
       <Typography
         variant="caption"
-        fontWeight={600}
         sx={{
+          fontWeight: 600,
           backgroundColor: 'rgba(0,0,0,0.06)',
           borderRadius: '16px',
           padding: '6px 16px',
@@ -716,8 +735,20 @@ const TimeIndicator = ({ time, hasDateOnTop }: TimeIndicatorProps) => {
   const textTime = useMemo(() => formatTime(time, i18n), [time, i18n])
 
   return (
-    <Stack direction="row" justifyContent="center" marginTop={hasDateOnTop ? '20px' : '30px'}>
-      <Typography variant="caption" color="#A7A7A7" fontWeight={700}>
+    <Stack
+      direction="row"
+      sx={{
+        justifyContent: 'center',
+        marginTop: hasDateOnTop ? '20px' : '30px',
+      }}
+    >
+      <Typography
+        variant="caption"
+        sx={{
+          color: '#A7A7A7',
+          fontWeight: 700,
+        }}
+      >
         {textTime}
       </Typography>
     </Stack>
@@ -743,7 +774,12 @@ const NotificationMessageRow = ({ message }: NotificationMessageRowProps) => {
   }
 
   return (
-    <Stack paddingTop={'30px'} alignItems="center">
+    <Stack
+      sx={{
+        paddingTop: '30px',
+        alignItems: 'center',
+      }}
+    >
       {messageComponent}
     </Stack>
   )
@@ -864,7 +900,13 @@ const UserMessageRow = memo(
               deleted={replyMessage.body === ''}
             >
               {replyMessage.type === 'text/plain' ? (
-                <Typography variant="body1" color={theme.MessageDataContent.textContentColor} textAlign={position}>
+                <Typography
+                  variant="body1"
+                  color={theme.MessageDataContent.textContentColor}
+                  sx={{
+                    textAlign: position,
+                  }}
+                >
                   {replyMessage?.body === '' ? t('message_deleted') : replyMessage?.body}
                 </Typography>
               ) : replyMessage.type === 'application/data-transfer+json' ? (
@@ -883,11 +925,18 @@ const UserMessageRow = memo(
     }
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-        <Stack alignItems={position} id={`message-${message.id}`}>
+        <Stack
+          id={`message-${message.id}`}
+          sx={{
+            alignItems: position,
+          }}
+        >
           {isFirstOfGroup && (
             <Box
-              padding={`0px ${participantNamePadding} 0 ${participantNamePadding}`}
-              sx={
+              sx={[
+                {
+                  padding: `0px ${participantNamePadding} 0 ${participantNamePadding}`,
+                },
                 isMobile
                   ? {
                       maxWidth: isAccountMessage ? 'unset' : '100px',
@@ -895,8 +944,8 @@ const UserMessageRow = memo(
                       textWrap: 'nowrap',
                       marginLeft: !isAccountMessage ? '-8px' : '0',
                     }
-                  : {}
-              }
+                  : {},
+              ]}
             >
               <ParticipantName name={authorName} />
             </Box>
@@ -905,12 +954,14 @@ const UserMessageRow = memo(
 
           <Stack
             direction="row"
-            justifyContent={position}
-            alignItems="end"
             spacing={spacingBetweenAvatarAndBubble}
-            paddingTop="6px"
-            width="66.66%"
-            sx={{ zIndex: 1 }}
+            sx={{
+              justifyContent: position,
+              alignItems: 'end',
+              paddingTop: '6px',
+              width: '66.66%',
+              zIndex: 1,
+            }}
           >
             <Box sx={{ width: avatarSize }}>
               {!isAccountMessage && isLastOfGroup && (
@@ -1140,23 +1191,20 @@ const MessageTooltip = styled(
         <Tooltip
           classes={{ tooltip: className }}
           placement={position === 'start' ? 'right-start' : 'left-start'}
-          PopperProps={{
-            modifiers: [
-              {
-                name: 'offset',
-                options: {
-                  offset: [-2, -18],
-                },
-              },
-            ],
-          }}
           open={tooltipOpen}
           disableHoverListener
           disableFocusListener
           disableTouchListener={!isMobile}
           title={
             <div onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
-              <Stack direction="row" spacing="16px" padding="16px" sx={{ cursor: 'pointer' }}>
+              <Stack
+                direction="row"
+                spacing="16px"
+                sx={{
+                  padding: '16px',
+                  cursor: 'pointer',
+                }}
+              >
                 <EmojiButton data-cy="emoji-reaction-button" emoji="😃" onClick={onEmojiClickHandler} />
                 <ReplyMessageButton data-cy="reply-button" onClick={onReply} />
                 {account.getUri() === message.author && (
@@ -1184,6 +1232,18 @@ const MessageTooltip = styled(
               )}
             </div>
           }
+          slotProps={{
+            popper: {
+              modifiers: [
+                {
+                  name: 'offset',
+                  options: {
+                    offset: [-2, -18],
+                  },
+                },
+              ],
+            },
+          }}
         >
           <div {...longPressProps} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             {children}
@@ -1361,7 +1421,13 @@ interface ParticipantNameProps {
 
 const ParticipantName = ({ name }: ParticipantNameProps) => {
   return (
-    <Typography variant="caption" color="#A7A7A7" fontWeight={700}>
+    <Typography
+      variant="caption"
+      sx={{
+        color: '#A7A7A7',
+        fontWeight: 700,
+      }}
+    >
       {name}
     </Typography>
   )
@@ -1404,7 +1470,11 @@ export const MessageRow = memo(({ message, isAccountMessage, author, previousMes
   }
 
   return (
-    <Stack zIndex={2}>
+    <Stack
+      sx={{
+        zIndex: 2,
+      }}
+    >
       {showDate && (
         <Box sx={{ mt: '15px', mb: '15px' }}>
           <DateIndicator time={time} />

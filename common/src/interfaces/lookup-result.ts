@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { JamsSearchResultAccount } from './account'
+import { JamsSearchResultAccount } from './account.js'
 
 export interface LookupResult {
   accountId: string

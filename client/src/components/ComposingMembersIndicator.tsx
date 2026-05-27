@@ -27,10 +27,6 @@ import { translateEnumeration, TranslateEnumerationOptions } from '../utils/tran
 
 const SingleDot = ({ delay }: { delay: number }) => (
   <Box
-    width="8px"
-    height="8px"
-    borderRadius="100%"
-    sx={{ backgroundColor: '#000000' }}
     component={motion.div}
     animate={{ scale: [0.75, 1, 0.75] }}
     transition={{
@@ -40,6 +36,12 @@ const SingleDot = ({ delay }: { delay: number }) => (
       repeatType: 'loop',
       repeat: Infinity,
       ease: 'easeInOut',
+    }}
+    sx={{
+      width: '8px',
+      height: '8px',
+      borderRadius: '100%',
+      backgroundColor: '#000000',
     }}
   />
 )
@@ -75,15 +77,25 @@ export const ComposingMembersIndicator = () => {
   }, [composingMembers, t])
 
   return (
-    <Stack height="30px" padding="0 16px" justifyContent="center">
+    <Stack
+      sx={{
+        height: '30px',
+        padding: '0 16px',
+        justifyContent: 'center',
+      }}
+    >
       <Fade in={composingMembers.length !== 0}>
         <Stack
-          alignItems="center"
           direction="row"
           spacing="8.5px"
-          sx={(theme: any) => ({
-            height: theme.typography.caption.lineHeight,
-          })}
+          sx={[
+            {
+              alignItems: 'center',
+            },
+            (theme: any) => ({
+              height: theme.typography.caption.lineHeight,
+            }),
+          ]}
         >
           <WaitingDots />
           <Typography variant="caption">{text}</Typography>

@@ -53,8 +53,20 @@ const FilePreviewInfos = ({ fileHandler }: FilePreviewInfosProps) => {
   const fileSize = useDataSizeUnits(file.size)
   const fileType = mime.getExtension(file.type)?.toUpperCase() || ''
   return (
-    <Stack overflow="hidden">
-      <Typography variant="body1" fontWeight="bold" overflow="hidden" textOverflow="ellipsis" whiteSpace="nowrap">
+    <Stack
+      sx={{
+        overflow: 'hidden',
+      }}
+    >
+      <Typography
+        variant="body1"
+        sx={{
+          fontWeight: 'bold',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
         {file.name}
       </Typography>
       <Typography variant="body1">{`${fileType} ${fileSize}`}</Typography>

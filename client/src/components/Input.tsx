@@ -102,24 +102,27 @@ export const UsernameInput = ({
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}
-        InputLabelProps={{
-          sx: {
-            visibility: status !== 'default' ? 'hidden' : 'visible',
+        slotProps={{
+          input: {
+            startAdornment: <StartAdornmentIcon sx={{ visibility }} />,
+            endAdornment: (
+              <InfoButton
+                tabIndex={-1}
+                tooltipTitle={tooltipTitle}
+                {...infoButtonProps}
+                onClick={dialogHandler.openDialog}
+              />
+            ),
+            ...props.slotProps?.input,
           },
-          shrink: !!(isSelected || props.value),
-          ...props.InputLabelProps,
-        }}
-        InputProps={{
-          startAdornment: <StartAdornmentIcon sx={{ visibility }} />,
-          endAdornment: (
-            <InfoButton
-              tabIndex={-1}
-              tooltipTitle={tooltipTitle}
-              {...infoButtonProps}
-              onClick={dialogHandler.openDialog}
-            />
-          ),
-          ...props.InputProps,
+
+          inputLabel: {
+            sx: {
+              visibility: status !== 'default' ? 'hidden' : 'visible',
+            },
+            shrink: !!(isSelected || props.value),
+            ...props.slotProps?.inputLabel,
+          },
         }}
       />
     </>
@@ -187,22 +190,31 @@ export const PasswordInput = ({
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}
-        InputLabelProps={{
-          sx: {
-            visibility: status !== 'default' ? 'hidden' : 'visible',
+        slotProps={{
+          input: {
+            startAdornment: <StartAdornmentIcon sx={{ visibility: StartAdornmentIconVisibility }} />,
+            endAdornment: (
+              <Stack
+                direction="row"
+                spacing="14px"
+                sx={{
+                  alignItems: 'center',
+                }}
+              >
+                <ToggleVisibilityButton visible={showPassword} onClick={toggleShowPassword} />
+                <InfoButton tooltipTitle={tooltipTitle} {...infoButtonProps} onClick={dialogHandler.openDialog} />
+              </Stack>
+            ),
+            ...props.slotProps?.input,
           },
-          shrink: !!(isSelected || props.value),
-          ...props.InputLabelProps,
-        }}
-        InputProps={{
-          startAdornment: <StartAdornmentIcon sx={{ visibility: StartAdornmentIconVisibility }} />,
-          endAdornment: (
-            <Stack direction="row" spacing="14px" alignItems="center">
-              <ToggleVisibilityButton visible={showPassword} onClick={toggleShowPassword} />
-              <InfoButton tooltipTitle={tooltipTitle} {...infoButtonProps} onClick={dialogHandler.openDialog} />
-            </Stack>
-          ),
-          ...props.InputProps,
+
+          inputLabel: {
+            sx: {
+              visibility: status !== 'default' ? 'hidden' : 'visible',
+            },
+            shrink: !!(isSelected || props.value),
+            ...props.slotProps?.inputLabel,
+          },
         }}
       />
     </>
@@ -246,15 +258,24 @@ export const RepeatPasswordInput = ({
         onFocus={() => setIsSelected(true)}
         onBlur={() => setIsSelected(false)}
         {...props}
-        InputLabelProps={{ shrink: !!(isSelected || props.value), ...props.InputLabelProps }}
-        InputProps={{
-          startAdornment: <StartAdornmentIcon sx={{ visibility: 'visible' }} />,
-          endAdornment: (
-            <Stack direction="row" spacing="14px" alignItems="center">
-              <ToggleVisibilityButton visible={showPassword} onClick={toggleShowPassword} />
-            </Stack>
-          ),
-          ...props.InputProps,
+        slotProps={{
+          input: {
+            startAdornment: <StartAdornmentIcon sx={{ visibility: 'visible' }} />,
+            endAdornment: (
+              <Stack
+                direction="row"
+                spacing="14px"
+                sx={{
+                  alignItems: 'center',
+                }}
+              >
+                <ToggleVisibilityButton visible={showPassword} onClick={toggleShowPassword} />
+              </Stack>
+            ),
+            ...props.slotProps?.input,
+          },
+
+          inputLabel: { shrink: !!(isSelected || props.value), ...props.slotProps?.inputLabel },
         }}
       />
     </>
@@ -283,13 +304,16 @@ export const NickNameInput = ({ onChange: _onChange, ...props }: TextFieldProps)
     <TextField
       {...props}
       label="Nickname, surname..."
-      InputLabelProps={{ shrink: !!(isSelected || input) }}
       onChange={onChange}
-      InputProps={{
-        startAdornment: <StyledPenIconLight sx={{ visibility: startAdornmentVisibility }} />,
-      }}
       onFocus={() => setIsSelected(true)}
       onBlur={() => setIsSelected(false)}
+      slotProps={{
+        input: {
+          startAdornment: <StyledPenIconLight sx={{ visibility: startAdornmentVisibility }} />,
+        },
+
+        inputLabel: { shrink: !!(isSelected || input) },
+      }}
     />
   )
 }
@@ -317,14 +341,17 @@ export const RegularInput = ({ onChange: _onChange, ...props }: TextFieldProps) 
   return (
     <TextField
       {...props}
-      InputLabelProps={{ shrink: !!(isSelected || input) }}
       onChange={onChange}
-      InputProps={{
-        startAdornment: <StyledPenIconLight sx={{ visibility: startAdornmentVisibility }} />,
-        endAdornment: <StyledPenIconDark sx={{ visibility: endAdornmentVisibility }} />,
-      }}
       onFocus={() => setIsSelected(true)}
       onBlur={() => setIsSelected(false)}
+      slotProps={{
+        input: {
+          startAdornment: <StyledPenIconLight sx={{ visibility: startAdornmentVisibility }} />,
+          endAdornment: <StyledPenIconDark sx={{ visibility: endAdornmentVisibility }} />,
+        },
+
+        inputLabel: { shrink: !!(isSelected || input) },
+      }}
     />
   )
 }

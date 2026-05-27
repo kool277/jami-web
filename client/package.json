@@ -18,8 +18,11 @@
   },
   "browserslist": {
     "production": [
-      ">0.2%",
-      "not dead"
+      "Chrome >= 117",
+      "Edge >= 121",
+      "Firefox >= 121",
+      "Safari >= 17",
+      "iOS >= 17"
     ],
     "development": [
       "last 1 chrome version",
@@ -30,9 +33,9 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.9",
-    "@mui/lab": "^7.0.1-beta.23",
-    "@mui/material": "^7.3.9",
+    "@mui/icons-material": "^9.0.1",
+    "@mui/lab": "^9.0.0-beta.3",
+    "@mui/material": "^9.0.1",
     "@popperjs/core": "^2.11.8",
     "@reduxjs/toolkit": "^2.2.7",
     "@sentry/node": "^8.26.0",
@@ -73,7 +76,7 @@
   },
   "devDependencies": {
     "@eslint/compat": "^1.1.1",
-    "@mui/types": "^7.4.12",
+    "@mui/types": "^9.0.0",
     "@stylistic/eslint-plugin-js": "^4.4.1",
     "@types/crypto-js": "^4.2.0",
     "@types/node": "^22.4.0",
@@ -84,15 +87,20 @@
     "@types/react-transition-group": "^4.4.12",
     "@vitejs/plugin-react": "^6.0.2",
     "cypress": "^15.16.0",
+    "esbuild": "^0.28.0",
     "eslint-plugin-cypress": "^6.4.1",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
+    "hermes-parser": "^0.25.1",
     "i18next-parser": "^9.0.2",
+    "rollup": "^4.60.4",
     "sass": "^1.77.8",
     "tsc-watch": "^6.2.0",
     "typescript": "~6.0.3",
     "vite": "^8.0.14",
     "vite-plugin-svgr": "^5.2.0",
-    "vite-plugin-top-level-await": "^1.6.0"
+    "vite-plugin-top-level-await": "^1.6.0",
+    "zod": "^4.4.3",
+    "zod-validation-error": "^4.0.2"
   }
 }

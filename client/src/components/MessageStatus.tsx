@@ -64,7 +64,13 @@ export default function MessageStatus({ message }: MessageStatusProps) {
 
       if (peers.length > 0) {
         return (
-          <Box display="flex" position="relative" sx={{ gap: '0' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              position: 'relative',
+              gap: '0',
+            }}
+          >
             {peers.map((peerId, index) => {
               const member = members.find((member) => peerId === member.contact.uri)
               return (

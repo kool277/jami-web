@@ -183,23 +183,40 @@ export default function WelcomePage() {
             )}
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '-9vh' }}>
-            <Typography color={'text.primary'}>{t('welcome_page_text')}</Typography>
+            <Typography
+              sx={{
+                color: 'text.primary',
+              }}
+            >
+              {t('welcome_page_text')}
+            </Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '2%', width: '100%' }}>
             <Box
               sx={{
+                borderRadius: '18px 2px 2px 18px',
                 ...middleBoxStyle,
                 maxWidth: isMedium ? '220px' : 'unset',
                 width: 'auto',
               }}
-              borderRadius={'18px 2px 2px 18px'}
             >
               <JamiIdIcon sx={{ marginRight: '5px' }} />
-              <Box maxWidth={isMedium ? '170px' : 'unset'} sx={{ mb: '2px' }}>
+              <Box
+                sx={{
+                  maxWidth: isMedium ? '170px' : 'unset',
+                  mb: '2px',
+                }}
+              >
                 <EllipsisMiddle text={displayedInfo} centerItem={true} padding="6px" />
               </Box>
             </Box>
-            <Box sx={{ ...middleBoxStyle, gap: '10px' }} borderRadius={'2px 18px 18px 2px'}>
+            <Box
+              sx={{
+                borderRadius: '2px 18px 18px 2px',
+                ...middleBoxStyle,
+                gap: '10px',
+              }}
+            >
               <Tooltip title={t('copy_to_clipboard')}>
                 <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <TwoSheetsIcon sx={{ fontSize: '20px', '&:hover': { cursor: 'pointer' } }} onClick={handleCopy} />
@@ -474,7 +491,15 @@ const WelcomeBox = ({ icon, title, text, hiddenTitle, hiddenText, onRemove, onCl
           >
             <CardHeader
               avatar={<span style={{ overflow: 'visible', color: theme.palette.primary.dark }}>{icon}</span>}
-              title={<Typography fontWeight={'bolder'}>{title}</Typography>}
+              title={
+                <Typography
+                  sx={{
+                    fontWeight: 'bolder',
+                  }}
+                >
+                  {title}
+                </Typography>
+              }
             />
             <CardContent>
               <Typography>{text}</Typography>
@@ -511,7 +536,15 @@ const WelcomeBox = ({ icon, title, text, hiddenTitle, hiddenText, onRemove, onCl
           >
             <CardHeader
               sx={{ transform: 'rotateY(180deg)' }}
-              title={<Typography fontWeight={'bolder'}>{hiddenTitle}</Typography>}
+              title={
+                <Typography
+                  sx={{
+                    fontWeight: 'bolder',
+                  }}
+                >
+                  {hiddenTitle}
+                </Typography>
+              }
             />
             <CardContent>
               <Typography sx={{ transform: 'rotateY(180deg)' }}>{hiddenText}</Typography>

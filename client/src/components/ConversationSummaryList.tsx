@@ -146,7 +146,14 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
           />
         }
         primaryText={
-          <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ width: '100%' }}>
+          <Stack
+            direction="row"
+            sx={{
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '100%',
+            }}
+          >
             <Box sx={{ maxWidth: isMobile ? '180px' : '170px' }}>
               <EllipsisMiddle text={conversationName}></EllipsisMiddle>
             </Box>
@@ -180,7 +187,14 @@ const TimeIndicator = ({ conversationSummary }: { conversationSummary: IConversa
   }, [conversationSummary, i18n])
 
   return (
-    <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
+    <Typography
+      variant="caption"
+      sx={{
+        color: 'text.secondary',
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+      }}
+    >
       {timeIndicator}
     </Typography>
   )
@@ -262,9 +276,13 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
   return (
     <Typography
       variant="body2"
-      color="text.secondary"
-      fontWeight={isSelected ? 'bold' : isRead ? 'normal' : 'bold'}
-      sx={lastMessageStyle}
+      sx={[
+        {
+          color: 'text.secondary',
+          fontWeight: isSelected ? 'bold' : isRead ? 'normal' : 'bold',
+        },
+        ...(Array.isArray(lastMessageStyle) ? lastMessageStyle : [lastMessageStyle]),
+      ]}
     >
       {lastMessageText}
     </Typography>

@@ -147,8 +147,10 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
-            inputProps={{
-              'aria-label': 'select all devices',
+            slotProps={{
+              input: {
+                'aria-label': 'select all devices',
+              },
             }}
           />
         </TableCell>
@@ -184,7 +186,14 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
         ]}
       >
         {numSelected > 0 ? (
-          <Typography sx={{ flex: '1 1 100%' }} color="inherit" variant="subtitle1" component="div">
+          <Typography
+            variant="subtitle1"
+            component="div"
+            sx={{
+              color: 'inherit',
+              flex: '1 1 100%',
+            }}
+          >
             {numSelected} selected
           </Typography>
         ) : (
@@ -364,17 +373,17 @@ export default function LinkedDevices() {
                           {row.deviceName}
                         </Box>
                       </TableCell>
-
                       <TableCell sx={{ fontFamily: 'monospace', fontSize: '12px' }} align="left">
                         {row.deviceId}
                       </TableCell>
-
                       <TableCell padding="checkbox">
                         <Checkbox
                           color="primary"
                           checked={isItemSelected}
-                          inputProps={{
-                            'aria-labelledby': labelId,
+                          slotProps={{
+                            input: {
+                              'aria-labelledby': labelId,
+                            },
                           }}
                         />
                       </TableCell>

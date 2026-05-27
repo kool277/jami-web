@@ -83,14 +83,16 @@ export default function MessageList({ messages }: MessageListProps) {
   return (
     <>
       <Stack
-        flex={1}
-        overflow="auto"
-        padding="16px 8px 8px 16px"
         direction="column-reverse"
-        marginBottom="-25px"
-        sx={{ overflowX: 'hidden' }}
         data-testid="message-list"
         ref={setScrollContainer}
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          padding: '16px 8px 8px 16px',
+          marginBottom: '-25px',
+          overflowX: 'hidden',
+        }}
       >
         {/* Here is the bottom of the list of messages because of 'column-reverse' */}
         <Box ref={listBottomRef} />
@@ -150,8 +152,20 @@ export default function MessageList({ messages }: MessageListProps) {
         </Stack>
       </Stack>
       {showScrollButton && (
-        <Box position="relative" bottom="15px">
-          <Box position="absolute" left="50%" sx={{ transform: 'translate(-50%)', zIndex: 2 }}>
+        <Box
+          sx={{
+            position: 'relative',
+            bottom: '15px',
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              left: '50%',
+              transform: 'translate(-50%)',
+              zIndex: 2,
+            }}
+          >
             <ScrollToEndButton listBottomRef={listBottomRef} />
           </Box>
         </Box>
@@ -172,20 +186,30 @@ const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
   return (
     <Stack
       direction="row"
-      borderRadius="12px"
-      height={isMobile ? '35px' : '30px'}
-      alignItems="center"
-      padding="0 16px"
-      textAlign="center"
       spacing="12px"
+      onClick={() => listBottomRef.current?.scrollIntoView({ behavior: 'smooth' })}
       sx={{
-        backgroundColor: theme.palette.primary.main, // TODO: use another color
+        borderRadius: '12px',
+        height: isMobile ? '35px' : '30px',
+        alignItems: 'center',
+        padding: '0 16px',
+        textAlign: 'center',
+
+        // TODO: use another color
+        backgroundColor: theme.palette.primary.main,
+
         cursor: 'pointer',
       }}
-      onClick={() => listBottomRef.current?.scrollIntoView({ behavior: 'smooth' })}
     >
       <ArrowDownIcon sx={{ fontSize: '14px', color: textColor }} />
-      <Typography variant="caption" fontWeight="bold" color={textColor} sx={{ textWrap: 'nowrap' }}>
+      <Typography
+        variant="caption"
+        color={textColor}
+        sx={{
+          fontWeight: 'bold',
+          textWrap: 'nowrap',
+        }}
+      >
         {t('messages_scroll_to_end')}
       </Typography>
     </Stack>

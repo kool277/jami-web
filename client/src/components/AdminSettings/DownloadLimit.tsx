@@ -74,7 +74,15 @@ export default function DownloadLimit() {
     <LayoutSettings title={t('download_limit')} text={t('download_limit_details')}>
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: '10px' }}>
         {' '}
-        <TextField type="number" inputProps={{ min: '0' }} value={limit} onChange={handleLimitChange} size="small" />
+        <TextField
+          type="number"
+          value={limit}
+          onChange={handleLimitChange}
+          size="small"
+          slotProps={{
+            htmlInput: { min: '0' },
+          }}
+        />
         <Button variant="contained" onClick={onSave}>
           {t('save_button')}
         </Button>

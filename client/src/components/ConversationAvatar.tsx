@@ -180,12 +180,23 @@ export const AvatarEditor = () => {
   }, [])
 
   return (
-    <Stack alignItems="center" position="relative" {...getRootProps()}>
+    <Stack
+      {...getRootProps()}
+      sx={{
+        alignItems: 'center',
+        position: 'relative',
+      }}
+    >
       {isDragActive && <FileDragOverlay />}
       <input {...getInputProps()} />
-
       {/* Avatar preview */}
-      <Stack height="150px" width="150px" position="relative">
+      <Stack
+        sx={{
+          height: '150px',
+          width: '150px',
+          position: 'relative',
+        }}
+      >
         <Box sx={{ position: 'absolute', right: '19.89px', zIndex: 10 }}>
           <EditPictureButton onClick={() => setEditionToolsIsOpen(true)} sx={{ width: '30px', height: '30px' }} />
         </Box>
@@ -196,24 +207,29 @@ export const AvatarEditor = () => {
           sx={{ width: '100%', height: '100%' }}
         />
       </Stack>
-
       {editionToolsIsOpen && (
         <Stack
-          alignItems="center"
-          justifyContent="center"
-          position="absolute"
-          height="200px"
-          width="200px"
-          zIndex={10}
           spacing={'26px'}
           sx={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'absolute',
+            height: '200px',
+            width: '200px',
+            zIndex: 10,
             backgroundColor: theme.ChatInterface.panelColor,
             borderRadius: '10px',
             boxShadow: '5px 5px 10px 0px #1f1f1f',
           }}
         >
           <Typography sx={{ fontSize: '23px' }}>{t('change_picture')}</Typography>
-          <Stack direction="row" alignItems="center" spacing="9px">
+          <Stack
+            direction="row"
+            spacing="9px"
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             <TakePictureButton onClick={openPhotoTaker} />
             <UploadPictureButton onClick={openFilePicker} />
             {avatarHandler && <CancelPictureButton onClick={removeAvatar} />}
@@ -221,7 +237,6 @@ export const AvatarEditor = () => {
           </Stack>
         </Stack>
       )}
-
       <PhotoTakerDialog {...photoTakerHandler.props} onConfirm={setAvatarHandler} />
     </Stack>
   )
@@ -340,12 +355,24 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <Stack>
-        <Stack position="relative">
+        <Stack
+          sx={{
+            position: 'relative',
+          }}
+        >
           <CornerCloseButton onClick={onClose} />
           {stream && <CircleMaskOverlay size={circleLengthPercentage} />}
           <video ref={videoRef} style={{ transform: 'rotateY(180deg)' /* mirror */ }} />
         </Stack>
-        <Stack height="89px" direction="row" justifyContent="center" alignItems="center" spacing="10px">
+        <Stack
+          direction="row"
+          spacing="10px"
+          sx={{
+            height: '89px',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
           {isPaused ? (
             <>
               <RoundButton

@@ -64,9 +64,20 @@ export const BaseDialog = ({ open, onClose, icon, title, content, actions }: Bas
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>
-        <Stack direction="row" alignItems="center" spacing="16px">
+        <Stack
+          direction="row"
+          spacing="16px"
+          sx={{
+            alignItems: 'center',
+          }}
+        >
           {icon && (
-            <Box height="80px" width="80px">
+            <Box
+              sx={{
+                height: '80px',
+                width: '80px',
+              }}
+            >
               {icon}
             </Box>
           )}
@@ -142,10 +153,27 @@ export const DialogContentList = ({ title, items }: DialogContentListProps) => {
               <Icon />
             </ListItemIcon>
           )}
-          <Stack direction="row" alignItems="center" spacing="24px">
+          <Stack
+            direction="row"
+            spacing="24px"
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             {label && (
-              <Stack direction="row" width="100px" justifyContent="end">
-                <Typography variant="body2" color="#a0a0a0">
+              <Stack
+                direction="row"
+                sx={{
+                  width: '100px',
+                  justifyContent: 'end',
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: '#a0a0a0',
+                  }}
+                >
                   {label}
                 </Typography>
               </Stack>

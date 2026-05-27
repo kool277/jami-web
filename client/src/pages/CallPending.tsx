@@ -49,12 +49,12 @@ export const CallPending = () => {
   return (
     <Stack
       direction="column"
-      justifyContent="center"
-      alignItems="center"
-      height="100%"
       spacing={4}
-      flexGrow={1}
       sx={{
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100%',
+        flexGrow: 1,
         position: 'relative',
       }}
     >
@@ -129,11 +129,26 @@ const CallPendingDetails = ({
       <Typography variant="h1" color="white">
         {title}
       </Typography>
-      <Box width="50%">
-        <Grid container justifyContent="center">
+      <Box
+        sx={{
+          width: '50%',
+        }}
+      >
+        <Grid
+          container
+          sx={{
+            justifyContent: 'center',
+          }}
+        >
           {buttons.map(({ ButtonComponent, title: buttonTitle }, i) => (
             <Grid key={i} size={4}>
-              <Stack direction="column" alignItems="center" spacing={1} sx={{}}>
+              <Stack
+                direction="column"
+                spacing={1}
+                sx={{
+                  alignItems: 'center',
+                }}
+              >
                 <ButtonComponent color="inherit" size="large" />
                 <Typography variant="body2" color="white" sx={{ opacity: 0.75 }}>
                   {buttonTitle}

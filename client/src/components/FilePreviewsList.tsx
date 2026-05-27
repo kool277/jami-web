@@ -37,17 +37,19 @@ const FilePreviewsList = () => {
 
   return (
     <Stack
-      display="flex"
-      flexDirection="row"
-      justifyContent="space-between"
       direction="row"
-      flexWrap="wrap"
-      gap="16px"
-      overflow="auto"
-      maxHeight="30%"
-      paddingX="16px"
-      marginBottom="5px"
-      paddingTop="3px"
+      sx={{
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+        overflow: 'auto',
+        maxHeight: '30%',
+        paddingX: '16px',
+        marginBottom: '5px',
+        paddingTop: '3px',
+      }}
     >
       {fileHandlers.map((fileHandler) => (
         <FilePreviewRemovable

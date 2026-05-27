@@ -35,7 +35,13 @@ const SettingBase = ({ label, children }: SettingBaseProps) => {
     <ListItem sx={{ padding: 0, margin: 0 }}>
       <FormLabel sx={{ width: '100%' }}>
         <Stack direction="row">
-          <Box flexGrow={1}>{label}</Box>
+          <Box
+            sx={{
+              flexGrow: 1,
+            }}
+          >
+            {label}
+          </Box>
           {children}
         </Stack>
       </FormLabel>

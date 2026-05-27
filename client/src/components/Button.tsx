@@ -182,7 +182,14 @@ export const ExpandableButton = ({
           })}
         </Menu>
       )}
-      <Box position="relative" display="flex" justifyContent="center" alignItems="center">
+      <Box
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         {expandMenuOptions && (
           <IconButton
             aria-label="expand options"

@@ -126,7 +126,12 @@ export default function AdminLogin() {
             justifyContent: 'center',
           }}
         >
-          <Typography variant="body1" fontSize={13}>
+          <Typography
+            variant="body1"
+            sx={{
+              fontSize: 13,
+            }}
+          >
             <Link style={{ color: theme.ChatInterface.inputColor }} to={'/'}>
               {t('admin_login_to_main')}
             </Link>

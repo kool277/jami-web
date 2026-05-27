@@ -53,9 +53,13 @@ const ListLabel = styled(({ label, ...props }: ListLabelProps) => (
   <ListItemText
     {...props}
     primary={label}
-    primaryTypographyProps={{
-      fontSize: '12px',
-      lineHeight: '16px',
+    slotProps={{
+      primary: {
+        sx: {
+          fontSize: '12px',
+          lineHeight: '16px',
+        },
+      },
     }}
   />
 ))(() => ({

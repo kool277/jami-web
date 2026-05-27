@@ -81,7 +81,13 @@ export default () => {
   }
 
   return (
-    <Box ref={callInterfaceRef} flexGrow={1} display="flex">
+    <Box
+      ref={callInterfaceRef}
+      sx={{
+        flexGrow: 1,
+        display: 'flex',
+      }}
+    >
       <CallInterface />
       {isChatShown && <CallChatDrawer />}
     </Box>
@@ -121,17 +127,35 @@ const CallInterface = () => {
   const remoteStream = remoteStreams?.at(0)
 
   return (
-    <Box display="flex" flexGrow={1}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexGrow: 1,
+      }}
+    >
       <VideoStream
         ref={remoteVideoRef}
         stream={remoteStream}
         audioOutDeviceId={audioOutDeviceId}
         style={{ zIndex: -1, backgroundColor: 'black', position: 'absolute', height: '100%', width: '100%' }}
       />
-      <Box flexGrow={1} margin={2} display="flex" flexDirection="column">
+      <Box
+        sx={{
+          flexGrow: 1,
+          margin: 2,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         {/* Guest video, takes the whole screen */}
         <CallInterfaceInformation />
-        <Box flexGrow={1} marginY={2} position="relative">
+        <Box
+          sx={{
+            flexGrow: 1,
+            marginY: 2,
+            position: 'relative',
+          }}
+        >
           <VideoOverlay
             stream={stream}
             hidden={!stream}
@@ -175,7 +199,13 @@ const CallInterfaceInformation = () => {
   const elapsedTimerString = formatCallDuration(elapsedTime)
 
   return (
-    <Stack direction="row" justifyContent="space-between" alignItems="center">
+    <Stack
+      direction="row"
+      sx={{
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}
+    >
       <Typography color="white" component="p">
         {conversationDisplayName}
       </Typography>
@@ -189,7 +219,13 @@ const CallInterfaceInformation = () => {
 const CallInterfacePrimaryButtons = () => {
   return (
     <Card sx={{ backgroundColor: '#00000088', overflow: 'visible' }}>
-      <Stack direction="row" justifyContent="center" alignItems="center">
+      <Stack
+        direction="row"
+        sx={{
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         <CallingMicButton />
         <CallingEndButton />
         <CallingVideoCameraButton />
@@ -273,7 +309,15 @@ const CallInterfaceSecondaryButtons = ({
 
   return (
     <Card sx={{ backgroundColor: '#00000088', overflow: 'visible', height: '100%' }}>
-      <Stack direction="row" justifyContent="center" alignItems="center" height="100%" ref={stackRef}>
+      <Stack
+        direction="row"
+        ref={stackRef}
+        sx={{
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100%',
+        }}
+      >
         {initialMeasurementDone &&
           displayedButtons.map((SecondaryButton, i) => (
             <Fragment key={i}>
@@ -284,15 +328,18 @@ const CallInterfaceSecondaryButtons = ({
           <CallingMoreVerticalButton isVertical onClick={() => setHiddenMenuVisible(!hiddenMenuVisible)} />
         )}
       </Stack>
-
       {!!hiddenButtons.length && hiddenMenuVisible && (
         <Box sx={{ position: 'absolute', right: 0, bottom: '50px' }}>
           <Card sx={{ backgroundColor: '#00000088', overflow: 'visible', justifyContent: 'flex-end' }}>
             <Stack
               direction="column"
-              justifyContent="flex-end"
-              alignItems="flex-end"
-              sx={{ bottom: 0, right: 0, height: '100%' }}
+              sx={{
+                justifyContent: 'flex-end',
+                alignItems: 'flex-end',
+                bottom: 0,
+                right: 0,
+                height: '100%',
+              }}
             >
               {hiddenButtons.map((SecondaryButton, i) => (
                 <Fragment key={i}>

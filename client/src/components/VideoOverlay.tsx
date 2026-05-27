@@ -42,7 +42,13 @@ const VideoOverlay = ({ onClick, size = 'medium', ...props }: VideoOverlayProps)
   const [dragging, setDragging] = useState(false)
 
   return (
-    <Box position="relative" width="100%" height="100%">
+    <Box
+      sx={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+      }}
+    >
       <Draggable
         onDrag={() => setDragging(true)}
         onStop={(...args) => {
@@ -88,8 +94,20 @@ export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId:
   const stream = remoteStreams?.at(0)
 
   return (
-    <Box position="absolute" width="100%" height="100%" display="flex">
-      <Box margin={2} flexGrow={1}>
+    <Box
+      sx={{
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+      }}
+    >
+      <Box
+        sx={{
+          margin: 2,
+          flexGrow: 1,
+        }}
+      >
         <VideoOverlay
           stream={stream}
           audioOutDeviceId={audioOutDeviceId}

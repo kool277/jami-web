@@ -142,7 +142,13 @@ export default function MediaViewer({
                   )}
                 </Box>
                 {member.contact.uri !== member.getDisplayName() && (
-                  <Box maxWidth={isMedium ? '115px' : '160px'} sx={{ color: 'white', fontSize: '11px' }}>
+                  <Box
+                    sx={{
+                      maxWidth: isMedium ? '115px' : '160px',
+                      color: 'white',
+                      fontSize: '11px',
+                    }}
+                  >
                     {isMedium ? <EllipsisMiddle text={member.contact.uri} /> : member.contact.uri}
                   </Box>
                 )}

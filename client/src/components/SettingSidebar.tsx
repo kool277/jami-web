@@ -120,12 +120,14 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
                                 {/* <InboxIcon /> */}
                 {/* </ListItemIcon> */}
                 <ListItemText
-                  primaryTypographyProps={{
-                    color: isCurrentlyViewing(settingItem.highlightKey)
-                      ? theme.palette.primary.dark
-                      : theme.palette.text.primary,
-                  }}
                   primary={settingItem.title}
+                  slotProps={{
+                    primary: {
+                      color: isCurrentlyViewing(settingItem.highlightKey)
+                        ? theme.palette.primary.dark
+                        : theme.palette.text.primary,
+                    },
+                  }}
                 />
               </ListItemButton>
               <Collapse
@@ -144,12 +146,14 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
                       }}
                     >
                       <ListItemText
-                        primaryTypographyProps={{
-                          color: isCurrentlyViewing(submenuItem.highlightKey)
-                            ? theme.palette.primary.dark
-                            : theme.palette.text.primary,
-                        }}
                         primary={submenuItem.title}
+                        slotProps={{
+                          primary: {
+                            color: isCurrentlyViewing(submenuItem.highlightKey)
+                              ? theme.palette.primary.dark
+                              : theme.palette.text.primary,
+                          },
+                        }}
                       />
                     </ListItemButton>
                   ))}

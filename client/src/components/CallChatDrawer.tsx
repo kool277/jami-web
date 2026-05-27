@@ -25,9 +25,9 @@ import { CloseButton } from './Button.js'
 export default () => {
   return (
     <Stack
-      width="33%"
-      height="100%"
       sx={{
+        width: '33%',
+        height: '100%',
         backgroundColor: 'white',
       }}
     >
@@ -47,14 +47,26 @@ const CallChatDrawerHeader = () => {
   const { conversationDisplayName } = useConversationContext()
 
   return (
-    <Stack direction="row" padding={2} spacing={2} alignItems="center">
+    <Stack
+      direction="row"
+      spacing={2}
+      sx={{
+        padding: 2,
+        alignItems: 'center',
+      }}
+    >
       <CloseButton
         onClick={() => {
           setIsChatShown(false)
         }}
       />
       <Stack direction="column">
-        <Typography variant="h3" textOverflow="ellipsis">
+        <Typography
+          variant="h3"
+          sx={{
+            textOverflow: 'ellipsis',
+          }}
+        >
           {conversationDisplayName}
         </Typography>
       </Stack>

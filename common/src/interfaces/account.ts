@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { IContact } from './contact'
+import { IContact } from './contact.js'
 
 export interface IAccount {
   id: string

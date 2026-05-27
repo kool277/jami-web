@@ -56,12 +56,21 @@ const ChatInterface = () => {
   })
 
   return (
-    <Stack flex={1} direction="row" overflow="hidden" spacing={0}>
+    <Stack
+      direction="row"
+      spacing={0}
+      sx={{
+        flex: 1,
+        overflow: 'hidden',
+      }}
+    >
       <Stack
-        width={isOpen && (isMobile || isMedium) ? '0px' : '100%'}
-        overflow="hidden"
         {...getRootProps()}
-        sx={{ position: 'relative' }}
+        sx={{
+          width: isOpen && (isMobile || isMedium) ? '0px' : '100%',
+          overflow: 'hidden',
+          position: 'relative',
+        }}
       >
         <ConversationHeader />
         {isDragActive && <FileDragOverlay />}

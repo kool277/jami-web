@@ -166,14 +166,16 @@ export default function Footer() {
           anchorEl={anchorEl}
           open={Boolean(anchorEl)}
           onClose={() => closeMenuAndNavigate()}
-          PaperProps={{
-            sx: (theme) => ({
-              width: 'auto',
-              backgroundColor: theme.palette.background.paper,
-              color: theme.palette.text.primary,
-              borderRadius: '20px 12px 20px 12px',
-              boxShadow: '3px 3px 7px rgba(0, 0, 0, 0.16)',
-            }),
+          slotProps={{
+            paper: {
+              sx: {
+                width: 'auto',
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                borderRadius: '20px 12px 20px 12px',
+                boxShadow: '3px 3px 7px rgba(0, 0, 0, 0.16)',
+              },
+            },
           }}
           anchorOrigin={{
             vertical: 'top',

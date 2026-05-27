@@ -482,10 +482,12 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
       component="form"
       onSubmit={handleSubmit}
       direction="row"
-      alignItems="center"
       spacing="5px"
-      paddingX="8px"
-      marginBottom="0px"
+      sx={{
+        alignItems: 'center',
+        paddingX: '8px',
+        marginBottom: '0px',
+      }}
     >
       {isRecordingVoice ? (
         <>
@@ -525,7 +527,11 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
               '&:last-child': { paddingBottom: '6px' },
             }}
           >
-            <Stack flexGrow={1}>
+            <Stack
+              sx={{
+                flexGrow: 1,
+              }}
+            >
               <TextareaAutosize
                 ref={textareaRef}
                 value={currentMessage}

@@ -131,8 +131,19 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
 
   return (
     <Dialog {...props}>
-      <Stack alignItems="center" spacing="40px" position="relative">
-        <Typography variant="caption" visibility={acceptConversationRequestMutation.isPending ? 'hidden' : 'visible'}>
+      <Stack
+        spacing="40px"
+        sx={{
+          alignItems: 'center',
+          position: 'relative',
+        }}
+      >
+        <Typography
+          variant="caption"
+          sx={{
+            visibility: acceptConversationRequestMutation.isPending ? 'hidden' : 'visible',
+          }}
+        >
           {t('conversation_request_has_sent_request', { contact: contact.getDisplayName() })}
         </Typography>
         <ConversationAvatar
@@ -143,17 +154,37 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
         />
         {acceptConversationRequestMutation.isPending ? (
           <>
-            <Typography variant="h3" whiteSpace="pre-line" textAlign="center" fontWeight="bold">
+            <Typography
+              variant="h3"
+              sx={{
+                whiteSpace: 'pre-line',
+                textAlign: 'center',
+                fontWeight: 'bold',
+              }}
+            >
               {t('conversation_request_accepted')}
             </Typography>
-            <Typography variant="caption" whiteSpace="pre-line" textAlign="center">
+            <Typography
+              variant="caption"
+              sx={{
+                whiteSpace: 'pre-line',
+                textAlign: 'center',
+              }}
+            >
               {t('conversation_request_waiting_for_sync', { contact: contact.getDisplayName() })}
             </Typography>
             <LoadingPage />
           </>
         ) : (
           <>
-            <Typography variant="h3" whiteSpace="pre-line" textAlign="center" fontWeight="bold">
+            <Typography
+              variant="h3"
+              sx={{
+                whiteSpace: 'pre-line',
+                textAlign: 'center',
+                fontWeight: 'bold',
+              }}
+            >
               {t('conversation_request_ask_join')}
             </Typography>
             <Stack direction="row" spacing="30px">

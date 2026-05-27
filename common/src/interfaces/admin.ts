@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { AdminWizardState } from '../enums/admin-wizard-state'
+import { AdminWizardState } from '../enums/admin-wizard-state.js'
 
 export interface IAdminConfigState {
   localAuthEnabled: boolean

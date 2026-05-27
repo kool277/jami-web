@@ -24,12 +24,12 @@ export default () => {
   // TODO: The UI of this page needs to be improved
   return (
     <Stack
-      alignItems="center"
-      justifyContent="center"
-      textAlign="center"
       spacing={1}
-      paddingX={8}
       sx={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        paddingX: 8,
         flexGrow: 1,
         backgroundColor: 'black',
       }}

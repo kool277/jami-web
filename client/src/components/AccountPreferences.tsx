@@ -155,7 +155,6 @@ export default function AccountPreferences() {
           </motion.div>
         </Grid>
       </Grid>
-
       <List
         subheader={
           <motion.div variants={thumbnailVariants}>
@@ -174,8 +173,10 @@ export default function AccountPreferences() {
                 edge="end"
                 onChange={(e) => handleToggle('Account.rendezVous', e.target.checked)}
                 checked={details['Account.rendezVous'] === 'true'}
-                inputProps={{
-                  'aria-labelledby': 'switch-list-label-rendezvous',
+                slotProps={{
+                  input: {
+                    'aria-labelledby': 'switch-list-label-rendezvous',
+                  },
                 }}
               />
             </ListItemSecondaryAction>
@@ -192,7 +193,9 @@ export default function AccountPreferences() {
                 edge="end"
                 onChange={(e) => handleToggle('DHT.PublicInCalls', e.target.checked)}
                 checked={details['DHT.PublicInCalls'] === 'true'}
-                inputProps={{ 'aria-labelledby': 'switch-list-label-publicin' }}
+                slotProps={{
+                  input: { 'aria-labelledby': 'switch-list-label-publicin' },
+                }}
               />
             </ListItemSecondaryAction>
           </ListItem>

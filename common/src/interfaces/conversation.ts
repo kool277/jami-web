@@ -15,8 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { MessageStatusCode } from '../enums/message-status-code'
-import { IContact } from './contact'
+import { MessageStatusCode } from '../enums/message-status-code.js'
+import { IContact } from './contact.js'
 
 export interface IConversationMember {
   role?: ConversationMemberRole

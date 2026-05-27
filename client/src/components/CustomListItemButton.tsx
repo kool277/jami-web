@@ -41,9 +41,22 @@ export const CustomListItemButton = ({ icon, primaryText, secondaryText, ...prop
       }}
       {...props}
     >
-      <Stack direction="row" spacing={theme.Panel.padding} alignItems="center" sx={{ width: '100%' }}>
+      <Stack
+        direction="row"
+        spacing={theme.Panel.padding}
+        sx={{
+          alignItems: 'center',
+          width: '100%',
+        }}
+      >
         {icon}
-        <Stack justifyContent="center" sx={{ flex: 1, minWidth: 0 }}>
+        <Stack
+          sx={{
+            justifyContent: 'center',
+            flex: 1,
+            minWidth: 0,
+          }}
+        >
           {primaryText}
           {secondaryText}
         </Stack>

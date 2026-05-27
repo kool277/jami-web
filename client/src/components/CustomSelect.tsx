@@ -137,7 +137,12 @@ export const CustomSelect = <OptionPayload,>({ option, options, onChange, size }
           popupOpen={popupOpen}
         />
       </Box>
-      <Box position="relative" sx={{ backgroundColor: backgroundColor }}>
+      <Box
+        sx={{
+          position: 'relative',
+          backgroundColor: backgroundColor,
+        }}
+      >
         {groupedOptions.length > 0 ? (
           <Listbox {...getListboxProps()} sx={{ backgroundColor: backgroundColor }}>
             {(groupedOptions as SelectOption<OptionPayload>[]).map((option, index) => (
