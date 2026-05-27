@@ -39,6 +39,7 @@ import { AccountDetails } from 'jami-web-common'
 import { useState } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
+import { thumbnailVariants } from '../themes/MotionVariants.js'
 import CustomizeProfile from './AccountSettings/CustomizeProfile.js'
 import LinkedDevicesPreview from './AccountSettings/LinkedDevicesPreview.js'
 import PasskeyManager from './AccountSettings/PasskeyManager.js'
@@ -51,18 +52,6 @@ import {
   DeleteIcon as DeleteRounded,
   GroupsIcon as GroupRounded,
 } from './SvgIcon.js'
-
-const transition = { duration: 0.3, ease: [0.43, 0.13, 0.23, 0.96] }
-
-const thumbnailVariants = {
-  initial: { scale: 0.9, opacity: 0 },
-  enter: { scale: 1, opacity: 1, transition },
-  exit: {
-    scale: 0.5,
-    opacity: 0,
-    transition: { ...transition, duration: 1.5 },
-  },
-}
 
 export default function AccountPreferences() {
   const { account, axiosInstance } = useAuthContext()

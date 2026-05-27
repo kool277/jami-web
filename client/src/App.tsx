@@ -20,13 +20,15 @@ import './dayjsInitializer.js' // Initialized once and globally to ensure availa
 import axios from 'axios'
 import { AdminWizardState } from 'jami-web-common'
 import { useState } from 'react'
-import { json, LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
+import { LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
 
 import WelcomeAnimation from './components/WelcomeAnimation.jsx'
 import { checkAdminSetupStatus, checkWizardStatus } from './services/adminQueries.js'
 import { getAccessToken, setAccessToken } from './services/authQueries.js'
 import { apiUrl } from './utils/constants.js'
 import { setElectronMode } from './utils/electron.js'
+
+const appLoaderData = (isSetupComplete: boolean) => ({ isSetupComplete })
 
 export async function appLoader({ request }: LoaderFunctionArgs) {
   const initialUrl = new URL(request.url)
@@ -39,12 +41,12 @@ export async function appLoader({ request }: LoaderFunctionArgs) {
   if (electronMode) {
     // If user is navigating to admin panel, let them through
     if (path.startsWith('/admin')) {
-      return json({ isSetupComplete: true }, { status: 200 })
+      return appLoaderData(true)
     }
 
     // If already authenticated, proceed normally
     if (getAccessToken()) {
-      return json({ isSetupComplete: true }, { status: 200 })
+      return appLoaderData(true)
     }
 
     // Try auto-login: fetch local accounts and login to the first one
@@ -69,7 +71,7 @@ export async function appLoader({ request }: LoaderFunctionArgs) {
       // Auto-login failed, fall through to normal routing
     }
 
-    return json({ isSetupComplete: true }, { status: 200 })
+    return appLoaderData(true)
   }
 
   const lastWizardState = await checkWizardStatus()
@@ -94,7 +96,7 @@ export async function appLoader({ request }: LoaderFunctionArgs) {
     return redirect('/admin/setup/' + lastWizardState)
   }
 
-  return json({ isSetupComplete }, { status: 200 })
+  return appLoaderData(isSetupComplete)
 }
 
 const App = () => {
