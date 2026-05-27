@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "composite": true,
-    "target": "esnext",
+    "target": "es2025",
     "module": "esnext",
     "rootDir": "src",
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "declaration": true,
     "declarationMap": true,
     "outDir": "dist",

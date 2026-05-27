@@ -124,7 +124,7 @@ export default [
     languageOptions: {
       globals: {
         ...globals.jest,
-        ...cypress.environments.globals.globals,
+        ...cypress.configs.globals.languageOptions.globals,
       },
     },
   },

@@ -62,14 +62,42 @@ clearGuests()
 
 const MIN_PASSWORD_LENGTH = 8
 
-// In Electron mode, expose local account usernames for auto-login
+// In Electron mode, expose account IDs for auto-login
 if (isElectronMode) {
   authRouter.get(
     '/local-accounts',
     asyncHandler(async (_req, res) => {
-      const allAccounts = accounts.getAll()
-      const localUsernames = Object.keys(allAccounts.local)
-      res.json({ usernames: localUsernames })
+      const accountIds = jamid.getAccountIds()
+      const accountList = accountIds.map((id) => {
+        const details = jamid.getAccountDetails(id)
+        const volatile = jamid.getVolatileAccountDetails(id)
+        return {
+          id,
+          registeredName: (volatile as unknown as Record<string, string>)['Account.registeredName'] ?? '',
+          displayName: details['Account.displayName'] ?? '',
+        }
+      })
+      res.json({ accounts: accountList })
+    }),
+  )
+
+  // Dedicated endpoint for switching between local daemon accounts.
+  // Accepts an explicit accountId rather than abusing the username/password fields.
+  authRouter.post(
+    '/switch-account',
+    asyncHandler(async (req: Request<ParamsDictionary, AccessToken | string, { accountId?: string }>, res) => {
+      const { accountId } = req.body
+      if (!accountId || typeof accountId !== 'string') {
+        res.status(HttpStatusCode.BadRequest).send('Missing accountId in body')
+        return
+      }
+      const daemonAccountIds = jamid.getAccountIds()
+      if (!daemonAccountIds.includes(accountId)) {
+        res.status(HttpStatusCode.NotFound).send('Account not found')
+        return
+      }
+      const jwt = await signJwt(accountId)
+      res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
     }),
   )
 }
@@ -267,8 +295,21 @@ authRouter.post(
       res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
       return
     } else if (authMethod === 'local') {
-      if (config.getConfig().localAuthEnabled === false) {
+      if (!isElectronMode && config.getConfig().localAuthEnabled === false) {
         res.status(HttpStatusCode.BadRequest).send('Local authentication is disabled')
+        return
+      }
+
+      // In Electron mode, look up the account directly from the daemon by accountId
+      if (isElectronMode) {
+        const daemonAccountIds = jamid.getAccountIds()
+        const targetAccountId = daemonAccountIds.includes(username) ? username : undefined
+        if (!targetAccountId) {
+          res.status(HttpStatusCode.NotFound).send('Account not found')
+          return
+        }
+        const jwt = await signJwt(targetAccountId)
+        res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
         return
       }
 
@@ -286,14 +327,6 @@ authRouter.post(
 
       if (guard.isBlocked(accountId)) {
         res.status(HttpStatusCode.TooManyRequests).send('Too many login attempts')
-        return
-      }
-
-      // In Electron mode, local accounts can be accessed without a password
-      if (isElectronMode) {
-        const jwt = await signJwt(accountId)
-        guard.resetAttempts(accountId)
-        res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
         return
       }
 

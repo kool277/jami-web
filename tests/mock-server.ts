@@ -36,6 +36,7 @@ interface MockServerState {
   users: Record<string, { password: string; accountId: string }>
   adminPasskeys: { credentialId: string; name: string; createdAt: string }[]
   userPasskeys: Record<string, { credentialId: string; name: string; createdAt: string }[]>
+  autoDownloadLimit: number
 }
 
 const defaultState: MockServerState = {
@@ -52,6 +53,23 @@ const defaultState: MockServerState = {
   users: {},
   adminPasskeys: [],
   userPasskeys: {},
+  autoDownloadLimit: 0,
+}
+
+/**
+ * Default state used when starting the mock server in standalone (development) mode.
+ * Admin is pre-configured so the app goes straight to the login page.
+ * Default credentials:
+ *   Admin password : AdminPass123!
+ *   User           : testuser / Test1234!
+ */
+const standaloneInitialState: Partial<MockServerState> = {
+  isSetupComplete: true,
+  lastWizardState: 'complete',
+  adminPassword: 'AdminPass123!',
+  users: {
+    testuser: { password: 'Test1234!', accountId: 'acc-testuser' },
+  },
 }
 
 export function createMockServer(initialState: Partial<MockServerState> = {}): {
@@ -242,6 +260,20 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.send(state.config.jamsUrl)
   })
 
+  api.get('/data/autoDownloadLimit', (_req, res) => {
+    res.json({ limit: state.autoDownloadLimit })
+  })
+
+  api.post('/admin/autoDownloadLimit', (req, res) => {
+    const limit = req.body.limit
+    if (limit === undefined || limit < 0) {
+      res.status(400).send('Invalid limit')
+      return
+    }
+    state.autoDownloadLimit = limit
+    res.sendStatus(200)
+  })
+
   api.post('/admin/jamsurl', (req, res) => {
     const jamsUrl = req.body.url
     if (!jamsUrl || jamsUrl === '') {
@@ -375,11 +407,11 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   })
 
   // --- Test helper: reset state ---
+  // Always resets to a clean defaultState regardless of the initialState used at startup.
+  // This ensures tests that need a blank slate (e.g. admin-setup tests) work correctly.
   app.post('/__reset', (_req, res) => {
-    // Deep copy state to avoid shared references with defaultState
-    const merged = { ...defaultState, ...initialState }
-    Object.assign(state, merged)
-    state.config = { ...defaultState.config, ...initialState.config }
+    Object.assign(state, { ...defaultState })
+    state.config = { ...defaultState.config }
     state.users = {}
     state.adminPasskeys = []
     state.userPasskeys = {}
@@ -669,5 +701,10 @@ export function startMockServer(
 
 // Allow running standalone: npx tsx tests/mock-server.ts
 if (process.argv[1]?.endsWith('mock-server.ts') || process.argv[1]?.endsWith('mock-server.js')) {
-  startMockServer().then(() => console.log('[mock-server] Ready'))
+  startMockServer(5002, standaloneInitialState).then(() => {
+    console.log('[mock-server] Ready')
+    console.log('[mock-server] Admin pre-configured — skip setup wizard')
+    console.log('[mock-server]   Admin password : AdminPass123!')
+    console.log('[mock-server]   User login     : testuser / Test1234!')
+  })
 }

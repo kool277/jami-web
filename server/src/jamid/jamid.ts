@@ -466,7 +466,9 @@ export class Jamid {
   async lookupUsername(username: string, nameserver: string, accountId?: string): Promise<LookupResult> {
     const hasRingNs = this.jamiSwig.lookupName(accountId || '', nameserver, username)
     if (!hasRingNs) {
-      throw new Error('Jami does not have a nameserver')
+      throw new Error(
+        'Account ' + accountId + ': Error looking up username: ' + username + ' with nameserver: ' + nameserver,
+      )
     }
 
     const data = firstValueFrom(this.events.onRegisteredNameFound.pipe(filter((value) => value.query === username)))
@@ -480,17 +482,21 @@ export class Jamid {
     const hasRingNs = this.jamiSwig.lookupAddress(accountId || '', nameserver, address)
 
     if (!hasRingNs) {
-      throw new Error('Jami does not have a nameserver')
+      throw new Error(accountId + ': Error looking up address: ' + address + ' with nameserver: ' + nameserver)
     }
 
-    const data = firstValueFrom(this.events.onRegisteredNameFound.pipe(filter((value) => value.query === address)))
+    console.log(`[DIAG] lookupAddress WAITING: address=${address.substring(0, 8)}`)
+    const data = await firstValueFrom(
+      this.events.onRegisteredNameFound.pipe(filter((value) => value.query === address)),
+    )
+    console.log(`[DIAG] lookupAddress RESOLVED: address=${address.substring(0, 8)} name=${data.name}`)
     return data
   }
 
   async registerUsername(accountId: string, username: string, password: string): Promise<NameRegistrationEndedState> {
     const hasRingNs = this.jamiSwig.registerName(accountId, username, 'password', password)
     if (!hasRingNs) {
-      throw new Error('Jami does not have a nameserver')
+      throw new Error(accountId + ': Error registering username: ' + username)
     }
     return firstValueFrom(
       this.events.onNameRegistrationEnded.pipe(
@@ -503,7 +509,7 @@ export class Jamid {
   async searchUser(accountId: string, username: string) {
     const hasRingNs = this.jamiSwig.searchUser(accountId, username)
     if (!hasRingNs) {
-      throw new Error('Jams does not have a nameserver')
+      throw new Error(accountId + ': Error searching user: ' + username)
     }
     return firstValueFrom(this.events.onUserSearchEnded.pipe(filter((value) => value.accountId === accountId)))
   }
@@ -522,7 +528,7 @@ export class Jamid {
 
     if (!isOk) {
       log.error(`Error revoking device: accountId=${accountId}, deviceId=${deviceId}`)
-      throw new Error('Error revoking device. Please check the accountId and deviceId.')
+      throw new Error(accountId + ': Error revoking device: ' + deviceId)
     }
 
     return firstValueFrom(
@@ -646,6 +652,9 @@ export class Jamid {
     n = 32,
   ): Promise<Message[]> {
     const requestId = this.jamiSwig.loadConversationMessages(accountId, conversationId, fromMessage, n)
+    if (requestId === 0) {
+      return []
+    }
     return firstValueFrom(
       this.events.onConversationLoaded.pipe(
         filter((value) => value.id === requestId),
@@ -656,6 +665,9 @@ export class Jamid {
 
   async getSwarmMessages(accountId: string, conversationId: string, fromMessage = '', n = 8): Promise<Message[]> {
     const requestId = this.jamiSwig.loadConversation(accountId, conversationId, fromMessage, n)
+    if (requestId === 0) {
+      return []
+    }
     return firstValueFrom(
       this.events.onSwarmLoaded.pipe(
         filter((value) => value.id === requestId),
@@ -680,6 +692,9 @@ export class Jamid {
     toMessage: string,
   ): Promise<Message[]> {
     const requestId = this.jamiSwig.loadSwarmUntil(accountId, conversationId, fromMessage, toMessage)
+    if (requestId === 0) {
+      return []
+    }
     return firstValueFrom(
       this.events.onSwarmLoaded.pipe(
         filter((value) => value.id === requestId),

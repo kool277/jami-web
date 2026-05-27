@@ -30,7 +30,7 @@
     "format:check": "prettier --check src"
   },
   "devDependencies": {
-    "typescript": "~5.5.4"
+    "typescript": "~6.0.3"
   },
   "license": "AGPL-3.0-or-later",
   "repository": {

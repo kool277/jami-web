@@ -65,10 +65,13 @@ function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
     try {
       const { payload } = await verifyJwt(token)
       const accountId = String(payload.accountId)
-      const isValid = accounts.isValidAccountId(accountId)
-      if (!isValid) {
-        res.status(HttpStatusCode.Unauthorized).send('Invalid account ID')
-        return
+      // In Electron mode, the daemon is the source of truth — skip the accounts.json check
+      if (!isElectronMode) {
+        const isValid = accounts.isValidAccountId(accountId)
+        if (!isValid) {
+          res.status(HttpStatusCode.Unauthorized).send('Invalid account ID')
+          return
+        }
       }
       res.locals.accountId = accountId
       // si accId

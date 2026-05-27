@@ -80,10 +80,12 @@ export class ConversationService {
     // TODO: Host the image and use a "normal" url instead
     infos.avatar = infos.avatar ? `data:image/jpeg;base64,${infos.avatar}` : undefined
     jamid.clearCache(accountId, conversationId)
+
     const [membersNames, message] = await Promise.all([
       this.getMembersNames(accountId, conversationId),
       jamid.getSwarmMessages(accountId, conversationId, '', 1),
     ])
+
     const lastMessage: Message = message[0]
     return {
       id: conversationId,
@@ -100,6 +102,7 @@ export class ConversationService {
     const accountUri = jamid.getAccountDetails(accountId)['Account.username']
     const members = jamid.getConversationMembers(accountId, conversationId)
 
+    console.log(`[DIAG] getMembersNames conv=${conversationId.substring(0, 8)} members=${members.length}`)
     const membersNamesPromises = members.map(async (member) => {
       if (member.uri === accountUri) {
         return
@@ -117,6 +120,7 @@ export class ConversationService {
       }
     })
     const membersNames = (await Promise.all(membersNamesPromises)).filter((name): name is string => name !== undefined)
+    console.log(`[DIAG] getMembersNames DONE conv=${conversationId.substring(0, 8)}`)
     return membersNames
   }
 }
