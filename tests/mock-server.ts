@@ -72,6 +72,11 @@ const standaloneInitialState: Partial<MockServerState> = {
   },
 }
 
+const mockOAuthProviders = [
+  { name: 'google', isActive: false, displayName: 'Google' },
+  { name: 'github', isActive: false, displayName: 'GitHub' },
+]
+
 export function createMockServer(initialState: Partial<MockServerState> = {}): {
   app: express.Express
   server: Server
@@ -247,7 +252,37 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   })
 
   api.get('/admin/oauth/providers', (_req, res) => {
-    res.json([])
+    res.json(mockOAuthProviders)
+  })
+
+  api.get('/admin/oauth/provider/:name', (req, res) => {
+    const provider = mockOAuthProviders.find((item) => item.name === req.params.name)
+    if (!provider) {
+      res.status(404).send('Provider not found')
+      return
+    }
+
+    res.json({
+      clientId: '',
+      isActive: provider.isActive,
+      redirectUri: `http://localhost:5002/api/auth/oauth/${provider.name}/callback`,
+      documentation: 'https://example.com/oauth-docs',
+      displayName: provider.displayName,
+      icon: '',
+    })
+  })
+
+  api.patch('/admin/oauth/provider/:name', (req, res) => {
+    const provider = mockOAuthProviders.find((item) => item.name === req.params.name)
+    if (!provider) {
+      res.status(404).send('Provider not found')
+      return
+    }
+
+    if (req.body.isActive !== undefined) {
+      provider.isActive = req.body.isActive
+    }
+    res.sendStatus(200)
   })
 
   // --- JAMS URL routes ---
@@ -373,6 +408,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
       setting_name_server: 'Name Server',
       setting_can_be_changed_later: 'This setting can be changed later.',
       next: 'Next',
+      no_oauth_providers: 'No OAuth providers are available.',
       previous: 'Previous',
       configure_jams_server: 'Configure the JAMS server for enterprise authentication.',
       enter_jams_server: 'Enter JAMS server URL',
@@ -381,6 +417,20 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
       admin_account_configuration: 'Account Configuration',
       accounts: 'Accounts',
       authentication: 'Authentication',
+      jami: 'Jami',
+      jams: 'JAMS',
+      openid: 'OpenID',
+      jami_authentication: 'Jami Local Authentication',
+      jami_authentication_info: 'Local authentication allows users to register an account by providing a username.',
+      jams_authentication: 'JAMS authentication',
+      jams_authentication_info: 'JAMS authentication allows users to connect with a JAMS server.',
+      openid_authentication: 'OpenID authentication',
+      setting_auth_change: '{{authMethod}} authentication',
+      setting_enabled: 'Enabled',
+      setting_disabled: 'Disabled',
+      save_button: 'Save',
+      reset_nameserver_button: 'Reset',
+      jams_url: 'JAMS URL',
       logout: 'Logout',
       admin_page_accounts_overview_title: 'Accounts Overview',
       username_input_label: 'Username',

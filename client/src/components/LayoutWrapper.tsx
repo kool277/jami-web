@@ -17,7 +17,7 @@
  */
 import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { alpha, darken, lighten } from '@mui/material/styles'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider.js'
@@ -118,9 +118,11 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
 
   const doNotDisplayStyles = { visibility: 'hidden', width: '0px', height: '0px' }
 
-  if (!isMobile) {
-    setIsMenuOpen(false)
-  }
+  useEffect(() => {
+    if (!isMobile && isMenuOpen) {
+      setIsMenuOpen(false)
+    }
+  }, [isMenuOpen, isMobile, setIsMenuOpen])
 
   const onMenuIconClick = () => {
     if (isMobile) {

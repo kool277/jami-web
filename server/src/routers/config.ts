@@ -20,7 +20,7 @@ import asyncHandler from 'express-async-handler'
 import fs from 'fs'
 import { HttpStatusCode } from 'jami-web-common'
 
-import { getAvailableLanguages } from '../utils/locales.js'
+import { getAvailableLanguages, getTranslationPath } from '../utils/locales.js'
 
 export const configRouter = Router()
 
@@ -57,7 +57,7 @@ configRouter.get(
         return
       }
 
-      const path = `./locale/${language}/translation.json`
+      const path = getTranslationPath(language)
 
       if (!fs.existsSync(path)) {
         res.status(HttpStatusCode.InternalServerError).send({ error: 'Error reading language file' })

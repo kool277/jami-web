@@ -15,19 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import {
-  Box,
-  Button,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  Input,
-  Switch,
-  Theme,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import { Box, Button, Input, Stack, Switch, Typography } from '@mui/material'
 import { urlRegex } from 'jami-web-common'
 import { ChangeEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -72,11 +60,9 @@ const LocalAuthMethodForm = ({
   const { t } = useTranslation()
   const saveAdminConfigMutation = useUpdateAdminConfigMutation()
   const [nameServer, setNameServer] = useState<string>(nameServerConfigured)
-  const theme: Theme = useTheme()
   const setNameServerMutation = useSetNameServer()
   const resetServerNameMutation = useResetNameServer()
   const { setAlertContent } = useContext(AlertSnackbarContext)
-  const isWrapping = useMediaQuery(theme.breakpoints.down(500))
 
   const handleChange = () => {
     saveAdminConfigMutation.mutate({ localAuthEnabled: !data.localAuthEnabled })
@@ -105,62 +91,44 @@ const LocalAuthMethodForm = ({
   }
 
   return (
-    <LayoutSettings title={t('jami_authentication')} text={t('jami_authentication_info')}>
-      <Box sx={{ display: 'flex', justifyContent: 'start', alignItems: 'start', paddingBottom: '30px' }}>
-        <Box sx={{ textAlign: 'start', width: '100%', minWidth: '300px' }}>
+    <LayoutSettings title={t('jami_authentication')} text={t('jami_authentication_info')} disableMarginTop>
+      <Stack spacing={3} sx={{ width: '100%', minWidth: '300px', pb: 2 }}>
+        <Box sx={{ textAlign: 'start', width: '100%' }}>
           <Box
             sx={{
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
-              alignContent: 'start',
-              marginTop: '-30px',
+              alignItems: 'center',
+              gap: 2,
             }}
           >
-            <span style={{ paddingRight: '10%' }}>{t('setting_auth_change', { authMethod: t('jami') })}</span>
-            <FormControl>
-              <FormGroup style={{ alignItems: 'start' }}>
-                <FormControlLabel
-                  control={<Switch checked={data.localAuthEnabled} onChange={handleChange} />}
-                  label={undefined}
-                />
-              </FormGroup>
-            </FormControl>
+            <Typography>{t('setting_auth_change', { authMethod: t('jami') })}</Typography>
+            <Switch checked={data.localAuthEnabled} onChange={handleChange} />
           </Box>
-          <Box sx={{ textAlign: 'start', alignItems: 'start', marginTop: '-40px' }}>
-            <Typography>{t('setting_name_server')}</Typography>
-            <Form>
-              <Input value={nameServer} onChange={handleNameChangeNameServer} />
+          <Stack spacing={1.5} sx={{ mt: 3 }}>
+            <Typography component="label" htmlFor="name-server-input">
+              {t('setting_name_server')}
+            </Typography>
+            <Form style={{ width: '100%' }}>
+              <Input id="name-server-input" fullWidth value={nameServer} onChange={handleNameChangeNameServer} />
             </Form>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '30px' }}>
-            <Button
-              variant="contained"
-              onClick={deleteNameServer}
-              sx={{
-                mt: theme.typography.pxToRem(20),
-                marginLeft: theme.typography.pxToRem(10),
-                marginTop: isWrapping ? '5px' : '-15px',
-              }}
-            >
+          </Stack>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: 1, mt: 3 }}>
+            <Button variant="contained" onClick={deleteNameServer}>
               {t('reset_nameserver_button')}
             </Button>
             <Button
               variant="contained"
               type="submit"
               onClick={submitNewNameServer}
-              sx={{
-                mt: theme.typography.pxToRem(20),
-                marginLeft: theme.typography.pxToRem(10),
-                marginTop: isWrapping ? '5px' : '-15px',
-              }}
               disabled={nameServer === nameServerConfigured}
             >
               {t('save_button')}
             </Button>
           </Box>
         </Box>
-      </Box>
+      </Stack>
     </LayoutSettings>
   )
 }

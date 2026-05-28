@@ -27,6 +27,12 @@ import rightChevron from '../../icons/rightChevron.svg'
 import { useGetAdminConfigQuery, useGetAllOauthClients } from '../../services/adminQueries.js'
 import ProcessingRequest from '../ProcessingRequest.js'
 
+type OAuthProviderSummary = {
+  name: string
+  isActive: boolean
+  displayName: string
+}
+
 export default function OpenIdAuthMethod() {
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -90,38 +96,42 @@ export default function OpenIdAuthMethod() {
             exit={{ x: 20 }}
             transition={{ duration: 0.5 }}
           >
-            <List sx={listStyle}>
-              {providers.data.map((provider: any) => (
-                <>
-                  <motion.div key={provider.id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.99 }}>
-                    <ListItem
-                      sx={listItemStyle}
-                      onClick={() => {
-                        handleSelection(provider.name)
-                      }}
-                    >
-                      <Box
-                        sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}
+            {providers.data.length === 0 ? (
+              <Box sx={{ ...listStyle, p: 2, textAlign: 'center' }}>
+                <Typography color="text.secondary">{t('no_oauth_providers')}</Typography>
+              </Box>
+            ) : (
+              <List sx={listStyle}>
+                {providers.data.map((provider: OAuthProviderSummary, index: number) => (
+                  <Box key={provider.name}>
+                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.99 }}>
+                      <ListItem
+                        sx={listItemStyle}
+                        onClick={() => {
+                          handleSelection(provider.name)
+                        }}
                       >
-                        <Box sx={{ textAlign: 'start' }}>
-                          <ListItemText sx={listItemText} primary={provider.displayName} />
-                          <Box
-                            sx={activeIndicatorStyle}
-                            style={{ color: provider.isActive ? enabledColor : disabledColor }}
-                          >
-                            {provider.isActive ? t('setting_enabled') : t('setting_disabled')}
+                        <Box
+                          sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}
+                        >
+                          <Box sx={{ textAlign: 'start' }}>
+                            <ListItemText sx={listItemText} primary={provider.displayName} />
+                            <Box
+                              sx={activeIndicatorStyle}
+                              style={{ color: provider.isActive ? enabledColor : disabledColor }}
+                            >
+                              {provider.isActive ? t('setting_enabled') : t('setting_disabled')}
+                            </Box>
                           </Box>
+                          <img src={rightChevron} alt=">" />
                         </Box>
-                        <img src={rightChevron} alt=">" />
-                      </Box>
-                    </ListItem>
-                  </motion.div>
-                  {providers.data.length - 1 !== providers.data.indexOf(provider) && (
-                    <Divider variant="middle" component="li" />
-                  )}
-                </>
-              ))}
-            </List>
+                      </ListItem>
+                    </motion.div>
+                    {providers.data.length - 1 !== index && <Divider variant="middle" component="li" />}
+                  </Box>
+                ))}
+              </List>
+            )}
           </motion.div>
         </AnimatePresence>
       </Box>

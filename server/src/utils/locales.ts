@@ -16,14 +16,25 @@
  * <https://www.gnu.org/licenses/>.
  */
 import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const packageRoot = path.resolve(__dirname, '../..')
+const availableLanguagesPath = path.join(packageRoot, 'available_languages.json')
+
+export function getTranslationPath(language: string) {
+  return path.join(packageRoot, 'locale', language, 'translation.json')
+}
 
 export async function getAvailableLanguages() {
   try {
-    while (!fs.existsSync('available_languages.json')) {
-      await new Promise((resolve) => setTimeout(resolve, 100))
+    if (!fs.existsSync(availableLanguagesPath)) {
+      throw new Error(`Available languages file not found: ${availableLanguagesPath}`)
     }
 
-    const data = fs.readFileSync('available_languages.json')
+    const data = fs.readFileSync(availableLanguagesPath)
     const content = JSON.parse(data.toString())
 
     const languages = []

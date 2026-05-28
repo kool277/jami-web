@@ -18,6 +18,8 @@
 
 import { readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { IOpenIdProviders } from 'jami-web-common'
 import { Container, Service } from 'typedi'
@@ -25,10 +27,13 @@ import { Container, Service } from 'typedi'
 import { AdminAccount } from './admin-account.js'
 
 const adminConfig = Container.get(AdminAccount)
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const packageRoot = path.resolve(__dirname, '../..')
 
 @Service()
 export class OpenIdProviders {
-  private readonly filename = 'openid-providers.json'
+  private readonly filename = path.join(packageRoot, 'openid-providers.json')
   private providers: Map<string, IOpenIdProviders>
   private readonly defaultScope = 'openid%20email%20profile'
 

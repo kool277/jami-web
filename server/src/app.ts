@@ -77,6 +77,7 @@ export class App {
             imgSrc: ["'self'", 'data:', 'blob:', '*'],
             scriptSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
+            upgradeInsecureRequests: null,
           },
         },
       }),

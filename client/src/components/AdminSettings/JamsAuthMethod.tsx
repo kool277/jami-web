@@ -15,19 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import {
-  Box,
-  Button,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
-  Input,
-  Switch,
-  Theme,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import { Box, Button, Input, Stack, Switch, Typography } from '@mui/material'
 import { urlRegex } from 'jami-web-common'
 import { ChangeEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -70,11 +58,9 @@ const JamsAuthMethodForm = ({
 }) => {
   const { t } = useTranslation()
   const saveAdminConfigMutation = useUpdateAdminConfigMutation()
-  const theme: Theme = useTheme()
   const setJamsUrlMutation = useSetJamsUrl()
   const [jamsUrl, setJamsUrl] = useState<string>(jamsCurrentUrl)
   const { setAlertContent } = useContext(AlertSnackbarContext)
-  const isWrapping = useMediaQuery(theme.breakpoints.down(500))
 
   const handleChange = () => {
     saveAdminConfigMutation.mutate({ jamsAuthEnabled: !data.jamsAuthEnabled })
@@ -108,52 +94,43 @@ const JamsAuthMethodForm = ({
   }
 
   return (
-    <LayoutSettings title={t('jams_authentication')} text={t('jams_authentication_info')}>
-      <Box
-        sx={{ display: 'flex', justifyContent: 'start', alignItems: 'center', height: '80%', paddingBottom: '20px' }}
-      >
-        <Box sx={{ textAlign: 'start', width: '100%', minWidth: '300px' }}>
+    <LayoutSettings title={t('jams_authentication')} text={t('jams_authentication_info')} disableMarginTop>
+      <Stack spacing={3} sx={{ width: '100%', minWidth: '300px', pb: 2 }}>
+        <Box sx={{ textAlign: 'start', width: '100%' }}>
           <Box
             sx={{
               width: '100%',
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
-              alignContent: 'start',
+              alignItems: 'center',
+              gap: 2,
             }}
           >
-            {t('setting_auth_change', { authMethod: t('jams') })}
-            <FormControl>
-              <FormGroup style={{ alignItems: 'start' }}>
-                <FormControlLabel
-                  control={<Switch checked={data.jamsAuthEnabled} onChange={handleChange} />}
-                  label={undefined}
-                />
-              </FormGroup>
-            </FormControl>
+            <Typography>{t('setting_auth_change', { authMethod: t('jams') })}</Typography>
+            <Switch checked={data.jamsAuthEnabled} onChange={handleChange} />
           </Box>
-          <Box sx={{ textAlign: 'start', alignItems: 'start', marginTop: '-40px' }}>
-            <Typography>{t('jams_url')}</Typography>
-            <Form>
-              <Input value={jamsUrl} onChange={handleNameChangeJamsUrl} placeholder={t('enter_jams_server')} />
+          <Stack spacing={1.5} sx={{ mt: 3 }}>
+            <Typography component="label" htmlFor="jams-url-input">
+              {t('jams_url')}
+            </Typography>
+            <Form style={{ width: '100%' }}>
+              <Input
+                id="jams-url-input"
+                fullWidth
+                value={jamsUrl}
+                onChange={handleNameChangeJamsUrl}
+                placeholder={t('enter_jams_server')}
+              />
             </Form>
-            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <Button
-                variant="contained"
-                type="submit"
-                onClick={submitNewJamsUrl}
-                sx={{
-                  mt: theme.typography.pxToRem(20),
-                  marginLeft: theme.typography.pxToRem(10),
-                  marginTop: isWrapping ? '5px' : '-15px',
-                }}
-              >
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+              <Button variant="contained" type="submit" onClick={submitNewJamsUrl}>
                 {t('save_button')}
               </Button>
             </Box>
-          </Box>
+          </Stack>
         </Box>
-      </Box>
+      </Stack>
     </LayoutSettings>
   )
 }

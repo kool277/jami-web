@@ -233,6 +233,7 @@
   "next": "Next",
   "no_contact_found": "Contact not found.",
   "no_files_found": "No files yet.",
+  "no_oauth_providers": "No OAuth providers are available.",
   "ongoing_call_muted": "Ongoing call (muted)",
   "ongoing_call_unmuted": "Ongoing call",
   "openid": "OpenID",

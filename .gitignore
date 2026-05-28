@@ -7,6 +7,7 @@ out/
 .vscode/
 .idea/
 *.iml
+.DS_Store
 
 *jamid.node
 server/*jami.node

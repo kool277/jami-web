@@ -155,6 +155,44 @@ test.describe('Admin Panel Features', () => {
     await expect(page).toHaveURL(/\/admin\/authentication/)
   })
 
+  test('admin authentication method pages render', async ({ page }) => {
+    const consoleErrors: string[] = []
+    page.on('console', (message) => {
+      if (message.type() === 'error') {
+        consoleErrors.push(message.text())
+      }
+    })
+
+    const expectInputBelowSwitch = async (inputSelector: string) => {
+      const switchBox = await page.locator('.MuiSwitch-root').first().boundingBox()
+      const inputBox = await page.locator(inputSelector).boundingBox()
+
+      expect(switchBox).not.toBeNull()
+      expect(inputBox).not.toBeNull()
+      expect(inputBox!.y).toBeGreaterThan(switchBox!.y + switchBox!.height)
+    }
+
+    await page.goto('/admin/authentication/jami')
+    await expect(page).toHaveURL(/\/admin\/authentication\/jami/)
+    await expect(page.locator('body')).toContainText('Jami Local Authentication')
+    await expect(page.locator('#name-server-input')).toBeVisible()
+    await expectInputBelowSwitch('#name-server-input')
+
+    await page.goto('/admin/authentication/jams')
+    await expect(page).toHaveURL(/\/admin\/authentication\/jams/)
+    await expect(page.locator('body')).toContainText('JAMS authentication')
+    await expect(page.locator('#jams-url-input')).toBeVisible()
+    await expectInputBelowSwitch('#jams-url-input')
+
+    await page.goto('/admin/authentication/openid')
+    await expect(page).toHaveURL(/\/admin\/authentication\/openid/)
+    await expect(page.locator('body')).toContainText('OpenID authentication')
+    await expect(page.locator('body')).toContainText('Google')
+    await expect(page.locator('body')).toContainText('GitHub')
+
+    expect(consoleErrors).toEqual([])
+  })
+
   test('admin can navigate between tabs', async ({ page }) => {
     await page.goto('/admin/accounts')
     await page.waitForTimeout(5_000)
