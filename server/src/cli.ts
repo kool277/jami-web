@@ -17,6 +17,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { configCommand } from './cli/config.js'
+import { doctorCommand } from './cli/doctor.js'
 import { genkeyCommand } from './cli/genkeys.js'
 import { setupCommand } from './cli/setup.js'
 
@@ -31,6 +32,7 @@ Commands:
   setup       Interactive setup wizard (create admin account and configure server)
   genkeys     Generate JWT signing keys and write them to .env
   config      Show or update server configuration
+  doctor      Run health checks on the installation and configuration
 
 Options:
   --help      Show this help message
@@ -63,6 +65,9 @@ async function main() {
       break
     case 'config':
       await configCommand(args.slice(1))
+      break
+    case 'doctor':
+      await doctorCommand(args.slice(1))
       break
     case 'start': {
       await startCommand()
