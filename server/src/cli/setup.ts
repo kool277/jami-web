@@ -63,6 +63,86 @@ async function saveAdminAccount(filename: string, account: IAdminAccount): Promi
   await writeFile(filename, JSON.stringify(account, null, 2) + '\n')
 }
 
+const DEFAULT_NAMESERVER = 'https://ns.jami.net'
+
+interface SetupOptions {
+  nonInteractive: boolean
+  adminPassword?: string
+  resetAdmin: boolean
+  localAuth?: boolean
+  jamsAuth?: boolean
+  jamsUrl?: string
+  openIdAuth?: boolean
+  guestAccess?: boolean
+  nameserver?: string
+}
+
+function flagValue(args: string[], name: string): string | undefined {
+  const i = args.indexOf(name)
+  if (i !== -1 && args[i + 1] !== undefined) {
+    return args[i + 1]
+  }
+  return undefined
+}
+
+function boolFlag(args: string[], enableName: string, disableName: string): boolean | undefined {
+  if (args.includes(enableName)) return true
+  if (args.includes(disableName)) return false
+  return undefined
+}
+
+function parseSetupArgs(args: string[]): SetupOptions {
+  return {
+    nonInteractive: args.includes('--non-interactive') || args.includes('-y') || args.includes('--yes'),
+    adminPassword: flagValue(args, '--admin-password') ?? process.env.JAMI_WEB_ADMIN_PASSWORD,
+    resetAdmin: args.includes('--reset-admin'),
+    localAuth: boolFlag(args, '--enable-local', '--disable-local'),
+    jamsAuth: boolFlag(args, '--enable-jams', '--disable-jams'),
+    jamsUrl: flagValue(args, '--jams-url'),
+    openIdAuth: boolFlag(args, '--enable-openid', '--disable-openid'),
+    guestAccess: boolFlag(args, '--enable-guest', '--disable-guest'),
+    nameserver: flagValue(args, '--nameserver'),
+  }
+}
+
+function isValidUrl(url: string): boolean {
+  return urlRegex.test(url)
+}
+
+async function promptUrl(question: string, current: string, required: boolean): Promise<string> {
+  for (;;) {
+    const answer = await prompt(question)
+    const value = answer || current
+    if (!value) {
+      if (required) {
+        console.log('A value is required. Please enter a URL (e.g. https://example.com).')
+        continue
+      }
+      return ''
+    }
+    if (!isValidUrl(value)) {
+      console.log('Invalid URL. Please enter a valid URL (e.g. https://example.com).')
+      continue
+    }
+    return value
+  }
+}
+
+async function resolveBool(
+  question: string,
+  current: boolean,
+  override: boolean | undefined,
+  nonInteractive: boolean,
+): Promise<boolean> {
+  if (override !== undefined) {
+    return override
+  }
+  if (nonInteractive) {
+    return current
+  }
+  return confirm(question, current)
+}
+
 export async function setupCommand(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: jami-web setup [options]
@@ -75,11 +155,30 @@ Steps:
   2. Create an admin account with a password
   3. Configure authentication methods
   4. Configure the nameserver
+  5. Configure guest access
 
 Options:
-  --help      Show this help message`)
+  --non-interactive, -y     Run without prompts (for automation/CI)
+  --admin-password <pw>     Admin password (or set JAMI_WEB_ADMIN_PASSWORD)
+  --reset-admin             Reset the admin password if one already exists
+  --enable-local            Enable local authentication
+  --disable-local           Disable local authentication
+  --enable-jams             Enable JAMS authentication
+  --disable-jams            Disable JAMS authentication
+  --jams-url <url>          JAMS server URL (required when JAMS is enabled)
+  --enable-openid           Enable OpenID authentication
+  --disable-openid          Disable OpenID authentication
+  --enable-guest            Enable guest access
+  --disable-guest           Disable guest access
+  --nameserver <url>        Name server URL (default: ${DEFAULT_NAMESERVER})
+  --help                    Show this help message
+
+In non-interactive mode, unspecified options keep their current value.
+Creating a new admin account requires --admin-password (or JAMI_WEB_ADMIN_PASSWORD).`)
     return
   }
+
+  const options = parseSetupArgs(args)
 
   console.log('╔══════════════════════════════════════╗')
   console.log('║       Jami Web — Server Setup        ║')
@@ -109,31 +208,28 @@ Options:
 
   // Step 2: Admin password
   console.log('── Step 2: Admin Account ──')
-  const hasExistingAdmin = account.admin !== undefined
-  if (hasExistingAdmin) {
-    console.log('An admin account already exists.')
-    const resetAdmin = await confirm('Reset admin password?', false)
-    if (resetAdmin) {
-      await setAdminPassword(account)
-    }
-  } else {
-    await setAdminPassword(account)
-  }
+  await setupAdmin(account, options)
   console.log()
 
   // Step 3: Authentication methods
   console.log('── Step 3: Authentication ──')
-  await configureAuth(account)
+  await configureAuth(account, options)
   console.log()
 
   // Step 4: Nameserver
   console.log('── Step 4: Name Server ──')
-  await configureNameserver(account)
+  await configureNameserver(account, options)
   console.log()
 
   // Step 5: Guest access
   console.log('── Step 5: Guest Access ──')
-  account.config.guestAccessEnabled = await confirm('Enable guest access?', account.config.guestAccessEnabled)
+  account.config.guestAccessEnabled = await resolveBool(
+    'Enable guest access?',
+    account.config.guestAccessEnabled,
+    options.guestAccess,
+    options.nonInteractive,
+  )
+  console.log(`✓ Guest access: ${account.config.guestAccessEnabled ? 'enabled' : 'disabled'}`)
   console.log()
 
   // Mark setup as complete
@@ -141,20 +237,51 @@ Options:
 
   // Save
   await saveAdminAccount(filename, account)
-  console.log('✓ Configuration saved to', filename)
-  console.log()
-  console.log('You can now start the server with:')
-  console.log('  jami-web start')
-  console.log()
-  console.log('Or in production mode:')
-  console.log('  NODE_ENV=production jami-web start')
+  printSummary(account, filename)
 
   closePrompt()
 }
 
+async function setupAdmin(account: IAdminAccount, options: SetupOptions): Promise<void> {
+  const hasExistingAdmin = account.admin !== undefined
+
+  if (options.nonInteractive) {
+    if (hasExistingAdmin && !options.resetAdmin) {
+      console.log('Admin account already exists; keeping the current password.')
+      return
+    }
+    if (!options.adminPassword) {
+      throw new Error(
+        hasExistingAdmin
+          ? '--reset-admin requires --admin-password (or JAMI_WEB_ADMIN_PASSWORD).'
+          : 'An admin password is required in non-interactive mode. Use --admin-password or set JAMI_WEB_ADMIN_PASSWORD.',
+      )
+    }
+    if (options.adminPassword.length < MIN_ADMIN_PASSWORD_LENGTH) {
+      throw new Error(`Admin password must be at least ${MIN_ADMIN_PASSWORD_LENGTH} characters long.`)
+    }
+    account.admin = await hashPassword(options.adminPassword)
+    console.log('✓ Admin password set.')
+    return
+  }
+
+  if (hasExistingAdmin) {
+    console.log('An admin account already exists.')
+    console.log('Warning: resetting the password will replace the current admin credentials.')
+    const resetAdmin = await confirm('Reset admin password?', false)
+    if (resetAdmin) {
+      await setAdminPassword(account)
+    } else {
+      console.log('Keeping the current admin password.')
+    }
+  } else {
+    await setAdminPassword(account)
+  }
+}
+
 async function setAdminPassword(account: IAdminAccount): Promise<void> {
-  while (true) {
-    const password = await promptPassword('Enter admin password (min 8 characters): ')
+  for (;;) {
+    const password = await promptPassword(`Enter admin password (min ${MIN_ADMIN_PASSWORD_LENGTH} characters): `)
     if (password.length < MIN_ADMIN_PASSWORD_LENGTH) {
       console.log(`Password must be at least ${MIN_ADMIN_PASSWORD_LENGTH} characters long.`)
       continue
@@ -170,28 +297,46 @@ async function setAdminPassword(account: IAdminAccount): Promise<void> {
   }
 }
 
-async function configureAuth(account: IAdminAccount): Promise<void> {
+async function configureAuth(account: IAdminAccount, options: SetupOptions): Promise<void> {
   // Local auth
-  account.config.localAuthEnabled = await confirm('Enable local authentication?', account.config.localAuthEnabled)
+  account.config.localAuthEnabled = await resolveBool(
+    'Enable local authentication?',
+    account.config.localAuthEnabled,
+    options.localAuth,
+    options.nonInteractive,
+  )
 
   // JAMS auth
-  const enableJams = await confirm('Enable JAMS authentication?', account.config.jamsAuthEnabled)
+  const enableJams = await resolveBool(
+    'Enable JAMS authentication?',
+    account.config.jamsAuthEnabled,
+    options.jamsAuth,
+    options.nonInteractive,
+  )
   account.config.jamsAuthEnabled = enableJams
   if (enableJams) {
     const currentUrl = account.jamsUrl || ''
-    const jamsUrl = await prompt(`JAMS server URL${currentUrl ? ` [${currentUrl}]` : ''}: `)
-    const finalUrl = jamsUrl || currentUrl
-    if (finalUrl) {
-      if (!urlRegex.test(finalUrl)) {
-        console.log('Warning: URL does not look valid. Saving anyway.')
+    if (options.nonInteractive) {
+      const url = options.jamsUrl || currentUrl
+      if (!url) {
+        throw new Error('JAMS authentication is enabled but no JAMS URL was provided. Use --jams-url.')
       }
-      account.jamsUrl = finalUrl
+      if (!isValidUrl(url)) {
+        throw new Error(`Invalid JAMS server URL: ${url}`)
+      }
+      account.jamsUrl = url
+    } else {
+      account.jamsUrl = await promptUrl(`JAMS server URL${currentUrl ? ` [${currentUrl}]` : ''}: `, currentUrl, true)
     }
   }
 
   // OpenID — simplified; detailed per-provider config is better done via the web UI
-  const enableOpenId = await confirm('Enable OpenID authentication?', account.config.openIdAuthEnabled)
-  account.config.openIdAuthEnabled = enableOpenId
+  account.config.openIdAuthEnabled = await resolveBool(
+    'Enable OpenID authentication?',
+    account.config.openIdAuthEnabled,
+    options.openIdAuth,
+    options.nonInteractive,
+  )
 
   console.log('✓ Authentication configured:')
   console.log(`    Local:  ${account.config.localAuthEnabled ? 'enabled' : 'disabled'}`)
@@ -199,18 +344,43 @@ async function configureAuth(account: IAdminAccount): Promise<void> {
   console.log(`    OpenID: ${account.config.openIdAuthEnabled ? 'enabled' : 'disabled'}`)
 }
 
-async function configureNameserver(account: IAdminAccount): Promise<void> {
-  const currentNs = account.nameserver || 'https://ns.jami.net'
-  const ns = await prompt(`Name server URL [${currentNs}]: `)
-  const finalNs = ns || currentNs
-  if (finalNs && finalNs !== 'https://ns.jami.net') {
-    if (!urlRegex.test(finalNs)) {
-      console.log('Warning: URL does not look valid. Saving anyway.')
+async function configureNameserver(account: IAdminAccount, options: SetupOptions): Promise<void> {
+  const currentNs = account.nameserver || DEFAULT_NAMESERVER
+  let finalNs: string
+  if (options.nonInteractive) {
+    finalNs = options.nameserver || currentNs
+    if (finalNs && !isValidUrl(finalNs)) {
+      throw new Error(`Invalid name server URL: ${finalNs}`)
     }
+  } else {
+    finalNs = await promptUrl(`Name server URL [${currentNs}]: `, currentNs, true)
+  }
+
+  if (finalNs && finalNs !== DEFAULT_NAMESERVER) {
     account.nameserver = finalNs
   } else {
     // Default — remove override
     delete account.nameserver
   }
   console.log(`✓ Name server: ${finalNs}`)
+}
+
+function printSummary(account: IAdminAccount, filename: string): void {
+  console.log('── Setup Summary ──')
+  console.log(`  Data directory:   ${paths.data}`)
+  console.log(`  Config file:      ${filename}`)
+  console.log(`  Admin account:    ${account.admin ? 'configured' : 'not configured'}`)
+  console.log(`  Local auth:       ${account.config.localAuthEnabled ? 'enabled' : 'disabled'}`)
+  console.log(
+    `  JAMS auth:        ${account.config.jamsAuthEnabled ? 'enabled' : 'disabled'}` +
+      (account.jamsUrl ? ` (${account.jamsUrl})` : ''),
+  )
+  console.log(`  OpenID auth:      ${account.config.openIdAuthEnabled ? 'enabled' : 'disabled'}`)
+  console.log(`  Guest access:     ${account.config.guestAccessEnabled ? 'enabled' : 'disabled'}`)
+  console.log(`  Name server:      ${account.nameserver || `${DEFAULT_NAMESERVER} (default)`}`)
+  console.log()
+  console.log('✓ Configuration saved to', filename)
+  console.log()
+  console.log('You can now start the server with:')
+  console.log('  jami-web start')
 }
