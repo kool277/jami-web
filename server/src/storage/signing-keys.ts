@@ -50,7 +50,13 @@ export class SigningKeys {
         privatekey = keyPair.privateKey
         publicKey = keyPair.publicKey
       } else {
-        throw new Error('Missing private or public key environment variables. Try running "jami-web genkeys --force"')
+        const missing = privatekey === undefined ? 'PRIVATE_KEY' : 'PUBLIC_KEY'
+        throw new Error(
+          `Incomplete JWT signing keys: ${missing} is missing while the other is set. ` +
+            `Both PRIVATE_KEY and PUBLIC_KEY must be present. ` +
+            `Regenerate a matching key pair with "jami-web genkeys --force" ` +
+            `(this overwrites the existing key in ${defaultEnvPath}).`,
+        )
       }
     }
 

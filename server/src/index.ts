@@ -39,7 +39,8 @@ const port = process.env.PORT ? Number.parseInt(process.env.PORT, 10) : defaultP
 const host = process.env.HOST
 
 if (Number.isNaN(port)) {
-  throw new Error(`Invalid PORT value: ${process.env.PORT}`)
+  console.error(`Invalid PORT value: "${process.env.PORT}". PORT must be a number (e.g. PORT=8080).`)
+  process.exit(1)
 }
 
 await Container.get(SigningKeys).build()
@@ -67,12 +68,20 @@ function onError(error: NodeJS.ErrnoException) {
   const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`
 
   switch (error.code) {
-    case 'EACCESS':
-      log.error(bind + ' requires elevated privileges')
+    case 'EACCES':
+      console.error(
+        `${bind} requires elevated privileges. ` +
+          `Ports below 1024 are privileged; choose a port >= 1024 (e.g. PORT=8080) ` +
+          `or run behind a reverse proxy.`,
+      )
       process.exit(1)
       break
     case 'EADDRINUSE':
-      log.error(bind + ' is already in use')
+      console.error(
+        `${bind} is already in use. ` +
+          `Stop the process using it, or set a different port with PORT=<port>. ` +
+          `Run "jami-web doctor" to check port availability.`,
+      )
       process.exit(1)
       break
     default:
