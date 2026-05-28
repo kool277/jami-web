@@ -45,9 +45,35 @@ By default the server listens on port `8080`. Set `PORT` to override it:
 PORT=8081 jami-web
 ```
 
-The setup wizard stores signing keys and server data in the operating system's Jami Web application data directory, so the `jami-web` command can be started from any working directory.
+The setup wizard stores signing keys and server data in the operating system's Jami Web application data directory, so the `jami-web` command can be started from any working directory. Set `JAMI_WEB_DATA_DIR` to store data in a custom location.
 
 The first start automatically creates persistent JWT signing keys when they do not already exist. You can still run `jami-web setup` for the interactive CLI setup wizard.
+
+### First-run setup
+
+After installing, configure the server once with the setup wizard:
+
+```sh
+jami-web setup
+```
+
+The wizard creates the admin account, JWT signing keys, and the authentication
+configuration. For unattended installs, run it non-interactively:
+
+```sh
+JAMI_WEB_ADMIN_PASSWORD='change-me' jami-web setup --non-interactive --enable-local
+```
+
+Useful CLI commands:
+
+- `jami-web doctor` — run health checks (data dir, keys, admin account, native daemon, port)
+- `jami-web config` — show the resolved data directory, env file, and effective runtime settings
+- `jami-web genkeys` — (re)generate JWT signing keys
+
+### Run in production
+
+For production deployments (reverse proxy with TLS, systemd service, Docker,
+backups, and upgrades), see the [Deployment Guide](./deployment.md).
 
 ### Publishing the npm package
 
