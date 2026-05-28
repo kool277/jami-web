@@ -19,12 +19,9 @@ import { accessSync, constants, existsSync, readFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { resolve } from 'node:path'
 
-import envPaths from 'env-paths'
 import { IAdminAccount } from 'jami-web-common'
 
-import { defaultEnvPath } from '../utils/env.js'
-
-const paths = envPaths('jami-web', { suffix: '' })
+import { dataDir, defaultEnvPath } from '../utils/env.js'
 
 type CheckStatus = 'ok' | 'warn' | 'fail'
 
@@ -41,22 +38,22 @@ function envFilePath(): string {
 
 function checkDataDirectory(): CheckResult {
   const name = 'Data directory'
-  if (!existsSync(paths.data)) {
+  if (!existsSync(dataDir)) {
     return {
       name,
       status: 'warn',
-      detail: `${paths.data} does not exist yet`,
+      detail: `${dataDir} does not exist yet`,
       hint: 'Run "jami-web setup" to create it, or it will be created on first start.',
     }
   }
   try {
-    accessSync(paths.data, constants.W_OK)
-    return { name, status: 'ok', detail: paths.data }
+    accessSync(dataDir, constants.W_OK)
+    return { name, status: 'ok', detail: dataDir }
   } catch {
     return {
       name,
       status: 'fail',
-      detail: `${paths.data} is not writable`,
+      detail: `${dataDir} is not writable`,
       hint: 'Ensure the user running jami-web owns the data directory and can write to it.',
     }
   }
@@ -84,7 +81,7 @@ function checkSigningKeys(): CheckResult {
 
 function checkAdminAccount(): CheckResult {
   const name = 'Admin account'
-  const filename = paths.data + '/admin.json'
+  const filename = dataDir + '/admin.json'
   if (!existsSync(filename)) {
     return {
       name,
@@ -201,7 +198,7 @@ Options:
   }
 
   console.log('Jami Web — Health Check')
-  console.log(`  Data directory: ${paths.data}`)
+  console.log(`  Data directory: ${dataDir}`)
   console.log(`  Env file:       ${envFilePath()}`)
   console.log(`  Environment:    ${process.env.NODE_ENV || 'production'}`)
   console.log()

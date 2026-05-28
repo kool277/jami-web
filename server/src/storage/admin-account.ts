@@ -18,15 +18,15 @@
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
-import envPaths from 'env-paths'
 import { AdminWizardState, IAdminAccount, IAdminConfigState } from 'jami-web-common'
 import { Service } from 'typedi'
 
-const paths = envPaths('jami-web', { suffix: '' })
-const uploadPath = paths.data + '/uploads/'
+import { dataDir } from '../utils/env.js'
 
-if (!existsSync(paths.data)) {
-  mkdirSync(paths.data, { recursive: true })
+const uploadPath = dataDir + '/uploads/'
+
+if (!existsSync(dataDir)) {
+  mkdirSync(dataDir, { recursive: true })
 }
 
 if (!existsSync(uploadPath)) {
@@ -35,7 +35,7 @@ if (!existsSync(uploadPath)) {
 
 @Service()
 export class AdminAccount {
-  private readonly filename = paths.data + '/admin.json'
+  private readonly filename = dataDir + '/admin.json'
   private adminAccount: IAdminAccount
   private defaultUploadPath: string = uploadPath
 

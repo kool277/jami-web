@@ -18,13 +18,12 @@
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
-import envPaths from 'env-paths'
 import { Service } from 'typedi'
 
-const paths = envPaths('jami-web', { suffix: '' })
+import { dataDir } from '../utils/env.js'
 
-if (!existsSync(paths.data)) {
-  mkdirSync(paths.data, { recursive: true })
+if (!existsSync(dataDir)) {
+  mkdirSync(dataDir, { recursive: true })
 }
 
 export interface StoredPasskey {
@@ -45,7 +44,7 @@ type PasskeyData = Record<string, StoredPasskey[]>
  */
 @Service()
 export class PasskeyStore {
-  private readonly filename = paths.data + '/passkeys.json'
+  private readonly filename = dataDir + '/passkeys.json'
   private data: PasskeyData
 
   constructor() {

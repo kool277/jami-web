@@ -18,14 +18,13 @@
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
-import envPaths from 'env-paths'
 import { AdminWizardState, IAdminAccount, urlRegex } from 'jami-web-common'
 
+import { dataDir } from '../utils/env.js'
 import { hashPassword } from '../utils/password.js'
 import { genkeyCommand } from './genkeys.js'
 import { closePrompt, confirm, prompt, promptPassword } from './prompt.js'
 
-const paths = envPaths('jami-web', { suffix: '' })
 const MIN_ADMIN_PASSWORD_LENGTH = 8
 
 function loadAdminAccount(filename: string): IAdminAccount {
@@ -44,7 +43,7 @@ function initDefaults(account: IAdminAccount): IAdminAccount {
       jamsAuthEnabled: false,
       guestAccessEnabled: false,
       openIdAuthEnabled: false,
-      uploadPath: paths.data + '/uploads/',
+      uploadPath: dataDir + '/uploads/',
     }
   }
   if (account.lastWizardState === undefined) {
@@ -186,19 +185,19 @@ Creating a new admin account requires --admin-password (or JAMI_WEB_ADMIN_PASSWO
   console.log()
 
   // Ensure data directory exists
-  if (!existsSync(paths.data)) {
-    mkdirSync(paths.data, { recursive: true })
+  if (!existsSync(dataDir)) {
+    mkdirSync(dataDir, { recursive: true })
   }
-  const uploadPath = paths.data + '/uploads/'
+  const uploadPath = dataDir + '/uploads/'
   if (!existsSync(uploadPath)) {
     mkdirSync(uploadPath, { recursive: true })
   }
 
-  const filename = paths.data + '/admin.json'
+  const filename = dataDir + '/admin.json'
   let account = loadAdminAccount(filename)
   account = initDefaults(account)
 
-  console.log(`Data directory: ${paths.data}`)
+  console.log(`Data directory: ${dataDir}`)
   console.log()
 
   // Step 1: Generate signing keys
@@ -367,7 +366,7 @@ async function configureNameserver(account: IAdminAccount, options: SetupOptions
 
 function printSummary(account: IAdminAccount, filename: string): void {
   console.log('── Setup Summary ──')
-  console.log(`  Data directory:   ${paths.data}`)
+  console.log(`  Data directory:   ${dataDir}`)
   console.log(`  Config file:      ${filename}`)
   console.log(`  Admin account:    ${account.admin ? 'configured' : 'not configured'}`)
   console.log(`  Local auth:       ${account.config.localAuthEnabled ? 'enabled' : 'disabled'}`)

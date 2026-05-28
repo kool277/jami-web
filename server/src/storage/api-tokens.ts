@@ -19,10 +19,9 @@ import { createHash, randomBytes } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
-import envPaths from 'env-paths'
 import { Service } from 'typedi'
 
-const paths = envPaths('jami-web', { suffix: '' })
+import { dataDir } from '../utils/env.js'
 
 const _TOKEN_SCOPES = [
   'conversations:read',
@@ -68,7 +67,7 @@ interface TokenStoreFormat {
 
 @Service()
 export class ApiTokenStore {
-  private readonly filename = paths.data + '/api-tokens.json'
+  private readonly filename = dataDir + '/api-tokens.json'
   private store: TokenStoreFormat
 
   constructor() {

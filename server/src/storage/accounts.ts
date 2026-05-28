@@ -18,15 +18,13 @@
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
-import envPaths from 'env-paths'
 import { Container, Service } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
+import { dataDir } from '../utils/env.js'
 
-const paths = envPaths('jami-web', { suffix: '' })
-
-if (!existsSync(paths.data)) {
-  mkdirSync(paths.data, { recursive: true })
+if (!existsSync(dataDir)) {
+  mkdirSync(dataDir, { recursive: true })
 }
 
 interface AccountsFormat {
@@ -47,7 +45,7 @@ const METHODS = ['local', 'jams', 'guest', 'openid']
 
 @Service()
 export class Accounts {
-  private readonly filename = paths.data + '/accounts.json'
+  private readonly filename = dataDir + '/accounts.json'
   private accounts: AccountsFormat
   private jamidInstance: Jamid | null = null // Lazy initialization
   private accountsIds: Set<string>

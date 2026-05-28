@@ -22,7 +22,14 @@ import envPaths from 'env-paths'
 
 const paths = envPaths('jami-web', { suffix: '' })
 
-export const defaultEnvPath = join(paths.data, '.env')
+/**
+ * The Jami Web data directory, where the .env file, admin/account configuration
+ * and uploads are stored. Defaults to the platform application data directory
+ * and can be overridden with the JAMI_WEB_DATA_DIR environment variable.
+ */
+export const dataDir = process.env.JAMI_WEB_DATA_DIR ? resolve(process.env.JAMI_WEB_DATA_DIR) : paths.data
+
+export const defaultEnvPath = join(dataDir, '.env')
 
 export function loadEnv(): void {
   dotenv.config()

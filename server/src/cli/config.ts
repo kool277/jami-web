@@ -19,12 +19,9 @@ import { existsSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-import envPaths from 'env-paths'
 import { IAdminAccount, IAdminConfigState } from 'jami-web-common'
 
-import { defaultEnvPath, loadEnv } from '../utils/env.js'
-
-const paths = envPaths('jami-web', { suffix: '' })
+import { dataDir, defaultEnvPath, loadEnv } from '../utils/env.js'
 
 const VALID_KEYS: (keyof IAdminConfigState)[] = [
   'localAuthEnabled',
@@ -91,7 +88,7 @@ Examples:
     return
   }
 
-  const filename = paths.data + '/admin.json'
+  const filename = dataDir + '/admin.json'
 
   if (!existsSync(filename)) {
     console.error('No configuration found. Run "jami-web setup" first.')
@@ -143,7 +140,7 @@ Examples:
   const runtime = resolveRuntime()
   if (asJson) {
     const output: Record<string, unknown> = {}
-    output.dataDirectory = paths.data
+    output.dataDirectory = dataDir
     output.configFile = filename
     output.envFile = runtime.envFile
     output.envFileExists = runtime.envFileExists
@@ -162,7 +159,7 @@ Examples:
 
   // Pretty-print
   console.log('Jami Web Server Configuration')
-  console.log(`  Data directory:    ${paths.data}`)
+  console.log(`  Data directory:    ${dataDir}`)
   console.log(`  Config file:       ${filename}`)
   console.log(`  Env file:          ${runtime.envFile}${runtime.envFileExists ? '' : ' (missing)'}`)
   console.log()
