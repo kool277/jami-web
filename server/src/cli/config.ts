@@ -17,9 +17,12 @@
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 
 import envPaths from 'env-paths'
 import { IAdminAccount, IAdminConfigState } from 'jami-web-common'
+
+import { defaultEnvPath, loadEnv } from '../utils/env.js'
 
 const paths = envPaths('jami-web', { suffix: '' })
 
@@ -38,6 +41,26 @@ function loadAdminAccount(filename: string): IAdminAccount | undefined {
   } catch {
     return undefined
   }
+}
+
+interface EffectiveRuntime {
+  envFile: string
+  envFileExists: boolean
+  nodeEnv: string
+  port: number
+  host: string
+}
+
+function resolveRuntime(): EffectiveRuntime {
+  // Load the env file so resolved values reflect what the server will see.
+  loadEnv()
+  const envFile = process.env.JAMI_WEB_ENV_FILE ? resolve(process.env.JAMI_WEB_ENV_FILE) : defaultEnvPath
+  const nodeEnv = process.env.NODE_ENV || 'production'
+  const isDev = nodeEnv === 'development'
+  const defaultPort = isDev ? 5002 : 8080
+  const port = process.env.PORT ? Number.parseInt(process.env.PORT, 10) : defaultPort
+  const host = process.env.HOST || '(all interfaces)'
+  return { envFile, envFileExists: existsSync(envFile), nodeEnv, port, host }
 }
 
 export async function configCommand(args: string[]): Promise<void> {
@@ -117,8 +140,16 @@ Examples:
 
   // Show config
   const asJson = args.includes('--json')
+  const runtime = resolveRuntime()
   if (asJson) {
     const output: Record<string, unknown> = {}
+    output.dataDirectory = paths.data
+    output.configFile = filename
+    output.envFile = runtime.envFile
+    output.envFileExists = runtime.envFileExists
+    output.nodeEnv = runtime.nodeEnv
+    output.port = runtime.port
+    output.host = process.env.HOST ?? null
     if (account.config) output.config = account.config
     output.adminConfigured = account.admin !== undefined
     output.lastWizardState = account.lastWizardState
@@ -133,6 +164,12 @@ Examples:
   console.log('Jami Web Server Configuration')
   console.log(`  Data directory:    ${paths.data}`)
   console.log(`  Config file:       ${filename}`)
+  console.log(`  Env file:          ${runtime.envFile}${runtime.envFileExists ? '' : ' (missing)'}`)
+  console.log()
+  console.log('  Effective runtime:')
+  console.log(`    Environment:     ${runtime.nodeEnv}`)
+  console.log(`    Port:            ${runtime.port}`)
+  console.log(`    Host:            ${runtime.host}`)
   console.log()
   console.log(`  Admin configured:  ${account.admin !== undefined ? 'yes' : 'no'}`)
   console.log(`  Wizard state:      ${account.lastWizardState || 'not started'}`)
