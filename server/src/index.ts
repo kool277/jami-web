@@ -18,6 +18,7 @@
 import 'reflect-metadata'
 
 import { createServer } from 'node:http'
+import { resolve } from 'node:path'
 
 import log from 'loglevel'
 import { Container } from 'typedi'
@@ -25,12 +26,21 @@ import { Container } from 'typedi'
 import { App } from './app.js'
 import { Jamid } from './jamid/jamid.js'
 import { SigningKeys } from './storage/signing-keys.js'
-import { loadEnv } from './utils/env.js'
+import { defaultEnvPath, loadEnv } from './utils/env.js'
 import { WebSocketServer } from './websocket/websocket-server.js'
 
 loadEnv()
 
-const isDev = process.env.NODE_ENV === 'development' ? true : false
+const KNOWN_NODE_ENVS = ['development', 'production', 'test']
+const nodeEnv = process.env.NODE_ENV || 'production'
+if (!KNOWN_NODE_ENVS.includes(nodeEnv)) {
+  console.warn(
+    `Warning: unknown NODE_ENV "${nodeEnv}". Expected one of: ${KNOWN_NODE_ENVS.join(', ')}. ` +
+      `Defaulting to production behaviour.`,
+  )
+}
+
+const isDev = nodeEnv === 'development'
 
 log.setLevel(isDev ? 'trace' : 'error')
 
@@ -92,6 +102,11 @@ function onError(error: NodeJS.ErrnoException) {
 function onListening() {
   const address = server.address()
   const bind = typeof address === 'string' ? `pipe ${address}` : `${address?.address}:${address?.port}`
+  const envFile = process.env.JAMI_WEB_ENV_FILE ? resolve(process.env.JAMI_WEB_ENV_FILE) : defaultEnvPath
+  console.log('Jami Web server started')
+  console.log(`  Environment: ${nodeEnv}`)
+  console.log(`  Env file:    ${envFile}`)
+  console.log(`  Listening:   ${bind}`)
   log.debug('Listening on ' + bind)
 }
 
