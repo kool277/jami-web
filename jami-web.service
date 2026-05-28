@@ -5,9 +5,9 @@
 # systemctl status jami-web.service
 # systemctl stop jami-web.service
 
-# this service file assume that jami-web
-# is installed in /opt/jami-web
-# and that the user www-data is used to run the service.
+# This service file assumes that jami-web is installed in /opt/jami-web
+# (a source/tarball build) and runs as the "jamid" user.
+# For a global npm install, set ExecStart=/usr/bin/jami-web instead.
 
 [Unit]
 Description=Jami Web Service
@@ -23,6 +23,8 @@ RestartSec=10
 User=jamid
 Group=jamid
 Environment=NODE_ENV=production
+# Optional: store data in a custom directory
+# Environment=JAMI_WEB_DATA_DIR=/opt/jami-web/data
 
 [Install]
 WantedBy=multi-user.target
