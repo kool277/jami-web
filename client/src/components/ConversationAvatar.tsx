@@ -166,6 +166,16 @@ export const AvatarEditor = () => {
     setEditionToolsIsOpen(false)
   }, [photoTakerHandler])
 
+  const onPhotoConfirm = useCallback(
+    (fileHandler: FileHandler) => {
+      setAvatarHandler(fileHandler)
+      const data = new FormData()
+      data.append('avatar', fileHandler.file)
+      updateAvatarMutation.mutate(data)
+    },
+    [updateAvatarMutation],
+  )
+
   const removeAvatar = useCallback(() => {
     setAvatarHandler(null)
     setEditionToolsIsOpen(false)
@@ -233,7 +243,7 @@ export const AvatarEditor = () => {
           </Stack>
         </Stack>
       )}
-      <PhotoTakerDialog {...photoTakerHandler.props} onConfirm={setAvatarHandler} />
+      <PhotoTakerDialog {...photoTakerHandler.props} onConfirm={onPhotoConfirm} />
     </Stack>
   )
 }
