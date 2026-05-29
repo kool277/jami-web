@@ -15,7 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { readFileSync } from 'node:fs'
 import { createServer, type Server } from 'node:http'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import cors from 'cors'
 import express from 'express'
@@ -30,6 +33,7 @@ interface MockServerState {
     jamsAuthEnabled: boolean
     guestAccessEnabled: boolean
     openIdAuthEnabled: boolean
+    noLocalMediaEnabled: boolean
     uploadPath: string
     jamsUrl?: string
   }
@@ -48,6 +52,7 @@ const defaultState: MockServerState = {
     jamsAuthEnabled: false,
     guestAccessEnabled: false,
     openIdAuthEnabled: false,
+    noLocalMediaEnabled: true,
     uploadPath: '/tmp/jami-uploads',
   },
   users: {},
@@ -386,74 +391,16 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   })
 
   api.get('/config/languages/:language', (_req, res) => {
-    // Return minimal translation keys (snake_case matches i18n convention)
-    /* eslint-disable camelcase */
-    res.json({
-      app_name: 'Jami',
-      login_form_submit_button: 'Log in',
-      admin_page_login_title: 'Administration',
-      admin_page_login_subtitle: 'Enter the admin password',
-      password_placeholder: 'Password',
-      password_input_helper_text_empty: 'Password is required',
-      username_input_helper_text_empty: 'Username is required',
-      registration_form_submit_button: 'Register',
-      register_link: 'Register',
-      welcome_text: 'Welcome to Jami',
-      admin_page_setup_title: 'Setup',
-      admin_page_setup_subtitle: 'Create an admin password',
-      admin_page_password_placeholder: 'Enter password',
-      admin_page_password_repeat_placeholder: 'Repeat password',
-      admin_page_create_button: 'Create admin account',
-      configure_nameserver: 'Configure the name server for your users.',
-      setting_name_server: 'Name Server',
-      setting_can_be_changed_later: 'This setting can be changed later.',
-      next: 'Next',
-      no_oauth_providers: 'No OAuth providers are available.',
-      previous: 'Previous',
-      configure_jams_server: 'Configure the JAMS server for enterprise authentication.',
-      enter_jams_server: 'Enter JAMS server URL',
-      admin_page_welcome: 'Welcome to Jami Administration',
-      go_to_login_page: 'Go to login page',
-      admin_account_configuration: 'Account Configuration',
-      accounts: 'Accounts',
-      authentication: 'Authentication',
-      jami: 'Jami',
-      jams: 'JAMS',
-      openid: 'OpenID',
-      jami_authentication: 'Jami Local Authentication',
-      jami_authentication_info: 'Local authentication allows users to register an account by providing a username.',
-      jams_authentication: 'JAMS authentication',
-      jams_authentication_info: 'JAMS authentication allows users to connect with a JAMS server.',
-      openid_authentication: 'OpenID authentication',
-      setting_auth_change: '{{authMethod}} authentication',
-      setting_enabled: 'Enabled',
-      setting_disabled: 'Disabled',
-      save_button: 'Save',
-      reset_nameserver_button: 'Reset',
-      jams_url: 'JAMS URL',
-      logout: 'Logout',
-      admin_page_accounts_overview_title: 'Accounts Overview',
-      username_input_label: 'Username',
-      password_input_label: 'Password',
-      connect_from_another_device: 'Connect from another device',
-      login_form_to_registration_text: "Don't have an account? ",
-      login_form_to_registration_link: 'Register',
-      registration_form_to_login_text: 'Already have an account? ',
-      registration_form_to_login_link: 'Log in',
-      conversations: 'Conversations',
-      find_users_and_conversations: 'Find users and conversations',
-      welcome_page_text: 'Welcome to Jami Web',
-      about_jami: 'About Jami',
-      message_input_placeholder_2: 'Write a message...',
-      select_placeholder: 'Select...',
-      severity: 'Severity',
-      extending_session_success_alert: 'Session extended successfully',
-      extending_session_error_alert: 'Failed to extend session',
-      unknown_error_alert: 'An unknown error occurred',
-      username_input_helper_text: 'Username available',
-      today: 'Today',
-    })
-    /* eslint-enable camelcase */
+    // Load translations from the actual locale file
+    const mockFilename = fileURLToPath(import.meta.url)
+    const mockDirname = dirname(mockFilename)
+    const translationPath = resolve(mockDirname, '..', 'server', 'locale', 'en', 'translation.json')
+    try {
+      const data = readFileSync(translationPath, 'utf-8')
+      res.json(JSON.parse(data))
+    } catch {
+      res.status(500).json({ error: 'Failed to load translation file' })
+    }
   })
 
   // --- Test helper: reset state ---
