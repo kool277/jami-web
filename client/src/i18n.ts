@@ -67,12 +67,20 @@ const initialResources = await getTranslation(defaultLanguage)
 await i18n.use(initReactI18next).init({
   debug: import.meta.env.DEV,
   lng: defaultLanguage,
+  fallbackLng: 'en',
   interpolation: {
     escapeValue: false,
   },
 })
 
 i18n.addResourceBundle(defaultLanguage, 'translation', initialResources)
+// Always load the English bundle so keys missing from a translation
+// (e.g. recently added strings not yet translated) fall back to English
+// instead of displaying the raw translation key.
+if (defaultLanguage !== 'en') {
+  const fallbackResources = await getTranslation('en')
+  i18n.addResourceBundle('en', 'translation', fallbackResources)
+}
 i18n.changeLanguage(defaultLanguage)
 
 export const loadLanguageAsync = async (language: string) => {
