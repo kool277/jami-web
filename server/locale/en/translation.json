@@ -183,6 +183,7 @@
   "invited": "Invited",
   "jami": "Jami",
   "jami_account": "Jami Account",
+  "jami_authentication": "Jami Local Authentication",
   "jami_authentication_info": "Local authentication allows users to register an account by providing a username. The account is created and managed directly by the server. If the server's data is deleted, the account and its access will be permanently lost.",
   "jami_user_id": "Jami user ID",
   "jams": "JAMS",
