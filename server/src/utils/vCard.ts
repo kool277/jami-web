@@ -77,3 +77,13 @@ export async function getAvatar(accountId: string, contactUri: string) {
     return undefined
   }
 }
+
+// Removes the cached avatar (and display name) for a contact so the next
+// request regenerates it from the (possibly updated) vCard. Without this,
+// getAvatar keeps serving a stale cached image after the profile changes.
+export async function clearAvatarCache(accountId: string, contactUri: string) {
+  const profileFolder = os.homedir() + '/.local/share/jami/' + accountId + '/cache/profile'
+  const imgName = btoa(contactUri)
+  await fs.rm(profileFolder + '/' + imgName + '.png', { force: true })
+  await fs.rm(profileFolder + '/' + imgName + '.txt', { force: true })
+}

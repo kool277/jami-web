@@ -26,6 +26,7 @@ import { Container } from 'typedi'
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
+import { clearAvatarCache } from '../utils/vCard.js'
 
 const jamid = Container.get(Jamid)
 export const accountRouter = Router()
@@ -115,6 +116,11 @@ accountRouter.post(
 
     // so it does not change the displayName
     jamid.updateProfile(accountId, accountDetails['Account.displayName'], path, 'PNG', 0)
+
+    // Invalidate the cached avatar so the next read regenerates it from the
+    // updated profile (otherwise the stale cached image keeps being served).
+    // 'Account.username' actually stores the account's own URI.
+    await clearAvatarCache(accountId, accountDetails['Account.username'])
 
     res.status(HttpStatusCode.Ok).send()
   }),

@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { useMutation } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { removedLinkedDeviceContent } from 'jami-web-common'
 import { useContext } from 'react'
@@ -26,7 +27,8 @@ import { apiUrl } from '../utils/constants.js'
 import { IProvideAccountAuthentication } from '../utils/utils.js'
 
 export const useUpdateAvatarMutation = () => {
-  const { axiosInstance } = useAuthContext()
+  const { account, axiosInstance } = useAuthContext()
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (content: FormData) =>
       axiosInstance.post(`/account/avatar`, content, {
@@ -35,6 +37,17 @@ export const useUpdateAvatarMutation = () => {
           Accept: '*/*',
         },
       }),
+    onSuccess: () => {
+      // Drop the cached profile picture so the new avatar is fetched from the
+      // server. The picture query caches a blob URL and never refetches on its
+      // own, so we must remove it explicitly to reflect the update.
+      const uri = account.getUri()
+      const cachedUrl = queryClient.getQueryData<string>(['picture', uri])
+      if (cachedUrl) {
+        URL.revokeObjectURL(cachedUrl)
+      }
+      queryClient.removeQueries({ queryKey: ['picture', uri] })
+    },
   })
 }
 
