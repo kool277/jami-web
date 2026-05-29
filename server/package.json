@@ -1,6 +1,6 @@
 {
   "name": "@savoirfairelinux/jami-web",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "Jami Web server and web client, packaged for npm.",
   "type": "module",
   "license": "AGPL-3.0-or-later",
@@ -29,7 +29,7 @@
     "genkeys": "node dist/cli.js genkeys"
   },
   "dependencies": {
-    "@savoirfairelinux/jami-core": "0.3.2",
+    "@savoirfairelinux/jami-core": "0.3.3",
     "@simplewebauthn/server": "^13.3.0",
     "argon2": "^0.40.3",
     "axios": "^1.16.1",
