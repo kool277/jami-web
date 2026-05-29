@@ -57,6 +57,7 @@ import AdminPanel from './pages/AdminPanel.js'
 import AdminConfigureJams from './pages/AdminWizard/AdminConfigureJams.js'
 import AdminConfigureNameServer from './pages/AdminWizard/AdminConfigureNameServer.js'
 import AdminCreateAccount from './pages/AdminWizard/AdminCreateAccount.js'
+import CallSettings from './pages/CallSettings.js'
 import { ExportToAnotherDevice } from './pages/ExportAccount/ExportToAnotherDevice.js'
 import GeneralSettings from './pages/GeneralSettings.js'
 import LinkedDevicesPage from './pages/LinkedDevicesPage.js'
@@ -194,6 +195,7 @@ export const router = createBrowserRouter(
             }
           >
             <Route path="settings/account/manage-account" element={<AccountSettings />} />
+            <Route path="settings/account/calls" element={<CallSettings />} />
             <Route path="settings/account/linked-devices" element={<LinkedDevicesPage />} />
             <Route path="settings/account/linked-devices/export" element={<ExportToAnotherDevice />} />
             <Route path="settings/general" element={<GeneralSettings />} />

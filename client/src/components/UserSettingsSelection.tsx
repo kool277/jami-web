@@ -40,6 +40,12 @@ function UserSettingsSelection() {
             link: '/settings/account/manage-account',
           },
           {
+            highlightKey: '/settings/account/calls',
+            icon: null,
+            title: t('settings_calls'),
+            link: '/settings/account/calls',
+          },
+          {
             highlightKey: '/settings/account/linked-devices',
             icon: null,
             title: t('settings_linked_devices'),

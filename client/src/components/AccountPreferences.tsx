@@ -15,74 +15,22 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import {
-  Box,
-  Card,
-  CardContent,
-  Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemIcon,
-  ListItemSecondaryAction,
-  ListItemText,
-  ListSubheader,
-  Paper,
-  Switch,
-  TextField,
-  Toolbar,
-  Typography,
-} from '@mui/material'
+import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 import { motion } from 'framer-motion'
-import { AccountDetails } from 'jami-web-common'
-import { useState } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { thumbnailVariants } from '../themes/MotionVariants.js'
 import CustomizeProfile from './AccountSettings/CustomizeProfile.js'
 import LinkedDevicesPreview from './AccountSettings/LinkedDevicesPreview.js'
 import PasskeyManager from './AccountSettings/PasskeyManager.js'
-import ConversationAvatar from './ConversationAvatar.js'
 import ConversationsOverviewCard from './ConversationsOverviewCard.js'
 import JamiIdCard from './JamiIdCard.js'
-import {
-  AddCircleIcon as AddCircle,
-  AudioCallIcon as PhoneCallbackRounded,
-  DeleteIcon as DeleteRounded,
-  GroupsIcon as GroupRounded,
-} from './SvgIcon.js'
 
 export default function AccountPreferences() {
-  const { account, axiosInstance } = useAuthContext()
-
-  const devices: string[][] = []
-  const accountDevices = account.devices
-  for (const i in accountDevices) devices.push([i, accountDevices[i]])
+  const { account } = useAuthContext()
 
   const isJamiAccount = account.getType() === 'RING'
   const alias = isJamiAccount ? 'Jami account' : 'SIP account'
-  const moderators = account.defaultModerators
-  const [defaultModeratorUri, setDefaultModeratorUri] = useState('')
-
-  const [details, setDetails] = useState(account.details)
-
-  const addModerator = async () => {
-    if (defaultModeratorUri) {
-      await axiosInstance.put(`/default-moderators/${defaultModeratorUri}`)
-      setDefaultModeratorUri('')
-    }
-  }
-
-  const removeModerator = async (uri: string) => await axiosInstance.delete(`/default-moderators/${uri}`)
-
-  const handleToggle = async (key: keyof AccountDetails, value: boolean) => {
-    const newDetails: Partial<AccountDetails> = {}
-    newDetails[key] = value ? 'true' : 'false'
-    await axiosInstance.patch('/account', newDetails)
-    account.updateDetails(newDetails)
-    setDetails(account.details)
-  }
 
   return (
     <motion.div
@@ -144,98 +92,6 @@ export default function AccountPreferences() {
           </motion.div>
         </Grid>
       </Grid>
-      <Card sx={{ mb: 2 }}>
-        <List
-          subheader={
-            <motion.div variants={thumbnailVariants}>
-              <ListSubheader>Settings</ListSubheader>
-            </motion.div>
-          }
-        >
-          <motion.div variants={thumbnailVariants}>
-            <ListItem>
-              <ListItemIcon>
-                <GroupRounded />
-              </ListItemIcon>
-              <ListItemText id="switch-list-label-rendezvous" primary="Rendez-Vous point" />
-              <ListItemSecondaryAction>
-                <Switch
-                  edge="end"
-                  onChange={(e) => handleToggle('Account.rendezVous', e.target.checked)}
-                  checked={details['Account.rendezVous'] === 'true'}
-                  slotProps={{
-                    input: {
-                      'aria-labelledby': 'switch-list-label-rendezvous',
-                    },
-                  }}
-                />
-              </ListItemSecondaryAction>
-            </ListItem>
-          </motion.div>
-          <motion.div variants={thumbnailVariants}>
-            <ListItem>
-              <ListItemIcon>
-                <PhoneCallbackRounded />
-              </ListItemIcon>
-              <ListItemText id="switch-list-label-publicin" primary="Allow connection from unknown peers" />
-              <ListItemSecondaryAction>
-                <Switch
-                  edge="end"
-                  onChange={(e) => handleToggle('DHT.PublicInCalls', e.target.checked)}
-                  checked={details['DHT.PublicInCalls'] === 'true'}
-                  slotProps={{
-                    input: { 'aria-labelledby': 'switch-list-label-publicin' },
-                  }}
-                />
-              </ListItemSecondaryAction>
-            </ListItem>
-          </motion.div>
-          <motion.div variants={thumbnailVariants}>
-            <Paper>
-              <Toolbar>
-                <Typography variant="h6">Default moderators</Typography>
-              </Toolbar>
-              <List>
-                <ListItem key="add">
-                  <TextField
-                    variant="outlined"
-                    value={defaultModeratorUri}
-                    onChange={(e) => setDefaultModeratorUri(e.target.value)}
-                    label="Add new default moderator"
-                    placeholder="Enter new moderator name or URI"
-                    size="small"
-                    fullWidth
-                  />
-                  <ListItemSecondaryAction>
-                    <IconButton onClick={addModerator} size="large">
-                      <AddCircle />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-                {moderators.length === 0 ? (
-                  <ListItem key="placeholder">
-                    <ListItemText primary="No default moderator" />
-                  </ListItem>
-                ) : (
-                  moderators.map((moderator) => (
-                    <ListItem key={moderator.uri}>
-                      <ListItemAvatar>
-                        <ConversationAvatar displayName={moderator.getDisplayName()} contactUri={moderator.uri} />
-                      </ListItemAvatar>
-                      <ListItemText primary={moderator.getDisplayName()} />
-                      <ListItemSecondaryAction>
-                        <IconButton onClick={() => removeModerator(moderator.uri)} size="large">
-                          <DeleteRounded />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  ))
-                )}
-              </List>
-            </Paper>
-          </motion.div>
-        </List>
-      </Card>
     </motion.div>
   )
 }
