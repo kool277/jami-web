@@ -144,96 +144,98 @@ export default function AccountPreferences() {
           </motion.div>
         </Grid>
       </Grid>
-      <List
-        subheader={
+      <Card sx={{ mb: 2 }}>
+        <List
+          subheader={
+            <motion.div variants={thumbnailVariants}>
+              <ListSubheader>Settings</ListSubheader>
+            </motion.div>
+          }
+        >
           <motion.div variants={thumbnailVariants}>
-            <ListSubheader>Settings</ListSubheader>
-          </motion.div>
-        }
-      >
-        <motion.div variants={thumbnailVariants}>
-          <ListItem>
-            <ListItemIcon>
-              <GroupRounded />
-            </ListItemIcon>
-            <ListItemText id="switch-list-label-rendezvous" primary="Rendez-Vous point" />
-            <ListItemSecondaryAction>
-              <Switch
-                edge="end"
-                onChange={(e) => handleToggle('Account.rendezVous', e.target.checked)}
-                checked={details['Account.rendezVous'] === 'true'}
-                slotProps={{
-                  input: {
-                    'aria-labelledby': 'switch-list-label-rendezvous',
-                  },
-                }}
-              />
-            </ListItemSecondaryAction>
-          </ListItem>
-        </motion.div>
-        <motion.div variants={thumbnailVariants}>
-          <ListItem>
-            <ListItemIcon>
-              <PhoneCallbackRounded />
-            </ListItemIcon>
-            <ListItemText id="switch-list-label-publicin" primary="Allow connection from unknown peers" />
-            <ListItemSecondaryAction>
-              <Switch
-                edge="end"
-                onChange={(e) => handleToggle('DHT.PublicInCalls', e.target.checked)}
-                checked={details['DHT.PublicInCalls'] === 'true'}
-                slotProps={{
-                  input: { 'aria-labelledby': 'switch-list-label-publicin' },
-                }}
-              />
-            </ListItemSecondaryAction>
-          </ListItem>
-        </motion.div>
-        <motion.div variants={thumbnailVariants}>
-          <Paper>
-            <Toolbar>
-              <Typography variant="h6">Default moderators</Typography>
-            </Toolbar>
-            <List>
-              <ListItem key="add">
-                <TextField
-                  variant="outlined"
-                  value={defaultModeratorUri}
-                  onChange={(e) => setDefaultModeratorUri(e.target.value)}
-                  label="Add new default moderator"
-                  placeholder="Enter new moderator name or URI"
-                  size="small"
-                  fullWidth
+            <ListItem>
+              <ListItemIcon>
+                <GroupRounded />
+              </ListItemIcon>
+              <ListItemText id="switch-list-label-rendezvous" primary="Rendez-Vous point" />
+              <ListItemSecondaryAction>
+                <Switch
+                  edge="end"
+                  onChange={(e) => handleToggle('Account.rendezVous', e.target.checked)}
+                  checked={details['Account.rendezVous'] === 'true'}
+                  slotProps={{
+                    input: {
+                      'aria-labelledby': 'switch-list-label-rendezvous',
+                    },
+                  }}
                 />
-                <ListItemSecondaryAction>
-                  <IconButton onClick={addModerator} size="large">
-                    <AddCircle />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-              {moderators.length === 0 ? (
-                <ListItem key="placeholder">
-                  <ListItemText primary="No default moderator" />
+              </ListItemSecondaryAction>
+            </ListItem>
+          </motion.div>
+          <motion.div variants={thumbnailVariants}>
+            <ListItem>
+              <ListItemIcon>
+                <PhoneCallbackRounded />
+              </ListItemIcon>
+              <ListItemText id="switch-list-label-publicin" primary="Allow connection from unknown peers" />
+              <ListItemSecondaryAction>
+                <Switch
+                  edge="end"
+                  onChange={(e) => handleToggle('DHT.PublicInCalls', e.target.checked)}
+                  checked={details['DHT.PublicInCalls'] === 'true'}
+                  slotProps={{
+                    input: { 'aria-labelledby': 'switch-list-label-publicin' },
+                  }}
+                />
+              </ListItemSecondaryAction>
+            </ListItem>
+          </motion.div>
+          <motion.div variants={thumbnailVariants}>
+            <Paper>
+              <Toolbar>
+                <Typography variant="h6">Default moderators</Typography>
+              </Toolbar>
+              <List>
+                <ListItem key="add">
+                  <TextField
+                    variant="outlined"
+                    value={defaultModeratorUri}
+                    onChange={(e) => setDefaultModeratorUri(e.target.value)}
+                    label="Add new default moderator"
+                    placeholder="Enter new moderator name or URI"
+                    size="small"
+                    fullWidth
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton onClick={addModerator} size="large">
+                      <AddCircle />
+                    </IconButton>
+                  </ListItemSecondaryAction>
                 </ListItem>
-              ) : (
-                moderators.map((moderator) => (
-                  <ListItem key={moderator.uri}>
-                    <ListItemAvatar>
-                      <ConversationAvatar displayName={moderator.getDisplayName()} contactUri={moderator.uri} />
-                    </ListItemAvatar>
-                    <ListItemText primary={moderator.getDisplayName()} />
-                    <ListItemSecondaryAction>
-                      <IconButton onClick={() => removeModerator(moderator.uri)} size="large">
-                        <DeleteRounded />
-                      </IconButton>
-                    </ListItemSecondaryAction>
+                {moderators.length === 0 ? (
+                  <ListItem key="placeholder">
+                    <ListItemText primary="No default moderator" />
                   </ListItem>
-                ))
-              )}
-            </List>
-          </Paper>
-        </motion.div>
-      </List>
+                ) : (
+                  moderators.map((moderator) => (
+                    <ListItem key={moderator.uri}>
+                      <ListItemAvatar>
+                        <ConversationAvatar displayName={moderator.getDisplayName()} contactUri={moderator.uri} />
+                      </ListItemAvatar>
+                      <ListItemText primary={moderator.getDisplayName()} />
+                      <ListItemSecondaryAction>
+                        <IconButton onClick={() => removeModerator(moderator.uri)} size="large">
+                          <DeleteRounded />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))
+                )}
+              </List>
+            </Paper>
+          </motion.div>
+        </List>
+      </Card>
     </motion.div>
   )
 }
