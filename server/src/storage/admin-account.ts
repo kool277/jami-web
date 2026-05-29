@@ -39,6 +39,43 @@ export class AdminAccount {
   private adminAccount: IAdminAccount
   private defaultUploadPath: string = uploadPath
 
+  private defaultConfig(): IAdminConfigState {
+    return {
+      localAuthEnabled: true,
+      jamsAuthEnabled: !!this.getJamsServerUrl(),
+      guestAccessEnabled: false,
+      openIdAuthEnabled: false,
+      noLocalMediaEnabled: true,
+      uploadPath: this.defaultUploadPath,
+    }
+  }
+
+  private ensureConfigDefaults(): boolean {
+    const defaultConfig = this.defaultConfig()
+    let changed = false
+
+    if (this.adminAccount.config === undefined) {
+      this.adminAccount.config = defaultConfig
+      return true
+    }
+
+    for (const key of Object.keys(defaultConfig)) {
+      const configKey = key as keyof IAdminConfigState
+      if (this.adminAccount.config[configKey] === undefined) {
+        changed = true
+      }
+    }
+
+    if (changed) {
+      this.adminAccount.config = {
+        ...defaultConfig,
+        ...this.adminAccount.config,
+      }
+    }
+
+    return changed
+  }
+
   constructor() {
     let buffer: Buffer
 
@@ -48,8 +85,7 @@ export class AdminAccount {
     try {
       buffer = readFileSync(this.filename)
       this.adminAccount = JSON.parse(buffer.toString())
-      if (this.adminAccount.config === undefined) {
-        this.init()
+      if (this.ensureConfigDefaults()) {
         this.save()
       }
     } catch (e) {
@@ -61,13 +97,7 @@ export class AdminAccount {
   }
 
   init() {
-    this.adminAccount.config = {
-      localAuthEnabled: true,
-      jamsAuthEnabled: !!this.getJamsServerUrl(),
-      guestAccessEnabled: false,
-      openIdAuthEnabled: false,
-      uploadPath: this.defaultUploadPath,
-    }
+    this.adminAccount.config = this.defaultConfig()
     this.adminAccount.lastWizardState = AdminWizardState.account
     this.adminAccount.autoDownloadLimit = 20 // default value
     if (!this.adminAccount.openIdProviders) {
@@ -168,8 +198,7 @@ export class AdminAccount {
   }
 
   getUploadPath(): string {
-    if (!('uploadPath' in this.adminAccount.config) || this.adminAccount.config.uploadPath === undefined) {
-      this.adminAccount.config.uploadPath = this.defaultUploadPath
+    if (this.ensureConfigDefaults()) {
       this.save()
     }
     return this.adminAccount.config.uploadPath
@@ -184,6 +213,9 @@ export class AdminAccount {
   }
 
   getConfig(): IAdminConfigState {
+    if (this.ensureConfigDefaults()) {
+      this.save()
+    }
     return this.adminAccount.config
   }
 

@@ -43,6 +43,7 @@ function initDefaults(account: IAdminAccount): IAdminAccount {
       jamsAuthEnabled: false,
       guestAccessEnabled: false,
       openIdAuthEnabled: false,
+      noLocalMediaEnabled: true,
       uploadPath: dataDir + '/uploads/',
     }
   }

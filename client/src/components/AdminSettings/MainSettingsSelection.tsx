@@ -66,6 +66,12 @@ export default function MainSettingsSelection() {
             highlightKey: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`,
             link: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`,
           },
+          {
+            icon: null,
+            title: t('media_settings'),
+            highlightKey: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.MEDIA}`,
+            link: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.MEDIA}`,
+          },
         ],
       },
       {

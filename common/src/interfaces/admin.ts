@@ -23,6 +23,7 @@ export interface IAdminConfigState {
   jamsAuthEnabled: boolean
   guestAccessEnabled: boolean
   openIdAuthEnabled: boolean
+  noLocalMediaEnabled: boolean
   uploadPath: string
 }
 
@@ -59,6 +60,7 @@ export const adminConfigValuePair = {
   jamsAuthEnabled: 'boolean',
   guestAccessEnabled: 'boolean',
   openIdAuthEnabled: 'boolean',
+  noLocalMediaEnabled: 'boolean',
   uploadPath: 'string',
 }
 

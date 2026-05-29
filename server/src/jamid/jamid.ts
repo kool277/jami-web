@@ -51,6 +51,7 @@ import path from 'path'
 import { filter, firstValueFrom, map, Subject } from 'rxjs'
 import { Service } from 'typedi'
 
+import { AdminAccount } from '../storage/admin-account.js'
 import { getAvatar } from '../utils/vCard.js'
 import { WebSocketServer } from '../websocket/websocket-server.js'
 import { ConversationMemberInfos } from './conversation-member-infos.js'
@@ -94,9 +95,18 @@ import {
 } from './jami-signal-interfaces.js'
 import { DataTransferEventCode, MessageState, NameRegistrationEndedState, RegistrationState } from './state-enums.js'
 
+const LIBJAMI_FLAG_DEBUG = 1 << 0
+const LIBJAMI_FLAG_NO_LOCAL_AUDIO = 1 << 6
+const LIBJAMI_FLAG_NO_LOCAL_VIDEO = 1 << 7
+const LIBJAMI_FLAG_NO_LOCAL_MEDIA = LIBJAMI_FLAG_NO_LOCAL_AUDIO | LIBJAMI_FLAG_NO_LOCAL_VIDEO
+
+type JamiSwigWithInitOptions = Omit<JamiSwig, 'init'> & {
+  init(args: Record<string, unknown>, options?: { flags?: number }): void
+}
+
 @Service()
 export class Jamid {
-  private jamiSwig: JamiSwig
+  private jamiSwig: JamiSwigWithInitOptions
   private usernamesToAccountIds = new Map<string, string>()
   private accountUrisToAccountIds = new Map<string, string>()
   readonly events
@@ -124,8 +134,11 @@ export class Jamid {
     }
   }
 
-  constructor(private webSocketServer: WebSocketServer) {
-    this.jamiSwig = loadNativeModule()
+  constructor(
+    private webSocketServer: WebSocketServer,
+    private adminAccount: AdminAccount,
+  ) {
+    this.jamiSwig = loadNativeModule() as JamiSwigWithInitOptions
 
     // Setup signal handlers
     const handlers: Record<string, unknown> = {}
@@ -372,7 +385,15 @@ export class Jamid {
     // 1. You cannot change event handlers after calling jamiSwig.init()
     // 2. You cannot specify multiple handlers for the same event
     // 3. You cannot specify a default handler
-    this.jamiSwig.init(handlers)
+    this.jamiSwig.init(handlers, { flags: this.getInitFlags() })
+  }
+
+  private getInitFlags(): number {
+    let flags = LIBJAMI_FLAG_DEBUG
+    if (this.adminAccount.getConfig().noLocalMediaEnabled) {
+      flags |= LIBJAMI_FLAG_NO_LOCAL_MEDIA
+    }
+    return flags
   }
 
   stop(): void {

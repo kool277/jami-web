@@ -30,6 +30,7 @@ import DownloadLimit from './components/AdminSettings/DownloadLimit.js'
 import GuestAuthMethod from './components/AdminSettings/GuestAuthMethod.js'
 import JamsAuthMethod from './components/AdminSettings/JamsAuthMethod.js'
 import LocalAuthMethod from './components/AdminSettings/LocalAuthMethod.js'
+import MediaSettings from './components/AdminSettings/MediaSettings.js'
 import OpenIdAuthMethod from './components/AdminSettings/OpenIdAuthMethod.js'
 import ContactList from './components/ContactList.js'
 import ConversationView from './components/ConversationView.js'
@@ -139,6 +140,10 @@ export const router = createBrowserRouter(
           <Route
             path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`}
             element={<DownloadLimit />}
+          />
+          <Route
+            path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.MEDIA}`}
+            element={<MediaSettings />}
           />
         </Route>
         <Route path="admin/setup" element={<Navigate to={'/admin/setup/account'} />} />

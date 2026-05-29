@@ -28,6 +28,7 @@ const VALID_KEYS: (keyof IAdminConfigState)[] = [
   'jamsAuthEnabled',
   'guestAccessEnabled',
   'openIdAuthEnabled',
+  'noLocalMediaEnabled',
   'uploadPath',
 ]
 
@@ -78,12 +79,14 @@ Configurable keys:
   jamsAuthEnabled       Enable/disable JAMS authentication (true/false)
   guestAccessEnabled    Enable/disable guest access (true/false)
   openIdAuthEnabled     Enable/disable OpenID authentication (true/false)
+  noLocalMediaEnabled   Start without local media devices (true/false; restart required)
   uploadPath            Path for file uploads
 
 Examples:
   jami-web config
   jami-web config --json
   jami-web config --set localAuthEnabled=true
+  jami-web config --set noLocalMediaEnabled=false
   jami-web config --set guestAccessEnabled=false`)
     return
   }
@@ -178,6 +181,7 @@ Examples:
     console.log(`    Guest access:    ${account.config.guestAccessEnabled ? 'enabled' : 'disabled'}`)
     console.log(`    OpenID auth:     ${account.config.openIdAuthEnabled ? 'enabled' : 'disabled'}`)
     console.log()
+    console.log(`  Daemon local media: ${account.config.noLocalMediaEnabled ? 'disabled' : 'enabled'}`)
     console.log(`  Upload path:       ${account.config.uploadPath}`)
   }
   if (account.nameserver) {

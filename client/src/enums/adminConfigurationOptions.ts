@@ -18,4 +18,5 @@
 export enum AdminConfigurationOptions {
   ACCOUNT = 'account',
   AUTO_DOWNLOAD_LIMIT = 'auto-download-limit',
+  MEDIA = 'media',
 }
