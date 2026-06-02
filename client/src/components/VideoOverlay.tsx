@@ -16,8 +16,9 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box } from '@mui/material'
-import { useRef, useState } from 'react'
-import Draggable, { DraggableEventHandler } from 'react-draggable'
+import { type ComponentType, useRef, useState } from 'react'
+import type { DraggableData, DraggableEvent, DraggableEventHandler } from 'react-draggable'
+import * as DraggableModule from 'react-draggable'
 import { useNavigate } from 'react-router-dom'
 
 import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
@@ -30,6 +31,8 @@ export type VideoOverlayProps = VideoStreamProps & {
   onClick?: DraggableEventHandler
   size?: Size
 }
+
+const Draggable = DraggableModule.default as unknown as ComponentType<any>
 
 const sizeToDimentions: Record<Size, string> = {
   small: '25%',
@@ -51,9 +54,9 @@ const VideoOverlay = ({ onClick, size = 'medium', ...props }: VideoOverlayProps)
     >
       <Draggable
         onDrag={() => setDragging(true)}
-        onStop={(...args) => {
+        onStop={(event: DraggableEvent, data: DraggableData) => {
           if (!dragging && onClick) {
-            onClick(...args)
+            onClick(event as MouseEvent, data)
           }
 
           setDragging(false)

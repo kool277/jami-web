@@ -15,10 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Container, Box } from '@mui/material'
+import { Box, Container } from '@mui/material'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 
 import Logo from '../icons/jamiLogoIcon.svg?react'
 
@@ -37,8 +36,11 @@ const item = {
   hidden: { opacity: 0, x: 0 },
 }
 
-export default function WelcomeAnimation(props) {
-  const { t } = useTranslation()
+type WelcomeAnimationProps = {
+  onComplete: () => void
+}
+
+export default function WelcomeAnimation(props: WelcomeAnimationProps) {
   const [visible, setVisible] = useState(true)
 
   const backgroundStyle = {

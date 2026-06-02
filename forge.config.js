@@ -152,7 +152,7 @@ export default {
       mkdirSync(nmDest, { recursive: true })
 
       const lsOutput = execSync(
-        'npm ls --include-workspace-root --workspace=@savoirfairelinux/jami-web --workspace=jami-web-common --all --omit=dev --parseable 2>/dev/null || true',
+        'npm ls --workspace=@savoirfairelinux/jami-web --workspace=jami-web-common --all --omit=dev --parseable 2>/dev/null || true',
         { cwd: PROJECT_ROOT, encoding: 'utf8' },
       )
       const prodPkgs = new Set()

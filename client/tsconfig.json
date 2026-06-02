@@ -1,14 +1,23 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "target": "es2025",
+    "lib": ["DOM", "DOM.Iterable", "ES2025"],
     "jsx": "react-jsx",
+    "jsxImportSource": "react",
     "useDefineForClassFields": true,
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "types": ["cypress", "node", "vite/client", "vite-plugin-svgr/client"],
-    "resolveJsonModule": true,
-    "allowJs": true, // TODO: Set this to false
+    "types": [
+      "react",
+      "react-dom",
+      "react-transition-group",
+      "cypress",
+      "node",
+      "vite/client",
+      "vite-plugin-svgr/client"
+    ],
+    "resolveJsonModule": false,
+    "allowJs": false,
     "noEmit": true,
     "isolatedModules": true,
     "allowSyntheticDefaultImports": true,

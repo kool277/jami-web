@@ -70,11 +70,6 @@
     "lint-staged": "^15.2.9",
     "prettier": "^3.3.3"
   },
-  "dependencies": {
-    "multer": "^2.1.1",
-    "qr-scanner": "^1.4.2",
-    "vcard4-ts": "^0.4.1"
-  },
   "config": {
     "forge": "forge.config.js"
   }

@@ -22,7 +22,7 @@ import { AdminWizardState } from 'jami-web-common'
 import { useState } from 'react'
 import { LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
 
-import WelcomeAnimation from './components/WelcomeAnimation.jsx'
+import WelcomeAnimation from './components/WelcomeAnimation.js'
 import { checkAdminSetupStatus, checkWizardStatus } from './services/adminQueries.js'
 import { getAccessToken, setAccessToken } from './services/authQueries.js'
 import { apiUrl } from './utils/constants.js'
