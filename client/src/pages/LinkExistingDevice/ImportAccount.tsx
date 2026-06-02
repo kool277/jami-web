@@ -16,36 +16,45 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, IconButton, Tooltip, Typography } from '@mui/material'
 import { QRCodeCanvas } from 'qrcode.react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ProcessingRequest from '../../components/ProcessingRequest.js'
+import { ContentCopyIcon } from '../../components/SvgIcon.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 import { useWebSocketLinkContext } from '../../contexts/WebSocketLinkProvider.js'
 import { useGetLinkTokenQuery } from '../../services/authQueries.js'
 
 export default function ImportAccount() {
-  const theme = useTheme()
   const { t } = useTranslation()
   const { setToken: setImportToken, token: wsToken } = useWebSocketLinkContext()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const { token, setToken } = useImportDeviceContext()
   const values = useGetLinkTokenQuery()
+  const [copied, setCopied] = useState(false)
 
-  if (values.isLoading) {
-    return <ProcessingRequest open={true} />
-  } else if (values.isPending) {
-    return <ProcessingRequest open={true} />
+  const fetchedToken = values.data?.details?.['token']
+
+  useEffect(() => {
+    if (token === '' && fetchedToken !== undefined && fetchedToken !== '') {
+      const importToken = localStorage.getItem('importToken')
+      if (importToken && wsToken === undefined) {
+        setImportToken(importToken)
+      }
+      setToken(fetchedToken)
+    }
+  }, [token, fetchedToken, wsToken, setImportToken, setToken])
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(token)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
-  if (token === '' && values.data.details['token'] !== '') {
-    const importToken = localStorage.getItem('importToken')
-    if (importToken && wsToken === undefined) {
-      setImportToken(importToken)
-    }
-    setToken(values.data.details['token'])
+  if (values.isLoading || values.isPending) {
+    return <ProcessingRequest open={true} />
   }
 
   return (
@@ -58,31 +67,47 @@ export default function ImportAccount() {
           justifyContent: 'center',
           flexDirection: 'column',
           gap: '20px',
-          marginTop: isMobile ? '70px' : '-50px',
         }}
       >
-        <Box>
-          <QRCodeCanvas size={160} value={token} />
-        </Box>
+        <Box>{token && <QRCodeCanvas size={160} value={token} />}</Box>
         <Box
           sx={{
+            width: '100%',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             flexDirection: 'column',
-            marginTop: isMobile ? '20px' : 'unset',
+            gap: '8px',
           }}
         >
-          <Typography variant="body2" gutterBottom>
+          <Typography variant="body2" align="center">
             {t('import_account_enter_code_manually')}
           </Typography>
-          <Typography
-            variant="body2"
-            gutterBottom
-            sx={{ fontWeight: 'bolder', fontSize: isMobile ? '10px' : '11px', textWrap: 'nowrap' }}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              maxWidth: '100%',
+            }}
           >
-            {token}
-          </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontFamily: 'monospace',
+                fontWeight: 'bold',
+                wordBreak: 'break-all',
+                textAlign: 'center',
+              }}
+            >
+              {token}
+            </Typography>
+            <Tooltip title={copied ? t('copied_to_clipboard') : t('copy_to_clipboard')}>
+              <IconButton onClick={handleCopy} size="small" aria-label={t('copy_to_clipboard')}>
+                <ContentCopyIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
       </Box>
     </UnconnectedUserLayout>

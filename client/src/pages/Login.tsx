@@ -232,7 +232,7 @@ function LoginForm() {
           >
             <Button
               variant="contained"
-              type="submit"
+              type="button"
               onClick={() => navigate('/import-account')}
               sx={{ width: theme.typography.pxToRem(submitButtonWidth) + 100, mt: '3%' }}
             >

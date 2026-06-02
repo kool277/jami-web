@@ -38,9 +38,7 @@ function LinkedDevicesPreview() {
   }
 
   const linkNewDevice = () => {
-    console.debug('not implemented yet')
-    // not merged for now
-    //navigate('/settings/account/linked-devices/export')
+    navigate('/settings/account/linked-devices/export')
   }
 
   return (
