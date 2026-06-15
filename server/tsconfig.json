@@ -15,6 +15,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "references": [{ "path": "../common" }, { "path": "../daemon/bin/nodejs" }],
+  "references": [{ "path": "../common" }],
   "exclude": ["uploads"]
 }
