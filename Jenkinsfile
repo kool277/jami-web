@@ -53,18 +53,6 @@ pipeline {
     }
 
     stages {
-        stage('Initialize submodules') {
-            steps {
-                sh "git submodule update --init --recursive"
-            }
-        }
-        stage('Build jami-daemon') {
-            steps {
-                dir("daemon") {
-                    sh "docker build --build-arg cmake_args='-DJAMI_NODEJS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON' -t jami-daemon ."
-                }
-            }
-        }
         stage('Lint & test') {
             steps {
                 script {
@@ -89,14 +77,13 @@ pipeline {
 
                 container_id=$(docker create jami-web:${BUILD_ID})
 
-                mkdir -p jami-web-production/{client,server,common,daemon/bin}
+                mkdir -p jami-web-production/{client,server,common/bin}
 
                 for dir in server common client; do
                     docker cp ${container_id}:/web-client/${dir}/dist jami-web-production/${dir}/
                     docker cp ${container_id}:/web-client/${dir}/package.json jami-web-production/${dir}/
                 done
 
-                docker cp ${container_id}:/web-client/daemon/bin/nodejs jami-web-production/daemon/bin/nodejs
                 docker cp ${container_id}:/web-client/server/locale jami-web-production/server/
                 docker cp ${container_id}:/web-client/server/available_languages.json jami-web-production/server/
                 docker cp ${container_id}:/web-client/server/scripts jami-web-production/server/

@@ -119,22 +119,6 @@ pipeline {
                         publishPlatformPackage('linux', 'arm64')
                     }
                 }
-
-                stage('Publish jami-core') {
-                    steps {
-                        dir('daemon/bin/nodejs') {
-                            npmPublishOrPack()
-                        }
-                    }
-                }
-
-                stage('Publish jami-openclaw') {
-                    steps {
-                        dir('extensions/jami') {
-                            npmPublishOrPack()
-                        }
-                    }
-                }
             }
         }
     }
