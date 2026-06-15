@@ -17,7 +17,7 @@
  */
 import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { alpha, darken, lighten } from '@mui/material/styles'
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider.js'
@@ -135,7 +135,20 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
 
   const isConversationOpen = location.pathname.startsWith('/conversation') && !isMenuOpen
 
-  const overlayBg = tintColor ? (isDark ? darken(tintColor, 0.85) : lighten(tintColor, 0.85)) : 'transparent'
+  // Keep the last non-null tint color painted so opacity can fade out while the
+  // color is still visible, then smoothly fade back in. Adjusting the state
+  // during render (the React-recommended pattern for values derived from props)
+  // keeps it in sync without a set-state-in-effect.
+  const [renderedColor, setRenderedColor] = useState<string | null>(tintColor)
+  if (tintColor && tintColor !== renderedColor) {
+    setRenderedColor(tintColor)
+  }
+
+  const overlayBg = renderedColor
+    ? isDark
+      ? darken(renderedColor, 0.85)
+      : lighten(renderedColor, 0.85)
+    : 'transparent'
   const overlayVisible = tintColor !== null
 
   return (
