@@ -17,7 +17,7 @@
  */
 
 import { Box, Button, Typography } from '@mui/material'
-import { DeviceAuthStateCode } from 'jami-web-common'
+import { DeviceAuthStateCode, MIN_PASSWORD_LENGTH } from 'jami-web-common'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -113,14 +113,19 @@ const SetPassWord = () => {
   const [password, setPassword] = useState('')
   const [repeatPassword, setRepeatPassword] = useState('')
   const [passwordStatus, setPasswordStatus] = useState<PasswordStatus>('default')
-  const passwordOk = passwordStatus !== PasswordStrength.TooWeak
+  const passwordOk =
+    password.length >= MIN_PASSWORD_LENGTH &&
+    passwordStatus !== 'default' &&
+    passwordStatus !== 'registration_failed' &&
+    passwordStatus !== PasswordStrength.TooWeak
   const { t } = useTranslation()
   const { accountId } = useImportDeviceContext()
   const setPasswordMutation = useSetPasswordMutation(accountId)
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(event.target.value)
-    const checkResult = checkPasswordStrength(password)
+    const passwordValue = event.target.value
+    setPassword(passwordValue)
+    const checkResult = checkPasswordStrength(passwordValue)
     setPasswordStatus(checkResult.valueCode)
   }
 

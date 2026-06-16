@@ -142,7 +142,7 @@ export const PasswordInput = ({
   const [isSelected, setIsSelected] = useState(false)
   const dialogHandler = useDialogHandler()
 
-  const passwordError = status === PasswordStrength.TooWeak
+  const passwordError = status === PasswordStrength.TooWeak || status === 'registration_failed'
   const passwordSuccess = status !== 'default' && !passwordError
 
   const toggleShowPassword = () => {
@@ -172,7 +172,11 @@ export const PasswordInput = ({
   const helper = (
     <Box component="span" sx={{ width: '230px', display: 'flex', justifyContent: 'center' }}>
       <Typography component="span" sx={{ textWrap: 'nowrap', fontSize: '11px' }}>
-        {status === PasswordStrength.TooWeak ? t('password_input_helper_text_too_weak') : ''}
+        {status === PasswordStrength.TooWeak
+          ? t('password_input_helper_text_too_weak')
+          : status === 'registration_failed'
+            ? t('password_input_helper_text_registration_failed')
+            : ''}
       </Typography>
     </Box>
   )

@@ -19,8 +19,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { passwordStrength } from 'check-password-strength'
-import { AccessToken } from 'jami-web-common'
-import { HttpStatusCode } from 'jami-web-common'
+import { AccessToken, HttpStatusCode, MIN_PASSWORD_LENGTH } from 'jami-web-common'
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -90,7 +89,7 @@ export function checkPasswordStrength(password: string): PasswordCheckResult {
       id: PasswordStrength.Weak,
       value: 'Weak',
       minDiversity: 2,
-      minLength: 6,
+      minLength: MIN_PASSWORD_LENGTH,
     },
     {
       id: PasswordStrength.Medium,
@@ -105,10 +104,8 @@ export function checkPasswordStrength(password: string): PasswordCheckResult {
       minLength: 10,
     },
   ])
-  console.log(strengthResult)
-
   return {
-    strong: strengthResult.id !== PasswordStrength.TooWeak,
+    strong: password.length >= MIN_PASSWORD_LENGTH && strengthResult.id !== PasswordStrength.TooWeak,
     valueCode: strengthResult.id,
   }
 }

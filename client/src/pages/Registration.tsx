@@ -17,7 +17,7 @@
  */
 import { Box, Button, Typography } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
-import { HttpStatusCode } from 'jami-web-common'
+import { HttpStatusCode, MIN_PASSWORD_LENGTH } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Link, useNavigate } from 'react-router-dom'
@@ -64,7 +64,11 @@ function RegistrationForm() {
     return usernameInputStatus
   }, [debouncedUsername, isError, response, username, usernameInputStatus])
   const usernameOk = usernameStatus === 'success'
-  const passwordOk = passwordStatus !== PasswordStrength.TooWeak
+  const passwordOk =
+    password.length >= MIN_PASSWORD_LENGTH &&
+    passwordStatus !== 'default' &&
+    passwordStatus !== 'registration_failed' &&
+    passwordStatus !== PasswordStrength.TooWeak
   const { data } = useGetAdminConfigQuery()
   const providers = useGetAllProviders()
   const navigate = useNavigate()

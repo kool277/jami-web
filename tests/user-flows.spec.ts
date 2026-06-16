@@ -95,6 +95,26 @@ test.describe.serial('Registration Flow', () => {
     // (or stay if login fails since we don't fully mock the auth flow)
     await page.waitForTimeout(2_000)
   })
+
+  test('registration requires an acceptable password before create is enabled', async ({ page }) => {
+    await page.goto('/register')
+    const usernameInput = page.locator('[data-cy="username-input"] input')
+    const passwordInput = page.locator('[data-cy="password-input"] input')
+    const submitButton = page.locator('[data-cy="register-button"]')
+    await expect(usernameInput).toBeVisible({ timeout: 30_000 })
+
+    await usernameInput.fill('testuser456')
+
+    // Wait for username availability check
+    await page.waitForTimeout(1_000)
+    await expect(submitButton).toBeDisabled()
+
+    await passwordInput.fill('Abc123!')
+    await expect(submitButton).toBeDisabled()
+
+    await passwordInput.fill('Abc123!d')
+    await expect(submitButton).toBeEnabled()
+  })
 })
 
 test.describe('Login Page Details', () => {

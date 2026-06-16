@@ -19,7 +19,7 @@ import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import rateLimit from 'express-rate-limit'
 import { ParamsDictionary, Request } from 'express-serve-static-core'
-import { AccessToken, AccountDetails, HttpStatusCode, UserCredentials } from 'jami-web-common'
+import { AccessToken, AccountDetails, HttpStatusCode, MIN_PASSWORD_LENGTH, UserCredentials } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
@@ -59,8 +59,6 @@ function clearPendingAccounts() {
 }
 
 clearGuests()
-
-const MIN_PASSWORD_LENGTH = 8
 
 // In Electron mode, expose account IDs for auto-login
 if (isElectronMode) {

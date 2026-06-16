@@ -18,4 +18,6 @@
 
 export const MESSAGES_NUMBER_TO_LOAD = 16
 
+export const MIN_PASSWORD_LENGTH = 8
+
 export const urlRegex = /^(https?:\/\/)?(localhost|([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?::\d{1,5})?(\/[^\s]*)?$/
