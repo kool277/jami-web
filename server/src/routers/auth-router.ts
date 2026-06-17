@@ -268,7 +268,7 @@ authRouter.post(
         return
       }
       if (data.password === undefined) {
-        res.status(HttpStatusCode.NotFound).send('Password not found')
+        res.status(HttpStatusCode.Unauthorized).send('Invalid credentials')
         return
       }
       const JAMSAccountId = data.accountId
@@ -285,7 +285,7 @@ authRouter.post(
         return
       }
       if (JAMSAccountId === undefined) {
-        res.status(HttpStatusCode.NotFound).send('Username not found')
+        res.status(HttpStatusCode.Unauthorized).send('Invalid credentials')
         return
       }
       const jwt = await signJwt(JAMSAccountId)
@@ -303,7 +303,7 @@ authRouter.post(
         const daemonAccountIds = jamid.getAccountIds()
         const targetAccountId = daemonAccountIds.includes(username) ? username : undefined
         if (!targetAccountId) {
-          res.status(HttpStatusCode.NotFound).send('Account not found')
+          res.status(HttpStatusCode.Unauthorized).send('Invalid credentials')
           return
         }
         const jwt = await signJwt(targetAccountId)
@@ -313,13 +313,13 @@ authRouter.post(
 
       const data = accounts.get(username)
       if (typeof data === 'string' || data === undefined) {
-        res.status(HttpStatusCode.NotFound).send('Username not found')
+        res.status(HttpStatusCode.Unauthorized).send('Invalid credentials')
         return
       }
 
       const accountId = data?.accountId
       if (accountId === undefined) {
-        res.status(HttpStatusCode.NotFound).send('Username not found')
+        res.status(HttpStatusCode.Unauthorized).send('Invalid credentials')
         return
       }
 
@@ -329,7 +329,7 @@ authRouter.post(
       }
 
       if (!('password' in data)) {
-        res.status(HttpStatusCode.NotFound).send('Password not found')
+        res.status(HttpStatusCode.Unauthorized).send('Invalid credentials')
         return
       }
 

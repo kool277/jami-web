@@ -358,7 +358,11 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
       return
     }
     const user = state.users[username]
-    if (!user || user.password !== password) {
+    if (!user) {
+      res.status(401).send('Invalid credentials')
+      return
+    }
+    if (user.password !== password) {
       res.status(401).send('Invalid credentials')
       return
     }

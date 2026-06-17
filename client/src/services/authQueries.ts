@@ -164,14 +164,11 @@ export const useLoginMutation = () => {
     },
     onError: (e: any) => {
       //e: any is a simple workaround for type check since the error is of type unknown and we are unable to reference a property on an unknown
-      const { status } = e.response
+      const status = e.response?.status
       if (status === HttpStatusCode.BadRequest) {
         //TODO: the only bad request response defined in the server is missing credentials. add the response message to the locale.
         //continue when the auth flow is clear
-      } else if (status === HttpStatusCode.NotFound) {
-        //TODO: there are two different not found responses that could be returned by the server, use message to differentiate them?
-        //continue when the auth flow is clear
-      } else if (status === HttpStatusCode.Unauthorized) {
+      } else if (status === HttpStatusCode.NotFound || status === HttpStatusCode.Unauthorized) {
         setAlertContent({ messageI18nKey: 'login_invalid_credentials', severity: 'error', alertOpen: true })
       } else if (status === HttpStatusCode.TooManyRequests) {
         setAlertContent({ messageI18nKey: 'too_many_requests', severity: 'error', alertOpen: true })

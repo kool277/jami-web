@@ -151,6 +151,22 @@ test.describe('Login Page Details', () => {
     await expect(loginButton).toBeEnabled({ timeout: 5_000 })
   })
 
+  test('login shows invalid credentials when account is not found', async ({ page }) => {
+    await page.goto('/login')
+    const usernameInput = page.locator('[data-cy="username-input"] input')
+    await expect(usernameInput).toBeVisible({ timeout: 30_000 })
+
+    await page.route('**/api/auth/login', async (route) => {
+      await route.fulfill({ status: 404, contentType: 'text/plain', body: 'Username not found' })
+    })
+
+    await usernameInput.fill('missinguser')
+    await page.locator('[data-cy="password-input"] input').fill('password123')
+    await page.locator('[data-cy="login-button"]').click()
+
+    await expect(page.getByText(/invalid credentials/i)).toBeVisible({ timeout: 10_000 })
+  })
+
   test('login page has link to registration', async ({ page }) => {
     await page.goto('/login')
     const usernameInput = page.locator('[data-cy="username-input"] input')
