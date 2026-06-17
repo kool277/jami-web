@@ -18,21 +18,41 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { ContactDetails, JamsSearchResult, LookupResult } from 'jami-web-common'
+import { ContactDetails, HttpStatusCode, JamsSearchResult, LookupResult } from 'jami-web-common'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { Contact } from '../models/contact.js'
 import { useRefreshConversationsSummaries } from './conversationQueries.js'
+
+const jamiAddressPattern = /^[0-9a-f]{40}$/i
+
+function isLookupMiss(error: unknown): boolean {
+  return (
+    axios.isAxiosError(error) &&
+    (error.response?.status === HttpStatusCode.BadRequest || error.response?.status === HttpStatusCode.NotFound)
+  )
+}
 
 export const useContactsSearchQuery = (searchQuery: string) => {
   const { axiosInstance } = useAuthContext()
   return useQuery({
     queryKey: ['ns', 'username', searchQuery],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<LookupResult>(`/ns/name/${searchQuery}`)
-      return data ? [new Contact(data.address, data.name)] : []
+      const query = searchQuery.trim()
+      const isJamiAddress = jamiAddressPattern.test(query)
+      const endpoint = isJamiAddress ? `/ns/address/${query}` : `/ns/name/${query}`
+
+      try {
+        const { data } = await axiosInstance.get<LookupResult>(endpoint)
+        return data ? [new Contact(data.address || query, data.name)] : []
+      } catch (error) {
+        if (isLookupMiss(error)) {
+          return isJamiAddress ? [new Contact(query)] : []
+        }
+        throw error
+      }
     },
-    enabled: !!searchQuery,
+    enabled: !!searchQuery.trim(),
   })
 }
 
@@ -48,7 +68,7 @@ export const useJamsContactsSearchQuery = (searchQuery: string) => {
       const contacts = data.results.map((contact) => new Contact(contact.id, contact.username))
       return contacts
     },
-    enabled: !!searchQuery,
+    enabled: !!searchQuery.trim() && !jamiAddressPattern.test(searchQuery.trim()),
   })
 }
 
