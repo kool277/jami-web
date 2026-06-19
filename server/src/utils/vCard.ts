@@ -54,6 +54,19 @@ export async function getDisplayName(accountId: string, contactUri: string) {
   }
 }
 
+export async function getBotOwner(accountId: string): Promise<string | undefined> {
+  const profilePath = os.homedir() + '/.local/share/jami/' + accountId + '/profile.vcf'
+
+  try {
+    const card = parseVCards(await fs.readFile(profilePath, 'utf-8'))
+    const related = card.vCards?.[0]?.RELATED as Array<{ parameters?: { TYPE?: string[] }; value?: string }> | undefined
+    const owner = related?.find((item) => item.parameters?.TYPE?.includes('owner'))?.value
+    return owner?.replace(/^jami:/, '')
+  } catch {
+    return undefined
+  }
+}
+
 export async function getAvatar(accountId: string, contactUri: string) {
   const cacheFolder = os.homedir() + '/.local/share/jami/' + accountId + '/cache'
   const profileFolder = cacheFolder + '/profile'

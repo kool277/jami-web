@@ -228,6 +228,12 @@ export class Jamid {
       metadata: ConversationRequestMetadata,
     ) => onConversationRequestReceived.next({ accountId, conversationId, metadata })
 
+    // This signal can fire in bulk during account teardown.
+    // Handle it explicitly so it does not go through the default warn-level "Unhandled" logger.
+    handlers.ConversationRequestDeclined = (accountId: string, conversationId: string) => {
+      log.debug('ConversationRequestDeclined', { accountId, conversationId })
+    }
+
     const onConversationReady = new Subject<ConversationReady>()
     handlers.ConversationReady = (accountId: string, conversationId: string) =>
       onConversationReady.next({ accountId, conversationId })

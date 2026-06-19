@@ -20,6 +20,7 @@
     "start": "tsc-watch --build --onSuccess \"node dist/index.js\"",
     "start:prod": "env NODE_ENV=production node dist/index.js",
     "build": "tsc --build && chmod +x dist/cli.js",
+    "test:unit": "npx --yes tsx --experimental-test-module-mocks --test src/**/*.test.ts",
     "clean": "rm -rf dist *.tsbuildinfo",
     "lint": "eslint src",
     "lint:fix": "eslint --fix src",

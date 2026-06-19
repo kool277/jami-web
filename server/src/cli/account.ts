@@ -15,21 +15,42 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { existsSync, mkdirSync, readFileSync } from 'node:fs'
-import os from 'node:os'
-import { join } from 'node:path'
+import 'reflect-metadata'
 
+import { existsSync, mkdirSync } from 'node:fs'
+import { parseArgs } from 'node:util'
+
+import { Container } from 'typedi'
+
+import { Jamid } from '../jamid/jamid.js'
+import { RegistrationState } from '../jamid/state-enums.js'
+import { Accounts } from '../storage/accounts.js'
 import { dataDir, loadEnv } from '../utils/env.js'
 import { hashPassword } from '../utils/password.js'
-import { closePrompt, prompt, promptPassword } from './prompt.js'
+import { getBotOwner } from '../utils/vCard.js'
+import { choose, closePrompt, prompt, promptPassword } from './prompt.js'
+
+let jamid: Jamid | undefined
 
 interface AccountOptions {
   displayName?: string
   password?: string
 }
 
-interface AccountListOptions {
-  json: boolean
+interface RemoveAccountOptions {
+  accountId?: string
+}
+
+interface ListAccountOptions {
+  help: boolean
+}
+
+interface CreateAccountParseResult extends AccountOptions {
+  help: boolean
+}
+
+interface RemoveAccountParseResult extends RemoveAccountOptions {
+  help: boolean
 }
 
 interface ListedAccount {
@@ -37,12 +58,38 @@ interface ListedAccount {
   hash: string
   displayName: string
   registeredName: string
-  isBot: boolean
   botOwner?: string
 }
 
-function printUsage() {
-  console.log(`Usage: jami-web account [options]
+// The available subcommands for account management
+const ACCOUNTS_SUBCOMMANDS = ['create', 'list', 'remove'] as const
+type AccountsSubcommand = (typeof ACCOUNTS_SUBCOMMANDS)[number]
+
+async function initJamid(): Promise<void> {
+  if (!jamid) {
+    jamid = Container.get(Jamid)
+  }
+}
+
+function printAccountsUsage() {
+  console.log(`Usage: jami-web accounts <subcommand> [options]
+
+Manage Jami accounts.
+
+Subcommands:
+  create      Create a new Jami account
+  list        List all Jami accounts
+  remove      Remove a Jami account
+
+Run 'jami-web accounts <subcommand> --help' for subcommand options.
+With no subcommand and a TTY, an interactive menu is shown.
+
+Options:
+  --help      Show this help message`)
+}
+
+function printCreateUsage() {
+  console.log(`Usage: jami-web accounts create [options]
 
 Create a Jami account.
 
@@ -51,86 +98,249 @@ The account can be used to:
   - Register a username later through the web client or web API
 
 Options:
-  --display-name, -n <name>  Account display name (optional; prompted when omitted)
-  --password, -p <password>  Account password (required; prompted when omitted)
-  list                       List all Jami accounts
+  --displayName <name>  Account display name (optional; prompted when omitted)
+  --password <password>  Account password (required; prompted when omitted)
   --help                     Show this help message`)
 }
 
 function printListUsage() {
-  console.log(`Usage: jami-web accounts [options]
-       jami-web account list [options]
+  console.log(`Usage: jami-web accounts list [options]
 
 List all Jami accounts known to the local daemon and show whether each account is a bot.
 
 Options:
-  --json      Output accounts as JSON
   --help      Show this help message`)
 }
 
-function readOptionValue(args: string[], index: number, option: string): string {
-  const value = args[index + 1]
-  if (!value || value.startsWith('-')) {
-    console.error(`Missing value for ${option}`)
-    process.exit(1)
-  }
-  return value
+function printRemoveUsage() {
+  console.log(`Usage: jami-web accounts remove [options]
+
+Remove a Jami account.
+
+In TTY mode, if --accountId is omitted, you will be prompted to choose an account.
+
+Options:
+  --accountId <accountId>  Account ID to remove (optional in TTY mode; prompted when omitted)
+  --help      Show this help message`)
 }
 
-function parseAccountArgs(args: string[]): AccountOptions {
-  const options: AccountOptions = {}
-  for (let index = 0; index < args.length; index++) {
-    const arg = args[index]
-    if (arg === '--display-name' || arg === '-n') {
-      options.displayName = readOptionValue(args, index, arg)
-      index++
-      continue
-    }
-    if (arg === '--password' || arg === '-p') {
-      options.password = readOptionValue(args, index, arg)
-      index++
-      continue
-    }
-    if (arg.startsWith('--display-name=')) {
-      options.displayName = arg.substring('--display-name='.length)
-      continue
-    }
-    if (arg.startsWith('--password=')) {
-      options.password = arg.substring('--password='.length)
-      continue
-    }
-
-    console.error(`Unknown option: ${arg}`)
-    printUsage()
-    process.exit(1)
-  }
-  return options
+function onParseError(error: unknown, printUsage: () => void): never {
+  const message = error instanceof Error ? error.message : String(error)
+  console.error(message)
+  printUsage()
+  process.exit(1)
 }
 
-function parseListArgs(args: string[]): AccountListOptions {
-  const options: AccountListOptions = { json: false }
-  for (const arg of args) {
-    if (arg === '--json') {
-      options.json = true
-      continue
+function formatOptional(value: string | undefined): string {
+  return value && value !== 'undefined' ? value : '-'
+}
+
+/**
+ *
+ * @param listedAccounts - The list of ListedAccouts to output to the console
+ */
+function printAccountList(listedAccounts: ListedAccount[]): void {
+  if (listedAccounts.length === 0) {
+    console.log('No Jami accounts are available.')
+    return
+  }
+
+  console.log(`Jami accounts (${listedAccounts.length})`)
+  for (const listedAccount of listedAccounts) {
+    console.log(`- ${formatOptional(listedAccount.displayName)}`)
+    console.log(`  Account ID:      ${listedAccount.accountId}`)
+    console.log(`  Hash:            ${listedAccount.hash}`)
+    console.log(`  Registered name: ${formatOptional(listedAccount.registeredName)}`)
+    if (listedAccount.botOwner) {
+      console.log(`  Bot owner:       ${formatOptional(listedAccount.botOwner)}`)
     }
-    console.error(`Unknown option: ${arg}`)
+  }
+}
+
+/**
+ *
+ * @returns A list of ListedAccount objects containing account information
+ */
+async function getListedAccounts(): Promise<ListedAccount[]> {
+  if (!jamid) throw new Error('Jamid not initialized')
+  const listedAccounts = await Promise.all(
+    jamid.getAccountIds().map(async (accountId) => {
+      const details = jamid!.getAccountDetails(accountId)
+
+      const hash = details['Account.username']
+      // Verify that the account is an actual account
+      if (!hash) {
+        return undefined
+      }
+
+      // Get the display name from the accounts details
+      let displayName: string
+      try {
+        displayName = details['Account.displayName']
+      } catch {
+        displayName = ''
+      }
+
+      // Get the registered name from the accounts volatile details
+      let registeredName: string
+      try {
+        registeredName = jamid!.getVolatileAccountDetails(accountId)['Account.registeredName']
+      } catch {
+        registeredName = ''
+      }
+
+      const botOwner = await getBotOwner(accountId)
+
+      return {
+        accountId,
+        hash,
+        displayName,
+        registeredName,
+        botOwner,
+      } as ListedAccount
+    }),
+  )
+
+  return listedAccounts.filter((account): account is ListedAccount => account !== undefined)
+}
+
+/**
+ * @param args - The arguments for account list subcommand provided by the user
+ */
+function parseListArgs(args: string[]): ListAccountOptions {
+  try {
+    const { values } = parseArgs({
+      args,
+      allowPositionals: false,
+      strict: true,
+      options: {
+        help: {
+          type: 'boolean',
+          short: 'h',
+        },
+      },
+    })
+
+    return {
+      help: values.help ?? false,
+    }
+  } catch (error) {
+    return onParseError(error, printListUsage)
+  }
+}
+
+/**
+ * Lists the known accounts with the following information:
+ *  - Display name
+ *  - Account ID
+ *  - Account hash
+ *  - Registered name
+ *  - Bot owner account hash (if applicable)
+ * @param listArgs - The arguments for the `accounts list` command provided by the user
+ */
+export async function listAccountsCommand(listArgs: string[]): Promise<void> {
+  const options = parseListArgs(listArgs)
+  if (options.help) {
     printListUsage()
-    process.exit(1)
+    return
   }
-  return options
+
+  loadEnv()
+
+  try {
+    await initJamid()
+    const accounts = await getListedAccounts()
+    printAccountList(accounts)
+  } finally {
+    closePrompt()
+    try {
+      jamid?.stop()
+    } catch {
+      // Ignore errors during shutdown
+    }
+    process.exit(0)
+  }
 }
 
+/**
+ * Parse the arguments passed into the account cli's `accounts create` command
+ * @param args - The args to parse
+ * @returns The account options object given the arguments
+ */
+function parseCreateAccountArgs(args: string[]): CreateAccountParseResult {
+  try {
+    const { values } = parseArgs({
+      args,
+      allowPositionals: false,
+      strict: true,
+      options: {
+        help: {
+          type: 'boolean',
+          short: 'h',
+        },
+        displayName: {
+          type: 'string',
+        },
+        password: {
+          type: 'string',
+        },
+      },
+    })
+
+    return {
+      help: values.help ?? false,
+      displayName: values.displayName,
+      password: values.password,
+    }
+  } catch (error) {
+    return onParseError(error, printCreateUsage)
+  }
+}
+
+/**
+ * Resolve the display name for the account
+ * @param options - The account options provided by the user
+ * @returns The display name, limited to 50 characters (empty string allowed)
+ */
 async function resolveDisplayName(options: AccountOptions): Promise<string> {
   let displayName = options.displayName?.trim() ?? ''
-  if (!displayName) {
-    if (process.stdin.isTTY) {
-      displayName = (await prompt('Display name (optional): ')).trim()
+  const maxLength = 50
+
+  // If provided via CLI args, warn and limit to 50 characters
+  if (displayName && displayName.length > maxLength) {
+    console.log(`Display name will be trimmed to ${maxLength} characters (you provided ${displayName.length}).`)
+    displayName = displayName.substring(0, maxLength)
+    return displayName
+  }
+
+  // If in TTY mode and no display name provided, prompt the user
+  if (!displayName && process.stdin.isTTY) {
+    while (true) {
+      displayName = (await prompt('Display name (optional, max 50 characters): ')).trim()
+      // Empty is allowed
+      if (displayName.length === 0) {
+        break
+      }
+      // If too long, reject and re-prompt
+      if (displayName.length > maxLength) {
+        console.log(
+          `Display name must be ${maxLength} characters or less (you entered ${displayName.length}). Please try again.`,
+        )
+        continue
+      }
+      // Valid
+      break
     }
   }
+
   return displayName
 }
 
+/**
+ * Resolve the password for the account
+ * @param options - The account options provided by the user
+ * @returns The password for the account
+ */
 async function resolvePassword(options: AccountOptions): Promise<string> {
   let password = options.password?.trim() ?? ''
   while (!password) {
@@ -146,161 +356,30 @@ async function resolvePassword(options: AccountOptions): Promise<string> {
   return password
 }
 
-function jamiDataDir(): string {
-  return process.env.XDG_DATA_HOME
-    ? join(process.env.XDG_DATA_HOME, 'jami')
-    : join(os.homedir(), '.local', 'share', 'jami')
-}
-
-function readBotProfile(accountId: string): Pick<ListedAccount, 'isBot' | 'botOwner'> {
-  try {
-    const content = readFileSync(join(jamiDataDir(), accountId, 'profile.vcf'), 'utf-8')
-    const fields = parseVCardFields(content)
-    const botOwner = fields['RELATED;TYPE=owner']?.replace(/^jami:/, '')
-    return {
-      isBot: fields.KIND === 'application' || botOwner !== undefined,
-      botOwner,
-    }
-  } catch {
-    return { isBot: false }
-  }
-}
-
-function parseVCardFields(content: string): Record<string, string> {
-  const fields: Record<string, string> = {}
-  const unfoldedLines = content
-    .replace(/\r\n[ \t]/g, '')
-    .replace(/\n[ \t]/g, '')
-    .split(/\r?\n/)
-  for (const line of unfoldedLines) {
-    const separatorIndex = line.indexOf(':')
-    if (separatorIndex === -1) {
-      continue
-    }
-    const key = line.slice(0, separatorIndex)
-    const value = line.slice(separatorIndex + 1)
-    fields[key] = value
-  }
-  return fields
-}
-
-function formatOptional(value: string | undefined): string {
-  return value && value !== 'undefined' ? value : '-'
-}
-
-function printAccountList(accounts: ListedAccount[]): void {
-  if (accounts.length === 0) {
-    console.log('No Jami accounts are available.')
-    return
-  }
-
-  console.log(`Jami accounts (${accounts.length})`)
-  for (const account of accounts) {
-    console.log(`- ${formatOptional(account.displayName)}`)
-    console.log(`  Account ID:      ${account.accountId}`)
-    console.log(`  Hash:            ${account.hash}`)
-    console.log(`  Registered name: ${formatOptional(account.registeredName)}`)
-    console.log(`  Bot:             ${account.isBot ? 'yes' : 'no'}`)
-    if (account.isBot) {
-      console.log(`  Bot owner:       ${formatOptional(account.botOwner)}`)
-    }
-  }
-}
-
-function getListedAccounts(jamid: import('../jamid/jamid.js').Jamid): ListedAccount[] {
-  return jamid
-    .getAccountIds()
-    .map((accountId) => {
-      const details = jamid.getAccountDetails(accountId)
-      const hash = details['Account.username']
-      if (!hash) {
-        return undefined
-      }
-
-      let registeredName = ''
-      try {
-        registeredName = jamid.getVolatileAccountDetails(accountId)['Account.registeredName'] ?? ''
-      } catch {
-        registeredName = ''
-      }
-
-      const botProfile = readBotProfile(accountId)
-      return {
-        accountId,
-        hash,
-        displayName: details['Account.displayName'] ?? '',
-        registeredName,
-        ...botProfile,
-      }
-    })
-    .filter((account): account is ListedAccount => account !== undefined)
-}
-
-export async function listAccountsCommand(args: string[]): Promise<void> {
-  if (args.includes('--help') || args.includes('-h')) {
-    printListUsage()
+/**
+ * Create a Jami account with the given options
+ * @param createArgs The arguments for the `accounts create` command provided by the user
+ */
+export async function createAccountCommand(createArgs: string[]): Promise<void> {
+  const options = parseCreateAccountArgs(createArgs)
+  if (options.help) {
+    printCreateUsage()
     return
   }
 
   loadEnv()
-  const options = parseListArgs(args)
-
-  let jamid: import('../jamid/jamid.js').Jamid | undefined
-  let commandError: unknown
-  try {
-    await import('reflect-metadata')
-    const { Container } = await import('typedi')
-    const { Jamid } = await import('../jamid/jamid.js')
-
-    jamid = Container.get(Jamid)
-    const accounts = getListedAccounts(jamid)
-    if (options.json) {
-      console.log(JSON.stringify(accounts, null, 2))
-    } else {
-      printAccountList(accounts)
-    }
-  } catch (err) {
-    commandError = err
-    throw err
-  } finally {
-    closePrompt()
-    jamid?.stop()
-    if (jamid && commandError === undefined) {
-      process.exit(0)
-    }
-  }
-}
-
-export async function createAccountCommand(args: string[]): Promise<void> {
-  if (args[0] === 'list' || args[0] === 'ls') {
-    await listAccountsCommand(args.slice(1))
-    return
-  }
-
-  if (args.includes('--help') || args.includes('-h')) {
-    printUsage()
-    return
-  }
-
-  loadEnv()
+  // Create the Jami Web data directory if it doesn't already exist
   if (!existsSync(dataDir)) {
     mkdirSync(dataDir, { recursive: true })
   }
 
-  const options = parseAccountArgs(args)
   const displayName = await resolveDisplayName(options)
   const password = await resolvePassword(options)
 
-  let jamid: import('../jamid/jamid.js').Jamid | undefined
-  let commandError: unknown
   try {
-    await import('reflect-metadata')
-    const { Container } = await import('typedi')
-    const { Jamid } = await import('../jamid/jamid.js')
-    const { RegistrationState } = await import('../jamid/state-enums.js')
-    const { Accounts } = await import('../storage/accounts.js')
+    await initJamid()
+    if (!jamid) throw new Error('Jamid not initialized')
 
-    jamid = Container.get(Jamid)
     const accounts = Container.get(Accounts)
     const accountDetails = displayName ? { 'Account.displayName': displayName } : {}
     const registration = await jamid.addAccount(accountDetails)
@@ -331,14 +410,198 @@ export async function createAccountCommand(args: string[]): Promise<void> {
     console.log('Web client login:')
     console.log(`  Account:  ${accountHash}`)
     console.log(`  Password: ${password}`)
-  } catch (err) {
-    commandError = err
-    throw err
   } finally {
     closePrompt()
-    jamid?.stop()
-    if (jamid && commandError === undefined) {
-      process.exit(0)
+    try {
+      jamid?.stop()
+    } catch {
+      // Ignore errors during shutdown
     }
+    process.exit(0)
+  }
+}
+
+/**
+ * Parse the arguments passed into the account cli's `accounts remove` command
+ * @param args - The args to parse
+ * @returns The remove options object given the arguments
+ */
+function parseRemoveAccountArgs(args: string[]): RemoveAccountParseResult {
+  try {
+    const { values } = parseArgs({
+      args,
+      allowPositionals: false,
+      strict: true,
+      options: {
+        help: {
+          type: 'boolean',
+          short: 'h',
+        },
+        accountId: {
+          type: 'string',
+        },
+      },
+    })
+
+    const accountId = values.accountId
+    if (accountId === '') {
+      console.error('Missing value for --accountId')
+      printRemoveUsage()
+      process.exit(1)
+    }
+
+    return {
+      help: values.help ?? false,
+      accountId,
+    }
+  } catch (error) {
+    return onParseError(error, printRemoveUsage)
+  }
+}
+
+/**
+ * Finds the account to remove from the given accountId and account list
+ * @param accounts - A list of the current Jami accounts
+ * @param accountId - The accountId of the account to remove
+ * @returns The ListedAccount to remove
+ */
+function findAccountToRemove(accounts: ListedAccount[], accountId: string): ListedAccount | undefined {
+  const normalizedAccountId = accountId.toLowerCase()
+  return accounts.find((account) => account.accountId.toLowerCase() === normalizedAccountId)
+}
+
+/**
+ * Formats the ListedAccount as a deletion list item
+ * @param account The listed to be formatted
+ * @returns The ListedAccount represented as a string of its hash and accountId
+ */
+function formatRemoveChoice(account: ListedAccount): string {
+  const names = [account.displayName, account.registeredName].filter((value) => value && value !== 'undefined')
+  const label = names.length > 0 ? `${names.join(' / ')} - ` : ''
+  return `${label}${account.hash} (${account.accountId})`
+}
+
+/**
+ * Resolves the accountId of the account to remove
+ * @param options - The remove options provided by the user
+ * @returns The accountId of the account to remove
+ */
+async function resolveRemoveAccountId(options: RemoveAccountOptions): Promise<string> {
+  const listedAccounts = await getListedAccounts()
+
+  if (listedAccounts.length === 0) {
+    console.log('No Jami accounts are available.')
+    process.exit(1)
+  }
+
+  const accountId = options.accountId?.trim()
+  if (accountId) {
+    const account = findAccountToRemove(listedAccounts, accountId)
+    if (!account) {
+      console.error(`Account not found: ${accountId}`)
+      process.exit(1)
+    }
+    return account.accountId
+  }
+
+  if (!process.stdin.isTTY) {
+    console.error('Account ID is required. Use --accountId <accountId>.')
+    process.exit(1)
+  }
+
+  const selectedIndex = await choose(
+    'Which account should be removed?',
+    listedAccounts.map((account) => formatRemoveChoice(account)),
+  )
+  return listedAccounts[selectedIndex].accountId
+}
+
+/**
+ * Remove a Jami account given the options
+ * @param removeArgs The arguments for the `accounts remove` command provided by the user
+ */
+async function removeAccountCommand(removeArgs: string[]): Promise<void> {
+  const options = parseRemoveAccountArgs(removeArgs)
+  if (options.help) {
+    printRemoveUsage()
+    return
+  }
+
+  loadEnv()
+
+  try {
+    await initJamid()
+    if (!jamid) throw new Error('Jamid not initialized')
+
+    const accountId = await resolveRemoveAccountId(options)
+    jamid.removeAccount(accountId)
+    console.log(`Jami account removed: ${accountId}`)
+  } finally {
+    closePrompt()
+    try {
+      jamid?.stop()
+    } catch {
+      // Ignore errors during shutdown
+    }
+    process.exit(0)
+  }
+}
+
+/**
+ *
+ * @param accountsSubcommand - The subcommand provided by the user
+ * @returns The resolved subcommand or undefined if the subcommand could not be determined
+ */
+async function resolveAccountsSubcommand(accountsSubcommand: string): Promise<AccountsSubcommand | undefined> {
+  const subcommand = accountsSubcommand as AccountsSubcommand
+
+  // Check if the subcommand provided is one we can handle
+  if (ACCOUNTS_SUBCOMMANDS.includes(subcommand)) {
+    return subcommand
+  }
+
+  // We are in TTY, determine the subcommand interactively
+  if (!subcommand && process.stdin.isTTY) {
+    const index = await choose('What would you like to do?', [
+      'Create a new account',
+      'List accounts',
+      'Remove an account',
+    ])
+    return ACCOUNTS_SUBCOMMANDS[index]
+  }
+  return undefined
+}
+
+/**
+ * Processes the arguments provided for the accounts command and runs
+ * the appropriate account management subcommand.
+ * @param args - The account management subcommand provided by the user
+ */
+export async function accountsCommand(args: string[]): Promise<void> {
+  // Print top-level help only when no subcommand is provided.
+  if (args[0] === '--help' || args[0] === '-h' || (!args[0] && (args.includes('--help') || args.includes('-h')))) {
+    printAccountsUsage()
+    return
+  }
+
+  // Determine the account subcommand provided by the user (if any)
+  const subcommand = await resolveAccountsSubcommand(args[0])
+  // Get the arguments of the subcommand
+  const subcommandArgs = args.slice(subcommand === args[0] ? 1 : 0)
+
+  switch (subcommand) {
+    case 'create':
+      await createAccountCommand(subcommandArgs)
+      break
+    case 'list':
+      await listAccountsCommand(subcommandArgs)
+      break
+    case 'remove':
+      await removeAccountCommand(subcommandArgs)
+      break
+    default:
+      console.error(args[0] ? `Unknown subcommand: ${args[0]}` : 'A subcommand is required in non-interactive mode.')
+      printAccountsUsage()
+      process.exit(1)
   }
 }

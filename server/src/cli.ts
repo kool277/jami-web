@@ -16,7 +16,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { createAccountCommand, listAccountsCommand } from './cli/account.js'
+import { accountsCommand } from './cli/account.js'
 import { createBotCommand } from './cli/bot.js'
 import { configCommand } from './cli/config.js'
 import { doctorCommand } from './cli/doctor.js'
@@ -33,8 +33,7 @@ Commands:
   start       Start the Jami Web server (default)
   setup       Interactive setup wizard (create admin account and configure server)
   genkeys     Generate JWT signing keys and write them to .env
-  create-account     Create a Jami account with username and password
-  list-accounts    List local Jami accounts and whether they are bots
+  accounts    Manage Jami accounts (create, list, delete)
   create-bot         Create a Jami bot account and API token
   config      Show or update server configuration
   doctor      Run health checks on the installation and configuration
@@ -68,11 +67,8 @@ async function main() {
     case 'genkeys':
       await genkeyCommand(args.slice(1))
       break
-    case 'create-account':
-      await createAccountCommand(args.slice(1))
-      break
-    case 'list-accounts':
-      await listAccountsCommand(args.slice(1))
+    case 'accounts':
+      await accountsCommand(args.slice(1))
       break
     case 'create-bot':
       await createBotCommand(args.slice(1))
