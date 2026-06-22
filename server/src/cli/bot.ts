@@ -15,16 +15,35 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import 'reflect-metadata'
+
 import { existsSync, mkdirSync } from 'node:fs'
+import { parseArgs } from 'node:util'
 
 import { AccountDetails } from 'jami-web-common'
+import { Container } from 'typedi'
 
+import { Jamid } from '../jamid/jamid.js'
+import { RegistrationState } from '../jamid/state-enums.js'
+import { ApiTokenStore } from '../storage/api-tokens.js'
 import { dataDir, loadEnv } from '../utils/env.js'
 import { choose, closePrompt, prompt } from './prompt.js'
+
+let jamid: Jamid | undefined
+
+async function initJamid(): Promise<void> {
+  if (!jamid) {
+    jamid = Container.get(Jamid)
+  }
+}
 
 interface BotOptions {
   displayName?: string
   owner?: string
+}
+
+interface BotParseResult extends BotOptions {
+  help: boolean
 }
 
 interface OwnerAccount {
@@ -41,66 +60,98 @@ Create a Jami bot account without registering a username, attach it to an owner 
 generate an API token, and save the token metadata to api-tokens.json.
 
 Options:
-  --display-name, -n <name>  Bot display name (required; prompted when omitted)
+  --displayName, -n <name>  Bot display name (required; prompted when omitted)
   --owner, -o <account>      Owner account ID, hash, registered name, or display name (prompted when omitted)
   --help                     Show this help message`)
 }
 
-function readOptionValue(args: string[], index: number, option: string): string {
-  const value = args[index + 1]
-  if (!value || value.startsWith('-')) {
-    console.error(`Missing value for ${option}`)
-    process.exit(1)
-  }
-  return value
-}
+/**
+ * Parse the arguments passed into the create-bot cli's `create-bot` command
+ * @param args - The arguments to parse
+ * @returns The arguments provided as a BotOptions object
+ */
+function parseBotArgs(args: string[]): BotParseResult {
+  try {
+    const { values } = parseArgs({
+      args,
+      allowPositionals: false,
+      strict: true,
+      options: {
+        help: {
+          type: 'boolean',
+          short: 'h',
+        },
+        displayName: {
+          type: 'string',
+          short: 'n',
+        },
+        owner: {
+          type: 'string',
+          short: 'o',
+        },
+      },
+    })
 
-function parseBotArgs(args: string[]): BotOptions {
-  const options: BotOptions = {}
-  for (let index = 0; index < args.length; index++) {
-    const arg = args[index]
-    if (arg === '--display-name' || arg === '-n') {
-      options.displayName = readOptionValue(args, index, arg)
-      index++
-      continue
+    return {
+      help: values.help ?? false,
+      displayName: values.displayName,
+      owner: values.owner,
     }
-    if (arg === '--owner' || arg === '-o') {
-      options.owner = readOptionValue(args, index, arg)
-      index++
-      continue
-    }
-    if (arg.startsWith('--display-name=')) {
-      options.displayName = arg.substring('--display-name='.length)
-      continue
-    }
-    if (arg.startsWith('--owner=')) {
-      options.owner = arg.substring('--owner='.length)
-      continue
-    }
-
-    console.error(`Unknown option: ${arg}`)
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error(message)
     printUsage()
     process.exit(1)
   }
-  return options
 }
 
+/**
+ * Resolve the display name for the bot
+ * @param options - The bot options provided by the user
+ * @returns The display name, limited to 50 characters (empty string allowed)
+ */
 async function resolveDisplayName(options: BotOptions): Promise<string> {
   let displayName = options.displayName?.trim() ?? ''
-  while (!displayName) {
-    if (!process.stdin.isTTY) {
-      console.error('Display name is required. Use --display-name <name>.')
-      process.exit(1)
+  const maxLength = 50
+
+  // If provided via CLI args, warn and trim to maxLength if needed
+  if (displayName) {
+    if (displayName.length > maxLength) {
+      console.log(`Display name will be trimmed to ${maxLength} characters (you provided ${displayName.length}).`)
+      displayName = displayName.substring(0, maxLength)
     }
-    displayName = await prompt('Bot display name: ')
+    return displayName
+  }
+
+  if (!process.stdin.isTTY) {
+    console.error('Display name is required. Use --displayName <name>.')
+    process.exit(1)
+  }
+
+  while (true) {
+    displayName = (await prompt('Bot display name (max 50 characters): ')).trim()
     if (!displayName) {
       console.log('Display name is required.')
+      continue
     }
+    if (displayName.length > maxLength) {
+      console.log(
+        `Display name must be ${maxLength} characters or less (you entered ${displayName.length}). Please try again.`,
+      )
+      continue
+    }
+    break
   }
   return displayName
 }
 
-function toOwnerAccount(jamid: import('../jamid/jamid.js').Jamid, accountId: string): OwnerAccount | null {
+/**
+ * Converts the account associated with an account ID to an OwnerAccount object
+ * @param accountId - The account ID of the account to convert
+ * @returns The account as an OwnerAccount object
+ */
+function toOwnerAccount(accountId: string): OwnerAccount | null {
+  if (!jamid) throw new Error('Jamid not initialized')
   const details = jamid.getAccountDetails(accountId)
   const hash = details['Account.username']
   if (!hash) {
@@ -122,12 +173,23 @@ function toOwnerAccount(jamid: import('../jamid/jamid.js').Jamid, accountId: str
   }
 }
 
+/**
+ * Returns a string formatted version of the OwnerAccount object
+ * @param account - The OwnerAccount to format
+ * @returns The OwnerAccount in a friendly string representation
+ */
 function formatOwner(account: OwnerAccount): string {
   const names = [account.displayName, account.registeredName].filter((value) => value && value !== 'undefined')
   const label = names.length > 0 ? `${names.join(' / ')} - ` : ''
   return `${label}${account.hash} (${account.accountId})`
 }
 
+/**
+ * Return the associated owner account given the owners account ID
+ * @param accounts - A list of potential
+ * @param owner - The owner's account ID
+ * @returns The OwnerAccount object associated with the given account ID
+ */
 function findOwner(accounts: OwnerAccount[], owner: string): OwnerAccount | undefined {
   const normalizedOwner = owner.toLowerCase()
   return accounts.find((account) => {
@@ -140,13 +202,16 @@ function findOwner(accounts: OwnerAccount[], owner: string): OwnerAccount | unde
   })
 }
 
-async function resolveOwner(
-  jamid: import('../jamid/jamid.js').Jamid,
-  options: BotOptions,
-): Promise<OwnerAccount | null> {
+/**
+ * Resolves the account owner for the bot
+ * @param options - The bot options provided by the user
+ * @returns The resolved owner account, or null if no accounts are available
+ */
+async function resolveOwner(options: BotOptions): Promise<OwnerAccount | null> {
+  if (!jamid) throw new Error('Jamid not initialized')
   const accounts = jamid
     .getAccountIds()
-    .map((accountId) => toOwnerAccount(jamid, accountId))
+    .map((accountId) => toOwnerAccount(accountId))
     .filter((account): account is OwnerAccount => account !== null)
 
   if (accounts.length === 0) {
@@ -175,13 +240,19 @@ async function resolveOwner(
   return accounts[selectedIndex]
 }
 
+/**
+ * Retrieve the bot account's hash
+ * @param details - The AccountDetails of which to retrieve the bot's hash
+ * @returns The bot account's hash
+ */
 function getBotHash(details: AccountDetails): string | undefined {
   const hash = details['Account.username']
   return hash && hash !== 'undefined' ? hash : undefined
 }
 
 export async function createBotCommand(args: string[]): Promise<void> {
-  if (args.includes('--help') || args.includes('-h')) {
+  const options = parseBotArgs(args)
+  if (options.help) {
     printUsage()
     return
   }
@@ -191,25 +262,23 @@ export async function createBotCommand(args: string[]): Promise<void> {
     mkdirSync(dataDir, { recursive: true })
   }
 
-  const options = parseBotArgs(args)
-  let jamid: import('../jamid/jamid.js').Jamid | undefined
-  let commandError: unknown
   try {
-    await import('reflect-metadata')
-    const { Container } = await import('typedi')
-    const { Jamid } = await import('../jamid/jamid.js')
-    const { RegistrationState } = await import('../jamid/state-enums.js')
-    const { ApiTokenStore } = await import('../storage/api-tokens.js')
+    await initJamid()
+    if (!jamid) throw new Error('Jamid not initialized')
 
-    jamid = Container.get(Jamid)
-    const owner = await resolveOwner(jamid, options)
+    // Determine which existing account should own the bot
+    const owner = await resolveOwner(options)
     if (!owner) {
       return
     }
 
+    // Determine the bot's display name
     const displayName = await resolveDisplayName(options)
+
+    // Get the registration state of the bot account
     const registration = await jamid.addAccount({ 'Account.displayName': displayName })
 
+    // If the account (bot) failed to create we remove it to avoid dead accounts
     if (registration.state === RegistrationState.ErrorGeneric) {
       jamid.removeAccount(registration.accountId)
       throw new Error('Failed to create the Jami bot account')
@@ -225,11 +294,13 @@ export async function createBotCommand(args: string[]): Promise<void> {
       throw err
     }
 
+    // If the bot account failed to create we should delete it
     if (!botHash) {
       jamid.removeAccount(registration.accountId)
       throw new Error('The Jami bot account was created, but its hash could not be read')
     }
 
+    // Create a token assocaited with the bot account so user's can access it via API
     const tokenStore = Container.get(ApiTokenStore)
     const { token, info } = tokenStore.createToken(registration.accountId, displayName)
     await tokenStore.save()
@@ -244,16 +315,15 @@ export async function createBotCommand(args: string[]): Promise<void> {
     console.log()
     console.log('Presence: restart any running Jami Web server so it loads this bot account and publishes it online.')
     console.log()
-    console.log('Copy this API token now. It will only be shown once:')
+    console.log('COPY THIS API TOKEN NOW. It will only be shown once:')
     console.log(token)
-  } catch (err) {
-    commandError = err
-    throw err
   } finally {
     closePrompt()
-    jamid?.stop()
-    if (jamid && commandError === undefined) {
-      process.exit(0)
+    try {
+      jamid?.stop()
+    } catch {
+      // Ignore errors during shutdown
     }
+    process.exit(0)
   }
 }

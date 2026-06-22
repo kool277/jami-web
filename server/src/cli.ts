@@ -34,7 +34,7 @@ Commands:
   setup       Interactive setup wizard (create admin account and configure server)
   genkeys     Generate JWT signing keys and write them to .env
   accounts    Manage Jami accounts (create, list, delete)
-  create-bot         Create a Jami bot account and API token
+  create-bot  Create a Jami bot account and API token
   config      Show or update server configuration
   doctor      Run health checks on the installation and configuration
 
