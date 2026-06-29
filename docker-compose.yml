@@ -13,15 +13,6 @@ services:
     ports:
       - '${JAMI_WEB_PORT:-8080}:8080'
     stdin_open: true
-    depends_on:
-      - jami-daemon
-
-  jami-daemon:
-    image: jami-daemon
-    build:
-      context: ./daemon
-      args:
-        cmake_args: '-DJAMI_NODEJS=ON -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON'
 
 volumes:
   jami-web-data:

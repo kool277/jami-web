@@ -29,7 +29,7 @@
     "genkeys": "node dist/cli.js genkeys"
   },
   "dependencies": {
-    "@savoirfairelinux/jami-core": "0.3.3",
+    "@savoirfairelinux/jami-core": "0.4.0",
     "@simplewebauthn/server": "^13.3.0",
     "argon2": "^0.40.3",
     "axios": "^1.16.1",

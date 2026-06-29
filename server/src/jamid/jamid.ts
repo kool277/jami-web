@@ -413,7 +413,7 @@ export class Jamid {
   }
 
   updateProfile(accountId: string, displayName: string, avatarPath: string, fileType: string, flag: number): void {
-    this.jamiSwig.updateProfile(accountId, displayName, avatarPath, fileType, flag)
+    this.jamiSwig.updateProfile(accountId, displayName, avatarPath, fileType, '', flag)
   }
 
   setAccountDetails(accountId: string, accountDetails: AccountDetails): void {
