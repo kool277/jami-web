@@ -412,8 +412,15 @@ export class Jamid {
     return stringMapToRecord(this.jamiSwig.getAccountDetails(accountId)) as unknown as AccountDetails
   }
 
-  updateProfile(accountId: string, displayName: string, avatarPath: string, fileType: string, flag: number): void {
-    this.jamiSwig.updateProfile(accountId, displayName, avatarPath, fileType, '', flag)
+  updateProfile(
+    accountId: string,
+    displayName: string,
+    avatarPath: string,
+    fileType: string,
+    botOwner: string,
+    flag: number,
+  ): void {
+    this.jamiSwig.updateProfile(accountId, displayName, avatarPath, fileType, botOwner, flag)
   }
 
   setAccountDetails(accountId: string, accountDetails: AccountDetails): void {

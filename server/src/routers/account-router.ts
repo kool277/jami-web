@@ -115,7 +115,7 @@ accountRouter.post(
     const path = dir + '/' + files[0].originalname
 
     // so it does not change the displayName
-    jamid.updateProfile(accountId, accountDetails['Account.displayName'], path, 'PNG', 0)
+    jamid.updateProfile(accountId, accountDetails['Account.displayName'], path, 'PNG', '', 0)
 
     // Invalidate the cached avatar so the next read regenerates it from the
     // updated profile (otherwise the stale cached image keeps being served).
@@ -153,7 +153,7 @@ accountRouter.post('/displayName/reset', (req, res) => {
     res.sendStatus(HttpStatusCode.Ok)
     return
   }
-  jamid.updateProfile(accountId, '', '', '', 10)
+  jamid.updateProfile(accountId, '', '', '', '', 10)
   res.sendStatus(HttpStatusCode.NoContent)
 })
 
@@ -166,7 +166,7 @@ accountRouter.post('/displayName', (req, res) => {
     res.sendStatus(HttpStatusCode.Ok)
     return
   }
-  jamid.updateProfile(accountId, displayName, '', '', 10)
+  jamid.updateProfile(accountId, displayName, '', '', '', 10)
   res.sendStatus(HttpStatusCode.NoContent)
 })
 
