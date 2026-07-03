@@ -161,6 +161,35 @@ export class Accounts {
     return this.accounts
   }
 
+  removeByAccountId(accountId: string): boolean {
+    let removed = false
+
+    const authMethods: Array<'local' | 'jams' | 'openid'> = ['local', 'jams', 'openid']
+    for (const authMethod of authMethods) {
+      const entries = this.accounts[authMethod]
+      for (const [username, account] of Object.entries(entries)) {
+        if (account.accountId !== accountId) {
+          continue
+        }
+        delete entries[username]
+        removed = true
+      }
+    }
+
+    if (accountId in this.accounts.guest) {
+      delete this.accounts.guest[accountId]
+      removed = true
+    }
+
+    if (this.accounts.pendingImports && accountId in this.accounts.pendingImports) {
+      delete this.accounts.pendingImports[accountId]
+      removed = true
+    }
+
+    this.accountsIds.delete(accountId)
+    return removed
+  }
+
   remove(username: string, authMethod: string) {
     if (!METHODS.includes(authMethod)) {
       console.log('Invalid auth method')

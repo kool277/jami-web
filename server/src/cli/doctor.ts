@@ -15,13 +15,14 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { accessSync, constants, existsSync, readFileSync } from 'node:fs'
-import { createServer } from 'node:net'
-import { resolve } from 'node:path'
+import { accessSync, constants, existsSync, lstatSync, readFileSync } from 'node:fs'
+import { createConnection, createServer } from 'node:net'
+import { dirname, resolve } from 'node:path'
 
 import { IAdminAccount } from 'jami-web-common'
 
 import { dataDir, defaultEnvPath } from '../utils/env.js'
+import { resolveRuntimeSettings } from '../utils/runtime.js'
 
 type CheckStatus = 'ok' | 'warn' | 'fail'
 
@@ -129,16 +130,10 @@ async function checkNativeModule(): Promise<CheckResult> {
 }
 
 function resolvePort(): number {
-  const isDev = process.env.NODE_ENV === 'development'
-  const defaultPort = isDev ? 5002 : 8080
-  return process.env.PORT ? Number.parseInt(process.env.PORT, 10) : defaultPort
+  return resolveRuntimeSettings().publicPort
 }
 
-function checkPort(): Promise<CheckResult> {
-  const name = 'Server port'
-  const port = resolvePort()
-  const host = process.env.HOST
-
+function checkPort(name: string, port: number, host?: string): Promise<CheckResult> {
   if (Number.isNaN(port)) {
     return Promise.resolve({
       name,
@@ -176,6 +171,83 @@ function checkPort(): Promise<CheckResult> {
   })
 }
 
+async function checkCliControlSocket(): Promise<CheckResult> {
+  const name = 'CLI control socket'
+  const socketPath = resolveRuntimeSettings().cliControlSocketPath
+  const socketDirectory = dirname(socketPath)
+
+  if (!existsSync(socketDirectory)) {
+    return {
+      name,
+      status: 'warn',
+      detail: `socket directory does not exist: ${socketDirectory}`,
+      hint: 'Start jami-web to create the runtime directory, or set JAMI_WEB_CLI_SOCKET to a writable location.',
+    }
+  }
+
+  try {
+    accessSync(socketDirectory, constants.W_OK)
+  } catch {
+    return {
+      name,
+      status: 'fail',
+      detail: `socket directory is not writable: ${socketDirectory}`,
+      hint: 'Ensure the user running jami-web can write to the socket directory.',
+    }
+  }
+
+  if (!existsSync(socketPath)) {
+    return {
+      name,
+      status: 'ok',
+      detail: `${socketPath} (path is available; socket will be created on server start)`,
+    }
+  }
+
+  try {
+    const stat = lstatSync(socketPath)
+    if (!stat.isSocket()) {
+      return {
+        name,
+        status: 'fail',
+        detail: `path exists but is not a socket: ${socketPath}`,
+        hint: 'Remove or rename the existing file and restart jami-web.',
+      }
+    }
+  } catch (error) {
+    return {
+      name,
+      status: 'warn',
+      detail: `could not inspect socket path ${socketPath}: ${(error as Error).message}`,
+    }
+  }
+
+  return new Promise((resolvePromise) => {
+    const client = createConnection({ path: socketPath })
+    client.once('connect', () => {
+      client.end()
+      resolvePromise({ name, status: 'ok', detail: `${socketPath} is reachable` })
+    })
+    client.once('error', (error: NodeJS.ErrnoException) => {
+      if (error.code === 'ECONNREFUSED') {
+        resolvePromise({
+          name,
+          status: 'warn',
+          detail: `${socketPath} exists but is not accepting connections`,
+          hint: 'A stale socket file may be present. Restart jami-web.',
+        })
+        return
+      }
+
+      resolvePromise({
+        name,
+        status: 'warn',
+        detail: `could not connect to socket ${socketPath}: ${error.message}`,
+      })
+    })
+  })
+}
+
 const STATUS_MARK: Record<CheckStatus, string> = {
   ok: '✓',
   warn: '!',
@@ -188,7 +260,7 @@ export async function doctorCommand(args: string[]): Promise<void> {
 
 Run health checks on the Jami Web installation and configuration.
 Reports the data directory, signing keys, admin account, native daemon
-module, and server port availability.
+module, and runtime listener availability.
 
 Exit code is non-zero if any check fails.
 
@@ -203,12 +275,14 @@ Options:
   console.log(`  Environment:    ${process.env.NODE_ENV || 'production'}`)
   console.log()
 
+  const runtime = resolveRuntimeSettings()
   const results: CheckResult[] = [
     checkDataDirectory(),
     checkSigningKeys(),
     checkAdminAccount(),
     await checkNativeModule(),
-    await checkPort(),
+    await checkPort('Server port', resolvePort(), runtime.publicHost),
+    await checkCliControlSocket(),
   ]
 
   for (const result of results) {

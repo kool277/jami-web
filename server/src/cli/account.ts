@@ -15,22 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import 'reflect-metadata'
-
-import { existsSync, mkdirSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 
-import { Container } from 'typedi'
-
-import { Jamid } from '../jamid/jamid.js'
-import { RegistrationState } from '../jamid/state-enums.js'
-import { Accounts } from '../storage/accounts.js'
-import { dataDir, loadEnv } from '../utils/env.js'
-import { hashPassword } from '../utils/password.js'
-import { getBotOwner } from '../utils/vCard.js'
+import { loadEnv } from '../utils/env.js'
+import { createCliAccountRequest, listCliAccountsRequest, removeCliAccountRequest } from './control/client.js'
 import { choose, closePrompt, prompt, promptPassword } from './prompt.js'
-
-let jamid: Jamid | undefined
 
 interface AccountOptions {
   displayName?: string
@@ -64,12 +53,6 @@ interface ListedAccount {
 // The available subcommands for account management
 const ACCOUNTS_SUBCOMMANDS = ['create', 'list', 'remove'] as const
 type AccountsSubcommand = (typeof ACCOUNTS_SUBCOMMANDS)[number]
-
-async function initJamid(): Promise<void> {
-  if (!jamid) {
-    jamid = Container.get(Jamid)
-  }
-}
 
 function printAccountsUsage() {
   console.log(`Usage: jami-web accounts <subcommand> [options]
@@ -162,46 +145,16 @@ function printAccountList(listedAccounts: ListedAccount[]): void {
  * @returns A list of ListedAccount objects containing account information
  */
 async function getListedAccounts(): Promise<ListedAccount[]> {
-  if (!jamid) throw new Error('Jamid not initialized')
-  const listedAccounts = await Promise.all(
-    jamid.getAccountIds().map(async (accountId) => {
-      const details = jamid!.getAccountDetails(accountId)
-
-      const hash = details['Account.username']
-      // Verify that the account is an actual account
-      if (!hash) {
-        return undefined
-      }
-
-      // Get the display name from the accounts details
-      let displayName: string
-      try {
-        displayName = details['Account.displayName']
-      } catch {
-        displayName = ''
-      }
-
-      // Get the registered name from the accounts volatile details
-      let registeredName: string
-      try {
-        registeredName = jamid!.getVolatileAccountDetails(accountId)['Account.registeredName']
-      } catch {
-        registeredName = ''
-      }
-
-      const botOwner = await getBotOwner(accountId)
-
-      return {
-        accountId,
-        hash,
-        displayName,
-        registeredName,
-        botOwner,
-      } as ListedAccount
-    }),
-  )
-
-  return listedAccounts.filter((account): account is ListedAccount => account !== undefined)
+  const accounts = await listCliAccountsRequest()
+  return accounts.map((account) => {
+    return {
+      accountId: account.accountId,
+      hash: account.hash,
+      displayName: account.displayName,
+      registeredName: account.registeredName,
+      botOwner: account.botOwner,
+    }
+  })
 }
 
 /**
@@ -246,19 +199,18 @@ export async function listAccountsCommand(listArgs: string[]): Promise<void> {
   }
 
   loadEnv()
+  let exitCode = 0
 
   try {
-    await initJamid()
     const accounts = await getListedAccounts()
     printAccountList(accounts)
+  } catch (error) {
+    exitCode = 1
+    const message = error instanceof Error ? error.message : String(error)
+    console.error(message)
   } finally {
     closePrompt()
-    try {
-      jamid?.stop()
-    } catch {
-      // Ignore errors during shutdown
-    }
-    process.exit(0)
+    process.exit(exitCode)
   }
 }
 
@@ -368,56 +320,34 @@ export async function createAccountCommand(createArgs: string[]): Promise<void> 
   }
 
   loadEnv()
-  // Create the Jami Web data directory if it doesn't already exist
-  if (!existsSync(dataDir)) {
-    mkdirSync(dataDir, { recursive: true })
-  }
 
   const displayName = await resolveDisplayName(options)
   const password = await resolvePassword(options)
+  let exitCode = 0
 
   try {
-    await initJamid()
-    if (!jamid) throw new Error('Jamid not initialized')
-
-    const accounts = Container.get(Accounts)
-    const accountDetails = displayName ? { 'Account.displayName': displayName } : {}
-    const registration = await jamid.addAccount(accountDetails)
-
-    if (registration.state === RegistrationState.ErrorGeneric) {
-      jamid.removeAccount(registration.accountId)
-      throw new Error('Failed to create the Jami account')
-    }
-
-    const details = jamid.getAccountDetails(registration.accountId)
-    const accountHash = details['Account.username']
-    if (!accountHash) {
-      jamid.removeAccount(registration.accountId)
-      throw new Error('The Jami account was created, but its hash could not be read')
-    }
-
-    const hashedPassword = await hashPassword(password)
-    accounts.set(accountHash, hashedPassword, 'local', registration.accountId)
-    await accounts.save()
+    const account = await createCliAccountRequest({
+      displayName,
+      password,
+    })
 
     console.log('Jami account created')
     if (displayName) {
       console.log(`  Display name: ${displayName}`)
     }
-    console.log(`  Account ID:   ${registration.accountId}`)
-    console.log(`  Account hash: ${accountHash}`)
+    console.log(`  Account ID:   ${account.accountId}`)
+    console.log(`  Account hash: ${account.accountHash}`)
     console.log()
     console.log('Web client login:')
-    console.log(`  Account:  ${accountHash}`)
+    console.log(`  Account:  ${account.accountHash}`)
     console.log(`  Password: ${password}`)
+  } catch (error) {
+    exitCode = 1
+    const message = error instanceof Error ? error.message : String(error)
+    console.error(message)
   } finally {
     closePrompt()
-    try {
-      jamid?.stop()
-    } catch {
-      // Ignore errors during shutdown
-    }
-    process.exit(0)
+    process.exit(exitCode)
   }
 }
 
@@ -528,22 +458,19 @@ async function removeAccountCommand(removeArgs: string[]): Promise<void> {
   }
 
   loadEnv()
+  let exitCode = 0
 
   try {
-    await initJamid()
-    if (!jamid) throw new Error('Jamid not initialized')
-
     const accountId = await resolveRemoveAccountId(options)
-    jamid.removeAccount(accountId)
+    await removeCliAccountRequest(accountId)
     console.log(`Jami account removed: ${accountId}`)
+  } catch (error) {
+    exitCode = 1
+    const message = error instanceof Error ? error.message : String(error)
+    console.error(message)
   } finally {
     closePrompt()
-    try {
-      jamid?.stop()
-    } catch {
-      // Ignore errors during shutdown
-    }
-    process.exit(0)
+    process.exit(exitCode)
   }
 }
 

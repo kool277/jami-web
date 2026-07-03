@@ -15,27 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import 'reflect-metadata'
-
-import { existsSync, mkdirSync } from 'node:fs'
 import { parseArgs } from 'node:util'
 
-import { AccountDetails } from 'jami-web-common'
-import { Container } from 'typedi'
-
-import { Jamid } from '../jamid/jamid.js'
-import { RegistrationState } from '../jamid/state-enums.js'
-import { ApiTokenStore } from '../storage/api-tokens.js'
-import { dataDir, loadEnv } from '../utils/env.js'
+import { loadEnv } from '../utils/env.js'
+import { createCliBotRequest, listCliAccountsRequest } from './control/client.js'
 import { choose, closePrompt, prompt } from './prompt.js'
-
-let jamid: Jamid | undefined
-
-async function initJamid(): Promise<void> {
-  if (!jamid) {
-    jamid = Container.get(Jamid)
-  }
-}
 
 interface BotOptions {
   displayName?: string
@@ -54,7 +38,7 @@ interface OwnerAccount {
 }
 
 function printUsage() {
-  console.log(`Usage: jami-web bot [options]
+  console.log(`Usage: jami-web create-bot [options]
 
 Create a Jami bot account without registering a username, attach it to an owner account,
 generate an API token, and save the token metadata to api-tokens.json.
@@ -146,34 +130,6 @@ async function resolveDisplayName(options: BotOptions): Promise<string> {
 }
 
 /**
- * Converts the account associated with an account ID to an OwnerAccount object
- * @param accountId - The account ID of the account to convert
- * @returns The account as an OwnerAccount object
- */
-function toOwnerAccount(accountId: string): OwnerAccount | null {
-  if (!jamid) throw new Error('Jamid not initialized')
-  const details = jamid.getAccountDetails(accountId)
-  const hash = details['Account.username']
-  if (!hash) {
-    return null
-  }
-
-  let registeredName = ''
-  try {
-    registeredName = jamid.getVolatileAccountDetails(accountId)['Account.registeredName'] ?? ''
-  } catch {
-    registeredName = ''
-  }
-
-  return {
-    accountId,
-    hash,
-    displayName: details['Account.displayName'] ?? '',
-    registeredName,
-  }
-}
-
-/**
  * Returns a string formatted version of the OwnerAccount object
  * @param account - The OwnerAccount to format
  * @returns The OwnerAccount in a friendly string representation
@@ -208,11 +164,14 @@ function findOwner(accounts: OwnerAccount[], owner: string): OwnerAccount | unde
  * @returns The resolved owner account, or null if no accounts are available
  */
 async function resolveOwner(options: BotOptions): Promise<OwnerAccount | null> {
-  if (!jamid) throw new Error('Jamid not initialized')
-  const accounts = jamid
-    .getAccountIds()
-    .map((accountId) => toOwnerAccount(accountId))
-    .filter((account): account is OwnerAccount => account !== null)
+  const accounts = (await listCliAccountsRequest()).map((account) => {
+    return {
+      accountId: account.accountId,
+      hash: account.hash,
+      displayName: account.displayName,
+      registeredName: account.registeredName,
+    }
+  })
 
   if (accounts.length === 0) {
     console.log('No Jami accounts are available. Create an account first, then run this command again.')
@@ -240,16 +199,6 @@ async function resolveOwner(options: BotOptions): Promise<OwnerAccount | null> {
   return accounts[selectedIndex]
 }
 
-/**
- * Retrieve the bot account's hash
- * @param details - The AccountDetails of which to retrieve the bot's hash
- * @returns The bot account's hash
- */
-function getBotHash(details: AccountDetails): string | undefined {
-  const hash = details['Account.username']
-  return hash && hash !== 'undefined' ? hash : undefined
-}
-
 export async function createBotCommand(args: string[]): Promise<void> {
   const options = parseBotArgs(args)
   if (options.help) {
@@ -258,14 +207,9 @@ export async function createBotCommand(args: string[]): Promise<void> {
   }
 
   loadEnv()
-  if (!existsSync(dataDir)) {
-    mkdirSync(dataDir, { recursive: true })
-  }
+  let exitCode = 0
 
   try {
-    await initJamid()
-    if (!jamid) throw new Error('Jamid not initialized')
-
     // Determine which existing account should own the bot
     const owner = await resolveOwner(options)
     if (!owner) {
@@ -275,55 +219,29 @@ export async function createBotCommand(args: string[]): Promise<void> {
     // Determine the bot's display name
     const displayName = await resolveDisplayName(options)
 
-    // Get the registration state of the bot account
-    const registration = await jamid.addAccount({ 'Account.displayName': displayName })
-
-    // If the account (bot) failed to create we remove it to avoid dead accounts
-    if (registration.state === RegistrationState.ErrorGeneric) {
-      jamid.removeAccount(registration.accountId)
-      throw new Error('Failed to create the Jami bot account')
-    }
-
-    let botHash: string | undefined
-    try {
-      jamid.updateProfile(registration.accountId, displayName, '', '', owner.hash, 10)
-      const details = jamid.getAccountDetails(registration.accountId)
-      botHash = getBotHash(details)
-    } catch (err) {
-      jamid.removeAccount(registration.accountId)
-      throw err
-    }
-
-    // If the bot account failed to create we should delete it
-    if (!botHash) {
-      jamid.removeAccount(registration.accountId)
-      throw new Error('The Jami bot account was created, but its hash could not be read')
-    }
-
-    // Create a token assocaited with the bot account so user's can access it via API
-    const tokenStore = Container.get(ApiTokenStore)
-    const { token, info } = tokenStore.createToken(registration.accountId, displayName)
-    await tokenStore.save()
+    const bot = await createCliBotRequest({
+      displayName,
+      owner: owner.accountId,
+    })
 
     console.log('Jami bot created')
     console.log(`  Display name: ${displayName}`)
-    console.log(`  Owner hash:   ${owner.hash}`)
-    console.log(`  Account ID:   ${registration.accountId}`)
-    console.log(`  Bot hash:     ${botHash}`)
-    console.log(`  Token ID:     ${info.id}`)
-    console.log(`  Token prefix: ${info.prefix}`)
+    console.log(`  Owner hash:   ${bot.ownerHash}`)
+    console.log(`  Account ID:   ${bot.accountId}`)
+    console.log(`  Bot hash:     ${bot.botHash}`)
+    console.log(`  Token ID:     ${bot.tokenId}`)
+    console.log(`  Token prefix: ${bot.tokenPrefix}`)
     console.log()
     console.log('Presence: restart any running Jami Web server so it loads this bot account and publishes it online.')
     console.log()
     console.log('COPY THIS API TOKEN NOW. It will only be shown once:')
-    console.log(token)
+    console.log(bot.token)
+  } catch (error) {
+    exitCode = 1
+    const message = error instanceof Error ? error.message : String(error)
+    console.error(message)
   } finally {
     closePrompt()
-    try {
-      jamid?.stop()
-    } catch {
-      // Ignore errors during shutdown
-    }
-    process.exit(0)
+    process.exit(exitCode)
   }
 }

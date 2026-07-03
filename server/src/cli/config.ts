@@ -22,6 +22,7 @@ import { resolve } from 'node:path'
 import { IAdminAccount, IAdminConfigState } from 'jami-web-common'
 
 import { dataDir, defaultEnvPath, loadEnv } from '../utils/env.js'
+import { resolveRuntimeSettings } from '../utils/runtime.js'
 
 const VALID_KEYS: (keyof IAdminConfigState)[] = [
   'localAuthEnabled',
@@ -47,18 +48,23 @@ interface EffectiveRuntime {
   nodeEnv: string
   port: number
   host: string
+  cliControlSocket: string
 }
 
 function resolveRuntime(): EffectiveRuntime {
   // Load the env file so resolved values reflect what the server will see.
   loadEnv()
+  const runtime = resolveRuntimeSettings()
   const envFile = process.env.JAMI_WEB_ENV_FILE ? resolve(process.env.JAMI_WEB_ENV_FILE) : defaultEnvPath
-  const nodeEnv = process.env.NODE_ENV || 'production'
-  const isDev = nodeEnv === 'development'
-  const defaultPort = isDev ? 5002 : 8080
-  const port = process.env.PORT ? Number.parseInt(process.env.PORT, 10) : defaultPort
-  const host = process.env.HOST || '(all interfaces)'
-  return { envFile, envFileExists: existsSync(envFile), nodeEnv, port, host }
+  const host = runtime.publicHost || '(all interfaces)'
+  return {
+    envFile,
+    envFileExists: existsSync(envFile),
+    nodeEnv: runtime.nodeEnv,
+    port: runtime.publicPort,
+    host,
+    cliControlSocket: runtime.cliControlSocketPath,
+  }
 }
 
 export async function configCommand(args: string[]): Promise<void> {
@@ -149,6 +155,7 @@ Examples:
     output.envFileExists = runtime.envFileExists
     output.nodeEnv = runtime.nodeEnv
     output.port = runtime.port
+    output.cliControlSocket = runtime.cliControlSocket
     output.host = process.env.HOST ?? null
     if (account.config) output.config = account.config
     output.adminConfigured = account.admin !== undefined
@@ -169,6 +176,7 @@ Examples:
   console.log('  Effective runtime:')
   console.log(`    Environment:     ${runtime.nodeEnv}`)
   console.log(`    Port:            ${runtime.port}`)
+  console.log(`    CLI control:     ${runtime.cliControlSocket} (unix socket)`)
   console.log(`    Host:            ${runtime.host}`)
   console.log()
   console.log(`  Admin configured:  ${account.admin !== undefined ? 'yes' : 'no'}`)

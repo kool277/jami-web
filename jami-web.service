@@ -22,6 +22,8 @@ Restart=always
 RestartSec=10
 User=jamid
 Group=jamid
+RuntimeDirectory=jami-web
+RuntimeDirectoryMode=0700
 Environment=NODE_ENV=production
 # Optional: store data in a custom directory
 # Environment=JAMI_WEB_DATA_DIR=/opt/jami-web/data

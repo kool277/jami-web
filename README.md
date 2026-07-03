@@ -45,6 +45,12 @@ By default the server listens on port `8080`. Set `PORT` to override it:
 PORT=8081 jami-web
 ```
 
+The server also starts a local Unix socket CLI control API, used by
+`jami-web accounts` and `jami-web create-bot`.
+By default it uses `RUNTIME_DIRECTORY/cli.sock` (systemd), then
+`XDG_RUNTIME_DIR/jami-web/cli.sock`, then a data-directory fallback.
+Override it with `JAMI_WEB_CLI_SOCKET` when needed.
+
 The setup wizard stores signing keys and server data in the operating system's Jami Web application data directory, so the `jami-web` command can be started from any working directory. Set `JAMI_WEB_DATA_DIR` to store data in a custom location.
 
 The first start automatically creates persistent JWT signing keys when they do not already exist. You can still run `jami-web setup` for the interactive CLI setup wizard.
@@ -66,9 +72,12 @@ JAMI_WEB_ADMIN_PASSWORD='change-me' jami-web setup --non-interactive --enable-lo
 
 Useful CLI commands:
 
-- `jami-web doctor` — run health checks (data dir, keys, admin account, native daemon, port)
+- `jami-web doctor` — run health checks (data dir, keys, admin account, native daemon, listeners)
 - `jami-web config` — show the resolved data directory, env file, and effective runtime settings
 - `jami-web genkeys` — (re)generate JWT signing keys
+
+`jami-web accounts ...` and `jami-web create-bot ...` now require a running server.
+If the server is down, they fail and ask you to start the server first.
 
 ### Run in production
 
