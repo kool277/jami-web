@@ -16,8 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, TextField } from '@mui/material'
-import { useContext, useState } from 'react'
+import { Box, TextField } from '@mui/material'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
@@ -38,39 +38,45 @@ export default function DownloadLimit() {
 
 const DownloadLimitForm = ({ configuredLimit }: { configuredLimit: number }) => {
   const [currentLimit, setCurrentLimit] = useState<number>(configuredLimit)
+  const currentLimitRef = useRef<number>(configuredLimit)
   const { setAlertContent } = useContext(AlertSnackbarContext)
-  const setAutoDownloadLimitMutation = useSetAutoDownloadLimit()
+  const { mutate } = useSetAutoDownloadLimit()
   const { t } = useTranslation()
 
   const handleLimitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCurrentLimit(Number(event.target.value))
+    const nextLimit = Number(event.target.value)
+    setCurrentLimit(nextLimit)
+    currentLimitRef.current = nextLimit
   }
 
-  const onSave = () => {
-    if (currentLimit === undefined) {
-      return
-    } else if (currentLimit < 0) {
-      setAlertContent({
-        messageI18nKey: 'limit_cannot_be_negative',
-        severity: 'error',
-        alertOpen: true,
-      })
-      return
-    } else if (currentLimit === configuredLimit) {
-      setAlertContent({
-        messageI18nKey: 'same_limit_error',
-        severity: 'error',
-        alertOpen: true,
-      })
-      return
+  const saveIfNeeded = useCallback(
+    (limit: number) => {
+      if (limit === undefined || Number.isNaN(limit)) {
+        return
+      } else if (limit < 0) {
+        setAlertContent({
+          messageI18nKey: 'limit_cannot_be_negative',
+          severity: 'error',
+          alertOpen: true,
+        })
+        return
+      } else if (limit === configuredLimit) {
+        return
+      }
+      mutate(limit)
+    },
+    [configuredLimit, mutate, setAlertContent],
+  )
+
+  useEffect(() => {
+    return () => {
+      saveIfNeeded(currentLimitRef.current)
     }
-    setAutoDownloadLimitMutation.mutate(currentLimit)
-  }
+  }, [saveIfNeeded])
 
   return (
     <LayoutSettings title={t('download_limit')} text={t('download_limit_details')}>
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: '10px' }}>
-        {' '}
         <TextField
           type="number"
           value={currentLimit}
@@ -80,9 +86,6 @@ const DownloadLimitForm = ({ configuredLimit }: { configuredLimit: number }) => 
             htmlInput: { min: '0' },
           }}
         />
-        <Button variant="contained" onClick={onSave}>
-          {t('save_button')}
-        </Button>
       </Box>
     </LayoutSettings>
   )
