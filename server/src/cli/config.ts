@@ -30,6 +30,7 @@ const VALID_KEYS: (keyof IAdminConfigState)[] = [
   'guestAccessEnabled',
   'openIdAuthEnabled',
   'noLocalMediaEnabled',
+  'conferenceResolution',
   'uploadPath',
 ]
 
@@ -86,6 +87,7 @@ Configurable keys:
   guestAccessEnabled    Enable/disable guest access (true/false)
   openIdAuthEnabled     Enable/disable OpenID authentication (true/false)
   noLocalMediaEnabled   Start without local media devices (true/false; restart required)
+  conferenceResolution  Conference video resolution (720p/1080p/1440p)
   uploadPath            Path for file uploads
 
 Examples:
@@ -93,6 +95,7 @@ Examples:
   jami-web config --json
   jami-web config --set localAuthEnabled=true
   jami-web config --set noLocalMediaEnabled=false
+  jami-web config --set conferenceResolution=1080p
   jami-web config --set guestAccessEnabled=false`)
     return
   }
@@ -190,6 +193,7 @@ Examples:
     console.log(`    OpenID auth:     ${account.config.openIdAuthEnabled ? 'enabled' : 'disabled'}`)
     console.log()
     console.log(`  Daemon local media: ${account.config.noLocalMediaEnabled ? 'disabled' : 'enabled'}`)
+    console.log(`  Conference video:  ${account.config.conferenceResolution}`)
     console.log(`  Upload path:       ${account.config.uploadPath}`)
   }
   if (account.nameserver) {

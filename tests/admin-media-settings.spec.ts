@@ -53,3 +53,21 @@ test('admin can configure local media startup', async ({ page, request }) => {
   const config = await response.json()
   expect(config.noLocalMediaEnabled).toBe(false)
 })
+
+test('admin can configure conference resolution from media settings', async ({ page, request }) => {
+  await page.goto('/admin/configuration/media')
+
+  await expect(page.getByRole('heading', { name: 'Media' })).toBeVisible()
+  await expect(page.getByText('Choose the default video resolution used for conference calls.')).toBeVisible()
+
+  const resolutionSelect = page.getByRole('combobox')
+  await resolutionSelect.click()
+  await page.getByRole('option', { name: 'Full HD 1080p' }).click()
+
+  // Conference resolution is persisted when leaving the section.
+  await page.goto('/admin/accounts')
+
+  const response = await request.get(`${MOCK_API}/api/admin/config`)
+  const config = await response.json()
+  expect(config.conferenceResolution).toBe('1080p')
+})

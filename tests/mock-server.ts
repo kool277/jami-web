@@ -34,6 +34,7 @@ interface MockServerState {
     guestAccessEnabled: boolean
     openIdAuthEnabled: boolean
     noLocalMediaEnabled: boolean
+    conferenceResolution: '720p' | '1080p' | '1440p'
     uploadPath: string
     jamsUrl?: string
   }
@@ -53,6 +54,7 @@ const defaultState: MockServerState = {
     guestAccessEnabled: false,
     openIdAuthEnabled: false,
     noLocalMediaEnabled: true,
+    conferenceResolution: '720p',
     uploadPath: '/tmp/jami-uploads',
   },
   users: {},
@@ -304,6 +306,10 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.json({ limit: state.autoDownloadLimit })
   })
 
+  api.get('/data/conferenceResolution', (_req, res) => {
+    res.json({ resolution: state.config.conferenceResolution })
+  })
+
   api.post('/admin/autoDownloadLimit', (req, res) => {
     const limit = req.body.limit
     if (limit === undefined || limit < 0) {
@@ -311,6 +317,17 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
       return
     }
     state.autoDownloadLimit = limit
+    res.sendStatus(200)
+  })
+
+  api.post('/admin/conferenceResolution', (req, res) => {
+    const resolution = req.body.resolution
+    if (!['720p', '1080p', '1440p'].includes(resolution)) {
+      res.status(400).send('Invalid conference resolution')
+      return
+    }
+
+    state.config.conferenceResolution = resolution
     res.sendStatus(200)
   })
 

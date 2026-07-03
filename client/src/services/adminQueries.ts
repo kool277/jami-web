@@ -676,6 +676,43 @@ export const useSetAutoDownloadLimit = () => {
   })
 }
 
+export const useSetConferenceResolution = () => {
+  const token = localStorage.getItem('adminAccessToken')
+  const queryClient = useQueryClient()
+  const { setAlertContent } = useContext(AlertSnackbarContext)
+  return useMutation({
+    mutationKey: ['set', 'conferenceResolution'],
+    mutationFn: async (resolution: string) => {
+      const { data } = await axios.post(
+        '/admin/conferenceResolution',
+        { resolution },
+        {
+          baseURL: apiUrl,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      )
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get', 'conferenceResolution'] })
+      setAlertContent({
+        messageI18nKey: 'setting_conference_resolution_success',
+        severity: 'success',
+        alertOpen: true,
+      })
+    },
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'setting_conference_resolution_error',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
+  })
+}
+
 // ─── Admin passkey hooks ─────────────────────────────────────────────────────
 
 export interface AdminPasskeyInfo {

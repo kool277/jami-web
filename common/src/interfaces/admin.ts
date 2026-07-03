@@ -18,12 +18,17 @@
 
 import { AdminWizardState } from '../enums/admin-wizard-state.js'
 
+export const conferenceResolutionValues = ['720p', '1080p', '1440p'] as const
+export type ConferenceResolution = (typeof conferenceResolutionValues)[number]
+export const defaultConferenceResolution: ConferenceResolution = '720p'
+
 export interface IAdminConfigState {
   localAuthEnabled: boolean
   jamsAuthEnabled: boolean
   guestAccessEnabled: boolean
   openIdAuthEnabled: boolean
   noLocalMediaEnabled: boolean
+  conferenceResolution: ConferenceResolution
   uploadPath: string
 }
 
@@ -61,6 +66,7 @@ export const adminConfigValuePair = {
   guestAccessEnabled: 'boolean',
   openIdAuthEnabled: 'boolean',
   noLocalMediaEnabled: 'boolean',
+  conferenceResolution: 'string',
   uploadPath: 'string',
 }
 

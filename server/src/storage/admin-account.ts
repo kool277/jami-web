@@ -18,7 +18,7 @@
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
-import { AdminWizardState, IAdminAccount, IAdminConfigState } from 'jami-web-common'
+import { AdminWizardState, defaultConferenceResolution, IAdminAccount, IAdminConfigState } from 'jami-web-common'
 import { Service } from 'typedi'
 
 import { dataDir } from '../utils/env.js'
@@ -46,6 +46,7 @@ export class AdminAccount {
       guestAccessEnabled: false,
       openIdAuthEnabled: false,
       noLocalMediaEnabled: true,
+      conferenceResolution: defaultConferenceResolution,
       uploadPath: this.defaultUploadPath,
     }
   }

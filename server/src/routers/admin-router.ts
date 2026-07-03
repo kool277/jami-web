@@ -36,6 +36,8 @@ import {
   AccountOverview,
   AdminCredentials,
   AdminWizardState,
+  ConferenceResolution,
+  conferenceResolutionValues,
   HttpStatusCode,
   isMailAddress,
   urlRegex,
@@ -767,6 +769,19 @@ adminRouter.post('/autoDownloadLimit', (req, res) => {
     return
   }
   adminAccount.setAutoDownloadLimit(downloadLimit)
+  adminAccount.save()
+  res.sendStatus(HttpStatusCode.Ok)
+})
+
+adminRouter.post('/conferenceResolution', (req, res) => {
+  const resolution = req.body.resolution
+
+  if (typeof resolution !== 'string' || !conferenceResolutionValues.includes(resolution as ConferenceResolution)) {
+    res.status(HttpStatusCode.BadRequest).send('Invalid conference resolution')
+    return
+  }
+
+  adminAccount.updateConfig({ conferenceResolution: resolution as ConferenceResolution })
   adminAccount.save()
   res.sendStatus(HttpStatusCode.Ok)
 })

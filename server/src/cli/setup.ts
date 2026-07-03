@@ -18,7 +18,7 @@
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
-import { AdminWizardState, IAdminAccount, urlRegex } from 'jami-web-common'
+import { AdminWizardState, defaultConferenceResolution, IAdminAccount, urlRegex } from 'jami-web-common'
 
 import { dataDir } from '../utils/env.js'
 import { hashPassword } from '../utils/password.js'
@@ -44,6 +44,7 @@ function initDefaults(account: IAdminAccount): IAdminAccount {
       guestAccessEnabled: false,
       openIdAuthEnabled: false,
       noLocalMediaEnabled: true,
+      conferenceResolution: defaultConferenceResolution,
       uploadPath: dataDir + '/uploads/',
     }
   }

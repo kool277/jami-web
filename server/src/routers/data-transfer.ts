@@ -67,6 +67,10 @@ dataTransferRouter.get('/autoDownloadLimit', (req, res) => {
   res.status(HttpStatusCode.Ok).json({ limit: config.getAutoDownloadLimit() })
 })
 
+dataTransferRouter.get('/conferenceResolution', (req, res) => {
+  res.status(HttpStatusCode.Ok).json({ resolution: config.getConfig().conferenceResolution })
+})
+
 dataTransferRouter.use(authenticateToken)
 dataTransferRouter.use(extendIfGuest)
 

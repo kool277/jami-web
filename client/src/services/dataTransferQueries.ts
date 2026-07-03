@@ -102,6 +102,16 @@ export const useGetAutoDownloadLimit = () => {
   })
 }
 
+export const useGetConferenceResolution = () => {
+  return useQuery({
+    queryKey: ['get', 'conferenceResolution'],
+    queryFn: async () => {
+      const { data } = await axios.get(`/data/conferenceResolution`, { baseURL: apiUrl })
+      return data
+    },
+  })
+}
+
 interface Content {
   messageId: string
   fileId: string

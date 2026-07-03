@@ -16,25 +16,86 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Stack, Switch, Typography } from '@mui/material'
+import { Box, MenuItem, Stack, Switch, TextField, Typography } from '@mui/material'
+import { ConferenceResolution, conferenceResolutionValues, defaultConferenceResolution } from 'jami-web-common'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useGetAdminConfigQuery, useUpdateAdminConfigMutation } from '../../services/adminQueries.js'
+import {
+  useGetAdminConfigQuery,
+  useSetConferenceResolution,
+  useUpdateAdminConfigMutation,
+} from '../../services/adminQueries.js'
+import { useGetConferenceResolution } from '../../services/dataTransferQueries.js'
 import LayoutSettings from '../LayoutSettings.js'
 import ProcessingRequest from '../ProcessingRequest.js'
 
 export default function MediaSettings() {
-  const { t } = useTranslation()
-  const { data } = useGetAdminConfigQuery()
-  const saveAdminConfigMutation = useUpdateAdminConfigMutation()
+  const conferenceResolutionData = useGetConferenceResolution()
+  const noLocalMediaData = useGetAdminConfigQuery()
 
-  if (data === undefined) {
+  if (conferenceResolutionData.data === undefined || conferenceResolutionData.isLoading) {
     return <ProcessingRequest open />
   }
 
-  const handleNoLocalMediaChange = () => {
-    saveAdminConfigMutation.mutate({ noLocalMediaEnabled: !data.noLocalMediaEnabled })
+  if (noLocalMediaData.data === undefined || noLocalMediaData.isLoading) {
+    return <ProcessingRequest open />
   }
+
+  const { data } = noLocalMediaData
+
+  const configuredConferenceResolution = conferenceResolutionValues.includes(conferenceResolutionData.data.resolution)
+    ? (conferenceResolutionData.data.resolution as ConferenceResolution)
+    : defaultConferenceResolution
+
+  return (
+    <MediaSettingsForm
+      key={`${data.noLocalMediaEnabled}-${configuredConferenceResolution}`}
+      noLocalMediaEnabled={data.noLocalMediaEnabled}
+      configuredConferenceResolution={configuredConferenceResolution}
+    />
+  )
+}
+
+const MediaSettingsForm = ({
+  noLocalMediaEnabled,
+  configuredConferenceResolution,
+}: {
+  noLocalMediaEnabled: boolean
+  configuredConferenceResolution: ConferenceResolution
+}) => {
+  const { t } = useTranslation()
+  const saveAdminConfigMutation = useUpdateAdminConfigMutation()
+  const { mutate } = useSetConferenceResolution()
+  const [conferenceResolution, setConferenceResolution] = useState<ConferenceResolution>(configuredConferenceResolution)
+  const conferenceResolutionRef = useRef<ConferenceResolution>(configuredConferenceResolution)
+
+  const handleNoLocalMediaChange = () => {
+    saveAdminConfigMutation.mutate({ noLocalMediaEnabled: !noLocalMediaEnabled })
+  }
+
+  const handleConferenceResolutionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nextResolution = event.target.value as ConferenceResolution
+    setConferenceResolution(nextResolution)
+    conferenceResolutionRef.current = nextResolution
+  }
+
+  const saveIfNeeded = useCallback(
+    (resolution: ConferenceResolution) => {
+      if (!resolution || resolution === configuredConferenceResolution) {
+        return
+      }
+
+      mutate(resolution)
+    },
+    [configuredConferenceResolution, mutate],
+  )
+
+  useEffect(() => {
+    return () => {
+      saveIfNeeded(conferenceResolutionRef.current)
+    }
+  }, [saveIfNeeded])
 
   return (
     <LayoutSettings title={t('media_settings')} text={t('media_settings_details')}>
@@ -55,7 +116,30 @@ export default function MediaSettings() {
               {t('no_local_media_details')}
             </Typography>
           </Box>
-          <Switch checked={data.noLocalMediaEnabled} onChange={handleNoLocalMediaChange} />
+          <Switch checked={noLocalMediaEnabled} onChange={handleNoLocalMediaChange} />
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
+          <Box sx={{ textAlign: 'start' }}>
+            <Typography>{t('conference_resolution')}</Typography>
+            <Typography variant="body2" color="textSecondary">
+              {t('conference_resolution_details')}
+            </Typography>
+          </Box>
+          <Box sx={{ mt: 1, width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <TextField
+              select
+              value={conferenceResolution}
+              size="small"
+              sx={{ minWidth: '220px' }}
+              onChange={handleConferenceResolutionChange}
+            >
+              {conferenceResolutionValues.map((resolution) => (
+                <MenuItem key={resolution} value={resolution}>
+                  {t(`conference_resolution_option_${resolution}`)}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
         </Box>
         <Typography variant="body2" color="textSecondary" sx={{ textAlign: 'start' }}>
           {t('media_settings_restart_required')}

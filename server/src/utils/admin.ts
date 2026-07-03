@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { adminConfigValuePair, IAdminConfigState } from 'jami-web-common'
+import { adminConfigValuePair, conferenceResolutionValues, IAdminConfigState } from 'jami-web-common'
 
 export const isConfigValid = (config: any): config is Partial<IAdminConfigState> => {
   //This is to ensure the config is an object with only one property and the key is a valid config key
@@ -38,6 +38,11 @@ export const isConfigValid = (config: any): config is Partial<IAdminConfigState>
         return typeof config['openIdAuthEnabled'] === adminConfigValuePair['openIdAuthEnabled']
       case 'noLocalMediaEnabled':
         return typeof config['noLocalMediaEnabled'] === adminConfigValuePair['noLocalMediaEnabled']
+      case 'conferenceResolution':
+        return (
+          typeof config['conferenceResolution'] === adminConfigValuePair['conferenceResolution'] &&
+          conferenceResolutionValues.includes(config['conferenceResolution'])
+        )
       case 'uploadPath':
         // TODO check if the upload path is unsecure
         return typeof config['uploadPath'] === adminConfigValuePair['uploadPath']
