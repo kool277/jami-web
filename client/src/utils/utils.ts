@@ -58,7 +58,7 @@ export function debounce<T extends any[]>(fn: (...args: T) => void, timeout = 10
 
 //Settings meta structure
 export interface ISettingItem {
-  icon: unknown
+  icon: React.ReactNode
   title: string
   highlightKey: string //The string used to determine whether to highlight the title or not.
   link: string

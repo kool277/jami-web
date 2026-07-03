@@ -23,11 +23,19 @@ import { useNavigate } from 'react-router-dom'
 
 import { AdminConfigurationOptions } from '../../enums/adminConfigurationOptions.js'
 import SettingSidebar from '../SettingSidebar.js'
-import { LogoutIcon } from '../SvgIcon.js'
+import {
+  AdminPanelSettingsIcon,
+  BadgeIcon,
+  DataThresholdingIcon,
+  GppMaybeIcon,
+  LiveTvIcon,
+  LogoutIcon,
+  PeopleIcon,
+} from '../SvgIcon.js'
 
 //Settings meta structure
 interface ISettingItem {
-  icon: unknown
+  icon: React.ReactNode
   title: string
   highlightKey: string //The string used to determine whether to highlight the title or not.
   link: string
@@ -49,25 +57,25 @@ export default function MainSettingsSelection() {
   const settingMeta: ISettingItem[] = useMemo(() => {
     return [
       {
-        icon: null,
+        icon: <AdminPanelSettingsIcon />,
         title: t('admin_account_configuration'),
         highlightKey: `/admin/${AdminSettingSelection.CONFIGURATION}`,
         link: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`,
         submenuItems: [
           {
-            icon: null,
+            icon: <BadgeIcon />,
             title: 'Account',
             highlightKey: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`,
             link: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`,
           },
           {
-            icon: null,
+            icon: <DataThresholdingIcon />,
             title: 'Auto Download Limit',
             highlightKey: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`,
             link: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`,
           },
           {
-            icon: null,
+            icon: <LiveTvIcon />,
             title: t('media_settings'),
             highlightKey: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.MEDIA}`,
             link: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.MEDIA}`,
@@ -75,13 +83,13 @@ export default function MainSettingsSelection() {
         ],
       },
       {
-        icon: null,
+        icon: <PeopleIcon />,
         title: t('accounts'),
         highlightKey: `/admin/${AdminSettingSelection.ACCOUNTS}`,
         link: `/admin/${AdminSettingSelection.ACCOUNTS}`,
       },
       {
-        icon: null,
+        icon: <GppMaybeIcon />,
         title: t('authentication'),
         highlightKey: `/admin/${AdminSettingSelection.AUTHENTICATION}`,
         link: `/admin/${AdminSettingSelection.AUTHENTICATION}`,

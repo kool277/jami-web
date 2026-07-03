@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next'
 
 import { ISettingItem } from '../utils/utils.js'
 import SettingSidebar from './SettingSidebar.js'
+import { AudioCallIcon, BadgeIcon, DevicesIcon, ManageAccountsIcon, SettingsIcon } from './SvgIcon.js'
 
 function UserSettingsSelection() {
   const { t } = useTranslation()
@@ -28,33 +29,33 @@ function UserSettingsSelection() {
   const settingMeta: ISettingItem[] = useMemo(() => {
     return [
       {
-        icon: null,
+        icon: <ManageAccountsIcon />,
         title: t('settings_title_account'),
         highlightKey: '/settings/account',
         link: '/settings/account/manage-account',
         submenuItems: [
           {
             highlightKey: '/settings/account/manage-account',
-            icon: null,
+            icon: <BadgeIcon />,
             title: t('settings_manage_account'),
             link: '/settings/account/manage-account',
           },
           {
             highlightKey: '/settings/account/calls',
-            icon: null,
+            icon: <AudioCallIcon />,
             title: t('settings_calls'),
             link: '/settings/account/calls',
           },
           {
             highlightKey: '/settings/account/linked-devices',
-            icon: null,
+            icon: <DevicesIcon />,
             title: t('settings_linked_devices'),
             link: '/settings/account/linked-devices',
           },
         ],
       },
       {
-        icon: null,
+        icon: <SettingsIcon />,
         title: t('settings_title_general'),
         highlightKey: '/settings/general',
         link: '/settings/general',

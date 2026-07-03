@@ -19,8 +19,8 @@ import { Button, Typography } from '@mui/material'
 import Collapse from '@mui/material/Collapse'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
-// import ListItemIcon from '@mui/material/ListItemIcon';
 import Stack from '@mui/material/Stack'
 import { Theme } from '@mui/material/styles'
 import { useMediaQuery, useTheme } from '@mui/system'
@@ -106,61 +106,111 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
       )}
       <Stack direction="row">
         <List sx={{ width: '100%' }}>
-          {settingMeta.map((settingItem, index) => (
-            <Box key={index}>
-              <ListItemButton
-                selected={isCurrentlyViewing(settingItem.highlightKey)}
-                onClick={() => {
-                  navigate(settingItem.link)
-                  setIsMenuOpen(false)
-                }}
-              >
-                {/* TODO: add icons */}
-                {/* <ListItemIcon>
-                                {/* <InboxIcon /> */}
-                {/* </ListItemIcon> */}
-                <ListItemText
-                  primary={settingItem.title}
-                  slotProps={{
-                    primary: {
-                      color: isCurrentlyViewing(settingItem.highlightKey)
-                        ? theme.palette.primary.dark
-                        : theme.palette.text.primary,
-                    },
+          {settingMeta.map((settingItem, index) => {
+            const isSettingActive = isCurrentlyViewing(settingItem.highlightKey)
+
+            return (
+              <Box key={index}>
+                <ListItemButton
+                  selected={
+                    isSettingActive && !settingItem.submenuItems?.some((item) => isCurrentlyViewing(item.highlightKey))
+                  }
+                  sx={{
+                    backgroundColor: settingItem.submenuItems?.some((item) => isCurrentlyViewing(item.highlightKey))
+                      ? `${theme.palette.primary.main}1A`
+                      : undefined,
                   }}
-                />
-              </ListItemButton>
-              <Collapse
-                in={isMobile ? true : isCurrentlyViewing(settingItem.highlightKey)}
-                timeout="auto"
-                unmountOnExit
-              >
-                <List component="div" disablePadding>
-                  {settingItem.submenuItems?.map((submenuItem, itemIndex) => (
-                    <ListItemButton
-                      key={itemIndex}
-                      sx={{ pl: 4 }}
-                      onClick={() => {
-                        navigate(submenuItem.link)
-                        setIsMenuOpen(false)
+                  onClick={() => {
+                    navigate(settingItem.link)
+                    setIsMenuOpen(false)
+                  }}
+                >
+                  {settingItem.icon && (
+                    <ListItemIcon
+                      sx={{
+                        color:
+                          isSettingActive &&
+                          !settingItem.submenuItems?.some((item) => isCurrentlyViewing(item.highlightKey))
+                            ? theme.palette.primary.dark
+                            : theme.palette.text.primary,
                       }}
                     >
-                      <ListItemText
-                        primary={submenuItem.title}
-                        slotProps={{
-                          primary: {
-                            color: isCurrentlyViewing(submenuItem.highlightKey)
+                      {settingItem.icon}
+                    </ListItemIcon>
+                  )}
+                  <ListItemText
+                    primary={settingItem.title}
+                    slotProps={{
+                      primary: {
+                        sx: {
+                          color:
+                            isSettingActive &&
+                            !settingItem.submenuItems?.some((item) => isCurrentlyViewing(item.highlightKey))
                               ? theme.palette.primary.dark
                               : theme.palette.text.primary,
-                          },
-                        }}
-                      />
-                    </ListItemButton>
-                  ))}
-                </List>
-              </Collapse>
-            </Box>
-          ))}
+                          fontWeight:
+                            isSettingActive &&
+                            !settingItem.submenuItems?.some((item) => isCurrentlyViewing(item.highlightKey))
+                              ? 600
+                              : 400,
+                        },
+                      },
+                    }}
+                  />
+                </ListItemButton>
+                <Collapse in={isMobile ? true : isSettingActive} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding>
+                    {settingItem.submenuItems?.map((submenuItem, itemIndex) => {
+                      const isSubmenuActive = isCurrentlyViewing(submenuItem.highlightKey)
+
+                      return (
+                        <ListItemButton
+                          key={itemIndex}
+                          selected={isSubmenuActive}
+                          sx={{
+                            pl: 4,
+                            ml: 1,
+                            mr: 1,
+                            backgroundColor: isSubmenuActive ? `${theme.palette.primary.main}1A` : undefined,
+                            '&:hover': {
+                              backgroundColor: isSubmenuActive
+                                ? `${theme.palette.primary.main}1A`
+                                : `${theme.palette.primary.main}0D`,
+                            },
+                          }}
+                          onClick={() => {
+                            navigate(submenuItem.link)
+                            setIsMenuOpen(false)
+                          }}
+                        >
+                          {submenuItem.icon && (
+                            <ListItemIcon
+                              sx={{
+                                color: isSubmenuActive ? theme.palette.primary.dark : theme.palette.text.primary,
+                              }}
+                            >
+                              {submenuItem.icon}
+                            </ListItemIcon>
+                          )}
+                          <ListItemText
+                            primary={submenuItem.title}
+                            slotProps={{
+                              primary: {
+                                sx: {
+                                  color: isSubmenuActive ? theme.palette.primary.dark : theme.palette.text.primary,
+                                  fontWeight: isSubmenuActive ? 700 : 400,
+                                },
+                              },
+                            }}
+                          />
+                        </ListItemButton>
+                      )
+                    })}
+                  </List>
+                </Collapse>
+              </Box>
+            )
+          })}
         </List>
       </Stack>
     </>
