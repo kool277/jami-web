@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { WebSocketMessage, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common'
+import { WebSocketMessage, WebSocketMessageTable, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 
 import { isDevMode } from '../utils/constants.js'
 type WebSocketCallback<T extends WebSocketMessageType> = (data: WebSocketMessageTable[T]) => void

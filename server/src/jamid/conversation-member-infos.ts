@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationMemberRole } from 'jami-web-common'
+import { ConversationMemberRole } from '@savoirfairelinux/jami-web-common'
 
 export interface ConversationMemberInfos {
   uri: string

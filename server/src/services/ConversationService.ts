@@ -16,7 +16,12 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { IConversationRequest, IConversationSummary, Message, WebSocketMessageType } from 'jami-web-common'
+import {
+  IConversationRequest,
+  IConversationSummary,
+  Message,
+  WebSocketMessageType,
+} from '@savoirfairelinux/jami-web-common'
 import { Container, Service } from 'typedi'
 
 import { ConversationRequestMetadata } from '../jamid/conversation-request-metadata.js'

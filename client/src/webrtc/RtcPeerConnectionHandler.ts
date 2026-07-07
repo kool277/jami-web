@@ -16,7 +16,12 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { WebRtcIceCandidate, WebRtcSdp, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common'
+import {
+  WebRtcIceCandidate,
+  WebRtcSdp,
+  WebSocketMessageTable,
+  WebSocketMessageType,
+} from '@savoirfairelinux/jami-web-common'
 
 import { IWebSocketContext } from '../contexts/WebSocketProvider.js'
 import { Account } from '../models/account.js'

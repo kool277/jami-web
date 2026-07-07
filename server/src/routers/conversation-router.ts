@@ -15,9 +15,6 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Request, Router } from 'express'
-import asyncHandler from 'express-async-handler'
-import { ParamsDictionary } from 'express-serve-static-core'
 import {
   ContactDetails,
   HttpStatusCode,
@@ -25,7 +22,10 @@ import {
   NewConversationRequestBody,
   NewMessageRequestBody,
   SendMessageType,
-} from 'jami-web-common'
+} from '@savoirfairelinux/jami-web-common'
+import { Request, Router } from 'express'
+import asyncHandler from 'express-async-handler'
+import { ParamsDictionary } from 'express-serve-static-core'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'

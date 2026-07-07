@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { NewBuddyNotification, WebSocketMessageType } from 'jami-web-common'
+import { NewBuddyNotification, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { createContext, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'

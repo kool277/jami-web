@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ContactDetails as ContactDetailType } from 'jami-web-common'
+import { ContactDetails as ContactDetailType } from '@savoirfairelinux/jami-web-common'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
 

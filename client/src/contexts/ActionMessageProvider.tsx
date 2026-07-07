@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Message } from 'jami-web-common'
+import { Message } from '@savoirfairelinux/jami-web-common'
 import React, { createContext, useContext, useMemo, useState } from 'react'
 
 import { FileHandler } from '../utils/files.js'

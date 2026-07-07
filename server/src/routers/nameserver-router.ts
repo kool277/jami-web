@@ -15,9 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { HttpStatusCode, RegisteredNameFoundState } from '@savoirfairelinux/jami-web-common'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
-import { HttpStatusCode, RegisteredNameFoundState } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'

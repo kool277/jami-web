@@ -17,7 +17,12 @@
  */
 
 import { Box, Button, Card, CardContent, CardHeader, TextField, Typography } from '@mui/material'
-import { AddDeviceStateChanged, DeviceAuthError, DeviceAuthStateCode, WebSocketMessageType } from 'jami-web-common'
+import {
+  AddDeviceStateChanged,
+  DeviceAuthError,
+  DeviceAuthStateCode,
+  WebSocketMessageType,
+} from '@savoirfairelinux/jami-web-common'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'

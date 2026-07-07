@@ -17,7 +17,7 @@
  */
 
 import { Box, Button, Typography } from '@mui/material'
-import { DeviceAuthStateCode, MIN_PASSWORD_LENGTH } from 'jami-web-common'
+import { DeviceAuthStateCode, MIN_PASSWORD_LENGTH } from '@savoirfairelinux/jami-web-common'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'

@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationMemberRole, IConversationMember } from 'jami-web-common'
+import { ConversationMemberRole, IConversationMember } from '@savoirfairelinux/jami-web-common'
 
 import { Contact } from './contact.js'
 

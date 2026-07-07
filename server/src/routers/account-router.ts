@@ -15,11 +15,17 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import {
+  AccountDetails,
+  DeviceRevocationState,
+  HttpStatusCode,
+  IAccount,
+  IContact,
+} from '@savoirfairelinux/jami-web-common'
 import { Request, Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import { ParamsDictionary } from 'express-serve-static-core'
 import fs from 'fs'
-import { AccountDetails, DeviceRevocationState, HttpStatusCode, IAccount, IContact } from 'jami-web-common'
 import multer from 'multer'
 import { Container } from 'typedi'
 

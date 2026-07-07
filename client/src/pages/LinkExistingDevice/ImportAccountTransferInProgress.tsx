@@ -17,7 +17,7 @@
  */
 
 import { Box, Typography } from '@mui/material'
-import { DeviceAuthStateCode } from 'jami-web-common'
+import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'

@@ -18,6 +18,17 @@
 import { randomUUID } from 'node:crypto'
 
 import {
+  AccessToken,
+  AccountOverview,
+  AdminCredentials,
+  AdminWizardState,
+  ConferenceResolution,
+  conferenceResolutionValues,
+  HttpStatusCode,
+  isMailAddress,
+  urlRegex,
+} from '@savoirfairelinux/jami-web-common'
+import {
   generateAuthenticationOptions,
   generateRegistrationOptions,
   verifyAuthenticationResponse,
@@ -31,17 +42,6 @@ import rateLimit from 'express-rate-limit'
 import { ParamsDictionary, Request, Response } from 'express-serve-static-core'
 import fs from 'fs'
 import { readdir, stat } from 'fs/promises'
-import {
-  AccessToken,
-  AccountOverview,
-  AdminCredentials,
-  AdminWizardState,
-  ConferenceResolution,
-  conferenceResolutionValues,
-  HttpStatusCode,
-  isMailAddress,
-  urlRegex,
-} from 'jami-web-common'
 import path from 'path'
 import { Container } from 'typedi'
 

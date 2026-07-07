@@ -16,8 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AxiosResponse } from 'axios'
 import {
   ConversationInfos,
   ConversationPreferences,
@@ -25,7 +23,9 @@ import {
   IConversationRequest,
   IConversationSummary,
   Message,
-} from 'jami-web-common'
+} from '@savoirfairelinux/jami-web-common'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { AxiosResponse } from 'axios'
 import { useCallback, useContext } from 'react'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'

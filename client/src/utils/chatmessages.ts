@@ -15,9 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { Message } from '@savoirfairelinux/jami-web-common'
 import dayjs from 'dayjs'
 import { i18n } from 'i18next'
-import { Message } from 'jami-web-common'
 
 import { formatCallDuration } from './dates&times.js'
 

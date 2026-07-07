@@ -17,9 +17,9 @@
  */
 import { useTheme } from '@mui/material'
 import { Box } from '@mui/material'
+import { Message } from '@savoirfairelinux/jami-web-common'
+import { MessageStatusCode } from '@savoirfairelinux/jami-web-common/src/enums/message-status-code'
 import { motion } from 'framer-motion'
-import { Message } from 'jami-web-common'
-import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
 import { useCallback, useContext, useMemo } from 'react'
 
 import { currentLastSeenMessageContext } from '../components/ChatInterfaceManager.js'

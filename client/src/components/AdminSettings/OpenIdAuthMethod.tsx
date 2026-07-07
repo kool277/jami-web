@@ -17,8 +17,8 @@
  */
 
 import { Box, Divider, List, ListItem, ListItemText, Typography } from '@mui/material'
+import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
 import { AnimatePresence, motion } from 'framer-motion'
-import { AdminSettingSelection } from 'jami-web-common'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 

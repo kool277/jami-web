@@ -17,8 +17,8 @@
  */
 
 import { Box, Button, Card, CardContent, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
 import { t } from 'i18next'
-import { DeviceAuthStateCode } from 'jami-web-common'
 import { useContext, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 

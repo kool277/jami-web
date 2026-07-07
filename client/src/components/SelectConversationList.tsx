@@ -17,7 +17,7 @@
  */
 
 import { Box, List, Typography } from '@mui/material'
-import { IConversationSummary } from 'jami-web-common'
+import { IConversationSummary } from '@savoirfairelinux/jami-web-common'
 import { useMemo } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'

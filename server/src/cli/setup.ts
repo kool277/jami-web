@@ -18,7 +18,12 @@
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
-import { AdminWizardState, defaultConferenceResolution, IAdminAccount, urlRegex } from 'jami-web-common'
+import {
+  AdminWizardState,
+  defaultConferenceResolution,
+  IAdminAccount,
+  urlRegex,
+} from '@savoirfairelinux/jami-web-common'
 
 import { dataDir } from '../utils/env.js'
 import { hashPassword } from '../utils/password.js'

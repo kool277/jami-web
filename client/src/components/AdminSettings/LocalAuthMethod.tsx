@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, Button, Input, Stack, Switch, Typography } from '@mui/material'
-import { urlRegex } from 'jami-web-common'
+import { urlRegex } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'

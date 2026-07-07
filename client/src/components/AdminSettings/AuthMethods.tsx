@@ -16,8 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, Divider, List, ListItem, ListItemText } from '@mui/material'
+import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
 import { AnimatePresence, motion } from 'framer-motion'
-import { AdminSettingSelection } from 'jami-web-common'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
 

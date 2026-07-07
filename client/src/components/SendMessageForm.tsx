@@ -17,8 +17,8 @@
  */
 import { Box, Card, CardContent, Divider, IconButton, TextareaAutosize, Tooltip, useTheme } from '@mui/material'
 import { Stack, useMediaQuery } from '@mui/system'
+import { WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { t } from 'i18next'
-import { WebSocketMessageType } from 'jami-web-common'
 import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 

@@ -19,7 +19,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
-import { IAdminAccount, IAdminConfigState } from 'jami-web-common'
+import { IAdminAccount, IAdminConfigState } from '@savoirfairelinux/jami-web-common'
 
 import { dataDir, defaultEnvPath, loadEnv } from '../utils/env.js'
 import { resolveRuntimeSettings } from '../utils/runtime.js'

@@ -21,7 +21,7 @@ import {
   ConversationMemberEvent,
   ConversationView,
   WebSocketMessageType,
-} from 'jami-web-common'
+} from '@savoirfairelinux/jami-web-common'
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 
 import LoadingPage from '../components/Loading.js'

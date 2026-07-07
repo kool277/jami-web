@@ -15,10 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { ContactDetails, HttpStatusCode, JamsSearchResult, LookupResult } from '@savoirfairelinux/jami-web-common'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { ContactDetails, HttpStatusCode, JamsSearchResult, LookupResult } from 'jami-web-common'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { Contact } from '../models/contact.js'

@@ -17,8 +17,8 @@
  */
 
 import { Box, Modal, useTheme } from '@mui/material'
+import { Message, ReactionRemoved, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { motion } from 'framer-motion'
-import { Message, ReactionRemoved, WebSocketMessageType } from 'jami-web-common'
 import { memo, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 

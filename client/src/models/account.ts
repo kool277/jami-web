@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { AccountDetails, Devices, IAccount, VolatileDetails } from 'jami-web-common'
+import { AccountDetails, Devices, IAccount, VolatileDetails } from '@savoirfairelinux/jami-web-common'
 
 import { Contact } from './contact.js'
 

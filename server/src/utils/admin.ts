@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { adminConfigValuePair, conferenceResolutionValues, IAdminConfigState } from 'jami-web-common'
+import { adminConfigValuePair, conferenceResolutionValues, IAdminConfigState } from '@savoirfairelinux/jami-web-common'
 
 export const isConfigValid = (config: any): config is Partial<IAdminConfigState> => {
   //This is to ensure the config is an object with only one property and the key is a valid config key

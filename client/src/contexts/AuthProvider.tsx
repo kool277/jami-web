@@ -15,8 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { HttpStatusCode, IAccount } from '@savoirfairelinux/jami-web-common'
 import axios, { AxiosInstance } from 'axios'
-import { HttpStatusCode, IAccount } from 'jami-web-common'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 

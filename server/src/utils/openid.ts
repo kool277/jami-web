@@ -15,8 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { AccountDetails } from '@savoirfairelinux/jami-web-common'
 import axios from 'axios'
-import { AccountDetails } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'

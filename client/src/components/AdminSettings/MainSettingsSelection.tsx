@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, Button, useMediaQuery, useTheme } from '@mui/material'
-import { AdminSettingSelection } from 'jami-web-common'
+import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'

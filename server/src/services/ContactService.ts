@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { IContact } from 'jami-web-common'
+import { IContact } from '@savoirfairelinux/jami-web-common'
 import { Container, Service } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'

@@ -29,8 +29,8 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { AccountDetails } from '@savoirfairelinux/jami-web-common'
 import { motion } from 'framer-motion'
-import { AccountDetails } from 'jami-web-common'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 

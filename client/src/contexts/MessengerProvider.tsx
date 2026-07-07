@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { IConversationRequest, WebSocketMessageType } from 'jami-web-common'
+import { IConversationRequest, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { createContext, ReactNode, useEffect, useMemo } from 'react'
 
 import { useAddConversationRequestToCache } from '../services/conversationQueries.js'

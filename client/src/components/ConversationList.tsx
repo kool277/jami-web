@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, Stack } from '@mui/material'
-import { WebSocketMessageType } from 'jami-web-common'
+import { WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 

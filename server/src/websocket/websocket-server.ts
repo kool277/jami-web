@@ -18,7 +18,7 @@
 import { IncomingMessage } from 'node:http'
 import { Duplex } from 'node:stream'
 
-import { WebSocketMessage, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common'
+import { WebSocketMessage, WebSocketMessageTable, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import log from 'loglevel'
 import { Container, Service } from 'typedi'
 import { URL } from 'whatwg-url'

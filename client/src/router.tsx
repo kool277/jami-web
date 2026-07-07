@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { AdminSettingSelection, AdminWizardState } from 'jami-web-common'
+import { AdminSettingSelection, AdminWizardState } from '@savoirfairelinux/jami-web-common'
 import { createBrowserRouter, createRoutesFromElements, Navigate, Outlet, Route } from 'react-router-dom'
 
 import App, { appLoader } from './App.js'

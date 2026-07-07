@@ -17,7 +17,7 @@
  */
 
 import { Dialog, DialogProps, List, Stack, Typography } from '@mui/material'
-import { IConversationRequest } from 'jami-web-common'
+import { IConversationRequest } from '@savoirfairelinux/jami-web-common'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'

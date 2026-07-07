@@ -15,8 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { HttpStatusCode } from '@savoirfairelinux/jami-web-common'
 import { NextFunction, Request, Response } from 'express'
-import { HttpStatusCode } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { AdminAccount } from '../storage/admin-account.js'

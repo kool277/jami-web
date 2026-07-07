@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { IContact } from 'jami-web-common'
+import { IContact } from '@savoirfairelinux/jami-web-common'
 
 export class Contact implements IContact {
   readonly uri: string

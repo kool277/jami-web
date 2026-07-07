@@ -15,8 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { LinkPreview } from '@savoirfairelinux/jami-web-common'
 import { useQuery } from '@tanstack/react-query'
-import { LinkPreview } from 'jami-web-common'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
 

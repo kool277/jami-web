@@ -30,7 +30,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
-import { AdminSettingSelection } from 'jami-web-common'
+import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'

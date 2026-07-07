@@ -16,10 +16,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import { AccessToken, HttpStatusCode, MIN_PASSWORD_LENGTH } from '@savoirfairelinux/jami-web-common'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { passwordStrength } from 'check-password-strength'
-import { AccessToken, HttpStatusCode, MIN_PASSWORD_LENGTH } from 'jami-web-common'
 import { useContext } from 'react'
 import { useNavigate } from 'react-router-dom'
 

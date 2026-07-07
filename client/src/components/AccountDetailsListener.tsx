@@ -16,8 +16,13 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import {
+  IAccountDetails,
+  IKnownDevicesChanged,
+  ProfileReceived,
+  WebSocketMessageType,
+} from '@savoirfairelinux/jami-web-common'
 import { useQueryClient } from '@tanstack/react-query'
-import { IAccountDetails, IKnownDevicesChanged, ProfileReceived, WebSocketMessageType } from 'jami-web-common'
 import { useEffect } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'

@@ -17,7 +17,7 @@
  */
 import { Box, Button, Typography } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
-import { HttpStatusCode, MIN_PASSWORD_LENGTH } from 'jami-web-common'
+import { HttpStatusCode, MIN_PASSWORD_LENGTH } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Link, useNavigate } from 'react-router-dom'

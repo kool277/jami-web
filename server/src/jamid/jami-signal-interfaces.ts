@@ -23,8 +23,8 @@ import {
   Message,
   Reaction,
   VolatileDetails,
-} from 'jami-web-common'
-import { RegisteredNameFoundState } from 'jami-web-common'
+} from '@savoirfairelinux/jami-web-common'
+import { RegisteredNameFoundState } from '@savoirfairelinux/jami-web-common'
 
 import { ConversationRequestMetadata } from './conversation-request-metadata.js'
 import { DataTransferEventCode, MessageState, NameRegistrationEndedState, RegistrationState } from './state-enums.js'

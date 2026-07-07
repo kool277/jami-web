@@ -17,9 +17,9 @@
  */
 import { Box, List, Stack, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
+import { IConversationSummary } from '@savoirfairelinux/jami-web-common'
+import { MessageStatusCode } from '@savoirfairelinux/jami-web-common/src/enums/message-status-code'
 import dayjs from 'dayjs'
-import { IConversationSummary } from 'jami-web-common'
-import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'

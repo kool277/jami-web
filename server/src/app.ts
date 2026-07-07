@@ -17,10 +17,10 @@
  */
 import { existsSync } from 'node:fs'
 
+import { HttpStatusCode } from '@savoirfairelinux/jami-web-common'
 import cors from 'cors'
 import express, { json, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
-import { HttpStatusCode } from 'jami-web-common'
 import log from 'loglevel'
 import path from 'path'
 import { Service } from 'typedi'

@@ -17,8 +17,8 @@
  */
 import { Typography, useTheme } from '@mui/material'
 import { Box, Stack, useMediaQuery } from '@mui/system'
+import { Message, MESSAGES_NUMBER_TO_LOAD, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { Message, MESSAGES_NUMBER_TO_LOAD, WebSocketMessageType } from 'jami-web-common'
 import { memo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { InView } from 'react-intersection-observer'

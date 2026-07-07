@@ -24,7 +24,6 @@ import {
   stringVectToArray,
   vectMapToRecordArray,
 } from '@savoirfairelinux/jami-core'
-import fs from 'fs'
 import {
   AccountDetails,
   AccountMessageStatus,
@@ -44,7 +43,8 @@ import {
   VolatileDetails,
   WebSocketMessage,
   WebSocketMessageType,
-} from 'jami-web-common'
+} from '@savoirfairelinux/jami-web-common'
+import fs from 'fs'
 import log from 'loglevel'
 import os from 'os'
 import path from 'path'

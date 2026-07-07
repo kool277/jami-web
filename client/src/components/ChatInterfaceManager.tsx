@@ -25,8 +25,8 @@ import {
   ReactionAdded,
   ReactionRemoved,
   WebSocketMessageType,
-} from 'jami-web-common'
-import { MessageStatusCode } from 'jami-web-common/src/enums/message-status-code'
+} from '@savoirfairelinux/jami-web-common'
+import { MessageStatusCode } from '@savoirfairelinux/jami-web-common/src/enums/message-status-code'
 import { createContext, memo, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 
 import LoadingPage from '../components/Loading.js'

@@ -17,8 +17,8 @@
  */
 import './dayjsInitializer.js' // Initialized once and globally to ensure available locales are always imported
 
+import { AdminWizardState } from '@savoirfairelinux/jami-web-common'
 import axios from 'axios'
-import { AdminWizardState } from 'jami-web-common'
 import { useState } from 'react'
 import { LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
 

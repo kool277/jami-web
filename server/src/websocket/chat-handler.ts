@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ComposingStatus, WebSocketMessageType } from 'jami-web-common'
+import { ComposingStatus, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import log from 'loglevel'
 import { Container } from 'typedi'
 

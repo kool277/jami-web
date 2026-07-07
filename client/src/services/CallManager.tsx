@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationInfos, WebSocketMessageTable, WebSocketMessageType } from 'jami-web-common'
+import { ConversationInfos, WebSocketMessageTable, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 

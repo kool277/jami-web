@@ -29,8 +29,8 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
+import { Message } from '@savoirfairelinux/jami-web-common'
 import { motion } from 'framer-motion'
-import { Message } from 'jami-web-common'
 import { memo, ReactElement, SetStateAction, useMemo, useState } from 'react'
 import { BlockPicker } from 'react-color'
 import { useTranslation } from 'react-i18next'

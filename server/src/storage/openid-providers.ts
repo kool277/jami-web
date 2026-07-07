@@ -21,7 +21,7 @@ import { writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { IOpenIdProviders } from 'jami-web-common'
+import { IOpenIdProviders } from '@savoirfairelinux/jami-web-common'
 import { Container, Service } from 'typedi'
 
 import { AdminAccount } from './admin-account.js'

@@ -17,7 +17,7 @@
  */
 
 import { Box, Button, Switch, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
-import { AdminWizardState, urlRegex } from 'jami-web-common'
+import { AdminWizardState, urlRegex } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, useNavigate } from 'react-router-dom'

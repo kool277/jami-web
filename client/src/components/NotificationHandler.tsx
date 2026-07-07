@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationMessage, WebSocketMessageType } from 'jami-web-common'
+import { ConversationMessage, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { useContext, useEffect, useState } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'

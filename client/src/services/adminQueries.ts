@@ -16,11 +16,16 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import {
+  AccessToken,
+  AccountOverview,
+  AdminSettingSelection,
+  IAdminConfigState,
+} from '@savoirfairelinux/jami-web-common'
+import { AdminWizardState, HttpStatusCode } from '@savoirfairelinux/jami-web-common'
 import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
-import { AccessToken, AccountOverview, AdminSettingSelection, IAdminConfigState } from 'jami-web-common'
-import { AdminWizardState, HttpStatusCode } from 'jami-web-common'
 import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 

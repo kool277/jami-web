@@ -15,11 +15,17 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import {
+  AccessToken,
+  AccountDetails,
+  HttpStatusCode,
+  MIN_PASSWORD_LENGTH,
+  UserCredentials,
+} from '@savoirfairelinux/jami-web-common'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import rateLimit from 'express-rate-limit'
 import { ParamsDictionary, Request } from 'express-serve-static-core'
-import { AccessToken, AccountDetails, HttpStatusCode, MIN_PASSWORD_LENGTH, UserCredentials } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'

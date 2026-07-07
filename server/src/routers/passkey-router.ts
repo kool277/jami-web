@@ -17,6 +17,7 @@
  */
 import { randomUUID } from 'node:crypto'
 
+import { HttpStatusCode } from '@savoirfairelinux/jami-web-common'
 import {
   generateAuthenticationOptions,
   generateRegistrationOptions,
@@ -27,7 +28,6 @@ import { isoBase64URL } from '@simplewebauthn/server/helpers'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import rateLimit from 'express-rate-limit'
-import { HttpStatusCode } from 'jami-web-common'
 import { Container } from 'typedi'
 
 import { authenticateToken } from '../middleware/auth.js'

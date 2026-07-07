@@ -19,7 +19,7 @@ import { accessSync, constants, existsSync, lstatSync, readFileSync } from 'node
 import { createConnection, createServer } from 'node:net'
 import { dirname, resolve } from 'node:path'
 
-import { IAdminAccount } from 'jami-web-common'
+import { IAdminAccount } from '@savoirfairelinux/jami-web-common'
 
 import { dataDir, defaultEnvPath } from '../utils/env.js'
 import { resolveRuntimeSettings } from '../utils/runtime.js'

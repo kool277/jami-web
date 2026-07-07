@@ -16,7 +16,12 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { DeviceAuthError, DeviceAuthStateChanged, DeviceAuthStateCode, WebSocketMessageType } from 'jami-web-common'
+import {
+  DeviceAuthError,
+  DeviceAuthStateChanged,
+  DeviceAuthStateCode,
+  WebSocketMessageType,
+} from '@savoirfairelinux/jami-web-common'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 

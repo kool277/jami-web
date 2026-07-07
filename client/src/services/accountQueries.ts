@@ -15,10 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { removedLinkedDeviceContent } from '@savoirfairelinux/jami-web-common'
 import { useMutation } from '@tanstack/react-query'
 import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { removedLinkedDeviceContent } from 'jami-web-common'
 import { useContext } from 'react'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'

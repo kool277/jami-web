@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ConversationInfos } from 'jami-web-common'
+import { ConversationInfos } from '@savoirfairelinux/jami-web-common'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 

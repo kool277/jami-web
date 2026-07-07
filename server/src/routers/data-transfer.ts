@@ -15,10 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { DataTransferEventCode, HttpStatusCode } from '@savoirfairelinux/jami-web-common'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import fs from 'fs'
-import { DataTransferEventCode, HttpStatusCode } from 'jami-web-common'
 import multer from 'multer'
 import os from 'os'
 import { Container } from 'typedi'

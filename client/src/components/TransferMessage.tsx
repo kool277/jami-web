@@ -17,7 +17,7 @@
  */
 
 import { Box, Card, CardHeader, Modal, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
-import { Message } from 'jami-web-common'
+import { Message } from '@savoirfairelinux/jami-web-common'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
