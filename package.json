@@ -19,7 +19,7 @@
     "lint:fix": "npm run lint:fix --workspaces",
     "format": "npm run format --workspaces",
     "format:check": "npm run format:check --workspaces",
-    "prepare": "if [ -e '.git' ]; then git config core.hooksPath .hooks; fi",
+    "prepare": "if [ -e '.git' ] && command -v git > /dev/null 2>&1; then git config core.hooksPath .hooks; fi",
     "test": "npx cypress run  --project ./client",
     "npm:pack": "npm pack --workspace @savoirfairelinux/jami-web",
     "npm:publish": "npm publish --workspace @savoirfairelinux/jami-web --tag next",
