@@ -17,7 +17,11 @@
  */
 
 import { Box, MenuItem, Stack, Switch, TextField, Typography } from '@mui/material'
-import { ConferenceResolution, conferenceResolutionValues, defaultConferenceResolution } from 'jami-web-common'
+import {
+  ConferenceResolution,
+  conferenceResolutionValues,
+  defaultConferenceResolution,
+} from '@savoirfairelinux/jami-web-common'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
