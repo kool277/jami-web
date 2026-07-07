@@ -31,11 +31,7 @@ import { LogoutIcon, ManageAccountsIcon, PeopleIcon, QuestionAnswerIcon } from '
 import { RoundCloseIcon, SettingsIcon } from './SvgIcon.js'
 //TODO:  remove 'settings-account' and 'settings' when migration is finished
 type NavigateURL =
-  | '/'
-  | '/contacts'
-  | '/settings/general'
-  | '/settings/account/manage-account'
-  | '/settings/account/linked-devices'
+  '/' | '/contacts' | '/settings/general' | '/settings/account/manage-account' | '/settings/account/linked-devices'
 
 export default function Footer() {
   const { t } = useTranslation()
