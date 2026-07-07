@@ -28,7 +28,7 @@ RUN npm run build
 # dependencies, not the full source tree or dev tooling.
 FROM node:26-slim AS production
 
-RUN apt-get update && apt-get install -y --no-install-recommends libva-drm2 libva-x11-2 libexpat1 libvdpau1 libpulse0 alsa-utils \
+RUN apt-get update && apt-get install -y --no-install-recommends libpulse0 alsa-utils \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /web-client
