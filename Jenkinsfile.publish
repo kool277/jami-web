@@ -45,15 +45,22 @@ pipeline {
 
     stages {
 
-        stage('Checkout & setup') {
+        stage('Checkout') {
             steps {
                 checkout scm
-                sh 'npm ci'
             }
         }
 
         stage('Build') {
+            agent {
+                docker {
+                    image 'node:24-slim'
+                    reuseNode true
+                    args '-e HOME=/tmp'
+                }
+            }
             steps {
+                sh 'npm ci'
                 // The jami-web prepack step rebuilds the client and common
                 // workspaces, but build them explicitly here so any failure
                 // surfaces early and clearly.
@@ -64,12 +71,26 @@ pipeline {
         }
 
         stage('Publish @savoirfairelinux/jami-web-common') {
+            agent {
+                docker {
+                    image 'node:24-slim'
+                    reuseNode true
+                    args '-e HOME=/tmp'
+                }
+            }
             steps {
                 publishWorkspace('@savoirfairelinux/jami-web-common')
             }
         }
 
         stage('Publish @savoirfairelinux/jami-web') {
+            agent {
+                docker {
+                    image 'node:24-slim'
+                    reuseNode true
+                    args '-e HOME=/tmp'
+                }
+            }
             steps {
                 publishWorkspace('@savoirfairelinux/jami-web')
             }
