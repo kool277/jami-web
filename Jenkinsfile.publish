@@ -41,7 +41,6 @@ pipeline {
         SCOPE = '@savoirfairelinux'
         COMMON_PKG = "${SCOPE}/jami-web-common"
         WEB_PKG = "${SCOPE}/jami-web"
-        NODE_AUTH_TOKEN = credentials('npm-token')
     }
 
     stages {
@@ -50,7 +49,6 @@ pipeline {
             steps {
                 checkout scm
                 sh 'npm ci'
-                writeNpmrc()
             }
         }
 
@@ -85,22 +83,16 @@ pipeline {
     }
 }
 
-// ── Helper methods ──────────────────────────────────────────────
-
-/**
- * Write the .npmrc used for authenticated publishing.
- */
-void writeNpmrc() {
-    writeFile file: '.npmrc', text: "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}\n"
-}
-
 /**
  * Publish (or pack, when DRY_RUN) a single npm workspace.
  */
 void publishWorkspace(String workspace) {
-    if (params.DRY_RUN) {
-        sh "npm pack --dry-run --workspace=${workspace}"
-    } else {
-        sh "npm publish --access public --workspace=${workspace}"
+    withCredentials([string(credentialsId: 'npm-token', variable: 'NPM_TOKEN')]) {
+        writeFile file: '.npmrc', text: '//registry.npmjs.org/:_authToken=${NPM_TOKEN}\n'
+        if (params.DRY_RUN) {
+            sh "npm pack --dry-run --workspace=${workspace}"
+        } else {
+            sh "npm publish --access public --workspace=${workspace}"
+        }
     }
 }
