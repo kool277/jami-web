@@ -21,7 +21,7 @@
 //   @savoirfairelinux/jami-web         (server including the bundled web client)
 
 pipeline {
-    agent { label 'linux' }
+    agent { label 'linux-builder' }
 
     options {
         ansiColor('xterm')
