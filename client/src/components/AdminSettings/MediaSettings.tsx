@@ -22,7 +22,7 @@ import {
   conferenceResolutionValues,
   defaultConferenceResolution,
 } from '@savoirfairelinux/jami-web-common'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -72,7 +72,6 @@ const MediaSettingsForm = ({
   const saveAdminConfigMutation = useUpdateAdminConfigMutation()
   const { mutate } = useSetConferenceResolution()
   const [conferenceResolution, setConferenceResolution] = useState<ConferenceResolution>(configuredConferenceResolution)
-  const conferenceResolutionRef = useRef<ConferenceResolution>(configuredConferenceResolution)
 
   const handleNoLocalMediaChange = () => {
     saveAdminConfigMutation.mutate({ noLocalMediaEnabled: !noLocalMediaEnabled })
@@ -81,25 +80,10 @@ const MediaSettingsForm = ({
   const handleConferenceResolutionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const nextResolution = event.target.value as ConferenceResolution
     setConferenceResolution(nextResolution)
-    conferenceResolutionRef.current = nextResolution
-  }
-
-  const saveIfNeeded = useCallback(
-    (resolution: ConferenceResolution) => {
-      if (!resolution || resolution === configuredConferenceResolution) {
-        return
-      }
-
-      mutate(resolution)
-    },
-    [configuredConferenceResolution, mutate],
-  )
-
-  useEffect(() => {
-    return () => {
-      saveIfNeeded(conferenceResolutionRef.current)
+    if (nextResolution && nextResolution !== configuredConferenceResolution) {
+      mutate(nextResolution)
     }
-  }, [saveIfNeeded])
+  }
 
   return (
     <LayoutSettings title={t('media_settings')} text={t('media_settings_details')}>
