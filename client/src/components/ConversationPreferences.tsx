@@ -32,7 +32,7 @@ import {
 import { Message } from '@savoirfairelinux/jami-web-common'
 import { motion } from 'framer-motion'
 import { memo, ReactElement, SetStateAction, useMemo, useState } from 'react'
-import { BlockPicker } from 'react-color'
+import { BlockPicker, ColorResult } from 'react-color'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -738,7 +738,7 @@ const ColorPicker = ({ conversationId }: ColorPickerProps) => {
               styles={{}}
               color={conversationColor}
               colors={messageColors}
-              onChange={(color) => {
+              onChange={(color: ColorResult) => {
                 handleNewColor(color.hex)
               }}
             />
