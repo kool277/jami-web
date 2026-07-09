@@ -23,7 +23,6 @@ import js from "@eslint/js";
 import header from "@tony.ganchev/eslint-plugin-header";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
-import cypress from "eslint-plugin-cypress";
 import html from "eslint-plugin-html";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unusedImports from "eslint-plugin-unused-imports";
@@ -49,7 +48,6 @@ export default [
       html,
       'simple-import-sort': simpleImportSort,
       'unused-imports': unusedImports,
-      cypress,
     },
     languageOptions: {
       globals: {
@@ -120,11 +118,10 @@ export default [
     },
   },
   {
-    files: ['**/*.test.{js,jsx,ts,tsx}', '**/*.cy.{js,jsx,ts,tsx}'],
+    files: ['**/*.test.{js,jsx,ts,tsx}'],
     languageOptions: {
       globals: {
         ...globals.jest,
-        ...cypress.configs.globals.languageOptions.globals,
       },
     },
   },
