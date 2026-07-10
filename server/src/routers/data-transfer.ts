@@ -21,12 +21,14 @@ import asyncHandler from 'express-async-handler'
 import fs from 'fs'
 import multer from 'multer'
 import os from 'os'
+import path from 'path'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 import { AdminAccount } from '../storage/admin-account.js'
+import { resolveConversationDataFilePath } from '../utils/conversation-data-path.js'
 const config = Container.get(AdminAccount)
 
 const multerPath = config.getUploadPath()
@@ -63,6 +65,18 @@ const upload = multer({ storage: storage })
 const jamid = Container.get(Jamid)
 export const dataTransferRouter = Router()
 
+function getConversationDataDirectory(accountId: string): string {
+  return path.join(os.homedir(), '.local', 'share', 'jami', accountId, 'conversation_data')
+}
+
+function getConversationDataFilePath(
+  conversationDataDirectory: string,
+  conversationId: string,
+  fileId: string,
+): string | undefined {
+  return resolveConversationDataFilePath(conversationDataDirectory, conversationId, fileId)
+}
+
 dataTransferRouter.get('/autoDownloadLimit', (req, res) => {
   res.status(HttpStatusCode.Ok).json({ limit: config.getAutoDownloadLimit() })
 })
@@ -82,16 +96,20 @@ dataTransferRouter.post('/transferfile', (req, res) => {
   const fileId = req.body.fileId
   const fileName = req.body.fileName
 
-  const path = os.homedir() + '/.local/share/jami/' + accountId + '/conversation_data/' + conversationId + '/' + fileId
+  const conversationDataDirectory = getConversationDataDirectory(accountId)
+  const filePath = getConversationDataFilePath(conversationDataDirectory, conversationId, fileId)
+  if (!filePath) {
+    return res.status(HttpStatusCode.BadRequest).send('Invalid file path')
+  }
 
-  if (!fs.existsSync(path)) {
+  if (!fs.existsSync(filePath)) {
     res.status(HttpStatusCode.NotFound).send('File not found')
-    console.error('file not found : ', path)
+    console.error('file not found : ', filePath)
     return
   }
 
   for (const targetConversationId of targetedConversations) {
-    jamid.sendFile(accountId, targetConversationId, path, fileName, '')
+    jamid.sendFile(accountId, targetConversationId, filePath, fileName, '')
     if (comment) {
       jamid.sendConversationMessage(accountId, targetConversationId, comment)
     }
@@ -133,10 +151,14 @@ dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, re
   const acceptedAudioTypes = ['ogg', 'wav', 'mpeg', 'mp4', 'aac', 'flac']
   const acceptedImageTypes = ['apng', 'avif', 'jpg', 'JPG', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff']
 
-  const path = os.homedir() + '/.local/share/jami/' + accountId + '/conversation_data/' + conversationId + '/' + fileId
+  const conversationDataDirectory = getConversationDataDirectory(accountId)
+  const filePath = getConversationDataFilePath(conversationDataDirectory, conversationId, fileId)
+  if (!filePath) {
+    return res.status(HttpStatusCode.BadRequest).send('Invalid file path')
+  }
 
-  if (fs.existsSync(path)) {
-    const extension = path.split('.').pop() || ''
+  if (fs.existsSync(filePath)) {
+    const extension = filePath.split('.').pop() || ''
 
     if (acceptedAudioTypes.includes(extension)) {
       res.setHeader('Content-Type', 'audio/' + extension)
@@ -144,12 +166,16 @@ dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, re
       res.setHeader('Content-Type', 'image/' + extension)
     }
 
-    return res.sendFile(path, (err) => {
-      if (err) {
-        console.error('Error sending file:', err)
-        return res.status(HttpStatusCode.InternalServerError).send('Error sending file')
-      }
-    })
+    return res.sendFile(
+      path.relative(conversationDataDirectory, filePath),
+      { root: conversationDataDirectory },
+      (err) => {
+        if (err) {
+          console.error('Error sending file:', err)
+          return res.status(HttpStatusCode.InternalServerError).send('Error sending file')
+        }
+      },
+    )
   }
 
   const status = jamid.downloadFile(accountId, conversationId, interactionId, fileId, downloadPathOnServer)
@@ -183,27 +209,35 @@ dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, re
     }
   }
 
-  const extension = path.split('.').pop() || ''
+  const extension = filePath.split('.').pop() || ''
   if (acceptedAudioTypes.includes(extension)) {
     res.setHeader('Content-Type', 'audio/' + extension)
   } else if (acceptedImageTypes.includes(extension)) {
     res.setHeader('Content-Type', 'image/' + extension)
   }
-  return res.sendFile(path, (err) => {
-    if (err) {
-      console.error('Error sending file:', err)
-      return res.status(HttpStatusCode.InternalServerError).send('Error sending file')
-    }
-  })
+  return res.sendFile(
+    path.relative(conversationDataDirectory, filePath),
+    { root: conversationDataDirectory },
+    (err) => {
+      if (err) {
+        console.error('Error sending file:', err)
+        return res.status(HttpStatusCode.InternalServerError).send('Error sending file')
+      }
+    },
+  )
 })
 
 dataTransferRouter.get('/:conversationId/:interactionId/:fileId/isDownloaded', (req, res) => {
   const accountId = res.locals.accountId
   const conversationId = req.params.conversationId
   const fileId = req.params.fileId
-  const path = os.homedir() + '/.local/share/jami/' + accountId + '/conversation_data/' + conversationId + '/' + fileId
+  const conversationDataDirectory = getConversationDataDirectory(accountId)
+  const filePath = getConversationDataFilePath(conversationDataDirectory, conversationId, fileId)
+  if (!filePath) {
+    return res.status(HttpStatusCode.BadRequest).send('Invalid file path')
+  }
 
-  if (fs.existsSync(path)) {
+  if (fs.existsSync(filePath)) {
     res.send(true)
     return
   }
