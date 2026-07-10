@@ -15,6 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { lookup } from 'node:dns/promises'
+
 import { HttpStatusCode } from '@savoirfairelinux/jami-web-common'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
@@ -48,9 +50,14 @@ type LinkPreviewJs = {
 linkPreviewRouter.use(authenticateToken)
 linkPreviewRouter.use(extendIfGuest)
 
-const linkPreviewOptions = {
-  // Allowing redirection from http to https
-  // Code from doc: https://github.com/ospfranco/link-preview-js#redirections
+export async function resolvePreviewHost(url: string): Promise<string> {
+  const previewUrl = new URL(url)
+  const { address } = await lookup(previewUrl.hostname)
+  return address
+}
+
+export const linkPreviewOptions = {
+  // Resolve each initial and permitted redirect destination before fetching it.
   followRedirects: 'manual',
   handleRedirects: (baseURL: string, forwardedURL: string) => {
     const urlObj = new URL(baseURL)
@@ -65,6 +72,7 @@ const linkPreviewOptions = {
       return false
     }
   },
+  resolveDNSHost: resolvePreviewHost,
 } as const
 
 linkPreviewRouter.get(

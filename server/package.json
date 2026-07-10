@@ -43,7 +43,7 @@
     "express-rate-limit": "7.5.0",
     "helmet": "^7.2.0",
     "jose": "^5.10.0",
-    "link-preview-js": "^4.0.4",
+    "link-preview-js": "5.0.0-beta.0",
     "linkifyjs": "^4.3.3",
     "loglevel": "^1.9.2",
     "multer": "^2.2.0",
