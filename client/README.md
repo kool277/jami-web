@@ -103,9 +103,3 @@ npm run extract-translations
 ```
 
 The translations are handled by [i18next](https://www.i18next.com/).
-
-### Sentry
-
-- Uncomment the line `// import config from "./sentry-server.config.json" assert { type: "json" };` in `sentry.js`
-- Uncomment the line `// import config from "../sentry-client.config.json"` and the init config `Sentry.init(...` in `index.ts`
-- Add `sentry-client.config.json` file in `client` and `sentry-server.config.json` (ask them to an admin)
