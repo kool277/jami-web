@@ -106,9 +106,11 @@ export const adminAuthenticationMiddleware = async (req: Request, res: Response,
   try {
     const { payload } = await verifyJwt(token)
     //TODO: use a more secure way to only grant access to the real admin, using accountId might pose a risk since 'admin' could be a valid regular username
-    if (payload.accountId === 'admin') {
-      next()
+    if (payload.accountId !== 'admin') {
+      res.status(HttpStatusCode.Forbidden).send('Admin access required')
+      return
     }
+    next()
   } catch (e) {
     res.status(HttpStatusCode.Unauthorized).send('Invalid access token')
   }
