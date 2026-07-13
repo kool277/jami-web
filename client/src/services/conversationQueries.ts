@@ -152,7 +152,7 @@ export const useTransferMessageMutation = (conversationId: string) => {
       targetedConversations: string[]
       comment: string | undefined
     }) =>
-      axiosInstance.post(`/conversations/${conversationId}/transfermessage/`, {
+      axiosInstance.post(`/conversations/${conversationId}/transfer-message/`, {
         messageBody,
         targetedConversations,
         comment,
@@ -173,7 +173,7 @@ export const useEditMessageMutation = (conversationId: string) => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ body, messageId }: { body: string; messageId: string }) =>
-      axiosInstance.post(`/conversations/${conversationId}/editmessage`, {
+      axiosInstance.post(`/conversations/${conversationId}/edit-message`, {
         body,
         messageId,
       }),

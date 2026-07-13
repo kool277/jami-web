@@ -70,7 +70,7 @@ test.describe.serial('Admin Login', () => {
     await request.post(`${MOCK_API}/api/admin/create`, {
       data: { password: 'AdminPass123!' },
     })
-    await request.post(`${MOCK_API}/api/admin/adminWizardState`, {
+    await request.post(`${MOCK_API}/api/admin/admin-wizard-state`, {
       data: { state: 'complete' },
     })
   })
@@ -107,7 +107,7 @@ test.describe('User Login Page', () => {
     await request.post(`${MOCK_API}/api/admin/create`, {
       data: { password: 'AdminPass123!' },
     })
-    await request.post(`${MOCK_API}/api/admin/adminWizardState`, {
+    await request.post(`${MOCK_API}/api/admin/admin-wizard-state`, {
       data: { state: 'complete' },
     })
   })

@@ -95,7 +95,7 @@ export const useSetDisplayName = () => {
     mutationFn: async (displayName: string) => {
       const token = localStorage.getItem('accessToken')
       const { data } = await axios.post(
-        `/account/displayName`,
+        `/account/display-name`,
         { displayName },
         {
           baseURL: apiUrl,
@@ -127,7 +127,7 @@ export const useResetDisplayName = () => {
     mutationKey: ['reset', 'displayName'],
     mutationFn: async () => {
       const token = localStorage.getItem('accessToken')
-      const { data } = await axios.post(`/account/displayName/reset`, {
+      const { data } = await axios.post(`/account/display-name/reset`, undefined, {
         baseURL: apiUrl,
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -156,7 +156,7 @@ export const useExportAccountMutation = () => {
   return useMutation({
     mutationKey: ['exportAccount'],
     mutationFn: async (uri: string) => {
-      const { data } = await axiosInstance.post(`/account/addDevice`, { uri }, { baseURL: apiUrl })
+      const { data } = await axiosInstance.post(`/account/add-device`, { uri }, { baseURL: apiUrl })
       return data
     },
   })
@@ -168,7 +168,7 @@ export const useConfirmAddDeviceMutation = (opId: number) => {
   return useMutation({
     mutationKey: ['exportAccount'],
     mutationFn: async () => {
-      const { data } = await axiosInstance.post(`/account/${opId}/confirmDevice`, { baseURL: apiUrl })
+      const { data } = await axiosInstance.post(`/account/${opId}/confirm-device`, { baseURL: apiUrl })
       return data
     },
   })
@@ -180,7 +180,7 @@ export const useCancelAddDeviceMutation = (opId: number) => {
   return useMutation({
     mutationKey: ['exportAccount'],
     mutationFn: async () => {
-      const { data } = await axiosInstance.post(`/account/${opId}/cancelDevice`, { baseURL: apiUrl })
+      const { data } = await axiosInstance.post(`/account/${opId}/cancel-device`, { baseURL: apiUrl })
       return data
     },
   })

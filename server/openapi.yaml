@@ -5,7 +5,7 @@ info:
     REST API for the Jami Web application server.
     Provides account management, messaging, calls, contacts, file transfers,
     and administration capabilities backed by the Jami daemon.
-  version: 1.0.0
+  version: 2.0.0
   license:
     name: AGPL-3.0-or-later
     url: https://www.gnu.org/licenses/agpl-3.0.html
@@ -19,7 +19,9 @@ servers:
 
 tags:
   - name: Auth
-    description: Authentication (local, JAMS, guest, OAuth/OpenID)
+    description: Authentication (local, JAMS, guest, OAuth/OpenID, Electron)
+  - name: Passkeys
+    description: WebAuthn passkey authentication and credential management
   - name: Account
     description: Current user account management
   - name: Contacts
@@ -103,6 +105,78 @@ components:
         scheme:
           type: string
 
+    LocalAccount:
+      type: object
+      required: [id, registeredName, displayName]
+      properties:
+        id:
+          type: string
+        registeredName:
+          type: string
+        displayName:
+          type: string
+
+    LocalAccounts:
+      type: object
+      required: [accounts]
+      properties:
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/LocalAccount'
+
+    # ── Passkeys ──────────────────────────────────────────
+    WebAuthnOptions:
+      type: object
+      description: >
+        JSON-serializable WebAuthn options for a browser ceremony. Registration
+        options include `challenge`, `rp`, `user`, and `pubKeyCredParams`;
+        authentication options include `challenge`, `rpId`, and
+        `allowCredentials`. See the SimpleWebAuthn server options shapes:
+        https://simplewebauthn.dev/docs/packages/server.
+      additionalProperties: true
+
+    WebAuthnCredential:
+      type: object
+      description: >
+        JSON-serializable PublicKeyCredential returned by a browser. Its
+        top-level keys include `id`, `rawId`, `type`, `response`, and optional
+        `clientExtensionResults` and `authenticatorAttachment`. See the
+        SimpleWebAuthn browser credential shape:
+        https://simplewebauthn.dev/docs/packages/browser.
+      additionalProperties: true
+
+    PasskeyCredential:
+      type: object
+      required: [credentialId, name, createdAt]
+      properties:
+        credentialId:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    PasskeyRegistrationVerification:
+      type: object
+      required: [credential]
+      properties:
+        credential:
+          $ref: '#/components/schemas/WebAuthnCredential'
+        name:
+          type: string
+          maxLength: 64
+
+    PasskeyAuthenticationVerification:
+      type: object
+      required: [challengeKey, credential]
+      properties:
+        challengeKey:
+          type: string
+        credential:
+          $ref: '#/components/schemas/WebAuthnCredential'
+
     # ── Account ───────────────────────────────────────────
     IContact:
       type: object
@@ -185,7 +259,7 @@ components:
           type: string
         mode:
           type: string
-          description: "\"0\" = private (1:1), \"1\" = group swarm"
+          description: '"0" = private (1:1), "1" = group swarm'
         title:
           type: string
 
@@ -273,7 +347,7 @@ components:
           type: object
           additionalProperties:
             type: integer
-            description: "MessageStatusCode: 1=sending, 2=sent, 3=read"
+            description: 'MessageStatusCode: 1=sending, 2=sent, 3=read'
         reply-to:
           oneOf:
             - type: string
@@ -332,7 +406,7 @@ components:
           type: string
         state:
           type: integer
-          description: "RegisteredNameFoundState: 0=Found, 1=InvalidResponse, 2=NotFound, 3=Error"
+          description: 'RegisteredNameFoundState: 0=Found, 1=InvalidResponse, 2=NotFound, 3=Error'
         address:
           type: string
         name:
@@ -360,6 +434,11 @@ components:
         guestAccessEnabled:
           type: boolean
         openIdAuthEnabled:
+          type: boolean
+        conferenceResolution:
+          type: string
+          enum: [720p, 1080p, 1440p]
+        electronMode:
           type: boolean
         uploadPath:
           type: string
@@ -531,7 +610,7 @@ paths:
         '429':
           description: Too many login attempts (rate limited)
 
-  /auth/linkToken:
+  /auth/link-token:
     get:
       tags: [Auth]
       summary: Get a device link token
@@ -668,6 +747,175 @@ paths:
         '400':
           description: Invalid or missing provider/code, or OpenID auth disabled
 
+  /auth/local-accounts:
+    get:
+      tags: [Auth]
+      summary: List local daemon accounts
+      description: Available only in Electron mode for desktop account selection.
+      security: []
+      responses:
+        '200':
+          description: Local daemon accounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocalAccounts'
+
+  /auth/switch-account:
+    post:
+      tags: [Auth]
+      summary: Authenticate as a local daemon account
+      description: Available only in Electron mode.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [accountId]
+              properties:
+                accountId:
+                  type: string
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessToken'
+        '400':
+          description: Missing account ID
+        '404':
+          description: Account not found
+
+  /passkey/register/options:
+    post:
+      tags: [Passkeys]
+      summary: Get passkey registration options
+      responses:
+        '200':
+          description: WebAuthn registration options
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAuthnOptions'
+        '404':
+          description: Account not found
+
+  /passkey/register/verify:
+    post:
+      tags: [Passkeys]
+      summary: Verify and store a passkey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasskeyRegistrationVerification'
+      responses:
+        '200':
+          description: Passkey stored
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [verified]
+                properties:
+                  verified:
+                    type: boolean
+        '400':
+          description: Missing challenge or verification failed
+        '404':
+          description: Account not found
+
+  /passkey/login/options:
+    post:
+      tags: [Passkeys]
+      summary: Get passkey authentication options
+      description: Rate limited. An optional username scopes options to that user's credentials.
+      security: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+      responses:
+        '200':
+          description: WebAuthn authentication options and challenge key
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/WebAuthnOptions'
+                  - type: object
+                    required: [challengeKey]
+                    properties:
+                      challengeKey:
+                        type: string
+        '429':
+          description: Too many login attempts
+
+  /passkey/login/verify:
+    post:
+      tags: [Passkeys]
+      summary: Verify passkey authentication
+      description: Rate limited.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasskeyAuthenticationVerification'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessToken'
+        '400':
+          description: Missing credential or challenge key, or no pending challenge
+        '401':
+          description: Unknown credential or verification failed
+        '429':
+          description: Too many login attempts
+
+  /passkey/credentials:
+    get:
+      tags: [Passkeys]
+      summary: List current user's passkeys
+      responses:
+        '200':
+          description: Registered passkeys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PasskeyCredential'
+
+  /passkey/credentials/{credential-id}:
+    delete:
+      tags: [Passkeys]
+      summary: Delete a passkey
+      parameters:
+        - name: credential-id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Passkey deleted
+        '404':
+          description: Account or credential not found
+
   # ════════════════════════════════════════════════════════
   #  ACCOUNT
   # ════════════════════════════════════════════════════════
@@ -717,12 +965,12 @@ paths:
         '400':
           description: No file provided
 
-  /account/{deviceId}/revoke:
+  /account/{device-id}/revoke:
     post:
       tags: [Account]
       summary: Revoke a device
       parameters:
-        - name: deviceId
+        - name: device-id
           in: path
           required: true
           schema:
@@ -745,7 +993,7 @@ paths:
         '500':
           description: Internal server error
 
-  /account/displayName/reset:
+  /account/display-name/reset:
     post:
       tags: [Account]
       summary: Reset display name to username
@@ -755,7 +1003,7 @@ paths:
         '204':
           description: Display name reset
 
-  /account/displayName:
+  /account/display-name:
     post:
       tags: [Account]
       summary: Set display name
@@ -775,7 +1023,7 @@ paths:
         '204':
           description: Display name updated
 
-  /account/addDevice:
+  /account/add-device:
     post:
       tags: [Account]
       summary: Add a new device
@@ -793,12 +1041,12 @@ paths:
         '200':
           description: Device addition initiated
 
-  /account/{opId}/confirmDevice:
+  /account/{op-id}/confirm-device:
     post:
       tags: [Account]
       summary: Confirm device addition
       parameters:
-        - name: opId
+        - name: op-id
           in: path
           required: true
           schema:
@@ -807,12 +1055,12 @@ paths:
         '200':
           description: Device confirmed
 
-  /account/{opId}/cancelDevice:
+  /account/{op-id}/cancel-device:
     post:
       tags: [Account]
       summary: Cancel device addition
       parameters:
-        - name: opId
+        - name: op-id
           in: path
           required: true
           schema:
@@ -838,12 +1086,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/ContactDetails'
 
-  /contacts/{contactId}:
+  /contacts/{contact-id}:
     get:
       tags: [Contacts]
       summary: Get contact details
       parameters:
-        - name: contactId
+        - name: contact-id
           in: path
           required: true
           schema:
@@ -861,7 +1109,7 @@ paths:
       tags: [Contacts]
       summary: Add a contact (sends trust request)
       parameters:
-        - name: contactId
+        - name: contact-id
           in: path
           required: true
           schema:
@@ -879,7 +1127,7 @@ paths:
       tags: [Contacts]
       summary: Remove a contact
       parameters:
-        - name: contactId
+        - name: contact-id
           in: path
           required: true
           schema:
@@ -888,12 +1136,12 @@ paths:
         '204':
           description: Contact removed
 
-  /contacts/{contactId}/block:
+  /contacts/{contact-id}/block:
     post:
       tags: [Contacts]
       summary: Block a contact
       parameters:
-        - name: contactId
+        - name: contact-id
           in: path
           required: true
           schema:
@@ -902,12 +1150,12 @@ paths:
         '204':
           description: Contact blocked
 
-  /contacts/{contactUri}/profile/picture:
+  /contacts/{contact-uri}/profile/picture:
     get:
       tags: [Contacts]
       summary: Get contact avatar image
       parameters:
-        - name: contactUri
+        - name: contact-uri
           in: path
           required: true
           schema:
@@ -970,12 +1218,12 @@ paths:
         '404':
           description: Member not found
 
-  /conversations/{conversationId}:
+  /conversations/{conversation-id}:
     get:
       tags: [Conversations]
       summary: Get conversation summary
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -993,7 +1241,7 @@ paths:
       tags: [Conversations]
       summary: Delete a conversation
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1002,12 +1250,12 @@ paths:
         '204':
           description: Conversation deleted
 
-  /conversations/{conversationId}/infos:
+  /conversations/{conversation-id}/infos:
     get:
       tags: [Conversations]
       summary: Get conversation info
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1025,7 +1273,7 @@ paths:
       tags: [Conversations]
       summary: Update conversation info
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1042,12 +1290,12 @@ paths:
         '400':
           description: Empty info object
 
-  /conversations/{conversationId}/preferences:
+  /conversations/{conversation-id}/preferences:
     get:
       tags: [Conversations]
       summary: Get conversation preferences
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1065,7 +1313,7 @@ paths:
       tags: [Conversations]
       summary: Set conversation preferences
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1082,12 +1330,12 @@ paths:
         '400':
           description: Invalid preferences
 
-  /conversations/{conversationId}/members:
+  /conversations/{conversation-id}/members:
     get:
       tags: [Conversations]
       summary: List conversation members
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1104,13 +1352,13 @@ paths:
         '404':
           description: Conversation not found
 
-  /conversations/{conversationId}/messages:
+  /conversations/{conversation-id}/messages:
     get:
       tags: [Conversations]
       summary: Get messages
       description: Loads the default number of recent messages for the conversation.
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1130,7 +1378,7 @@ paths:
       tags: [Conversations]
       summary: Send a message
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1152,12 +1400,12 @@ paths:
         '400':
           description: Missing message in body
 
-  /conversations/{conversationId}/editmessage:
+  /conversations/{conversation-id}/edit-message:
     post:
       tags: [Conversations]
       summary: Edit a message
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1179,7 +1427,7 @@ paths:
         '400':
           description: Missing message in body
 
-  /conversations/{conversationId}/add-to-swarm:
+  /conversations/{conversation-id}/add-to-swarm:
     post:
       tags: [Conversations]
       summary: Add members to a swarm group
@@ -1187,7 +1435,7 @@ paths:
         For private (1:1) conversations, creates a new group conversation with existing members plus new ones.
         For group conversations, adds the members directly.
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1208,13 +1456,13 @@ paths:
         '200':
           description: Members added
 
-  /conversations/{conversationId}/remove-from-swarm:
+  /conversations/{conversation-id}/remove-from-swarm:
     post:
       tags: [Conversations]
       summary: Remove a member from a swarm group
       description: Requires admin role. Not allowed on private (1:1) conversations.
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1235,12 +1483,12 @@ paths:
         '403':
           description: Not an admin or conversation is private
 
-  /conversations/{conversationId}/transfermessage:
+  /conversations/{conversation-id}/transfer-message:
     post:
       tags: [Conversations]
       summary: Transfer a message to other conversations
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1267,17 +1515,17 @@ paths:
         '400':
           description: Missing message in body
 
-  /conversations/delete/{conversationId}/{messageId}:
+  /conversations/delete/{conversation-id}/{message-id}:
     delete:
       tags: [Conversations]
       summary: Delete a specific message
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
             type: string
-        - name: messageId
+        - name: message-id
           in: path
           required: true
           schema:
@@ -1286,12 +1534,12 @@ paths:
         '204':
           description: Message deleted
 
-  /conversations/{conversationId}/files:
+  /conversations/{conversation-id}/files:
     get:
       tags: [Conversations]
       summary: List all files in a conversation
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1325,12 +1573,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/IConversationRequest'
 
-  /conversation-requests/{conversationId}:
+  /conversation-requests/{conversation-id}:
     post:
       tags: [ConversationRequests]
       summary: Accept a conversation request
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1348,7 +1596,7 @@ paths:
       tags: [ConversationRequests]
       summary: Decline a conversation request
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1357,12 +1605,12 @@ paths:
         '204':
           description: Request declined
 
-  /conversation-requests/{conversationId}/block:
+  /conversation-requests/{conversation-id}/block:
     post:
       tags: [ConversationRequests]
       summary: Block the requestor of a conversation request
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1390,12 +1638,12 @@ paths:
                 items:
                   type: string
 
-  /calls/{callId}:
+  /calls/{call-id}:
     get:
       tags: [Calls]
       summary: Get call details
       parameters:
-        - name: callId
+        - name: call-id
           in: path
           required: true
           schema:
@@ -1428,12 +1676,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/IContact'
 
-  /default-moderators/{contactId}:
+  /default-moderators/{contact-id}:
     put:
       tags: [DefaultModerators]
       summary: Add a default moderator
       parameters:
-        - name: contactId
+        - name: contact-id
           in: path
           required: true
           schema:
@@ -1445,7 +1693,7 @@ paths:
       tags: [DefaultModerators]
       summary: Remove a default moderator
       parameters:
-        - name: contactId
+        - name: contact-id
           in: path
           required: true
           schema:
@@ -1581,7 +1829,7 @@ paths:
   # ════════════════════════════════════════════════════════
   #  DATA TRANSFER
   # ════════════════════════════════════════════════════════
-  /data/autoDownloadLimit:
+  /data/auto-download-limit:
     get:
       tags: [DataTransfer]
       summary: Get auto-download file size limit
@@ -1597,7 +1845,25 @@ paths:
                   limit:
                     type: number
 
-  /data/transferfile:
+  /data/conference-resolution:
+    get:
+      tags: [DataTransfer]
+      summary: Get conference resolution
+      security: []
+      responses:
+        '200':
+          description: Configured conference resolution
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resolution]
+                properties:
+                  resolution:
+                    type: string
+                    enum: [720p, 1080p, 1440p]
+
+  /data/transfer-file:
     post:
       tags: [DataTransfer]
       summary: Transfer a file to other conversations
@@ -1627,12 +1893,12 @@ paths:
         '404':
           description: File not found
 
-  /data/{conversationId}:
+  /data/{conversation-id}:
     post:
       tags: [DataTransfer]
       summary: Upload files to a conversation
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
@@ -1655,23 +1921,23 @@ paths:
         '200':
           description: Files uploaded
 
-  /data/{conversationId}/{interactionId}/{fileId}:
+  /data/{conversation-id}/{interaction-id}/{file-id}:
     get:
       tags: [DataTransfer]
       summary: Download a file
       description: Downloads a file from a conversation. May trigger a daemon download if not cached.
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
             type: string
-        - name: interactionId
+        - name: interaction-id
           in: path
           required: true
           schema:
             type: string
-        - name: fileId
+        - name: file-id
           in: path
           required: true
           schema:
@@ -1695,22 +1961,22 @@ paths:
         '404':
           description: File not found or download error
 
-  /data/{conversationId}/{interactionId}/{fileId}/isDownloaded:
+  /data/{conversation-id}/{interaction-id}/{file-id}/is-downloaded:
     get:
       tags: [DataTransfer]
       summary: Check if a file is downloaded locally
       parameters:
-        - name: conversationId
+        - name: conversation-id
           in: path
           required: true
           schema:
             type: string
-        - name: interactionId
+        - name: interaction-id
           in: path
           required: true
           schema:
             type: string
-        - name: fileId
+        - name: file-id
           in: path
           required: true
           schema:
@@ -1832,12 +2098,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/ApiTokenInfo'
 
-  /tokens/{tokenId}:
+  /tokens/{token-id}:
     delete:
       tags: [Tokens]
       summary: Revoke an API token
       parameters:
-        - name: tokenId
+        - name: token-id
           in: path
           required: true
           schema:
@@ -1867,7 +2133,7 @@ paths:
                   isSetupComplete:
                     type: boolean
 
-  /admin/adminWizardState:
+  /admin/admin-wizard-state:
     get:
       tags: [Admin]
       summary: Get last admin wizard state
@@ -1962,6 +2228,139 @@ paths:
         '500':
           description: Admin password not found
 
+  /admin/passkey/login/options:
+    post:
+      tags: [Admin]
+      summary: Get admin passkey authentication options
+      description: Requires admin setup and is rate limited.
+      security: []
+      responses:
+        '200':
+          description: WebAuthn authentication options and challenge key
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/WebAuthnOptions'
+                  - type: object
+                    required: [challengeKey]
+                    properties:
+                      challengeKey:
+                        type: string
+        '404':
+          description: No passkeys registered for admin
+        '429':
+          description: Too many login attempts
+
+  /admin/passkey/login/verify:
+    post:
+      tags: [Admin]
+      summary: Verify admin passkey authentication
+      description: Requires admin setup and is rate limited.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasskeyAuthenticationVerification'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessToken'
+        '400':
+          description: Missing credential or challenge key, or no pending challenge
+        '401':
+          description: Unknown credential or verification failed
+        '429':
+          description: Too many login attempts
+
+  /admin/passkey/available:
+    get:
+      tags: [Admin]
+      summary: Check whether admin passkeys are registered
+      security: []
+      responses:
+        '200':
+          description: Admin passkey availability
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [available]
+                properties:
+                  available:
+                    type: boolean
+
+  /admin/passkey/register/options:
+    post:
+      tags: [Admin]
+      summary: Get admin passkey registration options
+      responses:
+        '200':
+          description: WebAuthn registration options
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebAuthnOptions'
+
+  /admin/passkey/register/verify:
+    post:
+      tags: [Admin]
+      summary: Verify and store an admin passkey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasskeyRegistrationVerification'
+      responses:
+        '200':
+          description: Passkey stored
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [verified]
+                properties:
+                  verified:
+                    type: boolean
+        '400':
+          description: Missing challenge or verification failed
+
+  /admin/passkey/credentials:
+    get:
+      tags: [Admin]
+      summary: List admin passkeys
+      responses:
+        '200':
+          description: Registered admin passkeys
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PasskeyCredential'
+
+  /admin/passkey/credentials/{credential-id}:
+    delete:
+      tags: [Admin]
+      summary: Delete an admin passkey
+      parameters:
+        - name: credential-id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Passkey deleted
+        '404':
+          description: Credential not found
+
   /admin/config:
     get:
       tags: [Admin]
@@ -1992,7 +2391,7 @@ paths:
         '400':
           description: Invalid config
 
-  /admin/isTokenValid:
+  /admin/is-token-valid:
     get:
       tags: [Admin]
       summary: Validate admin token
@@ -2063,7 +2462,7 @@ paths:
         '200':
           description: Nameserver reset
 
-  /admin/jamsurl:
+  /admin/jams-url:
     get:
       tags: [Admin]
       summary: Get JAMS server URL
@@ -2200,7 +2599,7 @@ paths:
         '400':
           description: Provider does not exist
 
-  /admin/autoDownloadLimit:
+  /admin/auto-download-limit:
     post:
       tags: [Admin]
       summary: Set auto-download file size limit
@@ -2221,3 +2620,24 @@ paths:
           description: Limit updated
         '400':
           description: Invalid limit
+
+  /admin/conference-resolution:
+    post:
+      tags: [Admin]
+      summary: Set conference resolution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [resolution]
+              properties:
+                resolution:
+                  type: string
+                  enum: [720p, 1080p, 1440p]
+      responses:
+        '200':
+          description: Conference resolution updated
+        '400':
+          description: Invalid conference resolution

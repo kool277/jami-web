@@ -25,7 +25,7 @@ async function setupWithUser(request: any) {
   await request.post(`${MOCK_API}/api/admin/create`, {
     data: { password: 'AdminPass123!' },
   })
-  await request.post(`${MOCK_API}/api/admin/adminWizardState`, {
+  await request.post(`${MOCK_API}/api/admin/admin-wizard-state`, {
     data: { state: 'complete' },
   })
   await request.post(`${MOCK_API}/api/auth/new-account`, {
@@ -39,7 +39,7 @@ async function setupAdmin(request: any) {
   await request.post(`${MOCK_API}/api/admin/create`, {
     data: { password: 'AdminPass123!' },
   })
-  await request.post(`${MOCK_API}/api/admin/adminWizardState`, {
+  await request.post(`${MOCK_API}/api/admin/admin-wizard-state`, {
     data: { state: 'complete' },
   })
 }

@@ -243,7 +243,7 @@ export const useGetLinkTokenQuery = () => {
   return useQuery({
     queryKey: ['linkToken'],
     queryFn: async () => {
-      const { data } = await axios.get('/auth/linkToken', { baseURL: apiUrl })
+      const { data } = await axios.get('/auth/link-token', { baseURL: apiUrl })
       setImportToken(data.jwt)
       return data
     },

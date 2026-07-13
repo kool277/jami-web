@@ -65,7 +65,7 @@ export const useTransferFileMutation = (conversationId: string) => {
       targetedConversations: string[]
       comment: string
     }) =>
-      axiosInstance.post(`/data/transferfile/`, {
+      axiosInstance.post(`/data/transfer-file/`, {
         conversationId,
         fileId,
         fileName,
@@ -96,7 +96,7 @@ export const useGetAutoDownloadLimit = () => {
   return useQuery({
     queryKey: ['get', 'autoDownloadLimit'],
     queryFn: async () => {
-      const { data } = await axios.get(`/data/autoDownloadLimit`, { baseURL: apiUrl })
+      const { data } = await axios.get(`/data/auto-download-limit`, { baseURL: apiUrl })
       return data
     },
   })
@@ -106,7 +106,7 @@ export const useGetConferenceResolution = () => {
   return useQuery({
     queryKey: ['get', 'conferenceResolution'],
     queryFn: async () => {
-      const { data } = await axios.get(`/data/conferenceResolution`, { baseURL: apiUrl })
+      const { data } = await axios.get(`/data/conference-resolution`, { baseURL: apiUrl })
       return data
     },
   })
@@ -146,7 +146,7 @@ export const useGetDownloadFileInfo = ({ content, conversationId }: { content: C
     queryKey: ['get', 'downloadFileInfo', conversationId, content.messageId, content.fileId],
     queryFn: async () => {
       const { data } = await axiosInstance.get(
-        `/data/${conversationId}/${content.messageId}/${content.fileId}/isDownloaded`,
+        `/data/${conversationId}/${content.messageId}/${content.fileId}/is-downloaded`,
         { baseURL: apiUrl },
       )
       return data

@@ -128,7 +128,7 @@ export const useSetWizardStateMutation = () => {
     mutationKey: ['admin', 'wizard', 'state'],
     mutationFn: async (state: AdminWizardState) => {
       const { data } = await axios.post(
-        '/admin/adminWizardState',
+        '/admin/admin-wizard-state',
         { state },
         {
           baseURL: apiUrl,
@@ -324,7 +324,7 @@ export const useGetJamsUrl = () => {
   return useQuery({
     queryKey: ['jamsurl', 'getter'],
     queryFn: async () => {
-      const { data } = await axios.get('/admin/jamsurl', {
+      const { data } = await axios.get('/admin/jams-url', {
         baseURL: apiUrl,
         headers: getAdminAuthorizationHeaders(),
       })
@@ -338,7 +338,7 @@ export const useRemoveJamsUrl = () => {
   return useMutation({
     mutationKey: ['jamsurl', 'reset'],
     mutationFn: async () => {
-      const { data } = await axios.delete(`/admin/jamsurl`, {
+      const { data } = await axios.delete(`/admin/jams-url`, {
         baseURL: apiUrl,
         headers: getAdminAuthorizationHeaders(),
       })
@@ -370,7 +370,7 @@ export const useSetJamsUrl = () => {
     mutationKey: ['jamsurl', 'setter'],
     mutationFn: async (url: string) => {
       const { data } = await axios.post(
-        '/admin/jamsurl',
+        '/admin/jams-url',
         { url },
         {
           baseURL: apiUrl,
@@ -434,7 +434,7 @@ export const useDeleteAccounts = () => {
 
 export const checkAdminTokenValidity = async () => {
   try {
-    const response = await axios.get('/admin/isTokenValid', {
+    const response = await axios.get('/admin/is-token-valid', {
       baseURL: apiUrl,
       headers: getAdminAuthorizationHeaders(),
     })
@@ -537,7 +537,7 @@ export const useSetAutoDownloadLimit = () => {
     mutationKey: ['set', 'autoDownloadLimit'],
     mutationFn: async (limit: number) => {
       const { data } = await axios.post(
-        '/admin/autoDownloadLimit',
+        '/admin/auto-download-limit',
         { limit },
         {
           baseURL: apiUrl,
@@ -571,7 +571,7 @@ export const useSetConferenceResolution = () => {
     mutationKey: ['set', 'conferenceResolution'],
     mutationFn: async (resolution: string) => {
       const { data } = await axios.post(
-        '/admin/conferenceResolution',
+        '/admin/conference-resolution',
         { resolution },
         {
           baseURL: apiUrl,

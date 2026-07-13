@@ -77,18 +77,18 @@ function getConversationDataFilePath(
   return resolveConversationDataFilePath(conversationDataDirectory, conversationId, fileId)
 }
 
-dataTransferRouter.get('/autoDownloadLimit', (req, res) => {
+dataTransferRouter.get('/auto-download-limit', (req, res) => {
   res.status(HttpStatusCode.Ok).json({ limit: config.getAutoDownloadLimit() })
 })
 
-dataTransferRouter.get('/conferenceResolution', (req, res) => {
+dataTransferRouter.get('/conference-resolution', (req, res) => {
   res.status(HttpStatusCode.Ok).json({ resolution: config.getConfig().conferenceResolution })
 })
 
 dataTransferRouter.use(authenticateToken)
 dataTransferRouter.use(extendIfGuest)
 
-dataTransferRouter.post('/transferfile', (req, res) => {
+dataTransferRouter.post('/transfer-file', (req, res) => {
   const accountId = res.locals.accountId
   const targetedConversations = req.body.targetedConversations
   const comment = req.body.comment
@@ -232,7 +232,7 @@ dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, re
   )
 })
 
-dataTransferRouter.get('/:conversationId/:interactionId/:fileId/isDownloaded', (req, res) => {
+dataTransferRouter.get('/:conversationId/:interactionId/:fileId/is-downloaded', (req, res) => {
   const accountId = res.locals.accountId
   const conversationId = req.params.conversationId
   const fileId = req.params.fileId

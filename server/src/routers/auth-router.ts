@@ -361,7 +361,7 @@ authRouter.post(
 )
 
 authRouter.get(
-  '/linkToken',
+  '/link-token',
   asyncHandler(async (req, res) => {
     jamid.getLinkToken()
     const values = await jamid.waitForDeviceAuthStateChanged()

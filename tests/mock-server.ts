@@ -106,7 +106,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.json({ isSetupComplete: state.isSetupComplete, electronMode: false })
   })
 
-  api.get('/admin/adminWizardState', (_req, res) => {
+  api.get('/admin/admin-wizard-state', (_req, res) => {
     res.json({ lastWizardState: state.lastWizardState })
   })
 
@@ -152,12 +152,12 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.sendStatus(200)
   })
 
-  api.post('/admin/adminWizardState', (req, res) => {
+  api.post('/admin/admin-wizard-state', (req, res) => {
     state.lastWizardState = req.body.state
     res.sendStatus(200)
   })
 
-  api.get('/admin/isTokenValid', (_req, res) => {
+  api.get('/admin/is-token-valid', (_req, res) => {
     // Accept any token for mock purposes
     res.sendStatus(200)
   })
@@ -294,7 +294,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
 
   // --- JAMS URL routes ---
 
-  api.get('/admin/jamsurl', (_req, res) => {
+  api.get('/admin/jams-url', (_req, res) => {
     if (!state.config.jamsUrl) {
       res.status(204).send('JAMS server URL is not set')
       return
@@ -302,15 +302,15 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.send(state.config.jamsUrl)
   })
 
-  api.get('/data/autoDownloadLimit', (_req, res) => {
+  api.get('/data/auto-download-limit', (_req, res) => {
     res.json({ limit: state.autoDownloadLimit })
   })
 
-  api.get('/data/conferenceResolution', (_req, res) => {
+  api.get('/data/conference-resolution', (_req, res) => {
     res.json({ resolution: state.config.conferenceResolution })
   })
 
-  api.post('/admin/autoDownloadLimit', (req, res) => {
+  api.post('/admin/auto-download-limit', (req, res) => {
     const limit = req.body.limit
     if (limit === undefined || limit < 0) {
       res.status(400).send('Invalid limit')
@@ -320,7 +320,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.sendStatus(200)
   })
 
-  api.post('/admin/conferenceResolution', (req, res) => {
+  api.post('/admin/conference-resolution', (req, res) => {
     const resolution = req.body.resolution
     if (!['720p', '1080p', '1440p'].includes(resolution)) {
       res.status(400).send('Invalid conference resolution')
@@ -331,7 +331,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.sendStatus(200)
   })
 
-  api.post('/admin/jamsurl', (req, res) => {
+  api.post('/admin/jams-url', (req, res) => {
     const jamsUrl = req.body.url
     if (!jamsUrl || jamsUrl === '') {
       res.status(400).send('URL not provided')
@@ -342,7 +342,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.sendStatus(200)
   })
 
-  api.delete('/admin/jamsurl', (_req, res) => {
+  api.delete('/admin/jams-url', (_req, res) => {
     delete state.config.jamsUrl
     state.config.jamsAuthEnabled = false
     res.sendStatus(200)
@@ -597,7 +597,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   })
 
   // --- Message edit endpoint ---
-  api.post('/conversations/:conversationId/editmessage', (req, res) => {
+  api.post('/conversations/:conversationId/edit-message', (req, res) => {
     const { body, messageId } = req.body
     const conversationId = req.params.conversationId
 

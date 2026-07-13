@@ -311,7 +311,7 @@ conversationRouter.post('/:conversationId/remove-from-swarm', (req, res) => {
 })
 
 conversationRouter.post(
-  '/:conversationId/editmessage',
+  '/:conversationId/edit-message',
   (req: Request<{ conversationId: string }, string, Partial<NewMessageRequestBody>>, res) => {
     const body = req.body.body
     const messageId = req.body.messageId
@@ -329,7 +329,7 @@ conversationRouter.post(
 )
 
 conversationRouter.post(
-  '/:conversationId/transfermessage/',
+  '/:conversationId/transfer-message/',
   asyncHandler(async (req, res) => {
     const accountId = res.locals.accountId
     const messageBody = req.body.messageBody

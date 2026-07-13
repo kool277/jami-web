@@ -84,7 +84,7 @@ adminRouter.get('/check', (_req, res) => {
   res.send({ isSetupComplete, electronMode: isElectronMode })
 })
 
-adminRouter.get('/adminWizardState', (_req, res) => {
+adminRouter.get('/admin-wizard-state', (_req, res) => {
   if (isElectronMode) {
     res.send({ lastWizardState: AdminWizardState.complete })
     return
@@ -382,14 +382,14 @@ adminRouter.delete(
   }),
 )
 
-adminRouter.post('/adminWizardState', (req: Request<ParamsDictionary, AdminWizardState>, res) => {
+adminRouter.post('/admin-wizard-state', (req: Request<ParamsDictionary, AdminWizardState>, res) => {
   const lastWizardState = req.body.state
   adminAccount.setLastWizardState(lastWizardState)
   res.sendStatus(HttpStatusCode.Ok)
 })
 
 adminRouter.get(
-  '/isTokenValid',
+  '/is-token-valid',
   asyncHandler(async (_, res: Response) => {
     // If the request reaches this point, the token is valid
     // The token is verified by the adminAuthenticationMiddleware
@@ -503,7 +503,7 @@ adminRouter.get(
 )
 
 adminRouter.post(
-  '/jamsurl',
+  '/jams-url',
   asyncHandler(async (req, res) => {
     const jamsUrl = req.body.url
 
@@ -522,7 +522,7 @@ adminRouter.post(
 )
 
 adminRouter.delete(
-  '/jamsurl',
+  '/jams-url',
   asyncHandler(async (req, res) => {
     adminAccount.resetJamsServerUrl()
     adminAccount.save()
@@ -532,7 +532,7 @@ adminRouter.delete(
 )
 
 adminRouter.get(
-  '/jamsurl',
+  '/jams-url',
   asyncHandler(async (req, res) => {
     const url = adminAccount.getJamsServerUrl()
     if (url === undefined) {
@@ -758,7 +758,7 @@ adminRouter.patch(
   }),
 )
 
-adminRouter.post('/autoDownloadLimit', (req, res) => {
+adminRouter.post('/auto-download-limit', (req, res) => {
   const downloadLimit = Number(req.body.limit)
   if (!downloadLimit) {
     res.status(HttpStatusCode.BadRequest)
@@ -773,7 +773,7 @@ adminRouter.post('/autoDownloadLimit', (req, res) => {
   res.sendStatus(HttpStatusCode.Ok)
 })
 
-adminRouter.post('/conferenceResolution', (req, res) => {
+adminRouter.post('/conference-resolution', (req, res) => {
   const resolution = req.body.resolution
 
   if (typeof resolution !== 'string' || !conferenceResolutionValues.includes(resolution as ConferenceResolution)) {

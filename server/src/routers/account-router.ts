@@ -151,7 +151,7 @@ accountRouter.post(
   }),
 )
 
-accountRouter.post('/displayName/reset', (req, res) => {
+accountRouter.post('/display-name/reset', (req, res) => {
   const accountId = res.locals.accountId
   const account = jamid.getAccountDetails(accountId)
 
@@ -163,7 +163,7 @@ accountRouter.post('/displayName/reset', (req, res) => {
   res.sendStatus(HttpStatusCode.NoContent)
 })
 
-accountRouter.post('/displayName', (req, res) => {
+accountRouter.post('/display-name', (req, res) => {
   const accountId = res.locals.accountId
   const displayName = req.body.displayName
   const account = jamid.getAccountDetails(accountId)
@@ -177,7 +177,7 @@ accountRouter.post('/displayName', (req, res) => {
 })
 
 accountRouter.post(
-  '/addDevice',
+  '/add-device',
   asyncHandler(async (req, res) => {
     const uri = req.body.uri
     const accountId = res.locals.accountId
@@ -186,14 +186,14 @@ accountRouter.post(
   }),
 )
 
-accountRouter.post('/:opId/confirmDevice', (req, res) => {
+accountRouter.post('/:opId/confirm-device', (req, res) => {
   const accountId = res.locals.accountId
   const opId = Number(req.params.opId)
   jamid.confirmDevice(accountId, opId)
   res.sendStatus(HttpStatusCode.Ok)
 })
 
-accountRouter.post('/:opId/cancelDevice', (req, res) => {
+accountRouter.post('/:opId/cancel-device', (req, res) => {
   const accountId = res.locals.accountId
   const opId = Number(req.params.opId)
   jamid.cancelDevice(accountId, opId)
