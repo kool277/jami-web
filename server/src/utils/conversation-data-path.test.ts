@@ -16,6 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { describe, it } from 'node:test'
 
@@ -29,6 +31,23 @@ describe('resolveConversationDataFilePath', () => {
       resolveConversationDataFilePath(conversationDataDirectory, 'conversation-id', 'file-id.png'),
       path.join(conversationDataDirectory, 'conversation-id', 'file-id.png'),
     )
+  })
+
+  it('rejects a file symlink that points outside conversation data', () => {
+    const temporaryDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'jami-conversation-data-path-'))
+    const conversationDataDirectory = path.join(temporaryDirectory, 'conversation_data')
+    const conversationDirectory = path.join(conversationDataDirectory, 'conversation-id')
+    const outsideFile = path.join(temporaryDirectory, 'outside-file')
+
+    try {
+      fs.mkdirSync(conversationDirectory, { recursive: true })
+      fs.writeFileSync(outsideFile, 'outside')
+      fs.symlinkSync(outsideFile, path.join(conversationDirectory, 'file-id'))
+
+      assert.equal(resolveConversationDataFilePath(conversationDataDirectory, 'conversation-id', 'file-id'), undefined)
+    } finally {
+      fs.rmSync(temporaryDirectory, { recursive: true, force: true })
+    }
   })
 
   for (const [conversationId, fileId] of [

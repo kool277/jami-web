@@ -209,14 +209,19 @@ dataTransferRouter.get('/:conversationId/:interactionId/:fileId', async (req, re
     }
   }
 
-  const extension = filePath.split('.').pop() || ''
+  const downloadedFilePath = getConversationDataFilePath(conversationDataDirectory, conversationId, fileId)
+  if (!downloadedFilePath) {
+    return res.status(HttpStatusCode.BadRequest).send('Invalid file path')
+  }
+
+  const extension = downloadedFilePath.split('.').pop() || ''
   if (acceptedAudioTypes.includes(extension)) {
     res.setHeader('Content-Type', 'audio/' + extension)
   } else if (acceptedImageTypes.includes(extension)) {
     res.setHeader('Content-Type', 'image/' + extension)
   }
   return res.sendFile(
-    path.relative(conversationDataDirectory, filePath),
+    path.relative(conversationDataDirectory, downloadedFilePath),
     { root: conversationDataDirectory },
     (err) => {
       if (err) {

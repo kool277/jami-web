@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import fs from 'node:fs'
 import path from 'node:path'
 
 function isSafePathSegment(value: string): boolean {
@@ -56,6 +57,15 @@ export function resolveConversationDataFilePath(
     !isContainedPath(conversationPath, filePath)
   ) {
     return undefined
+  }
+
+  // An existing path may contain a symlink that lexically appears inside conversation_data but targets a file outside it.
+  if (fs.lstatSync(filePath, { throwIfNoEntry: false })) {
+    const realConversationDataDirectory = fs.realpathSync(conversationDataDirectory)
+    const realFilePath = fs.realpathSync(filePath)
+    if (!isContainedPath(realConversationDataDirectory, realFilePath)) {
+      return undefined
+    }
   }
 
   return filePath
