@@ -84,37 +84,6 @@ If the server is down, they fail and ask you to start the server first.
 For production deployments (reverse proxy with TLS, systemd service, Docker,
 backups, and upgrades), see the [Deployment Guide](./deployment.md).
 
-### Publishing the npm package
-
-Publish the fixed native module packages first. The existing `@savoirfairelinux/jami-core@0.3.1` registry metadata still advertises a `node-gyp rebuild` install step, so Jami Web depends on `@savoirfairelinux/jami-core@0.3.2`.
-
-For each supported platform, build `jamid.node`, copy it into the matching platform package, and publish that platform package:
-
-```sh
-npm run pack-native --workspace @savoirfairelinux/jami-core
-npm publish daemon/bin/nodejs/npm/$(node -e "process.stdout.write(process.platform + '-' + process.arch)") --access public
-```
-
-Then publish the core wrapper:
-
-```sh
-npm publish --workspace @savoirfairelinux/jami-core
-```
-
-From the repository root, build and inspect the package tarball with:
-
-```sh
-npm run npm:pack
-```
-
-Publish it with:
-
-```sh
-npm run npm:publish
-```
-
-The published package is produced from the `server` workspace and includes the compiled server plus the built React client.
-
 ## Setup
 
 Before proceeding, you must initialize the Git submodule repositories by running the following command:
@@ -223,6 +192,33 @@ npm run format
 ```
 npm run clean
 ```
+
+## Testing
+
+Run the Chromium Playwright suite:
+
+```sh
+npx playwright test --project=chromium
+```
+
+Playwright starts the mock API server on port 5002 and the client development
+server on port 3000 automatically. To inspect the application against the mock
+server outside the test runner, start it manually:
+
+```sh
+npx tsx tests/mock-server.ts
+npm run start --workspace=client
+```
+
+The standalone mock server has these preconfigured accounts:
+
+| Role  | Username | Password      |
+| ----- | -------- | ------------- |
+| Admin | —        | AdminPass123! |
+| User  | testuser | Test1234!     |
+
+To reset the mock server to its initial state, send a `POST` request to
+`/__reset`.
 
 ## Using a Docker container
 
