@@ -12,6 +12,9 @@
     "start": "concurrently \"npm start --workspace server\" \"wait-on http-get://localhost:5002/api/config/languages && npm start --workspace client\"",
     "start:prod": " npm run start:prod --workspace server",
     "start:debug-server": "HOME=/tmp npm start --workspace server",
+    "daemon:build": "node scripts/build-local-daemon.mjs",
+    "test:unit": "node --test scripts/build-local-daemon.test.mjs && npm run test:unit --workspace server",
+    "start:local-daemon": "npm run daemon:build && npm start",
     "build": "npm run build --workspaces",
     "clean": "npm run clean --workspaces",
     "clean:all": "npm run clean && find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
@@ -75,6 +78,9 @@
     "prettier": "^3.9.6",
     "wait-on": "^9.0.10",
     "ws": "^8.21.1"
+  },
+  "optionalDependencies": {
+    "@savoirfairelinux/jami-core-linux-x64": "0.4.2"
   },
   "config": {
     "forge": "forge.config.js"

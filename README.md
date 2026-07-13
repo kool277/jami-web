@@ -90,10 +90,38 @@ backups, and upgrades), see the [Deployment Guide](./deployment.md).
 
 ## Setup
 
-Before proceeding, you must initialize the Git submodule repositories by running the following command:
-`git submodule update --init --recursive`
+The default development setup uses the published
+`@savoirfairelinux/jami-core` package and its prebuilt native addon. The local
+daemon source is optional and is ignored by Git.
 
-### Build the Jami daemon with Node.js bindings
+### Optional: build and use a local daemon
+
+Clone the Jami daemon source into the ignored `daemon/` directory, then install
+the normal Jami Web dependencies:
+
+```sh
+git clone https://git.jami.net/savoirfairelinux/jami-daemon.git daemon
+npm install
+```
+
+Build the daemon and copy its native addon over the installed platform package:
+
+```sh
+npm run daemon:build
+```
+
+The full development environment can build the local daemon before starting:
+
+```sh
+npm run start:local-daemon
+```
+
+This does not change `package.json` or `package-lock.json`; running
+`npm ci` restores the registry addon, so rerun
+`npm run daemon:build` afterward. Set `JAMI_DAEMON_DIR` to use a source checkout
+outside `./daemon`, or `DAEMON_BUILD_TYPE=Release` for a release build.
+
+### Manual daemon build
 
 1. Install the required dependencies: <https://docs.jami.net/build/dependencies.html>
 
