@@ -1,17 +1,15 @@
-Always build and test your changes by yourself before you stop.
-Always end with a suggestion to move forward with the most likely next steps using the tool 'askQuestions'.
-Give the best of yourself. Don't take dirty, short-term shortcuts to finish quickly. We're building for the long term.
-Always commit your work in small, logical commits with clear messages after making changes.
+Jami web client and server. Load topics on demand, before starting that kind
+of work, not before:
 
-## Browser automation (Playwright MCP)
+- Building, testing, or locating code → `.agents/topics/project.md`
+- Editing code (scope, TDD, docs rules) → `.agents/topics/editing-rules.md`
+- Browser interaction / UI changes (Playwright MCP) → `.agents/topics/browser-automation.md`
+- Committing → `.agents/skills/commit/SKILL.md`
 
-To interact with the browser via the Playwright MCP tools, always follow this order:
+Rules that always apply:
 
-1. **Setup the page context** — call `planner_setup_page` (or the generator equivalent) with a `seedFile` and `project` before any browser interaction.
-2. **Navigate with `browser_navigate`** — with both `url` and `intent` parameters.
-3. Explore the browser snapshot. All browser interaction tools (`browser_click`, `browser_snapshot`, `browser_take_screenshot`, etc.) are available. Prefer `browser_snapshot` to understand the page structure before taking any action. Use screenshots only as a last resort.
-
-## User interface design
-
-Always make the user to validate user interface changes in a browser before completing.
-Only at the end, before committing, run the tests.
+- Build and test your changes yourself before you stop.
+- No dirty, short-term shortcuts; we build for the long term.
+- Commit work in small, logical commits.
+- End responses by suggesting the most likely next steps and asking the user to choose.
+- Comment why, not what.
