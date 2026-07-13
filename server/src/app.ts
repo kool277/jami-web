@@ -94,9 +94,10 @@ export class App {
         contentSecurityPolicy: {
           directives: {
             defaultSrc: ["'self'"],
-            imgSrc: ["'self'", 'data:', 'blob:', '*'],
+            imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
             scriptSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
+            connectSrc: ["'self'", ...(isDevMode ? ['ws:'] : []), 'wss:'],
             upgradeInsecureRequests: null,
           },
         },
