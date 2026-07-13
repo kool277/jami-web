@@ -18,7 +18,7 @@
 import { existsSync } from 'node:fs'
 
 import { getAdminSetupRedirect, HttpStatusCode } from '@savoirfairelinux/jami-web-common'
-import cors from 'cors'
+import cors, { type CorsOptions } from 'cors'
 import express, { json, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
 import log from 'loglevel'
@@ -58,6 +58,23 @@ const __dirname = path.dirname(__filename)
 const isDevMode = process.env.NODE_ENV === 'development' ? true : false
 const adminAccount = Container.get(AdminAccount)
 
+type CorsOriginCallback = (
+  origin: string | undefined,
+  callback: (err: Error | null, origin?: boolean | string | RegExp | Array<boolean | string | RegExp>) => void,
+) => void
+
+function getAllowedCorsOrigins(): string[] {
+  const configuredOrigins = process.env.CORS_ORIGINS?.split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0)
+
+  if (configuredOrigins && configuredOrigins.length > 0) {
+    return configuredOrigins
+  }
+
+  return isDevMode ? ['http://localhost:3000', 'http://127.0.0.1:3000'] : []
+}
+
 function getClientDistPath(): string {
   const candidates = [path.join(__dirname, '../client/dist'), path.join(__dirname, '../../client/dist')]
   const clientDistPath = candidates.find((candidate) => existsSync(path.join(candidate, 'index.html')))
@@ -85,7 +102,19 @@ export class App {
         },
       }),
     )
-    this.app.use(cors())
+    const allowedCorsOrigins = getAllowedCorsOrigins()
+    const corsOrigin: CorsOriginCallback = (origin, callback) => {
+      if (!origin || allowedCorsOrigins.includes(origin)) {
+        callback(null, true)
+        return
+      }
+
+      callback(null, false)
+    }
+    const corsOptions: CorsOptions = {
+      origin: corsOrigin,
+    }
+    this.app.use(cors(corsOptions))
     this.app.use(json())
 
     const apiRouter = express.Router()

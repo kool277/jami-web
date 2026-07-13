@@ -159,6 +159,19 @@ Open <http://localhost:3000> in your browser to view the app.
 
 > Note: Many people experience a problem with the calls to the nameserver. For example, this problem prevents the registration of new users (and other issues): jami-web will not be able to validate whether the new username is available or not. If you experience this problem, you can try to launch the server this way: `HOME=/tmp npm start --workspace server`. This is a temporary solution. It brings other problems related to the fact it makes the data non-persistent. For example, the users you created will be deleted after a certain amount of time.
 
+The server allows the local Vite development origin (`http://localhost:3000` and
+`http://127.0.0.1:3000`) by default. For a separately hosted client, configure
+the comma-separated `CORS_ORIGINS` environment variable, for example:
+
+```sh
+CORS_ORIGINS=https://chat.example.com
+```
+
+In production, cross-origin requests are denied unless their origin is listed
+in `CORS_ORIGINS`. Each entry must contain only the scheme, host, and optional
+port (for example, `https://chat.example.com`); do not include a path or
+trailing slash.
+
 ### Build for production
 
 ```
