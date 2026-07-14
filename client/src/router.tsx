@@ -17,59 +17,67 @@
  */
 
 import { AdminSettingSelection, AdminWizardState } from '@savoirfairelinux/jami-web-common'
+import { lazy } from 'react'
 import { createBrowserRouter, createRoutesFromElements, Navigate, Outlet, Route } from 'react-router-dom'
 
 import App, { appLoader } from './App.js'
-import AccountDetailsListener from './components/AccountDetailsListener.js'
-import AccountsOverview from './components/AdminSettings/AccountsOverview.js'
-import AdminAccountConfiguration from './components/AdminSettings/AdminAccountConfiguration.js'
-import AdminAuthWrapper from './components/AdminSettings/AdminAuthWrapper.js'
-import AuthMethods from './components/AdminSettings/AuthMethods.js'
-import ConfigureOpenId from './components/AdminSettings/ConfigureOpenId.js'
-import DownloadLimit from './components/AdminSettings/DownloadLimit.js'
-import GuestAuthMethod from './components/AdminSettings/GuestAuthMethod.js'
-import JamsAuthMethod from './components/AdminSettings/JamsAuthMethod.js'
-import LocalAuthMethod from './components/AdminSettings/LocalAuthMethod.js'
-import MediaSettings from './components/AdminSettings/MediaSettings.js'
-import OpenIdAuthMethod from './components/AdminSettings/OpenIdAuthMethod.js'
-import ContactList from './components/ContactList.js'
-import ConversationView from './components/ConversationView.js'
-import LayoutWrapper from './components/LayoutWrapper.js'
-import NotificationHandler from './components/NotificationHandler.js'
-import UserSettingsSelection from './components/UserSettingsSelection.js'
-import WelcomePage from './components/WelcomePage.js'
-import ActionMessageProvider from './contexts/ActionMessageProvider.js'
-import AuthProvider from './contexts/AuthProvider.js'
-import CallManagerProvider from './contexts/CallManagerProvider.js'
-import ConversationProvider from './contexts/ConversationProvider.js'
-import ImportDeviceProvider from './contexts/ImportDeviceProvider.js'
-import MessengerProvider from './contexts/MessengerProvider.js'
 import MobileMenuStateProvider from './contexts/MobileMenuStateProvider.js'
-import PresenceProvider from './contexts/PresenceProvider.js'
-import UserMediaProvider from './contexts/UserMediaProvider.js'
-import WebSocketLinkProvider from './contexts/WebSocketLinkProvider.js'
-import WebSocketProvider from './contexts/WebSocketProvider.js'
 import { AdminConfigurationOptions } from './enums/adminConfigurationOptions.js'
 import { AuthenticationMethods } from './enums/authenticationMethods.js'
 import { RouteParams } from './hooks/useUrlParams.js'
-import AccountSettings from './pages/AccountSettings.js'
-import AdminLogin from './pages/AdminLogin.js'
-import AdminPanel from './pages/AdminPanel.js'
-import AdminConfigureJams from './pages/AdminWizard/AdminConfigureJams.js'
-import AdminConfigureNameServer from './pages/AdminWizard/AdminConfigureNameServer.js'
-import AdminCreateAccount from './pages/AdminWizard/AdminCreateAccount.js'
-import CallSettings from './pages/CallSettings.js'
-import { ExportToAnotherDevice } from './pages/ExportAccount/ExportToAnotherDevice.js'
-import GeneralSettings from './pages/GeneralSettings.js'
-import LinkedDevicesPage from './pages/LinkedDevicesPage.js'
-import ImportAccount from './pages/LinkExistingDevice/ImportAccount.js'
-import ImportAccountConfirmation from './pages/LinkExistingDevice/ImportAccountConfirmation.js'
-import ImportAccountConnecting from './pages/LinkExistingDevice/ImportAccountConnecting.js'
-import ImportAccountLock from './pages/LinkExistingDevice/ImportAccountLock.js'
-import ImportAccountTransferInProgress from './pages/LinkExistingDevice/ImportAccountTransferInProgress.js'
-import Login from './pages/Login.js'
-import Messenger from './pages/Messenger.js'
-import Registration from './pages/Registration.js'
+
+const AccountDetailsListener = lazy(() => import('./components/AccountDetailsListener.js'))
+const AccountsOverview = lazy(() => import('./components/AdminSettings/AccountsOverview.js'))
+const AdminAccountConfiguration = lazy(() => import('./components/AdminSettings/AdminAccountConfiguration.js'))
+const AdminAuthWrapper = lazy(() => import('./components/AdminSettings/AdminAuthWrapper.js'))
+const AuthMethods = lazy(() => import('./components/AdminSettings/AuthMethods.js'))
+const ConfigureOpenId = lazy(() => import('./components/AdminSettings/ConfigureOpenId.js'))
+const DownloadLimit = lazy(() => import('./components/AdminSettings/DownloadLimit.js'))
+const GuestAuthMethod = lazy(() => import('./components/AdminSettings/GuestAuthMethod.js'))
+const JamsAuthMethod = lazy(() => import('./components/AdminSettings/JamsAuthMethod.js'))
+const LocalAuthMethod = lazy(() => import('./components/AdminSettings/LocalAuthMethod.js'))
+const MediaSettings = lazy(() => import('./components/AdminSettings/MediaSettings.js'))
+const OpenIdAuthMethod = lazy(() => import('./components/AdminSettings/OpenIdAuthMethod.js'))
+const ContactList = lazy(() => import('./components/ContactList.js'))
+const ConversationView = lazy(() => import('./components/ConversationView.js'))
+const LayoutWrapper = lazy(() => import('./components/LayoutWrapper.js'))
+const NotificationHandler = lazy(() => import('./components/NotificationHandler.js'))
+const UserSettingsSelection = lazy(() => import('./components/UserSettingsSelection.js'))
+const WelcomePage = lazy(() => import('./components/WelcomePage.js'))
+const ActionMessageProvider = lazy(() => import('./contexts/ActionMessageProvider.js'))
+const AuthProvider = lazy(() => import('./contexts/AuthProvider.js'))
+const CallManagerProvider = lazy(() => import('./contexts/CallManagerProvider.js'))
+const ConversationProvider = lazy(() => import('./contexts/ConversationProvider.js'))
+const ImportDeviceProvider = lazy(() => import('./contexts/ImportDeviceProvider.js'))
+const MessengerProvider = lazy(() => import('./contexts/MessengerProvider.js'))
+const PresenceProvider = lazy(() => import('./contexts/PresenceProvider.js'))
+const UserMediaProvider = lazy(() => import('./contexts/UserMediaProvider.js'))
+const WebSocketLinkProvider = lazy(() => import('./contexts/WebSocketLinkProvider.js'))
+const WebSocketProvider = lazy(() => import('./contexts/WebSocketProvider.js'))
+const AccountSettings = lazy(() => import('./pages/AccountSettings.js'))
+const AdminLogin = lazy(() => import('./pages/AdminLogin.js'))
+const AdminPanel = lazy(() => import('./pages/AdminPanel.js'))
+const AdminConfigureJams = lazy(() => import('./pages/AdminWizard/AdminConfigureJams.js'))
+const AdminConfigureNameServer = lazy(() => import('./pages/AdminWizard/AdminConfigureNameServer.js'))
+const AdminCreateAccount = lazy(() => import('./pages/AdminWizard/AdminCreateAccount.js'))
+const CallSettings = lazy(() => import('./pages/CallSettings.js'))
+const ExportToAnotherDevice = lazy(() =>
+  import('./pages/ExportAccount/ExportToAnotherDevice.js').then(({ ExportToAnotherDevice }) => ({
+    default: ExportToAnotherDevice,
+  })),
+)
+const GeneralSettings = lazy(() => import('./pages/GeneralSettings.js'))
+const LinkedDevicesPage = lazy(() => import('./pages/LinkedDevicesPage.js'))
+const ImportAccount = lazy(() => import('./pages/LinkExistingDevice/ImportAccount.js'))
+const ImportAccountConfirmation = lazy(() => import('./pages/LinkExistingDevice/ImportAccountConfirmation.js'))
+const ImportAccountConnecting = lazy(() => import('./pages/LinkExistingDevice/ImportAccountConnecting.js'))
+const ImportAccountLock = lazy(() => import('./pages/LinkExistingDevice/ImportAccountLock.js'))
+const ImportAccountTransferInProgress = lazy(
+  () => import('./pages/LinkExistingDevice/ImportAccountTransferInProgress.js'),
+)
+const Login = lazy(() => import('./pages/Login.js'))
+const Messenger = lazy(() => import('./pages/Messenger.js'))
+const Registration = lazy(() => import('./pages/Registration.js'))
 
 export type ConversationRouteParams = RouteParams<{ conversationId?: string }, Record<string, never>>
 

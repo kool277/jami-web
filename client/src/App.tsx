@@ -19,7 +19,7 @@ import './dayjsInitializer.js' // Initialized once and globally to ensure availa
 
 import { AdminWizardState } from '@savoirfairelinux/jami-web-common'
 import axios from 'axios'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
 
 import WelcomeAnimation from './components/WelcomeAnimation.js'
@@ -107,9 +107,9 @@ const App = () => {
   }
 
   return (
-    <>
+    <Suspense fallback={null}>
       <Outlet />
-    </>
+    </Suspense>
   )
 }
 
