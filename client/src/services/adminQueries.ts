@@ -121,20 +121,6 @@ export const useLoginAdminMutation = () => {
   })
 }
 
-//For non-react components that need to get the admin setup status
-// use for the password
-export const checkAdminSetupStatus = async () => {
-  try {
-    const { data } = await axios.get<{ isSetupComplete: boolean; electronMode?: boolean }>('/admin/check', {
-      baseURL: apiUrl,
-    })
-    return data
-  } catch (e) {
-    console.log(e)
-    return { isSetupComplete: false, electronMode: false }
-  }
-}
-
 // use for the entire wizard
 export const checkWizardStatus = async () => {
   try {

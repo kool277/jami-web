@@ -29,9 +29,9 @@ test.beforeEach(async ({ page, request }) => {
 
 test.describe.serial('Admin Setup Flow', () => {
   test('redirects to admin setup when server is not configured', async ({ page }) => {
-    await page.goto('/')
-    // The app loader checks /api/admin/check → isSetupComplete: false
-    // Then redirects to /admin/setup/account
+    const response = await page.goto('/')
+
+    expect(response?.request().redirectedFrom()).not.toBeNull()
     await expect(page).toHaveURL(/\/admin\/setup\/account/, { timeout: 30_000 })
   })
 
@@ -94,6 +94,11 @@ test.describe.serial('Admin Login', () => {
     // Should redirect to admin panel (accounts page)
     await expect(page).toHaveURL(/\/admin\/accounts/, { timeout: 30_000 })
   })
+
+  test('redirects completed setup URLs to admin login', async ({ page }) => {
+    await page.goto('/admin/setup/account')
+    await expect(page).toHaveURL(/\/admin\/login/, { timeout: 30_000 })
+  })
 })
 
 test.describe('User Login Page', () => {
@@ -108,7 +113,15 @@ test.describe('User Login Page', () => {
   })
 
   test('login page shows password input', async ({ page }) => {
+    const setupRequests: string[] = []
+    page.on('request', (request) => {
+      if (/\/api\/admin\/(check|adminWizardState)$/.test(request.url())) {
+        setupRequests.push(request.url())
+      }
+    })
+
     await page.goto('/login')
     await expect(page.locator('input[type="password"]')).toBeVisible({ timeout: 30_000 })
+    expect(setupRequests).toEqual([])
   })
 })

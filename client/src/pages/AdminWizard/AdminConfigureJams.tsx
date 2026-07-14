@@ -130,18 +130,18 @@ const AdminConfigureJamsForm = ({
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '24px' }}>
         <Button
-          onClick={() => {
-            submitNewJamsUrl()
-            setWizardStateMutation.mutate(AdminWizardState.local)
+          onClick={async () => {
+            await submitNewJamsUrl()
+            await setWizardStateMutation.mutateAsync(AdminWizardState.local)
             navigate('/admin/setup/ns')
           }}
         >
           {t('previous')}
         </Button>
         <Button
-          onClick={() => {
-            submitNewJamsUrl()
-            setWizardStateMutation.mutate(AdminWizardState.complete)
+          onClick={async () => {
+            await submitNewJamsUrl()
+            await setWizardStateMutation.mutateAsync(AdminWizardState.complete)
             navigate('/admin/accounts')
           }}
         >

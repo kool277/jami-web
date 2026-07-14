@@ -20,7 +20,7 @@ import { AdminSettingSelection, AdminWizardState } from '@savoirfairelinux/jami-
 import { lazy } from 'react'
 import { createBrowserRouter, createRoutesFromElements, Navigate, Outlet, Route } from 'react-router-dom'
 
-import App, { appLoader } from './App.js'
+import App, { adminSetupLoader, appLoader } from './App.js'
 import MobileMenuStateProvider from './contexts/MobileMenuStateProvider.js'
 import { AdminConfigurationOptions } from './enums/adminConfigurationOptions.js'
 import { AuthenticationMethods } from './enums/authenticationMethods.js'
@@ -154,10 +154,12 @@ export const router = createBrowserRouter(
             element={<MediaSettings />}
           />
         </Route>
-        <Route path="admin/setup" element={<Navigate to={'/admin/setup/account'} />} />
-        <Route path={`admin/setup/${AdminWizardState.account}`} element={<AdminCreateAccount />} />
-        <Route path={`admin/setup/${AdminWizardState.local}`} element={<AdminConfigureNameServer />} />
-        <Route path={`admin/setup/${AdminWizardState.jams}`} element={<AdminConfigureJams />} />
+        <Route path="admin/setup" element={<Outlet />} loader={adminSetupLoader}>
+          <Route index element={<Navigate to={'/admin/setup/account'} />} />
+          <Route path={AdminWizardState.account} element={<AdminCreateAccount />} />
+          <Route path={AdminWizardState.local} element={<AdminConfigureNameServer />} />
+          <Route path={AdminWizardState.jams} element={<AdminConfigureJams />} />
+        </Route>
 
         <Route
           element={

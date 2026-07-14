@@ -21,17 +21,6 @@ import CropSquareIcon from '@mui/icons-material/CropSquare'
 import RemoveIcon from '@mui/icons-material/Remove'
 import { Box, IconButton, Typography, useTheme } from '@mui/material'
 
-declare global {
-  interface Window {
-    electronAPI?: {
-      minimize: () => void
-      maximize: () => void
-      close: () => void
-      isElectron: boolean
-    }
-  }
-}
-
 const isMac = navigator.platform.toUpperCase().includes('MAC')
 
 export default function ElectronTitlebar() {

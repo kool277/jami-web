@@ -16,16 +16,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-/**
- * Tracks whether the app is running in Electron mode.
- * Set once at startup from the server's /admin/check response.
- */
-let _electronMode = false
-
-export function setElectronMode(value: boolean) {
-  _electronMode = value
-}
-
 export function isElectronMode(): boolean {
-  return _electronMode
+  return window.electronAPI?.isElectron === true || __JAMI_DEBUG_DESKTOP_MODE__
 }

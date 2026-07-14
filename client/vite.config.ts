@@ -15,8 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { AdminWizardState, getAdminSetupRedirect } from '@savoirfairelinux/jami-web-common'
 import react from '@vitejs/plugin-react'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 import svgr from 'vite-plugin-svgr'
 import * as topLevelAwait from 'vite-plugin-top-level-await'
 
@@ -27,31 +28,72 @@ type TopLevelAwaitOptions = {
 
 const topLevelAwaitPlugin = topLevelAwait.default as unknown as (options?: TopLevelAwaitOptions) => Plugin
 
-export default defineConfig({
-  optimizeDeps: {
-    include: ['@emotion/react', '@emotion/styled', '@mui/material/Tooltip'],
+const adminSetupGatePlugin = (apiOrigin: string, desktopMode: boolean): Plugin => ({
+  name: 'admin-setup-gate',
+  configureServer(server) {
+    server.middlewares.use(async (req, res, next) => {
+      if (desktopMode || req.method !== 'GET' || !req.headers.accept?.includes('text/html')) {
+        next()
+        return
+      }
+
+      try {
+        const response = await fetch(new URL('/api/admin/adminWizardState', apiOrigin))
+        if (!response.ok) {
+          throw new Error(`Admin wizard state request failed with status ${response.status}`)
+        }
+
+        const data = (await response.json()) as { lastWizardState?: AdminWizardState }
+        const wizardState = data.lastWizardState ?? AdminWizardState.account
+        const pathname = new URL(req.url ?? '/', 'http://localhost').pathname
+        const redirectPath = getAdminSetupRedirect(pathname, wizardState)
+        if (redirectPath) {
+          res.statusCode = 302
+          res.setHeader('Location', redirectPath)
+          res.end()
+          return
+        }
+
+        next()
+      } catch (error) {
+        next(error)
+      }
+    })
   },
-  plugins: [
-    react(),
-    svgr(),
-    topLevelAwaitPlugin({
-      promiseExportName: '__tla',
-      promiseImportName: (i) => `__tla_${i}`,
-    }),
-  ],
-  server: {
-    host: '0.0.0.0',
-    port: 3000,
-  },
-  preview: {
-    port: 8080,
-  },
-  build: {
-    outDir: '../server/client/dist',
-    emptyOutDir: true,
-    target: ['chrome117', 'edge121', 'firefox121', 'safari17'],
-  },
-  define: {
-    global: {},
-  },
+})
+
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+  const debugDesktopMode = mode !== 'production' && process.env.JAMI_DEBUG_DESKTOP_MODE === 'true'
+
+  return {
+    optimizeDeps: {
+      include: ['@emotion/react', '@emotion/styled', '@mui/material/Tooltip'],
+    },
+    plugins: [
+      adminSetupGatePlugin(env.VITE_API_URL, debugDesktopMode),
+      react(),
+      svgr(),
+      topLevelAwaitPlugin({
+        promiseExportName: '__tla',
+        promiseImportName: (i) => `__tla_${i}`,
+      }),
+    ],
+    server: {
+      host: '0.0.0.0',
+      port: 3000,
+    },
+    preview: {
+      port: 8080,
+    },
+    build: {
+      outDir: '../server/client/dist',
+      emptyOutDir: true,
+      target: ['chrome117', 'edge121', 'firefox121', 'safari17'],
+    },
+    define: {
+      global: {},
+      __JAMI_DEBUG_DESKTOP_MODE__: JSON.stringify(debugDesktopMode),
+    },
+  }
 })

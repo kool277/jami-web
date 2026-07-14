@@ -17,13 +17,13 @@
  */
 import { existsSync } from 'node:fs'
 
-import { HttpStatusCode } from '@savoirfairelinux/jami-web-common'
+import { getAdminSetupRedirect, HttpStatusCode } from '@savoirfairelinux/jami-web-common'
 import cors from 'cors'
 import express, { json, NextFunction, Request, Response } from 'express'
 import helmet from 'helmet'
 import log from 'loglevel'
 import path from 'path'
-import { Service } from 'typedi'
+import { Container, Service } from 'typedi'
 import { fileURLToPath } from 'url'
 
 import { accountRouter } from './routers/account-router.js'
@@ -40,6 +40,8 @@ import { linkPreviewRouter } from './routers/link-preview-router.js'
 import { nameserverRouter } from './routers/nameserver-router.js'
 import { passkeyRouter } from './routers/passkey-router.js'
 import { tokenRouter } from './routers/token-router.js'
+import { AdminAccount } from './storage/admin-account.js'
+import { isElectronMode } from './utils/electron.js'
 import { loadEnv } from './utils/env.js'
 import { bindChatCallbacks } from './websocket/chat-handler.js'
 import { bindReactionAddedCallBack } from './websocket/chat-reactionadded-handler.js'
@@ -54,6 +56,7 @@ loadEnv()
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const isDevMode = process.env.NODE_ENV === 'development' ? true : false
+const adminAccount = Container.get(AdminAccount)
 
 function getClientDistPath(): string {
   const candidates = [path.join(__dirname, '../client/dist'), path.join(__dirname, '../../client/dist')]
@@ -110,9 +113,17 @@ export class App {
       const clientDistPath = getClientDistPath()
 
       // Serve static files from the client
-      this.app.use(express.static(clientDistPath))
+      this.app.use(express.static(clientDistPath, { index: false }))
 
       this.app.get('*', (req, res) => {
+        if (!isElectronMode) {
+          const redirectPath = getAdminSetupRedirect(req.path, adminAccount.getLastWizardState())
+          if (redirectPath) {
+            res.redirect(redirectPath)
+            return
+          }
+        }
+
         res.sendFile(path.join(clientDistPath, 'index.html'))
       })
     }

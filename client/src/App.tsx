@@ -17,36 +17,32 @@
  */
 import './dayjsInitializer.js' // Initialized once and globally to ensure available locales are always imported
 
-import { AdminWizardState } from '@savoirfairelinux/jami-web-common'
+import { getAdminSetupRedirect } from '@savoirfairelinux/jami-web-common'
 import axios from 'axios'
 import { Suspense, useState } from 'react'
 import { LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
 
 import WelcomeAnimation from './components/WelcomeAnimation.js'
-import { checkAdminSetupStatus, checkWizardStatus } from './services/adminQueries.js'
+import { checkWizardStatus } from './services/adminQueries.js'
 import { getAccessToken, setAccessToken } from './services/authQueries.js'
 import { apiUrl } from './utils/constants.js'
-import { setElectronMode } from './utils/electron.js'
-
-const appLoaderData = (isSetupComplete: boolean) => ({ isSetupComplete })
+import { isElectronMode } from './utils/electron.js'
 
 export async function appLoader({ request }: LoaderFunctionArgs) {
   const initialUrl = new URL(request.url)
-  const { isSetupComplete, electronMode } = await checkAdminSetupStatus()
-  setElectronMode(electronMode ?? false)
-
+  const electronMode = isElectronMode()
   const path = initialUrl.pathname
 
   // In Electron mode, admin setup is bypassed and auto-login is attempted
   if (electronMode) {
     // If user is navigating to admin panel, let them through
     if (path.startsWith('/admin')) {
-      return appLoaderData(true)
+      return null
     }
 
     // If already authenticated, proceed normally
     if (getAccessToken()) {
-      return appLoaderData(true)
+      return null
     }
 
     // Try auto-login: fetch local accounts and login to the first one
@@ -71,32 +67,26 @@ export async function appLoader({ request }: LoaderFunctionArgs) {
       // Auto-login failed, fall through to normal routing
     }
 
-    return appLoaderData(true)
+    return null
+  }
+
+  return null
+}
+
+export async function adminSetupLoader({ request }: LoaderFunctionArgs) {
+  if (window.electronAPI?.isElectron) {
+    return null
   }
 
   const lastWizardState = await checkWizardStatus()
-
-  if (
-    lastWizardState !== undefined &&
-    lastWizardState === AdminWizardState.complete &&
-    path.startsWith('/admin/setup')
-  ) {
-    return redirect('/admin/login')
+  if (lastWizardState !== undefined) {
+    const redirectPath = getAdminSetupRedirect(new URL(request.url).pathname, lastWizardState)
+    if (redirectPath) {
+      return redirect(redirectPath)
+    }
   }
 
-  if (!isSetupComplete && path !== '/admin/setup/account') {
-    return redirect('/admin/setup/account')
-  }
-
-  if (
-    lastWizardState !== undefined &&
-    lastWizardState !== AdminWizardState.complete &&
-    path !== '/admin/setup/' + lastWizardState
-  ) {
-    return redirect('/admin/setup/' + lastWizardState)
-  }
-
-  return appLoaderData(isSetupComplete)
+  return null
 }
 
 const App = () => {

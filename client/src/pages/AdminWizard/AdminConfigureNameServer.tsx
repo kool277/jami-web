@@ -78,14 +78,14 @@ const AdminConfigureNameServerForm = ({
   const submitNewNameServer = async () => {
     if (urlRegex.test(nameServer) && nameServer !== nameServerConfigured) {
       setNameServerMutation.mutate(nameServer)
-      setWizardStateMutation.mutate(AdminWizardState.jams)
+      await setWizardStateMutation.mutateAsync(AdminWizardState.jams)
       navigate('/admin/setup/jams')
     } else if (nameServer === nameServerConfigured) {
-      setWizardStateMutation.mutate(AdminWizardState.jams)
+      await setWizardStateMutation.mutateAsync(AdminWizardState.jams)
       navigate('/admin/setup/jams')
     } else if (nameServer === '') {
       resetServerNameMutation.mutate()
-      setWizardStateMutation.mutate(AdminWizardState.jams)
+      await setWizardStateMutation.mutateAsync(AdminWizardState.jams)
       navigate('/admin/setup/jams')
     } else {
       setAlertContent({
