@@ -17,6 +17,8 @@
  */
 import { expect, test } from '@playwright/test'
 
+import { waitForWsClient } from './helpers.js'
+
 const MOCK_API = 'http://localhost:5002'
 
 async function setupAuthenticatedUser(request: any) {
@@ -43,7 +45,6 @@ test.beforeEach(async ({ page, request }) => {
 test.describe('Message Sending', () => {
   test('can submit a message using Enter key', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     const textarea = page.locator('textarea').first()
     await expect(textarea).toBeVisible({ timeout: 15_000 })
@@ -58,9 +59,9 @@ test.describe('Message Sending', () => {
     await expect(textarea).toHaveValue('', { timeout: 10_000 })
   })
 
-  test('message appears in the conversation after sending', async ({ page }) => {
+  test('message appears in the conversation after sending', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
 
     const textarea = page.locator('textarea').first()
     await expect(textarea).toBeVisible({ timeout: 15_000 })
@@ -76,7 +77,6 @@ test.describe('Message Sending', () => {
 
   test('Shift+Enter does not submit but adds a newline', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     const textarea = page.locator('textarea').first()
     await expect(textarea).toBeVisible({ timeout: 15_000 })
@@ -93,7 +93,6 @@ test.describe('Message Sending', () => {
 
   test('empty message cannot be sent', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     const textarea = page.locator('textarea').first()
     await expect(textarea).toBeVisible({ timeout: 15_000 })
@@ -110,7 +109,7 @@ test.describe('Message Sending', () => {
 test.describe('Real-time Message Reception', () => {
   test('incoming message from another user appears in the conversation', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
 
     // Verify initial message is visible
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
@@ -143,7 +142,7 @@ test.describe('Real-time Message Reception', () => {
 
   test('multiple incoming messages appear in order', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
 
     // Send multiple messages in sequence with small delays for browser processing
@@ -176,7 +175,7 @@ test.describe('Real-time Message Reception', () => {
 
   test('messages from a different conversation are not shown', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
 
     // Send a message for a different conversation
@@ -201,6 +200,8 @@ test.describe('Real-time Message Reception', () => {
     })
 
     // Wait briefly and verify the message does NOT appear
+    // ponytail: fixed wait — asserting absence has no signal to poll for; give the app a
+    // moment to (not) process the wrong-conversation message before checking it never rendered.
     await page.waitForTimeout(2_000)
     const wrongMessage = page.getByText('This should not appear')
     await expect(wrongMessage).toHaveCount(0)
@@ -210,7 +211,6 @@ test.describe('Real-time Message Reception', () => {
 test.describe('Conversation UI Elements', () => {
   test('conversation view shows the correct header title', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     // The mock returns title "Chat with Bob" in conversation infos
     const header = page.getByText('Chat with Bob')
@@ -219,7 +219,6 @@ test.describe('Conversation UI Elements', () => {
 
   test('conversation view shows existing messages from history', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     // The mock returns a message "Hello Alice!" from Bob
     const message = page.getByText('Hello Alice!')
@@ -228,7 +227,6 @@ test.describe('Conversation UI Elements', () => {
 
   test('conversation view has a back navigation button', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     // ConversationHeader renders an ArrowBackIosNewIcon for navigation
     const backButton = page.locator('text=arrow_back_ios_new')
@@ -237,7 +235,6 @@ test.describe('Conversation UI Elements', () => {
 
   test('message input textarea is at the bottom of the chat', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     const textarea = page.locator('textarea').first()
     await expect(textarea).toBeVisible({ timeout: 15_000 })
@@ -253,7 +250,6 @@ test.describe('Conversation UI Elements', () => {
 
   test('clicking back from conversation navigates to conversation list', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     const backButton = page.locator('text=arrow_back_ios_new').first()
     await expect(backButton).toBeVisible({ timeout: 15_000 })
@@ -267,7 +263,6 @@ test.describe('Conversation UI Elements', () => {
 test.describe('Message Display', () => {
   test('messages show author name', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     // Bob's message should be visible with Bob's name
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
@@ -279,7 +274,6 @@ test.describe('Message Display', () => {
 
   test('messages show timestamp', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
 
@@ -288,9 +282,9 @@ test.describe('Message Display', () => {
     await expect(timePattern.first()).toBeVisible({ timeout: 15_000 })
   })
 
-  test('message from current user appears differently from received messages', async ({ page }) => {
+  test('message from current user appears differently from received messages', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
 
     // Send a message as the current user
     const textarea = page.locator('textarea').first()

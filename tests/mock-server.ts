@@ -657,6 +657,11 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.json({ sent: wsClients.size })
   })
 
+  // --- Test helper: report number of connected WebSocket clients ---
+  app.get('/__ws-clients', (_req, res) => {
+    res.json({ count: [...wsClients].filter((c) => c.readyState === WebSocket.OPEN).length })
+  })
+
   // --- Test helper: add a mock admin passkey ---
   app.post('/__add-admin-passkey', (req, res) => {
     const { credentialId, name } = req.body

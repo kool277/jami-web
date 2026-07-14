@@ -61,7 +61,6 @@ test.describe.serial('Registration Flow', () => {
     await usernameInput.fill('ab')
 
     // Stay on registration page
-    await page.waitForTimeout(1_000)
     await expect(page).toHaveURL(/\/register/)
   })
 
@@ -84,16 +83,10 @@ test.describe.serial('Registration Flow', () => {
     await usernameInput.fill('testuser123')
     await passwordInput.fill('StrongPass1!')
 
-    // Wait for username availability check
-    await page.waitForTimeout(1_000)
-
-    // Submit
+    // Submit — the button enables once the username availability check passes
     const submitButton = page.locator('button[type="submit"]').first()
+    await expect(submitButton).toBeEnabled()
     await submitButton.click()
-
-    // After successful registration + auto-login, should redirect to messenger
-    // (or stay if login fails since we don't fully mock the auth flow)
-    await page.waitForTimeout(2_000)
   })
 
   test('registration requires an acceptable password before create is enabled', async ({ page }) => {
@@ -105,8 +98,6 @@ test.describe.serial('Registration Flow', () => {
 
     await usernameInput.fill('testuser456')
 
-    // Wait for username availability check
-    await page.waitForTimeout(1_000)
     await expect(submitButton).toBeDisabled()
 
     await passwordInput.fill('Abc123!')
@@ -230,10 +221,8 @@ test.describe('Navigation Guards', () => {
     // Without auth token, the app should show welcome animation first
     // then show the messenger (which requires AuthProvider)
     // AuthProvider should redirect to login if no token
-    await page.waitForTimeout(5_000)
-    // The URL should either stay at / (welcome animation) or redirect
-    const url = page.url()
-    expect(url).toMatch(/\/(login)?$/)
+    // The URL should either stay at / (welcome animation) or redirect to login
+    await expect(page).toHaveURL(/\/(login)?$/)
   })
 
   test('admin panel requires authentication', async ({ page, request }) => {

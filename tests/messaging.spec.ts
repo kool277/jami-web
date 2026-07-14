@@ -44,7 +44,6 @@ test.describe('Messenger - Conversation List', () => {
   test('messenger displays the conversation sidebar', async ({ page }) => {
     await page.goto('/')
     // Wait for the app to load with account data
-    await page.waitForTimeout(5_000)
 
     // The messenger page should render — we should NOT be redirected to login
     const url = page.url()
@@ -53,7 +52,6 @@ test.describe('Messenger - Conversation List', () => {
 
   test('conversation list shows existing conversations', async ({ page }) => {
     await page.goto('/')
-    await page.waitForTimeout(5_000)
 
     // The mock server returns a conversation with Bob
     // Look for conversation list items  containing "Bob"
@@ -63,7 +61,6 @@ test.describe('Messenger - Conversation List', () => {
 
   test('conversation list shows last message preview', async ({ page }) => {
     await page.goto('/')
-    await page.waitForTimeout(5_000)
 
     // The mock returns last message "Hello Alice!"
     const lastMessage = page.getByText('Hello Alice!')
@@ -74,7 +71,6 @@ test.describe('Messenger - Conversation List', () => {
 test.describe('Messenger - Conversation View', () => {
   test('clicking a conversation opens the chat', async ({ page }) => {
     await page.goto('/')
-    await page.waitForTimeout(5_000)
 
     // Click on the conversation with Bob
     const conversationItem = page.getByText('Bob').first()
@@ -87,7 +83,6 @@ test.describe('Messenger - Conversation View', () => {
 
   test('conversation view shows messages', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     // The mock returns a message "Hello Alice!"
     const message = page.getByText('Hello Alice!')
@@ -96,7 +91,6 @@ test.describe('Messenger - Conversation View', () => {
 
   test('conversation view has a message input area', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     // The chat interface has a textarea for sending messages
     const messageInput = page.locator('textarea')
@@ -105,7 +99,6 @@ test.describe('Messenger - Conversation View', () => {
 
   test('can type a message in the input', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     const messageInput = page.locator('textarea').first()
     await expect(messageInput).toBeVisible({ timeout: 15_000 })
@@ -116,7 +109,6 @@ test.describe('Messenger - Conversation View', () => {
 
   test('conversation header shows conversation name', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     // The conversation header should show title or member name
     const header = page.getByText(/Bob|Chat with Bob/i)
@@ -127,7 +119,6 @@ test.describe('Messenger - Conversation View', () => {
 test.describe('Messenger - Search', () => {
   test('conversation list has a search bar', async ({ page }) => {
     await page.goto('/')
-    await page.waitForTimeout(5_000)
 
     // The ConversationList component has ContactSearchBar
     const searchInput = page.locator(
@@ -144,17 +135,14 @@ test.describe('Messenger - Search', () => {
 test.describe('Messenger - Navigation Back', () => {
   test('can navigate back from conversation to list', async ({ page }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
 
     // Look for a back button
     const backButton = page.locator('[aria-label*="back" i], button:has(svg)').first()
     if (await backButton.isVisible()) {
       await backButton.click()
-      await page.waitForTimeout(2_000)
     }
 
     // Should still be in the app, not on login
-    const url = page.url()
-    expect(url).not.toContain('/login')
+    await expect(page).not.toHaveURL(/\/login/)
   })
 })

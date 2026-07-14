@@ -17,6 +17,8 @@
  */
 import { expect, test } from '@playwright/test'
 
+import { waitForWsClient } from './helpers.js'
+
 const MOCK_API = 'http://localhost:5002'
 
 async function setupAuthenticatedUser(request: any) {
@@ -43,7 +45,7 @@ test.beforeEach(async ({ page, request }) => {
 test.describe('Reactions via WebSocket', () => {
   test('reaction emoji appears on a message when reaction-added event is received', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
 
     // Verify the initial message is visible
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
@@ -78,7 +80,7 @@ test.describe('Reactions via WebSocket', () => {
 
   test('multiple reactions appear on a message', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
 
     // Add first reaction
@@ -128,7 +130,7 @@ test.describe('Reactions via WebSocket', () => {
 
   test('reaction disappears when reaction-removed event is received', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
 
     // First add a reaction
@@ -174,7 +176,7 @@ test.describe('Reactions via WebSocket', () => {
 test.describe('Message Edition via WebSocket', () => {
   test('message body updates when message-edition event is received', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
 
     // Verify the original message
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
@@ -206,7 +208,7 @@ test.describe('Message Edition via WebSocket', () => {
 
   test('edited message replaces the original text', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
 
     // Edit the message
@@ -240,9 +242,9 @@ test.describe('Message Edition via WebSocket', () => {
 })
 
 test.describe('Message Hover Actions', () => {
-  test('hovering over a message shows action buttons', async ({ page }) => {
+  test('hovering over a message shows action buttons', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
 
     const message = page.getByText('Hello Alice!').first()
     await expect(message).toBeVisible({ timeout: 15_000 })
@@ -266,7 +268,9 @@ test.describe('Message Hover Actions', () => {
 test.describe('Reactions with Pre-existing Data', () => {
   test('message loaded with reactions shows them immediately', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
+    // Ensure the conversation is loaded (and its message handler bound) before pushing
+    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
 
     // The initial message from the mock has reactions: [] (empty)
     // Let's inject a new message WITH reactions already populated
@@ -310,7 +314,7 @@ test.describe('Reactions with Pre-existing Data', () => {
 test.describe('Multiple Message Interactions', () => {
   test('can react to different messages independently', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
 
     // Add a second message
@@ -382,7 +386,7 @@ test.describe('Multiple Message Interactions', () => {
 
   test('editing a message preserves existing reactions', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
-    await page.waitForTimeout(5_000)
+    await waitForWsClient(request)
     await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
 
     // Add a reaction to msg-1

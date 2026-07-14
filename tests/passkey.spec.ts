@@ -94,7 +94,8 @@ test.describe.serial('User Login Page — Passkey UI', () => {
     })
 
     await page.goto('/login')
-    await page.waitForTimeout(3_000)
+    // Wait for the login form to render before asserting the passkey button is absent
+    await expect(page.locator('[data-cy="username-input"] input')).toBeVisible({ timeout: 30_000 })
 
     // Passkey button should not be visible when local auth is disabled
     const passkeyButton = page.getByRole('button', { name: /passkey|sign in with/i })
@@ -112,8 +113,8 @@ test.describe.serial('Admin Login Page — Passkey UI', () => {
   test('passkey button is hidden when no admin passkeys exist', async ({ page }) => {
     await page.goto('/admin/login')
 
-    // Wait for login form to be loaded
-    await page.waitForTimeout(3_000)
+    // Wait for the login form to render before asserting the passkey button is absent
+    await expect(page.locator('input[type="password"]')).toBeVisible({ timeout: 30_000 })
 
     // No passkeys registered, so button should not be visible
     const passkeyButton = page.getByRole('button', { name: /passkey/i })
@@ -252,7 +253,6 @@ test.describe.serial('Account Settings — Passkey Management', () => {
     })
 
     await page.goto('/')
-    await page.waitForTimeout(5_000)
 
     // Check if browser supports WebAuthn — passkey section only renders when supported
     const supportsWebAuthn = await page.evaluate(() => {
@@ -279,7 +279,6 @@ test.describe.serial('Admin Settings — Passkey Management', () => {
     })
 
     await page.goto('/admin')
-    await page.waitForTimeout(5_000)
 
     // Check if browser supports WebAuthn — passkey section only renders when supported
     const supportsWebAuthn = await page.evaluate(() => {

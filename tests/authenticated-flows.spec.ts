@@ -64,7 +64,7 @@ test.describe.serial('User Login → Messenger Flow', () => {
 
     // After successful login, the token is stored and user is redirected to messenger (/)
     // The AuthProvider fetches /account and shows the messenger
-    await page.waitForTimeout(3_000)
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('accessToken'))).toBeTruthy()
 
     // Token should be in localStorage
     const token = await page.evaluate(() => localStorage.getItem('accessToken'))
@@ -80,13 +80,8 @@ test.describe.serial('User Login → Messenger Flow', () => {
 
     await page.goto('/')
 
-    // Wait for the messenger to load (AuthProvider fetch /account, then render)
-    // The ConversationList has a search bar
-    await page.waitForTimeout(5_000)
-
     // Page should not redirect to login
-    const url = page.url()
-    expect(url).not.toContain('/login')
+    await expect(page).not.toHaveURL(/\/login/)
   })
 })
 
@@ -100,24 +95,17 @@ test.describe('Settings Navigation', () => {
 
   test('can navigate to account settings', async ({ page }) => {
     await page.goto('/settings/account/manage-account')
-    // Should not redirect to login
-    await page.waitForTimeout(5_000)
-    const url = page.url()
-    expect(url).toContain('/settings/account')
+    await expect(page).toHaveURL(/\/settings\/account/)
   })
 
   test('can navigate to general settings', async ({ page }) => {
     await page.goto('/settings/general')
-    await page.waitForTimeout(5_000)
-    const url = page.url()
-    expect(url).toContain('/settings/general')
+    await expect(page).toHaveURL(/\/settings\/general/)
   })
 
   test('can navigate to contacts page', async ({ page }) => {
     await page.goto('/contacts')
-    await page.waitForTimeout(5_000)
-    const url = page.url()
-    expect(url).toContain('/contacts')
+    await expect(page).toHaveURL(/\/contacts/)
   })
 })
 
@@ -145,13 +133,11 @@ test.describe('Admin Panel Features', () => {
 
   test('admin account overview shows page', async ({ page }) => {
     await page.goto('/admin/accounts')
-    await page.waitForTimeout(5_000)
     await expect(page).toHaveURL(/\/admin\/accounts/)
   })
 
   test('admin authentication settings page loads', async ({ page }) => {
     await page.goto('/admin/authentication')
-    await page.waitForTimeout(5_000)
     await expect(page).toHaveURL(/\/admin\/authentication/)
   })
 
@@ -195,7 +181,7 @@ test.describe('Admin Panel Features', () => {
 
   test('admin can navigate between tabs', async ({ page }) => {
     await page.goto('/admin/accounts')
-    await page.waitForTimeout(5_000)
+    await expect(page).toHaveURL(/\/admin\/accounts/)
 
     // Look for navigation links to authentication
     const authLink = page.locator('a[href*="authentication"]').first()
@@ -222,13 +208,14 @@ test.describe('Registration → Login Flow', () => {
     await usernameInput.fill('newuser123')
     await passwordInput.fill('NewUserPass1!')
 
-    // Wait for username availability check
-    await page.waitForTimeout(1_500)
-
     const registerButton = page.locator('[data-cy="register-button"]')
+    // The register button enables once the username availability check passes
+    await expect(registerButton).toBeEnabled()
     await registerButton.click()
 
     // Wait for registration + auto-login
+    // ponytail: fixed wait — the test branches on whether auto-login succeeded, so there is
+    // no single deterministic signal to poll for; a bounded settle is the simplest correct option.
     await page.waitForTimeout(3_000)
 
     // Step 2: If auto-login succeeded, token should be stored
@@ -243,7 +230,7 @@ test.describe('Registration → Login Flow', () => {
       await page.locator('[data-cy="password-input"] input').fill('NewUserPass1!')
       await page.locator('[data-cy="login-button"]').click()
 
-      await page.waitForTimeout(3_000)
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('accessToken'))).toBeTruthy()
       const loginToken = await page.evaluate(() => localStorage.getItem('accessToken'))
       expect(loginToken).toBeTruthy()
     }
