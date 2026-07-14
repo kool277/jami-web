@@ -9,7 +9,7 @@
     "server"
   ],
   "scripts": {
-    "start": "concurrently \"npm start --workspace server\" \"npm start --workspace client\"",
+    "start": "concurrently \"npm start --workspace server\" \"wait-on http-get://localhost:5002/api/config/languages && npm start --workspace client\"",
     "start:prod": " npm run start:prod --workspace server",
     "start:debug-server": "HOME=/tmp npm start --workspace server",
     "build": "npm run build --workspaces",
@@ -73,6 +73,7 @@
     "globals": "^15.15.0",
     "lint-staged": "^15.5.2",
     "prettier": "^3.9.5",
+    "wait-on": "^9.0.10",
     "ws": "^8.21.0"
   },
   "config": {

@@ -37,6 +37,7 @@ test.describe.serial('Admin Setup Flow', () => {
 
   test('admin setup page has password fields', async ({ page }) => {
     await page.goto('/admin/setup/account')
+    await expect(page.getByText('Jami Web Admin Setup', { exact: true })).toBeVisible({ timeout: 30_000 })
     const passwordInput = page.locator('input[type="password"]')
     await expect(passwordInput.first()).toBeVisible({ timeout: 30_000 })
   })
