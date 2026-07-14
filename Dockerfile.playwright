@@ -13,6 +13,8 @@ WORKDIR /app
 COPY package.json ./
 COPY common/ common/
 COPY client/ client/
+# .dockerignore excludes .env* from the build context, so set this directly instead of copying the file
+ENV VITE_API_URL=http://localhost:5002
 
 # Create a minimal server package.json so npm workspaces doesn't fail
 # (we don't install real server deps — the mock server is used instead)

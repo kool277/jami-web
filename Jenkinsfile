@@ -64,7 +64,8 @@ pipeline {
             steps {
                 script {
                     docker.build("jami-web-playwright:${env.BUILD_ID}", "-f Dockerfile.playwright .")
-                    sh "docker run --rm jami-web-playwright:${env.BUILD_ID}"
+                    // --ipc=host: avoid Chromium crashes from Docker's default 64MB /dev/shm (Playwright's documented requirement)
+                    sh "docker run --rm --ipc=host jami-web-playwright:${env.BUILD_ID}"
                 }
             }
         }
