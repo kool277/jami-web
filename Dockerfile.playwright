@@ -21,6 +21,9 @@ ENV VITE_API_URL=http://localhost:5002
 RUN mkdir -p server && echo '{"name":"jami-web-server","version":"1.0.0","private":true}' > server/package.json
 RUN mkdir -p daemon/bin/nodejs && echo '{"name":"jamid","version":"1.0.0","private":true}' > daemon/bin/nodejs/package.json
 
+# The mock server serves real translations from here; without them the UI renders raw i18n keys
+COPY server/locale/ server/locale/
+
 # Install dependencies (common + client only; server/daemon stubs are empty)
 RUN npm install --ignore-scripts 2>&1 || true
 # Build common workspace (client depends on it)
