@@ -29,12 +29,15 @@ RUN npm install --ignore-scripts 2>&1 || true
 # Build common workspace (client depends on it)
 RUN npm run build --workspace=common 2>&1 || true
 
+# tsx runs the mock server; install it now so it isn't fetched at runtime each CI run
+RUN npm install -g tsx@4.23.1
+
+# Install Playwright browsers (before copying tests so test edits don't bust this layer)
+RUN npx playwright install --with-deps chromium
+
 # Copy test infrastructure
 COPY playwright.config.ts ./
 COPY tests/ tests/
-
-# Install Playwright browsers
-RUN npx playwright install --with-deps chromium
 
 # Run tests (chromium only in CI for speed)
 CMD ["npx", "playwright", "test", "--project=chromium"]
