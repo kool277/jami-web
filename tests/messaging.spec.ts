@@ -97,6 +97,24 @@ test.describe('Messenger - Conversation View', () => {
     await expect(messageInput.first()).toBeVisible({ timeout: 15_000 })
   })
 
+  test('emoji picker fits in the viewport when first opened', async ({ page }) => {
+    await page.goto('/conversation/conv-1')
+
+    await page.getByRole('button', { name: 'select emoji' }).click()
+
+    const picker = page.locator('aside.EmojiPickerReact')
+    await expect(picker).toBeVisible({ timeout: 15_000 })
+
+    const pickerBox = await picker.boundingBox()
+    const viewport = page.viewportSize()
+    expect(pickerBox).toBeTruthy()
+    expect(viewport).toBeTruthy()
+    expect(pickerBox!.x).toBeGreaterThanOrEqual(0)
+    expect(pickerBox!.y).toBeGreaterThanOrEqual(0)
+    expect(pickerBox!.x + pickerBox!.width).toBeLessThanOrEqual(viewport!.width)
+    expect(pickerBox!.y + pickerBox!.height).toBeLessThanOrEqual(viewport!.height)
+  })
+
   test('can type a message in the input', async ({ page }) => {
     await page.goto('/conversation/conv-1')
 

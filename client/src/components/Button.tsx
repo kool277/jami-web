@@ -34,10 +34,21 @@ import {
   Tooltip,
 } from '@mui/material'
 import { PaletteColor, styled, useTheme } from '@mui/material/styles'
-import { ComponentType, ReactNode, useCallback, useState } from 'react'
+import { type Instance as PopperInstance } from '@popperjs/core'
+import {
+  ComponentProps,
+  ComponentType,
+  lazy,
+  ReactNode,
+  Suspense,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { type EmojiClickData, EmojiPicker } from '../utils/emojiPicker.js'
+import { type EmojiClickData } from '../utils/emojiPicker.js'
 import {
   AddCircleIcon as QuestionMark,
   CancelIcon as RadioButtonUnchecked,
@@ -67,6 +78,18 @@ import {
   VideoCallIcon,
 } from './SvgIcon.js'
 import CustomTooltip from './Tooltip.js'
+
+const EmojiPicker = lazy(() => import('../utils/emojiPicker.js').then((module) => ({ default: module.EmojiPicker })))
+
+type PositionedEmojiPickerProps = ComponentProps<typeof EmojiPicker> & {
+  onMount: () => void
+}
+
+const PositionedEmojiPicker = ({ onMount, ...props }: PositionedEmojiPickerProps) => {
+  useLayoutEffect(onMount, [onMount])
+
+  return <EmojiPicker {...props} />
+}
 
 export type ShapedButtonProps = IconButtonProps & {
   Icon: ComponentType<SvgIconProps>
@@ -479,10 +502,12 @@ type SelectEmojiButtonProps = {
 }
 export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
+  const popperRef = useRef<PopperInstance | null>(null)
   const { t } = useTranslation()
   const handleOpenEmojiPicker = useCallback((e: any) => setAnchorEl(anchorEl ? null : e.currentTarget), [anchorEl])
   const theme = useTheme()
   const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl])
+  const updatePickerPosition = useCallback(() => popperRef.current?.forceUpdate(), [])
 
   const onEmojiClick = //useCallback(
     (emoji: EmojiClickData, _: MouseEvent) => {
@@ -505,13 +530,16 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
           onClick={handleOpenEmojiPicker}
           tooltip={t('button_select_emoji')}
         />
-        <Popper sx={{ zIndex: 2 }} id={id} open={open} anchorEl={anchorEl}>
-          <EmojiPicker
-            theme={theme.EmojiPicker.backgroundColor}
-            onEmojiClick={onEmojiClick}
-            autoFocusSearch={false}
-            skinTonesDisabled={true}
-          />
+        <Popper sx={{ zIndex: 2 }} id={id} open={open} anchorEl={anchorEl} popperRef={popperRef}>
+          <Suspense fallback={null}>
+            <PositionedEmojiPicker
+              onMount={updatePickerPosition}
+              theme={theme.EmojiPicker.backgroundColor}
+              onEmojiClick={onEmojiClick}
+              autoFocusSearch={false}
+              skinTonesDisabled={true}
+            />
+          </Suspense>
         </Popper>
       </Box>
     </ClickAwayListener>

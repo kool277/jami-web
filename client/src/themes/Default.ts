@@ -16,7 +16,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { createTheme, PaletteMode, SimplePaletteColorOptions } from '@mui/material'
-import { Theme as EmojiTheme } from 'emoji-picker-react'
+import { type Theme as EmojiTheme } from 'emoji-picker-react'
+
+const lightEmojiTheme = 'light' as EmojiTheme
+const darkEmojiTheme = 'dark' as EmojiTheme
 
 declare module '@mui/material/styles' {
   interface Theme {
@@ -294,7 +297,7 @@ const palettes = {
       iconsColor: '#333333',
     },
     EmojiPicker: {
-      backgroundColor: EmojiTheme.LIGHT,
+      backgroundColor: lightEmojiTheme,
     },
     CustomSelect: {
       backgroundColor: 'white',
@@ -406,7 +409,7 @@ const palettes = {
       iconsColor: 'white',
     },
     EmojiPicker: {
-      backgroundColor: EmojiTheme.DARK,
+      backgroundColor: darkEmojiTheme,
     },
     CustomSelect: {
       backgroundColor: '#121212',
