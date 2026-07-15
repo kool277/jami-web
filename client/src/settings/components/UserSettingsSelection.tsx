@@ -19,9 +19,9 @@ import { Box } from '@mui/material'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ISettingItem } from '../utils/utils.js'
-import SettingSidebar from './SettingSidebar.js'
-import { AudioCallIcon, BadgeIcon, DevicesIcon, ManageAccountsIcon, SettingsIcon } from './SvgIcon.js'
+import SettingSidebar from '../../components/SettingSidebar.js'
+import { AudioCallIcon, BadgeIcon, DevicesIcon, ManageAccountsIcon, SettingsIcon } from '../../components/SvgIcon.js'
+import { ISettingItem } from '../../utils/utils.js'
 
 function UserSettingsSelection() {
   const { t } = useTranslation()

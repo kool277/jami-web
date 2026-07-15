@@ -27,7 +27,6 @@ import { use, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import QrReader from '../../components/QrReader.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { useWebSocketContext } from '../../contexts/WebSocketProvider.js'
 import {
@@ -35,6 +34,7 @@ import {
   useConfirmAddDeviceMutation,
   useExportAccountMutation,
 } from '../../services/accountQueries.js'
+import QrReader from '../components/QrReader.js'
 
 export function ExportToAnotherDevice() {
   const { setAlertContent } = use(AlertSnackbarContext)

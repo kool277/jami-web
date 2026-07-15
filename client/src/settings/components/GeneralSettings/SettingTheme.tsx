@@ -16,24 +16,23 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { use, useCallback, useState } from 'react'
+import { Box } from '@mui/material'
+import { use } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { NotificationContext } from '../../contexts/NotificationsProvider.js'
-import { SettingSwitch } from '../Settings.js'
+import { SettingSwitch } from '../../../components/Settings.js'
+import { CustomThemeContext } from '../../../contexts/CustomThemeProvider.js'
 
-const SettingNotifications = () => {
+const SettingTheme = () => {
   const { t } = useTranslation()
-  const { enable, setIsEnabled } = use(NotificationContext)
 
-  const [isOn, setIsOn] = useState<boolean>(enable)
+  const { mode, toggleMode } = use(CustomThemeContext)
 
-  const onChange = useCallback(() => {
-    setIsEnabled(!isOn)
-    setIsOn((isOn) => !isOn)
-  }, [isOn, setIsEnabled])
-
-  return <SettingSwitch label={t('settings_menu_item_notifications')} onChange={onChange} checked={isOn} />
+  return (
+    <Box sx={{ textAlign: 'start' }}>
+      <SettingSwitch label={t('settings_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />
+    </Box>
+  )
 }
 
-export default SettingNotifications
+export default SettingTheme

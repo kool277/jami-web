@@ -38,12 +38,12 @@ import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { DeleteIcon } from '../../../components/SvgIcon.js'
 import {
   useDeletePasskeyMutation,
   usePasskeyCredentialsQuery,
   useRegisterPasskeyMutation,
-} from '../../services/passkeyQueries.js'
-import { DeleteIcon } from '../SvgIcon.js'
+} from '../../../services/passkeyQueries.js'
 
 export default function PasskeyManager() {
   const { t } = useTranslation()

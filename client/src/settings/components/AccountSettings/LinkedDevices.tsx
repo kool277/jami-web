@@ -36,10 +36,10 @@ import { visuallyHidden } from '@mui/utils'
 import { ChangeEvent, MouseEvent, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthContext } from '../../contexts/AuthProvider.js'
-import { useRemoveLinkedDevice } from '../../services/accountQueries.js'
-import EllipsisMiddle from '../EllipsisMiddle.js'
-import { DeleteIcon, DevicesIcon } from '../SvgIcon.js'
+import EllipsisMiddle from '../../../components/EllipsisMiddle.js'
+import { DeleteIcon, DevicesIcon } from '../../../components/SvgIcon.js'
+import { useAuthContext } from '../../../contexts/AuthProvider.js'
+import { useRemoveLinkedDevice } from '../../../services/accountQueries.js'
 import PasswordRequiredModal from './PasswordRequiredModal.js'
 
 interface DeviceRow {

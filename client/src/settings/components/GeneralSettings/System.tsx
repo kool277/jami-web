@@ -18,9 +18,9 @@
 import { Box, Stack } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
-import LayoutSettings from '../LayoutSettings.js'
-import { SettingsGroup } from '../Settings.js'
-import SettingLanguage from './SettingLanguage.js'
+import LayoutSettings from '../../../components/LayoutSettings.js'
+import SettingLanguage from '../../../components/SettingLanguage.js'
+import { SettingsGroup } from '../../../components/Settings.js'
 import SettingLinkPreview from './SettingLinkPreview.js'
 import SettingNotifications from './SettingNotifications.js'
 import SettingTheme from './SettingTheme.js'

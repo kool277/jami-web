@@ -16,23 +16,24 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box } from '@mui/material'
-import { use } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useState } from 'react'
 
-import { CustomThemeContext } from '../../contexts/CustomThemeProvider.js'
-import { SettingSwitch } from '../Settings.js'
+import { SettingSwitch } from '../../../components/Settings.js'
 
-const SettingTheme = () => {
-  const { t } = useTranslation()
+const SettingTips = () => {
+  const [isDisabled, setIsDisabled] = useState<boolean>(() => localStorage.getItem('disable-tips') === 'true')
 
-  const { mode, toggleMode } = use(CustomThemeContext)
+  const handleTipState = () => {
+    if (isDisabled) {
+      localStorage.removeItem('disable-tips')
+      setIsDisabled(false)
+      return
+    }
+    localStorage.setItem('disable-tips', 'true')
+    setIsDisabled(true)
+  }
 
-  return (
-    <Box sx={{ textAlign: 'start' }}>
-      <SettingSwitch label={t('settings_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />
-    </Box>
-  )
+  return <SettingSwitch label="Disable tips" onChange={handleTipState} checked={isDisabled} />
 }
 
-export default SettingTheme
+export default SettingTips

@@ -34,15 +34,15 @@ import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthContext } from '../contexts/AuthProvider.js'
-import { thumbnailVariants } from '../themes/MotionVariants.js'
-import ConversationAvatar from './ConversationAvatar.js'
+import ConversationAvatar from '../../components/ConversationAvatar.js'
 import {
   AddCircleIcon as AddCircle,
   AudioCallIcon as PhoneCallbackRounded,
   DeleteIcon as DeleteRounded,
   GroupsIcon as GroupRounded,
-} from './SvgIcon.js'
+} from '../../components/SvgIcon.js'
+import { useAuthContext } from '../../contexts/AuthProvider.js'
+import { thumbnailVariants } from '../../themes/MotionVariants.js'
 
 export default function CallPreferences() {
   const { t } = useTranslation()

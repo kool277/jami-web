@@ -27,6 +27,7 @@ import { AuthenticationMethods } from './enums/authenticationMethods.js'
 import { RouteParams } from './hooks/useUrlParams.js'
 
 const loadAdminBundle = () => import('./admin/index.js')
+const loadSettingsBundle = () => import('./settings/index.js')
 const AccountDetailsListener = lazy(() => import('./components/AccountDetailsListener.js'))
 const AccountsOverview = lazy(() => loadAdminBundle().then(({ AccountsOverview }) => ({ default: AccountsOverview })))
 const AdminAccountConfiguration = lazy(() =>
@@ -45,7 +46,9 @@ const ContactList = lazy(() => import('./components/ContactList.js'))
 const ConversationView = lazy(() => import('./components/ConversationView.js'))
 const LayoutWrapper = lazy(() => import('./components/LayoutWrapper.js'))
 const NotificationHandler = lazy(() => import('./components/NotificationHandler.js'))
-const UserSettingsSelection = lazy(() => import('./components/UserSettingsSelection.js'))
+const UserSettingsSelection = lazy(() =>
+  loadSettingsBundle().then(({ UserSettingsSelection }) => ({ default: UserSettingsSelection })),
+)
 const WelcomePage = lazy(() => import('./components/WelcomePage.js'))
 const ActionMessageProvider = lazy(() => import('./contexts/ActionMessageProvider.js'))
 const AuthProvider = lazy(() => import('./contexts/AuthProvider.js'))
@@ -57,7 +60,7 @@ const PresenceProvider = lazy(() => import('./contexts/PresenceProvider.js'))
 const UserMediaProvider = lazy(() => import('./contexts/UserMediaProvider.js'))
 const WebSocketLinkProvider = lazy(() => import('./contexts/WebSocketLinkProvider.js'))
 const WebSocketProvider = lazy(() => import('./contexts/WebSocketProvider.js'))
-const AccountSettings = lazy(() => import('./pages/AccountSettings.js'))
+const AccountSettings = lazy(() => loadSettingsBundle().then(({ AccountSettings }) => ({ default: AccountSettings })))
 const AdminLogin = lazy(() => loadAdminBundle().then(({ AdminLogin }) => ({ default: AdminLogin })))
 const AdminPanel = lazy(() => loadAdminBundle().then(({ AdminPanel }) => ({ default: AdminPanel })))
 const AdminConfigureJams = lazy(() =>
@@ -69,14 +72,14 @@ const AdminConfigureNameServer = lazy(() =>
 const AdminCreateAccount = lazy(() =>
   loadAdminBundle().then(({ AdminCreateAccount }) => ({ default: AdminCreateAccount })),
 )
-const CallSettings = lazy(() => import('./pages/CallSettings.js'))
+const CallSettings = lazy(() => loadSettingsBundle().then(({ CallSettings }) => ({ default: CallSettings })))
 const ExportToAnotherDevice = lazy(() =>
-  import('./pages/ExportAccount/ExportToAnotherDevice.js').then(({ ExportToAnotherDevice }) => ({
-    default: ExportToAnotherDevice,
-  })),
+  loadSettingsBundle().then(({ ExportToAnotherDevice }) => ({ default: ExportToAnotherDevice })),
 )
-const GeneralSettings = lazy(() => import('./pages/GeneralSettings.js'))
-const LinkedDevicesPage = lazy(() => import('./pages/LinkedDevicesPage.js'))
+const GeneralSettings = lazy(() => loadSettingsBundle().then(({ GeneralSettings }) => ({ default: GeneralSettings })))
+const LinkedDevicesPage = lazy(() =>
+  loadSettingsBundle().then(({ LinkedDevicesPage }) => ({ default: LinkedDevicesPage })),
+)
 const ImportAccount = lazy(() => import('./pages/LinkExistingDevice/ImportAccount.js'))
 const ImportAccountConfirmation = lazy(() => import('./pages/LinkExistingDevice/ImportAccountConfirmation.js'))
 const ImportAccountConnecting = lazy(() => import('./pages/LinkExistingDevice/ImportAccountConnecting.js'))

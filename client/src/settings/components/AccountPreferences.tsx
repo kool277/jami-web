@@ -18,13 +18,13 @@
 import { Box, Card, CardContent, Grid, Typography } from '@mui/material'
 import { motion } from 'framer-motion'
 
-import { useAuthContext } from '../contexts/AuthProvider.js'
-import { thumbnailVariants } from '../themes/MotionVariants.js'
+import ConversationsOverviewCard from '../../components/ConversationsOverviewCard.js'
+import JamiIdCard from '../../components/JamiIdCard.js'
+import { useAuthContext } from '../../contexts/AuthProvider.js'
+import { thumbnailVariants } from '../../themes/MotionVariants.js'
 import CustomizeProfile from './AccountSettings/CustomizeProfile.js'
 import LinkedDevicesPreview from './AccountSettings/LinkedDevicesPreview.js'
 import PasskeyManager from './AccountSettings/PasskeyManager.js'
-import ConversationsOverviewCard from './ConversationsOverviewCard.js'
-import JamiIdCard from './JamiIdCard.js'
 
 export default function AccountPreferences() {
   const { account } = useAuthContext()

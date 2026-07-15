@@ -20,7 +20,7 @@ import { Box } from '@mui/material'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { SettingSwitch } from '../Settings.js'
+import { SettingSwitch } from '../../../components/Settings.js'
 
 const SettingLinkPreview = () => {
   const { t } = useTranslation()

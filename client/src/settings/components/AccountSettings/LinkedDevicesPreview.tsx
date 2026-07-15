@@ -26,7 +26,7 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { useAuthContext } from '../../contexts/AuthProvider.js'
+import { useAuthContext } from '../../../contexts/AuthProvider.js'
 
 function LinkedDevicesPreview() {
   const { account } = useAuthContext()

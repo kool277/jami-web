@@ -20,8 +20,8 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthContext } from '../../contexts/AuthProvider.js'
-import JamiIdCard from '../JamiIdCard.js'
+import JamiIdCard from '../../../components/JamiIdCard.js'
+import { useAuthContext } from '../../../contexts/AuthProvider.js'
 
 function ManageAccount() {
   const { t } = useTranslation()

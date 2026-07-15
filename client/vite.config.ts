@@ -101,6 +101,12 @@ export default defineConfig(({ mode }) => {
                 includeDependenciesRecursively: false,
               },
               {
+                name: 'settings',
+                test: /client[\\/]src[\\/]settings[\\/]/,
+                priority: 20,
+                includeDependenciesRecursively: false,
+              },
+              {
                 name: 'react-vendor',
                 test: /node_modules[\\/](react|react-dom|react-router|scheduler)[\\/]/,
                 includeDependenciesRecursively: false,

@@ -16,24 +16,24 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { useState } from 'react'
+import { use, useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import { SettingSwitch } from '../Settings.js'
+import { SettingSwitch } from '../../../components/Settings.js'
+import { NotificationContext } from '../../../contexts/NotificationsProvider.js'
 
-const SettingTips = () => {
-  const [isDisabled, setIsDisabled] = useState<boolean>(() => localStorage.getItem('disable-tips') === 'true')
+const SettingNotifications = () => {
+  const { t } = useTranslation()
+  const { enable, setIsEnabled } = use(NotificationContext)
 
-  const handleTipState = () => {
-    if (isDisabled) {
-      localStorage.removeItem('disable-tips')
-      setIsDisabled(false)
-      return
-    }
-    localStorage.setItem('disable-tips', 'true')
-    setIsDisabled(true)
-  }
+  const [isOn, setIsOn] = useState<boolean>(enable)
 
-  return <SettingSwitch label="Disable tips" onChange={handleTipState} checked={isDisabled} />
+  const onChange = useCallback(() => {
+    setIsEnabled(!isOn)
+    setIsOn((isOn) => !isOn)
+  }, [isOn, setIsEnabled])
+
+  return <SettingSwitch label={t('settings_menu_item_notifications')} onChange={onChange} checked={isOn} />
 }
 
-export default SettingTips
+export default SettingNotifications

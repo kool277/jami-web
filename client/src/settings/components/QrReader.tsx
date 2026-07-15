@@ -19,7 +19,7 @@
 import { Box } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 
-import { QrScanner, type QrScannerInstance, type QrScanResult } from '../utils/qrScanner.js'
+import { QrScanner, type QrScannerInstance, type QrScanResult } from '../../utils/qrScanner.js'
 
 interface QrReader {
   setScannedResult: (result: string | undefined) => void
