@@ -19,10 +19,10 @@
 import { use, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import LoadingPage from '../../components/Loading.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
-import { checkAdminTokenValidity } from '../../services/adminQueries.js'
 import { isElectronMode } from '../../utils/electron.js'
-import LoadingPage from '../Loading.js'
+import { useCheckAdminTokenValidity } from '../services/adminQueries.js'
 
 interface AdminAuthWrapperProps {
   children: React.ReactNode

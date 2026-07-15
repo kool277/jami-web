@@ -25,14 +25,14 @@ import {
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import LayoutSettings from '../../components/LayoutSettings.js'
+import ProcessingRequest from '../../components/ProcessingRequest.js'
+import { useGetConferenceResolution } from '../../services/dataTransferQueries.js'
 import {
   useGetAdminConfigQuery,
   useSetConferenceResolution,
   useUpdateAdminConfigMutation,
-} from '../../services/adminQueries.js'
-import { useGetConferenceResolution } from '../../services/dataTransferQueries.js'
-import LayoutSettings from '../LayoutSettings.js'
-import ProcessingRequest from '../ProcessingRequest.js'
+} from '../services/adminQueries.js'
 
 export default function MediaSettings() {
   const conferenceResolutionData = useGetConferenceResolution()

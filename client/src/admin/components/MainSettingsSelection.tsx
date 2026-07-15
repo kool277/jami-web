@@ -21,8 +21,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { AdminConfigurationOptions } from '../../enums/adminConfigurationOptions.js'
-import SettingSidebar from '../SettingSidebar.js'
+import SettingSidebar from '../../components/SettingSidebar.js'
 import {
   AdminPanelSettingsIcon,
   BadgeIcon,
@@ -31,7 +30,8 @@ import {
   LiveTvIcon,
   LogoutIcon,
   PeopleIcon,
-} from '../SvgIcon.js'
+} from '../../components/SvgIcon.js'
+import { AdminConfigurationOptions } from '../../enums/adminConfigurationOptions.js'
 
 //Settings meta structure
 interface ISettingItem {

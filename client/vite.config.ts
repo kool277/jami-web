@@ -90,6 +90,36 @@ export default defineConfig(({ mode }) => {
       outDir: '../server/client/dist',
       emptyOutDir: true,
       target: ['chrome117', 'edge121', 'firefox121', 'safari17'],
+      rolldownOptions: {
+        output: {
+          codeSplitting: {
+            groups: [
+              {
+                name: 'admin',
+                test: /client[\\/]src[\\/]admin[\\/]/,
+                priority: 20,
+                includeDependenciesRecursively: false,
+              },
+              {
+                name: 'react-vendor',
+                test: /node_modules[\\/](react|react-dom|react-router|scheduler)[\\/]/,
+                includeDependenciesRecursively: false,
+              },
+              {
+                name: 'ui-vendor',
+                test: /node_modules[\\/](@mui|@emotion|@popperjs|material-symbols|react-transition-group)[\\/]/,
+                includeDependenciesRecursively: false,
+              },
+              {
+                name: 'shared',
+                entriesAware: true,
+                entriesAwareMergeThreshold: 16 * 1024,
+                includeDependenciesRecursively: false,
+              },
+            ],
+          },
+        },
+      },
     },
     define: {
       global: {},

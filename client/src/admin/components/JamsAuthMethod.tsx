@@ -21,81 +21,85 @@ import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
+import LayoutSettings from '../../components/LayoutSettings.js'
+import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import {
   useGetAdminConfigQuery,
-  useGetNameServer,
-  useResetNameServer,
-  useSetNameServer,
+  useGetJamsUrl,
+  useSetJamsUrl,
   useUpdateAdminConfigMutation,
-} from '../../services/adminQueries.js'
-import LayoutSettings from '../LayoutSettings.js'
-import ProcessingRequest from '../ProcessingRequest.js'
+} from '../services/adminQueries.js'
 
-const LocalAuthMethod = () => {
+const JamsAuthMethod = () => {
   const [accessToken] = useState(() => localStorage.getItem('adminAccessToken'))
   const { data } = useGetAdminConfigQuery()
-  const nameserverSet = useGetNameServer()
-  const nameServerConfigured = nameserverSet.data
+  const jamsUrlQuery = useGetJamsUrl()
+  const jamsCurrentUrl = jamsUrlQuery.data
 
   if (!accessToken) {
     return <Navigate to="/admin/login" replace />
   }
 
   // TODO: handle error and notify the user that something went wrong
-  if (data === undefined || nameServerConfigured === undefined) {
+  if (data === undefined || jamsCurrentUrl === undefined) {
     return <ProcessingRequest open />
   }
 
-  return <LocalAuthMethodForm key={nameServerConfigured} data={data} nameServerConfigured={nameServerConfigured} />
+  return <JamsAuthMethodForm key={jamsCurrentUrl} data={data} jamsCurrentUrl={jamsCurrentUrl} />
 }
 
-const LocalAuthMethodForm = ({
+const JamsAuthMethodForm = ({
   data,
-  nameServerConfigured,
+  jamsCurrentUrl,
 }: {
   data: NonNullable<ReturnType<typeof useGetAdminConfigQuery>['data']>
-  nameServerConfigured: string
+  jamsCurrentUrl: string
 }) => {
   const { t } = useTranslation()
   const saveAdminConfigMutation = useUpdateAdminConfigMutation()
-  const [nameServer, setNameServer] = useState<string>(nameServerConfigured)
-  const setNameServerMutation = useSetNameServer()
-  const resetServerNameMutation = useResetNameServer()
+  const setJamsUrlMutation = useSetJamsUrl()
+  const [jamsUrl, setJamsUrl] = useState<string>(jamsCurrentUrl)
   const { setAlertContent } = use(AlertSnackbarContext)
 
   const handleChange = () => {
-    saveAdminConfigMutation.mutate({ localAuthEnabled: !data.localAuthEnabled })
+    saveAdminConfigMutation.mutate({ jamsAuthEnabled: !data.jamsAuthEnabled })
   }
 
-  const handleNameChangeNameServer = (event: ChangeEvent<HTMLInputElement>) => {
-    setNameServer(event.target.value)
+  const handleNameChangeJamsUrl = (event: ChangeEvent<HTMLInputElement>) => {
+    setJamsUrl(event.target.value)
   }
 
-  const deleteNameServer = async () => {
-    resetServerNameMutation.mutate()
-  }
+  const submitNewJamsUrl = async () => {
+    // verifies if the string is a server adress or name server
+    const regexValidation = urlRegex.test(jamsUrl)
 
-  const submitNewNameServer = async () => {
-    // verifies if the string is a server address or name server
-    if (urlRegex.test(nameServer) && nameServer !== nameServerConfigured) {
-      setNameServerMutation.mutate(nameServer)
-      setNameServer('')
-    } else {
+    if (jamsUrl === jamsCurrentUrl) {
       setAlertContent({
-        messageI18nKey: 'setting_name_server_error',
+        messageI18nKey: 'setting_jams_server_error_same_value',
         severity: 'error',
         alertOpen: true,
       })
+      return
     }
+    if (!regexValidation) {
+      setAlertContent({
+        messageI18nKey: 'setting_jams_server_error',
+        severity: 'error',
+        alertOpen: true,
+      })
+      return
+    }
+    setJamsUrlMutation.mutate(jamsUrl)
   }
 
   return (
-    <LayoutSettings title={t('jami_authentication')} text={t('jami_authentication_info')} disableMarginTop>
+    <LayoutSettings title={t('jams_authentication')} text={t('jams_authentication_info')} disableMarginTop>
       <Stack spacing={3} sx={{ width: '100%', minWidth: '300px', pb: 2 }}>
         <Box sx={{ textAlign: 'start', width: '100%' }}>
           <Box
             sx={{
+              width: '100%',
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
@@ -103,34 +107,31 @@ const LocalAuthMethodForm = ({
               gap: 2,
             }}
           >
-            <Typography>{t('setting_auth_change', { authMethod: t('jami') })}</Typography>
-            <Switch checked={data.localAuthEnabled} onChange={handleChange} />
+            <Typography>{t('setting_auth_change', { authMethod: t('jams') })}</Typography>
+            <Switch checked={data.jamsAuthEnabled} onChange={handleChange} />
           </Box>
           <Stack spacing={1.5} sx={{ mt: 3 }}>
-            <Typography component="label" htmlFor="name-server-input">
-              {t('setting_name_server')}
+            <Typography component="label" htmlFor="jams-url-input">
+              {t('jams_url')}
             </Typography>
             <Form style={{ width: '100%' }}>
-              <Input id="name-server-input" fullWidth value={nameServer} onChange={handleNameChangeNameServer} />
+              <Input
+                id="jams-url-input"
+                fullWidth
+                value={jamsUrl}
+                onChange={handleNameChangeJamsUrl}
+                placeholder={t('enter_jams_server')}
+              />
             </Form>
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+              <Button variant="contained" type="submit" onClick={submitNewJamsUrl}>
+                {t('save_button')}
+              </Button>
+            </Box>
           </Stack>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: 1, mt: 3 }}>
-            <Button variant="contained" onClick={deleteNameServer}>
-              {t('reset_nameserver_button')}
-            </Button>
-            <Button
-              variant="contained"
-              type="submit"
-              onClick={submitNewNameServer}
-              disabled={nameServer === nameServerConfigured}
-            >
-              {t('save_button')}
-            </Button>
-          </Box>
         </Box>
       </Stack>
     </LayoutSettings>
   )
 }
-
-export default LocalAuthMethod
+export default JamsAuthMethod

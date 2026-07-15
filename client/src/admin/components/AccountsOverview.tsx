@@ -37,9 +37,9 @@ import { t } from 'i18next'
 import { ChangeEvent, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useDeleteAccounts, useGetAllAccounts } from '../../services/adminQueries.js'
+import { DeleteIcon } from '../../components/SvgIcon.js'
 import { getDataSizeUnits } from '../../utils/units.js'
-import { DeleteIcon } from '../SvgIcon.js'
+import { useDeleteAccounts, useGetAllAccounts } from '../services/adminQueries.js'
 import ValidationRequiredModal from './ValidationRequiredModal.js'
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {

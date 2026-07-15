@@ -19,9 +19,9 @@
 import { Box, FormControl, FormControlLabel, FormGroup, Switch } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
-import { useGetAdminConfigQuery, useUpdateAdminConfigMutation } from '../../services/adminQueries.js'
-import LayoutSettings from '../LayoutSettings.js'
-import ProcessingRequest from '../ProcessingRequest.js'
+import LayoutSettings from '../../components/LayoutSettings.js'
+import ProcessingRequest from '../../components/ProcessingRequest.js'
+import { useGetAdminConfigQuery, useUpdateAdminConfigMutation } from '../services/adminQueries.js'
 
 export default function GuestAuthMethod() {
   const saveAdminConfigMutation = useUpdateAdminConfigMutation()

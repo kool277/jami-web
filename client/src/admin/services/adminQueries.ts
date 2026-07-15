@@ -29,9 +29,11 @@ import axios, { AxiosError } from 'axios'
 import { use, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
-import { AuthenticationMethods } from '../enums/authenticationMethods.js'
-import { apiUrl } from '../utils/constants.js'
+import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
+import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
+import { apiUrl } from '../../utils/constants.js'
+
+export { useGetAdminConfigQuery } from '../../services/adminConfigQueries.js'
 
 const getAdminAuthorizationHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
@@ -238,51 +240,6 @@ export const useSetNameServer = () => {
       })
     },
   })
-}
-
-export const useGetAdminConfigQuery = () => {
-  const navigate = useNavigate()
-  const { setAlertContent } = use(AlertSnackbarContext)
-  const query = useQuery({
-    queryKey: ['admin', 'config'],
-    queryFn: async () => {
-      const { data } = await axios.get('/admin/config', {
-        baseURL: apiUrl,
-        //TODO: create a intercepted axios instance for auth-required requests
-      })
-      return data
-    } /*,
-    onError: (e: any) => {
-      if (e.response.status === HttpStatusCode.Unauthorized) {
-        localStorage.removeItem('adminAccessToken')
-        navigate('/admin/login')
-      } else {
-        setAlertContent({
-          messageI18nKey: 'unknown_error_alert',
-          severity: 'error',
-          alertOpen: true,
-        })
-      }
-    },*/,
-  })
-
-  useEffect(() => {
-    if (query.error) {
-      const response = query.error as AxiosError
-      if (response?.status === HttpStatusCode.Unauthorized) {
-        localStorage.removeItem('adminAccessToken')
-        navigate('/admin/login')
-      } else {
-        setAlertContent({
-          messageI18nKey: 'unknown_error_alert',
-          severity: 'error',
-          alertOpen: true,
-        })
-      }
-    }
-  }, [query.error, navigate, setAlertContent])
-
-  return query
 }
 
 export const useUpdateAdminConfigMutation = () => {

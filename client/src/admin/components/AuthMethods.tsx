@@ -25,7 +25,7 @@ import { Navigate, useNavigate } from 'react-router-dom'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
 import rightChevron from '../../icons/rightChevron.svg'
-import { useGetAdminConfigQuery } from '../../services/adminQueries.js'
+import { useGetAdminConfigQuery } from '../services/adminQueries.js'
 
 export default function AuthMethods() {
   const { t } = useTranslation()

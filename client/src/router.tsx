@@ -26,18 +26,21 @@ import { AdminConfigurationOptions } from './enums/adminConfigurationOptions.js'
 import { AuthenticationMethods } from './enums/authenticationMethods.js'
 import { RouteParams } from './hooks/useUrlParams.js'
 
+const loadAdminBundle = () => import('./admin/index.js')
 const AccountDetailsListener = lazy(() => import('./components/AccountDetailsListener.js'))
-const AccountsOverview = lazy(() => import('./components/AdminSettings/AccountsOverview.js'))
-const AdminAccountConfiguration = lazy(() => import('./components/AdminSettings/AdminAccountConfiguration.js'))
-const AdminAuthWrapper = lazy(() => import('./components/AdminSettings/AdminAuthWrapper.js'))
-const AuthMethods = lazy(() => import('./components/AdminSettings/AuthMethods.js'))
-const ConfigureOpenId = lazy(() => import('./components/AdminSettings/ConfigureOpenId.js'))
-const DownloadLimit = lazy(() => import('./components/AdminSettings/DownloadLimit.js'))
-const GuestAuthMethod = lazy(() => import('./components/AdminSettings/GuestAuthMethod.js'))
-const JamsAuthMethod = lazy(() => import('./components/AdminSettings/JamsAuthMethod.js'))
-const LocalAuthMethod = lazy(() => import('./components/AdminSettings/LocalAuthMethod.js'))
-const MediaSettings = lazy(() => import('./components/AdminSettings/MediaSettings.js'))
-const OpenIdAuthMethod = lazy(() => import('./components/AdminSettings/OpenIdAuthMethod.js'))
+const AccountsOverview = lazy(() => loadAdminBundle().then(({ AccountsOverview }) => ({ default: AccountsOverview })))
+const AdminAccountConfiguration = lazy(() =>
+  loadAdminBundle().then(({ AdminAccountConfiguration }) => ({ default: AdminAccountConfiguration })),
+)
+const AdminAuthWrapper = lazy(() => loadAdminBundle().then(({ AdminAuthWrapper }) => ({ default: AdminAuthWrapper })))
+const AuthMethods = lazy(() => loadAdminBundle().then(({ AuthMethods }) => ({ default: AuthMethods })))
+const ConfigureOpenId = lazy(() => loadAdminBundle().then(({ ConfigureOpenId }) => ({ default: ConfigureOpenId })))
+const DownloadLimit = lazy(() => loadAdminBundle().then(({ DownloadLimit }) => ({ default: DownloadLimit })))
+const GuestAuthMethod = lazy(() => loadAdminBundle().then(({ GuestAuthMethod }) => ({ default: GuestAuthMethod })))
+const JamsAuthMethod = lazy(() => loadAdminBundle().then(({ JamsAuthMethod }) => ({ default: JamsAuthMethod })))
+const LocalAuthMethod = lazy(() => loadAdminBundle().then(({ LocalAuthMethod }) => ({ default: LocalAuthMethod })))
+const MediaSettings = lazy(() => loadAdminBundle().then(({ MediaSettings }) => ({ default: MediaSettings })))
+const OpenIdAuthMethod = lazy(() => loadAdminBundle().then(({ OpenIdAuthMethod }) => ({ default: OpenIdAuthMethod })))
 const ContactList = lazy(() => import('./components/ContactList.js'))
 const ConversationView = lazy(() => import('./components/ConversationView.js'))
 const LayoutWrapper = lazy(() => import('./components/LayoutWrapper.js'))
@@ -55,11 +58,17 @@ const UserMediaProvider = lazy(() => import('./contexts/UserMediaProvider.js'))
 const WebSocketLinkProvider = lazy(() => import('./contexts/WebSocketLinkProvider.js'))
 const WebSocketProvider = lazy(() => import('./contexts/WebSocketProvider.js'))
 const AccountSettings = lazy(() => import('./pages/AccountSettings.js'))
-const AdminLogin = lazy(() => import('./pages/AdminLogin.js'))
-const AdminPanel = lazy(() => import('./pages/AdminPanel.js'))
-const AdminConfigureJams = lazy(() => import('./pages/AdminWizard/AdminConfigureJams.js'))
-const AdminConfigureNameServer = lazy(() => import('./pages/AdminWizard/AdminConfigureNameServer.js'))
-const AdminCreateAccount = lazy(() => import('./pages/AdminWizard/AdminCreateAccount.js'))
+const AdminLogin = lazy(() => loadAdminBundle().then(({ AdminLogin }) => ({ default: AdminLogin })))
+const AdminPanel = lazy(() => loadAdminBundle().then(({ AdminPanel }) => ({ default: AdminPanel })))
+const AdminConfigureJams = lazy(() =>
+  loadAdminBundle().then(({ AdminConfigureJams }) => ({ default: AdminConfigureJams })),
+)
+const AdminConfigureNameServer = lazy(() =>
+  loadAdminBundle().then(({ AdminConfigureNameServer }) => ({ default: AdminConfigureNameServer })),
+)
+const AdminCreateAccount = lazy(() =>
+  loadAdminBundle().then(({ AdminCreateAccount }) => ({ default: AdminCreateAccount })),
+)
 const CallSettings = lazy(() => import('./pages/CallSettings.js'))
 const ExportToAnotherDevice = lazy(() =>
   import('./pages/ExportAccount/ExportToAnotherDevice.js').then(({ ExportToAnotherDevice }) => ({

@@ -27,7 +27,7 @@ import JamiWelcomeLogo from '../components/JamiWelcomeLogo.js'
 import ProcessingRequest from '../components/ProcessingRequest.js'
 import UnconnectedUserLayout from '../components/UnconnectedUserLayout.js'
 import { PasswordStrength } from '../enums/passwordStrength.js'
-import { useGetAdminConfigQuery } from '../services/adminQueries.js'
+import { useGetAdminConfigQuery } from '../services/adminConfigQueries.js'
 import {
   checkPasswordStrength,
   useCheckIfUsernameIsRegisteredQuery,
@@ -69,7 +69,7 @@ function RegistrationForm() {
     passwordStatus !== 'default' &&
     passwordStatus !== 'registration_failed' &&
     passwordStatus !== PasswordStrength.TooWeak
-  const { data } = useGetAdminConfigQuery()
+  const { data, isPending: isAdminConfigPending } = useGetAdminConfigQuery()
   const providers = useGetAllProviders()
   const navigate = useNavigate()
 
@@ -83,13 +83,13 @@ function RegistrationForm() {
   }, [username])
 
   useEffect(() => {
-    if (data === undefined || data.isPending) {
+    if (data === undefined || isAdminConfigPending) {
       return
     }
     if (!data.localAuthEnabled) {
       navigate('/login')
     }
-  }, [data, navigate])
+  }, [data, isAdminConfigPending, navigate])
 
   if (data === undefined || providers.data === undefined) {
     return <ProcessingRequest open />

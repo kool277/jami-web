@@ -20,11 +20,11 @@ import { Box, TextField } from '@mui/material'
 import { use, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import LayoutSettings from '../../components/LayoutSettings.js'
+import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
-import { useSetAutoDownloadLimit } from '../../services/adminQueries.js'
 import { useGetAutoDownloadLimit } from '../../services/dataTransferQueries.js'
-import LayoutSettings from '../LayoutSettings.js'
-import ProcessingRequest from '../ProcessingRequest.js'
+import { useSetAutoDownloadLimit } from '../services/adminQueries.js'
 
 export default function DownloadLimit() {
   const limitData = useGetAutoDownloadLimit()

@@ -37,15 +37,15 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { PasswordInput } from '../../components/Input.js'
+import LayoutSettings from '../../components/LayoutSettings.js'
+import { DeleteIcon } from '../../components/SvgIcon.js'
 import {
   useAdminDeletePasskeyMutation,
   useAdminPasskeyCredentialsQuery,
   useAdminRegisterPasskeyMutation,
   useUpdateAdminPasswordMutation,
-} from '../../services/adminQueries.js'
-import { PasswordInput } from '../Input.js'
-import LayoutSettings from '../LayoutSettings.js'
-import { DeleteIcon } from '../SvgIcon.js'
+} from '../services/adminQueries.js'
 
 export default function AuthMethods() {
   const { t } = useTranslation()

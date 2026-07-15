@@ -19,9 +19,9 @@ import { Box, Fab, TextField, Typography, useMediaQuery, useTheme } from '@mui/m
 import { FormEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { GroupAddRoundedIcon as GroupAddRounded } from '../../components/SvgIcon.js'
-import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
-import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
+import { GroupAddRoundedIcon as GroupAddRounded } from '../../../components/SvgIcon.js'
+import UnconnectedUserLayout from '../../../components/UnconnectedUserLayout.js'
+import { AlertSnackbarContext } from '../../../contexts/AlertSnackbarProvider.js'
 import { useSetupAdminMutation } from '../../services/adminQueries.js'
 
 export default function AdminSetup() {

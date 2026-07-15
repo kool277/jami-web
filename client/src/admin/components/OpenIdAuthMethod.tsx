@@ -22,10 +22,10 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
 import rightChevron from '../../icons/rightChevron.svg'
-import { useGetAdminConfigQuery, useGetAllOauthClients } from '../../services/adminQueries.js'
-import ProcessingRequest from '../ProcessingRequest.js'
+import { useGetAdminConfigQuery, useGetAllOauthClients } from '../services/adminQueries.js'
 
 type OAuthProviderSummary = {
   name: string

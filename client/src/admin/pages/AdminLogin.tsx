@@ -24,9 +24,9 @@ import { FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate } from 'react-router-dom'
 
-import { GroupAddRoundedIcon as GroupAddRounded } from '../components/SvgIcon.js'
-import UnconnectedUserLayout from '../components/UnconnectedUserLayout.js'
-import logoIcon from '../icons/jamiLogoIcon.svg'
+import { GroupAddRoundedIcon as GroupAddRounded } from '../../components/SvgIcon.js'
+import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
+import logoIcon from '../../icons/jamiLogoIcon.svg'
 import {
   useAdminPasskeyAvailableQuery,
   useAdminPasskeyLoginMutation,

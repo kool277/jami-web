@@ -23,7 +23,6 @@ import { Suspense, useState } from 'react'
 import { LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
 
 import WelcomeAnimation from './components/WelcomeAnimation.js'
-import { checkWizardStatus } from './services/adminQueries.js'
 import { getAccessToken, setAccessToken } from './services/authQueries.js'
 import { apiUrl } from './utils/constants.js'
 import { isElectronMode } from './utils/electron.js'
@@ -78,6 +77,7 @@ export async function adminSetupLoader({ request }: LoaderFunctionArgs) {
     return null
   }
 
+  const { checkWizardStatus } = await import('./admin/index.js')
   const lastWizardState = await checkWizardStatus()
   if (lastWizardState !== undefined) {
     const redirectPath = getAdminSetupRedirect(new URL(request.url).pathname, lastWizardState)
