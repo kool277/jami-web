@@ -17,7 +17,6 @@
  */
 import './dayjsInitializer.js' // Initialized once and globally to ensure available locales are always imported
 
-import { getAdminSetupRedirect } from '@savoirfairelinux/jami-web-common'
 import axios from 'axios'
 import { Suspense, useState } from 'react'
 import { LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
@@ -67,23 +66,6 @@ export async function appLoader({ request }: LoaderFunctionArgs) {
     }
 
     return null
-  }
-
-  return null
-}
-
-export async function adminSetupLoader({ request }: LoaderFunctionArgs) {
-  if (window.electronAPI?.isElectron) {
-    return null
-  }
-
-  const { checkWizardStatus } = await import('./admin/index.js')
-  const lastWizardState = await checkWizardStatus()
-  if (lastWizardState !== undefined) {
-    const redirectPath = getAdminSetupRedirect(new URL(request.url).pathname, lastWizardState)
-    if (redirectPath) {
-      return redirect(redirectPath)
-    }
   }
 
   return null

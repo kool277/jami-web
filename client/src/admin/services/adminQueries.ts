@@ -123,18 +123,6 @@ export const useLoginAdminMutation = () => {
   })
 }
 
-// use for the entire wizard
-export const checkWizardStatus = async () => {
-  try {
-    const { data } = await axios.get<{ lastWizardState: AdminWizardState }>('/admin/adminWizardState', {
-      baseURL: apiUrl,
-    })
-    return data.lastWizardState
-  } catch (e) {
-    console.log(e)
-  }
-}
-
 export const useSetWizardStateMutation = () => {
   return useMutation({
     mutationKey: ['admin', 'wizard', 'state'],
