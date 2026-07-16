@@ -5,6 +5,7 @@ of work, not before:
 - Editing code (scope, TDD, docs rules) → `.agents/topics/editing-rules.md`
 - Browser interaction / UI changes (Playwright MCP) → `.agents/topics/browser-automation.md`
 - Committing → `.agents/skills/commit/SKILL.md`
+- Creating, updating UI → `.agents/topics/ui-guidelines.md`
 
 Rules that always apply:
 
