@@ -112,7 +112,12 @@ export const contributorsDevelopers = [
   'Vsevolod Ivanov',
   'Xavier Jouslin de Noray',
   'Yang Wang',
+  'Zélie Leydert',
   'Ziwei Wang',
 ]
 
 export const contributorsMedia = ['Charlotte Hoffmann', 'Marianne Forget']
+
+export const contributorsCommunityManagement = ['Dorina Mosku', 'Cabrel Tambue', 'Loïc Bogino']
+
+export const contributorsSpecialThanks = ['Anna', 'Elys', 'VeroJeanLuc']

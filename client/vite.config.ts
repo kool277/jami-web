@@ -16,9 +16,52 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { AdminWizardState, getAdminSetupRedirect } from '@savoirfairelinux/jami-web-common'
+import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import svgr from 'vite-plugin-svgr'
+
+function getGitCommitHash() {
+  if (process.env.GIT_COMMIT_HASH) {
+    return process.env.GIT_COMMIT_HASH
+  }
+
+  try {
+    return execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim()
+  } catch {
+    // Docker build contexts intentionally exclude .git, so development and test servers still need a safe value.
+    return 'unknown'
+  }
+}
+
+function getJamiCoreVersion() {
+  if (process.env.JAMI_CORE_VERSION) {
+    return process.env.JAMI_CORE_VERSION
+  }
+
+  try {
+    const jamiCoreEntrypoint = fileURLToPath(import.meta.resolve('@savoirfairelinux/jami-core'))
+    const jamiCorePackage = JSON.parse(
+      readFileSync(join(dirname(jamiCoreEntrypoint), '..', 'package.json'), 'utf8'),
+    ) as {
+      version?: unknown
+    }
+
+    return typeof jamiCorePackage.version === 'string' ? jamiCorePackage.version : 'unknown'
+  } catch {
+    // The lightweight Playwright image does not install the daemon core package.
+    return 'unknown'
+  }
+}
+
+const gitCommitHash = getGitCommitHash()
+const jamiCoreVersion = getJamiCoreVersion()
 
 const adminSetupGatePlugin = (apiOrigin: string, desktopMode: boolean): Plugin => ({
   name: 'admin-setup-gate',
@@ -114,6 +157,8 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       'process.env.DRAGGABLE_DEBUG': 'false',
+      __GIT_COMMIT_HASH__: JSON.stringify(gitCommitHash),
+      __JAMI_CORE_VERSION__: JSON.stringify(jamiCoreVersion),
       global: {},
       __JAMI_DEBUG_DESKTOP_MODE__: JSON.stringify(debugDesktopMode),
     },

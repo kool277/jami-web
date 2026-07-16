@@ -41,6 +41,9 @@ declare module '@mui/material/styles' {
     LoginPage: {
       backgroundColor: string
     }
+    Dialog: {
+      backgroundColor: string
+    }
     WelcomePage: {
       infoBackgroundColor: string
       tipsBackgroundColor: string
@@ -134,6 +137,9 @@ declare module '@mui/material/styles' {
     InfoTooltip: {
       backgroundColor: SimplePaletteColorOptions
       color: SimplePaletteColorOptions
+    }
+    Dialog: {
+      backgroundColor: string
     }
   }
 }
@@ -293,6 +299,9 @@ const palettes = {
     LoginPage: {
       backgroundColor: '#FAF6F0',
     },
+    Dialog: {
+      backgroundColor: '#f4f0ef',
+    },
     WelcomePage: {
       infoBackgroundColor: '#f0efef',
       tipsBackgroundColor: 'rgba(255, 255, 255, 0.3)',
@@ -424,6 +433,9 @@ const palettes = {
     },
     LoginPage: {
       backgroundColor: '#f9fafc',
+    },
+    Dialog: {
+      backgroundColor: 'rgb(24, 24, 24)',
     },
     WelcomePage: {
       infoBackgroundColor: '#333333',

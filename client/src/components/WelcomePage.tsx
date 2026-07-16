@@ -18,19 +18,18 @@
 
 import {
   Box,
-  Button,
   Card,
   CardContent,
   CardHeader,
+  IconButton,
   Link,
-  Modal,
   Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
 } from '@mui/material'
 import React, { use, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
@@ -38,10 +37,26 @@ import { CustomThemeContext } from '../contexts/CustomThemeProvider.js'
 import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider.js'
 import JamiLogo from '../icons/logo-jami-net.svg?react'
 import JamiLogoWhite from '../icons/logo-jami-net-white.svg?react'
-import { contributorsDevelopers, contributorsMedia } from '../utils/contributors.js'
+import {
+  contributorsCommunityManagement,
+  contributorsDevelopers,
+  contributorsMedia,
+  contributorsSpecialThanks,
+} from '../utils/contributors.js'
+import BaseButton from './common/BaseButton.js'
+import BaseModalDialog from './common/BaseModalDialog.js'
 import EllipsisMiddle from './EllipsisMiddle.js'
 import { VolunteerActivismIcon } from './SvgIcon.js'
-import { InfoIcon, JamiIdIcon, TipIcon, TrashBinIcon, TwoSheetsIcon } from './SvgIcon.js'
+import {
+  ContentCopyIcon,
+  FavoriteBorderIcon,
+  FeedbackIcon,
+  InfoIcon,
+  JamiIdIcon,
+  TipIcon,
+  TrashBinIcon,
+  TwoSheetsIcon,
+} from './SvgIcon.js'
 
 export default function WelcomePage() {
   const { t } = useTranslation()
@@ -120,6 +135,20 @@ export default function WelcomePage() {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(displayedInfo)
+    setAlertContent({
+      messageI18nKey: 'copied_to_clipboard',
+      severity: 'success',
+      alertOpen: true,
+    })
+  }
+
+  const handleCopyVersion = async () => {
+    try {
+      await navigator.clipboard.writeText(`${__GIT_COMMIT_HASH__}-${__JAMI_CORE_VERSION__}`)
+    } catch {
+      return
+    }
+
     setAlertContent({
       messageI18nKey: 'copied_to_clipboard',
       severity: 'success',
@@ -280,159 +309,169 @@ export default function WelcomePage() {
               ))}
           </Box>
         </Box>
-        <Button
-          sx={{ backgroundColor: 'transparent', marginBottom: '16px' }}
-          onClick={() => {
-            setIsAboutOpen(true)
-          }}
+        <BaseButton
+          variant="text"
+          startIcon={<InfoIcon />}
+          sx={{ marginBottom: '16px' }}
+          onClick={() => setIsAboutOpen(true)}
         >
           {t('about_jami')}
-        </Button>
+        </BaseButton>
       </Box>
-      <Modal
+      <BaseModalDialog
         open={isAboutOpen}
+        selectedValue=""
+        title={t('about_jami')}
         onClose={() => setIsAboutOpen(false)}
-        sx={{
-          width: '450px',
-          height: '600px',
-          position: 'absolute',
-          top: '50%',
-          left: '59%',
-          transform: 'translate(-50%, -50%)',
-          boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.2)',
-          overflow: 'hidden',
-          borderRadius: '15px',
-          border: 'none',
-          backgroundColor: theme.ChatInterface.panelColor,
-          alignContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Box
-          sx={{
-            backgroundColor: theme.ChatInterface.panelColor,
-            borderRadius: '15px',
-            padding: '10px',
-            display: 'flex',
-            height: '100%',
-            width: '100%',
-            flexDirection: 'column',
-            overflow: 'hidden',
-          }}
-        >
-          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Typography sx={{ fontWeight: 'bolder', marginLeft: '3%', marginTop: '3%' }} variant="h5">
-              {t('about_jami')}
-            </Typography>
-            <Button
+        closePolicy={['escapeKeyDown', 'backdropClick']}
+        dialogWidth="500px"
+        actions={
+          <>
+            <BaseButton
+              variant="text"
+              startIcon={<FavoriteBorderIcon />}
               onClick={() => {
-                setIsAboutOpen(false)
+                window.open('https://jami.net/donate/', '_blank', 'noopener,noreferrer')
               }}
             >
-              X
-            </Button>
-          </Box>
-
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              marginTop: '10%',
-              height: '20%',
-              marginLeft: '5%',
-              marginRight: '5%',
-              justifyContent: 'space-between',
-              alignContent: 'center',
-            }}
-          >
-            <Box sx={{ display: 'flex', maxWidth: '200px', width: 'auto' }}>
-              {isDark ? (
-                <JamiLogoWhite width={'auto'} height={'50px'} style={{ marginBottom: '50px', marginTop: '8px' }} />
-              ) : (
-                <JamiLogo width={'auto'} height={'50px'} style={{ marginBottom: '50px', marginTop: '8px' }} />
-              )}
-            </Box>
-            <Box
-              sx={{
-                backgroundColor: theme.WelcomePage.infoBackgroundColor,
-                borderRadius: '12px',
-                height: 'auto',
-                maxHeight: '80px',
-                maxWidth: '200px',
-                minWidth: '150px',
-                marginRight: '5%',
-                padding: '2%',
-                marginTop: '-2%',
+              {t('donate')}
+            </BaseButton>
+            <BaseButton
+              variant="text"
+              startIcon={<VolunteerActivismIcon />}
+              onClick={() => {
+                window.open('https://jami.net/contribute/', '_blank', 'noopener,noreferrer')
               }}
             >
-              <Typography sx={{ marginLeft: '5%', fontWeight: 'bolder' }}>Asarte</Typography>
-              <Typography variant="body2" sx={{ marginLeft: '5%', color: 'grey' }}>
-                {t('version')} : 0
-              </Typography>
-            </Box>
-          </Box>
-          <Box sx={{ marginTop: '-2%' }}>
-            <Typography variant="body2" sx={{ marginLeft: '5%' }}>
-              {t('about_jami_text')}
-            </Typography>
-            <Typography variant="body2" sx={{ marginLeft: '5%', marginTop: '2%' }}>
-              {t('about_jami_text_warranty')}
-            </Typography>
-            <Typography variant="body2" sx={{ marginLeft: '5%', marginTop: '2%' }}>
-              © 2015-2025 <Link href="https://savoirfairelinux.com/">Savoir-faire Linux</Link>
-            </Typography>
+              {t('contribute')}
+            </BaseButton>
+            <BaseButton
+              variant="text"
+              startIcon={<FeedbackIcon />}
+              onClick={() => {
+                window.open('mailto:jami@gnu.org')
+              }}
+            >
+              {t('feedback')}
+            </BaseButton>
+          </>
+        }
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', minWidth: 0 }}>
+          <Box sx={{ boxSizing: 'border-box', flex: '1 1 0', minWidth: 0, paddingRight: '8px' }}>
+            {isDark ? (
+              <JamiLogoWhite style={{ display: 'block', height: 'auto', width: '100%' }} />
+            ) : (
+              <JamiLogo style={{ display: 'block', height: 'auto', width: '100%' }} />
+            )}
           </Box>
           <Box
             sx={{
               backgroundColor: theme.WelcomePage.infoBackgroundColor,
               borderRadius: '12px',
-              marginLeft: '5%',
-              marginRight: '5%',
-              marginTop: '4%',
-              overflowY: 'scroll',
-              marginBottom: '5%',
+              maxWidth: '100%',
+              minWidth: '180px',
+              padding: '8px',
+              width: 'fit-content',
             }}
           >
-            <Typography sx={{ fontWeight: 'bolder', marginLeft: '3%', marginTop: '3%', marginBottom: '2%' }}>
-              {t('created_by')}
-            </Typography>
-            {contributorsDevelopers.map((contributor) => (
-              <Typography variant="body2" key={contributor} sx={{ marginLeft: '3%' }}>
-                {contributor}
-              </Typography>
-            ))}
-            <br />
-            <Typography sx={{ fontWeight: 'bolder', marginLeft: '3%', marginTop: '3%', marginBottom: '2%' }}>
-              {t('artwork_by')}
-            </Typography>
-            {contributorsMedia.map((contributor) => (
-              <Typography variant="body2" key={contributor} sx={{ marginLeft: '3%' }}>
-                {contributor}
-              </Typography>
-            ))}
-            <br />
-            <Typography sx={{ fontWeight: 'bolder', marginLeft: '3%', marginTop: '3%' }}>
-              {t('about_jami_text_volunteers')}
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-evenly', marginBottom: '2%' }}>
-            <Button
-              onClick={() => {
-                window.open('https://jami.net/contribute/', '_blank')
-              }}
-            >
-              {t('contribute')}
-            </Button>
-            <Button
-              onClick={() => {
-                window.open('mailto:jami@gnu.org')
-              }}
-            >
-              {t('comment')}
-            </Button>
+            <Typography sx={{ fontWeight: 'bolder' }}>Euclid</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Box>
+                <Typography variant="body2" sx={{ color: 'grey' }}>
+                  {t('version')} :{' '}
+                  <Box component="span" sx={{ fontFamily: 'monospace' }}>
+                    {__GIT_COMMIT_HASH__}
+                  </Box>
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'grey' }}>
+                  Core:{' '}
+                  <Box component="span" sx={{ fontFamily: 'monospace' }}>
+                    {__JAMI_CORE_VERSION__}
+                  </Box>
+                </Typography>
+              </Box>
+              <Tooltip title={t('copy_to_clipboard')}>
+                <IconButton
+                  onClick={handleCopyVersion}
+                  size="small"
+                  sx={{ marginRight: '-5px' }}
+                  aria-label={t('copy_to_clipboard')}
+                >
+                  <ContentCopyIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Box>
         </Box>
-      </Modal>
+        <Box sx={{ marginBottom: '24px' }}>
+          <Typography variant="body2">
+            <Trans
+              i18nKey="about_jami_text"
+              components={{ jamiLink: <Link href="https://jami.net/" rel="noreferrer" target="_blank" /> }}
+            />
+          </Typography>
+          <Typography variant="body2" sx={{ marginTop: '8px' }}>
+            <Trans
+              i18nKey="about_jami_text_warranty"
+              components={{
+                gplLink: <Link href="https://www.gnu.org/licenses/gpl-3.0.html" rel="noreferrer" target="_blank" />,
+              }}
+            />
+          </Typography>
+          <Typography variant="body2" sx={{ marginTop: '8px' }}>
+            © 2015-2025 <Link href="https://savoirfairelinux.com/">Savoir-faire Linux</Link>
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            backgroundColor: theme.WelcomePage.infoBackgroundColor,
+            borderRadius: '12px',
+            maxHeight: '240px',
+            overflow: 'hidden',
+          }}
+        >
+          <Box
+            sx={{
+              boxSizing: 'border-box',
+              maxHeight: '240px',
+              overflowY: 'auto',
+              padding: '12px',
+              scrollbarGutter: 'stable',
+            }}
+          >
+            <Typography sx={{ fontWeight: 'bolder', marginBottom: '8px' }}>{t('developers')}</Typography>
+            {contributorsDevelopers.map((contributor) => (
+              <Typography variant="body2" key={contributor}>
+                {contributor}
+              </Typography>
+            ))}
+            <br />
+            <Typography sx={{ fontWeight: 'bolder', marginBottom: '8px' }}>{t('media')}</Typography>
+            {contributorsMedia.map((contributor) => (
+              <Typography variant="body2" key={contributor}>
+                {contributor}
+              </Typography>
+            ))}
+            <br />
+            <Typography sx={{ fontWeight: 'bolder', marginBottom: '8px' }}>{t('community_management')}</Typography>
+            {contributorsCommunityManagement.map((contributor) => (
+              <Typography variant="body2" key={contributor}>
+                {contributor}
+              </Typography>
+            ))}
+            <br />
+            <Typography sx={{ fontWeight: 'bolder', marginBottom: '8px' }}>{t('special_thanks_to')}</Typography>
+            {contributorsSpecialThanks.map((contributor) => (
+              <Typography variant="body2" key={contributor}>
+                {contributor}
+              </Typography>
+            ))}
+            <br />
+            <Typography variant="body2">{t('about_jami_text_volunteers')}</Typography>
+          </Box>
+        </Box>
+      </BaseModalDialog>
     </Box>
   )
 }

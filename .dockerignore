@@ -6,6 +6,7 @@
 **/node_modules/
 **/dist/
 **/*.tsbuildinfo
+client/vite.config.js
 
 **/.env*
 
