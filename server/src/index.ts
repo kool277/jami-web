@@ -123,10 +123,16 @@ function onPublicApiListening() {
   const address = server.address()
   const bind = typeof address === 'string' ? `pipe ${address}` : `${address?.address}:${address?.port}`
   const envFile = process.env.JAMI_WEB_ENV_FILE ? resolve(process.env.JAMI_WEB_ENV_FILE) : defaultEnvPath
+  // In development the UI is served by the Vite dev server (default :3000); in
+  // production this server serves the built client on its own port.
+  // ponytail: dev URL assumes Vite's default port 3000, as used across the repo.
+  const port = typeof address === 'string' ? undefined : address?.port
+  const webUrl = nodeEnv === 'development' ? 'http://localhost:3000' : `http://localhost:${port}`
   console.log('Jami Web server started')
   console.log(`  Environment: ${nodeEnv}`)
   console.log(`  Env file:    ${envFile}`)
   console.log(`  Listening:   ${bind}`)
+  console.log(`  Web UI:      ${webUrl}`)
   console.log(`  CLI control: ${runtime.cliControlSocketPath}`)
   log.debug('Listening on ' + bind)
 }
