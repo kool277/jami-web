@@ -16,24 +16,18 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { SettingSwitch } from '../../../components/Settings.js'
+import { setTipsEnabled, useTipsEnabled } from '../../../utils/tips.js'
 
 const SettingTips = () => {
-  const [isDisabled, setIsDisabled] = useState<boolean>(() => localStorage.getItem('disable-tips') === 'true')
+  const { t } = useTranslation()
+  const tipsEnabled = useTipsEnabled()
 
-  const handleTipState = () => {
-    if (isDisabled) {
-      localStorage.removeItem('disable-tips')
-      setIsDisabled(false)
-      return
-    }
-    localStorage.setItem('disable-tips', 'true')
-    setIsDisabled(true)
-  }
-
-  return <SettingSwitch label="Disable tips" onChange={handleTipState} checked={isDisabled} />
+  return (
+    <SettingSwitch label={t('show_tips')} onChange={(_, checked) => setTipsEnabled(checked)} checked={tipsEnabled} />
+  )
 }
 
 export default SettingTips
