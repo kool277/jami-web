@@ -15,13 +15,14 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { HttpStatusCode, MIN_PASSWORD_LENGTH } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Link, useNavigate } from 'react-router-dom'
 
+import BaseButton from '../components/common/BaseButton.js'
 import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input.js'
 import JamiWelcomeLogo from '../components/JamiWelcomeLogo.js'
 import ProcessingRequest from '../components/ProcessingRequest.js'
@@ -188,7 +189,7 @@ function RegistrationForm() {
             sx={{ width: theme.typography.pxToRem(inputWidth) }}
           />
           <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
-            <Button
+            <BaseButton
               disabled={!usernameOk || !passwordOk}
               data-cy="register-button"
               variant="contained"
@@ -197,7 +198,7 @@ function RegistrationForm() {
               sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(20) }}
             >
               {t('registration_form_submit_button')}
-            </Button>
+            </BaseButton>
           </Box>
         </Form>
 

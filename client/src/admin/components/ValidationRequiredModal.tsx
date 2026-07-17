@@ -16,8 +16,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Card, CardContent, CardHeader, Modal, useTheme } from '@mui/material'
+import { Box, Card, CardContent, CardHeader, Modal, useTheme } from '@mui/material'
 import { useTranslation } from 'react-i18next'
+
+import BaseButton from '../common/BaseButton.js'
 
 interface ValidationRequiredModalProps {
   open: boolean
@@ -94,17 +96,17 @@ export default function ValidationRequiredModal({
             }}
           ></Box>
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Button variant="contained" onClick={onClose}>
+            <BaseButton variant="contained" onClick={onClose}>
               {t('dialog_cancel')}
-            </Button>
-            <Button
+            </BaseButton>
+            <BaseButton
               variant="contained"
               onClick={() => {
                 onValidation()
               }}
             >
               {buttonText}
-            </Button>
+            </BaseButton>
           </Box>
         </CardContent>
       </Card>

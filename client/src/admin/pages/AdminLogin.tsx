@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import Fingerprint from '@mui/icons-material/Fingerprint'
-import { Box, Button, Divider, Fab, TextField, Typography, useMediaQuery } from '@mui/material'
+import { Box, Divider, Fab, TextField, Typography, useMediaQuery } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
@@ -24,6 +24,7 @@ import { FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, Navigate } from 'react-router-dom'
 
+import BaseButton from '../../components/common/BaseButton.js'
 import { GroupAddRoundedIcon as GroupAddRounded } from '../../components/SvgIcon.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import logoIcon from '../../icons/jamiLogoIcon.svg'
@@ -108,14 +109,14 @@ export default function AdminLogin() {
           {passkeySupported && passkeyAvailable && (
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 3 }}>
               <Divider sx={{ width: '60%', mb: 2 }} />
-              <Button
+              <BaseButton
                 variant="outlined"
                 startIcon={<Fingerprint />}
                 onClick={() => passkeyLoginMutation.mutate()}
                 disabled={isPasskeyPending}
               >
                 {t('passkey_login_button')}
-              </Button>
+              </BaseButton>
             </Box>
           )}
         </Box>

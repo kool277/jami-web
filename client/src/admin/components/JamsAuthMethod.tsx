@@ -15,12 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Input, Stack, Switch, Typography } from '@mui/material'
+import { Box, Input, Stack, Switch, Typography } from '@mui/material'
 import { urlRegex } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
+import BaseButton from '../../components/common/BaseButton.js'
 import LayoutSettings from '../../components/LayoutSettings.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
@@ -124,9 +125,9 @@ const JamsAuthMethodForm = ({
               />
             </Form>
             <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-              <Button variant="contained" type="submit" onClick={submitNewJamsUrl}>
+              <BaseButton variant="contained" type="submit" onClick={submitNewJamsUrl}>
                 {t('save_button')}
-              </Button>
+              </BaseButton>
             </Box>
           </Stack>
         </Box>

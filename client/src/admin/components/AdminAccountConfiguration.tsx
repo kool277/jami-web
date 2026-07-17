@@ -18,7 +18,6 @@
 import Fingerprint from '@mui/icons-material/Fingerprint'
 import {
   Box,
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
@@ -37,6 +36,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import BaseButton from '../../components/common/BaseButton.js'
 import { PasswordInput } from '../../components/Input.js'
 import LayoutSettings from '../../components/LayoutSettings.js'
 import { DeleteIcon } from '../../components/SvgIcon.js'
@@ -141,7 +141,7 @@ export default function AuthMethods() {
                   {t('password_input_helper_text_not_match')}
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', marginTop: '10%' }}>
-                  <Button
+                  <BaseButton
                     variant="contained"
                     type="submit"
                     onClick={validatePasswordChange}
@@ -154,7 +154,7 @@ export default function AuthMethods() {
                     }
                   >
                     {t('admin_page_password_submit')}
-                  </Button>
+                  </BaseButton>
                 </Box>
               </Box>
             </motion.div>
@@ -216,7 +216,7 @@ function AdminPasskeySection() {
           </Typography>
         )}
 
-        <Button
+        <BaseButton
           variant="outlined"
           startIcon={<Fingerprint />}
           onClick={() => setDialogOpen(true)}
@@ -224,7 +224,7 @@ function AdminPasskeySection() {
           sx={{ mt: 1 }}
         >
           {t('passkey_register_button')}
-        </Button>
+        </BaseButton>
       </Box>
 
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
@@ -241,10 +241,12 @@ function AdminPasskeySection() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>{t('cancel')}</Button>
-          <Button onClick={handleRegister} disabled={registerMutation.isPending} variant="contained">
+          <BaseButton variant="text" onClick={() => setDialogOpen(false)}>
+            {t('cancel')}
+          </BaseButton>
+          <BaseButton onClick={handleRegister} disabled={registerMutation.isPending} variant="contained">
             {t('passkey_register_button')}
-          </Button>
+          </BaseButton>
         </DialogActions>
       </Dialog>
     </LayoutSettings>

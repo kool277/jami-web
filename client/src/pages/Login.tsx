@@ -16,13 +16,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 import Fingerprint from '@mui/icons-material/Fingerprint'
-import { Box, Button, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material'
+import { Box, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 import { ChangeEvent, FormEvent, use, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Link, useNavigate } from 'react-router-dom'
 
+import BaseButton from '../components/common/BaseButton.js'
 import { PasswordInput, UsernameInput } from '../components/Input.js'
 import JamiWelcomeLogo from '../components/JamiWelcomeLogo.js'
 import ProcessingRequest from '../components/ProcessingRequest.js'
@@ -186,7 +187,7 @@ function LoginForm() {
             }}
           >
             {data.guestAccessEnabled && (
-              <Button
+              <BaseButton
                 data-cy="guest-login-button"
                 variant="contained"
                 type="submit"
@@ -194,10 +195,10 @@ function LoginForm() {
                 sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
               >
                 {t('login_as_guest')}
-              </Button>
+              </BaseButton>
             )}
             {(data.localAuthEnabled || data.jamsAuthEnabled) && (
-              <Button
+              <BaseButton
                 data-cy="login-button"
                 variant="contained"
                 type="submit"
@@ -209,7 +210,7 @@ function LoginForm() {
                 }
               >
                 {t('login_form_submit_button')}
-              </Button>
+              </BaseButton>
             )}
           </Box>
           <Box
@@ -221,21 +222,21 @@ function LoginForm() {
               alignItems: 'center',
             }}
           >
-            <Button
+            <BaseButton
               variant="contained"
               type="button"
               onClick={() => navigate('/import-account')}
               sx={{ width: theme.typography.pxToRem(submitButtonWidth) + 100, mt: '3%' }}
             >
               {t('connect_from_another_device')}
-            </Button>
+            </BaseButton>
           </Box>
         </Form>
 
         {data.localAuthEnabled && passkeySupported && (
           <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 2 }}>
             <Divider sx={{ width: '60%', mb: 2 }} />
-            <Button
+            <BaseButton
               variant="outlined"
               startIcon={<Fingerprint />}
               onClick={() => passkeyLoginMutation.mutate(username || undefined)}
@@ -243,7 +244,7 @@ function LoginForm() {
               sx={{ width: theme.typography.pxToRem(submitButtonWidth) + 100 }}
             >
               {t('passkey_login_button')}
-            </Button>
+            </BaseButton>
           </Box>
         )}
 
@@ -259,7 +260,7 @@ function LoginForm() {
                   icon: string
                   redirectUri: string
                 }) => (
-                  <Button
+                  <BaseButton
                     sx={{ backgroundColor: item.colorTheme ? item.colorTheme : 'unset' }}
                     key={item.provider}
                     variant="contained"
@@ -272,7 +273,7 @@ function LoginForm() {
                       <Typography sx={{ color: 'black', fontWeight: 'bolder' }}>{item.displayName}</Typography>
                       {item.icon && <img width="25px" height="25px" src={item.icon}></img>}
                     </Box>
-                  </Button>
+                  </BaseButton>
                 ),
               )}
             </Box>

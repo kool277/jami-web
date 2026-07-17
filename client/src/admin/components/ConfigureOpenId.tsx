@@ -18,7 +18,6 @@
 
 import {
   Box,
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -35,6 +34,7 @@ import { use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
+import BaseButton from '../../components/common/BaseButton.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { ContentCopyIcon, DescriptionIcon } from '../../components/SvgIcon.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
@@ -222,16 +222,17 @@ export default function ConfigureOpenId() {
             <ContentCopyIcon sx={{ ...contentCopyIconStyle, visibility: 'hidden' }} />
           </Box>
           <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-            <Button
+            <BaseButton
+              variant="text"
               color="primary"
               onClick={() => window.open(provider.data.documentation, '_blank', 'noopener,noreferrer')}
             >
               <DescriptionIcon />
               {t('documentation')}
-            </Button>
-            <Button variant="contained" color="primary" onClick={onValidate}>
+            </BaseButton>
+            <BaseButton variant="contained" color="primary" onClick={onValidate}>
               {t('save_button')}
-            </Button>
+            </BaseButton>
           </Box>
         </CardContent>
       </Card>

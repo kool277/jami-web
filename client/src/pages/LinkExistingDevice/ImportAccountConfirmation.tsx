@@ -16,12 +16,13 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { DeviceAuthStateCode, MIN_PASSWORD_LENGTH } from '@savoirfairelinux/jami-web-common'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import BaseButton from '../../components/common/BaseButton.js'
 import { PasswordInput, PasswordStatus, RepeatPasswordInput } from '../../components/Input.js'
 import JamiWelcomeLogo from '../../components/JamiWelcomeLogo.js'
 import { DoneIcon } from '../../components/SvgIcon.js'
@@ -96,9 +97,9 @@ export default function ImportAccountConfirmation() {
                   <DoneIcon sx={{ fontSize: 100 }} />
                   <Typography variant="body2">{t('import_account_done')}</Typography>
                   <Typography variant="body2">{t('import_account_successfully_imported')}</Typography>
-                  <Button sx={{ marginTop: '8px' }} variant="contained" onClick={() => setHasConfirmed(true)}>
+                  <BaseButton sx={{ marginTop: '8px' }} variant="contained" onClick={() => setHasConfirmed(true)}>
                     {t('continue')}
-                  </Button>
+                  </BaseButton>
                 </>
               }
             </>
@@ -157,9 +158,9 @@ const SetPassWord = () => {
         isEqual={passwordOk && password === repeatPassword}
         tooltipTitle={t('registration_form_password_tooltip')}
       />
-      <Button variant="contained" onClick={handlePasswordSubmit}>
+      <BaseButton variant="contained" onClick={handlePasswordSubmit}>
         {t('submit')}
-      </Button>
+      </BaseButton>
     </Box>
   )
 }

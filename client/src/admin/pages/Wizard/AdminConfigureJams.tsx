@@ -16,12 +16,13 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Switch, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Switch, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { AdminWizardState, urlRegex } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, useNavigate } from 'react-router-dom'
 
+import BaseButton from '../../../components/common/BaseButton.js'
 import ProcessingRequest from '../../../components/ProcessingRequest.js'
 import UnconnectedUserLayout from '../../../components/UnconnectedUserLayout.js'
 import { AlertSnackbarContext } from '../../../contexts/AlertSnackbarProvider.js'
@@ -129,7 +130,8 @@ const AdminConfigureJamsForm = ({
         </Box>
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '24px' }}>
-        <Button
+        <BaseButton
+          variant="text"
           onClick={async () => {
             await submitNewJamsUrl()
             await setWizardStateMutation.mutateAsync(AdminWizardState.local)
@@ -137,8 +139,9 @@ const AdminConfigureJamsForm = ({
           }}
         >
           {t('previous')}
-        </Button>
-        <Button
+        </BaseButton>
+        <BaseButton
+          variant="text"
           onClick={async () => {
             await submitNewJamsUrl()
             await setWizardStateMutation.mutateAsync(AdminWizardState.complete)
@@ -146,7 +149,7 @@ const AdminConfigureJamsForm = ({
           }}
         >
           {t('next')}
-        </Button>
+        </BaseButton>
       </Box>
     </UnconnectedUserLayout>
   )

@@ -15,12 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Input, Stack, Switch, Typography } from '@mui/material'
+import { Box, Input, Stack, Switch, Typography } from '@mui/material'
 import { urlRegex } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
+import BaseButton from '../../components/common/BaseButton.js'
 import LayoutSettings from '../../components/LayoutSettings.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
@@ -115,17 +116,17 @@ const LocalAuthMethodForm = ({
             </Form>
           </Stack>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: 1, mt: 3 }}>
-            <Button variant="contained" onClick={deleteNameServer}>
+            <BaseButton variant="contained" onClick={deleteNameServer}>
               {t('reset_nameserver_button')}
-            </Button>
-            <Button
+            </BaseButton>
+            <BaseButton
               variant="contained"
               type="submit"
               onClick={submitNewNameServer}
               disabled={nameServer === nameServerConfigured}
             >
               {t('save_button')}
-            </Button>
+            </BaseButton>
           </Box>
         </Box>
       </Stack>

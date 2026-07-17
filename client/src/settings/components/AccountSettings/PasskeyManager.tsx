@@ -18,7 +18,6 @@
 import Fingerprint from '@mui/icons-material/Fingerprint'
 import {
   Box,
-  Button,
   Card,
   CardContent,
   Dialog,
@@ -38,6 +37,7 @@ import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import BaseButton from '../../../components/common/BaseButton.js'
 import { DeleteIcon } from '../../../components/SvgIcon.js'
 import {
   useDeletePasskeyMutation,
@@ -115,14 +115,14 @@ export default function PasskeyManager() {
         )}
 
         <Box sx={{ mt: 1 }}>
-          <Button
+          <BaseButton
             variant="outlined"
             startIcon={<Fingerprint />}
             onClick={() => setDialogOpen(true)}
             disabled={registerMutation.isPending}
           >
             {t('passkey_register_button')}
-          </Button>
+          </BaseButton>
         </Box>
       </CardContent>
 
@@ -140,10 +140,12 @@ export default function PasskeyManager() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>{t('cancel')}</Button>
-          <Button onClick={handleRegister} disabled={registerMutation.isPending} variant="contained">
+          <BaseButton variant="text" onClick={() => setDialogOpen(false)}>
+            {t('cancel')}
+          </BaseButton>
+          <BaseButton onClick={handleRegister} disabled={registerMutation.isPending} variant="contained">
             {t('passkey_register_button')}
-          </Button>
+          </BaseButton>
         </DialogActions>
       </Dialog>
     </Card>

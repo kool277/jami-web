@@ -18,7 +18,6 @@
 
 import {
   Box,
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -50,6 +49,7 @@ import {
   useRemoveMemberFromSwarm,
 } from '../services/conversationQueries.js'
 import { messageColors } from '../utils/messagecolor.js'
+import BaseButton from './common/BaseButton.js'
 import ContactDetailDialog from './ContactDetailDialog.js'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
 import ConversationAvatar from './ConversationAvatar.js'
@@ -77,6 +77,7 @@ enum TABS {
 }
 
 export default function ConversationPreferences() {
+  const { t } = useTranslation()
   const { conversationColor } = useConversationPreferencesColorContext()
   const { isOpen } = useConversationPreferencesStateContext()
   const { members, conversationId, conversationDisplayName, conversationInfos } = useConversationContext()
@@ -184,8 +185,15 @@ export default function ConversationPreferences() {
           sx={{ backgroundColor: conversationColor, height: '12%', borderRadius: '12px' }}
         />
         <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '1vh' }}>
-            <Button
+          <Box
+            role="group"
+            aria-label={t('conversation_preferences')}
+            sx={{ display: 'flex', justifyContent: 'center', marginTop: '1vh' }}
+          >
+            <BaseButton
+              variant="text"
+              aria-label={t('conversation_info')}
+              aria-pressed={currentTab === TABS.INFOS}
               sx={buttonStyle}
               style={{ opacity: currentTab === TABS.INFOS ? 1 : 0.7 }}
               onClick={() => {
@@ -193,9 +201,12 @@ export default function ConversationPreferences() {
               }}
             >
               <InfoIcon />
-            </Button>
+            </BaseButton>
             {members.length > 2 && (
-              <Button
+              <BaseButton
+                variant="text"
+                aria-label={t('conversation_members')}
+                aria-pressed={currentTab === TABS.MEMBERS}
                 sx={buttonStyle}
                 style={{ opacity: currentTab === TABS.MEMBERS ? 1 : 0.7 }}
                 onClick={() => {
@@ -203,10 +214,13 @@ export default function ConversationPreferences() {
                 }}
               >
                 <GroupsIcon />
-              </Button>
+              </BaseButton>
             )}
 
-            <Button
+            <BaseButton
+              variant="text"
+              aria-label={t('conversation_files')}
+              aria-pressed={currentTab === TABS.FILES}
               sx={buttonStyle}
               style={{ opacity: currentTab === TABS.FILES ? 1 : 0.7 }}
               onClick={() => {
@@ -214,8 +228,11 @@ export default function ConversationPreferences() {
               }}
             >
               <AttachFileIcon />
-            </Button>
-            <Button
+            </BaseButton>
+            <BaseButton
+              variant="text"
+              aria-label={t('settings')}
+              aria-pressed={currentTab === TABS.SETTINGS}
               sx={buttonStyle}
               style={{ opacity: currentTab === TABS.SETTINGS ? 1 : 0.7 }}
               onClick={() => {
@@ -223,7 +240,7 @@ export default function ConversationPreferences() {
               }}
             >
               <AdminPanelSettingsIcon />
-            </Button>
+            </BaseButton>
           </Box>
           <Box sx={{ marginTop: '10%', display: 'flex', justifyContent: 'center' }}>
             {currentTab === TABS.INFOS && <Infos />}
@@ -670,7 +687,7 @@ const Settings = () => {
           <Switch onChange={onConversationMuteChange} checked={ignoreNotifications} />
         </SettingsItemWrapper>
 
-        <Button
+        <BaseButton
           variant="contained"
           sx={{
             width: '90%',
@@ -687,7 +704,7 @@ const Settings = () => {
         >
           {t('leave_conversation')}
           <ExitToAppIcon />
-        </Button>
+        </BaseButton>
       </Box>
       <RemoveConversationDialog
         {...RemoveConversationDialogHandler.props}

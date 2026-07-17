@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button } from '@mui/material'
+import { Box } from '@mui/material'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
@@ -26,6 +26,7 @@ import Typography from '@mui/material/Typography'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import BaseButton from '../../../components/common/BaseButton.js'
 import { useAuthContext } from '../../../contexts/AuthProvider.js'
 
 function LinkedDevicesPreview() {
@@ -69,12 +70,12 @@ function LinkedDevicesPreview() {
             </ListItem>
           </Typography>
           <Box sx={{ display: 'flex', width: '100%', justifyContent: 'space-evenly' }}>
-            <Button onClick={seeAllDevices} variant="contained">
+            <BaseButton onClick={seeAllDevices} variant="contained">
               {t('see_all_devices')}
-            </Button>
-            <Button onClick={linkNewDevice} variant="contained">
+            </BaseButton>
+            <BaseButton onClick={linkNewDevice} variant="contained">
               {t('link_new_device')}
-            </Button>
+            </BaseButton>
           </Box>
         </CardContent>
       </Card>

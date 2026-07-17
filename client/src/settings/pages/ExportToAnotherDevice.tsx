@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Card, CardContent, CardHeader, TextField, Typography } from '@mui/material'
+import { Box, Card, CardContent, CardHeader, TextField, Typography } from '@mui/material'
 import {
   AddDeviceStateChanged,
   DeviceAuthError,
@@ -27,6 +27,7 @@ import { use, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import BaseButton from '../../components/common/BaseButton.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { useWebSocketContext } from '../../contexts/WebSocketProvider.js'
 import {
@@ -247,7 +248,7 @@ const AcceptLink = ({ peerAddress, opId }: AcceptLinkProps) => {
         >
           <Box sx={{ display: 'flex', gap: '20px', marginTop: '50px' }}>
             {' '}
-            <Button
+            <BaseButton
               variant="contained"
               color="primary"
               onClick={() => {
@@ -255,8 +256,8 @@ const AcceptLink = ({ peerAddress, opId }: AcceptLinkProps) => {
               }}
             >
               {t('confirm')}
-            </Button>
-            <Button
+            </BaseButton>
+            <BaseButton
               onClick={() => {
                 cancelMutation.mutate()
               }}
@@ -264,7 +265,7 @@ const AcceptLink = ({ peerAddress, opId }: AcceptLinkProps) => {
               color="primary"
             >
               {t('dialog_cancel')}
-            </Button>
+            </BaseButton>
           </Box>
         </Box>
       </CardContent>
@@ -393,9 +394,9 @@ const EnterCode = ({ setCode }: EnterCodeProps) => {
                 }}
               >
                 <TextField value={tmpCode} onChange={onCodeChange} size="small" />
-                <Button onClick={onConnect} variant="contained" color="primary">
+                <BaseButton onClick={onConnect} variant="contained" color="primary">
                   {t('connect')}
-                </Button>
+                </BaseButton>
               </Box>
 
               <Box

@@ -15,11 +15,12 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, IconButton, Modal } from '@mui/material'
+import { Box, IconButton, Modal } from '@mui/material'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useState } from 'react'
 
 import { Account } from '../models/account.js'
+import BaseButton from './common/BaseButton.js'
 import { QrCodeIcon } from './SvgIcon.js'
 
 interface QrCodeProps {
@@ -78,9 +79,9 @@ const QrCodeModal = ({ account }: QrCodeProps) => {
               mb: '2%',
             }}
           >
-            <Button size="small" onClick={handleClose}>
+            <BaseButton variant="text" size="small" onClick={handleClose}>
               X
-            </Button>
+            </BaseButton>
           </Box>
 
           <QRCodeCanvas style={{ borderRadius: '12px' }} size={qrCodeSize} value={account.getUri()} />

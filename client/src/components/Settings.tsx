@@ -15,10 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Button, FormLabel, List, ListItem, ListSubheader, Stack, Switch, SwitchProps } from '@mui/material'
+import { FormLabel, List, ListItem, ListSubheader, Stack, Switch, SwitchProps } from '@mui/material'
 import { Box } from '@mui/system'
 import { MouseEventHandler, ReactElement } from 'react'
 
+import BaseButton from './common/BaseButton.js'
 import { CustomSelect, CustomSelectProps } from './CustomSelect.js'
 
 interface Setting {
@@ -56,7 +57,7 @@ interface SettingButtonProps extends Setting {
 export const SettingButton = ({ onClick, ...settingBaseProps }: SettingButtonProps) => {
   return (
     <SettingBase {...settingBaseProps}>
-      <Button variant="contained" size="small" onClick={onClick} />
+      <BaseButton variant="contained" size="small" onClick={onClick} />
     </SettingBase>
   )
 }

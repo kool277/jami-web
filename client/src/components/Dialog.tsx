@@ -15,13 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, List, ListItem, ListItemIcon, Stack, SvgIconProps, Typography } from '@mui/material'
+import { Box, List, ListItem, ListItemIcon, Stack, SvgIconProps, Typography } from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import { ComponentType, ReactNode, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import BaseButton from './common/BaseButton.js'
 
 interface DialogHandler {
   props: {
@@ -100,9 +102,9 @@ export const InfosDialog = (props: InfosDialogProps) => {
     <BaseDialog
       {...props}
       actions={
-        <Button onClick={props.onClose} autoFocus>
+        <BaseButton variant="text" onClick={props.onClose} autoFocus>
           {t('dialog_close')}
-        </Button>
+        </BaseButton>
       }
     />
   )
@@ -124,8 +126,12 @@ export const ConfirmationDialog = ({ onConfirm, confirmButtonText, ...props }: C
       content={<Typography variant="body1">{props.content}</Typography>}
       actions={
         <>
-          <Button onClick={onConfirm}>{confirmButtonText}</Button>
-          <Button onClick={props.onClose}>{t('dialog_cancel')}</Button>
+          <BaseButton variant="text" onClick={onConfirm}>
+            {confirmButtonText}
+          </BaseButton>
+          <BaseButton variant="text" onClick={props.onClose}>
+            {t('dialog_cancel')}
+          </BaseButton>
         </>
       }
     />

@@ -16,12 +16,13 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Card, CardContent, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Card, CardContent, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
 import { t } from 'i18next'
 import { use, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import BaseButton from '../../components/common/BaseButton.js'
 import EllipsisMiddle from '../../components/EllipsisMiddle.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
@@ -156,9 +157,9 @@ export default function ImportAccountLock() {
             <TextField onChange={onChangepassword} size="small" />
           </>
         )}
-        <Button variant="contained" onClick={handleSubmit} disabled={hasPassword && password === ''}>
+        <BaseButton variant="contained" onClick={handleSubmit} disabled={hasPassword && password === ''}>
           {hasPassword ? t('connect') : t('confirm')}
-        </Button>
+        </BaseButton>
       </Box>
     </UnconnectedUserLayout>
   )

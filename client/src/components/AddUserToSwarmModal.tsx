@@ -16,13 +16,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Modal, Paper, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Modal, Paper, useMediaQuery, useTheme } from '@mui/material'
 import { use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import { useAddMemberToSwarm } from '../services/conversationQueries.js'
+import BaseButton from './common/BaseButton.js'
 import ContactList from './ContactList.js'
 
 interface AddUserToSwarmModalProps {
@@ -106,9 +107,9 @@ export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmMod
             />
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', paddingBottom: '2%' }}>
-            <Button sx={{ margin: '2px' }} variant="contained" onClick={addToSwarm}>
+            <BaseButton sx={{ margin: '2px' }} variant="contained" onClick={addToSwarm}>
               {t('add_to_group_validation')}
-            </Button>
+            </BaseButton>
           </Box>
         </Paper>
       </Modal>

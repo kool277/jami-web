@@ -16,11 +16,12 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, Card, CardContent, CardHeader, Modal, useTheme } from '@mui/material'
+import { Box, Card, CardContent, CardHeader, Modal, useTheme } from '@mui/material'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form } from 'react-router-dom'
 
+import BaseButton from '../../../components/common/BaseButton.js'
 import { PasswordInput } from '../../../components/Input.js'
 import { useAuthContext } from '../../../contexts/AuthProvider.js'
 
@@ -113,17 +114,17 @@ export default function PasswordRequiredModal({
             </Form>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Button variant="contained" onClick={onClose}>
+            <BaseButton variant="contained" onClick={onClose}>
               {t('dialog_cancel')}
-            </Button>
-            <Button
+            </BaseButton>
+            <BaseButton
               variant="contained"
               onClick={() => {
                 onValidation(password)
               }}
             >
               {buttonText}
-            </Button>
+            </BaseButton>
           </Box>
         </CardContent>
       </Card>

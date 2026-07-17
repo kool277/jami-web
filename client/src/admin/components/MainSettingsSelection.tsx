@@ -15,12 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, useMediaQuery, useTheme } from '@mui/material'
+import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import BaseButton from '../../components/common/BaseButton.js'
 import SettingSidebar from '../../components/SettingSidebar.js'
 import {
   AdminPanelSettingsIcon,
@@ -113,7 +114,7 @@ export default function MainSettingsSelection() {
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-        <Button sx={{ width: isMobile ? '50%' : '85%' }} variant="contained" type="submit" onClick={adminLogout}>
+        <BaseButton sx={{ width: isMobile ? '50%' : '85%' }} variant="contained" type="submit" onClick={adminLogout}>
           <Box
             sx={{
               display: 'flex',
@@ -126,7 +127,7 @@ export default function MainSettingsSelection() {
             {t('logout')}
             <LogoutIcon sx={{ marginLeft: '10%' }} />
           </Box>
-        </Button>
+        </BaseButton>
       </Box>
     </Box>
   )

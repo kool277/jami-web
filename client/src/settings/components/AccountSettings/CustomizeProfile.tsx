@@ -16,9 +16,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Button, TextField } from '@mui/material'
+import { Box, TextField } from '@mui/material'
 import { useState } from 'react'
 
+import BaseButton from '../../../components/common/BaseButton.js'
 import { AvatarEditor } from '../../../components/ConversationAvatar.js'
 import { useAuthContext } from '../../../contexts/AuthProvider.js'
 import { useResetDisplayName, useSetDisplayName } from '../../../services/accountQueries.js'
@@ -65,13 +66,13 @@ const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName:
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <TextField value={name} onChange={handleNameChange} size="small" />
         <Box sx={{ display: 'flex', gap: '5%', marginTop: '2%' }}>
-          <Button sx={{ width: '50%' }} variant="contained" color="primary" onClick={handleChangeValidation}>
+          <BaseButton sx={{ width: '50%' }} variant="contained" color="primary" onClick={handleChangeValidation}>
             Save
-          </Button>
+          </BaseButton>
           {registeredName !== displayName && (
-            <Button sx={{ width: '50%' }} onClick={handleReset} variant="contained" color="primary">
+            <BaseButton sx={{ width: '50%' }} onClick={handleReset} variant="contained" color="primary">
               Reset
-            </Button>
+            </BaseButton>
           )}
         </Box>
       </Box>

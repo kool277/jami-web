@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Button, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 import Collapse from '@mui/material/Collapse'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
@@ -30,6 +30,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider.js'
 import { ISettingItem } from '../utils/utils.js'
+import BaseButton from './common/BaseButton.js'
 import { ArrowBackIcon, LoginIcon } from './SvgIcon.js'
 
 interface SettingSidebarProps {
@@ -77,7 +78,7 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
       </Box>
       {isSettings && (
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <Button
+          <BaseButton
             variant="contained"
             startIcon={<ArrowBackIcon />}
             sx={buttonStyle}
@@ -87,12 +88,12 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
             }}
           >
             {t('back_to_conversations')}
-          </Button>
+          </BaseButton>
         </Box>
       )}
       {isAdmin && (
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <Button
+          <BaseButton
             variant="contained"
             startIcon={<LoginIcon />}
             sx={buttonStyle}
@@ -101,7 +102,7 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
             }}
           >
             {t('go_to_login_page')}
-          </Button>
+          </BaseButton>
         </Box>
       )}
       <Stack direction="row">
