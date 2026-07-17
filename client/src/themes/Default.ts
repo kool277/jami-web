@@ -92,6 +92,26 @@ declare module '@mui/material/styles' {
       color: string
       disabledColor: string
     }
+    BaseButton: {
+      interaction: {
+        hoverBackgroundColor: string
+        activeBackgroundColor: string
+        foregroundColor: string
+      }
+      contained: {
+        color: string
+        backgroundColor: string
+      }
+      outlined: {
+        color: string
+        backgroundColor: string
+        borderColor: string
+      }
+      text: {
+        color: string
+        backgroundColor: string
+      }
+    }
     SettingsBackButton: {
       hoverBackgroundColor: string
       backgroundColor: string
@@ -323,6 +343,26 @@ const palettes = {
       color: '#4f4f4f',
       disabledColor: '#7e7e7e',
     },
+    BaseButton: {
+      interaction: {
+        hoverBackgroundColor: '#005699EB',
+        activeBackgroundColor: '#005699CC',
+        foregroundColor: '#FFFFFF',
+      },
+      contained: {
+        color: '#FFFFFF',
+        backgroundColor: '#005699',
+      },
+      outlined: {
+        color: '#005699',
+        backgroundColor: 'transparent',
+        borderColor: '#005699',
+      },
+      text: {
+        color: '#000000',
+        backgroundColor: 'transparent',
+      },
+    },
     StatusIcon: {
       color: 'black',
       border: '4px solid white',
@@ -435,6 +475,26 @@ const palettes = {
       color: '#EAEAEA',
       disabledColor: '#7E7E7E',
     },
+    BaseButton: {
+      interaction: {
+        hoverBackgroundColor: '#03B9E9EB',
+        activeBackgroundColor: '#03B9E9CC',
+        foregroundColor: '#000000',
+      },
+      contained: {
+        color: '#000000',
+        backgroundColor: '#03B9E9',
+      },
+      outlined: {
+        color: '#03B9E9',
+        backgroundColor: 'transparent',
+        borderColor: '#03B9E9',
+      },
+      text: {
+        color: '#FFFFFF',
+        backgroundColor: 'transparent',
+      },
+    },
     StatusIcon: {
       color: 'white',
       border: '4px solid #121212',
@@ -458,7 +518,7 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
   const partialTheme = createTheme({ ...palettes[mode], direction })
   const palette = partialTheme.palette
   const ChatInterface = partialTheme.ChatInterface
-  const Buttons = partialTheme.Buttons
+  const BaseButton = partialTheme.BaseButton
   const Panel = partialTheme.Panel
   const isDark = mode === 'dark'
 
@@ -495,31 +555,64 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
             fontSize: '15px',
             lineHeight: '17px',
             textTransform: 'none',
-            borderRadius: '20px',
+            borderRadius: '9999px',
+            transition: 'background-color 150ms ease, color 150ms ease, border-color 150ms ease',
+            '&.Mui-focusVisible': {
+              outline: '2px solid currentColor',
+              outlineOffset: '2px',
+            },
+            '@media (prefers-reduced-motion: reduce)': {
+              transition: 'none',
+            },
+            // Text buttons need contained-equivalent padding because they do not have an outlined border.
+            '&.MuiButton-text': {
+              padding: '6px 16px',
+            },
+            '&.MuiButton-text.MuiButton-sizeSmall': {
+              padding: '4px 10px',
+            },
+            '&.MuiButton-text.MuiButton-sizeLarge': {
+              padding: '8px 22px',
+            },
           },
           sizeSmall: {
             height: '26px',
           },
           contained: {
-            background: palette.primary.dark,
+            color: BaseButton.contained.color,
+            background: BaseButton.contained.backgroundColor,
             '&:hover': {
-              background: palette.primary.main,
+              background: BaseButton.interaction.hoverBackgroundColor,
+            },
+            '&:active': {
+              background: BaseButton.interaction.activeBackgroundColor,
             },
           },
           outlined: {
-            background: palette.background.paper,
-            borderColor: '#0056995C',
-            color: palette.primary.dark,
+            background: BaseButton.outlined.backgroundColor,
+            borderColor: BaseButton.outlined.borderColor,
+            color: BaseButton.outlined.color,
             '&:hover': {
-              background: Buttons.hoverBackgroundColor,
-              borderColor: palette.primary.dark,
+              background: BaseButton.interaction.hoverBackgroundColor,
+              borderColor: BaseButton.interaction.hoverBackgroundColor,
+              color: BaseButton.interaction.foregroundColor,
+            },
+            '&:active': {
+              background: BaseButton.interaction.activeBackgroundColor,
+              borderColor: BaseButton.interaction.activeBackgroundColor,
+              color: BaseButton.interaction.foregroundColor,
             },
           },
           text: {
-            background: palette.background.paper,
-            color: palette.primary.dark,
+            background: BaseButton.text.backgroundColor,
+            color: BaseButton.text.color,
             '&:hover': {
-              background: Buttons.hoverBackgroundColor,
+              background: BaseButton.interaction.hoverBackgroundColor,
+              color: BaseButton.interaction.foregroundColor,
+            },
+            '&:active': {
+              background: BaseButton.interaction.activeBackgroundColor,
+              color: BaseButton.interaction.foregroundColor,
             },
           },
         },
