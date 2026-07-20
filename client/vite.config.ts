@@ -19,14 +19,6 @@ import { AdminWizardState, getAdminSetupRedirect } from '@savoirfairelinux/jami-
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import svgr from 'vite-plugin-svgr'
-import * as topLevelAwait from 'vite-plugin-top-level-await'
-
-type TopLevelAwaitOptions = {
-  promiseExportName?: string
-  promiseImportName?: (i: number) => string
-}
-
-const topLevelAwaitPlugin = topLevelAwait.default as unknown as (options?: TopLevelAwaitOptions) => Plugin
 
 const adminSetupGatePlugin = (apiOrigin: string, desktopMode: boolean): Plugin => ({
   name: 'admin-setup-gate',
@@ -70,15 +62,7 @@ export default defineConfig(({ mode }) => {
     optimizeDeps: {
       include: ['@emotion/react', '@emotion/styled', '@mui/material/Tooltip'],
     },
-    plugins: [
-      adminSetupGatePlugin(env.VITE_API_URL, debugDesktopMode),
-      react(),
-      svgr(),
-      topLevelAwaitPlugin({
-        promiseExportName: '__tla',
-        promiseImportName: (i) => `__tla_${i}`,
-      }),
-    ],
+    plugins: [adminSetupGatePlugin(env.VITE_API_URL, debugDesktopMode), react(), svgr()],
     server: {
       host: '0.0.0.0',
       port: 3000,
@@ -114,12 +98,6 @@ export default defineConfig(({ mode }) => {
               {
                 name: 'ui-vendor',
                 test: /node_modules[\\/](@mui|@emotion|@popperjs|material-symbols|react-transition-group)[\\/]/,
-                includeDependenciesRecursively: false,
-              },
-              {
-                name: 'shared',
-                entriesAware: true,
-                entriesAwareMergeThreshold: 16 * 1024,
                 includeDependenciesRecursively: false,
               },
             ],
