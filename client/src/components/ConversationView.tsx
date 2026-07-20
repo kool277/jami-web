@@ -17,7 +17,7 @@
  */
 import { IconButton, InputBase, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { alpha } from '@mui/material/styles'
-import { useEffect, useMemo } from 'react'
+import { lazy, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider.js'
@@ -32,7 +32,8 @@ import ConversationPreferencesStateProvider, {
 } from '../contexts/ConversationPreferencesStateContext.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider.js'
-import CallInterface from '../pages/CallInterface.js'
+//import CallInterface from '../pages/CallInterface.js'
+const CallInterface = lazy(() => import('../pages/CallInterface.js'))
 import ChatInterface from '../pages/ChatInterface.js'
 import { StartAudioCallButton, StartVideoCallButton } from './Button.js'
 import { ShowOptionsMenuButton } from './Button.js'
