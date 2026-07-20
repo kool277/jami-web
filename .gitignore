@@ -45,3 +45,6 @@ client/vite.config.js
 /playwright/.auth/
 /.playwright-mcp/
 /goal_*.png
+
+# AI Audits for personal use
+audits/
