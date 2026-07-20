@@ -82,6 +82,9 @@
   "optionalDependencies": {
     "@savoirfairelinux/jami-core-linux-x64": "0.4.2"
   },
+  "overrides": {
+    "stylis": "4.2.0"
+  },
   "config": {
     "forge": "forge.config.js"
   },

@@ -30,7 +30,7 @@ export const jamiAuthLogoSize = '200px'
 
 const devApiUrl = import.meta.env.VITE_API_URL
 
-export const isDevMode = process.env.NODE_ENV === 'development' ? true : false
+export const isDevMode = import.meta.env.DEV
 
 let currentBaseUrl = window.location.origin
 

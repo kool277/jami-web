@@ -25,9 +25,12 @@ interface LanguageInfo {
   readonly fullName: string
 }
 
-async function getAvailableLanguages(): Promise<string[]> {
+async function getAvailableLanguages(): Promise<LanguageInfo[]> {
   try {
     const response = await fetch(apiUrl + '/config/languages')
+    if (!response.ok) {
+      throw new Error(`Failed to fetch available languages: ${response.status}`)
+    }
     const data = await response.json()
     return data
   } catch (error) {
@@ -39,6 +42,9 @@ async function getAvailableLanguages(): Promise<string[]> {
 async function getTranslation(language: string): Promise<ResourceLanguage> {
   try {
     const response = await fetch(apiUrl + `/config/languages/${language}/`)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch translation: ${response.status}`)
+    }
     const data = await response.json()
     return data
   } catch (error) {
@@ -48,19 +54,16 @@ async function getTranslation(language: string): Promise<ResourceLanguage> {
 }
 
 const availableLanguages = await getAvailableLanguages()
-export type LanguageTag = (typeof availableLanguages)[number]
+export type LanguageTag = string
 
-const languagesInfosPromises = availableLanguages.map(async (item: any) => ({
-  tag: item.tag,
-  fullName: item.fullName,
-}))
-
-export const languagesInfos: readonly LanguageInfo[] = await Promise.all(languagesInfosPromises)
+export const languagesInfos: readonly LanguageInfo[] = availableLanguages
+const availableLanguageTags = new Set(languagesInfos.map((language) => language.tag))
 
 const lastLanguage = localStorage.getItem('language')
 // transifex uses underscores instead of dashes
 const systemLanguage = navigator.language.replace('-', '_')
-const defaultLanguage = lastLanguage || (availableLanguages.includes(systemLanguage) ? systemLanguage : 'en')
+const getSystemLanguage = () => (availableLanguageTags.has(systemLanguage) ? systemLanguage : 'en')
+const defaultLanguage = lastLanguage && availableLanguageTags.has(lastLanguage) ? lastLanguage : getSystemLanguage()
 
 const initialResources = await getTranslation(defaultLanguage)
 

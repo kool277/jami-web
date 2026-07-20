@@ -15,13 +15,21 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import createCache from '@emotion/cache'
+import { CacheProvider } from '@emotion/react'
 import { CssBaseline, PaletteMode } from '@mui/material'
 import { ThemeProvider } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { createContext, useCallback, useMemo, useState } from 'react'
+import rtlPlugin from '@mui/stylis-plugin-rtl'
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { prefixer } from 'stylis'
 
 import { buildDefaultTheme } from '../themes/Default.js'
 import { WithChildren } from '../utils/utils.js'
+
+const ltrCache = createCache({ key: 'mui', stylisPlugins: [prefixer] })
+const rtlCache = createCache({ key: 'muirtl', stylisPlugins: [prefixer, rtlPlugin] })
 
 interface ICustomThemeContext {
   mode: PaletteMode
@@ -31,7 +39,9 @@ interface ICustomThemeContext {
 export const CustomThemeContext = createContext<ICustomThemeContext>(undefined!)
 
 export default ({ children }: WithChildren) => {
+  const { i18n } = useTranslation()
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
+  const direction = i18n.dir(i18n.language)
   const [selectedMode, setSelectedMode] = useState<PaletteMode | undefined>(() => {
     const themeModeInStorage = localStorage.getItem('themeMode')
     if (typeof themeModeInStorage === 'string') {
@@ -50,7 +60,12 @@ export default ({ children }: WithChildren) => {
     })
   }, [prefersDarkMode])
 
-  const theme = useMemo(() => buildDefaultTheme(mode), [mode])
+  useEffect(() => {
+    document.documentElement.dir = direction
+    document.documentElement.lang = i18n.language.replace('_', '-')
+  }, [direction, i18n.language])
+
+  const theme = useMemo(() => buildDefaultTheme(mode, direction), [direction, mode])
 
   const value = useMemo(
     () => ({
@@ -62,10 +77,12 @@ export default ({ children }: WithChildren) => {
 
   return (
     <CustomThemeContext value={value}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline enableColorScheme />
-        {children}
-      </ThemeProvider>
+      <CacheProvider value={direction === 'rtl' ? rtlCache : ltrCache}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline enableColorScheme />
+          {children}
+        </ThemeProvider>
+      </CacheProvider>
     </CustomThemeContext>
   )
 }

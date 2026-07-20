@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { createTheme, PaletteMode, SimplePaletteColorOptions } from '@mui/material'
+import { createTheme, Direction, PaletteMode, SimplePaletteColorOptions } from '@mui/material'
 import { type Theme as EmojiTheme } from 'emoji-picker-react'
 
 const lightEmojiTheme = 'light' as EmojiTheme
@@ -454,8 +454,8 @@ const palettes = {
   },
 }
 
-export const buildDefaultTheme = (mode: PaletteMode) => {
-  const partialTheme = createTheme({ ...palettes[mode] })
+export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
+  const partialTheme = createTheme({ ...palettes[mode], direction })
   const palette = partialTheme.palette
   const ChatInterface = partialTheme.ChatInterface
   const Buttons = partialTheme.Buttons
