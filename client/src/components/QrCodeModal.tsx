@@ -15,79 +15,33 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, IconButton, Modal } from '@mui/material'
 import { QRCodeCanvas } from 'qrcode.react'
-import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Account } from '../models/account.js'
-import BaseButton from './common/BaseButton.js'
-import { QrCodeIcon } from './SvgIcon.js'
+import BaseModalDialog from './common/BaseModalDialog.js'
 
-interface QrCodeProps {
+interface QrCodeModalProps {
   account: Account
+  open: boolean
+  onClose: () => void
 }
 
-const style = {
-  position: 'absolute' as const,
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 'auto',
-  height: 'auto',
-  bgcolor: 'background.paper',
-  border: '1px solid #000',
-  borderRadius: '10px',
-  boxShadow: 24,
-  pt: 2,
-  px: 4,
-  pb: 3,
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-}
-
-const QrCodeModal = ({ account }: QrCodeProps) => {
-  const [open, setOpen] = useState(false)
-  const handleOpen = () => {
-    setOpen(true)
-  }
-  const handleClose = () => {
-    setOpen(false)
-  }
-
+const QrCodeModal = ({ account, open, onClose }: QrCodeModalProps) => {
+  const { t } = useTranslation()
   const qrCodeSize: number = 250
 
   return (
-    <div style={{ display: 'flex', alignContent: 'center', justifyContent: 'center' }}>
-      <IconButton size="small" onClick={handleOpen} sx={{ color: 'inherit' }}>
-        <QrCodeIcon />
-      </IconButton>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="parent-modal-title"
-        aria-describedby="parent-modal-description"
-      >
-        <Box sx={{ ...style }}>
-          <Box
-            sx={{
-              width: '100%',
-              display: 'flex',
-              flexWrap: 'nowrap',
-              justifyContent: 'flex-end',
-              mb: '2%',
-            }}
-          >
-            <BaseButton variant="text" size="small" onClick={handleClose}>
-              X
-            </BaseButton>
-          </Box>
-
-          <QRCodeCanvas style={{ borderRadius: '12px' }} size={qrCodeSize} value={account.getUri()} />
-        </Box>
-      </Modal>
-    </div>
+    <BaseModalDialog
+      open={open}
+      selectedValue=""
+      aria-label={t('contact_details_qr_code')}
+      onClose={onClose}
+      closePolicy={['escapeKeyDown', 'backdropClick']}
+      contentSx={{ margin: '0px' }}
+    >
+      <QRCodeCanvas style={{ borderRadius: '12px', display: 'block' }} size={qrCodeSize} value={account.getUri()} />
+    </BaseModalDialog>
   )
 }
 

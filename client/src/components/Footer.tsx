@@ -28,7 +28,7 @@ import { isElectronMode } from '../utils/electron.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import QrCodeModal from './QrCodeModal.js'
 import { LogoutIcon, ManageAccountsIcon, PeopleIcon, QuestionAnswerIcon } from './SvgIcon.js'
-import { RoundCloseIcon, SettingsIcon } from './SvgIcon.js'
+import { QrCodeIcon, RoundCloseIcon, SettingsIcon } from './SvgIcon.js'
 //TODO:  remove 'settings-account' and 'settings' when migration is finished
 type NavigateURL =
   '/' | '/contacts' | '/settings/general' | '/settings/account/manage-account' | '/settings/account/linked-devices'
@@ -37,6 +37,7 @@ export default function Footer() {
   const { t } = useTranslation()
   const { logout, switchAccount: authSwitchAccount, account } = useAuthContext()
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
+  const [isQrCodeModalOpen, setIsQrCodeModalOpen] = useState(false)
   const [localAccounts, setLocalAccounts] = useState<
     Array<{ id: string; registeredName: string; displayName: string }>
   >([])
@@ -233,7 +234,14 @@ export default function Footer() {
             pr: '10px',
           }}
         >
-          <QrCodeModal account={account} />
+          <IconButton
+            aria-label={t('contact_details_qr_code')}
+            size="small"
+            onClick={() => setIsQrCodeModalOpen(true)}
+            sx={{ color: 'inherit' }}
+          >
+            <QrCodeIcon />
+          </IconButton>
 
           {!currentUrl.includes('settings') ? (
             <IconButton
@@ -258,6 +266,7 @@ export default function Footer() {
           )}
         </Stack>
       </Card>
+      <QrCodeModal account={account} open={isQrCodeModalOpen} onClose={() => setIsQrCodeModalOpen(false)} />
     </>
   )
 }
