@@ -16,15 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import {
-  Box,
-  IconButton,
-  Link,
-  Tooltip,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import { Box, Link, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { use, useState } from 'react'
 import { Trans, useTranslation } from 'react-i18next'
 
@@ -43,9 +35,9 @@ import {
 import BaseButton from './common/BaseButton.js'
 import BaseIconButton from './common/BaseIconButton.js'
 import BaseModalDialog from './common/BaseModalDialog.js'
-import EllipsisMiddle from './EllipsisMiddle.js'
+import JamiIdDisplay from './JamiIdDisplay.js'
 import { VolunteerActivismIcon } from './SvgIcon.js'
-import { ContentCopyIcon, FavoriteBorderIcon, FeedbackIcon, InfoIcon, JamiIdIcon, TwoSheetsIcon } from './SvgIcon.js'
+import { ContentCopyIcon, FavoriteBorderIcon, FeedbackIcon, InfoIcon } from './SvgIcon.js'
 import TipsDialog from './TipsDialog.js'
 
 export default function WelcomePage() {
@@ -55,61 +47,29 @@ export default function WelcomePage() {
   const { setAlertContent } = use(AlertSnackbarContext)
   const [isAboutOpen, setIsAboutOpen] = useState(false)
   const { setIsMenuOpen } = useMobileMenuStateContext()
-  const isMedium: boolean = useMediaQuery(theme.breakpoints.down(1000))
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const { mode } = use(CustomThemeContext)
   const isDark = mode === 'dark'
-  const hasToRegisterName = account.getRegisteredName() === undefined
-  const [displayedInfo, setDisplayedInfo] = useState(hasToRegisterName ? account.getUri() : account.getRegisteredName())
 
   if (isMobile) {
     setIsMenuOpen(true)
   }
 
-  const handleMoreInfo = () => {
-    if (hasToRegisterName) {
-      //cannot switch between uri and registered name if registered name is undefined
-      return
-    }
-
-    if (displayedInfo === account.getRegisteredName()) {
-      setDisplayedInfo(account.getUri())
-    } else {
-      setDisplayedInfo(account.getRegisteredName())
-    }
-  }
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(displayedInfo)
-    setAlertContent({
-      messageI18nKey: 'copied_to_clipboard',
-      severity: 'success',
-      alertOpen: true,
-    })
-  }
-
   const handleCopyVersion = async () => {
     try {
       await navigator.clipboard.writeText(`${__GIT_COMMIT_HASH__}-${__JAMI_CORE_VERSION__}`)
+      setAlertContent({
+        messageI18nKey: 'copied_to_clipboard',
+        severity: 'success',
+        alertOpen: true,
+      })
     } catch {
-      return
+      setAlertContent({
+        messageI18nKey: 'unknown_error_alert',
+        severity: 'error',
+        alertOpen: true,
+      })
     }
-
-    setAlertContent({
-      messageI18nKey: 'copied_to_clipboard',
-      severity: 'success',
-      alertOpen: true,
-    })
-  }
-
-  const middleBoxStyle = {
-    backgroundColor: theme.WelcomePage.middleBoxBackgroundColor,
-    padding: '6px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    color: theme.WelcomePage.iconsColor,
-    boxSizing: 'border-box',
   }
 
   return (
@@ -136,53 +96,7 @@ export default function WelcomePage() {
         }}
       >
         {isDark ? <JamiLogoWhite width={'auto'} height={'80px'} /> : <JamiLogo width={'auto'} height={'80px'} />}
-        <Typography sx={{ color: 'text.primary', textAlign: 'center' }}>{t('welcome_page_text')}</Typography>
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: '4px', width: '100%' }}>
-          <Box
-            sx={{
-              borderRadius: '18px 2px 2px 18px',
-              ...middleBoxStyle,
-              maxWidth: isMedium ? '220px' : 'unset',
-              width: 'auto',
-            }}
-          >
-            <JamiIdIcon sx={{ marginRight: '5px' }} />
-            <Box
-              sx={{
-                maxWidth: isMedium ? '170px' : 'unset',
-                mb: '2px',
-              }}
-            >
-              <EllipsisMiddle text={displayedInfo} centerItem={true} padding="6px" />
-            </Box>
-          </Box>
-          <Box
-            sx={{
-              borderRadius: '2px 18px 18px 2px',
-              ...middleBoxStyle,
-              gap: '10px',
-            }}
-          >
-            <Tooltip title={t('copy_to_clipboard')}>
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <TwoSheetsIcon sx={{ fontSize: '20px', '&:hover': { cursor: 'pointer' } }} onClick={handleCopy} />
-              </span>
-            </Tooltip>
-            <Tooltip
-              title={
-                displayedInfo === account.getRegisteredName()
-                  ? t('welcome_page_view_uri')
-                  : hasToRegisterName
-                    ? t('welcome_page_register_username')
-                    : t('welcome_page_view_registered_name')
-              }
-            >
-              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <InfoIcon sx={{ fontSize: '20px', '&:hover': { cursor: 'pointer' } }} onClick={handleMoreInfo} />
-              </span>
-            </Tooltip>
-          </Box>
-        </Box>
+        <JamiIdDisplay account={account} />
       </Box>
 
       <BaseButton
