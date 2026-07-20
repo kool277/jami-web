@@ -12,6 +12,9 @@ COPY server/available_languages.json server/available_languages.json
 RUN npm ci
 COPY . .
 
+ARG GIT_COMMIT_HASH
+ENV GIT_COMMIT_HASH=$GIT_COMMIT_HASH
+
 RUN touch server/.env
 
 FROM jami-web AS development
@@ -28,7 +31,13 @@ RUN npm run build
 # dependencies, not the full source tree or dev tooling.
 FROM node:26-slim AS production
 
-RUN apt-get update && apt-get install -y --no-install-recommends libpulse0 alsa-utils \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  libexpat1 \
+  libpulse0 \
+  libva-drm2 \
+  libva-x11-2 \
+  libvdpau1 \
+  alsa-utils \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /web-client

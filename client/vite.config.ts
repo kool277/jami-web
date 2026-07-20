@@ -24,7 +24,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import svgr from 'vite-plugin-svgr'
 
-function getGitCommitHash() {
+function getGitCommitHash(): string {
   if (process.env.GIT_COMMIT_HASH) {
     return process.env.GIT_COMMIT_HASH
   }

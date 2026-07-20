@@ -310,8 +310,11 @@ The application is now `running on port 3000` of your local machine.
 2. Build the Docker image for Jami web:
 
    ```sh
-   docker build --target production -t jami-web .
+   docker build --build-arg GIT_COMMIT_HASH="$(git rev-parse --short HEAD)" --target production -t jami-web .
    ```
+
+   `GIT_COMMIT_HASH` records the source revision in the About dialog. When it
+   is omitted, builds without Git metadata use `unknown`.
 
 3. Run the Docker container:
    ```
