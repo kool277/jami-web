@@ -142,7 +142,7 @@
   "documentation": "Documentation",
   "download_limit": "Auto download limit",
   "download_limit_details": "The automatic download limit is the maximum file size (in MB) that the application downloads automatically. If a file exceeds the limit, the user is required to accept the download.",
-  "conference_resolution": "Conference resolution",
+  "conference_resolution": "Rezoluția conferinței",
   "conference_resolution_details": "Choose the default video resolution used for conference calls.",
   "conference_resolution_option_720p": "HD 720p",
   "conference_resolution_option_1080p": "Full HD 1080p",
