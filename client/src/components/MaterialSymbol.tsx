@@ -15,27 +15,38 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Icon, IconProps } from '@mui/material'
+import { Icon, type IconProps, useTheme } from '@mui/material'
 
 export interface MaterialSymbolProps extends IconProps {
   symbol: string
   filled?: boolean
+  bidirectional?: boolean
 }
 
 /**
  * Renders a Material Symbols Outlined icon with weight 300.
  */
-const MaterialSymbol = ({ symbol, filled, sx, ...props }: MaterialSymbolProps) => {
+const MaterialSymbol = ({ symbol, filled, bidirectional = false, sx, ...props }: MaterialSymbolProps) => {
+  const theme = useTheme()
+
   return (
     <Icon
       baseClassName="material-symbols-outlined"
       {...props}
-      sx={{
-        fontVariationSettings: `'wght' 300${filled ? ", 'FILL' 1" : ''}`,
-        ...sx,
-      }}
+      sx={[
+        {
+          fontVariationSettings: `'wght' 300${filled ? ", 'FILL' 1" : ''}`,
+        },
+        ...(Array.isArray(sx) ? sx : sx === undefined ? [] : [sx]),
+      ]}
     >
-      {symbol}
+      <span
+        style={
+          bidirectional && theme.direction === 'rtl' ? { display: 'inline-block', transform: 'scaleX(-1)' } : undefined
+        }
+      >
+        {symbol}
+      </span>
     </Icon>
   )
 }

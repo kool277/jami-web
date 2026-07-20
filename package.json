@@ -24,6 +24,7 @@
     "format:check": "npm run format:check --workspaces",
     "prepare": "if [ -e '.git' ] && command -v git > /dev/null 2>&1; then git config core.hooksPath .hooks; fi",
     "test": "npx playwright test --project=chromium",
+    "test:production": "npx playwright test --config playwright.production.config.ts --project=chromium",
     "test:ui": "npx playwright test --ui",
     "npm:pack": "npm pack --workspace @savoirfairelinux/jami-web",
     "npm:publish": "npm publish --workspace @savoirfairelinux/jami-web --tag next",

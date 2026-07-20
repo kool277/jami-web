@@ -21,8 +21,22 @@ import React from 'react'
 import JamiIDLogoSvg from '../icons/jami-id-logo.svg?react'
 import MaterialSymbol from './MaterialSymbol.js'
 
+const bidirectionalSymbols = new Set([
+  'reply',
+  'send',
+  'arrow_back',
+  'format_list_numbered',
+  'call_missed',
+  'chevron_left',
+  'exit_to_app',
+  'chevron_right',
+  'format_list_bulleted',
+])
+
 const ms = (symbol: string, filled?: boolean) => {
-  const Comp = (props: any) => <MaterialSymbol symbol={symbol} filled={filled} {...props} />
+  const Comp = (props: any) => (
+    <MaterialSymbol bidirectional={bidirectionalSymbols.has(symbol)} symbol={symbol} filled={filled} {...props} />
+  )
   Comp.displayName = `MS_${symbol}`
   return Comp as React.ComponentType<SvgIconProps>
 }
