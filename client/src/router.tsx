@@ -21,6 +21,7 @@ import { lazy } from 'react'
 import { createBrowserRouter, createRoutesFromElements, Navigate, Outlet, Route } from 'react-router-dom'
 
 import App, { appLoader } from './App.js'
+import RouteErrorBoundary from './components/RouteErrorBoundary.js'
 import MobileMenuStateProvider from './contexts/MobileMenuStateProvider.js'
 import { AdminConfigurationOptions } from './enums/adminConfigurationOptions.js'
 import { AuthenticationMethods } from './enums/authenticationMethods.js'
@@ -44,22 +45,25 @@ const MediaSettings = lazy(() => loadAdminBundle().then(({ MediaSettings }) => (
 const OpenIdAuthMethod = lazy(() => loadAdminBundle().then(({ OpenIdAuthMethod }) => ({ default: OpenIdAuthMethod })))
 const ContactList = lazy(() => import('./components/ContactList.js'))
 const ConversationView = lazy(() => import('./components/ConversationView.js'))
-const LayoutWrapper = lazy(() => import('./components/LayoutWrapper.js'))
+import LayoutWrapper from './components/LayoutWrapper.js'
 const NotificationHandler = lazy(() => import('./components/NotificationHandler.js'))
 const UserSettingsSelection = lazy(() =>
   loadSettingsBundle().then(({ UserSettingsSelection }) => ({ default: UserSettingsSelection })),
 )
 const WelcomePage = lazy(() => import('./components/WelcomePage.js'))
 const ActionMessageProvider = lazy(() => import('./contexts/ActionMessageProvider.js'))
-const AuthProvider = lazy(() => import('./contexts/AuthProvider.js'))
+//const AuthProvider = lazy(() => import('./contexts/AuthProvider.js'))
+import AuthProvider from './contexts/AuthProvider.js'
 const CallManagerProvider = lazy(() => import('./contexts/CallManagerProvider.js'))
 const ConversationProvider = lazy(() => import('./contexts/ConversationProvider.js'))
 const ImportDeviceProvider = lazy(() => import('./contexts/ImportDeviceProvider.js'))
 const MessengerProvider = lazy(() => import('./contexts/MessengerProvider.js'))
 const PresenceProvider = lazy(() => import('./contexts/PresenceProvider.js'))
 const UserMediaProvider = lazy(() => import('./contexts/UserMediaProvider.js'))
-const WebSocketLinkProvider = lazy(() => import('./contexts/WebSocketLinkProvider.js'))
-const WebSocketProvider = lazy(() => import('./contexts/WebSocketProvider.js'))
+//const WebSocketLinkProvider = lazy(() => import('./contexts/WebSocketLinkProvider.js'))
+//const WebSocketProvider = lazy(() => import('./contexts/WebSocketProvider.js'))
+import WebSocketLinkProvider from './contexts/WebSocketLinkProvider.js'
+import WebSocketProvider from './contexts/WebSocketProvider.js'
 const AccountSettings = lazy(() => loadSettingsBundle().then(({ AccountSettings }) => ({ default: AccountSettings })))
 const AdminLogin = lazy(() => loadAdminBundle().then(({ AdminLogin }) => ({ default: AdminLogin })))
 const AdminPanel = lazy(() => loadAdminBundle().then(({ AdminPanel }) => ({ default: AdminPanel })))
@@ -95,7 +99,7 @@ export type ConversationRouteParams = RouteParams<{ conversationId?: string }, R
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<App />} loader={appLoader}>
+    <Route path="/" element={<App />} errorElement={<RouteErrorBoundary />} loader={appLoader}>
       <Route
         element={
           <MobileMenuStateProvider>
