@@ -86,13 +86,24 @@ if (defaultLanguage !== 'en') {
 }
 i18n.changeLanguage(defaultLanguage)
 
-export const loadLanguageAsync = async (language: string) => {
-  localStorage.setItem('language', language)
+const loadLanguage = async (language: string) => {
   if (i18n.hasResourceBundle(language, 'translation')) {
     return
   }
   const translation = await getTranslation(language)
   i18n.addResourceBundle(language, 'translation', translation)
+}
+
+export const loadLanguageAsync = async (language: string) => {
+  localStorage.setItem('language', language)
+  await loadLanguage(language)
+}
+
+export const resetLanguageToSystem = async () => {
+  localStorage.removeItem('language')
+  const language = getSystemLanguage()
+  await loadLanguage(language)
+  await i18n.changeLanguage(language)
 }
 
 export default i18n

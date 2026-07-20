@@ -30,7 +30,7 @@ const adminSetupGatePlugin = (apiOrigin: string, desktopMode: boolean): Plugin =
       }
 
       try {
-        const response = await fetch(new URL('/api/admin/adminWizardState', apiOrigin))
+        const response = await fetch(new URL('/api/admin/admin-wizard-state', apiOrigin))
         if (!response.ok) {
           throw new Error(`Admin wizard state request failed with status ${response.status}`)
         }
@@ -60,7 +60,14 @@ export default defineConfig(({ mode }) => {
 
   return {
     optimizeDeps: {
-      include: ['@emotion/react', '@emotion/styled', '@mui/material/Tooltip'],
+      include: ['@emotion/react', '@emotion/styled', '@mui/material/Tooltip', 'react-draggable'],
+      rolldownOptions: {
+        transform: {
+          define: {
+            'process.env.DRAGGABLE_DEBUG': 'false',
+          },
+        },
+      },
     },
     plugins: [adminSetupGatePlugin(env.VITE_API_URL, debugDesktopMode), react(), svgr()],
     server: {
@@ -106,6 +113,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
+      'process.env.DRAGGABLE_DEBUG': 'false',
       global: {},
       __JAMI_DEBUG_DESKTOP_MODE__: JSON.stringify(debugDesktopMode),
     },

@@ -18,18 +18,20 @@
 import createCache from '@emotion/cache'
 import { CacheProvider } from '@emotion/react'
 import { CssBaseline, PaletteMode } from '@mui/material'
-import { ThemeProvider } from '@mui/material/styles'
+import { type Direction, ThemeProvider } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import rtlPlugin from '@mui/stylis-plugin-rtl'
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { createContext, lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { prefixer } from 'stylis'
 
+import { resetLanguageToSystem } from '../i18n.js'
 import { buildDefaultTheme } from '../themes/Default.js'
 import { WithChildren } from '../utils/utils.js'
 
 const ltrCache = createCache({ key: 'mui', stylisPlugins: [prefixer] })
 const rtlCache = createCache({ key: 'muirtl', stylisPlugins: [prefixer, rtlPlugin] })
+const DebugToolsDialog = import.meta.env.DEV ? lazy(() => import('../components/DebugToolsDialog.js')) : null
 
 interface ICustomThemeContext {
   mode: PaletteMode
@@ -41,7 +43,9 @@ export const CustomThemeContext = createContext<ICustomThemeContext>(undefined!)
 export default ({ children }: WithChildren) => {
   const { i18n } = useTranslation()
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
-  const direction = i18n.dir(i18n.language)
+  const [debugDirection, setDebugDirection] = useState<Direction | null>(null)
+  const showDebugTools = import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug-tools') === '1'
+  const direction = debugDirection ?? i18n.dir(i18n.language)
   const [selectedMode, setSelectedMode] = useState<PaletteMode | undefined>(() => {
     const themeModeInStorage = localStorage.getItem('themeMode')
     if (typeof themeModeInStorage === 'string') {
@@ -60,12 +64,20 @@ export default ({ children }: WithChildren) => {
     })
   }, [prefersDarkMode])
 
+  const resetDebugTools = useCallback(async () => {
+    setDebugDirection(null)
+    localStorage.removeItem('themeMode')
+    setSelectedMode(undefined)
+    await resetLanguageToSystem()
+  }, [])
+
   useEffect(() => {
     document.documentElement.dir = direction
     document.documentElement.lang = i18n.language.replace('_', '-')
   }, [direction, i18n.language])
 
   const theme = useMemo(() => buildDefaultTheme(mode, direction), [direction, mode])
+  const debugTheme = useMemo(() => buildDefaultTheme(mode, 'ltr'), [mode])
 
   const value = useMemo(
     () => ({
@@ -81,6 +93,21 @@ export default ({ children }: WithChildren) => {
         <ThemeProvider theme={theme}>
           <CssBaseline enableColorScheme />
           {children}
+          {showDebugTools && DebugToolsDialog && (
+            <Suspense fallback={null}>
+              <CacheProvider value={ltrCache}>
+                <ThemeProvider theme={debugTheme}>
+                  <DebugToolsDialog
+                    direction={direction}
+                    mode={mode}
+                    onDirectionChange={setDebugDirection}
+                    onModeToggle={toggleMode}
+                    onReset={resetDebugTools}
+                  />
+                </ThemeProvider>
+              </CacheProvider>
+            </Suspense>
+          )}
         </ThemeProvider>
       </CacheProvider>
     </CustomThemeContext>

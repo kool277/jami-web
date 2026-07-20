@@ -16,6 +16,12 @@ npm start
 
 Open <http://localhost:3000> in your browser to view the app.
 
+### Enable debug tools
+
+The draggable debug tools dialog is disabled by default and is available only
+in development builds. Add `?debug-tools=1` to the development URL, for
+example <http://localhost:3000/?debug-tools=1>.
+
 ### Build for production
 
 ```
