@@ -13,7 +13,7 @@
     "start:prod": " npm run start:prod --workspace server",
     "start:debug-server": "HOME=/tmp npm start --workspace server",
     "daemon:build": "node scripts/build-local-daemon.mjs",
-    "test:unit": "node --test scripts/build-local-daemon.test.mjs && npm run test:unit --workspace server",
+    "test:unit": "node --test scripts/build-local-daemon.test.mjs && npm run test:unit --workspace client && npm run test:unit --workspace server",
     "start:local-daemon": "npm run daemon:build && npm start",
     "build": "npm run build --workspaces",
     "clean": "npm run clean --workspaces",
