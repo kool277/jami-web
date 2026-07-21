@@ -21,7 +21,7 @@ import { createBotCommand } from './cli/bot.js'
 import { configCommand } from './cli/config.js'
 import { doctorCommand } from './cli/doctor.js'
 import { genkeyCommand } from './cli/genkeys.js'
-import { installCommand } from './cli/install.js'
+import { installCommand, uninstallCommand } from './cli/install.js'
 import { setupCommand } from './cli/setup.js'
 
 const args = process.argv.slice(2)
@@ -33,6 +33,7 @@ function printUsage() {
 Commands:
   start       Start the Jami Web server (default)
   install     Install and start Jami Web as a per-user startup service
+  uninstall   Stop and remove the per-user Jami Web startup service
   setup       Interactive setup wizard (create admin account and configure server)
   genkeys     Generate JWT signing keys and write them to .env
   accounts    Manage Jami accounts (create, list, remove)
@@ -71,6 +72,9 @@ async function main() {
       break
     case 'install':
       await installCommand(args.slice(1))
+      break
+    case 'uninstall':
+      await uninstallCommand(args.slice(1))
       break
     case 'accounts':
       await accountsCommand(args.slice(1))

@@ -166,6 +166,12 @@ Linux writes `~/.config/systemd/user/jami-web.service` and enables it with
 `~/Library/LaunchAgents/net.jami.web.plist` and loads it with `launchctl`.
 Re-running the command updates and restarts the installed service.
 
+Stop and remove the service with:
+
+```bash
+jami-web uninstall
+```
+
 ---
 
 ## Reverse proxy (TLS)

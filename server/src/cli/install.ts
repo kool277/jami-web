@@ -16,7 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { execFile } from 'node:child_process'
-import { chmod, mkdir, writeFile } from 'node:fs/promises'
+import { existsSync } from 'node:fs'
+import { chmod, mkdir, rm, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { promisify } from 'node:util'
@@ -104,6 +105,48 @@ async function installSystemdService(nodePath: string, cliPath: string): Promise
   return servicePath
 }
 
+async function uninstallSystemdService(): Promise<boolean> {
+  const servicePath = join(homedir(), '.config', 'systemd', 'user', SERVICE_NAME)
+
+  try {
+    await execFileAsync('systemctl', ['--user', 'disable', '--now', SERVICE_NAME])
+  } catch (error) {
+    if (existsSync(servicePath)) {
+      throw new Error(`Failed to remove the systemd user service: ${(error as Error).message}`, {
+        cause: error,
+      })
+    }
+
+    try {
+      const { stdout } = await execFileAsync('systemctl', [
+        '--user',
+        'show',
+        '--property=LoadState',
+        '--value',
+        SERVICE_NAME,
+      ])
+      if (stdout.trim() === 'not-found') {
+        return false
+      }
+
+      await execFileAsync('systemctl', ['--user', 'stop', SERVICE_NAME])
+      await execFileAsync('systemctl', ['--user', 'daemon-reload'])
+      return true
+    } catch (recoveryError) {
+      throw new Error(`Failed to remove the systemd user service: ${(recoveryError as Error).message}`, {
+        cause: recoveryError,
+      })
+    }
+  }
+
+  if (existsSync(servicePath)) {
+    await rm(servicePath)
+  }
+  await execFileAsync('systemctl', ['--user', 'daemon-reload'])
+
+  return true
+}
+
 interface CommandError extends Error {
   code?: number | string
 }
@@ -150,6 +193,32 @@ async function installLaunchAgent(nodePath: string, cliPath: string): Promise<st
   return launchAgentPath
 }
 
+async function uninstallLaunchAgent(): Promise<boolean> {
+  const uid = process.getuid?.()
+  if (uid === undefined) {
+    throw new Error('Unable to determine the current user ID.')
+  }
+
+  const launchAgentPath = join(homedir(), 'Library', 'LaunchAgents', `${LAUNCH_AGENT_LABEL}.plist`)
+  const target = `gui/${uid}/${LAUNCH_AGENT_LABEL}`
+  const exists = existsSync(launchAgentPath)
+
+  try {
+    const loaded = await isLaunchAgentLoaded(target)
+    if (loaded) {
+      await execFileAsync('launchctl', ['bootout', target])
+    }
+    if (exists) {
+      await rm(launchAgentPath)
+    }
+    return exists || loaded
+  } catch (error) {
+    throw new Error(`Failed to remove the launch agent: ${(error as Error).message}`, {
+      cause: error,
+    })
+  }
+}
+
 export async function installCommand(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`Usage: jami-web install
@@ -180,4 +249,31 @@ Options:
 
   console.log('Jami Web is installed and running as a startup service.')
   console.log(`  Service definition: ${servicePath}`)
+}
+
+export async function uninstallCommand(args: string[]): Promise<void> {
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(`Usage: jami-web uninstall
+
+Stop and remove the current user's Jami Web startup service.
+
+Options:
+  --help      Show this help message`)
+    return
+  }
+
+  if (args.length > 0) {
+    throw new Error(`Unknown option: ${args[0]}`)
+  }
+
+  let removed: boolean
+  if (process.platform === 'linux') {
+    removed = await uninstallSystemdService()
+  } else if (process.platform === 'darwin') {
+    removed = await uninstallLaunchAgent()
+  } else {
+    throw new Error(`Startup installation is not supported on ${process.platform}.`)
+  }
+
+  console.log(removed ? 'Jami Web startup service removed.' : 'Jami Web startup service is not installed.')
 }
