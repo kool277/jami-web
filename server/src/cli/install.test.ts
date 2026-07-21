@@ -109,6 +109,22 @@ describe('startup service installer', () => {
     assert.match(unit, /ExecStart="\/opt\/node%%20\/bin\/node" "\/opt\/jami\\\\\\"web\/cli\.js" start/)
   })
 
+  it('renders a system-wide service with a dedicated account and data directory', () => {
+    const unit = renderSystemdUnit('/usr/bin/node', '/usr/bin/jami-web', {
+      scope: 'system',
+      user: 'jami-web',
+      home: '/var/lib/jami-web',
+    })
+
+    assert.match(unit, /^User=jami-web$/m)
+    assert.match(unit, /^Group=jami-web$/m)
+    assert.match(unit, /^Environment="HOME=\/var\/lib\/jami-web"$/m)
+    assert.match(unit, /^Environment="JAMI_WEB_DATA_DIR=\/var\/lib\/jami-web"$/m)
+    assert.match(unit, /^StateDirectory=jami-web$/m)
+    assert.match(unit, /^StateDirectoryMode=0700$/m)
+    assert.match(unit, /^WantedBy=multi-user\.target$/m)
+  })
+
   it('renders a launch agent with escaped executable paths', () => {
     const plist = renderLaunchAgent('/opt/node&tools/node', '/opt/jami<web>/cli.js')
 
@@ -131,6 +147,7 @@ describe('startup service installer', () => {
     }
 
     assert.match(logs.join('\n'), /^Usage: jami-web uninstall/m)
+    assert.match(logs.join('\n'), /--global/)
     assert.match(logs.join('\n'), /Stop and remove/)
   })
 

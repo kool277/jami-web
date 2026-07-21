@@ -73,7 +73,9 @@ JAMI_WEB_ADMIN_PASSWORD='change-me' jami-web setup --non-interactive --enable-lo
 Useful CLI commands:
 
 - `jami-web install` — install and start Jami Web as a per-user startup service
+- `sudo jami-web install --global` — install a system-wide Linux service that starts at boot
 - `jami-web uninstall` — stop and remove the per-user startup service
+- `sudo jami-web uninstall --global` — stop and remove the system-wide Linux service
 - `jami-web doctor` — run health checks (data dir, keys, admin account, native daemon, listeners)
 - `jami-web config` — show the resolved data directory, env file, and effective runtime settings
 - `jami-web genkeys` — (re)generate JWT signing keys

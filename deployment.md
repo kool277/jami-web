@@ -88,6 +88,16 @@ On Linux this installs a systemd user service. On macOS it installs a
 LaunchAgent. Run the command as the user who should run Jami Web; do not use
 `sudo`.
 
+On Linux, install a system-wide service that starts at boot instead:
+
+```bash
+sudo jami-web install --global
+```
+
+The installer creates a locked `jami-web` system account and stores its
+persistent data under `/var/lib/jami-web`. Uninstalling the service preserves
+the account and its data.
+
 ---
 
 ## Method 2 — Docker / Compose
@@ -170,6 +180,12 @@ Stop and remove the service with:
 
 ```bash
 jami-web uninstall
+```
+
+For a system-wide Linux installation, use:
+
+```bash
+sudo jami-web uninstall --global
 ```
 
 ---

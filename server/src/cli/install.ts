@@ -24,7 +24,18 @@ import { promisify } from 'node:util'
 
 const execFileAsync = promisify(execFile)
 const SERVICE_NAME = 'jami-web.service'
+const SYSTEM_SERVICE_PATH = `/etc/systemd/system/${SERVICE_NAME}`
+const SYSTEM_SERVICE_USER = 'jami-web'
+const SYSTEM_DATA_DIRECTORY = '/var/lib/jami-web'
 const LAUNCH_AGENT_LABEL = 'net.jami.web'
+
+type SystemdUnitOptions =
+  | { scope: 'user' }
+  | {
+      scope: 'system'
+      user: string
+      home: string
+    }
 
 function systemdQuote(value: string): string {
   return `"${value.replaceAll('\\', '\\\\').replaceAll('"', '\\"').replaceAll('%', '%%')}"`
@@ -39,7 +50,23 @@ function escapeXml(value: string): string {
     .replaceAll("'", '&apos;')
 }
 
-export function renderSystemdUnit(nodePath: string, cliPath: string): string {
+export function renderSystemdUnit(
+  nodePath: string,
+  cliPath: string,
+  options: SystemdUnitOptions = { scope: 'user' },
+): string {
+  const systemSettings =
+    options.scope === 'system'
+      ? `User=${options.user}
+Group=${options.user}
+Environment=${systemdQuote(`HOME=${options.home}`)}
+Environment=${systemdQuote(`JAMI_WEB_DATA_DIR=${options.home}`)}
+StateDirectory=jami-web
+StateDirectoryMode=0700
+`
+      : ''
+  const target = options.scope === 'system' ? 'multi-user.target' : 'default.target'
+
   return `[Unit]
 Description=Jami Web
 After=network-online.target
@@ -48,12 +75,12 @@ Wants=network-online.target
 [Service]
 Type=simple
 ExecStart=${systemdQuote(nodePath)} ${systemdQuote(cliPath)} start
-Environment=NODE_ENV=production
+${systemSettings}Environment=NODE_ENV=production
 Restart=on-failure
 RestartSec=10
 
 [Install]
-WantedBy=default.target
+WantedBy=${target}
 `
 }
 
@@ -105,6 +132,101 @@ async function installSystemdService(nodePath: string, cliPath: string): Promise
   return servicePath
 }
 
+async function ensureGlobalServiceUser(): Promise<void> {
+  if (process.getuid?.() !== 0) {
+    throw new Error('Global installation requires root privileges. Run "sudo jami-web install --global".')
+  }
+
+  let userExists = false
+  try {
+    await execFileAsync('id', ['--user', SYSTEM_SERVICE_USER])
+    userExists = true
+  } catch (error) {
+    if ((error as CommandError).code !== 1) {
+      throw error
+    }
+  }
+
+  if (userExists) {
+    const { stdout } = await execFileAsync('getent', ['passwd', SYSTEM_SERVICE_USER])
+    const fields = stdout.trim().split(':')
+    const home = fields[5]
+    const shell = fields[6]
+    if (home !== SYSTEM_DATA_DIRECTORY || (shell !== '/usr/sbin/nologin' && shell !== '/bin/false')) {
+      throw new Error(
+        `The existing "${SYSTEM_SERVICE_USER}" account is not a compatible system account ` +
+          `(expected home ${SYSTEM_DATA_DIRECTORY} and a disabled login shell).`,
+      )
+    }
+  }
+
+  await execFileAsync('groupadd', ['--system', '--force', SYSTEM_SERVICE_USER])
+  if (userExists) {
+    return
+  }
+
+  const shell = existsSync('/usr/sbin/nologin') ? '/usr/sbin/nologin' : '/bin/false'
+  await execFileAsync('useradd', [
+    '--system',
+    '--gid',
+    SYSTEM_SERVICE_USER,
+    '--home-dir',
+    SYSTEM_DATA_DIRECTORY,
+    '--no-create-home',
+    '--shell',
+    shell,
+    SYSTEM_SERVICE_USER,
+  ])
+}
+
+async function assertInvokingUserServiceIsAbsent(): Promise<void> {
+  const invokingUser = process.env.SUDO_USER
+  if (!invokingUser || invokingUser === 'root') {
+    return
+  }
+
+  const { stdout } = await execFileAsync('getent', ['passwd', invokingUser])
+  const invokingUserHome = stdout.trim().split(':')[5]
+  if (!invokingUserHome) {
+    throw new Error(`Could not resolve the home directory for ${invokingUser}.`)
+  }
+
+  const userServicePath = join(invokingUserHome, '.config', 'systemd', 'user', SERVICE_NAME)
+  if (existsSync(userServicePath)) {
+    throw new Error('A per-user service is already installed. Run "jami-web uninstall" before installing globally.')
+  }
+}
+
+async function installGlobalSystemdService(nodePath: string, cliPath: string): Promise<string> {
+  if (process.getuid?.() !== 0) {
+    throw new Error('Global installation requires root privileges. Run "sudo jami-web install --global".')
+  }
+  await assertInvokingUserServiceIsAbsent()
+  await ensureGlobalServiceUser()
+
+  await writeFile(
+    SYSTEM_SERVICE_PATH,
+    renderSystemdUnit(nodePath, cliPath, {
+      scope: 'system',
+      user: SYSTEM_SERVICE_USER,
+      home: SYSTEM_DATA_DIRECTORY,
+    }),
+    { mode: 0o644 },
+  )
+  await chmod(SYSTEM_SERVICE_PATH, 0o644)
+
+  try {
+    await execFileAsync('systemctl', ['daemon-reload'])
+    await execFileAsync('systemctl', ['enable', '--now', SERVICE_NAME])
+  } catch (error) {
+    throw new Error(`Failed to enable the system-wide systemd service: ${(error as Error).message}`, {
+      cause: error,
+    })
+  }
+
+  return SYSTEM_SERVICE_PATH
+}
+
 async function uninstallSystemdService(): Promise<boolean> {
   const servicePath = join(homedir(), '.config', 'systemd', 'user', SERVICE_NAME)
 
@@ -143,6 +265,27 @@ async function uninstallSystemdService(): Promise<boolean> {
     await rm(servicePath)
   }
   await execFileAsync('systemctl', ['--user', 'daemon-reload'])
+
+  return true
+}
+
+async function uninstallGlobalSystemdService(): Promise<boolean> {
+  if (process.getuid?.() !== 0) {
+    throw new Error('Global uninstallation requires root privileges. Run "sudo jami-web uninstall --global".')
+  }
+  if (!existsSync(SYSTEM_SERVICE_PATH)) {
+    return false
+  }
+
+  try {
+    await execFileAsync('systemctl', ['disable', '--now', SERVICE_NAME])
+    await rm(SYSTEM_SERVICE_PATH)
+    await execFileAsync('systemctl', ['daemon-reload'])
+  } catch (error) {
+    throw new Error(`Failed to remove the system-wide systemd service: ${(error as Error).message}`, {
+      cause: error,
+    })
+  }
 
   return true
 }
@@ -221,27 +364,40 @@ async function uninstallLaunchAgent(): Promise<boolean> {
 
 export async function installCommand(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`Usage: jami-web install
+    console.log(`Usage: jami-web install [--global]
 
-Install Jami Web as a per-user startup service and start it immediately.
-Uses a systemd user service on Linux and a LaunchAgent on macOS.
+Install Jami Web as a startup service and start it immediately.
+By default, uses a systemd user service on Linux and a LaunchAgent on macOS.
 
 Options:
-  --help      Show this help message`)
+  --global    Linux only: install a system-wide service that starts at boot
+  --help      Show this help message
+
+Run the global installation with: sudo jami-web install --global`)
     return
   }
 
-  if (args.length > 0) {
-    throw new Error(`Unknown option: ${args[0]}`)
+  const unknownOption = args.find((arg) => arg !== '--global')
+  if (unknownOption) {
+    throw new Error(`Unknown option: ${unknownOption}`)
   }
 
+  const global = args.includes('--global')
   const nodePath = resolve(process.execPath)
   const cliPath = resolve(process.argv[1])
   let servicePath: string
 
   if (process.platform === 'linux') {
-    servicePath = await installSystemdService(nodePath, cliPath)
+    if (!global && existsSync(SYSTEM_SERVICE_PATH)) {
+      throw new Error('A system-wide service is already installed. Remove it with "sudo jami-web uninstall --global".')
+    }
+    servicePath = global
+      ? await installGlobalSystemdService(nodePath, cliPath)
+      : await installSystemdService(nodePath, cliPath)
   } else if (process.platform === 'darwin') {
+    if (global) {
+      throw new Error('Global startup installation is currently supported only on Linux.')
+    }
     servicePath = await installLaunchAgent(nodePath, cliPath)
   } else {
     throw new Error(`Startup installation is not supported on ${process.platform}.`)
@@ -253,23 +409,29 @@ Options:
 
 export async function uninstallCommand(args: string[]): Promise<void> {
   if (args.includes('--help') || args.includes('-h')) {
-    console.log(`Usage: jami-web uninstall
+    console.log(`Usage: jami-web uninstall [--global]
 
-Stop and remove the current user's Jami Web startup service.
+Stop and remove a Jami Web startup service.
 
 Options:
+  --global    Linux only: stop and remove the system-wide service
   --help      Show this help message`)
     return
   }
 
-  if (args.length > 0) {
-    throw new Error(`Unknown option: ${args[0]}`)
+  const unknownOption = args.find((arg) => arg !== '--global')
+  if (unknownOption) {
+    throw new Error(`Unknown option: ${unknownOption}`)
   }
 
+  const global = args.includes('--global')
   let removed: boolean
   if (process.platform === 'linux') {
-    removed = await uninstallSystemdService()
+    removed = global ? await uninstallGlobalSystemdService() : await uninstallSystemdService()
   } else if (process.platform === 'darwin') {
+    if (global) {
+      throw new Error('Global startup installation is currently supported only on Linux.')
+    }
     removed = await uninstallLaunchAgent()
   } else {
     throw new Error(`Startup installation is not supported on ${process.platform}.`)
