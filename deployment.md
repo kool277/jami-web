@@ -78,7 +78,15 @@ jami-web            # starts in production mode on port 8080
 PORT=8081 jami-web  # override the port
 ```
 
-To run it as a managed service, see [Running as a systemd service](#running-as-a-systemd-service).
+To start Jami Web now and automatically after login:
+
+```bash
+jami-web install
+```
+
+On Linux this installs a systemd user service. On macOS it installs a
+LaunchAgent. Run the command as the user who should run Jami Web; do not use
+`sudo`.
 
 ---
 
@@ -144,44 +152,19 @@ compiled server with `node server/dist/index.js`.
 
 ---
 
-## Running as a systemd service
+## Running as a startup service
 
-A managed service ensures Jami Web restarts on failure and starts on boot. The
-unit below works for a **global npm install** (where `jami-web` resolves on the
-`PATH`). Adjust `User`, `Group`, and `JAMI_WEB_DATA_DIR` to your environment.
-
-```ini
-[Unit]
-Description=Jami Web Service
-After=network.target network-online.target
-
-[Service]
-Type=simple
-ExecStart=/usr/bin/jami-web
-Restart=always
-RestartSec=10
-User=jamid
-Group=jamid
-Environment=NODE_ENV=production
-# Optional: store data in a custom directory
-# Environment=JAMI_WEB_DATA_DIR=/srv/jami-web/data
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Install and enable it:
+A managed service ensures Jami Web restarts on failure and starts when the user
+logs in. Install and start the service with:
 
 ```bash
-sudo cp jami-web.service /etc/systemd/system/jami-web.service
-sudo systemctl daemon-reload
-sudo systemctl enable --now jami-web.service
-sudo systemctl status jami-web.service
+jami-web install
 ```
 
-> The service user needs a home directory so the daemon can store its data
-> (`sudo useradd -m jamid`). If `ExecStart` cannot find `jami-web`, use the
-> absolute path printed by `which jami-web`.
+Linux writes `~/.config/systemd/user/jami-web.service` and enables it with
+`systemctl --user`. macOS writes
+`~/Library/LaunchAgents/net.jami.web.plist` and loads it with `launchctl`.
+Re-running the command updates and restarts the installed service.
 
 ---
 

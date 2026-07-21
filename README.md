@@ -72,6 +72,7 @@ JAMI_WEB_ADMIN_PASSWORD='change-me' jami-web setup --non-interactive --enable-lo
 
 Useful CLI commands:
 
+- `jami-web install` — install and start Jami Web as a per-user startup service
 - `jami-web doctor` — run health checks (data dir, keys, admin account, native daemon, listeners)
 - `jami-web config` — show the resolved data directory, env file, and effective runtime settings
 - `jami-web genkeys` — (re)generate JWT signing keys
