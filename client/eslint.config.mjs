@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url'
 
 import { fixupConfigRules } from '@eslint/compat'
 import { FlatCompat } from '@eslint/eslintrc'
+import eslintReact from '@eslint-react/eslint-plugin'
 import js from '@eslint/js'
 import stylistic from '@stylistic/eslint-plugin'
 
@@ -34,27 +35,19 @@ const compat = new FlatCompat({
 })
 
 export default [
-  ...fixupConfigRules(compat.extends('plugin:react/recommended', 'plugin:react-hooks/recommended')),
+  eslintReact.configs['recommended-typescript'],
+  ...fixupConfigRules(compat.extends('plugin:react-hooks/recommended')),
   {
     ignores: ['vite.config.js'],
   },
   ...customConfig,
   {
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
     plugins: {
       '@stylistic': stylistic
     },
     rules: {
       'react-hooks/exhaustive-deps': 'error',
       'react-hooks/incompatible-library': 'off',
-      'react/display-name': 'off',
-      'react/jsx-uses-react': 'off',
-      'react/prop-types': 'off',
-      'react/react-in-jsx-scope': 'off',
       '@stylistic/semi': ['error', 'never'],
     },
   },

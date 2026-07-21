@@ -18,7 +18,7 @@
 
 import { Box, ListItem, ListItemAvatar, ListItemText, useTheme } from '@mui/material'
 import List from '@mui/material/List'
-import { memo, SetStateAction, useMemo, useState } from 'react'
+import { Fragment, memo, SetStateAction, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -116,7 +116,7 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
       <ContactSearchBar placeholder={t('find_contacts')} handleChange={handleFilterChange} />
       <List sx={{ maxHeight: '400px', overflowY: 'scroll' }}>
         {filteredContacts?.map((contact) => (
-          <>
+          <Fragment key={contact.id}>
             <ListItem
               onClick={() => setSelectedContact && setSelectedContact(contact.id)}
               sx={{
@@ -135,7 +135,6 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
                 },
               }}
               alignItems="flex-start"
-              key={contact.id}
               onContextMenu={(e) => {
                 setCurrentContactId(contact.id)
                 contextMenuHandler.handleAnchorPosition(e)
@@ -162,7 +161,7 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
                 }}
               ></Box>
             </ListItem>
-          </>
+          </Fragment>
         ))}
       </List>
       {filteredContacts !== undefined && filteredContacts.length === 0 && (

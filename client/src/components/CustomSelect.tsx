@@ -145,15 +145,14 @@ export const CustomSelect = <OptionPayload,>({ option, options, onChange, size }
       >
         {groupedOptions.length > 0 ? (
           <Listbox {...getListboxProps()} sx={{ backgroundColor: backgroundColor }}>
-            {(groupedOptions as SelectOption<OptionPayload>[]).map((option, index) => (
-              <Option
-                {...getOptionProps({ option, index })}
-                key={option.label}
-                sx={{ backgroundColor: backgroundColor }}
-              >
-                {option.label}
-              </Option>
-            ))}
+            {(groupedOptions as SelectOption<OptionPayload>[]).map((option, index) => {
+              const { key: optionKey, ...optionProps } = getOptionProps({ option, index })
+              return (
+                <Option key={optionKey} {...optionProps} sx={{ backgroundColor: backgroundColor }}>
+                  {option.label}
+                </Option>
+              )
+            })}
           </Listbox>
         ) : null}
       </Box>

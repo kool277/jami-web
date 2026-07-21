@@ -34,14 +34,9 @@ export default ({ children }: WithChildren) => {
 
   useEffect(() => {
     const NotificationInStorage = localStorage.getItem('notification-preference')
-    let notificationPreferenceValue = true
     // localStorage returns null if no value is found for the given key
     if (typeof NotificationInStorage === 'string') {
-      notificationPreferenceValue = JSON.parse(NotificationInStorage)
-      setEnable(notificationPreferenceValue)
-    } else {
-      //By default we enable notifications
-      setEnable(true)
+      setEnable(JSON.parse(NotificationInStorage))
     }
   }, [])
 

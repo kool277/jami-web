@@ -36,11 +36,9 @@ export default ({ children }: WithChildren) => {
 
   useEffect(() => {
     const themeModeInStorage = localStorage.getItem('themeMode')
-    let themeModeValue = 'light'
     // localStorage returns null if no value is found for the given key
     if (typeof themeModeInStorage === 'string') {
-      themeModeValue = JSON.parse(themeModeInStorage)
-      setMode(themeModeValue === 'dark' ? 'dark' : 'light')
+      setMode(JSON.parse(themeModeInStorage) === 'dark' ? 'dark' : 'light')
     } else {
       //when there is no theme mode stored in the localStorage, use the mode in OS preference
       setMode(prefersDarkMode ? 'dark' : 'light')

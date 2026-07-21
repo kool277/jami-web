@@ -237,16 +237,10 @@ export const RepeatPasswordInput = ({
   const dialogHandler = useDialogHandler()
 
   const passwordError = !isEqual
+  const StartAdornmentIcon = passwordError ? StyledRoundSaltireIconError : StyledCheckedIconSuccess
 
   const toggleShowPassword = () => {
     setShowPassword((showPassword) => !showPassword)
-  }
-
-  let StartAdornmentIcon = StyledLockIcon
-  if (passwordError) {
-    StartAdornmentIcon = StyledRoundSaltireIconError
-  } else {
-    StartAdornmentIcon = StyledCheckedIconSuccess
   }
 
   return (
