@@ -88,7 +88,7 @@ function toOwnerAccount(accountId: string): OwnerAccount | null {
     return null
   }
 
-  let registeredName = ''
+  let registeredName: string
   try {
     registeredName = jamid.getVolatileAccountDetails(accountId)['Account.registeredName'] ?? ''
   } catch {
@@ -124,7 +124,7 @@ export async function listCliAccounts(): Promise<CliAccountSummary[]> {
         return undefined
       }
 
-      let registeredName = ''
+      let registeredName: string
       try {
         registeredName = jamid.getVolatileAccountDetails(accountId)['Account.registeredName'] ?? ''
       } catch {

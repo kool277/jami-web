@@ -118,7 +118,9 @@ async function requestCliControl<T>(path: string, options: CliControlRequestOpti
     response = await sendCliControlRequest(path, options)
   } catch (error) {
     if (isConnectionError(error)) {
-      throw new Error(`Could not connect to Jami Web CLI control API on unix socket ${getCliControlSocketPath()}.`)
+      throw new Error(`Could not connect to Jami Web CLI control API on unix socket ${getCliControlSocketPath()}.`, {
+        cause: error,
+      })
     }
 
     throw error
