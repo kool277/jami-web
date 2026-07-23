@@ -19,12 +19,12 @@
 import { useCallback, useRef, useState } from 'react'
 
 const UseLongPress = (callback: () => void, ms: number = 500) => {
-  const [_, setStartLongPress] = useState(false)
+  const [longPressStarted, setLongPressStarted] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   const startPressTimer = useCallback(() => {
     timerRef.current = setTimeout(() => {
-      setStartLongPress(true)
+      setLongPressStarted(true)
       callback()
     }, ms)
   }, [callback, ms])
@@ -34,8 +34,10 @@ const UseLongPress = (callback: () => void, ms: number = 500) => {
       clearTimeout(timerRef.current)
       timerRef.current = null
     }
-    setStartLongPress(false)
-  }, [])
+    if (longPressStarted) {
+      setLongPressStarted(false)
+    }
+  }, [longPressStarted])
 
   return {
     onTouchStart: startPressTimer,

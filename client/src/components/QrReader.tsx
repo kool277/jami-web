@@ -26,9 +26,9 @@ interface QrReader {
 }
 
 const QrReader = ({ setScannedResult }: QrReader) => {
-  const scanner = useRef<QrScannerInstance>(null)
-  const videoEl = useRef<HTMLVideoElement>(null)
-  const qrBoxEl = useRef<HTMLDivElement>(null)
+  const scannerRef = useRef<QrScannerInstance>(null)
+  const videoElementRef = useRef<HTMLVideoElement>(null)
+  const qrBoxElementRef = useRef<HTMLDivElement>(null)
   const [qrOn, setQrOn] = useState<boolean>(true)
 
   const onScanFail = (err: string | Error) => {
@@ -40,19 +40,19 @@ const QrReader = ({ setScannedResult }: QrReader) => {
       setScannedResult(result?.data)
     }
 
-    const videoElement = videoEl.current
-    if (videoElement && !scanner.current) {
-      scanner.current = new QrScanner(videoElement, onScanSuccess, {
+    const videoElement = videoElementRef.current
+    if (videoElement && !scannerRef.current) {
+      scannerRef.current = new QrScanner(videoElement, onScanSuccess, {
         onDecodeError: onScanFail,
         preferredCamera: 'environment',
         highlightScanRegion: true,
         highlightCodeOutline: true,
-        overlay: qrBoxEl?.current || undefined,
+        overlay: qrBoxElementRef.current || undefined,
         maxScansPerSecond: 1,
         returnDetailedScanResult: true,
       })
 
-      scanner?.current
+      scannerRef.current
         ?.start()
         .then(() => setQrOn(true))
         .catch((err: unknown) => {
@@ -61,8 +61,8 @@ const QrReader = ({ setScannedResult }: QrReader) => {
     }
 
     if (!videoElement) {
-      if (!videoEl?.current) {
-        scanner?.current?.stop()
+      if (!videoElementRef.current) {
+        scannerRef.current?.stop()
       }
     }
   }, [setScannedResult])
@@ -81,7 +81,10 @@ const QrReader = ({ setScannedResult }: QrReader) => {
         borderRadius: '10px',
       }}
     >
-      <video style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }} ref={videoEl}></video>
+      <video
+        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '10px' }}
+        ref={videoElementRef}
+      ></video>
     </Box>
   )
 }

@@ -41,7 +41,7 @@ import EditMessage from './EditMessage.js'
 import FilePreviewsList from './FilePreviewsList.js'
 import ReplyToMessage from './ReplyToMessage.js'
 import SendMessageForm from './SendMessageForm.js'
-export const currentLastSeenMessageContext = createContext<Map<string, string>>(new Map())
+export const CurrentLastSeenMessageContext = createContext<Map<string, string>>(new Map())
 
 interface ChatInterfaceManagerProps {
   openFilePicker: () => void
@@ -605,9 +605,9 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
 
   return (
     <>
-      <currentLastSeenMessageContext.Provider value={lastSeen}>
+      <CurrentLastSeenMessageContext value={lastSeen}>
         <MessageList messages={filteredMessages} />
-      </currentLastSeenMessageContext.Provider>
+      </CurrentLastSeenMessageContext>
       <ComposingMembersIndicator />
       <FilePreviewsList />
       <ReplyToMessage />

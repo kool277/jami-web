@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { useCallback, useContext, useState } from 'react'
+import { use, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { NotificationContext } from '../../contexts/NotificationsProvider.js'
@@ -24,7 +24,7 @@ import { SettingSwitch } from '../Settings.js'
 
 const SettingNotifications = () => {
   const { t } = useTranslation()
-  const { enable, setIsEnabled } = useContext(NotificationContext)
+  const { enable, setIsEnabled } = use(NotificationContext)
 
   const [isOn, setIsOn] = useState<boolean>(enable)
 

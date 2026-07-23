@@ -54,9 +54,5 @@ export default ({ children }: WithChildren) => {
     [token],
   )
 
-  return (
-    <optionalWebSocketLinkContext.Context.Provider value={value}>
-      {children}
-    </optionalWebSocketLinkContext.Context.Provider>
-  )
+  return <optionalWebSocketLinkContext.Context value={value}>{children}</optionalWebSocketLinkContext.Context>
 }

@@ -17,7 +17,7 @@
  */
 
 import { Avatar, AvatarProps, Box, Dialog, Stack, Typography, useTheme } from '@mui/material'
-import { ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { ReactNode, use, useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 
@@ -86,7 +86,7 @@ export default function ConversationAvatar({ displayName, contactUri, presence, 
 
 const ConversationAvatarPresence = ({ children, buddy }: { children: ReactNode; buddy: string }) => {
   const theme = useTheme()
-  const { getPresence } = useContext(PresenceContext)
+  const { getPresence } = use(PresenceContext)
   const presenceState = getPresence(buddy)
 
   if (!presenceState || presenceState === 0) {

@@ -106,11 +106,11 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
       )}
       <Stack direction="row">
         <List sx={{ width: '100%' }}>
-          {settingMeta.map((settingItem, index) => {
+          {settingMeta.map((settingItem) => {
             const isSettingActive = isCurrentlyViewing(settingItem.highlightKey)
 
             return (
-              <Box key={index}>
+              <Box key={settingItem.highlightKey}>
                 <ListItemButton
                   selected={
                     isSettingActive && !settingItem.submenuItems?.some((item) => isCurrentlyViewing(item.highlightKey))
@@ -160,12 +160,12 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
                 </ListItemButton>
                 <Collapse in={isMobile ? true : isSettingActive} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
-                    {settingItem.submenuItems?.map((submenuItem, itemIndex) => {
+                    {settingItem.submenuItems?.map((submenuItem) => {
                       const isSubmenuActive = isCurrentlyViewing(submenuItem.highlightKey)
 
                       return (
                         <ListItemButton
-                          key={itemIndex}
+                          key={submenuItem.highlightKey}
                           selected={isSubmenuActive}
                           sx={{
                             pl: 4,

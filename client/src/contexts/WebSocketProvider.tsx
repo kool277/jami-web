@@ -50,5 +50,5 @@ export default ({ children }: WithChildren) => {
     [],
   )
 
-  return <optionalWebSocketContext.Context.Provider value={value}>{children}</optionalWebSocketContext.Context.Provider>
+  return <optionalWebSocketContext.Context value={value}>{children}</optionalWebSocketContext.Context>
 }

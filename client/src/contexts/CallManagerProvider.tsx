@@ -32,11 +32,11 @@ export default ({ children }: WithChildren) => {
   const { callData } = callManager
 
   return (
-    <optionalCallManagerContext.Context.Provider value={callManager}>
+    <optionalCallManagerContext.Context value={callManager}>
       {callData && callData.conversationId !== urlParams.conversationId && (
         <RemoteVideoOverlay callConversationId={callData.conversationId} />
       )}
       {children}
-    </optionalCallManagerContext.Context.Provider>
+    </optionalCallManagerContext.Context>
   )
 }

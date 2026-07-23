@@ -17,7 +17,7 @@
  */
 import { Box, Button, Input, Stack, Switch, Typography } from '@mui/material'
 import { urlRegex } from '@savoirfairelinux/jami-web-common'
-import { ChangeEvent, useContext, useState } from 'react'
+import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
@@ -32,7 +32,7 @@ import LayoutSettings from '../LayoutSettings.js'
 import ProcessingRequest from '../ProcessingRequest.js'
 
 const JamsAuthMethod = () => {
-  const accessToken = localStorage.getItem('adminAccessToken')
+  const [accessToken] = useState(() => localStorage.getItem('adminAccessToken'))
   const { data } = useGetAdminConfigQuery()
   const jamsUrlQuery = useGetJamsUrl()
   const jamsCurrentUrl = jamsUrlQuery.data
@@ -60,7 +60,7 @@ const JamsAuthMethodForm = ({
   const saveAdminConfigMutation = useUpdateAdminConfigMutation()
   const setJamsUrlMutation = useSetJamsUrl()
   const [jamsUrl, setJamsUrl] = useState<string>(jamsCurrentUrl)
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
 
   const handleChange = () => {
     saveAdminConfigMutation.mutate({ jamsAuthEnabled: !data.jamsAuthEnabled })

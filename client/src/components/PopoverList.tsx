@@ -100,8 +100,8 @@ interface PopoverListProps extends MenuListProps {
 // A list intended to be used as a menu into a popover
 const PopoverList = styled(({ items, onClose, ...props }: PopoverListProps) => (
   <MenuList {...props}>
-    {items.map((item, index) => (
-      <PopoverListItem key={index} item={item} closeMenu={onClose} />
+    {items.map((item) => (
+      <PopoverListItem key={item.label} item={item} closeMenu={onClose} />
     ))}
   </MenuList>
 ))(() => ({

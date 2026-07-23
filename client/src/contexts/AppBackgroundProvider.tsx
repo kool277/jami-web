@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react'
+import { createContext, ReactNode, use, useMemo, useState } from 'react'
 
 interface AppBackgroundContextValue {
   tintColor: string | null
@@ -27,11 +27,10 @@ const AppBackgroundContext = createContext<AppBackgroundContextValue>({
   setTintColor: () => {},
 })
 
-export const useAppBackgroundContext = () => useContext(AppBackgroundContext)
+export const useAppBackgroundContext = () => use(AppBackgroundContext)
 
 export const AppBackgroundProvider = ({ children }: { children: ReactNode }) => {
-  const [tintColor, setTintColorState] = useState<string | null>(null)
-  const setTintColor = useCallback((color: string | null) => setTintColorState(color), [])
+  const [tintColor, setTintColor] = useState<string | null>(null)
   const value = useMemo(() => ({ tintColor, setTintColor }), [tintColor, setTintColor])
-  return <AppBackgroundContext.Provider value={value}>{children}</AppBackgroundContext.Provider>
+  return <AppBackgroundContext value={value}>{children}</AppBackgroundContext>
 }

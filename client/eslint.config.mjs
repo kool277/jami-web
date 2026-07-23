@@ -20,8 +20,8 @@ import { fileURLToPath } from 'node:url'
 
 import { fixupConfigRules } from '@eslint/compat'
 import { FlatCompat } from '@eslint/eslintrc'
-import eslintReact from '@eslint-react/eslint-plugin'
 import js from '@eslint/js'
+import eslintReact from '@eslint-react/eslint-plugin'
 import stylistic from '@stylistic/eslint-plugin'
 
 import customConfig from '../eslint.config.mjs'

@@ -59,7 +59,7 @@ const ConditionalContextProvider = <T, B extends object>({
           args={dependencies}
         />
       )}
-      <Context.Provider value={value}>{children}</Context.Provider>
+      <Context value={value}>{children}</Context>
     </>
   )
 }

@@ -245,5 +245,5 @@ export default ({ children }: WithChildren) => {
     ],
   )
 
-  return <optionalUserMediaContext.Context.Provider value={value}>{children}</optionalUserMediaContext.Context.Provider>
+  return <optionalUserMediaContext.Context value={value}>{children}</optionalUserMediaContext.Context>
 }

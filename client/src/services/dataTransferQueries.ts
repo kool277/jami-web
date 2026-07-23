@@ -18,7 +18,7 @@
 import { HttpStatusCode } from '@savoirfairelinux/jami-web-common'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { useContext } from 'react'
+import { use } from 'react'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
@@ -49,7 +49,7 @@ export const useSendFilesMutation = (conversationId: string) => {
 export const useTransferFileMutation = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
   const queryClient = useQueryClient()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
 
   return useMutation({
     mutationFn: ({

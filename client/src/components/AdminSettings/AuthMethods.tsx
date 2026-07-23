@@ -18,6 +18,7 @@
 import { Box, Divider, List, ListItem, ListItemText } from '@mui/material'
 import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
 
@@ -28,7 +29,7 @@ import { useGetAdminConfigQuery } from '../../services/adminQueries.js'
 
 export default function AuthMethods() {
   const { t } = useTranslation()
-  const accessToken = localStorage.getItem('adminAccessToken')
+  const [accessToken] = useState(() => localStorage.getItem('adminAccessToken'))
   const { data } = useGetAdminConfigQuery()
   const navigate = useNavigate()
 

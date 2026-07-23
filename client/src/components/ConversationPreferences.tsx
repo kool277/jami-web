@@ -457,8 +457,8 @@ const Members = ({ isAdmin }: MembersProps) => {
   const { members } = useConversationContext()
   return (
     <Box sx={{ display: 'flex', width: '100%', flexDirection: 'column', height: '60vh', overflowY: 'scroll' }}>
-      {members.map((member, index) => {
-        return <MemberInfo key={index} member={member} isAdmin={isAdmin} />
+      {members.map((member) => {
+        return <MemberInfo key={member.contact.uri} member={member} isAdmin={isAdmin} />
       })}
     </Box>
   )
@@ -467,10 +467,9 @@ const Members = ({ isAdmin }: MembersProps) => {
 interface MemberInfoProps {
   isAdmin: boolean
   member: ConversationMember
-  key: number
 }
 
-const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
+const MemberInfo = ({ member, isAdmin }: MemberInfoProps) => {
   const [isBlocking, setIsBlocking] = useState(true)
   const { account } = useAuthContext()
   const [contactDetailDialogOpen, setContactDetailDialogOpen] = useState<boolean>(false)
@@ -532,7 +531,7 @@ const MemberInfo = ({ member, key, isAdmin }: MemberInfoProps) => {
         setContactDetailDialogOpen={setContactDetailDialogOpen}
       />
       <Box
-        key={key}
+        key={member.contact.uri}
         sx={{
           display: 'flex',
           flexDirection: 'row',

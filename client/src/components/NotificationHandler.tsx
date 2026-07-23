@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ConversationMessage, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
-import { useContext, useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { NotificationContext } from '../contexts/NotificationsProvider.js'
@@ -40,7 +40,7 @@ const SendNotification = (message: string, username: string) => {
 }
 
 export default function NotificationHandler({ children }: { children: React.ReactNode }) {
-  const { enable } = useContext(NotificationContext)
+  const { enable } = use(NotificationContext)
   const webSocket = useWebSocketContext()
   const { account } = useAuthContext()
   const [contactUri, setContactUri] = useState<string>('')

@@ -15,50 +15,49 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { forwardRef, useEffect, useRef, VideoHTMLAttributes } from 'react'
+import { Ref, useEffect, useRef, VideoHTMLAttributes } from 'react'
 
 import { VideoElementWithSinkId } from '../utils/utils.js'
 
 export type VideoStreamProps = Partial<VideoHTMLAttributes<VideoElementWithSinkId>> & {
   stream: MediaStream | undefined
   audioOutDeviceId?: string
+  ref?: Ref<VideoElementWithSinkId>
 }
 
-const VideoStream = forwardRef<VideoElementWithSinkId, VideoStreamProps>(
-  ({ stream, audioOutDeviceId, ...props }, ref) => {
-    const videoRef = useRef<VideoElementWithSinkId | null>(null)
+const VideoStream = ({ stream, audioOutDeviceId, ref, ...props }: VideoStreamProps) => {
+  const videoRef = useRef<VideoElementWithSinkId | null>(null)
 
-    useEffect(() => {
-      if (!ref) {
-        return
-      }
+  useEffect(() => {
+    if (!ref) {
+      return
+    }
 
-      if (typeof ref === 'function') {
-        ref(videoRef.current)
-      } else {
-        ref.current = videoRef.current
-      }
-    }, [ref])
+    if (typeof ref === 'function') {
+      ref(videoRef.current)
+    } else {
+      ref.current = videoRef.current
+    }
+  }, [ref])
 
-    useEffect(() => {
-      if (stream && videoRef.current) {
-        videoRef.current.srcObject = stream
-      }
-    }, [stream, videoRef])
+  useEffect(() => {
+    if (stream && videoRef.current) {
+      videoRef.current.srcObject = stream
+    }
+  }, [stream])
 
-    useEffect(() => {
-      if (!audioOutDeviceId) {
-        return
-      }
+  useEffect(() => {
+    if (!audioOutDeviceId) {
+      return
+    }
 
-      if (videoRef.current?.setSinkId) {
-        // This only work on chrome and other browsers that support `setSinkId`
-        // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/setSinkId#browser_compatibility
-        videoRef.current.setSinkId(audioOutDeviceId)
-      }
-    }, [audioOutDeviceId, videoRef])
+    if (videoRef.current?.setSinkId) {
+      // This only work on chrome and other browsers that support `setSinkId`
+      // https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/setSinkId#browser_compatibility
+      videoRef.current.setSinkId(audioOutDeviceId)
+    }
+  }, [audioOutDeviceId])
 
-    return <video ref={videoRef} autoPlay {...props} />
-  },
-)
+  return <video ref={videoRef} autoPlay {...props} />
+}
 export default VideoStream

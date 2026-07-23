@@ -17,13 +17,16 @@
  */
 import { Link } from '@mui/material'
 import Typography from '@mui/material/Typography'
+import { useState } from 'react'
 
 // TODO: Choose on which pages to put this.
 export default function Copyright() {
+  const [year] = useState(() => new Date().getFullYear())
+
   return (
     <Typography variant="body2" color="textSecondary" align="center" sx={{ position: 'absolute', bottom: 0, left: 0 }}>
       {'Copyright © 2016-'}
-      {new Date().getFullYear()}
+      {year}
       {' Savoir-faire Linux Inc.'}
       <Link color="inherit" href="https://jami.net/">
         Jami.net

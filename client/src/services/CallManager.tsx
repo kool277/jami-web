@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ConversationInfos, WebSocketMessageTable, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
@@ -76,7 +76,7 @@ export interface ICallManager {
 }
 
 export const useCallManager = () => {
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const [callData, setCallData] = useState<CallData>()
   const webSocket = useWebSocketContext()
   const navigate = useNavigate()

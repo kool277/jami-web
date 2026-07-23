@@ -26,7 +26,7 @@ import {
 } from '@savoirfairelinux/jami-web-common'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
-import { useCallback, useContext } from 'react'
+import { use, useCallback } from 'react'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
@@ -141,7 +141,7 @@ export const useSendMessageMutation = (conversationId: string) => {
 export const useTransferMessageMutation = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
   const queryClient = useQueryClient()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationFn: ({
       messageBody,
@@ -184,7 +184,7 @@ export const useEditMessageMutation = (conversationId: string) => {
 export const useDeleteMessageMutation = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
   const queryClient = useQueryClient()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationFn: (messageId: string) => axiosInstance.delete(`/conversations/delete/${conversationId}/${messageId}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['messages', conversationId] }),
@@ -302,7 +302,7 @@ export const useConversationPreferencesQuery = (conversationId: string) => {
 export const useConversationPreferencesMutation = (conversationId: string) => {
   const { axiosInstance } = useAuthContext()
   const queryClient = useQueryClient()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationFn: (preferences: ConversationPreferences) =>
       axiosInstance.post(`/conversations/${conversationId}/preferences`, preferences),

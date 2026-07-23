@@ -20,7 +20,7 @@ import { AccessToken, HttpStatusCode, MIN_PASSWORD_LENGTH } from '@savoirfaireli
 import { useMutation, useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { passwordStrength } from 'check-password-strength'
-import { useContext } from 'react'
+import { use } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { NameStatus } from '../components/Input.js'
@@ -111,7 +111,7 @@ export function checkPasswordStrength(password: string): PasswordCheckResult {
 }
 
 export const useRegisterMutation = () => {
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['user', 'register'],
     mutationFn: async (registerData: RegisterData) => {
@@ -144,7 +144,7 @@ export const useRegisterMutation = () => {
 
 export const useLoginMutation = () => {
   const navigate = useNavigate()
-  const { setAlertContent, closeAlert } = useContext(AlertSnackbarContext)
+  const { setAlertContent, closeAlert } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['user', 'login'],
     mutationFn: async (loginData: LoginData) => {
@@ -188,11 +188,11 @@ export function setAccessToken(accessToken: string): void {
 }
 
 export const useExtendSessionForGuest = () => {
-  const { setAlertContent } = useContext(AlertSnackbarContext)
-  const token = localStorage.getItem('accessToken')
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['extend', 'session'],
     mutationFn: async () => {
+      const token = localStorage.getItem('accessToken')
       const { data } = await axios.post(`/account/guest/extend`, {
         baseURL: apiUrl,
         headers: { Authorization: `Bearer ${token}` },
@@ -251,13 +251,13 @@ export const useGetLinkTokenQuery = () => {
 }
 
 export const useCancelLinkDeviceMutation = () => {
-  const token = localStorage.getItem('importToken')
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const navigate = useNavigate()
 
   return useMutation({
     mutationKey: ['cancel', 'linkDevice'],
     mutationFn: async (accountId: string) => {
+      const token = localStorage.getItem('importToken')
       await axios.post(
         '/auth/link/cancel',
         { accountId },
@@ -275,13 +275,13 @@ export const useCancelLinkDeviceMutation = () => {
 }
 
 export const useSetPasswordMutation = (accountId: string) => {
-  const token = localStorage.getItem('importToken')
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const cancelLinkDeviceMutation = useCancelLinkDeviceMutation()
   const navivate = useNavigate()
   return useMutation({
     mutationKey: ['user', 'setPassword'],
     mutationFn: async (password: string) => {
+      const token = localStorage.getItem('importToken')
       const response = await axios.post(
         '/auth/link/password',
         { password, accountId },

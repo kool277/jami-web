@@ -146,8 +146,8 @@ interface DialogContentListProps {
 export const DialogContentList = ({ title, items }: DialogContentListProps) => {
   return (
     <List subheader={<Typography variant="h3">{title}</Typography>}>
-      {items.map(({ Icon, label, value }, index) => (
-        <ListItem key={index}>
+      {items.map(({ Icon, label, value }) => (
+        <ListItem key={label ?? String(value)}>
           {Icon && (
             <ListItemIcon>
               <Icon />

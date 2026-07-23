@@ -21,7 +21,7 @@ import { useState } from 'react'
 import { SettingSwitch } from '../Settings.js'
 
 const SettingTips = () => {
-  const [isDisabled, setIsDisabled] = useState<boolean>(localStorage.getItem('disable-tips') === 'true')
+  const [isDisabled, setIsDisabled] = useState<boolean>(() => localStorage.getItem('disable-tips') === 'true')
 
   const handleTipState = () => {
     if (isDisabled) {

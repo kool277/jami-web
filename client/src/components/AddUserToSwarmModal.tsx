@@ -17,7 +17,7 @@
  */
 
 import { Box, Button, Modal, Paper, useMediaQuery, useTheme } from '@mui/material'
-import { useContext, useState } from 'react'
+import { use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
@@ -33,17 +33,17 @@ interface AddUserToSwarmModalProps {
 export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmModalProps) {
   const { conversationId, members } = useConversationContext()
   const addMembers = useAddMemberToSwarm(conversationId)
-  const [selectedContacts, setSelectedContact] = useState<string[]>([])
+  const [selectedContacts, setSelectedContacts] = useState<string[]>([])
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const { t } = useTranslation()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
 
   const handleSelectedContact = (contact: string) => {
     if (selectedContacts.includes(contact)) {
-      setSelectedContact(selectedContacts.filter((item) => item !== contact))
+      setSelectedContacts(selectedContacts.filter((item) => item !== contact))
     } else {
-      setSelectedContact([...selectedContacts, contact])
+      setSelectedContacts([...selectedContacts, contact])
     }
   }
 
@@ -60,7 +60,7 @@ export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmMod
     }
 
     addMembers.mutate(selectedContacts)
-    setSelectedContact([])
+    setSelectedContacts([])
     setOpen(false)
   }
 
@@ -91,7 +91,7 @@ export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmMod
         open={open}
         onClose={() => {
           setOpen(false)
-          setSelectedContact([])
+          setSelectedContacts([])
         }}
       >
         <Paper elevation={24} sx={isMobile ? mobileStyles : nonMobileStyles}>

@@ -20,9 +20,9 @@ import { Box } from '@mui/material'
 import { Message } from '@savoirfairelinux/jami-web-common'
 import { MessageStatusCode } from '@savoirfairelinux/jami-web-common/src/enums/message-status-code'
 import { motion } from 'framer-motion'
-import { useCallback, useContext, useMemo } from 'react'
+import { use, useCallback, useMemo } from 'react'
 
-import { currentLastSeenMessageContext } from '../components/ChatInterfaceManager.js'
+import { CurrentLastSeenMessageContext } from '../components/ChatInterfaceManager.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import SendingIcon from '../icons/sendingIcon.svg?react'
@@ -36,7 +36,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
   const { account } = useAuthContext()
   const accountUri = account.getUri()
   const { members } = useConversationContext()
-  const messageStatus = useContext(currentLastSeenMessageContext)
+  const messageStatus = use(CurrentLastSeenMessageContext)
   const theme = useTheme()
 
   const highestStatus = useMemo(() => {

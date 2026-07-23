@@ -286,7 +286,7 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
       <AlertSnackbar severity={alertContent.severity} open={alertContent.alertOpen} onClose={closeAlert}>
         {getAlertMessageText(alertContent.messageI18nKey, alertContent.messageI18nContext)}
       </AlertSnackbar>
-      <AlertSnackbarContext.Provider value={value}>{children}</AlertSnackbarContext.Provider>
+      <AlertSnackbarContext value={value}>{children}</AlertSnackbarContext>
     </>
   )
 }

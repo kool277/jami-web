@@ -18,7 +18,7 @@
 import { CssBaseline, PaletteMode } from '@mui/material'
 import { ThemeProvider } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useMemo, useState } from 'react'
 
 import { buildDefaultTheme } from '../themes/Default.js'
 import { WithChildren } from '../utils/utils.js'
@@ -31,27 +31,24 @@ interface ICustomThemeContext {
 export const CustomThemeContext = createContext<ICustomThemeContext>(undefined!)
 
 export default ({ children }: WithChildren) => {
-  const [mode, setMode] = useState<PaletteMode>('light')
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
-
-  useEffect(() => {
+  const [selectedMode, setSelectedMode] = useState<PaletteMode | undefined>(() => {
     const themeModeInStorage = localStorage.getItem('themeMode')
-    // localStorage returns null if no value is found for the given key
     if (typeof themeModeInStorage === 'string') {
-      setMode(JSON.parse(themeModeInStorage) === 'dark' ? 'dark' : 'light')
-    } else {
-      //when there is no theme mode stored in the localStorage, use the mode in OS preference
-      setMode(prefersDarkMode ? 'dark' : 'light')
+      return JSON.parse(themeModeInStorage) === 'dark' ? 'dark' : 'light'
     }
-  }, [prefersDarkMode])
+    return undefined
+  })
+  const mode = selectedMode ?? (prefersDarkMode ? 'dark' : 'light')
 
   const toggleMode = useCallback(() => {
-    setMode((mode) => {
+    setSelectedMode((selectedMode) => {
+      const mode = selectedMode ?? (prefersDarkMode ? 'dark' : 'light')
       const newMode = mode === 'light' ? 'dark' : 'light'
       localStorage.setItem('themeMode', JSON.stringify(newMode))
       return newMode
     })
-  }, [setMode])
+  }, [prefersDarkMode])
 
   const theme = useMemo(() => buildDefaultTheme(mode), [mode])
 
@@ -64,11 +61,11 @@ export default ({ children }: WithChildren) => {
   )
 
   return (
-    <CustomThemeContext.Provider value={value}>
+    <CustomThemeContext value={value}>
       <ThemeProvider theme={theme}>
         <CssBaseline enableColorScheme />
         {children}
       </ThemeProvider>
-    </CustomThemeContext.Provider>
+    </CustomThemeContext>
   )
 }

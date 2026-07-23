@@ -154,5 +154,5 @@ export default ({ children }: WithChildren) => {
     return <div>Error loading conversation: {conversationId}</div>
   }
 
-  return <ConversationContext.Provider value={value}>{children}</ConversationContext.Provider>
+  return <ConversationContext value={value}>{children}</ConversationContext>
 }

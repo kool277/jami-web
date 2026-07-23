@@ -42,7 +42,7 @@ const AuthContext = optionalAuthContext.Context
 export const useAuthContext = optionalAuthContext.useOptionalContext
 
 export default ({ children }: WithChildren) => {
-  const [token, setToken] = useState<string | undefined>()
+  const [token, setToken] = useState<string | undefined>(() => localStorage.getItem('accessToken') ?? undefined)
   const [account, setAccount] = useState<Account | undefined>()
   const navigate = useNavigate()
 
@@ -96,15 +96,11 @@ export default ({ children }: WithChildren) => {
   }, [token, logout])
 
   useEffect(() => {
-    const accessToken = localStorage.getItem('accessToken')
-
-    if (!accessToken) {
+    if (!token) {
       console.warn('Missing authentication JWT. Redirecting to login page...')
       logout()
-    } else {
-      setToken(accessToken)
     }
-  }, [logout])
+  }, [logout, token])
 
   useEffect(() => {
     if (!axiosInstance) {
@@ -134,5 +130,5 @@ export default ({ children }: WithChildren) => {
     return <ProcessingRequest open />
   }
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return <AuthContext value={value}>{children}</AuthContext>
 }

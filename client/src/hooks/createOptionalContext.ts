@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { createContext, useContext } from 'react'
+import { createContext, use } from 'react'
 
 export const createOptionalContext = <T>(displayName: string) => {
   const Context = createContext<T | undefined>(undefined)
@@ -24,7 +24,7 @@ export const createOptionalContext = <T>(displayName: string) => {
   function useOptionalContext(noThrow: true): T | undefined
   function useOptionalContext(noThrow?: false): T
   function useOptionalContext(noThrow?: boolean) {
-    const value = useContext(Context)
+    const value = use(Context)
     if (value === undefined && !noThrow) {
       throw new Error(`The context ${Context.displayName} is not provided`)
     }

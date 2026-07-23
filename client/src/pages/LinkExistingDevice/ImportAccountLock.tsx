@@ -19,7 +19,7 @@
 import { Box, Button, Card, CardContent, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
 import { t } from 'i18next'
-import { useContext, useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import EllipsisMiddle from '../../components/EllipsisMiddle.js'
@@ -32,7 +32,7 @@ import { IProvideAccountAuthentication } from '../../utils/utils.js'
 export default function ImportAccountLock() {
   const theme = useTheme()
   const [password, setPassword] = useState('')
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const navigate = useNavigate()
   const { details, accountId, state, token } = useImportDeviceContext()
   const isMobile = useMediaQuery(theme.breakpoints.only('xs'))

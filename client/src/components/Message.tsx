@@ -24,7 +24,7 @@ import { motion } from 'framer-motion'
 import { t } from 'i18next'
 import Linkify from 'linkify-react'
 import * as linkify from 'linkifyjs'
-import { memo, ReactElement, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { memo, ReactElement, ReactNode, use, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useGlobalSetEditMessage } from '../contexts/ActionMessageProvider.js'
@@ -638,7 +638,7 @@ const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfG
   const isDeleted = message.body === ''
   const isEdited = message.editions !== undefined && message.editions.length > 0
   const setReplyMessage = useGlobalSetReplyMessage()
-  const isPreviewEnabled = localStorage.getItem('linkPreview') === 'true'
+  const [isPreviewEnabled] = useState(() => localStorage.getItem('linkPreview') === 'true')
 
   const onDoubleClick = () => {
     if (isDeleted) {
@@ -1016,7 +1016,7 @@ const MessageTooltip = styled(
     const deleteMessageMutation = useDeleteMessageMutation(conversationId)
     const theme = useTheme()
     const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
-    const { setAlertContent } = useContext(AlertSnackbarContext)
+    const { setAlertContent } = use(AlertSnackbarContext)
 
     const handleLongPress = useCallback(() => {
       if (!isMobile) return

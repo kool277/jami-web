@@ -22,7 +22,7 @@ import {
   DeviceAuthStateCode,
   WebSocketMessageType,
 } from '@savoirfairelinux/jami-web-common'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { use, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { createOptionalContext } from '../hooks/createOptionalContext.js'
@@ -43,13 +43,13 @@ const ImportDeviceContext = optionalImportDeviceContext.Context
 export const useImportDeviceContext = optionalImportDeviceContext.useOptionalContext
 
 const ImportDeviceProvider: React.FC<WithChildren> = ({ children }) => {
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const navigate = useNavigate()
   const webSocket = useWebSocketLinkContext()
   const [accountId, setAccountId] = useState<string>('')
   const [state, setState] = useState<DeviceAuthStateCode>(DeviceAuthStateCode.Init)
   const [token, setToken] = useState<string>('')
-  const [details, setDetails] = useState<Map<string, string>>(new Map())
+  const [details, setDetails] = useState<Map<string, string>>(() => new Map())
 
   useEffect(() => {
     function handleDeviceAuth(data: DeviceAuthStateChanged) {
@@ -130,7 +130,7 @@ const ImportDeviceProvider: React.FC<WithChildren> = ({ children }) => {
     [accountId, details, state, token],
   )
 
-  return <ImportDeviceContext.Provider value={value}>{children}</ImportDeviceContext.Provider>
+  return <ImportDeviceContext value={value}>{children}</ImportDeviceContext>
 }
 
 export default ImportDeviceProvider

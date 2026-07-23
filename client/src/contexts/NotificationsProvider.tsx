@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useMemo, useState } from 'react'
 
 import { WithChildren } from '../utils/utils.js'
 
@@ -30,15 +30,13 @@ export const NotificationContext = createContext<INotificationContext>({
 })
 
 export default ({ children }: WithChildren) => {
-  const [enable, setEnable] = useState<boolean>(true)
-
-  useEffect(() => {
+  const [enable, setEnable] = useState<boolean>(() => {
     const NotificationInStorage = localStorage.getItem('notification-preference')
-    // localStorage returns null if no value is found for the given key
     if (typeof NotificationInStorage === 'string') {
-      setEnable(JSON.parse(NotificationInStorage))
+      return JSON.parse(NotificationInStorage)
     }
-  }, [])
+    return true
+  })
 
   const setIsEnabled = useCallback((value: boolean) => {
     setEnable(value)
@@ -53,5 +51,5 @@ export default ({ children }: WithChildren) => {
     [enable, setIsEnabled],
   )
 
-  return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>
+  return <NotificationContext value={value}>{children}</NotificationContext>
 }

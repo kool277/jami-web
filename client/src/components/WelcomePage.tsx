@@ -29,7 +29,7 @@ import {
   useMediaQuery,
   useTheme,
 } from '@mui/material'
-import React, { useContext, useState } from 'react'
+import React, { use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
@@ -47,15 +47,15 @@ export default function WelcomePage() {
   const { t } = useTranslation()
   const theme = useTheme()
   const { account } = useAuthContext()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const [isAboutOpen, setIsAboutOpen] = useState(false)
   const { setIsMenuOpen } = useMobileMenuStateContext()
   const isReduced: boolean = useMediaQuery(theme.breakpoints.down('lg'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.down(1000))
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-  const isDisabled = localStorage.getItem('disable-tips') === 'true'
+  const [isDisabled] = useState(() => localStorage.getItem('disable-tips') === 'true')
 
-  const { mode } = useContext(CustomThemeContext)
+  const { mode } = use(CustomThemeContext)
   const isDark = mode === 'dark'
   const hasToRegisterName = account.getRegisteredName() === undefined
   const [displayedInfo, setDisplayedInfo] = useState(hasToRegisterName ? account.getUri() : account.getRegisteredName())
@@ -264,16 +264,16 @@ export default function WelcomePage() {
               }}
             ></WelcomeBox>
             {!isDisabled &&
-              informationsTips.slice(0, getAmountOfBox()).map((infoTip, index) => (
+              informationsTips.slice(0, getAmountOfBox()).map((infoTip) => (
                 <WelcomeBox
-                  key={index}
+                  key={infoTip.text}
                   icon={infoTip.icon}
                   title={infoTip.title}
                   text={infoTip.text}
                   hiddenTitle={infoTip.hiddenTitle}
                   hiddenText={infoTip.hiddenText}
                   onRemove={() => {
-                    const updatedTips = informationsTips.filter((_, i) => i !== index)
+                    const updatedTips = informationsTips.filter((tip) => tip !== infoTip)
                     setInformationsTips(updatedTips)
                   }}
                 />
@@ -396,8 +396,8 @@ export default function WelcomePage() {
             <Typography sx={{ fontWeight: 'bolder', marginLeft: '3%', marginTop: '3%', marginBottom: '2%' }}>
               {t('created_by')}
             </Typography>
-            {contributorsDevelopers.map((contributor, index) => (
-              <Typography variant="body2" key={index} sx={{ marginLeft: '3%' }}>
+            {contributorsDevelopers.map((contributor) => (
+              <Typography variant="body2" key={contributor} sx={{ marginLeft: '3%' }}>
                 {contributor}
               </Typography>
             ))}
@@ -405,8 +405,8 @@ export default function WelcomePage() {
             <Typography sx={{ fontWeight: 'bolder', marginLeft: '3%', marginTop: '3%', marginBottom: '2%' }}>
               {t('artwork_by')}
             </Typography>
-            {contributorsMedia.map((contributor, index) => (
-              <Typography variant="body2" key={index} sx={{ marginLeft: '3%' }}>
+            {contributorsMedia.map((contributor) => (
+              <Typography variant="body2" key={contributor} sx={{ marginLeft: '3%' }}>
                 {contributor}
               </Typography>
             ))}

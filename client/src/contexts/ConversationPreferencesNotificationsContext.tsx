@@ -46,9 +46,7 @@ const ConversationPreferencesNotificationsProvider: React.FC<WithChildren> = ({ 
   )
 
   return (
-    <ConversationPreferencesNotificationsContext.Provider value={value}>
-      {children}
-    </ConversationPreferencesNotificationsContext.Provider>
+    <ConversationPreferencesNotificationsContext value={value}>{children}</ConversationPreferencesNotificationsContext>
   )
 }
 

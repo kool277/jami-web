@@ -39,7 +39,7 @@ const TransferMessage = ({ conversationId, message, onClose, open }: TransferMes
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
   const [comment, setComment] = useState<string>('')
-  const [selectedConversations, setselectedConversations] = useState<string[]>([])
+  const [selectedConversations, setSelectedConversations] = useState<string[]>([])
 
   const messageBody = message.body
   const isFile = message?.type === 'application/data-transfer+json'
@@ -49,10 +49,10 @@ const TransferMessage = ({ conversationId, message, onClose, open }: TransferMes
 
   const selectConversation = (contact: string) => {
     if (selectedConversations.includes(contact)) {
-      setselectedConversations(selectedConversations.filter((c) => c !== contact))
+      setSelectedConversations(selectedConversations.filter((c) => c !== contact))
       return
     }
-    setselectedConversations([...selectedConversations, contact])
+    setSelectedConversations([...selectedConversations, contact])
   }
 
   const handleTransfer = () => {

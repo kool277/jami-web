@@ -16,11 +16,11 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { useContext, useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
-import { useCheckAdminTokenValidity } from '../../services/adminQueries.js'
+import { checkAdminTokenValidity } from '../../services/adminQueries.js'
 import { isElectronMode } from '../../utils/electron.js'
 import LoadingPage from '../Loading.js'
 
@@ -29,10 +29,10 @@ interface AdminAuthWrapperProps {
 }
 
 export default function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const navigate = useNavigate()
-  const verifyAdminToken = useCheckAdminTokenValidity()
-  const [loading, setLoading] = useState(!isElectronMode())
+  const verifyAdminToken = checkAdminTokenValidity()
+  const [loading, setLoading] = useState(() => !isElectronMode())
 
   useEffect(() => {
     // In Electron mode, admin auth is bypassed

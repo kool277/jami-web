@@ -18,7 +18,7 @@
 
 import { Box, Button, Switch, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { AdminWizardState, urlRegex } from '@savoirfairelinux/jami-web-common'
-import { ChangeEvent, useContext, useState } from 'react'
+import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, useNavigate } from 'react-router-dom'
 
@@ -57,7 +57,7 @@ const AdminConfigureNameServerForm = ({
 }) => {
   const { t } = useTranslation()
 
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const navigate = useNavigate()
   const setNameServerMutation = useSetNameServer()
   const saveAdminConfigMutation = useUpdateAdminConfigMutation()

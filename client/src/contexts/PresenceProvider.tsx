@@ -36,7 +36,7 @@ interface PresenceProviderProps {
 }
 
 const PresenceProvider: React.FC<PresenceProviderProps> = ({ children }) => {
-  const [presence, setPresence] = useState<Map<string, number>>(new Map())
+  const [presence, setPresence] = useState<Map<string, number>>(() => new Map())
   const webSocket = useWebSocketContext()
 
   const getPresence = useCallback(
@@ -63,7 +63,7 @@ const PresenceProvider: React.FC<PresenceProviderProps> = ({ children }) => {
 
   const value = useMemo(() => ({ getPresence, presence }), [getPresence, presence])
 
-  return <PresenceContext.Provider value={value}>{children}</PresenceContext.Provider>
+  return <PresenceContext value={value}>{children}</PresenceContext>
 }
 
 export default PresenceProvider

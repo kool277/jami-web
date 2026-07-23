@@ -31,7 +31,7 @@ import {
   useTheme,
 } from '@mui/material'
 import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
-import { useContext, useState } from 'react'
+import { use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -45,7 +45,7 @@ export default function ConfigureOpenId() {
   const location = useLocation()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const [clientId, setClientId] = useState<string>()
   const [clientSecret, setClientSecret] = useState('')
   const theme = useTheme()

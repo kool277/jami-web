@@ -35,6 +35,7 @@ import {
 
 export default function AdminLogin() {
   const [password, setPassword] = useState('')
+  const [hasAdminAccessToken] = useState(() => Boolean(localStorage.getItem('adminAccessToken')))
   const { t } = useTranslation()
   const loginAdminMutation = useLoginAdminMutation()
   const passkeyLoginMutation = useAdminPasskeyLoginMutation()
@@ -52,7 +53,7 @@ export default function AdminLogin() {
     loginAdminMutation.mutate(password)
   }
 
-  if (localStorage.getItem('adminAccessToken')) {
+  if (hasAdminAccessToken) {
     return <Navigate to={'/admin/' + AdminSettingSelection.ACCOUNTS} />
   }
   //TODO: refactor translations

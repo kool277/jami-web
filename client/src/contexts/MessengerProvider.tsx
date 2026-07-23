@@ -48,5 +48,5 @@ export default ({ children }: { children: ReactNode }) => {
 
   const value = useMemo<IMessengerContext>(() => ({}), [])
 
-  return <MessengerContext.Provider value={value}>{children}</MessengerContext.Provider>
+  return <MessengerContext value={value}>{children}</MessengerContext>
 }

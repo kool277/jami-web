@@ -19,7 +19,7 @@ import Fingerprint from '@mui/icons-material/Fingerprint'
 import { Box, Button, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
-import { ChangeEvent, FormEvent, useContext, useState } from 'react'
+import { ChangeEvent, FormEvent, use, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Link, useNavigate } from 'react-router-dom'
 
@@ -39,11 +39,6 @@ function LoginForm() {
   const currentUrl = window.location.href
   const accessToken = currentUrl.split('accessToken=')[1]
 
-  if (accessToken) {
-    localStorage.setItem('accessToken', accessToken)
-    window.location.replace('/conversation')
-  }
-
   const theme: Theme = useTheme()
   const navigate = useNavigate()
   const { t } = useTranslation()
@@ -51,7 +46,7 @@ function LoginForm() {
   const [password, setPassword] = useState<string>('')
   const [authMethod, setAuthMethod] = useState<string | undefined>()
   const { data } = useGetAdminConfigQuery()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const loginMutation = useLoginMutation()
   const passkeyLoginMutation = usePasskeyLoginMutation()
   const { isPending } = loginMutation
@@ -59,15 +54,20 @@ function LoginForm() {
   const passkeySupported = browserSupportsWebAuthn()
   const providers = useGetAllProviders()
 
+  useEffect(() => {
+    if (accessToken) {
+      localStorage.setItem('accessToken', accessToken)
+      window.location.replace('/conversation')
+    }
+  }, [accessToken])
+
   if (data === undefined || providers.data === undefined) {
     return <ProcessingRequest open />
   }
 
-  if (authMethod === undefined) {
-    setAuthMethod(
-      data.localAuthEnabled ? 'local' : data.jamsAuthEnabled ? 'jams' : data.guestAccessEnabled ? 'guest' : 'openid',
-    )
-  }
+  const selectedAuthMethod =
+    authMethod ??
+    (data.localAuthEnabled ? 'local' : data.jamsAuthEnabled ? 'jams' : data.guestAccessEnabled ? 'guest' : 'openid')
 
   const handleUsername = (event: ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value)
@@ -86,25 +86,16 @@ function LoginForm() {
   const login = (event: FormEvent) => {
     event.preventDefault()
 
-    if (isAlone) {
-      setAuthMethod(data.localAuthEnabled ? 'local' : 'jams')
-    }
-
-    if (authMethod === undefined) {
-      console.error('authMethod is undefined')
-      return
-    }
-
     if (username === '') {
       setAlertContent({ messageI18nKey: 'username_input_helper_text_empty', severity: 'error', alertOpen: true })
       return
     }
     // In Electron mode, local accounts don't require a password
-    if (password === '' && !(isElectronMode() && authMethod === 'local')) {
+    if (password === '' && !(isElectronMode() && selectedAuthMethod === 'local')) {
       setAlertContent({ messageI18nKey: 'password_input_helper_text_empty', severity: 'error', alertOpen: true })
       return
     }
-    loginMutation.mutate({ username, password, authMethod })
+    loginMutation.mutate({ username, password, authMethod: selectedAuthMethod })
   }
 
   const guestLogin = (event: FormEvent) => {
@@ -147,7 +138,7 @@ function LoginForm() {
             sx={{ width: theme.typography.pxToRem(inputWidth) }}
           />
           {/* In Electron mode, local accounts don't require a password */}
-          {!(isElectronMode() && authMethod === 'local') && (
+          {!(isElectronMode() && selectedAuthMethod === 'local') && (
             <PasswordInput
               data-cy="password-input"
               value={password}
@@ -177,7 +168,7 @@ function LoginForm() {
                 }}
                 row
                 onChange={handleSelectionChange}
-                value={authMethod}
+                value={selectedAuthMethod}
               >
                 {data.localAuthEnabled && <FormControlLabel value="local" control={<Radio />} label={t('jami')} />}
                 {data.jamsAuthEnabled && <FormControlLabel value="jams" control={<Radio />} label={t('jams')} />}
@@ -213,8 +204,8 @@ function LoginForm() {
                 onClick={login}
                 sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
                 disabled={
-                  authMethod !== AuthenticationMethods.GUEST &&
-                  (username === '' || (password === '' && !(isElectronMode() && authMethod === 'local')))
+                  selectedAuthMethod !== AuthenticationMethods.GUEST &&
+                  (username === '' || (password === '' && !(isElectronMode() && selectedAuthMethod === 'local')))
                 }
               >
                 {t('login_form_submit_button')}

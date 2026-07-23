@@ -26,16 +26,20 @@ import { AdminWizardState, HttpStatusCode } from '@savoirfairelinux/jami-web-com
 import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
-import { useContext, useEffect } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
 import { AuthenticationMethods } from '../enums/authenticationMethods.js'
 import { apiUrl } from '../utils/constants.js'
 
+const getAdminAuthorizationHeaders = () => ({
+  Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
+})
+
 export const useSetupAdminMutation = () => {
   const navigate = useNavigate()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
 
   return useMutation({
     mutationKey: ['admin', 'setup'],
@@ -69,7 +73,7 @@ export const useSetupAdminMutation = () => {
 
 export const useLoginAdminMutation = () => {
   const navigate = useNavigate()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
 
   return useMutation({
     mutationKey: ['admin', 'login'],
@@ -144,8 +148,6 @@ export const checkWizardStatus = async () => {
 }
 
 export const useSetWizardStateMutation = () => {
-  const token = localStorage.getItem('adminAccessToken')
-
   return useMutation({
     mutationKey: ['admin', 'wizard', 'state'],
     mutationFn: async (state: AdminWizardState) => {
@@ -154,9 +156,7 @@ export const useSetWizardStateMutation = () => {
         { state },
         {
           baseURL: apiUrl,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: getAdminAuthorizationHeaders(),
         },
       )
       return data
@@ -176,16 +176,13 @@ export const useCheckAdminSetupStatusQuery = () => {
 }
 
 export const useGetNameServer = () => {
-  const token = localStorage.getItem('adminAccessToken')
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const query = useQuery({
     queryKey: ['nameserver', 'getter'],
     queryFn: async () => {
       const { data } = await axios.get('/admin/nameserver', {
         baseURL: apiUrl,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAdminAuthorizationHeaders(),
       })
       return data
     },
@@ -204,17 +201,14 @@ export const useGetNameServer = () => {
 }
 
 export const useResetNameServer = () => {
-  const token = localStorage.getItem('adminAccessToken')
   const queryClient = useQueryClient()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['nameserver', 'reset'],
     mutationFn: async () => {
       const { data } = await axios.delete(`/admin/nameserver`, {
         baseURL: apiUrl,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAdminAuthorizationHeaders(),
       })
       return data
     },
@@ -232,9 +226,8 @@ export const useResetNameServer = () => {
 }
 
 export const useSetNameServer = () => {
-  const token = localStorage.getItem('adminAccessToken')
   const queryClient = useQueryClient()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['nameserver', 'setter'],
     mutationFn: async (nameserver: string) => {
@@ -243,9 +236,7 @@ export const useSetNameServer = () => {
         { nameserver },
         {
           baseURL: apiUrl,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: getAdminAuthorizationHeaders(),
         },
       )
       return data
@@ -265,7 +256,7 @@ export const useSetNameServer = () => {
 
 export const useGetAdminConfigQuery = () => {
   const navigate = useNavigate()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const query = useQuery({
     queryKey: ['admin', 'config'],
     queryFn: async () => {
@@ -309,18 +300,15 @@ export const useGetAdminConfigQuery = () => {
 }
 
 export const useUpdateAdminConfigMutation = () => {
-  const token = localStorage.getItem('adminAccessToken')
   const navigate = useNavigate()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (adminConfig: Partial<IAdminConfigState>) => {
       const response = await axios.patch('/admin/config', adminConfig, {
         baseURL: apiUrl,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAdminAuthorizationHeaders(),
       })
       return response
     },
@@ -343,18 +331,15 @@ export const useUpdateAdminConfigMutation = () => {
 }
 
 export const useUpdateAdminPasswordMutation = () => {
-  const token = localStorage.getItem('adminAccessToken')
   const navigate = useNavigate()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (passwords: { old: string; new: string }) => {
       const response = await axios.patch('/admin/password', passwords, {
         baseURL: apiUrl,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAdminAuthorizationHeaders(),
       })
       return response
     },
@@ -387,14 +372,11 @@ export const useUpdateAdminPasswordMutation = () => {
   })
 }
 
-export const useGetAdminAuthMethods = async () => {
+export const getAdminAuthMethods = async () => {
   try {
-    const token = localStorage.getItem('adminAccessToken')
     const response = await axios.get('/admin/config', {
       baseURL: apiUrl,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: getAdminAuthorizationHeaders(),
     })
     return [
       response.data.localAuthEnabled,
@@ -408,32 +390,26 @@ export const useGetAdminAuthMethods = async () => {
 }
 
 export const useGetJamsUrl = () => {
-  const token = localStorage.getItem('adminAccessToken')
   return useQuery({
     queryKey: ['jamsurl', 'getter'],
     queryFn: async () => {
       const { data } = await axios.get('/admin/jamsurl', {
         baseURL: apiUrl,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAdminAuthorizationHeaders(),
       })
       return data
     },
   })
 }
 export const useRemoveJamsUrl = () => {
-  const token = localStorage.getItem('adminAccessToken')
   const queryClient = useQueryClient()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['jamsurl', 'reset'],
     mutationFn: async () => {
       const { data } = await axios.delete(`/admin/jamsurl`, {
         baseURL: apiUrl,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAdminAuthorizationHeaders(),
       })
       return data
     },
@@ -457,9 +433,8 @@ export const useRemoveJamsUrl = () => {
   })
 }
 export const useSetJamsUrl = () => {
-  const token = localStorage.getItem('adminAccessToken')
   const queryClient = useQueryClient()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['jamsurl', 'setter'],
     mutationFn: async (url: string) => {
@@ -468,9 +443,7 @@ export const useSetJamsUrl = () => {
         { url },
         {
           baseURL: apiUrl,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: getAdminAuthorizationHeaders(),
         },
       )
       return data
@@ -494,15 +467,12 @@ export const useSetJamsUrl = () => {
 }
 
 export const useGetAllAccounts = () => {
-  const token = localStorage.getItem('adminAccessToken')
   return useQuery({
     queryKey: ['all', 'accounts'],
     queryFn: async () => {
       const { data } = await axios.get('/admin/accounts', {
         baseURL: apiUrl,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAdminAuthorizationHeaders(),
       })
       return data
     },
@@ -510,7 +480,6 @@ export const useGetAllAccounts = () => {
 }
 
 export const useDeleteAccounts = () => {
-  const token = localStorage.getItem('adminAccessToken')
   const queryClient = useQueryClient()
   return useMutation({
     mutationKey: ['delete', 'accounts'],
@@ -518,9 +487,7 @@ export const useDeleteAccounts = () => {
       const { data } = await axios.delete(`/admin/accounts`, {
         data: accounts,
         baseURL: apiUrl,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAdminAuthorizationHeaders(),
       })
       return data
     },
@@ -534,14 +501,11 @@ export const useDeleteAccounts = () => {
   })
 }
 
-export const useCheckAdminTokenValidity = async () => {
-  const token = localStorage.getItem('adminAccessToken')
+export const checkAdminTokenValidity = async () => {
   try {
     const response = await axios.get('/admin/isTokenValid', {
       baseURL: apiUrl,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: getAdminAuthorizationHeaders(),
     })
     if (response.status === HttpStatusCode.Ok) {
       return true
@@ -555,16 +519,13 @@ export const useCheckAdminTokenValidity = async () => {
 }
 
 export const useGetAllOauthClients = () => {
-  const token = localStorage.getItem('adminAccessToken')
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const query = useQuery({
     queryKey: ['all', 'oauth', 'clients'],
     queryFn: async () => {
       const { data } = await axios.get('/admin/oauth/providers', {
         baseURL: apiUrl,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAdminAuthorizationHeaders(),
       })
       return data
     },
@@ -583,17 +544,14 @@ export const useGetAllOauthClients = () => {
 }
 
 export const useGetProviderInfo = (provider: string) => {
-  const token = localStorage.getItem('adminAccessToken')
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const navigate = useNavigate()
   const query = useQuery({
     queryKey: ['oauth', 'provider', provider],
     queryFn: async () => {
       const { data } = await axios.get(`/admin/oauth/provider/${provider}`, {
         baseURL: apiUrl,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAdminAuthorizationHeaders(),
       })
       return data
     },
@@ -612,17 +570,14 @@ export const useGetProviderInfo = (provider: string) => {
 }
 
 export const useUpdateProviderInfo = (provider: string) => {
-  const token = localStorage.getItem('adminAccessToken')
   const queryClient = useQueryClient()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['oauth', 'provider', provider],
     mutationFn: async (data: { clientId?: string; clientSecret?: string; isActive?: boolean }) => {
       const response = await axios.patch(`/admin/oauth/provider/${provider}`, data, {
         baseURL: apiUrl,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getAdminAuthorizationHeaders(),
       })
       return response
     },
@@ -645,9 +600,8 @@ export const useUpdateProviderInfo = (provider: string) => {
 }
 
 export const useSetAutoDownloadLimit = () => {
-  const token = localStorage.getItem('adminAccessToken')
   const queryClient = useQueryClient()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['set', 'autoDownloadLimit'],
     mutationFn: async (limit: number) => {
@@ -656,9 +610,7 @@ export const useSetAutoDownloadLimit = () => {
         { limit },
         {
           baseURL: apiUrl,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: getAdminAuthorizationHeaders(),
         },
       )
       return data
@@ -682,9 +634,8 @@ export const useSetAutoDownloadLimit = () => {
 }
 
 export const useSetConferenceResolution = () => {
-  const token = localStorage.getItem('adminAccessToken')
   const queryClient = useQueryClient()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['set', 'conferenceResolution'],
     mutationFn: async (resolution: string) => {
@@ -693,9 +644,7 @@ export const useSetConferenceResolution = () => {
         { resolution },
         {
           baseURL: apiUrl,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: getAdminAuthorizationHeaders(),
         },
       )
       return data
@@ -740,7 +689,7 @@ export const useAdminPasskeyAvailableQuery = () => {
 /** Login to admin panel with passkey */
 export const useAdminPasskeyLoginMutation = () => {
   const navigate = useNavigate()
-  const { setAlertContent, closeAlert } = useContext(AlertSnackbarContext)
+  const { setAlertContent, closeAlert } = use(AlertSnackbarContext)
 
   return useMutation({
     mutationKey: ['admin', 'passkey', 'login'],
@@ -768,14 +717,13 @@ export const useAdminPasskeyLoginMutation = () => {
 
 /** Register a new passkey for admin */
 export const useAdminRegisterPasskeyMutation = () => {
-  const token = localStorage.getItem('adminAccessToken')
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationKey: ['admin', 'passkey', 'register'],
     mutationFn: async (name: string) => {
-      const headers = { Authorization: `Bearer ${token}` }
+      const headers = getAdminAuthorizationHeaders()
       const { data: options } = await axios.post('/admin/passkey/register/options', {}, { baseURL: apiUrl, headers })
       const credential = await startRegistration({ optionsJSON: options })
       const { data } = await axios.post(
@@ -797,24 +745,23 @@ export const useAdminRegisterPasskeyMutation = () => {
 
 /** List admin passkeys */
 export const useAdminPasskeyCredentialsQuery = () => {
-  const token = localStorage.getItem('adminAccessToken')
+  const [hasToken] = useState(() => Boolean(localStorage.getItem('adminAccessToken')))
   return useQuery({
     queryKey: ['admin', 'passkey', 'credentials'],
     queryFn: async (): Promise<AdminPasskeyInfo[]> => {
       const { data } = await axios.get('/admin/passkey/credentials', {
         baseURL: apiUrl,
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getAdminAuthorizationHeaders(),
       })
       return data
     },
-    enabled: !!token,
+    enabled: hasToken,
   })
 }
 
 /** Delete an admin passkey */
 export const useAdminDeletePasskeyMutation = () => {
-  const token = localStorage.getItem('adminAccessToken')
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -822,7 +769,7 @@ export const useAdminDeletePasskeyMutation = () => {
     mutationFn: async (credentialId: string) => {
       await axios.delete(`/admin/passkey/credentials/${encodeURIComponent(credentialId)}`, {
         baseURL: apiUrl,
-        headers: { Authorization: `Bearer ${token}` },
+        headers: getAdminAuthorizationHeaders(),
       })
     },
     onSuccess: () => {

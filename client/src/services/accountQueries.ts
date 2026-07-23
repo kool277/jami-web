@@ -19,7 +19,7 @@ import { removedLinkedDeviceContent } from '@savoirfairelinux/jami-web-common'
 import { useMutation } from '@tanstack/react-query'
 import { useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { useContext } from 'react'
+import { use } from 'react'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
@@ -53,11 +53,11 @@ export const useUpdateAvatarMutation = () => {
 
 export const useRemoveLinkedDevice = () => {
   const { axiosInstance } = useAuthContext()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
-  const token = localStorage.getItem('accessToken')
+  const { setAlertContent } = use(AlertSnackbarContext)
 
   return useMutation({
     mutationFn: async (content: removedLinkedDeviceContent) => {
+      const token = localStorage.getItem('accessToken')
       const { data } = await axiosInstance.post(
         `/account/${content.deviceId}/revoke/`,
         { password: content.password },
@@ -89,11 +89,11 @@ export const useRemoveLinkedDevice = () => {
 }
 
 export const useSetDisplayName = () => {
-  const { setAlertContent } = useContext(AlertSnackbarContext)
-  const token = localStorage.getItem('accessToken')
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['set', 'displayName'],
     mutationFn: async (displayName: string) => {
+      const token = localStorage.getItem('accessToken')
       const { data } = await axios.post(
         `/account/displayName`,
         { displayName },
@@ -122,11 +122,11 @@ export const useSetDisplayName = () => {
 }
 
 export const useResetDisplayName = () => {
-  const { setAlertContent } = useContext(AlertSnackbarContext)
-  const token = localStorage.getItem('accessToken')
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['reset', 'displayName'],
     mutationFn: async () => {
+      const token = localStorage.getItem('accessToken')
       const { data } = await axios.post(`/account/displayName/reset`, {
         baseURL: apiUrl,
         headers: { Authorization: `Bearer ${token}` },
@@ -188,11 +188,10 @@ export const useCancelAddDeviceMutation = (opId: number) => {
 
 // Query used only in the import account flow
 export const useProvideAccountAuthentication = () => {
-  const token = localStorage.getItem('importToken')
-
   return useMutation({
     mutationKey: ['provideAccountAuthentication'],
     mutationFn: async (values: IProvideAccountAuthentication) => {
+      const token = localStorage.getItem('importToken')
       const { data } = await axios.post(
         `/auth/link/authenticate`,
         { values },

@@ -17,7 +17,7 @@
  */
 
 import { Box, TextField } from '@mui/material'
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { use, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
@@ -39,7 +39,7 @@ export default function DownloadLimit() {
 const DownloadLimitForm = ({ configuredLimit }: { configuredLimit: number }) => {
   const [currentLimit, setCurrentLimit] = useState<number>(configuredLimit)
   const currentLimitRef = useRef<number>(configuredLimit)
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const { mutate } = useSetAutoDownloadLimit()
   const { t } = useTranslation()
 

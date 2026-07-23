@@ -19,7 +19,7 @@ import { AccessToken } from '@savoirfairelinux/jami-web-common'
 import { startAuthentication, startRegistration } from '@simplewebauthn/browser'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
-import { useContext } from 'react'
+import { use } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
@@ -36,7 +36,7 @@ export interface PasskeyCredentialInfo {
 /** Register a new passkey for the current authenticated user */
 export const useRegisterPasskeyMutation = () => {
   const { axiosInstance } = useAuthContext()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -68,7 +68,7 @@ export const useRegisterPasskeyMutation = () => {
 /** Login with a passkey (public — no token needed) */
 export const usePasskeyLoginMutation = () => {
   const navigate = useNavigate()
-  const { setAlertContent, closeAlert } = useContext(AlertSnackbarContext)
+  const { setAlertContent, closeAlert } = use(AlertSnackbarContext)
 
   return useMutation({
     mutationKey: ['passkey', 'login'],
@@ -116,7 +116,7 @@ export const usePasskeyCredentialsQuery = () => {
 /** Delete a passkey */
 export const useDeletePasskeyMutation = () => {
   const { axiosInstance } = useAuthContext()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const queryClient = useQueryClient()
 
   return useMutation({

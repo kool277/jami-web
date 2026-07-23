@@ -140,8 +140,8 @@ const CallPendingDetails = ({
             justifyContent: 'center',
           }}
         >
-          {buttons.map(({ ButtonComponent, title: buttonTitle }, i) => (
-            <Grid key={i} size={4}>
+          {buttons.map(({ ButtonComponent, title: buttonTitle }) => (
+            <Grid key={ButtonComponent.displayName ?? ButtonComponent.name} size={4}>
               <Stack
                 direction="column"
                 spacing={1}

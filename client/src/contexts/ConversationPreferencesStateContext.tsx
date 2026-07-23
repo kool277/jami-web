@@ -52,11 +52,7 @@ const ConversationPreferencesStateProvider: React.FC<WithChildren> = ({ children
     [isOpen, isSearchOpen, searchQuery],
   )
 
-  return (
-    <ConversationPreferencesStateContext.Provider value={value}>
-      {children}
-    </ConversationPreferencesStateContext.Provider>
-  )
+  return <ConversationPreferencesStateContext value={value}>{children}</ConversationPreferencesStateContext>
 }
 
 export default ConversationPreferencesStateProvider

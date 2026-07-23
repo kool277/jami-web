@@ -100,7 +100,7 @@ export async function appLoader({ request }: LoaderFunctionArgs) {
 }
 
 const App = () => {
-  const [displayWelcome, setDisplayWelcome] = useState<boolean>(getAccessToken() === undefined)
+  const [displayWelcome, setDisplayWelcome] = useState<boolean>(() => getAccessToken() === undefined)
 
   if (displayWelcome) {
     return <WelcomeAnimation onComplete={() => setDisplayWelcome(false)} />

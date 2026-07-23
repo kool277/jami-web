@@ -24,8 +24,7 @@ import { SettingSwitch } from '../Settings.js'
 
 const SettingLinkPreview = () => {
   const { t } = useTranslation()
-  const current = localStorage.getItem('linkPreview') === 'true'
-  const [isOn, setIsOn] = useState<boolean>(current)
+  const [isOn, setIsOn] = useState<boolean>(() => localStorage.getItem('linkPreview') === 'true')
 
   const onChange = () => {
     setIsOn((isOn) => !isOn)

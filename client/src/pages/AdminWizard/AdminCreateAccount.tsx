@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, Fab, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
-import { FormEvent, useContext, useState } from 'react'
+import { FormEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { GroupAddRoundedIcon as GroupAddRounded } from '../../components/SvgIcon.js'
@@ -30,7 +30,7 @@ export default function AdminSetup() {
   const { t } = useTranslation()
   const setupAdminMutation = useSetupAdminMutation()
   const { isPending } = setupAdminMutation
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 

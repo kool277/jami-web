@@ -17,7 +17,7 @@
  */
 
 import { Box } from '@mui/material'
-import { useContext } from 'react'
+import { use } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { CustomThemeContext } from '../../contexts/CustomThemeProvider.js'
@@ -26,7 +26,7 @@ import { SettingSwitch } from '../Settings.js'
 const SettingTheme = () => {
   const { t } = useTranslation()
 
-  const { mode, toggleMode } = useContext(CustomThemeContext)
+  const { mode, toggleMode } = use(CustomThemeContext)
 
   return (
     <Box sx={{ textAlign: 'start' }}>

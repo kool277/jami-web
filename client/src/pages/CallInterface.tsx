@@ -319,8 +319,8 @@ const CallInterfaceSecondaryButtons = ({
         }}
       >
         {initialMeasurementDone &&
-          displayedButtons.map((SecondaryButton, i) => (
-            <Fragment key={i}>
+          displayedButtons.map((SecondaryButton) => (
+            <Fragment key={SecondaryButton.displayName ?? SecondaryButton.name}>
               <SecondaryButton />
             </Fragment>
           ))}
@@ -341,8 +341,8 @@ const CallInterfaceSecondaryButtons = ({
                 height: '100%',
               }}
             >
-              {hiddenButtons.map((SecondaryButton, i) => (
-                <Fragment key={i}>
+              {hiddenButtons.map((SecondaryButton) => (
+                <Fragment key={SecondaryButton.displayName ?? SecondaryButton.name}>
                   <SecondaryButton isVertical />
                 </Fragment>
               ))}

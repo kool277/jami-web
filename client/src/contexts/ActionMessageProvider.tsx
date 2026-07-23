@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Message } from '@savoirfairelinux/jami-web-common'
-import React, { createContext, useContext, useMemo, useState } from 'react'
+import React, { createContext, use, useMemo, useState } from 'react'
 
 import { FileHandler } from '../utils/files.js'
 import { WithChildren } from '../utils/utils.js'
@@ -37,7 +37,7 @@ const ActionMessageReadContext = createContext<IActionMessageReadContext | undef
 const ActionMessageWriteContext = createContext<IActionMessageWriteContext | undefined>(undefined)
 
 export const useActionMessageReadContext = () => {
-  const context = useContext(ActionMessageReadContext)
+  const context = use(ActionMessageReadContext)
   if (!context) {
     throw new Error('useActionMessageReadContext must be used within an ActionMessageProvider')
   }
@@ -45,7 +45,7 @@ export const useActionMessageReadContext = () => {
 }
 
 export const useActionMessageWriteContext = () => {
-  const context = useContext(ActionMessageWriteContext)
+  const context = use(ActionMessageWriteContext)
   if (!context) {
     throw new Error('useActionMessageWriteContext must be used within an ActionMessageProvider')
   }
@@ -82,9 +82,9 @@ const ActionMessageProvider: React.FC<WithChildren> = ({ children }) => {
   )
 
   return (
-    <ActionMessageWriteContext.Provider value={writeContextValue}>
-      <ActionMessageReadContext.Provider value={readContextValue}>{children}</ActionMessageReadContext.Provider>
-    </ActionMessageWriteContext.Provider>
+    <ActionMessageWriteContext value={writeContextValue}>
+      <ActionMessageReadContext value={readContextValue}>{children}</ActionMessageReadContext>
+    </ActionMessageWriteContext>
   )
 }
 

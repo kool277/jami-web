@@ -175,10 +175,10 @@ export const useGetLinkUsername = (contactId?: string) => {
   // only use in ImportAccountLock
   // note that the token used is different
   // from the one used everywhere else
-  const token = localStorage.getItem('importToken')
   return useQuery({
     queryKey: ['linkUsername', contactId],
     queryFn: async () => {
+      const token = localStorage.getItem('importToken')
       const { data } = await axios.get<string>(`/contacts/${contactId}/username`, {
         headers: { Authorization: `Bearer ${token}` },
       })

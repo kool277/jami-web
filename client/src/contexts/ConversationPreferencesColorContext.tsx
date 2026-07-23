@@ -46,11 +46,7 @@ const ConversationPreferencesColorProvider: React.FC<WithChildren> = ({ children
     [conversationColor],
   )
 
-  return (
-    <ConversationPreferencesColorContext.Provider value={value}>
-      {children}
-    </ConversationPreferencesColorContext.Provider>
-  )
+  return <ConversationPreferencesColorContext value={value}>{children}</ConversationPreferencesColorContext>
 }
 
 export default ConversationPreferencesColorProvider

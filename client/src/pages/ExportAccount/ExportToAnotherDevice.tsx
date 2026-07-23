@@ -23,7 +23,7 @@ import {
   DeviceAuthStateCode,
   WebSocketMessageType,
 } from '@savoirfairelinux/jami-web-common'
-import { useCallback, useContext, useEffect, useRef, useState } from 'react'
+import { use, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -37,12 +37,12 @@ import {
 } from '../../services/accountQueries.js'
 
 export function ExportToAnotherDevice() {
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const exportAccountMutation = useExportAccountMutation()
   const webSocket = useWebSocketContext()
   const navigate = useNavigate()
   const [opId, setOpId] = useState<number | undefined>()
-  const [uri, setPeer] = useState<string | undefined>()
+  const [uri, setUri] = useState<string | undefined>()
   const isSentRef = useRef(false)
   const [state, setState] = useState(DeviceAuthStateCode.Init)
   const [peerAddress, setPeerAddress] = useState<string | undefined>()
@@ -123,7 +123,7 @@ export function ExportToAnotherDevice() {
   return (
     <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
       <Card sx={{ width: '600px', height: '700px' }}>
-        {state === DeviceAuthStateCode.Init && <EnterCode setCode={setPeer} />}
+        {state === DeviceAuthStateCode.Init && <EnterCode setCode={setUri} />}
         {state === DeviceAuthStateCode.Connecting && <InProgress isConnecting={true} />}
         {state === DeviceAuthStateCode.Authenticating && (
           <AcceptLink peerAddress={peerAddress || 'unknown'} opId={opId || -1} />
@@ -199,7 +199,7 @@ interface AcceptLinkProps {
 const AcceptLink = ({ peerAddress, opId }: AcceptLinkProps) => {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   if (opId === -1) {
     setAlertContent({
       messageI18nKey: 'unknown_error_alert',
@@ -279,7 +279,7 @@ interface EnterCodeProps {
 const EnterCode = ({ setCode }: EnterCodeProps) => {
   const [tmpCode, setTmpCode] = useState<string | undefined>()
   const [isQrCodeSelected, setIsQrCodeSelected] = useState(true)
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const { t } = useTranslation()
 
   const handleScannedCode = useCallback(

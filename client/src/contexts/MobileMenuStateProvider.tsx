@@ -55,7 +55,7 @@ const MobileMenuStateProvider: React.FC<WithChildren> = ({ children }) => {
     [isMenuOpen],
   )
 
-  return <MobileMenuStateContext.Provider value={value}>{children}</MobileMenuStateContext.Provider>
+  return <MobileMenuStateContext value={value}>{children}</MobileMenuStateContext>
 }
 
 export default MobileMenuStateProvider

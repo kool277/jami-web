@@ -152,13 +152,13 @@ export const ExpandableButton = ({
             horizontal: !isVertical ? 'center' : 'right',
           }}
         >
-          {expandMenuOptions?.map((option, id) => {
+          {expandMenuOptions?.map((option) => {
             if ('options' in option) {
               const { options, ...radioGroupProps } = option
               return (
-                <RadioGroup key={id} {...radioGroupProps}>
-                  {options.map(({ description, key }, i) => (
-                    <MenuItem key={i}>
+                <RadioGroup key={options.map((option) => option.key).join(':')} {...radioGroupProps}>
+                  {options.map(({ description, key }) => (
+                    <MenuItem key={key}>
                       <FormControlLabel
                         value={key}
                         control={<Radio value={key} />}
@@ -174,7 +174,7 @@ export const ExpandableButton = ({
             }
 
             return (
-              <MenuItem key={id} onClick={handleClose}>
+              <MenuItem key={String(option.description)} onClick={handleClose}>
                 <ListItemIcon>{option.icon}</ListItemIcon>
                 <ListItemText>{option.description}</ListItemText>
               </MenuItem>

@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Stack, StackProps } from '@mui/material'
-import { useContext } from 'react'
+import { use } from 'react'
 
 import { CustomThemeContext } from '../contexts/CustomThemeProvider.js'
 import JamiLogo from '../icons/logo-jami-net.svg?react'
@@ -28,7 +28,7 @@ interface WelcomeLogoProps extends StackProps {
 }
 
 export default function JamiWelcomeLogo({ logoWidth, logoHeight, ...stackProps }: WelcomeLogoProps) {
-  const { mode } = useContext(CustomThemeContext)
+  const { mode } = use(CustomThemeContext)
   const isDark = mode === 'dark'
 
   return (

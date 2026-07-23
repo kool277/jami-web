@@ -17,7 +17,7 @@
  */
 import { Box, Button, Input, Stack, Switch, Typography } from '@mui/material'
 import { urlRegex } from '@savoirfairelinux/jami-web-common'
-import { ChangeEvent, useContext, useState } from 'react'
+import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
@@ -33,7 +33,7 @@ import LayoutSettings from '../LayoutSettings.js'
 import ProcessingRequest from '../ProcessingRequest.js'
 
 const LocalAuthMethod = () => {
-  const accessToken = localStorage.getItem('adminAccessToken')
+  const [accessToken] = useState(() => localStorage.getItem('adminAccessToken'))
   const { data } = useGetAdminConfigQuery()
   const nameserverSet = useGetNameServer()
   const nameServerConfigured = nameserverSet.data
@@ -62,7 +62,7 @@ const LocalAuthMethodForm = ({
   const [nameServer, setNameServer] = useState<string>(nameServerConfigured)
   const setNameServerMutation = useSetNameServer()
   const resetServerNameMutation = useResetNameServer()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
 
   const handleChange = () => {
     saveAdminConfigMutation.mutate({ localAuthEnabled: !data.localAuthEnabled })
