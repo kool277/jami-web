@@ -89,7 +89,7 @@ conversationRouter.post(
 
 conversationRouter.get(
   '/:conversationId',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ conversationId: string }>(async (req, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
 
@@ -107,7 +107,7 @@ conversationRouter.get(
 
 conversationRouter.get(
   '/:conversationId/infos',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ conversationId: string }>(async (req, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
 
@@ -136,7 +136,7 @@ conversationRouter.post('/:conversationId/infos', (req, res) => {
 
 conversationRouter.get(
   '/:conversationId/preferences',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ conversationId: string }>(async (req, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
 
@@ -182,7 +182,7 @@ conversationRouter.post('/:conversationId/preferences', (req, res) => {
 
 conversationRouter.get(
   '/:conversationId/members',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ conversationId: string }>(async (req, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
 
@@ -221,7 +221,7 @@ conversationRouter.get(
 
 conversationRouter.get(
   '/:conversationId/messages',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ conversationId: string }>(async (req, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
     const from = typeof req.query.from === 'string' ? req.query.from : ''
@@ -245,7 +245,7 @@ conversationRouter.get(
 
 conversationRouter.post(
   '/:conversationId/messages',
-  (req: Request<ParamsDictionary, string, Record<string, unknown>>, res) => {
+  (req: Request<{ conversationId: string }, string, Record<string, unknown>>, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
 
@@ -312,7 +312,7 @@ conversationRouter.post('/:conversationId/remove-from-swarm', (req, res) => {
 
 conversationRouter.post(
   '/:conversationId/editmessage',
-  (req: Request<ParamsDictionary, string, Partial<NewMessageRequestBody>>, res) => {
+  (req: Request<{ conversationId: string }, string, Partial<NewMessageRequestBody>>, res) => {
     const body = req.body.body
     const messageId = req.body.messageId
     if (!body || !messageId) {

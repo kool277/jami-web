@@ -48,7 +48,7 @@ conversationRequestRouter.get(
 
 conversationRequestRouter.post(
   '/:conversationId',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ conversationId: string }>(async (req, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
     await jamid.acceptConversationRequest(accountId, conversationId)
@@ -63,7 +63,7 @@ conversationRequestRouter.post(
 
 conversationRequestRouter.delete(
   '/:conversationId',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ conversationId: string }>(async (req, res) => {
     jamid.declineConversationRequest(res.locals.accountId, req.params.conversationId)
     res.sendStatus(HttpStatusCode.NoContent)
   }),

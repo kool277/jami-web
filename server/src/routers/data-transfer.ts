@@ -121,7 +121,7 @@ dataTransferRouter.post('/transferfile', (req, res) => {
 dataTransferRouter.post(
   '/:conversationId',
   upload.array('file'),
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ conversationId: string }>(async (req, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
 

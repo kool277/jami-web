@@ -370,7 +370,7 @@ adminRouter.get(
 
 adminRouter.delete(
   '/passkey/credentials/:credentialId',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ credentialId: string }>(async (req, res) => {
     const { credentialId } = req.params
     const removed = passkeyStore.remove(ADMIN_PASSKEY_USERNAME, credentialId)
     if (!removed) {
@@ -683,7 +683,7 @@ adminRouter.get(
 
 adminRouter.get(
   '/oauth/provider/:name',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ name: string }>(async (req, res) => {
     const devMode = process.env.NODE_ENV === 'development'
     const provider = req.params.name
     const providerInfo = adminAccount.getOpenIdProvider(provider)
@@ -718,7 +718,7 @@ adminRouter.get(
 
 adminRouter.patch(
   '/oauth/provider/:name',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ name: string }>(async (req, res) => {
     const provider = req.params.name
     const providers = adminAccount.getOpenIdProvidersNames()
     if (!providers.includes(provider)) {

@@ -133,7 +133,7 @@ accountRouter.post(
 )
 accountRouter.post(
   '/:deviceId/revoke',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ deviceId: string }>(async (req, res) => {
     const accountId = res.locals.accountId
     const deviceId = req.params.deviceId
     const password = req.body.password

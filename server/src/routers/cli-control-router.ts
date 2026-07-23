@@ -65,7 +65,7 @@ cliControlRouter.post(
 
 cliControlRouter.delete(
   '/accounts/:accountId',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ accountId: string }>(async (req, res) => {
     const accountId = req.params.accountId?.trim()
     if (!accountId) {
       res.status(HttpStatusCode.BadRequest).send('Missing accountId')

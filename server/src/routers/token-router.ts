@@ -62,7 +62,7 @@ tokenRouter.get(
 // Revoke a token
 tokenRouter.delete(
   '/:tokenId',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ tokenId: string }>(async (req, res) => {
     const accountId = res.locals.accountId as string
     const { tokenId } = req.params
 

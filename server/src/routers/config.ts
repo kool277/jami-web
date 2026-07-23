@@ -43,7 +43,7 @@ configRouter.get(
 
 configRouter.get(
   '/languages/:language',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ language: string }>(async (req, res) => {
     const language = req.params.language
     try {
       const availableLanguages = await getAvailableLanguages()

@@ -33,7 +33,7 @@ nameserverRouter.use(extendIfGuest)
 
 nameserverRouter.get(
   '/name/:username',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ username: string }>(async (req, res) => {
     try {
       const result = await jamid.lookupUsername(req.params.username, '', res.locals.accountId)
       switch (result.state) {
@@ -55,7 +55,7 @@ nameserverRouter.get(
 
 nameserverRouter.get(
   '/jams/:username',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ username: string }>(async (req, res) => {
     try {
       const result = await jamid.searchUser(res.locals.accountId, req.params.username)
       switch (result.state) {
@@ -77,7 +77,7 @@ nameserverRouter.get(
 
 nameserverRouter.head(
   '/name/:username',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ username: string }>(async (req, res) => {
     try {
       const result = await jamid.lookupUsername(req.params.username, '', res.locals.accountId)
       switch (result.state) {
@@ -99,7 +99,7 @@ nameserverRouter.head(
 
 nameserverRouter.get(
   '/address/:address',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ address: string }>(async (req, res) => {
     if (req.params.address === undefined) {
       res.status(HttpStatusCode.BadRequest).send('Invalid address')
       return

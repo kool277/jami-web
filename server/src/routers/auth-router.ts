@@ -482,7 +482,7 @@ authRouter.get(
 
 authRouter.get(
   '/oauth/:provider/callback',
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ provider: string }>(async (req, res) => {
     const devMode = process.env.NODE_ENV === 'development'
     const provider = req.params.provider
     const code = req.query.code

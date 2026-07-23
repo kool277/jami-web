@@ -311,7 +311,7 @@ passkeyRouter.get(
 passkeyRouter.delete(
   '/credentials/:credentialId',
   authenticateToken,
-  asyncHandler(async (req, res) => {
+  asyncHandler<{ credentialId: string }>(async (req, res) => {
     const accountId: string = res.locals.accountId
     const username = findUsernameByAccountId(accountId)
     if (!username) {
