@@ -115,7 +115,7 @@ export class App {
       // Serve static files from the client
       this.app.use(express.static(clientDistPath, { index: false }))
 
-      this.app.get('*', (req, res) => {
+      this.app.get('/{*path}', (req, res) => {
         if (!isElectronMode) {
           const redirectPath = getAdminSetupRedirect(req.path, adminAccount.getLastWizardState())
           if (redirectPath) {
