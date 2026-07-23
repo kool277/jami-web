@@ -18,7 +18,7 @@
 import { HttpStatusCode, IAdminConfigState } from '@savoirfairelinux/jami-web-common'
 import { useQuery } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
-import { useContext, useEffect } from 'react'
+import { use, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
@@ -26,7 +26,7 @@ import { apiUrl } from '../utils/constants.js'
 
 export const useGetAdminConfigQuery = () => {
   const navigate = useNavigate()
-  const { setAlertContent } = useContext(AlertSnackbarContext)
+  const { setAlertContent } = use(AlertSnackbarContext)
   const query = useQuery({
     queryKey: ['admin', 'config'],
     queryFn: async () => {

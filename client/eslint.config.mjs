@@ -38,7 +38,7 @@ export default [
   eslintReact.configs['recommended-typescript'],
   ...fixupConfigRules(compat.extends('plugin:react-hooks/recommended')),
   {
-    ignores: ['vite.config.js'],
+    ignores: ['.tsbuild/**', 'vite.config.js'],
   },
   ...customConfig,
   {

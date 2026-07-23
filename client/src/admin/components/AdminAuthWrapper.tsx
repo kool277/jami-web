@@ -22,7 +22,7 @@ import { useNavigate } from 'react-router-dom'
 import LoadingPage from '../../components/Loading.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { isElectronMode } from '../../utils/electron.js'
-import { useCheckAdminTokenValidity } from '../services/adminQueries.js'
+import { checkAdminTokenValidity } from '../services/adminQueries.js'
 
 interface AdminAuthWrapperProps {
   children: React.ReactNode
@@ -31,7 +31,6 @@ interface AdminAuthWrapperProps {
 export default function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
   const { setAlertContent } = use(AlertSnackbarContext)
   const navigate = useNavigate()
-  const verifyAdminToken = checkAdminTokenValidity()
   const [loading, setLoading] = useState(() => !isElectronMode())
 
   useEffect(() => {
@@ -45,9 +44,14 @@ export default function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
       return
     }
 
-    verifyAdminToken.then((res) => {
+    let active = true
+    void checkAdminTokenValidity().then((isValid) => {
+      if (!active) {
+        return
+      }
+
       setLoading(false)
-      if (res === false) {
+      if (!isValid) {
         localStorage.removeItem('adminAccessToken')
         setAlertContent({
           messageI18nKey: 'unauthorized_access',
@@ -57,7 +61,11 @@ export default function AdminAuthWrapper({ children }: AdminAuthWrapperProps) {
         navigate('/admin/login')
       }
     })
-  }, [verifyAdminToken, navigate, setAlertContent])
+
+    return () => {
+      active = false
+    }
+  }, [navigate, setAlertContent])
 
   if (loading) {
     return <LoadingPage />
