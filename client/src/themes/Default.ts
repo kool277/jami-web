@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { createTheme, Direction, PaletteMode, SimplePaletteColorOptions } from '@mui/material'
+import { TypographyVariantsOptions } from '@mui/material/styles'
 import { type Theme as EmojiTheme } from 'emoji-picker-react'
 
 const lightEmojiTheme = 'light' as EmojiTheme
@@ -417,8 +418,24 @@ const palettes = {
   },
 }
 
+const typography: TypographyVariantsOptions = {
+  fontFamily: '"Ubuntu", "Helvetica", "Arial", sans-serif',
+  // Sizes are expressed in rem and line heights are unitless so the scale follows the
+  // reader's browser font size instead of overriding it.
+  h1: { fontWeight: 400, fontSize: '1.625rem', lineHeight: 1.38 },
+  h2: { fontWeight: 400, fontSize: '1.375rem', lineHeight: 1.36 },
+  h3: { fontWeight: 400, fontSize: '1.125rem', lineHeight: 1.44 },
+  h4: { fontWeight: 500, fontSize: '0.9375rem', lineHeight: 1.47 },
+  h5: { fontWeight: 500, fontSize: '0.8125rem', lineHeight: 1.46 },
+  body1: { fontWeight: 400, fontSize: '0.9375rem', lineHeight: 1.47 },
+  body2: { fontWeight: 400, fontSize: '0.8125rem', lineHeight: 1.46 },
+  caption: { fontWeight: 400, fontSize: '0.75rem', lineHeight: 1.33 },
+}
+
 export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
-  const partialTheme = createTheme({ ...palettes[mode], direction })
+  // Typography must be declared in the first `createTheme` call: MUI resolves `fontFamily` into
+  // each variant at creation time, so a later merge would leave every variant on the default font.
+  const partialTheme = createTheme({ ...palettes[mode], direction, typography })
   const palette = partialTheme.palette
   const ChatInterface = partialTheme.ChatInterface
   const BaseButton = partialTheme.BaseButton

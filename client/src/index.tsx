@@ -19,6 +19,7 @@
 import 'material-symbols/outlined.css'
 import './index.scss'
 import './i18n.js'
+import './themes/fonts.js'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'

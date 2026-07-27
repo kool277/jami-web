@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import 'material-symbols/outlined.css'
+import '../src/themes/fonts.js'
 
 import createCache from '@emotion/cache'
 import { CacheProvider } from '@emotion/react'
