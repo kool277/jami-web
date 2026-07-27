@@ -55,10 +55,7 @@ const ListLabel = styled(({ label, ...props }: ListLabelProps) => (
     primary={label}
     slotProps={{
       primary: {
-        sx: {
-          fontSize: '12px',
-          lineHeight: '16px',
-        },
+        variant: 'caption',
       },
     }}
   />

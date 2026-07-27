@@ -33,6 +33,7 @@ const AvatarMouseOver = ({ contactUri, displayName }: AvatarMouseOverProps) => {
     <Box sx={{}}>
       {isMouseOver && (
         <Typography
+          variant="caption"
           sx={{
             color: 'white',
             position: 'absolute',
@@ -41,7 +42,6 @@ const AvatarMouseOver = ({ contactUri, displayName }: AvatarMouseOverProps) => {
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
             padding: '0.2em 0.4em',
             borderRadius: '12px',
-            fontSize: '0.8em',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',

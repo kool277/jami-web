@@ -102,7 +102,7 @@ export default function Footer() {
       >
         <Box
           sx={{
-            fontSize: '13px',
+            typography: 'body2',
             display: 'flex',
             alignItems: 'center',
             width: '100%',
@@ -138,7 +138,7 @@ export default function Footer() {
             </Box>
             <Box
               sx={{
-                fontSize: '10px',
+                typography: 'caption',
                 justifyContent: 'flex-start',
                 textWrap: 'nowrap',
                 textAlign: 'left',

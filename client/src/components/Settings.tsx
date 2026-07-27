@@ -100,7 +100,7 @@ export const SettingsGroup = ({ label, children }: SettingGroupProps) => {
     <List
       sx={{ minWidth: '250px' }}
       subheader={
-        <ListSubheader sx={{ paddingLeft: 0, backgroundColor: 'inherit', fontSize: '18px' }}>{label}</ListSubheader>
+        <ListSubheader sx={{ paddingLeft: 0, backgroundColor: 'inherit', typography: 'h3' }}>{label}</ListSubheader>
       }
     >
       {children}

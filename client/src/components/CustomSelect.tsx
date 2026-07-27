@@ -39,7 +39,6 @@ const Input = styled(({ popupOpen, ...props }: InputProps) => <InputBase {...pro
   borderRadius: '9999px',
   border: `1px solid ${popupOpen ? theme.palette.primary.dark : '#0056995C'}`,
   boxSizing: 'border-box',
-  fontSize: '15px',
   padding: '16px',
   color: '#666666',
   fontWeight: 'medium',
@@ -76,11 +75,11 @@ const Listbox = styled('ul')(({ theme }) => ({
 }))
 
 const Option = styled('li')(({ theme }) => ({
+  ...theme.typography.body1,
   paddingLeft: '16px',
   paddingRight: '16px',
   paddingTop: '7.5px',
   paddingBottom: '7.5px',
-  fontSize: '15px',
   '&.Mui-focused': {
     backgroundColor: theme.palette.primary.light,
     color: theme.palette.primary.dark,

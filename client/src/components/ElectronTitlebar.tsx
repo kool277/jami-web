@@ -44,7 +44,7 @@ export default function ElectronTitlebar() {
         zIndex: theme.zIndex.appBar + 1,
       }}
     >
-      <Typography variant="caption" sx={{ fontWeight: 500, fontSize: '12px' }}>
+      <Typography variant="caption" sx={{ fontWeight: 500 }}>
         Jami
       </Typography>
 

@@ -28,7 +28,7 @@ export default styled(({ className, title, ...props }: TooltipProps) => (
     backgroundColor: theme.InfoTooltip.backgroundColor.main,
     color: theme.InfoTooltip.color.main,
     maxWidth: 220,
-    fontSize: theme.typography.pxToRem(15),
+    fontSize: theme.typography.body2.fontSize,
     boxShadow: '3px 3px 7px #00000029',
     borderRadius: '12px',
   },
