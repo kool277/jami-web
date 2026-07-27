@@ -15,11 +15,12 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { AdminWizardState, getAdminSetupRedirect } from '@savoirfairelinux/jami-web-common'
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
+import { AdminWizardState, getAdminSetupRedirect } from '@savoirfairelinux/jami-web-common'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import svgr from 'vite-plugin-svgr'
