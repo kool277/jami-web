@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
@@ -102,7 +102,9 @@ export default function ReplyToMessage() {
                 width: '100%',
               }}
             >
-              <div style={{ color: 'grey', fontSize: '13px' }}>{t('replying_to') + ' ' + getName()}</div>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {t('replying_to') + ' ' + getName()}
+              </Typography>
               <div style={{ backgroundColor: theme.Footer.backgroundColor, borderRadius: '12px', overflow: 'hidden' }}>
                 <Box
                   sx={{

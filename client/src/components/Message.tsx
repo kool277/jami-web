@@ -882,7 +882,7 @@ const UserMessageRow = memo(
             highlightReplyMessage(replyMessage.id)
           }}
         >
-          <Box sx={{ fontSize: '11px', color: 'text.secondary', fontWeight: 'bolder', mt: 1, mr: 1.5, mb: 0 }}>
+          <Box sx={{ typography: 'caption', color: 'text.secondary', fontWeight: 'bolder', mt: 1, mr: 1.5, mb: 0 }}>
             {t('replied_to') + ' ' + name}
           </Box>
           <Box data-cy="reply-message" sx={{ mb: '-16px', mr: 1.5 }}>
@@ -1348,7 +1348,7 @@ const Bubble = memo(
     const sentTimeStyle = {
       userSelect: 'none',
       color: getSentTimeColor(bubbleColor),
-      fontSize: 11,
+      typography: 'caption',
       flexWrap: 'nowrap',
       textWrap: 'nowrap',
       whiteSpace: 'nowrap',

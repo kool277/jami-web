@@ -146,14 +146,14 @@ export default function MediaViewer({
                     sx={{
                       maxWidth: isMedium ? '115px' : '160px',
                       color: 'white',
-                      fontSize: '11px',
+                      typography: 'caption',
                     }}
                   >
                     {isMedium ? <EllipsisMiddle text={member.contact.uri} /> : member.contact.uri}
                   </Box>
                 )}
                 {formattedTime && (
-                  <Box sx={{ color: 'white', fontSize: '11px' }}>
+                  <Box sx={{ color: 'white', typography: 'caption' }}>
                     {'Sent the '}
                     {formattedTime}
                   </Box>
@@ -269,7 +269,6 @@ const DefaultFile = ({ displayName, totalSize }: DefaultFileProps) => {
           flexDirection: 'column',
           justifyContent: 'center',
           gap: '10px',
-          fontSize: '16px',
           pl: '0px',
           marginLeft: '-8px',
         }}

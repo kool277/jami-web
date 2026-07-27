@@ -98,7 +98,7 @@ export default function ({
         <EllipsisMiddle text={displayName} />
         <Box
           sx={{
-            fontSize: '11px',
+            typography: 'caption',
             whiteSpace: 'nowrap',
             marginLeft: '2px',
             display: 'flex',
@@ -109,8 +109,8 @@ export default function ({
           {formattedTotalSize}{' '}
           {isNotAvailable && (
             <Typography
+              variant="caption"
               sx={{
-                fontSize: '11px',
                 fontStyle: 'italic',
                 marginTop: isMobile ? '-4px' : 'unset',
                 paddingBottom: isMobile ? '4px' : 'unset',

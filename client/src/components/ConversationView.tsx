@@ -150,7 +150,7 @@ export const ConversationHeader = () => {
             autoFocus
             placeholder="Search in conversation…"
             onChange={(e) => setSearchQuery(e.target.value)}
-            sx={{ flex: 1, fontSize: '0.95rem' }}
+            sx={{ flex: 1 }}
           />
         </>
       ) : (
@@ -192,10 +192,9 @@ export const ConversationHeader = () => {
             >
               <Typography
                 noWrap
+                variant="h4"
                 sx={{
                   textOverflow: 'ellipsis',
-                  fontSize: '0.95rem',
-                  fontWeight: 500,
                   maxWidth: isMobile ? '120px' : '400px',
                 }}
               >
@@ -204,9 +203,9 @@ export const ConversationHeader = () => {
               {subtitle && subtitle !== conversationDisplayName && (
                 <Typography
                   noWrap
+                  variant="caption"
                   sx={{
                     textOverflow: 'ellipsis',
-                    fontSize: '0.75rem',
                     color: theme.palette.text.secondary,
                     maxWidth: isMobile ? '120px' : '400px',
                   }}

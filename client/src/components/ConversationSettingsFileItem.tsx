@@ -239,7 +239,7 @@ const ConversationSettingsFileItem = ({
                   sx={{
                     display: 'flex',
                     color: 'white',
-                    fontSize: '10px',
+                    typography: 'caption',
                     width: '100%',
                     textAlign: 'center',
                     maxWidth: '100px',
@@ -254,7 +254,7 @@ const ConversationSettingsFileItem = ({
                   sx={{
                     display: 'flex',
                     color: 'white',
-                    fontSize: '10px',
+                    typography: 'caption',
                     width: '100%',
                     textAlign: 'center',
                     maxWidth: '90px',
@@ -271,7 +271,7 @@ const ConversationSettingsFileItem = ({
                 sx={{
                   display: 'flex',
                   color: 'white',
-                  fontSize: '10px',
+                  typography: 'caption',
                   width: '100%',
                   textAlign: 'center',
                   maxWidth: '90px',

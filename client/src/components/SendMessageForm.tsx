@@ -452,9 +452,9 @@ const SendMessageFormContent = ({ openFilePicker }: SendMessageFormProps) => {
     width: '100%',
   }
 
-  const durationStyles: React.CSSProperties = {
+  const durationStyles = {
     color: 'white',
-    fontSize: '14px',
+    typography: 'body2',
     marginLeft: '10px',
   }
 
@@ -499,7 +499,9 @@ const SendMessageFormContent = ({ openFilePicker }: SendMessageFormProps) => {
                 {/* canvas not responsible for now */}
                 <canvas ref={canvasRef} width={getAudioWavePixelWidth()} height={30} style={{ display: 'block' }} />
               </div>
-              <span style={durationStyles}>{formatTime(currentTime)}</span>
+              <Box component="span" sx={durationStyles}>
+                {formatTime(currentTime)}
+              </Box>
             </div>
           </Box>
           <Tooltip title={t('button_cancel_voice_recording')}>
@@ -544,7 +546,6 @@ const SendMessageFormContent = ({ openFilePicker }: SendMessageFormProps) => {
                 style={{
                   font: 'inherit',
                   color: 'inherit',
-                  fontSize: '14px',
                   width: '100%',
                   resize: 'none',
                   border: 'none',

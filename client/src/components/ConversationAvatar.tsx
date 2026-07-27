@@ -228,7 +228,7 @@ export const AvatarEditor = () => {
             boxShadow: '5px 5px 10px 0px #1f1f1f',
           }}
         >
-          <Typography sx={{ fontSize: '23px' }}>{t('change_picture')}</Typography>
+          <Typography variant="h2">{t('change_picture')}</Typography>
           <Stack
             direction="row"
             spacing="9px"

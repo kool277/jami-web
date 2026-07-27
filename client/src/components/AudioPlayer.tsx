@@ -127,7 +127,7 @@ function AudioPlayer({ blob, isAccountMessage }: AudioPlayerProps) {
 
   const audioDurationStyles = {
     color: 'white',
-    fontSize: '14px',
+    typography: 'body2',
     fontWeight: 'bold',
   }
 
@@ -157,7 +157,9 @@ function AudioPlayer({ blob, isAccountMessage }: AudioPlayerProps) {
         <Box sx={waveformContainerStyles} onClick={playPauseAudio}>
           {audioBuffer && <AudioVisual audioBuffer={audioBuffer} currentTime={currentTime} />}
         </Box>
-        <span style={audioDurationStyles}>{currentTime !== 0 ? getFormatedTime() : null}</span>
+        <Box component="span" sx={audioDurationStyles}>
+          {currentTime !== 0 ? getFormatedTime() : null}
+        </Box>
       </Box>
       {error && <p style={{ color: 'red' }}>{error}</p>}
     </Box>

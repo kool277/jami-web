@@ -149,7 +149,6 @@ export default function ConversationPreferences() {
           border: theme.ConversationPreferences.border,
           borderRadius: theme.Panel.borderRadius,
           boxShadow: theme.Panel.shadow,
-          fontSize: '15px',
           overflow: 'hidden',
         }}
       >
@@ -586,7 +585,7 @@ const MemberInfo = ({ member, isAdmin }: MemberInfoProps) => {
             minWidth: isMedium ? '120px' : '105px',
           }}
         >
-          {member.role && <Box sx={{ fontSize: 'smaller' }}>{t(member.role)}</Box>}
+          {member.role && <Box sx={{ typography: 'caption' }}>{t(member.role)}</Box>}
           <MoreHorizIcon
             sx={{
               '&:hover': { cursor: 'pointer' },
