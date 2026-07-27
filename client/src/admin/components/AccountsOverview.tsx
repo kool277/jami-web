@@ -321,7 +321,7 @@ export default function AccountsOverview() {
                     >
                       <TableCell sx={{ paddingLeft: '0.5%' }} component="th" id={labelId} scope="row" padding="none">
                         {row.username}
-                        <Box sx={{ fontSize: '11px', color: 'grey' }}>{row.accountUri}</Box>
+                        <Box sx={{ typography: 'caption', color: 'text.secondary' }}>{row.accountUri}</Box>
                       </TableCell>
                       <TableCell align="right">{row.accountId}</TableCell>
                       <TableCell align="right">{row.auth}</TableCell>

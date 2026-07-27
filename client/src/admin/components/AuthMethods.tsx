@@ -72,7 +72,7 @@ export default function AuthMethods() {
   }
 
   const activeIndicatorStyle = {
-    fontSize: '0.8rem',
+    typography: 'caption',
     marginTop: '-0.4rem',
   }
   const disabledColor = '#CC0022'

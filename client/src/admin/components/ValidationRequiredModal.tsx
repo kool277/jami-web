@@ -69,9 +69,9 @@ export default function ValidationRequiredModal({
         <CardContent sx={{ height: '100%' }}>
           <Box
             sx={{
-              fontSize: '14px',
+              typography: 'body2',
               display: 'flex',
-              color: 'grey',
+              color: 'text.secondary',
               maxWidth: '100%',
               whiteSpace: 'pre-wrap',
               wordWrap: 'break-word',

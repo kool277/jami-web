@@ -130,7 +130,9 @@ const AdminConfigureNameServerForm = ({
             justifyContent: 'center',
           }}
         >
-          <Typography sx={{ fontSize: 'smaller', maxWidth: '500px' }}>{t('setting_can_be_changed_later')}</Typography>
+          <Typography variant="caption" sx={{ maxWidth: '500px' }}>
+            {t('setting_can_be_changed_later')}
+          </Typography>
         </Box>
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '24px' }}>

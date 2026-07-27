@@ -66,7 +66,7 @@ export default function OpenIdAuthMethod() {
   }
 
   const activeIndicatorStyle = {
-    fontSize: '0.8rem',
+    typography: 'caption',
     marginTop: '-0.4rem',
   }
 

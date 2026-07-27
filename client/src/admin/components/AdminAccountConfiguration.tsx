@@ -130,7 +130,7 @@ export default function AuthMethods() {
                 />
                 <Box
                   sx={{
-                    fontSize: '11px',
+                    typography: 'caption',
                     color: '#CC0022',
                     visibility:
                       newPassword !== repeatPassword && newPassword !== '' && repeatPassword !== ''

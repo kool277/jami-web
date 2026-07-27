@@ -126,7 +126,7 @@ const AdminConfigureJamsForm = ({
         </Box>
 
         <Box sx={{ marginTop: '16px' }}>
-          <Typography sx={{ fontSize: 'smaller' }}>{t('setting_can_be_changed_later')}</Typography>
+          <Typography variant="caption">{t('setting_can_be_changed_later')}</Typography>
         </Box>
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: '24px' }}>
