@@ -430,6 +430,7 @@ const typography: TypographyVariantsOptions = {
   body1: { fontWeight: 400, fontSize: '0.9375rem', lineHeight: 1.47 },
   body2: { fontWeight: 400, fontSize: '0.8125rem', lineHeight: 1.46 },
   caption: { fontWeight: 400, fontSize: '0.75rem', lineHeight: 1.33 },
+  button: { fontWeight: 700, fontSize: '0.9375rem', lineHeight: 1.13, textTransform: 'none' },
 }
 
 export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
@@ -471,10 +472,6 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
         styleOverrides: {
           root: {
             height: '35px',
-            fontWeight: 700,
-            fontSize: '15px',
-            lineHeight: '17px',
-            textTransform: 'none',
             borderRadius: '9999px',
             transition: 'background-color 150ms ease, color 150ms ease, border-color 150ms ease',
             '&.Mui-focusVisible': {
@@ -676,7 +673,6 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
       MuiFormHelperText: {
         styleOverrides: {
           root: {
-            fontSize: '12px',
             textAlign: 'center',
           },
         },
@@ -685,7 +681,6 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
         styleOverrides: {
           root: {
             color: ChatInterface.inputColor,
-            fontSize: '15px',
           },
         },
       },
