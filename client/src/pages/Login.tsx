@@ -290,9 +290,8 @@ function LoginForm() {
           }}
         >
           <Typography
-            variant="body1"
+            variant="body2"
             sx={{
-              fontSize: 13,
               visibility: !data.localAuthEnabled ? 'hidden' : 'visible',
             }}
           >

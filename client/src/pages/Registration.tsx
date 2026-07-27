@@ -210,12 +210,7 @@ function RegistrationForm() {
             justifyContent: 'center',
           }}
         >
-          <Typography
-            variant="body1"
-            sx={{
-              fontSize: 13,
-            }}
-          >
+          <Typography variant="body2">
             {t('registration_form_to_login_text')} &nbsp;
             <Link style={{ color: theme.ChatInterface.inputColor }} data-cy="login-link" to={'/login'}>
               {t('registration_form_to_login_link')}

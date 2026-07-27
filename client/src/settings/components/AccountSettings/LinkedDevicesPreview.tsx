@@ -56,9 +56,9 @@ function LinkedDevicesPreview() {
                 primary={
                   <>
                     {account.details['Account.deviceName']}
-                    <span style={{ fontSize: 'small', fontWeight: 'bolder', marginLeft: '3%' }}>
+                    <Box component="span" sx={{ typography: 'caption', fontWeight: 'bolder', marginLeft: '3%' }}>
                       {t('current_device')}
-                    </span>
+                    </Box>
                   </>
                 }
                 secondary={

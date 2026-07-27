@@ -224,14 +224,19 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: '5px', alignItems: 'center', alignContent: 'center' }}>
           <Box
-            sx={{ fontSize: '14px', display: 'flex', justifyContent: 'center', alignContent: 'center', gap: '10px' }}
+            sx={{ typography: 'body2', display: 'flex', justifyContent: 'center', alignContent: 'center', gap: '10px' }}
           >
             {' '}
             <DevicesIcon sx={{ height: '20px', width: '20px', marginTop: '1px' }} />{' '}
             <Box sx={{ textWrap: 'nowrap' }}>{account.details['Account.deviceName']}</Box>
           </Box>{' '}
           <Box
-            sx={{ fontFamily: 'monospace', fontSize: '12px', marginTop: '2px', maxWidth: isMobile ? '150px' : 'unset' }}
+            sx={{
+              typography: 'caption',
+              fontFamily: 'monospace',
+              marginTop: '2px',
+              maxWidth: isMobile ? '150px' : 'unset',
+            }}
           >
             <EllipsisMiddle text={account.volatileDetails['Account.deviceID']} />
           </Box>
@@ -373,7 +378,7 @@ export default function LinkedDevices() {
                           {row.deviceName}
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ fontFamily: 'monospace', fontSize: '12px' }} align="left">
+                      <TableCell sx={{ typography: 'caption', fontFamily: 'monospace' }} align="left">
                         {row.deviceId}
                       </TableCell>
                       <TableCell padding="checkbox">
