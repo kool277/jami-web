@@ -20,9 +20,9 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import SettingTips from '../settings/components/GeneralSettings/SettingTips.js'
 import { buildDefaultTheme } from '../themes/Default.js'
 import { areTipsEnabled, setTipsEnabled } from '../utils/tips.js'
-import SettingTips from './GeneralSettings/SettingTips.js'
 import TipsDialog from './TipsDialog.js'
 
 vi.mock('react-i18next', () => ({

@@ -19,7 +19,7 @@
 import { Box, Card, CardContent, CardHeader, Modal, useTheme } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
-import BaseButton from '../common/BaseButton.js'
+import BaseButton from '../../components/common/BaseButton.js'
 
 interface ValidationRequiredModalProps {
   open: boolean

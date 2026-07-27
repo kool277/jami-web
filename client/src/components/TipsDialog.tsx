@@ -54,6 +54,7 @@ export default function TipsDialog() {
   const handleClose = useCallback(() => {
     setIsOpen(false)
     setHasNavigated(false)
+    triggerRef.current?.focus()
   }, [])
 
   const handleToggle = () => {
