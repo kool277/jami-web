@@ -674,7 +674,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   })
 
   // --- Catch-all for unimplemented routes ---
-  api.all('*', (req, res) => {
+  api.all('/{*path}', (req, res) => {
     console.log(`[mock-server] Unhandled: ${req.method} ${req.url}`)
     res.status(501).json({ error: 'Not implemented in mock server', path: req.url })
   })
