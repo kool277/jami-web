@@ -63,7 +63,13 @@ type CorsOriginCallback = (
   callback: (err: Error | null, origin?: boolean | string | RegExp | Array<boolean | string | RegExp>) => void,
 ) => void
 
-function getAllowedCorsOrigins(): string[] {
+// Vite falls back to 3001, 3002, etc. when 3000 is already taken by another
+// dev server, so dev mode must not hardcode a single port or the client
+// silently loses all API access (requests "succeed" but the browser blocks
+// the response due to the missing CORS header).
+const DEV_ORIGIN_PATTERN = /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/
+
+function getAllowedCorsOrigins(): string[] | RegExp {
   const configuredOrigins = process.env.CORS_ORIGINS?.split(',')
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0)
@@ -72,7 +78,7 @@ function getAllowedCorsOrigins(): string[] {
     return configuredOrigins
   }
 
-  return isDevMode ? ['http://localhost:3000', 'http://127.0.0.1:3000'] : []
+  return isDevMode ? DEV_ORIGIN_PATTERN : []
 }
 
 function getClientDistPath(): string {
@@ -104,8 +110,10 @@ export class App {
       }),
     )
     const allowedCorsOrigins = getAllowedCorsOrigins()
+    const isOriginAllowed = (origin: string) =>
+      allowedCorsOrigins instanceof RegExp ? allowedCorsOrigins.test(origin) : allowedCorsOrigins.includes(origin)
     const corsOrigin: CorsOriginCallback = (origin, callback) => {
-      if (!origin || allowedCorsOrigins.includes(origin)) {
+      if (!origin || isOriginAllowed(origin)) {
         callback(null, true)
         return
       }

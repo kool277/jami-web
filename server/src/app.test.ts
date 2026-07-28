@@ -128,16 +128,25 @@ describe('App security middleware', () => {
     assert.equal(rejectedResponse.headers.get('access-control-allow-origin'), null)
   })
 
-  it('limits development defaults to the local Vite origins', async () => {
+  it('allows any localhost dev port and rejects non-loopback origins', async () => {
     const app = await createApp('development')
 
-    for (const origin of ['http://localhost:3000', 'http://127.0.0.1:3000']) {
+    // Vite falls back to 3001, 3002, ... when 3000 is taken; dev defaults
+    // must accept any loopback port, not just a hardcoded one.
+    for (const origin of [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:3001',
+      'https://localhost:5173',
+    ]) {
       const response = await request(app, '/api/missing', { headers: { Origin: origin } })
       assert.equal(response.headers.get('access-control-allow-origin'), origin)
     }
 
-    const rejectedResponse = await request(app, '/api/missing', { headers: { Origin: 'http://localhost:5173' } })
-    assert.equal(rejectedResponse.headers.get('access-control-allow-origin'), null)
+    for (const origin of ['http://192.168.1.10:3000', 'https://chat.example.com']) {
+      const rejectedResponse = await request(app, '/api/missing', { headers: { Origin: origin } })
+      assert.equal(rejectedResponse.headers.get('access-control-allow-origin'), null)
+    }
   })
 
   it('rejects browser origins in production without an allowlist while allowing requests without Origin', async () => {
