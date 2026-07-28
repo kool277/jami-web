@@ -163,6 +163,11 @@ const palettes = {
   },
 }
 
+// One step is 8px. Declared rather than left to the MUI default so the grid is a stated decision:
+// layout reaches for the scale (`gap: 1`, `p: 2`) instead of pixel strings, which is what keeps the
+// competing 5/10/15px rhythm from creeping back in.
+const spacing = 8
+
 const typography: TypographyVariantsOptions = {
   fontFamily: '"Ubuntu", "Helvetica", "Arial", sans-serif',
   // Sizes are expressed in rem and line heights are unitless so the scale follows the
@@ -181,7 +186,7 @@ const typography: TypographyVariantsOptions = {
 export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
   // Typography must be declared in the first `createTheme` call: MUI resolves `fontFamily` into
   // each variant at creation time, so a later merge would leave every variant on the default font.
-  const partialTheme = createTheme({ ...palettes[mode], direction, typography })
+  const partialTheme = createTheme({ ...palettes[mode], direction, typography, spacing })
   const palette = partialTheme.palette
   const ChatInterface = partialTheme.ChatInterface
   // The button accent is the strong end of the primary ramp in both modes, so it stays in step

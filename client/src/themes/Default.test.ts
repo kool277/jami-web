@@ -62,6 +62,19 @@ describe('default theme', () => {
     })
   }
 
+  for (const mode of modes) {
+    it(`exposes a callable 8px spacing scale in ${mode} mode`, () => {
+      const theme = buildDefaultTheme(mode, 'ltr')
+
+      // `createTheme(base, overrides)` deep-merges the overrides over an already built theme, so a
+      // scalar `spacing` there replaces the function MUI derived from it and every styled component
+      // that calls `theme.spacing(...)` throws at render time.
+      expect(typeof theme.spacing).toBe('function')
+      expect(theme.spacing(1)).toBe('8px')
+      expect(theme.spacing(2)).toBe('16px')
+    })
+  }
+
   it('keeps the two modes structurally identical', () => {
     const light = buildDefaultTheme('light', 'ltr') as unknown as Record<string, unknown>
     const dark = buildDefaultTheme('dark', 'ltr') as unknown as Record<string, unknown>

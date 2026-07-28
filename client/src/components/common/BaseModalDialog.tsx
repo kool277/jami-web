@@ -107,7 +107,7 @@ export default function BaseModalDialog(props: BaseModalDialogProps) {
       }}
     >
       {title != null && (
-        <DialogTitle id={titleId} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+        <DialogTitle id={titleId} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
           {titleIcon}
           <Typography component="span" noWrap sx={{ display: 'block' }}>
             {title}
