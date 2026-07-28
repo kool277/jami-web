@@ -45,7 +45,7 @@ import { type EmojiClickData, EmojiPicker } from '../utils/emojiPicker.js'
 import { getSentTimeColor, getTextColor } from '../utils/messagecolor.js'
 import { isEmoji } from '../utils/utils.js'
 import AudioPlayer from './AudioPlayer.js'
-import { EditPictureButton, EmojiButton, MoreButton, ReplyMessageButton } from './Button.js'
+import BaseIconButton from './common/BaseIconButton.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import LoadingPage from './Loading.js'
 import MediaViewer from './MediaViewer.js'
@@ -54,11 +54,14 @@ import MessageReaction from './MessageReaction.js'
 import MessageStatus from './MessageStatus.js'
 import PopoverList, { PopoverListItemData } from './PopoverList.js'
 import {
+  Arrow3Icon,
   ArrowLeftCurved,
   ArrowLeftDown,
   ArrowRightUp,
+  CrossIcon,
   DownloadFileIcon,
   OppositeArrowsIcon,
+  PenIcon,
   TrashBinIcon,
   TwoSheetsIcon,
 } from './SvgIcon.js'
@@ -1015,6 +1018,7 @@ const MessageTooltip = styled(
     const [tooltipOpen, setTooltipOpen] = useState(false)
     const deleteMessageMutation = useDeleteMessageMutation(conversationId)
     const theme = useTheme()
+    const { t } = useTranslation()
     const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
     const { setAlertContent } = use(AlertSnackbarContext)
 
@@ -1201,16 +1205,49 @@ const MessageTooltip = styled(
                   cursor: 'pointer',
                 }}
               >
-                <EmojiButton data-cy="emoji-reaction-button" emoji="😃" onClick={onEmojiClickHandler} />
-                <ReplyMessageButton data-cy="reply-button" onClick={onReply} />
+                <BaseIconButton
+                  data-cy="emoji-reaction-button"
+                  aria-label={t('message_react')}
+                  tooltip={t('message_react')}
+                  sx={{ fontSize: '20px', height: '20px', width: '20px' }}
+                  onClick={onEmojiClickHandler}
+                >
+                  😃
+                </BaseIconButton>
+                <BaseIconButton
+                  data-cy="reply-button"
+                  aria-label={t('message_reply')}
+                  tooltip={t('message_reply')}
+                  sx={{ color: 'primary.dark', fontSize: '20px', height: '20px', width: '20px' }}
+                  onClick={onReply}
+                >
+                  <Arrow3Icon fontSize="inherit" />
+                </BaseIconButton>
                 {account.getUri() === message.author && (
-                  <EditPictureButton
+                  <BaseIconButton
                     data-cy="edit-button"
+                    aria-label={t('message_edit')}
+                    tooltip={t('message_edit')}
+                    sx={{ fontSize: '20px', height: '20px', width: '20px' }}
                     onClick={onEdit}
-                    sx={{ minHeight: '20px', minWidth: '20px' }}
-                  />
+                  >
+                    <PenIcon fontSize="inherit" />
+                  </BaseIconButton>
                 )}
-                <MoreButton onClick={toggleMoreMenu} />
+                <BaseIconButton
+                  aria-label={t('message_more_options')}
+                  tooltip={t('message_more_options')}
+                  sx={{
+                    border: `1px solid ${theme.SvgIcons.color}`,
+                    fontSize: '10px',
+                    height: '20px',
+                    width: '20px',
+                    '&:active': { color: theme.palette.common.white, background: theme.palette.primary.dark },
+                  }}
+                  onClick={toggleMoreMenu}
+                >
+                  <CrossIcon fontSize="inherit" />
+                </BaseIconButton>
               </Stack>
               {open && (
                 <>

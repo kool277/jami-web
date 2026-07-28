@@ -100,7 +100,7 @@ test.describe('Messenger - Conversation View', () => {
   test('emoji picker fits in the viewport when first opened', async ({ page }) => {
     await page.goto('/conversation/conv-1')
 
-    await page.getByRole('button', { name: 'select emoji' }).click()
+    await page.getByRole('button', { name: 'Select an emoji' }).click()
 
     const picker = page.locator('aside.EmojiPickerReact')
     await expect(picker).toBeVisible({ timeout: 15_000 })
