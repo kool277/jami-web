@@ -129,7 +129,7 @@ export default function AdminLogin() {
           }}
         >
           <Typography variant="body2">
-            <Link style={{ color: theme.ChatInterface.inputColor }} to={'/'}>
+            <Link style={{ color: theme.palette.text.primary }} to={'/'}>
               {t('admin_login_to_main')}
             </Link>
           </Typography>

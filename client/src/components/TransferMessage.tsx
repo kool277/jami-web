@@ -114,7 +114,7 @@ const TransferMessage = ({ conversationId, message, onClose, open }: TransferMes
           gap: 0,
           padding: '1px',
           backgroundColor: theme.palette.background.paper,
-          color: theme.ChatInterface.fontColor,
+          color: theme.palette.text.primary,
           maxWidth: isMobile ? '300px' : 'unset',
           minWidth: isMobile ? 'unset' : '350px',
         }}

@@ -25,9 +25,7 @@ const darkEmojiTheme = 'dark' as EmojiTheme
 declare module '@mui/material/styles' {
   interface Theme {
     ChatInterface: {
-      inputColor: string
       messageColor: string
-      fontColor: string
       replyBorderColor: string
       messageReplyColor: string
       reactionModalBackground: string
@@ -80,9 +78,7 @@ const palettes = {
       },
     },
     ChatInterface: {
-      inputColor: 'black',
       messageColor: '#F0EBE3',
-      fontColor: 'black',
       replyBorderColor: '2px solid white',
       messageReplyColor: '#E8E2D9',
       reactionModalBackground: '#F0EBE3',
@@ -135,9 +131,7 @@ const palettes = {
       },
     },
     ChatInterface: {
-      inputColor: 'white',
       messageColor: '#6C6C6C',
-      fontColor: 'white',
       replyBorderColor: '3px solid #121212',
       messageReplyColor: '#404040',
       reactionModalBackground: '#1e1f1e',
@@ -392,7 +386,7 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
       MuiInput: {
         styleOverrides: {
           root: {
-            color: ChatInterface.inputColor,
+            color: palette.text.primary,
             '&.Mui-error': {
               color: palette.error.main,
             },
@@ -437,7 +431,7 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
       MuiInputLabel: {
         styleOverrides: {
           root: {
-            color: ChatInterface.inputColor,
+            color: palette.text.primary,
           },
         },
       },

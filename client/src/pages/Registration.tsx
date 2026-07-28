@@ -212,7 +212,7 @@ function RegistrationForm() {
         >
           <Typography variant="body2">
             {t('registration_form_to_login_text')} &nbsp;
-            <Link style={{ color: theme.ChatInterface.inputColor }} data-cy="login-link" to={'/login'}>
+            <Link style={{ color: theme.palette.text.primary }} data-cy="login-link" to={'/login'}>
               {t('registration_form_to_login_link')}
             </Link>
           </Typography>

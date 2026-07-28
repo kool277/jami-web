@@ -1356,7 +1356,7 @@ const Bubble = memo(
     }, [isFirstOfGroup, isLastOfGroup, position])
     const nonMediaBubbleStyle = {
       border: hasReply ? theme.ChatInterface.replyBorderColor : 'unset',
-      color: position === 'start' ? theme.ChatInterface.fontColor : getTextColor(bubbleColor),
+      color: position === 'start' ? theme.palette.text.primary : getTextColor(bubbleColor),
       maxWidth: maxWidth || '100%',
       backgroundColor: bubbleColor,
       padding: isMedia && !deleted ? null : bubblePadding,

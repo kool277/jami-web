@@ -296,7 +296,7 @@ function LoginForm() {
             }}
           >
             {t('login_form_to_registration_text')} &nbsp;
-            <Link style={{ color: theme.ChatInterface.inputColor }} data-cy="register-link" to={'/register'}>
+            <Link style={{ color: theme.palette.text.primary }} data-cy="register-link" to={'/register'}>
               {t('login_form_to_registration_link')}
             </Link>
           </Typography>
