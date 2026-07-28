@@ -276,6 +276,8 @@
   "message_edit": "Edit message",
   "message_more_options": "More message options",
   "message_react": "React to message",
+  "message_reaction_remove": "Remove {{reaction}} reaction",
+  "message_reactions": "Message reactions",
   "message_reply": "Reply to message",
   "message_input_placeholder_more": "Write to {{member0}}, {{member1}}, {{member2}} and {{excess}} other members",
   "message_member_banned": "{{user}} was blocked from the conversation.",

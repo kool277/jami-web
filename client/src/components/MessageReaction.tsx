@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Modal, useTheme } from '@mui/material'
+import { Box } from '@mui/material'
 import { Message, ReactionRemoved, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { motion } from 'framer-motion'
 import { memo, useMemo, useState } from 'react'
@@ -25,8 +25,9 @@ import { useTranslation } from 'react-i18next'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
+import BaseButton from './common/BaseButton.js'
+import BaseModalDialog from './common/BaseModalDialog.js'
 import EllipsisMiddle from './EllipsisMiddle.js'
-import { CloseIcon } from './SvgIcon.js'
 
 export interface MessageReactionProps {
   message: Message
@@ -46,7 +47,6 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
   const { account } = useAuthContext()
   const isAccount = account.getUri() === message.author
   const membersMap = useMemo(() => new Map(members.map((member) => [member.contact.uri, member])), [members])
-  const theme = useTheme()
   const reactionsArray = useMemo(() => {
     const reactionAttributesArray: Array<ReactionAttributes> = []
 
@@ -145,101 +145,66 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
         </motion.div>
       </Box>
 
-      <Modal
+      <BaseModalDialog
         open={isOpen && reactionsArray.length > 0}
+        selectedValue=""
+        title={t('message_reactions')}
         onClose={handleCloseModal}
-        sx={{
-          width: '350px',
-          height: 'auto',
-          maxHeight: '40%',
-          position: 'absolute',
-          borderRadius: '15px',
-          border: 'none',
-          backgroundColor: 'background.paper',
-          alignContent: 'center',
-          alignItems: 'center',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          boxShadow: '0px 0px 15px rgba(0, 0, 0, 0.2)',
-          overflow: 'hidden',
-        }}
+        closePolicy={['escapeKeyDown', 'backdropClick']}
+        dialogWidth={350}
+        contentSx={{ maxHeight: '40vh' }}
+        actions={
+          <BaseButton variant="text" onClick={handleCloseModal}>
+            {t('dialog_close')}
+          </BaseButton>
+        }
       >
         <Box
           sx={{
-            backgroundColor: 'background.paper',
-            borderRadius: '15px',
-            padding: '10px',
             display: 'flex',
-            height: '100%',
-            width: '100%',
             flexDirection: 'column',
-            overflow: 'hidden',
+            alignItems: 'center',
+            gap: 1,
           }}
         >
-          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-            <CloseIcon
-              sx={{
-                padding: '5px',
-                fontSize: '30px',
-                borderRadius: '12px',
-                ':hover': {
-                  cursor: 'pointer',
-                  backgroundColor: theme.palette.background.paper,
-                  transition: 'background-color 0.25s ease-in-out',
-                },
-              }}
-              onClick={() => handleCloseModal()}
-            />
-          </Box>
-
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              alignContent: 'center',
-            }}
-          >
-            {message.reactions.map((reaction) => {
-              const author = membersMap.get(reaction.author)?.contact.uri
-              return (
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr auto',
-                    alignItems: 'center',
-                    gap: 2,
-                    width: '75%',
-                    textAlign: 'center',
-                  }}
-                  key={reaction.id}
-                >
-                  {author === account.getUri() ? (
-                    <>
-                      <Box>{t('yourself')}</Box>
-                      <Box
-                        sx={{ ':hover': { cursor: 'pointer', transform: 'scale(1.2)' } }}
-                        onClick={() => reaction.id && handleDeleteReaction(reaction.id)}
-                      >
-                        {reaction.body}
-                      </Box>
-                    </>
-                  ) : (
-                    <>
-                      <Box sx={{ maxWidth: '200px' }}>
-                        <EllipsisMiddle text={author || t('unknown')} />
-                      </Box>
-                      <Box>{reaction.body}</Box>
-                    </>
-                  )}
-                </Box>
-              )
-            })}
-          </Box>
+          {message.reactions.map((reaction) => {
+            const author = membersMap.get(reaction.author)?.contact.uri
+            return (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr auto',
+                  alignItems: 'center',
+                  gap: 2,
+                  width: '100%',
+                  textAlign: 'center',
+                }}
+                key={reaction.id}
+              >
+                {author === account.getUri() ? (
+                  <>
+                    <Box>{t('yourself')}</Box>
+                    <BaseButton
+                      aria-label={t('message_reaction_remove', { reaction: reaction.body })}
+                      variant="text"
+                      onClick={() => reaction.id && handleDeleteReaction(reaction.id)}
+                    >
+                      {reaction.body}
+                    </BaseButton>
+                  </>
+                ) : (
+                  <>
+                    <Box sx={{ maxWidth: '200px' }}>
+                      <EllipsisMiddle text={author || t('unknown')} />
+                    </Box>
+                    <Box>{reaction.body}</Box>
+                  </>
+                )}
+              </Box>
+            )
+          })}
         </Box>
-      </Modal>
+      </BaseModalDialog>
     </>
   )
 }
