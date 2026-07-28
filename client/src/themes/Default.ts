@@ -168,6 +168,14 @@ const palettes = {
       action: {
         disabled: '#7F7F7F',
       },
+      background: {
+        default: '#FEFCF9',
+        paper: '#FAF6F0',
+      },
+      text: {
+        primary: '#1A1A1A',
+        secondary: '#5C5C5C',
+      },
     },
     InfoTooltip: {
       backgroundColor: {
@@ -305,6 +313,14 @@ const palettes = {
       },
       action: {
         disabled: '#7F7F7F',
+      },
+      background: {
+        default: '#050505',
+        paper: '#181818',
+      },
+      text: {
+        primary: '#F5F5F5',
+        secondary: '#B3B3B3',
       },
     },
     InfoTooltip: {
