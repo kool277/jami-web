@@ -49,15 +49,10 @@ import {
 import { useTranslation } from 'react-i18next'
 
 import { type EmojiClickData } from '../utils/emojiPicker.js'
-import {
-  AddCircleIcon as QuestionMark,
-  CancelIcon as RadioButtonUnchecked,
-  CheckedIcon as RadioButtonChecked,
-} from './SvgIcon.js'
+import { CancelIcon as RadioButtonUnchecked, CheckedIcon as RadioButtonChecked } from './SvgIcon.js'
 import {
   Arrow2Icon,
   Arrow3Icon,
-  ArrowIcon,
   AudioCallIcon,
   CameraIcon,
   CameraInBubbleIcon,
@@ -73,7 +68,6 @@ import {
   MicroInBubbleIcon,
   PaperClipIcon,
   PenIcon,
-  PeopleWithPlusSignIcon,
   SaltireIcon,
   VideoCallIcon,
 } from './SvgIcon.js'
@@ -289,10 +283,6 @@ export const InfoButton = ({ tooltipTitle, ...props }: InfoButtonProps) => {
   )
 }
 
-export const TipButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="tip" Icon={QuestionMark} size="medium" />
-}
-
 export const MoreButton = styled((props: IconButtonProps) => {
   return (
     <IconButton {...props} disableRipple={true} aria-label="more">
@@ -311,23 +301,6 @@ export const MoreButton = styled((props: IconButtonProps) => {
   '&:active': {
     color: '#FFF',
     background: theme.palette.primary.dark,
-  },
-}))
-
-export const BackButton = styled((props: IconButtonProps) => {
-  return (
-    <IconButton {...props} disableRipple={true} aria-label="back">
-      <ArrowIcon fontSize="inherit" />
-    </IconButton>
-  )
-})(({ theme }) => ({
-  color: theme.SvgIcons.color,
-  fontSize: '15px',
-  height: '30px',
-  width: '30px',
-  borderRadius: '50%',
-  '&:hover': {
-    background: theme.SvgIcons.hoverBackgroundColor,
   },
 }))
 
@@ -417,10 +390,6 @@ export const SquareButton = styled(({ Icon, tooltip, ...props }: ShapedButtonPro
     color: theme.Buttons.disabledColor,
   },
 }))
-
-export const AddParticipantButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="add participant" Icon={PeopleWithPlusSignIcon} />
-}
 
 export const RecordVideoMessageButton = (props: IconButtonProps) => {
   const { t } = useTranslation()
