@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Typography, useTheme } from '@mui/material'
+import { alpha, Box, Typography, useTheme } from '@mui/material'
 import { use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -57,7 +57,7 @@ export default function JamiIdDisplay({ account }: JamiIdDisplayProps) {
   return (
     <Box
       sx={{
-        backgroundColor: theme.WelcomePage.middleBoxBackgroundColor,
+        backgroundColor: alpha(theme.palette.background.paper, 0.8),
         borderRadius: 3,
         display: 'flex',
         gap: 1,

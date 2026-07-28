@@ -27,15 +27,7 @@ const modes: PaletteMode[] = ['light', 'dark']
  * one mode only resolves to undefined there, which reaches the browser as a
  * silently dropped declaration rather than an error.
  */
-const customSlots = [
-  'ChatInterface',
-  'WelcomePage',
-  'EmojiPicker',
-  'Panel',
-  'SvgIcons',
-  'Buttons',
-  'BaseButton',
-] as const
+const customSlots = ['ChatInterface', 'EmojiPicker', 'Panel', 'SvgIcons', 'Buttons', 'BaseButton'] as const
 
 function leaves(value: unknown, path: string): [string, unknown][] {
   if (value === null || typeof value !== 'object') {

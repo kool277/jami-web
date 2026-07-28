@@ -157,7 +157,7 @@ export default function WelcomePage() {
           </Box>
           <Box
             sx={{
-              backgroundColor: theme.WelcomePage.infoBackgroundColor,
+              backgroundColor: 'background.paper',
               borderRadius: '12px',
               maxWidth: '100%',
               minWidth: '180px',
@@ -214,7 +214,7 @@ export default function WelcomePage() {
         </Box>
         <Box
           sx={{
-            backgroundColor: theme.WelcomePage.infoBackgroundColor,
+            backgroundColor: 'background.paper',
             borderRadius: '12px',
             maxHeight: '240px',
             overflow: 'hidden',

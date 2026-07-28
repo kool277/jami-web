@@ -39,13 +39,6 @@ declare module '@mui/material/styles' {
       selectedColor: string
       backgroundColor: string
     }
-    WelcomePage: {
-      infoBackgroundColor: string
-      tipsBackgroundColor: string
-      tipsHoverBackgroundColor: string
-      middleBoxBackgroundColor: string
-      iconsColor: string
-    }
     EmojiPicker: {
       backgroundColor: EmojiTheme
     }
@@ -147,13 +140,6 @@ const palettes = {
       selectedColor: '#EDE7DD',
       backgroundColor: '#FEFCF9',
     },
-    WelcomePage: {
-      infoBackgroundColor: '#f0efef',
-      tipsBackgroundColor: 'rgba(255, 255, 255, 0.3)',
-      tipsHoverBackgroundColor: 'rgba(255, 255, 255, 0.6)',
-      middleBoxBackgroundColor: 'rgba(255, 255, 255, 0.5)',
-      iconsColor: '#005699',
-    },
     EmojiPicker: {
       backgroundColor: lightEmojiTheme,
     },
@@ -247,13 +233,6 @@ const palettes = {
       reactionModalBackground: '#1e1f1e',
       selectedColor: '#122D42',
       backgroundColor: '#050505',
-    },
-    WelcomePage: {
-      infoBackgroundColor: '#333333',
-      tipsBackgroundColor: 'rgba(0, 0, 0, 0.8)',
-      tipsHoverBackgroundColor: 'rgba(0, 0, 0, 0.5)',
-      middleBoxBackgroundColor: 'rgba(0, 0, 0, 0.8)',
-      iconsColor: 'white',
     },
     EmojiPicker: {
       backgroundColor: darkEmojiTheme,
