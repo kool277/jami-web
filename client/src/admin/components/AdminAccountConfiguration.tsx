@@ -37,7 +37,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import BaseButton from '../../components/common/BaseButton.js'
-import { PasswordInput } from '../../components/Input.js'
+import PasswordField from '../../components/common/PasswordField.js'
 import LayoutSettings from '../../components/LayoutSettings.js'
 import { DeleteIcon } from '../../components/SvgIcon.js'
 import {
@@ -107,26 +107,22 @@ export default function AuthMethods() {
               transition={{ duration: 0.5 }}
             >
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <PasswordInput
+                <PasswordField
+                  label={t('admin_page_password_old_placeholder')}
                   value={oldPassword}
                   onChange={onOldPasswordChange}
-                  placeholder={t('admin_page_password_old_placeholder')}
-                  tooltipTitle={t('admin_page_password_old_placeholder')}
-                  newPlaceHolder={t('admin_page_password_old_placeholder')}
                 />
-                <PasswordInput
+                <PasswordField
+                  label={t('admin_page_password_placeholder')}
                   value={newPassword}
                   onChange={onNewPasswordChange}
-                  placeholder={t('admin_page_password_placeholder')}
-                  tooltipTitle={t('admin_page_password_placeholder')}
-                  newPlaceHolder={t('admin_page_password_placeholder')}
+                  autoComplete="new-password"
                 />
-                <PasswordInput
+                <PasswordField
+                  label={t('admin_page_password_repeat_placeholder')}
                   value={repeatPassword}
                   onChange={onRepeatPasswordChange}
-                  placeholder={t('admin_page_password_repeat_placeholder')}
-                  tooltipTitle={t('admin_page_password_repeat_placeholder')}
-                  newPlaceHolder={t('admin_page_password_repeat_placeholder')}
+                  autoComplete="new-password"
                 />
                 <Box
                   sx={{

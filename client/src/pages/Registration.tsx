@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Typography } from '@mui/material'
+import { Box, TextField, Typography } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { HttpStatusCode, MIN_PASSWORD_LENGTH } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react'
@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next'
 import { Form, Link, useNavigate } from 'react-router-dom'
 
 import BaseButton from '../components/common/BaseButton.js'
-import { NameStatus, PasswordInput, PasswordStatus, UsernameInput } from '../components/Input.js'
+import PasswordField from '../components/common/PasswordField.js'
 import JamiWelcomeLogo from '../components/JamiWelcomeLogo.js'
 import ProcessingRequest from '../components/ProcessingRequest.js'
 import UnconnectedUserLayout from '../components/UnconnectedUserLayout.js'
@@ -31,6 +31,8 @@ import { PasswordStrength } from '../enums/passwordStrength.js'
 import { useGetAdminConfigQuery } from '../services/adminConfigQueries.js'
 import {
   checkPasswordStrength,
+  type NameStatus,
+  type PasswordStatus,
   useCheckIfUsernameIsRegisteredQuery,
   useGetAllProviders,
   useLoginMutation,
@@ -65,6 +67,9 @@ function RegistrationForm() {
     return usernameInputStatus
   }, [debouncedUsername, isError, response, username, usernameInputStatus])
   const usernameOk = usernameStatus === 'success'
+  const usernameError =
+    usernameStatus === 'taken' || usernameStatus === 'invalid' || usernameStatus === 'registration_failed'
+  const passwordError = passwordStatus === PasswordStrength.TooWeak || passwordStatus === 'registration_failed'
   const passwordOk =
     password.length >= MIN_PASSWORD_LENGTH &&
     passwordStatus !== 'default' &&
@@ -171,21 +176,37 @@ function RegistrationForm() {
           id="register-form"
           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
         >
-          <UsernameInput
+          <TextField
             data-cy="username-input"
+            label={t('username_input_label')}
             value={username}
             onChange={handleUsername}
-            status={usernameStatus}
-            tooltipTitle={t('registration_form_username_tooltip')}
+            autoComplete="username"
+            error={usernameError}
+            helperText={
+              usernameStatus !== 'default' && usernameStatus !== 'valid'
+                ? t('username_input_helper_text', { context: usernameStatus })
+                : ' '
+            }
+            size="small"
             sx={{ width: theme.typography.pxToRem(inputWidth) }}
           />
 
-          <PasswordInput
+          <PasswordField
             data-cy="password-input"
+            label={t('password_input_label')}
             value={password}
             onChange={handlePassword}
-            status={passwordStatus}
-            tooltipTitle={t('registration_form_password_tooltip')}
+            autoComplete="new-password"
+            error={passwordError}
+            helperText={
+              passwordStatus === PasswordStrength.TooWeak
+                ? t('password_input_helper_text_too_weak')
+                : passwordStatus === 'registration_failed'
+                  ? t('password_input_helper_text_registration_failed')
+                  : ' '
+            }
+            size="small"
             sx={{ width: theme.typography.pxToRem(inputWidth) }}
           />
           <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '16px' }}>

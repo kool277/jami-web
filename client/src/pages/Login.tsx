@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import Fingerprint from '@mui/icons-material/Fingerprint'
-import { Box, Divider, FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@mui/material'
+import { Box, Divider, FormControl, FormControlLabel, Radio, RadioGroup, TextField, Typography } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 import { ChangeEvent, FormEvent, use, useEffect, useState } from 'react'
@@ -24,7 +24,7 @@ import { useTranslation } from 'react-i18next'
 import { Form, Link, useNavigate } from 'react-router-dom'
 
 import BaseButton from '../components/common/BaseButton.js'
-import { PasswordInput, UsernameInput } from '../components/Input.js'
+import PasswordField from '../components/common/PasswordField.js'
 import JamiWelcomeLogo from '../components/JamiWelcomeLogo.js'
 import ProcessingRequest from '../components/ProcessingRequest.js'
 import UnconnectedUserLayout from '../components/UnconnectedUserLayout.js'
@@ -131,20 +131,23 @@ function LoginForm() {
             marginTop: '36px',
           }}
         >
-          <UsernameInput
+          <TextField
             data-cy="username-input"
+            label={t('username_input_label')}
             value={username}
             onChange={handleUsername}
-            tooltipTitle={t('login_form_username_tooltip')}
+            autoComplete="username"
+            size="small"
             sx={{ width: theme.typography.pxToRem(inputWidth) }}
           />
           {/* In Electron mode, local accounts don't require a password */}
           {!(isElectronMode() && selectedAuthMethod === 'local') && (
-            <PasswordInput
+            <PasswordField
               data-cy="password-input"
+              label={t('password_input_label')}
               value={password}
               onChange={handlePassword}
-              tooltipTitle={t('login_form_password_tooltip')}
+              size="small"
               sx={{ width: theme.typography.pxToRem(inputWidth) }}
             />
           )}

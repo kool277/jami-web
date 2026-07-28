@@ -23,13 +23,13 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import BaseButton from '../../components/common/BaseButton.js'
-import { PasswordInput, PasswordStatus, RepeatPasswordInput } from '../../components/Input.js'
+import PasswordField from '../../components/common/PasswordField.js'
 import JamiWelcomeLogo from '../../components/JamiWelcomeLogo.js'
 import { DoneIcon } from '../../components/SvgIcon.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 import { PasswordStrength } from '../../enums/passwordStrength.js'
-import { checkPasswordStrength, useSetPasswordMutation } from '../../services/authQueries.js'
+import { checkPasswordStrength, type PasswordStatus, useSetPasswordMutation } from '../../services/authQueries.js'
 
 export default function ImportAccountConfirmation() {
   const { t } = useTranslation()
@@ -146,17 +146,23 @@ const SetPassWord = () => {
       <JamiWelcomeLogo logoWidth={'100px'} logoHeight={'100px'} />
       <Typography variant="body2">{t('create_password_for_online_account')}</Typography>
 
-      <PasswordInput
+      <PasswordField
+        label={t('password_input_label')}
         value={password}
         onChange={handlePasswordChange}
-        status={passwordStatus}
-        tooltipTitle={t('registration_form_password_tooltip')}
+        autoComplete="new-password"
+        error={passwordStatus === PasswordStrength.TooWeak || passwordStatus === 'registration_failed'}
+        helperText={passwordStatus === PasswordStrength.TooWeak ? t('password_input_helper_text_too_weak') : ' '}
       />
-      <RepeatPasswordInput
+      <PasswordField
+        label={t('password_input_label_repeat')}
         value={repeatPassword}
         onChange={handleRepeatPasswordChange}
-        isEqual={passwordOk && password === repeatPassword}
-        tooltipTitle={t('registration_form_password_tooltip')}
+        autoComplete="new-password"
+        error={repeatPassword !== '' && repeatPassword !== password}
+        helperText={
+          repeatPassword !== '' && repeatPassword !== password ? t('password_input_helper_text_not_match') : ' '
+        }
       />
       <BaseButton variant="contained" onClick={handlePasswordSubmit}>
         {t('submit')}

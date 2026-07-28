@@ -23,7 +23,6 @@ import { passwordStrength } from 'check-password-strength'
 import { use } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { NameStatus } from '../components/Input.js'
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
 import { PasswordStrength } from '../enums/passwordStrength.js'
 import { apiUrl } from '../utils/constants.js'
@@ -52,6 +51,8 @@ export interface PasswordCheckResult {
 }
 
 export type LoginMethod = 'Jami' | 'JAMS'
+export type NameStatus = 'default' | 'success' | 'taken' | 'valid' | 'invalid' | 'registration_failed'
+export type PasswordStatus = 'default' | PasswordStrength | 'registration_failed'
 
 export const useCheckIfUsernameIsRegisteredQuery = (username: string) => {
   return useQuery({

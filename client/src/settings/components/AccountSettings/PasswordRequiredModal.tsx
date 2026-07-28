@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { Form } from 'react-router-dom'
 
 import BaseButton from '../../../components/common/BaseButton.js'
-import { PasswordInput } from '../../../components/Input.js'
+import PasswordField from '../../../components/common/PasswordField.js'
 import { useAuthContext } from '../../../contexts/AuthProvider.js'
 
 interface PasswordRequiredModalProps {
@@ -105,10 +105,10 @@ export default function PasswordRequiredModal({
             }}
           >
             <Form method="post" style={{ visibility: hasPassword ? 'visible' : 'hidden' }}>
-              <PasswordInput
+              <PasswordField
+                label={t('password_input_label')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                tooltipTitle={t('login_form_password_tooltip')}
               />
             </Form>
           </Box>
