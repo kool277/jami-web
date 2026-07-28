@@ -293,15 +293,15 @@ interface ConversationMenuProps {
 
 const ColoredCancelIcon = () => {
   const theme = useTheme()
-  return <CancelIcon sx={{ color: theme.SvgIcons.color, width: '16px', height: '16px' }} />
+  return <CancelIcon sx={{ color: theme.palette.primary.main, width: '16px', height: '16px' }} />
 }
 const ColoredPersonIcon = () => {
   const theme = useTheme()
-  return <PersonIcon sx={{ color: theme.SvgIcons.color, width: '16px', height: '16px' }} />
+  return <PersonIcon sx={{ color: theme.palette.primary.main, width: '16px', height: '16px' }} />
 }
 const ColoredMessageIcon = () => {
   const theme = useTheme()
-  return <MessageIcon sx={{ color: theme.SvgIcons.color, width: '16px', height: '16px' }} />
+  return <MessageIcon sx={{ color: theme.palette.primary.main, width: '16px', height: '16px' }} />
 }
 
 const ConversationMenu = ({

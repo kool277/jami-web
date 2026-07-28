@@ -61,7 +61,7 @@ const CallChatDrawerHeader = () => {
       <BaseIconButton
         aria-label={t('call_close_chat')}
         tooltip={t('call_close_chat')}
-        sx={{ color: 'SvgIcons.color', fontSize: '15px', height: '30px', width: '30px' }}
+        sx={{ color: 'primary.main', fontSize: '15px', height: '30px', width: '30px' }}
         onClick={() => {
           setIsChatShown(false)
         }}

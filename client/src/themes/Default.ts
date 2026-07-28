@@ -46,10 +46,6 @@ declare module '@mui/material/styles' {
       itemBorderRadius: string
       itemPadding: string
     }
-    SvgIcons: {
-      color: string
-      hoverBackgroundColor: string
-    }
   }
 }
 
@@ -107,10 +103,6 @@ const palettes = {
       itemBorderRadius: '24px',
       itemPadding: '4px',
     },
-    SvgIcons: {
-      color: '#0071C9',
-      hoverBackgroundColor: '#F0EBE3',
-    },
   },
   dark: {
     palette: {
@@ -167,10 +159,6 @@ const palettes = {
       shadow: '0 2px 16px rgba(0, 0, 0, 0.25)',
       itemBorderRadius: '24px',
       itemPadding: '4px',
-    },
-    SvgIcons: {
-      color: 'white',
-      hoverBackgroundColor: '#2A2A2A',
     },
   },
 }

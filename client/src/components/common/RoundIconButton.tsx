@@ -24,8 +24,8 @@ import BaseIconButton from './BaseIconButton.js'
  * read as a discrete target rather than a bare glyph.
  */
 const RoundIconButton = styled(BaseIconButton)(({ theme }) => ({
-  border: `1px solid ${theme.SvgIcons.color}`,
-  color: theme.SvgIcons.color,
+  border: `1px solid ${theme.palette.primary.main}`,
+  color: theme.palette.primary.main,
   fontSize: '15px',
   '&:active': {
     color: theme.palette.common.white,

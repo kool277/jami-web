@@ -1236,7 +1236,7 @@ const MessageTooltip = styled(
                   aria-label={t('message_more_options')}
                   tooltip={t('message_more_options')}
                   sx={{
-                    border: `1px solid ${theme.SvgIcons.color}`,
+                    border: `1px solid ${theme.palette.primary.main}`,
                     fontSize: '10px',
                     height: '20px',
                     width: '20px',

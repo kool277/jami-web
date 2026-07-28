@@ -68,7 +68,7 @@ const ToggleVisibilityButton = ({ visible, onToggle, ...props }: ToggleVisibilit
       onToggle={onToggle}
       IconOn={CrossedEyeIcon}
       IconOff={EyeIcon}
-      sx={{ color: 'SvgIcons.color', fontSize: '15px', height: '15px', width: '15px' }}
+      sx={{ color: 'primary.main', fontSize: '15px', height: '15px', width: '15px' }}
     />
   )
 }

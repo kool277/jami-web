@@ -273,7 +273,7 @@ export const AvatarEditor = () => {
             <BaseIconButton
               aria-label={t('picture_options_close')}
               tooltip={t('picture_options_close')}
-              sx={{ color: 'SvgIcons.color', fontSize: '15px', height: '30px', width: '30px' }}
+              sx={{ color: 'primary.main', fontSize: '15px', height: '30px', width: '30px' }}
               onClick={closeTools}
             >
               <SaltireIcon fontSize="inherit" />
