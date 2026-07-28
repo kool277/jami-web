@@ -21,12 +21,58 @@ import { ChangeEvent, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PasswordStrength } from '../enums/passwordStrength.js'
-import { InfoButton, ToggleVisibilityButton } from './Button.js'
+import RoundIconButton from './common/RoundIconButton.js'
+import ToggleIconButton from './common/ToggleIconButton.js'
 import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog.js'
 import { GppMaybeIcon as GppMaybe, WarningIcon as Warning } from './SvgIcon.js'
-import { CheckedIcon, LockIcon, PenIcon, PersonIcon, RoundSaltireIcon } from './SvgIcon.js'
+import {
+  CheckedIcon,
+  CrossedEyeIcon,
+  EyeIcon,
+  InfoIcon,
+  LockIcon,
+  PenIcon,
+  PersonIcon,
+  RoundSaltireIcon,
+} from './SvgIcon.js'
 
 const iconsHeight = '16px'
+
+type InfoButtonProps = Omit<IconButtonProps, 'aria-label'> & {
+  tooltip: string
+}
+
+const InfoButton = (props: InfoButtonProps) => {
+  const { t } = useTranslation()
+  return (
+    <RoundIconButton {...props} aria-label={t('show_more_information')} size="small">
+      <InfoIcon fontSize="inherit" />
+    </RoundIconButton>
+  )
+}
+
+type ToggleVisibilityButtonProps = Omit<IconButtonProps, 'aria-label'> & {
+  visible: boolean
+  onToggle: () => void
+}
+
+const ToggleVisibilityButton = ({ visible, onToggle, ...props }: ToggleVisibilityButtonProps) => {
+  const { t } = useTranslation()
+  const label = visible ? t('password_hide') : t('password_show')
+  return (
+    <ToggleIconButton
+      {...props}
+      aria-label={label}
+      tooltip={label}
+      pressed={visible}
+      onToggle={onToggle}
+      IconOn={CrossedEyeIcon}
+      IconOff={EyeIcon}
+      sx={{ color: 'SvgIcons.color', fontSize: '15px', height: '15px', width: '15px' }}
+    />
+  )
+}
+
 const StyledCheckedIconSuccess = styled(CheckedIcon)(({ theme }) => ({
   height: iconsHeight,
   color: theme.palette.success.main,
@@ -108,7 +154,7 @@ export const UsernameInput = ({
             endAdornment: (
               <InfoButton
                 tabIndex={-1}
-                tooltipTitle={tooltipTitle}
+                tooltip={tooltipTitle}
                 {...infoButtonProps}
                 onClick={dialogHandler.openDialog}
               />
@@ -205,8 +251,8 @@ export const PasswordInput = ({
                   alignItems: 'center',
                 }}
               >
-                <ToggleVisibilityButton visible={showPassword} onClick={toggleShowPassword} />
-                <InfoButton tooltipTitle={tooltipTitle} {...infoButtonProps} onClick={dialogHandler.openDialog} />
+                <ToggleVisibilityButton visible={showPassword} onToggle={toggleShowPassword} />
+                <InfoButton tooltip={tooltipTitle} {...infoButtonProps} onClick={dialogHandler.openDialog} />
               </Stack>
             ),
             ...props.slotProps?.input,
@@ -267,7 +313,7 @@ export const RepeatPasswordInput = ({
                   alignItems: 'center',
                 }}
               >
-                <ToggleVisibilityButton visible={showPassword} onClick={toggleShowPassword} />
+                <ToggleVisibilityButton visible={showPassword} onToggle={toggleShowPassword} />
               </Stack>
             ),
             ...props.slotProps?.input,
