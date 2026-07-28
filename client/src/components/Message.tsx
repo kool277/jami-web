@@ -899,7 +899,7 @@ const UserMessageRow = memo(
               {replyMessage.type === 'text/plain' ? (
                 <Typography
                   variant="body1"
-                  color={theme.MessageDataContent.textContentColor}
+                  color="text.secondary"
                   sx={{
                     textAlign: position,
                   }}

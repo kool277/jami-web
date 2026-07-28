@@ -30,8 +30,6 @@ const modes: PaletteMode[] = ['light', 'dark']
 const customSlots = [
   'ChatInterface',
   'WelcomePage',
-  'MediaViewer',
-  'MessageDataContent',
   'EmojiPicker',
   'Panel',
   'SvgIcons',

@@ -48,7 +48,7 @@ export default function ({
 
   const color = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
   const backgroundColor = darken(color, 0.3)
-  const textColor = isAccountMessage ? getTextColor(color) : theme.MessageDataContent.textColor
+  const textColor = isAccountMessage ? getTextColor(color) : theme.palette.text.primary
   const formattedTotalSize = useDataSizeUnits(totalSize)
   return (
     <Box
@@ -91,7 +91,7 @@ export default function ({
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          color: isReply ? theme.MessageDataContent.textContentColor : textColor,
+          color: isReply ? 'text.secondary' : textColor,
           width: '70%',
         }}
       >

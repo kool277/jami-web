@@ -218,13 +218,12 @@ interface DefaultFileProps {
 
 const DefaultFile = ({ displayName, totalSize }: DefaultFileProps) => {
   const extension = displayName.includes('.') ? displayName.split('.').slice(1).join('.') : ''
-  const theme = useTheme()
   const { t } = useTranslation()
 
   return (
     <Box
       sx={{
-        backgroundColor: theme.MediaViewer.backgroundColor,
+        backgroundColor: 'background.paper',
         height: '200px',
         width: '300px',
         borderRadius: '8px',
@@ -247,7 +246,7 @@ const DefaultFile = ({ displayName, totalSize }: DefaultFileProps) => {
       >
         <Box
           sx={{
-            backgroundColor: theme.MediaViewer.fileBackgroundColor,
+            backgroundColor: 'action.selected',
             fontSize: '80px',
             width: '80px',
             height: '80px',
@@ -257,7 +256,7 @@ const DefaultFile = ({ displayName, totalSize }: DefaultFileProps) => {
             alignItems: 'center',
           }}
         >
-          <AttachFileIcon sx={{ fontSize: '50px', color: theme.MessageDataContent.textColor }} />
+          <AttachFileIcon sx={{ fontSize: '50px', color: 'text.primary' }} />
         </Box>
       </Box>
       <Box

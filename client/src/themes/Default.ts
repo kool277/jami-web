@@ -46,15 +46,6 @@ declare module '@mui/material/styles' {
       middleBoxBackgroundColor: string
       iconsColor: string
     }
-    MediaViewer: {
-      backgroundColor: string
-      fileBackgroundColor: string
-    }
-    MessageDataContent: {
-      textColor: string
-      backgroundColor: string
-      textContentColor: string
-    }
     EmojiPicker: {
       backgroundColor: EmojiTheme
     }
@@ -163,15 +154,6 @@ const palettes = {
       middleBoxBackgroundColor: 'rgba(255, 255, 255, 0.5)',
       iconsColor: '#005699',
     },
-    MediaViewer: {
-      backgroundColor: 'white',
-      fileBackgroundColor: 'lightgrey',
-    },
-    MessageDataContent: {
-      textColor: 'black',
-      backgroundColor: '#7f7f7f',
-      textContentColor: '#555555',
-    },
     EmojiPicker: {
       backgroundColor: lightEmojiTheme,
     },
@@ -272,15 +254,6 @@ const palettes = {
       tipsHoverBackgroundColor: 'rgba(0, 0, 0, 0.5)',
       middleBoxBackgroundColor: 'rgba(0, 0, 0, 0.8)',
       iconsColor: 'white',
-    },
-    MediaViewer: {
-      backgroundColor: '#181818',
-      fileBackgroundColor: '#393838',
-    },
-    MessageDataContent: {
-      textColor: 'white',
-      backgroundColor: '#7f7f7f',
-      textContentColor: '#adacac',
     },
     EmojiPicker: {
       backgroundColor: darkEmojiTheme,
