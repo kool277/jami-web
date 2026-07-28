@@ -16,14 +16,11 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Box, List, ListItem, ListItemIcon, Stack, SvgIconProps, Typography } from '@mui/material'
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogTitle from '@mui/material/DialogTitle'
 import { ComponentType, ReactNode, useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import BaseButton from './common/BaseButton.js'
+import BaseModalDialog from './common/BaseModalDialog.js'
 
 interface DialogHandler {
   props: {
@@ -64,33 +61,17 @@ interface BaseDialogProps {
 
 export const BaseDialog = ({ open, onClose, icon, title, content, actions }: BaseDialogProps) => {
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>
-        <Stack
-          direction="row"
-          spacing="16px"
-          sx={{
-            alignItems: 'center',
-          }}
-        >
-          {icon && (
-            <Box
-              sx={{
-                height: '80px',
-                width: '80px',
-              }}
-            >
-              {icon}
-            </Box>
-          )}
-          <Box>
-            <Typography variant="h2">{title}</Typography>
-          </Box>
-        </Stack>
-      </DialogTitle>
-      <DialogContent>{content}</DialogContent>
-      <DialogActions>{actions}</DialogActions>
-    </Dialog>
+    <BaseModalDialog
+      open={open}
+      selectedValue=""
+      title={title}
+      titleIcon={icon}
+      actions={actions}
+      onClose={onClose}
+      closePolicy={['escapeKeyDown', 'backdropClick']}
+    >
+      {content}
+    </BaseModalDialog>
   )
 }
 
@@ -118,11 +99,12 @@ interface ConfirmationDialogProps extends Omit<BaseDialogProps, 'actions'> {
 
 export const ConfirmationDialog = ({ onConfirm, confirmButtonText, ...props }: ConfirmationDialogProps) => {
   const { t } = useTranslation()
-  props.title = props.title || t('dialog_confirm_title_default')
+  const title = props.title || t('dialog_confirm_title_default')
 
   return (
     <BaseDialog
       {...props}
+      title={title}
       content={<Typography variant="body1">{props.content}</Typography>}
       actions={
         <>
