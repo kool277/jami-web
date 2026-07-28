@@ -275,7 +275,7 @@ const palettes = {
       backgroundColor: '#FEFCF9',
     },
     TranferMessage: {
-      InputColor: 'white',
+      inputColor: 'white',
       fontColor: 'black',
       titleColor: 'black',
     },
