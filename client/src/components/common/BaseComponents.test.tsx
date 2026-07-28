@@ -19,12 +19,23 @@ import { type Direction, type PaletteMode, ThemeProvider } from '@mui/material/s
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { type ReactNode, useState } from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { buildDefaultTheme } from '../../themes/Default.js'
 import BaseButton, { type BaseButtonVariant } from './BaseButton.js'
 import BaseIconButton from './BaseIconButton.js'
 import BaseModalDialog, { type ModalClosePolicy } from './BaseModalDialog.js'
+import PasswordField from './PasswordField.js'
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      if (key === 'password_hide') return 'Hide password'
+      if (key === 'password_show') return 'Show password'
+      return key
+    },
+  }),
+}))
 
 function renderWithTheme(children: ReactNode, mode: PaletteMode = 'light', direction: Direction = 'ltr') {
   const theme = buildDefaultTheme(mode, direction)
@@ -172,5 +183,21 @@ describe('BaseIconButton', () => {
     await user.hover(button)
 
     expect(await screen.findByRole('tooltip')).toHaveTextContent('Copy Jami ID')
+  })
+})
+
+describe('PasswordField', () => {
+  it('keeps the password masked until the accessible reveal control is pressed', async () => {
+    const user = userEvent.setup()
+    renderWithTheme(<PasswordField label="Password" />)
+
+    const input = screen.getByLabelText('Password')
+    expect(input).toHaveAttribute('type', 'password')
+
+    await user.click(screen.getByRole('button', { name: 'Show password' }))
+    expect(input).toHaveAttribute('type', 'text')
+
+    await user.click(screen.getByRole('button', { name: 'Hide password' }))
+    expect(input).toHaveAttribute('type', 'password')
   })
 })
