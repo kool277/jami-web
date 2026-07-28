@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Card, CardContent, CardHeader, Modal, useTheme } from '@mui/material'
+import { Box, Card, CardContent, CardHeader, Modal } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
 import BaseButton from '../../components/common/BaseButton.js'
@@ -38,7 +38,6 @@ export default function ValidationRequiredModal({
   buttonText,
   info,
 }: ValidationRequiredModalProps) {
-  const theme = useTheme()
   const { t } = useTranslation()
 
   return (
@@ -60,7 +59,7 @@ export default function ValidationRequiredModal({
         sx={{
           width: '350px',
           height: '350px',
-          backgroundColor: theme.SettingsNeedPassword.backgroundColor,
+          backgroundColor: 'background.paper',
           borderRadius: '16px',
           border: 'none',
         }}

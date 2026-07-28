@@ -142,11 +142,12 @@ export default function ConversationPreferences() {
     >
       <Card
         sx={{
-          backgroundColor: theme.ConversationPreferences.backgroundColor,
+          backgroundColor: 'background.paper',
           height: 'calc(100vh - 16px)',
           margin: '8px',
           ml: 0,
-          border: theme.ConversationPreferences.border,
+          border: '0.5px solid',
+          borderColor: 'divider',
           borderRadius: theme.Panel.borderRadius,
           boxShadow: theme.Panel.shadow,
           overflow: 'hidden',

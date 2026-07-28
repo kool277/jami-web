@@ -97,7 +97,7 @@ export default function BaseModalDialog(props: BaseModalDialogProps) {
           'aria-label': ariaLabel,
           id: paperId,
           sx: {
-            backgroundColor: (theme) => theme.Dialog.backgroundColor,
+            backgroundColor: 'background.paper',
             backgroundImage: 'none',
             ...(dialogWidth != null && { maxWidth: 'calc(100% - 64px)', width: dialogWidth }),
             ...(nonModal && { pointerEvents: 'auto' }),

@@ -121,7 +121,7 @@ export const CustomSelect = <OptionPayload,>({ option, options, onChange, size }
     onOpen: () => setOpen(true),
     onClose: () => setOpen(false),
   })
-  const backgroundColor = theme.CustomSelect.backgroundColor
+  const backgroundColor = theme.palette.background.paper
 
   return (
     <div>

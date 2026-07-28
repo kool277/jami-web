@@ -154,7 +154,7 @@ describe('BaseButton', () => {
       backgroundColor: theme.BaseButton.contained.backgroundColor,
       color: theme.BaseButton.contained.color,
     })
-    expect(dialog).toHaveStyle({ backgroundColor: theme.Dialog.backgroundColor })
+    expect(dialog).toHaveStyle({ backgroundColor: theme.palette.background.paper })
     expect(button.parentElement).toHaveAttribute('dir', direction)
   })
 })

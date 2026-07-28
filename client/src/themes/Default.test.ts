@@ -29,21 +29,17 @@ const modes: PaletteMode[] = ['light', 'dark']
  */
 const customSlots = [
   'ChatInterface',
-  'Dialog',
   'WelcomePage',
   'MediaViewer',
   'MessageDataContent',
   'Footer',
   'EmojiPicker',
-  'CustomSelect',
   'Panel',
-  'ConversationPreferences',
   'SvgIcons',
   'Buttons',
   'BaseButton',
   'SettingsBackButton',
   'TranferMessage',
-  'SettingsNeedPassword',
 ] as const
 
 function leaves(value: unknown, path: string): [string, unknown][] {

@@ -39,9 +39,6 @@ declare module '@mui/material/styles' {
       selectedColor: string
       backgroundColor: string
     }
-    Dialog: {
-      backgroundColor: string
-    }
     WelcomePage: {
       infoBackgroundColor: string
       tipsBackgroundColor: string
@@ -65,9 +62,6 @@ declare module '@mui/material/styles' {
     EmojiPicker: {
       backgroundColor: EmojiTheme
     }
-    CustomSelect: {
-      backgroundColor: string
-    }
     Panel: {
       outerBackground: string
       borderRadius: string
@@ -75,10 +69,6 @@ declare module '@mui/material/styles' {
       shadow: string
       itemBorderRadius: string
       itemPadding: string
-    }
-    ConversationPreferences: {
-      backgroundColor: string
-      border: string
     }
     SvgIcons: {
       color: string
@@ -118,18 +108,12 @@ declare module '@mui/material/styles' {
       fontColor: string
       titleColor: string
     }
-    SettingsNeedPassword: {
-      backgroundColor: string
-    }
   }
 
   interface ThemeOptions {
     InfoTooltip: {
       backgroundColor: SimplePaletteColorOptions
       color: SimplePaletteColorOptions
-    }
-    Dialog: {
-      backgroundColor: string
     }
   }
 }
@@ -185,9 +169,6 @@ const palettes = {
       selectedColor: '#EDE7DD',
       backgroundColor: '#FEFCF9',
     },
-    Dialog: {
-      backgroundColor: '#f4f0ef',
-    },
     WelcomePage: {
       infoBackgroundColor: '#f0efef',
       tipsBackgroundColor: 'rgba(255, 255, 255, 0.3)',
@@ -210,13 +191,6 @@ const palettes = {
     },
     EmojiPicker: {
       backgroundColor: lightEmojiTheme,
-    },
-    CustomSelect: {
-      backgroundColor: 'white',
-    },
-    ConversationPreferences: {
-      backgroundColor: '#FAF6F0',
-      border: '0.5px #E0D9CF solid',
     },
     Panel: {
       outerBackground: '#E8E2D8',
@@ -263,9 +237,6 @@ const palettes = {
       inputColor: 'white',
       fontColor: 'black',
       titleColor: 'black',
-    },
-    SettingsNeedPassword: {
-      backgroundColor: '#FAF6F0',
     },
   },
   dark: {
@@ -321,9 +292,6 @@ const palettes = {
       selectedColor: '#122D42',
       backgroundColor: '#050505',
     },
-    Dialog: {
-      backgroundColor: 'rgb(24, 24, 24)',
-    },
     WelcomePage: {
       infoBackgroundColor: '#333333',
       tipsBackgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -346,13 +314,6 @@ const palettes = {
     },
     EmojiPicker: {
       backgroundColor: darkEmojiTheme,
-    },
-    CustomSelect: {
-      backgroundColor: '#121212',
-    },
-    ConversationPreferences: {
-      backgroundColor: '#181818',
-      border: '0.5px darkgrey solid',
     },
     Panel: {
       outerBackground: '#0A0A0A',
@@ -399,9 +360,6 @@ const palettes = {
       inputColor: '#585858',
       fontColor: 'lightgrey',
       titleColor: 'white',
-    },
-    SettingsNeedPassword: {
-      backgroundColor: '#393838',
     },
   },
 }

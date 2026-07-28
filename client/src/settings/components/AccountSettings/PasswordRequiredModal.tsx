@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Card, CardContent, CardHeader, Modal, useTheme } from '@mui/material'
+import { Box, Card, CardContent, CardHeader, Modal } from '@mui/material'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form } from 'react-router-dom'
@@ -42,7 +42,6 @@ export default function PasswordRequiredModal({
   buttonText,
   info,
 }: PasswordRequiredModalProps) {
-  const theme = useTheme()
   const [password, setPassword] = useState<string>('')
   const { t } = useTranslation()
   const { account } = useAuthContext()
@@ -67,7 +66,7 @@ export default function PasswordRequiredModal({
         sx={{
           width: '400px',
           height: '450px',
-          backgroundColor: theme.SettingsNeedPassword.backgroundColor,
+          backgroundColor: 'background.paper',
           borderRadius: '16px',
           border: 'none',
         }}
