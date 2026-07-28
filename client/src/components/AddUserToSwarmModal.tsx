@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Modal, Paper, useMediaQuery, useTheme } from '@mui/material'
+import { Box } from '@mui/material'
 import { use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -24,6 +24,7 @@ import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import { useAddMemberToSwarm } from '../services/conversationQueries.js'
 import BaseButton from './common/BaseButton.js'
+import BaseModalDialog from './common/BaseModalDialog.js'
 import ContactList from './ContactList.js'
 
 interface AddUserToSwarmModalProps {
@@ -35,8 +36,6 @@ export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmMod
   const { conversationId, members } = useConversationContext()
   const addMembers = useAddMemberToSwarm(conversationId)
   const [selectedContacts, setSelectedContacts] = useState<string[]>([])
-  const theme = useTheme()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const { t } = useTranslation()
   const { setAlertContent } = use(AlertSnackbarContext)
 
@@ -65,54 +64,33 @@ export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmMod
     setOpen(false)
   }
 
-  const stylesInCommon = {
-    height: 'auto',
-    backgroundColor: theme.palette.background.paper,
-    borderRadius: '10px',
-    marginTop: '3.6%',
-  }
-
-  const nonMobileStyles = {
-    ...stylesInCommon,
-    width: '400px',
-    position: 'absolute',
-    right: 0,
-    marginRight: '0.5%',
-  }
-
-  const mobileStyles = {
-    ...stylesInCommon,
-    width: '100%',
+  function handleClose() {
+    setSelectedContacts([])
+    setOpen(false)
   }
 
   return (
-    <>
-      <Modal
-        sx={isMobile ? { padding: '8px' } : {}}
-        open={open}
-        onClose={() => {
-          setOpen(false)
-          setSelectedContacts([])
-        }}
-      >
-        <Paper elevation={24} sx={isMobile ? mobileStyles : nonMobileStyles}>
-          <Box sx={{ textAlign: 'start', paddingTop: isMobile ? '1px' : 'unset', paddingLeft: '10px' }}>
-            <h3>{t('add_users_to_group')}</h3>
-          </Box>
-          <Box sx={{ marginTop: '-2%', minHeight: '300px' }}>
-            <ContactList
-              setSelectedContact={handleSelectedContact}
-              selectedContacts={selectedContacts}
-              members={membersUris}
-            />
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', paddingBottom: '2%' }}>
-            <BaseButton sx={{ margin: '2px' }} variant="contained" onClick={addToSwarm}>
-              {t('add_to_group_validation')}
-            </BaseButton>
-          </Box>
-        </Paper>
-      </Modal>
-    </>
+    <BaseModalDialog
+      open={open}
+      selectedValue=""
+      title={t('add_users_to_group')}
+      onClose={handleClose}
+      closePolicy={['escapeKeyDown', 'backdropClick']}
+      dialogWidth={400}
+      actions={
+        <BaseButton variant="contained" onClick={addToSwarm}>
+          {t('add_to_group_validation')}
+        </BaseButton>
+      }
+      contentSx={{ minHeight: 300 }}
+    >
+      <Box>
+        <ContactList
+          setSelectedContact={handleSelectedContact}
+          selectedContacts={selectedContacts}
+          members={membersUris}
+        />
+      </Box>
+    </BaseModalDialog>
   )
 }
