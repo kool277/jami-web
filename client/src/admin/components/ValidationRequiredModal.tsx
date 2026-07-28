@@ -16,10 +16,11 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Card, CardContent, CardHeader, Modal } from '@mui/material'
+import { Box } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
 import BaseButton from '../../components/common/BaseButton.js'
+import BaseModalDialog from '../../components/common/BaseModalDialog.js'
 
 interface ValidationRequiredModalProps {
   open: boolean
@@ -41,74 +42,37 @@ export default function ValidationRequiredModal({
   const { t } = useTranslation()
 
   return (
-    <Modal
+    <BaseModalDialog
       open={open}
-      onClose={() => {
-        onClose()
-      }}
-      sx={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignContent: 'center',
-        alignItems: 'center',
-      }}
+      selectedValue=""
+      title={title}
+      onClose={onClose}
+      closePolicy={['escapeKeyDown', 'backdropClick']}
+      dialogWidth={350}
+      actions={
+        <>
+          <BaseButton variant="contained" onClick={onClose}>
+            {t('dialog_cancel')}
+          </BaseButton>
+          <BaseButton variant="contained" onClick={onValidation}>
+            {buttonText}
+          </BaseButton>
+        </>
+      }
     >
-      <Card
-        sx={{
-          width: '350px',
-          height: '350px',
-          backgroundColor: 'background.paper',
-          borderRadius: '16px',
-          border: 'none',
-        }}
-      >
-        <CardHeader title={title} />
-        <CardContent sx={{ height: '100%' }}>
-          <Box
-            sx={{
-              typography: 'body2',
-              display: 'flex',
-              color: 'text.secondary',
-              maxWidth: '100%',
-              whiteSpace: 'pre-wrap',
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              margin: 'auto',
-              textAlign: 'start',
-              marginTop: '-14px',
-            }}
-          >
-            {info}
-          </Box>
-
-          <Box
-            sx={{
-              height: '45%',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexDirection: 'column',
-            }}
-          ></Box>
-          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <BaseButton variant="contained" onClick={onClose}>
-              {t('dialog_cancel')}
-            </BaseButton>
-            <BaseButton
-              variant="contained"
-              onClick={() => {
-                onValidation()
-              }}
-            >
-              {buttonText}
-            </BaseButton>
-          </Box>
-        </CardContent>
-      </Card>
-    </Modal>
+      {info && (
+        <Box
+          sx={{
+            typography: 'body2',
+            color: 'text.secondary',
+            minHeight: 160,
+            overflowWrap: 'anywhere',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
+          {info}
+        </Box>
+      )}
+    </BaseModalDialog>
   )
 }
