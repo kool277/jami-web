@@ -51,11 +51,9 @@ import { type EmojiClickData } from '../utils/emojiPicker.js'
 import BaseIconButton from './common/BaseIconButton.js'
 import { CancelIcon as RadioButtonUnchecked, CheckedIcon as RadioButtonChecked } from './SvgIcon.js'
 import {
-  Arrow3Icon,
   CameraIcon,
   CancelIcon,
   CrossedEyeIcon,
-  CrossIcon,
   EmojiIcon,
   ExpandLessIcon,
   EyeIcon,
@@ -272,27 +270,6 @@ export const InfoButton = ({ tooltipTitle, ...props }: InfoButtonProps) => {
   )
 }
 
-export const MoreButton = styled((props: IconButtonProps) => {
-  return (
-    <IconButton {...props} disableRipple={true} aria-label="more">
-      <CrossIcon fontSize="inherit" />
-    </IconButton>
-  )
-})(({ theme }) => ({
-  border: `1px solid ${theme.SvgIcons.color}`,
-  color: theme.SvgIcons.color,
-  fontSize: '10px',
-  height: '20px',
-  width: '20px',
-  '&:hover': {
-    background: theme.SvgIcons.hoverBackgroundColor,
-  },
-  '&:active': {
-    color: '#FFF',
-    background: theme.palette.primary.dark,
-  },
-}))
-
 export type ToggleIconButtonProps = IconButtonProps & {
   selected: boolean
   toggle: () => void
@@ -358,35 +335,6 @@ export const ToggleVisibilityButton = styled(({ visible, ...props }: ToggleVisib
   '&:hover': {
     background: theme.SvgIcons.hoverBackgroundColor,
   },
-}))
-
-export const ReplyMessageButton = styled((props: IconButtonProps) => (
-  <IconButton {...props} disableRipple={true} aria-label="send message">
-    <Arrow3Icon fontSize="inherit" />
-  </IconButton>
-))(({ theme }) => ({
-  color: theme.palette.primary.dark,
-  fontSize: '20px',
-  height: '20px',
-  width: '20px',
-  borderRadius: '50%',
-  '&:hover': {
-    background: theme.SvgIcons.hoverBackgroundColor,
-  },
-}))
-
-type EmojiButtonProps = IconButtonProps & {
-  emoji: string
-}
-export const EmojiButton = styled(({ emoji, ...props }: EmojiButtonProps) => (
-  <IconButton {...props} disableRipple={true}>
-    {emoji}
-  </IconButton>
-))(() => ({
-  color: 'white',
-  fontSize: '20px',
-  height: '20px',
-  width: '20px',
 }))
 
 type SelectEmojiButtonProps = {
