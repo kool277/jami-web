@@ -284,21 +284,24 @@ const palettes = {
   dark: {
     palette: {
       mode: 'dark' as PaletteMode,
+      // The ramp inverts between modes on purpose. `light` is always the subtle surface
+      // tint and `dark` always the strong accent, so on dark surfaces they swap lightness,
+      // the same way a Material tonal palette moves from tone 40 to tone 80.
       primary: {
-        light: '#E5EEF5', // same as "#0056991A"
-        main: '#0071C9',
-        dark: '#005699',
+        light: '#0A2A40',
+        main: '#5CB8FF',
+        dark: '#8FCBFF',
       },
       error: {
-        main: '#CC0022',
-        dark: '#720013',
+        main: '#FF6B7A',
+        dark: '#FFA0A9',
       },
       success: {
-        main: '#009980',
+        main: '#4FD1B4',
       },
       secondary: {
         main: '#A3C2DA',
-        dark: '#06493F',
+        dark: '#CBDEEC',
       },
       action: {
         disabled: '#7F7F7F',
