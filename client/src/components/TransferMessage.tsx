@@ -16,14 +16,15 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Card, CardHeader, Modal, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, TextField } from '@mui/material'
 import { Message } from '@savoirfairelinux/jami-web-common'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useTransferMessageMutation } from '../services/conversationQueries.js'
 import { useTransferFileMutation } from '../services/dataTransferQueries.js'
 import BaseIconButton from './common/BaseIconButton.js'
+import BaseModalDialog from './common/BaseModalDialog.js'
 import { SelectConversationList } from './SelectConversationList.js'
 import { Arrow2Icon } from './SvgIcon.js'
 
@@ -36,8 +37,6 @@ interface TransferMessageProps {
 
 const TransferMessage = ({ conversationId, message, onClose, open }: TransferMessageProps) => {
   const { t } = useTranslation()
-  const theme = useTheme()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
   const [comment, setComment] = useState<string>('')
   const [selectedConversations, setSelectedConversations] = useState<string[]>([])
@@ -85,73 +84,30 @@ const TransferMessage = ({ conversationId, message, onClose, open }: TransferMes
     onClose()
   }
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const cardElement = document.querySelector('.transfer-message-card')
-      if (cardElement && !cardElement.contains(event.target as Node)) {
-        onClose()
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [onClose])
-
   return (
-    <Modal open={open} onClose={onClose}>
-      <Card
-        className="transfer-message-card"
-        sx={{
-          position: 'fixed',
-          zIndex: 999999,
-          top: '50%',
-          left: isMobile ? '50%' : '70%',
-          transform: 'translate(-50%, -50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 0,
-          padding: '1px',
-          backgroundColor: theme.palette.background.paper,
-          color: theme.palette.text.primary,
-          maxWidth: isMobile ? '300px' : 'unset',
-          minWidth: isMobile ? 'unset' : '350px',
-        }}
-      >
-        <CardHeader
-          title={
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                alignContent: 'center',
-              }}
-            >
-              <Typography sx={{ userSelect: 'none' }} variant="h6">
-                {t('transfer_message')}
-              </Typography>
-              <BaseIconButton
-                aria-label={t('transfer_message')}
-                tooltip={t('transfer_message')}
-                sx={{ fontSize: '25px', height: '36px', width: '36px' }}
-                disabled={selectedConversations.length === 0}
-                onClick={handleTransfer}
-                type="submit"
-              >
-                <Arrow2Icon fontSize="inherit" />
-              </BaseIconButton>
-            </Box>
-          }
-        />
-
+    <BaseModalDialog
+      open={open}
+      selectedValue=""
+      title={t('transfer_message')}
+      onClose={onClose}
+      closePolicy={['escapeKeyDown', 'backdropClick']}
+      dialogWidth={350}
+      actions={
+        <BaseIconButton
+          aria-label={t('transfer_message')}
+          tooltip={t('transfer_message')}
+          disabled={selectedConversations.length === 0}
+          onClick={handleTransfer}
+        >
+          <Arrow2Icon />
+        </BaseIconButton>
+      }
+    >
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         <Box
           sx={{
             maxHeight: '300px',
             overflowY: 'auto',
-            padding: 1,
           }}
         >
           <SelectConversationList
@@ -160,32 +116,15 @@ const TransferMessage = ({ conversationId, message, onClose, open }: TransferMes
           />
         </Box>
 
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '8px' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', width: '100%' }}>
-            <TextField
-              maxRows={1}
-              placeholder={t('add_comment')}
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              variant="outlined"
-              sx={{
-                borderRadius: '12px',
-                textAlign: 'start',
-                border: 'none',
-                maxHeight: '50px',
-                width: '80%',
-                backgroundColor: 'background.default',
-                color: 'text.primary',
-                '& fieldset': {
-                  border: 'none',
-                  maxHeight: '50px',
-                },
-              }}
-            />
-          </Box>
-        </Box>
-      </Card>
-    </Modal>
+        <TextField
+          fullWidth
+          maxRows={1}
+          placeholder={t('add_comment')}
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
+      </Box>
+    </BaseModalDialog>
   )
 }
 
