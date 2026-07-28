@@ -852,7 +852,7 @@ const UserMessageRow = memo(
       const replyMessageElement = document.getElementById(`message-${messageId}`)
       if (replyMessageElement) {
         replyMessageElement.style.transition = 'background-color 0.5s ease-in-out'
-        replyMessageElement.style.backgroundColor = theme.Buttons.hoverBackgroundColor
+        replyMessageElement.style.backgroundColor = theme.palette.action.selected
         setTimeout(() => {
           replyMessageElement.style.backgroundColor = ''
         }, 1000)

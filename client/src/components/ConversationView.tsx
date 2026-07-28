@@ -167,8 +167,6 @@ export const ConversationHeader = () => {
                 height: '36px',
                 width: '36px',
                 borderRadius: '50%',
-                color: theme.Buttons.color,
-                '&:hover': { background: theme.SvgIcons.hoverBackgroundColor },
               }}
             >
               <ArrowBackIosNewIcon sx={{ fontSize: 20 }} />

@@ -50,11 +50,6 @@ declare module '@mui/material/styles' {
       color: string
       hoverBackgroundColor: string
     }
-    Buttons: {
-      hoverBackgroundColor: string
-      color: string
-      disabledColor: string
-    }
   }
 }
 
@@ -115,11 +110,6 @@ const palettes = {
     SvgIcons: {
       color: '#0071C9',
       hoverBackgroundColor: '#F0EBE3',
-    },
-    Buttons: {
-      hoverBackgroundColor: '#E5EEF5',
-      color: '#4f4f4f',
-      disabledColor: '#7e7e7e',
     },
   },
   dark: {
@@ -182,11 +172,6 @@ const palettes = {
       color: 'white',
       hoverBackgroundColor: '#2A2A2A',
     },
-    Buttons: {
-      hoverBackgroundColor: '#262525',
-      color: '#EAEAEA',
-      disabledColor: '#7E7E7E',
-    },
   },
 }
 
@@ -226,7 +211,6 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
     text: { color: palette.text.primary, backgroundColor: 'transparent' },
   }
   const Panel = partialTheme.Panel
-  const Buttons = partialTheme.Buttons
   const isDark = mode === 'dark'
 
   // Unified shadow system
@@ -481,13 +465,13 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
         styleOverrides: {
           root: {
             borderRadius: '50%',
-            color: Buttons.color,
+            color: palette.text.secondary,
             transition: 'background-color 150ms ease, color 150ms ease',
             '&:hover': {
-              backgroundColor: Buttons.hoverBackgroundColor,
+              backgroundColor: palette.action.hover,
             },
             '&.Mui-disabled': {
-              color: Buttons.disabledColor,
+              color: palette.action.disabled,
             },
             '&.Mui-focusVisible': {
               outline: '2px solid currentColor',
