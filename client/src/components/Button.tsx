@@ -50,18 +50,7 @@ import { useTranslation } from 'react-i18next'
 import { type EmojiClickData } from '../utils/emojiPicker.js'
 import BaseIconButton from './common/BaseIconButton.js'
 import { CancelIcon as RadioButtonUnchecked, CheckedIcon as RadioButtonChecked } from './SvgIcon.js'
-import {
-  CameraIcon,
-  CancelIcon,
-  CrossedEyeIcon,
-  EmojiIcon,
-  ExpandLessIcon,
-  EyeIcon,
-  FolderIcon,
-  InfoIcon,
-  PenIcon,
-  SaltireIcon,
-} from './SvgIcon.js'
+import { CrossedEyeIcon, EmojiIcon, ExpandLessIcon, EyeIcon, InfoIcon, SaltireIcon } from './SvgIcon.js'
 import CustomTooltip from './Tooltip.js'
 
 const EmojiPicker = lazy(() => import('../utils/emojiPicker.js').then((module) => ({ default: module.EmojiPicker })))
@@ -237,28 +226,6 @@ export const ExpandableButton = ({
   )
 }
 
-export const CancelPictureButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="remove picture" Icon={CancelIcon} size="large" />
-}
-
-export const EditPictureButton = styled((props: IconButtonProps) => {
-  return <RoundButton {...props} disableRipple={false} aria-label="edit picture" Icon={PenIcon} size="small" />
-})(({ theme }) => ({
-  backgroundColor: 'inherit',
-  color: theme.SvgIcons.color,
-  '&:hover': {
-    background: theme.SvgIcons.hoverBackgroundColor,
-  },
-}))
-
-export const UploadPictureButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="upload picture" Icon={FolderIcon} size="large" />
-}
-
-export const TakePictureButton = (props: IconButtonProps) => {
-  return <RoundButton {...props} aria-label="take picture" Icon={CameraIcon} size="large" />
-}
-
 type InfoButtonProps = IconButtonProps & {
   tooltipTitle: string
 }
@@ -387,47 +354,6 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
     </ClickAwayListener>
   )
 }
-
-const RecordButtonSize = '50px'
-const RecordButtonOutlineWidth = '1px'
-const RecordButtonOutlineOffset = '4px'
-const RecordButtonInnerSize =
-  parseInt(RecordButtonSize) - parseInt(RecordButtonOutlineWidth) * 2 - parseInt(RecordButtonOutlineOffset) * 2 + 'px'
-export const RecordButton = styled((props: IconButtonProps) => (
-  <IconButton {...props} disableRipple={true}>
-    <Box
-      sx={{
-        width: RecordButtonInnerSize,
-        height: RecordButtonInnerSize,
-        borderRadius: '100%',
-        outline: `${RecordButtonOutlineWidth} solid #e57f90`,
-        outlineOffset: RecordButtonOutlineOffset,
-        backgroundColor: '#e57f90',
-        '&:hover': {
-          outlineColor: '#cc0022',
-          backgroundColor: '#cc0022',
-        },
-      }}
-    />
-  </IconButton>
-))({
-  width: RecordButtonSize,
-  height: RecordButtonSize,
-  padding: 0,
-})
-
-export const CornerCloseButton = styled(({ ...props }: IconButtonProps) => (
-  <IconButton {...props}>
-    <SaltireIcon fontSize="inherit" />
-  </IconButton>
-))({
-  position: 'absolute',
-  top: '20px',
-  right: '20px',
-  zIndex: 200,
-  color: 'white',
-  fontSize: '10px',
-})
 
 export const ColoredRoundButton = styled(
   ({
