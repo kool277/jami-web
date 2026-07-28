@@ -185,7 +185,7 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
                 borderRadius: '12px',
                 ':hover': {
                   cursor: 'pointer',
-                  backgroundColor: theme.ChatInterface.reactionModalBackground,
+                  backgroundColor: theme.palette.background.paper,
                   transition: 'background-color 0.25s ease-in-out',
                 },
               }}

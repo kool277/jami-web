@@ -28,7 +28,6 @@ declare module '@mui/material/styles' {
       messageColor: string
       replyBorderColor: string
       messageReplyColor: string
-      reactionModalBackground: string
     }
     EmojiPicker: {
       backgroundColor: EmojiTheme
@@ -80,7 +79,6 @@ const palettes = {
       messageColor: '#F0EBE3',
       replyBorderColor: '2px solid white',
       messageReplyColor: '#E8E2D9',
-      reactionModalBackground: '#F0EBE3',
     },
     EmojiPicker: {
       backgroundColor: lightEmojiTheme,
@@ -132,7 +130,6 @@ const palettes = {
       messageColor: '#6C6C6C',
       replyBorderColor: '3px solid #121212',
       messageReplyColor: '#404040',
-      reactionModalBackground: '#1e1f1e',
     },
     EmojiPicker: {
       backgroundColor: darkEmojiTheme,
