@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { createTheme, Direction, PaletteMode } from '@mui/material'
+import { alpha, createTheme, Direction, PaletteMode } from '@mui/material'
 import { TypographyVariantsOptions } from '@mui/material/styles'
 import { type Theme as EmojiTheme } from 'emoji-picker-react'
 
@@ -54,26 +54,6 @@ declare module '@mui/material/styles' {
       hoverBackgroundColor: string
       color: string
       disabledColor: string
-    }
-    BaseButton: {
-      interaction: {
-        hoverBackgroundColor: string
-        activeBackgroundColor: string
-        foregroundColor: string
-      }
-      contained: {
-        color: string
-        backgroundColor: string
-      }
-      outlined: {
-        color: string
-        backgroundColor: string
-        borderColor: string
-      }
-      text: {
-        color: string
-        backgroundColor: string
-      }
     }
   }
 }
@@ -141,26 +121,6 @@ const palettes = {
       color: '#4f4f4f',
       disabledColor: '#7e7e7e',
     },
-    BaseButton: {
-      interaction: {
-        hoverBackgroundColor: '#005699EB',
-        activeBackgroundColor: '#005699CC',
-        foregroundColor: '#FFFFFF',
-      },
-      contained: {
-        color: '#FFFFFF',
-        backgroundColor: '#005699',
-      },
-      outlined: {
-        color: '#005699',
-        backgroundColor: 'transparent',
-        borderColor: '#005699',
-      },
-      text: {
-        color: '#000000',
-        backgroundColor: 'transparent',
-      },
-    },
   },
   dark: {
     palette: {
@@ -227,26 +187,6 @@ const palettes = {
       color: '#EAEAEA',
       disabledColor: '#7E7E7E',
     },
-    BaseButton: {
-      interaction: {
-        hoverBackgroundColor: '#03B9E9EB',
-        activeBackgroundColor: '#03B9E9CC',
-        foregroundColor: '#000000',
-      },
-      contained: {
-        color: '#000000',
-        backgroundColor: '#03B9E9',
-      },
-      outlined: {
-        color: '#03B9E9',
-        backgroundColor: 'transparent',
-        borderColor: '#03B9E9',
-      },
-      text: {
-        color: '#FFFFFF',
-        backgroundColor: 'transparent',
-      },
-    },
   },
 }
 
@@ -271,7 +211,20 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
   const partialTheme = createTheme({ ...palettes[mode], direction, typography })
   const palette = partialTheme.palette
   const ChatInterface = partialTheme.ChatInterface
-  const BaseButton = partialTheme.BaseButton
+  // The button accent is the strong end of the primary ramp in both modes, so it stays in step
+  // with the palette instead of drifting into a colour of its own.
+  const accent = palette.primary.dark
+  const onAccent = palette.getContrastText(accent)
+  const BaseButton = {
+    interaction: {
+      hoverBackgroundColor: alpha(accent, 0.92),
+      activeBackgroundColor: alpha(accent, 0.8),
+      foregroundColor: onAccent,
+    },
+    contained: { color: onAccent, backgroundColor: accent },
+    outlined: { color: accent, backgroundColor: 'transparent', borderColor: accent },
+    text: { color: palette.text.primary, backgroundColor: 'transparent' },
+  }
   const Panel = partialTheme.Panel
   const Buttons = partialTheme.Buttons
   const isDark = mode === 'dark'

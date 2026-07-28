@@ -27,7 +27,7 @@ const modes: PaletteMode[] = ['light', 'dark']
  * one mode only resolves to undefined there, which reaches the browser as a
  * silently dropped declaration rather than an error.
  */
-const customSlots = ['ChatInterface', 'EmojiPicker', 'Panel', 'SvgIcons', 'Buttons', 'BaseButton'] as const
+const customSlots = ['ChatInterface', 'EmojiPicker', 'Panel', 'SvgIcons', 'Buttons'] as const
 
 function leaves(value: unknown, path: string): [string, unknown][] {
   if (value === null || typeof value !== 'object') {
@@ -47,6 +47,18 @@ describe('default theme', () => {
         .map(([path]) => path)
 
       expect(undefinedEntries).toEqual([])
+    })
+  }
+
+  for (const mode of modes) {
+    it(`draws the contained and outlined buttons from the ${mode} primary ramp`, () => {
+      const theme = buildDefaultTheme(mode, 'ltr')
+      const overrides = theme.components?.MuiButton?.styleOverrides as
+        Record<string, Record<string, unknown>> | undefined
+
+      expect(overrides?.contained?.background).toBe(theme.palette.primary.dark)
+      expect(overrides?.outlined?.color).toBe(theme.palette.primary.dark)
+      expect(overrides?.outlined?.borderColor).toBe(theme.palette.primary.dark)
     })
   }
 
