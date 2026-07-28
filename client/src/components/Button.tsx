@@ -30,9 +30,8 @@ import {
   RadioGroup,
   RadioGroupProps,
   SvgIconProps,
-  Theme,
 } from '@mui/material'
-import { PaletteColor, styled, useTheme } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import { type Instance as PopperInstance } from '@popperjs/core'
 import {
   ComponentProps,
@@ -49,7 +48,7 @@ import { useTranslation } from 'react-i18next'
 
 import { type EmojiClickData } from '../utils/emojiPicker.js'
 import BaseIconButton from './common/BaseIconButton.js'
-import { CrossedEyeIcon, EmojiIcon, ExpandLessIcon, EyeIcon, InfoIcon, SaltireIcon } from './SvgIcon.js'
+import { CrossedEyeIcon, EmojiIcon, ExpandLessIcon, EyeIcon, InfoIcon } from './SvgIcon.js'
 import CustomTooltip from './Tooltip.js'
 
 const EmojiPicker = lazy(() => import('../utils/emojiPicker.js').then((module) => ({ default: module.EmojiPicker })))
@@ -237,23 +236,6 @@ export const InfoButton = ({ tooltipTitle, ...props }: InfoButtonProps) => {
   )
 }
 
-export const CloseButton = styled((props: IconButtonProps) => {
-  return (
-    <IconButton {...props} disableRipple={true} aria-label="close">
-      <SaltireIcon fontSize="inherit" />
-    </IconButton>
-  )
-})(({ theme }) => ({
-  color: theme.SvgIcons.color,
-  fontSize: '15px',
-  height: '30px',
-  width: '30px',
-  borderRadius: '50%',
-  '&:hover': {
-    background: theme.SvgIcons.hoverBackgroundColor,
-  },
-}))
-
 type ToggleVisibilityButtonProps = IconButtonProps & {
   visible: boolean
 }
@@ -324,34 +306,3 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
     </ClickAwayListener>
   )
 }
-
-export const ColoredRoundButton = styled(
-  ({
-    paletteColor,
-    Icon,
-    ...props
-  }: ShapedButtonProps & {
-    paletteColor?: PaletteColor | ((theme: Theme) => PaletteColor)
-  }) => {
-    return (
-      <IconButton {...props} disableRipple={true}>
-        <Icon fontSize="inherit" />
-      </IconButton>
-    )
-  },
-)(({ theme, paletteColor = theme.palette.primary }) => {
-  if (typeof paletteColor === 'function') {
-    paletteColor = paletteColor(theme)
-  }
-
-  return {
-    color: paletteColor.contrastText,
-    backgroundColor: paletteColor.dark,
-    '&:hover': {
-      backgroundColor: paletteColor.main,
-    },
-    '&:disabled': {
-      backgroundColor: theme.palette.action.disabled,
-    },
-  }
-})
