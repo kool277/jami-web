@@ -24,7 +24,11 @@ import { useTranslation } from 'react-i18next'
 import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
 import { useUserMediaContext } from '../contexts/UserMediaProvider.js'
 import { CallStatus, VideoStatus } from '../services/CallManager.js'
-import { ExpandableButton, ExpandableButtonProps, ExpandMenuRadioOption } from './Button.js'
+import {
+  ExpandableButton,
+  type ExpandableButtonProps,
+  type ExpandMenuRadioOption,
+} from './common/ExpandableIconButton.js'
 import FilledIconButton from './common/FilledIconButton.js'
 import ToggleIconButton from './common/ToggleIconButton.js'
 import {

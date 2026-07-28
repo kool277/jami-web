@@ -31,7 +31,6 @@ import {
   useState,
 } from 'react'
 
-import { ExpandableButtonProps } from '../components/Button.js'
 import {
   CallingChatButton,
   CallingEndButton,
@@ -46,6 +45,7 @@ import {
   CallingVolumeButton,
 } from '../components/CallButtons.js'
 import CallChatDrawer from '../components/CallChatDrawer.js'
+import { type ExpandableButtonProps } from '../components/common/ExpandableIconButton.js'
 import VideoOverlay from '../components/VideoOverlay.js'
 import VideoStream from '../components/VideoStream.js'
 import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
