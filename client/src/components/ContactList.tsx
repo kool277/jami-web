@@ -121,17 +121,17 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
               onClick={() => setSelectedContact && setSelectedContact(contact.id)}
               sx={{
                 cursor: 'pointer',
-                backgroundColor: isSelected(contact.id) ? theme.ChatInterface.selectedColor : 'inherit',
+                backgroundColor: isSelected(contact.id) ? theme.palette.primary.light : 'inherit',
                 '&:hover': {
                   borderColor: theme.palette.primary.light,
                   textShadow: '0 0 .01px black',
                   backgroundColor: 'background.paper',
                 },
                 '&.Mui-selected': {
-                  backgroundColor: theme.ChatInterface.selectedColor,
+                  backgroundColor: theme.palette.primary.light,
                   color: theme.palette.primary.dark,
-                  borderColor: theme.ChatInterface.selectedColor,
-                  textShadow: `0 0 .01px ${theme.ChatInterface.selectedColor}`,
+                  borderColor: theme.palette.primary.light,
+                  textShadow: `0 0 .01px ${theme.palette.primary.light}`,
                 },
               }}
               alignItems="flex-start"

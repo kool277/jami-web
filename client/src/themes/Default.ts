@@ -29,7 +29,6 @@ declare module '@mui/material/styles' {
       replyBorderColor: string
       messageReplyColor: string
       reactionModalBackground: string
-      selectedColor: string
     }
     EmojiPicker: {
       backgroundColor: EmojiTheme
@@ -82,7 +81,6 @@ const palettes = {
       replyBorderColor: '2px solid white',
       messageReplyColor: '#E8E2D9',
       reactionModalBackground: '#F0EBE3',
-      selectedColor: '#EDE7DD',
     },
     EmojiPicker: {
       backgroundColor: lightEmojiTheme,
@@ -135,7 +133,6 @@ const palettes = {
       replyBorderColor: '3px solid #121212',
       messageReplyColor: '#404040',
       reactionModalBackground: '#1e1f1e',
-      selectedColor: '#122D42',
     },
     EmojiPicker: {
       backgroundColor: darkEmojiTheme,
@@ -176,7 +173,6 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
   // each variant at creation time, so a later merge would leave every variant on the default font.
   const partialTheme = createTheme({ ...palettes[mode], direction, typography, spacing })
   const palette = partialTheme.palette
-  const ChatInterface = partialTheme.ChatInterface
   // The button accent is the strong end of the primary ramp in both modes, so it stays in step
   // with the palette instead of drifting into a colour of its own.
   const accent = palette.primary.dark
@@ -481,13 +477,13 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
           root: {
             borderRadius: '9999px',
             '&.Mui-selected': {
-              backgroundColor: ChatInterface.selectedColor,
+              backgroundColor: palette.primary.light,
               '&:hover': {
-                backgroundColor: ChatInterface.selectedColor,
+                backgroundColor: palette.primary.light,
               },
             },
             '&:hover': {
-              backgroundColor: `${ChatInterface.selectedColor}80`,
+              backgroundColor: alpha(palette.primary.light, 0.5),
             },
           },
         },
