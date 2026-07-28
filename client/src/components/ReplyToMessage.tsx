@@ -24,9 +24,9 @@ import { useActionMessageReadContext } from '../contexts/ActionMessageProvider.j
 import { useGlobalSetReplyMessage } from '../contexts/ActionMessageProvider.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
-import { SquareCancelPictureButton } from './Button.js'
+import BaseIconButton from './common/BaseIconButton.js'
 import MessageDataContent from './MessageDataContent.js'
-import { Arrow4Icon as ReplyIcon } from './SvgIcon.js'
+import { Arrow4Icon as ReplyIcon, CancelIcon } from './SvgIcon.js'
 
 export default function ReplyToMessage() {
   const { members } = useConversationContext()
@@ -133,7 +133,14 @@ export default function ReplyToMessage() {
                 </Box>
               </div>
             </Box>
-            <SquareCancelPictureButton sx={{ marginLeft: '5px', marginTop: '20px' }} onClick={cancelHandler} />
+            <BaseIconButton
+              aria-label={t('cancel_reply')}
+              tooltip={t('cancel_reply')}
+              sx={{ marginLeft: '5px', marginTop: '20px' }}
+              onClick={cancelHandler}
+            >
+              <CancelIcon />
+            </BaseIconButton>
           </Box>
         </Box>
       </motion.div>

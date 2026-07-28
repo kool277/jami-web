@@ -21,8 +21,8 @@ import { useTranslation } from 'react-i18next'
 
 import { useActionMessageReadContext } from '../contexts/ActionMessageProvider.js'
 import { useGlobalSetEditMessage } from '../contexts/ActionMessageProvider.js'
-import { SquareCancelPictureButton } from './Button.js'
-import { PenIcon } from './SvgIcon.js'
+import BaseIconButton from './common/BaseIconButton.js'
+import { CancelIcon, PenIcon } from './SvgIcon.js'
 
 export default function EditMessage() {
   const { editMessage } = useActionMessageReadContext()
@@ -43,7 +43,14 @@ export default function EditMessage() {
         <PenIcon sx={{ marginLeft: '2%' }} />
         <Box sx={{ marginLeft: '10%' }}>{t('editing')}</Box>
       </Box>
-      <SquareCancelPictureButton sx={{ marginLeft: '5px' }} onClick={onCancelEdit} />
+      <BaseIconButton
+        aria-label={t('cancel_editing')}
+        tooltip={t('cancel_editing')}
+        sx={{ marginLeft: '5px' }}
+        onClick={onCancelEdit}
+      >
+        <CancelIcon />
+      </BaseIconButton>
     </Box>
   )
 }

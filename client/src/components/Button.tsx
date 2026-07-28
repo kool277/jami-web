@@ -244,10 +244,6 @@ export const CancelPictureButton = (props: IconButtonProps) => {
   return <RoundButton {...props} aria-label="remove picture" Icon={CancelIcon} size="large" />
 }
 
-export const SquareCancelPictureButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="remove picture" Icon={CancelIcon} size="medium" />
-}
-
 export const EditPictureButton = styled((props: IconButtonProps) => {
   return <RoundButton {...props} disableRipple={false} aria-label="edit picture" Icon={PenIcon} size="small" />
 })(({ theme }) => ({

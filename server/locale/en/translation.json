@@ -156,6 +156,8 @@
   "conference_resolution_option_1080p": "Full HD 1080p",
   "conference_resolution_option_1440p": "Quad HD 1440p",
   "edited_message": "Edited ",
+  "cancel_editing": "Cancel editing",
+  "cancel_reply": "Cancel reply",
   "editing": "Editing…",
   "enter_password_info": "Authentication is required to perform the action.",
   "extending_session_error_alert": "An error occurred while extending the session.",
