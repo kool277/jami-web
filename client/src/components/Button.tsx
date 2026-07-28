@@ -31,7 +31,6 @@ import {
   RadioGroupProps,
   SvgIconProps,
   Theme,
-  Tooltip,
 } from '@mui/material'
 import { PaletteColor, styled, useTheme } from '@mui/material/styles'
 import { type Instance as PopperInstance } from '@popperjs/core'
@@ -49,9 +48,9 @@ import {
 import { useTranslation } from 'react-i18next'
 
 import { type EmojiClickData } from '../utils/emojiPicker.js'
+import BaseIconButton from './common/BaseIconButton.js'
 import { CancelIcon as RadioButtonUnchecked, CheckedIcon as RadioButtonChecked } from './SvgIcon.js'
 import {
-  Arrow2Icon,
   Arrow3Icon,
   CameraIcon,
   CancelIcon,
@@ -361,31 +360,6 @@ export const ToggleVisibilityButton = styled(({ visible, ...props }: ToggleVisib
   },
 }))
 
-export const SquareButton = styled(({ Icon, tooltip, ...props }: ShapedButtonProps) => (
-  <Tooltip title={tooltip}>
-    <IconButton {...props} disableRipple={true}>
-      <Icon fontSize="inherit" />
-    </IconButton>
-  </Tooltip>
-))(({ theme }) => ({
-  color: theme.Buttons.color,
-  fontSize: '25px',
-  height: '36px',
-  width: '36px',
-  borderRadius: '50%',
-  '&:hover': {
-    background: theme.SvgIcons.hoverBackgroundColor,
-  },
-  '&:disabled': {
-    color: theme.Buttons.disabledColor,
-  },
-}))
-
-export const SendMessageButton = (props: IconButtonProps) => {
-  const { t } = useTranslation()
-  return <SquareButton tooltip={t('button_send_message')} {...props} aria-label="send message" Icon={Arrow2Icon} />
-}
-
 export const ReplyMessageButton = styled((props: IconButtonProps) => (
   <IconButton {...props} disableRipple={true} aria-label="send message">
     <Arrow3Icon fontSize="inherit" />
@@ -441,13 +415,15 @@ export const SelectEmojiButton = ({ onEmojiSelected }: SelectEmojiButtonProps) =
   return (
     <ClickAwayListener onClickAway={handleClose}>
       <Box>
-        <SquareButton
+        <BaseIconButton
           aria-describedby={id}
-          aria-label="select emoji"
-          Icon={EmojiIcon}
-          onClick={handleOpenEmojiPicker}
+          aria-label={t('button_select_emoji')}
           tooltip={t('button_select_emoji')}
-        />
+          sx={{ fontSize: '25px', height: '36px', width: '36px' }}
+          onClick={handleOpenEmojiPicker}
+        >
+          <EmojiIcon fontSize="inherit" />
+        </BaseIconButton>
         <Popper sx={{ zIndex: 2 }} id={id} open={open} anchorEl={anchorEl} popperRef={popperRef}>
           <Suspense fallback={null}>
             <PositionedEmojiPicker
