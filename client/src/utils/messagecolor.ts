@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { Theme } from '@mui/material/styles'
 import CryptoJS from 'crypto-js'
 
 // do not modify the order of the colors
@@ -70,6 +71,13 @@ export function getSentTimeColor(color: string): string {
     return '#cfcfcf'
   }
   return '#A6948B'
+}
+
+// A reply bubble is nested inside its parent, so it is ringed in the surface behind it to read as
+// a separate card. The width is fixed: a mode-dependent width would resize the bubble on theme
+// change and shift the whole thread.
+export function getReplyRing(theme: Theme): string {
+  return `2px solid ${theme.palette.background.default}`
 }
 
 export function getColor(canonicalUri: string): string {

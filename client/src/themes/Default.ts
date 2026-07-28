@@ -26,7 +26,6 @@ declare module '@mui/material/styles' {
   interface Theme {
     ChatInterface: {
       messageColor: string
-      replyBorderColor: string
       messageReplyColor: string
     }
     EmojiPicker: {
@@ -77,7 +76,6 @@ const palettes = {
     },
     ChatInterface: {
       messageColor: '#F0EBE3',
-      replyBorderColor: '2px solid white',
       messageReplyColor: '#E8E2D9',
     },
     EmojiPicker: {
@@ -128,7 +126,6 @@ const palettes = {
     },
     ChatInterface: {
       messageColor: '#6C6C6C',
-      replyBorderColor: '3px solid #121212',
       messageReplyColor: '#404040',
     },
     EmojiPicker: {

@@ -42,7 +42,7 @@ import { useLinkPreviewQuery } from '../services/linkPreviewQueries.js'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages.js'
 import { formatRelativeDate, formatTime } from '../utils/dates&times.js'
 import { type EmojiClickData, EmojiPicker } from '../utils/emojiPicker.js'
-import { getSentTimeColor, getTextColor } from '../utils/messagecolor.js'
+import { getReplyRing, getSentTimeColor, getTextColor } from '../utils/messagecolor.js'
 import { isEmoji } from '../utils/utils.js'
 import AudioPlayer from './AudioPlayer.js'
 import BaseIconButton from './common/BaseIconButton.js'
@@ -1355,7 +1355,7 @@ const Bubble = memo(
       }
     }, [isFirstOfGroup, isLastOfGroup, position])
     const nonMediaBubbleStyle = {
-      border: hasReply ? theme.ChatInterface.replyBorderColor : 'unset',
+      border: hasReply ? getReplyRing(theme) : 'unset',
       color: position === 'start' ? theme.palette.text.primary : getTextColor(bubbleColor),
       maxWidth: maxWidth || '100%',
       backgroundColor: bubbleColor,
