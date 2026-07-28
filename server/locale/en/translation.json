@@ -55,6 +55,7 @@
   "button_upload_file": "Upload file",
   "button_select_emoji": "Select an emoji",
   "button_send_message": "Send message",
+  "button_open_contacts": "Open contacts",
   "calling": "Calling {{member0}}",
   "cannot_load_messages": "An error occurred while loading the message.",
   "update_conversation_preferences_error": "An error occurred while updating the conversation preferences.",

@@ -23,8 +23,9 @@ import { useTranslation } from 'react-i18next'
 
 import { useTransferMessageMutation } from '../services/conversationQueries.js'
 import { useTransferFileMutation } from '../services/dataTransferQueries.js'
-import { SendMessageButton } from './Button.js'
+import BaseIconButton from './common/BaseIconButton.js'
 import { SelectConversationList } from './SelectConversationList.js'
+import { Arrow2Icon } from './SvgIcon.js'
 
 interface TransferMessageProps {
   conversationId: string
@@ -132,11 +133,16 @@ const TransferMessage = ({ conversationId, message, onClose, open }: TransferMes
               <Typography sx={{ color: theme.TranferMessage.titleColor, userSelect: 'none' }} variant="h6">
                 {t('transfer_message')}
               </Typography>
-              <SendMessageButton
+              <BaseIconButton
+                aria-label={t('transfer_message')}
+                tooltip={t('transfer_message')}
+                sx={{ fontSize: '25px', height: '36px', width: '36px' }}
                 disabled={selectedConversations.length === 0}
                 onClick={handleTransfer}
-                type={'submit'}
-              />
+                type="submit"
+              >
+                <Arrow2Icon fontSize="inherit" />
+              </BaseIconButton>
             </Box>
           }
         />

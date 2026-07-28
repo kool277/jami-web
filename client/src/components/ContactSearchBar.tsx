@@ -17,9 +17,10 @@
  */
 
 import { Box, InputBase, Stack, useTheme } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { SquareButton } from './Button.js'
+import BaseIconButton from './common/BaseIconButton.js'
 import { SearchRoundedIcon as SearchRounded } from './SvgIcon.js'
 import { PeopleWithPlusSignIcon } from './SvgIcon.js'
 
@@ -31,6 +32,7 @@ interface ContactSearchBarProps {
 export default function ContactSearchBar({ placeholder, handleChange }: ContactSearchBarProps) {
   const navigate = useNavigate()
   const theme = useTheme()
+  const { t } = useTranslation()
 
   // Concentricity: margin + height/2 = Panel.borderRadius
   const searchBarMargin = `calc(${theme.Panel.padding} + ${theme.Panel.itemPadding})`
@@ -68,13 +70,16 @@ export default function ContactSearchBar({ placeholder, handleChange }: ContactS
             color: 'text.primary',
           }}
         />
-        <SquareButton
-          aria-label="add contact"
-          Icon={PeopleWithPlusSignIcon}
+        <BaseIconButton
+          aria-label={t('button_open_contacts')}
+          tooltip={t('button_open_contacts')}
+          sx={{ fontSize: '25px', height: '36px', width: '36px' }}
           onClick={() => {
             navigate('/contacts')
           }}
-        />
+        >
+          <PeopleWithPlusSignIcon fontSize="inherit" />
+        </BaseIconButton>
       </Box>
     </Stack>
   )
