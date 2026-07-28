@@ -25,7 +25,6 @@ const darkEmojiTheme = 'dark' as EmojiTheme
 declare module '@mui/material/styles' {
   interface Theme {
     ChatInterface: {
-      panelColor: string
       inputColor: string
       messageColor: string
       fontColor: string
@@ -33,7 +32,6 @@ declare module '@mui/material/styles' {
       messageReplyColor: string
       reactionModalBackground: string
       selectedColor: string
-      backgroundColor: string
     }
     EmojiPicker: {
       backgroundColor: EmojiTheme
@@ -82,7 +80,6 @@ const palettes = {
       },
     },
     ChatInterface: {
-      panelColor: '#FAF6F0',
       inputColor: 'black',
       messageColor: '#F0EBE3',
       fontColor: 'black',
@@ -90,7 +87,6 @@ const palettes = {
       messageReplyColor: '#E8E2D9',
       reactionModalBackground: '#F0EBE3',
       selectedColor: '#EDE7DD',
-      backgroundColor: '#FEFCF9',
     },
     EmojiPicker: {
       backgroundColor: lightEmojiTheme,
@@ -139,7 +135,6 @@ const palettes = {
       },
     },
     ChatInterface: {
-      panelColor: '#181818',
       inputColor: 'white',
       messageColor: '#6C6C6C',
       fontColor: 'white',
@@ -147,7 +142,6 @@ const palettes = {
       messageReplyColor: '#404040',
       reactionModalBackground: '#1e1f1e',
       selectedColor: '#122D42',
-      backgroundColor: '#050505',
     },
     EmojiPicker: {
       backgroundColor: darkEmojiTheme,

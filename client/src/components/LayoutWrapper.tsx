@@ -52,7 +52,7 @@ export default function LayoutWrapper({ sidebar, main }: LayoutWrapperProps) {
     flexDirection: 'column',
     justifyContent: 'space-between',
     height: 'calc(100vh - 16px)',
-    bgcolor: alpha(theme.ChatInterface.panelColor, 0.85),
+    bgcolor: alpha(theme.palette.background.paper, 0.85),
     backdropFilter: 'blur(24px)',
     WebkitBackdropFilter: 'blur(24px)',
     m: '8px',

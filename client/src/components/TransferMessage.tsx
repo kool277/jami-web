@@ -113,7 +113,7 @@ const TransferMessage = ({ conversationId, message, onClose, open }: TransferMes
           flexDirection: 'column',
           gap: 0,
           padding: '1px',
-          backgroundColor: theme.ChatInterface.panelColor,
+          backgroundColor: theme.palette.background.paper,
           color: theme.ChatInterface.fontColor,
           maxWidth: isMobile ? '300px' : 'unset',
           minWidth: isMobile ? 'unset' : '350px',

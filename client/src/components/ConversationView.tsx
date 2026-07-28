@@ -125,7 +125,7 @@ export const ConversationHeader = () => {
         zIndex: 20,
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
-        backgroundColor: alpha(theme.ChatInterface.backgroundColor, 0.82),
+        backgroundColor: alpha(theme.palette.background.default, 0.82),
         boxShadow: theme.shadows[3],
         borderRadius: '9999px',
         maxWidth: '600px',

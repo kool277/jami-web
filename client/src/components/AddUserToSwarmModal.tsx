@@ -67,7 +67,7 @@ export default function AddUserToSwarmModal({ open, setOpen }: AddUserToSwarmMod
 
   const stylesInCommon = {
     height: 'auto',
-    backgroundColor: theme.ChatInterface.panelColor,
+    backgroundColor: theme.palette.background.paper,
     borderRadius: '10px',
     marginTop: '3.6%',
   }

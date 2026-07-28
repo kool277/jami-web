@@ -114,7 +114,7 @@ const ConversationAvatarPresence = ({ children, buddy }: { children: ReactNode; 
             height: presenceIconSize,
             backgroundColor: '#33cc33',
             borderRadius: '50%',
-            border: '2px solid ' + theme.ChatInterface.panelColor,
+            border: '2px solid ' + theme.palette.background.paper,
           }}
         />
       </Box>
@@ -231,7 +231,7 @@ export const AvatarEditor = () => {
             height: '200px',
             width: '200px',
             zIndex: 10,
-            backgroundColor: theme.ChatInterface.panelColor,
+            backgroundColor: theme.palette.background.paper,
             borderRadius: '10px',
             boxShadow: '5px 5px 10px 0px #1f1f1f',
           }}
