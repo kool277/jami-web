@@ -130,7 +130,7 @@ const TransferMessage = ({ conversationId, message, onClose, open }: TransferMes
                 alignContent: 'center',
               }}
             >
-              <Typography sx={{ color: theme.TranferMessage.titleColor, userSelect: 'none' }} variant="h6">
+              <Typography sx={{ userSelect: 'none' }} variant="h6">
                 {t('transfer_message')}
               </Typography>
               <BaseIconButton
@@ -174,8 +174,8 @@ const TransferMessage = ({ conversationId, message, onClose, open }: TransferMes
                 border: 'none',
                 maxHeight: '50px',
                 width: '80%',
-                backgroundColor: theme.TranferMessage.inputColor,
-                color: theme.TranferMessage.fontColor,
+                backgroundColor: 'background.default',
+                color: 'text.primary',
                 '& fieldset': {
                   border: 'none',
                   maxHeight: '50px',

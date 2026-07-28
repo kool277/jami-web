@@ -38,7 +38,6 @@ const customSlots = [
   'SvgIcons',
   'Buttons',
   'BaseButton',
-  'TranferMessage',
 ] as const
 
 function leaves(value: unknown, path: string): [string, unknown][] {

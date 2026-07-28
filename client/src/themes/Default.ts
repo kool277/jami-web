@@ -99,11 +99,6 @@ declare module '@mui/material/styles' {
         backgroundColor: string
       }
     }
-    TranferMessage: {
-      inputColor: string
-      fontColor: string
-      titleColor: string
-    }
   }
 
   interface ThemeOptions {
@@ -225,11 +220,6 @@ const palettes = {
         backgroundColor: 'transparent',
       },
     },
-    TranferMessage: {
-      inputColor: 'white',
-      fontColor: 'black',
-      titleColor: 'black',
-    },
   },
   dark: {
     palette: {
@@ -343,11 +333,6 @@ const palettes = {
         color: '#FFFFFF',
         backgroundColor: 'transparent',
       },
-    },
-    TranferMessage: {
-      inputColor: '#585858',
-      fontColor: 'lightgrey',
-      titleColor: 'white',
     },
   },
 }
