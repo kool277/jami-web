@@ -31,15 +31,12 @@ import { ConversationMember } from '../models/conversation-member.js'
 import { useEditMessageMutation, useSendMessageMutation } from '../services/conversationQueries.js'
 import { useSendFilesMutation } from '../services/dataTransferQueries.js'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations.js'
-import {
-  RecordVideoMessageButton,
-  RecordVoiceMessageButton,
-  SelectEmojiButton,
-  SendMessageButton,
-  UploadFileButton,
-} from './Button.js'
+import { SelectEmojiButton } from './Button.js'
+import BaseIconButton from './common/BaseIconButton.js'
 import { DeleteIcon } from './SvgIcon.js'
 import {
+  Arrow2Icon,
+  CameraInBubbleIcon,
   FormatBoldIcon,
   FormatCodeIcon,
   FormatItalicIcon,
@@ -49,6 +46,8 @@ import {
   FormatStrikethroughIcon,
   FormatTitleIcon,
   LinkIcon,
+  MicroInBubbleIcon,
+  PaperClipIcon,
 } from './SvgIcon.js'
 
 interface SendMessageFormProps {
@@ -510,7 +509,14 @@ const SendMessageFormContent = ({ openFilePicker }: SendMessageFormProps) => {
               style={{ color: 'red', width: '30px', height: '30px', cursor: 'pointer' }}
             />
           </Tooltip>
-          <SendMessageButton disabled={false} onClick={handleVoiceRecording} />
+          <BaseIconButton
+            aria-label={t('button_send_message')}
+            tooltip={t('button_send_message')}
+            disabled={false}
+            onClick={handleVoiceRecording}
+          >
+            <Arrow2Icon />
+          </BaseIconButton>
         </>
       ) : (
         <Card
@@ -642,23 +648,42 @@ const SendMessageFormContent = ({ openFilePicker }: SendMessageFormProps) => {
               </Tooltip>
               <Box sx={{ flex: 1 }} />
               <Divider orientation="vertical" flexItem sx={{ mx: '4px', my: '4px' }} />
-              <RecordVoiceMessageButton
+              <BaseIconButton
+                aria-label={t('button_record_voice_message')}
+                tooltip={t('button_record_voice_message')}
                 sx={isReduced ? mobileOptionStyles : {}}
                 onClick={voiceRecordingStatusChange}
                 disabled={!!editMessage}
-              />
-              <RecordVideoMessageButton sx={isReduced ? mobileOptionStyles : {}} disabled={!!editMessage} />
-              <UploadFileButton
+              >
+                <MicroInBubbleIcon />
+              </BaseIconButton>
+              <BaseIconButton
+                aria-label={t('button_record_video_message')}
+                tooltip={t('button_record_video_message')}
+                sx={isReduced ? mobileOptionStyles : {}}
+                disabled={!!editMessage}
+              >
+                <CameraInBubbleIcon />
+              </BaseIconButton>
+              <BaseIconButton
+                aria-label={t('button_upload_file')}
+                tooltip={t('button_upload_file')}
                 sx={isReduced ? mobileOptionStyles : {}}
                 disabled={!!editMessage}
                 onClick={openFilePicker}
-              />
+              >
+                <PaperClipIcon />
+              </BaseIconButton>
               <SelectEmojiButton onEmojiSelected={onEmojiSelected} />
-              <SendMessageButton
+              <BaseIconButton
+                aria-label={t('button_send_message')}
+                tooltip={t('button_send_message')}
                 sx={{ ml: '4px' }}
                 disabled={!(currentMessage || fileHandlers.length > 0)}
                 type="submit"
-              />
+              >
+                <Arrow2Icon />
+              </BaseIconButton>
             </Box>
           </CardContent>
         </Card>
