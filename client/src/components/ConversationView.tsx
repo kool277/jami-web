@@ -18,6 +18,7 @@
 import { IconButton, InputBase, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import { lazy, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider.js'
@@ -35,11 +36,10 @@ import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider.j
 //import CallInterface from '../pages/CallInterface.js'
 const CallInterface = lazy(() => import('../pages/CallInterface.js'))
 import ChatInterface from '../pages/ChatInterface.js'
-import { StartAudioCallButton, StartVideoCallButton } from './Button.js'
-import { ShowOptionsMenuButton } from './Button.js'
+import BaseIconButton from './common/BaseIconButton.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import { ArrowBackIosNewIcon } from './SvgIcon.js'
-import { SearchRoundedIcon } from './SvgIcon.js'
+import { AudioCallIcon, ListIcon, SearchRoundedIcon, VideoCallIcon } from './SvgIcon.js'
 
 const ConversationView = () => {
   const { conversationId } = useConversationContext()
@@ -85,6 +85,7 @@ const ConversationContent = () => {
 }
 
 export const ConversationHeader = () => {
+  const { t } = useTranslation()
   const { conversationDisplayName, conversationId, members } = useConversationContext()
   const { account } = useAuthContext()
   const { startCall } = useCallManagerContext()
@@ -133,22 +134,18 @@ export const ConversationHeader = () => {
     >
       {isSearchOpen ? (
         <>
-          <IconButton
+          <BaseIconButton
+            aria-label={t('conversation_search_close')}
+            tooltip={t('conversation_search_close')}
             onClick={handleSearchClose}
-            sx={{
-              flexShrink: 0,
-              height: '36px',
-              width: '36px',
-              borderRadius: '50%',
-              color: theme.Buttons.color,
-              '&:hover': { background: theme.SvgIcons.hoverBackgroundColor },
-            }}
+            sx={{ flexShrink: 0 }}
           >
             <ArrowBackIosNewIcon sx={{ fontSize: 20 }} />
-          </IconButton>
+          </BaseIconButton>
           <InputBase
             autoFocus
-            placeholder="Search in conversation…"
+            inputProps={{ 'aria-label': t('conversation_search') }}
+            placeholder={t('conversation_search')}
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{ flex: 1 }}
           />
@@ -222,25 +219,34 @@ export const ConversationHeader = () => {
               alignItems: 'center',
             }}
           >
-            <StartAudioCallButton onClick={() => startCall(conversationId)} />
-            <StartVideoCallButton onClick={() => startCall(conversationId, true)} />
-            <IconButton
+            <BaseIconButton
+              aria-label={t('conversation_start_audiocall')}
+              tooltip={t('conversation_start_audiocall')}
+              onClick={() => startCall(conversationId)}
+            >
+              <AudioCallIcon />
+            </BaseIconButton>
+            <BaseIconButton
+              aria-label={t('conversation_start_videocall')}
+              tooltip={t('conversation_start_videocall')}
+              onClick={() => startCall(conversationId, true)}
+            >
+              <VideoCallIcon />
+            </BaseIconButton>
+            <BaseIconButton
+              aria-label={t('conversation_search')}
+              tooltip={t('conversation_search')}
               onClick={() => setIsSearchOpen(true)}
-              sx={{
-                height: '36px',
-                width: '36px',
-                borderRadius: '50%',
-                color: theme.Buttons.color,
-                '&:hover': { background: theme.SvgIcons.hoverBackgroundColor, color: theme.palette.text.primary },
-              }}
             >
               <SearchRoundedIcon sx={{ fontSize: 22 }} />
-            </IconButton>
-            <ShowOptionsMenuButton
-              onClick={() => {
-                setIsOpen(!isOpen)
-              }}
-            />
+            </BaseIconButton>
+            <BaseIconButton
+              aria-label={t('conversation_show_options')}
+              tooltip={t('conversation_show_options')}
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              <ListIcon />
+            </BaseIconButton>
           </Stack>
         </>
       )}
