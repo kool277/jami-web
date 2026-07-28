@@ -31,8 +31,8 @@ import { ConversationMember } from '../models/conversation-member.js'
 import { useEditMessageMutation, useSendMessageMutation } from '../services/conversationQueries.js'
 import { useSendFilesMutation } from '../services/dataTransferQueries.js'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations.js'
-import { SelectEmojiButton } from './Button.js'
 import BaseIconButton from './common/BaseIconButton.js'
+import SelectEmojiButton from './SelectEmojiButton.js'
 import { DeleteIcon } from './SvgIcon.js'
 import {
   Arrow2Icon,
