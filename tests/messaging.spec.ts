@@ -132,6 +132,16 @@ test.describe('Messenger - Conversation View', () => {
     const header = page.getByText(/Bob|Chat with Bob/i)
     await expect(header.first()).toBeVisible({ timeout: 15_000 })
   })
+
+  test('conversation header controls are reachable by their accessible name', async ({ page }) => {
+    await page.goto('/conversation/conv-1')
+
+    // The audio and video names were once swapped, so a screen reader placed the wrong kind of call.
+    await expect(page.getByRole('button', { name: 'Start audio call' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: 'Start video call' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Search in conversation' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Show conversation options' })).toBeVisible()
+  })
 })
 
 test.describe('Messenger - Search', () => {

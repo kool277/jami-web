@@ -53,9 +53,7 @@ import { CancelIcon as RadioButtonUnchecked, CheckedIcon as RadioButtonChecked }
 import {
   Arrow2Icon,
   Arrow3Icon,
-  AudioCallIcon,
   CameraIcon,
-  CameraInBubbleIcon,
   CancelIcon,
   CrossedEyeIcon,
   CrossIcon,
@@ -64,12 +62,8 @@ import {
   EyeIcon,
   FolderIcon,
   InfoIcon,
-  ListIcon,
-  MicroInBubbleIcon,
-  PaperClipIcon,
   PenIcon,
   SaltireIcon,
-  VideoCallIcon,
 } from './SvgIcon.js'
 import CustomTooltip from './Tooltip.js'
 
@@ -390,47 +384,6 @@ export const SquareButton = styled(({ Icon, tooltip, ...props }: ShapedButtonPro
     color: theme.Buttons.disabledColor,
   },
 }))
-
-export const RecordVideoMessageButton = (props: IconButtonProps) => {
-  const { t } = useTranslation()
-  return (
-    <SquareButton
-      tooltip={t('button_record_video_message')}
-      {...props}
-      aria-label="record video message"
-      Icon={CameraInBubbleIcon}
-    />
-  )
-}
-
-export const RecordVoiceMessageButton = (props: IconButtonProps) => {
-  const { t } = useTranslation()
-  return (
-    <SquareButton
-      tooltip={t('button_record_voice_message')}
-      {...props}
-      aria-label="record voice message"
-      Icon={MicroInBubbleIcon}
-    />
-  )
-}
-
-export const ShowOptionsMenuButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="show options menu" Icon={ListIcon} />
-}
-
-export const StartVideoCallButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="start video call" Icon={VideoCallIcon} />
-}
-
-export const StartAudioCallButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="start audio call" Icon={AudioCallIcon} />
-}
-
-export const UploadFileButton = (props: IconButtonProps) => {
-  const { t } = useTranslation()
-  return <SquareButton tooltip={t('button_upload_file')} {...props} aria-label="upload file" Icon={PaperClipIcon} />
-}
 
 export const SendMessageButton = (props: IconButtonProps) => {
   const { t } = useTranslation()
