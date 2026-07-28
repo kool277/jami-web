@@ -16,12 +16,13 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Card, CardContent, CardHeader, Modal } from '@mui/material'
+import { Box } from '@mui/material'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form } from 'react-router-dom'
 
 import BaseButton from '../../../components/common/BaseButton.js'
+import BaseModalDialog from '../../../components/common/BaseModalDialog.js'
 import PasswordField from '../../../components/common/PasswordField.js'
 import { useAuthContext } from '../../../contexts/AuthProvider.js'
 
@@ -48,85 +49,55 @@ export default function PasswordRequiredModal({
   const hasPassword = account.details['Account.archiveHasPassword']
 
   return (
-    <Modal
+    <BaseModalDialog
       open={open}
-      onClose={() => {
-        onClose()
-      }}
-      sx={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignContent: 'center',
-        alignItems: 'center',
-      }}
+      selectedValue=""
+      title={title}
+      onClose={onClose}
+      closePolicy={['escapeKeyDown', 'backdropClick']}
+      dialogWidth={400}
+      actions={
+        <>
+          <BaseButton variant="contained" onClick={onClose}>
+            {t('dialog_cancel')}
+          </BaseButton>
+          <BaseButton variant="contained" onClick={() => onValidation(password)}>
+            {buttonText}
+          </BaseButton>
+        </>
+      }
     >
-      <Card
-        sx={{
-          width: '400px',
-          height: '450px',
-          backgroundColor: 'background.paper',
-          borderRadius: '16px',
-          border: 'none',
-        }}
-      >
-        <CardHeader
-          title={title}
-          subheader={<Box sx={{ marginTop: '20px' }}>{hasPassword ? t('enter_password_info') : ''}</Box>}
-        />
-        <CardContent sx={{ height: '100%' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, minHeight: 240 }}>
+        {hasPassword && <Box sx={{ typography: 'body2', color: 'text.secondary' }}>{t('enter_password_info')}</Box>}
+        {info && (
           <Box
             sx={{
               typography: 'body2',
-              display: 'flex',
               color: 'text.secondary',
-              maxWidth: '100%',
+              overflowWrap: 'anywhere',
               whiteSpace: 'pre-wrap',
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              margin: 'auto',
-              textAlign: 'start',
-              marginTop: '-14px',
             }}
           >
             {info}
           </Box>
-
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              flexDirection: 'column',
-              height: '50%',
-            }}
-          >
-            <Form method="post" style={{ visibility: hasPassword ? 'visible' : 'hidden' }}>
-              <PasswordField
-                label={t('password_input_label')}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </Form>
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-            <BaseButton variant="contained" onClick={onClose}>
-              {t('dialog_cancel')}
-            </BaseButton>
-            <BaseButton
-              variant="contained"
-              onClick={() => {
-                onValidation(password)
-              }}
-            >
-              {buttonText}
-            </BaseButton>
-          </Box>
-        </CardContent>
-      </Card>
-    </Modal>
+        )}
+        <Box
+          sx={{
+            display: 'flex',
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Form method="post" style={{ visibility: hasPassword ? 'visible' : 'hidden' }}>
+            <PasswordField
+              label={t('password_input_label')}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </Form>
+        </Box>
+      </Box>
+    </BaseModalDialog>
   )
 }
