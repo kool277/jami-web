@@ -1293,8 +1293,8 @@ const MessageTooltip = styled(
   const largeRadius = '20px'
   const smallRadius = '5px'
   return {
-    backgroundColor: theme.InfoTooltip.backgroundColor.main,
-    color: theme.InfoTooltip.color.main,
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
     padding: '0px',
     boxShadow: '3px 3px 7px #00000029',
     borderRadius: largeRadius,

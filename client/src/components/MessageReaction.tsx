@@ -155,7 +155,7 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
           position: 'absolute',
           borderRadius: '15px',
           border: 'none',
-          backgroundColor: theme.InfoTooltip.backgroundColor.main,
+          backgroundColor: 'background.paper',
           alignContent: 'center',
           alignItems: 'center',
           top: '50%',
@@ -167,7 +167,7 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
       >
         <Box
           sx={{
-            backgroundColor: theme.InfoTooltip.backgroundColor.main,
+            backgroundColor: 'background.paper',
             borderRadius: '15px',
             padding: '10px',
             display: 'flex',

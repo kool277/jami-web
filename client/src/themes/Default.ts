@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { createTheme, Direction, PaletteMode, SimplePaletteColorOptions } from '@mui/material'
+import { createTheme, Direction, PaletteMode } from '@mui/material'
 import { TypographyVariantsOptions } from '@mui/material/styles'
 import { type Theme as EmojiTheme } from 'emoji-picker-react'
 
@@ -24,10 +24,6 @@ const darkEmojiTheme = 'dark' as EmojiTheme
 
 declare module '@mui/material/styles' {
   interface Theme {
-    InfoTooltip: {
-      backgroundColor: SimplePaletteColorOptions
-      color: SimplePaletteColorOptions
-    }
     ChatInterface: {
       panelColor: string
       inputColor: string
@@ -80,13 +76,6 @@ declare module '@mui/material/styles' {
       }
     }
   }
-
-  interface ThemeOptions {
-    InfoTooltip: {
-      backgroundColor: SimplePaletteColorOptions
-      color: SimplePaletteColorOptions
-    }
-  }
 }
 
 const palettes = {
@@ -119,14 +108,6 @@ const palettes = {
       text: {
         primary: '#1A1A1A',
         secondary: '#5C5C5C',
-      },
-    },
-    InfoTooltip: {
-      backgroundColor: {
-        main: '#FFFFFF',
-      },
-      color: {
-        main: '#292929',
       },
     },
     ChatInterface: {
@@ -213,14 +194,6 @@ const palettes = {
       text: {
         primary: '#F5F5F5',
         secondary: '#B3B3B3',
-      },
-    },
-    InfoTooltip: {
-      backgroundColor: {
-        main: '#2f2f2f',
-      },
-      color: {
-        main: '#f5f5f5',
       },
     },
     ChatInterface: {
