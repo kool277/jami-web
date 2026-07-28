@@ -99,10 +99,6 @@ declare module '@mui/material/styles' {
         backgroundColor: string
       }
     }
-    SettingsBackButton: {
-      hoverBackgroundColor: string
-      backgroundColor: string
-    }
     TranferMessage: {
       inputColor: string
       fontColor: string
@@ -229,10 +225,6 @@ const palettes = {
         backgroundColor: 'transparent',
       },
     },
-    SettingsBackButton: {
-      hoverBackgroundColor: '#F0EBE3',
-      backgroundColor: '#FEFCF9',
-    },
     TranferMessage: {
       inputColor: 'white',
       fontColor: 'black',
@@ -351,10 +343,6 @@ const palettes = {
         color: '#FFFFFF',
         backgroundColor: 'transparent',
       },
-    },
-    SettingsBackButton: {
-      hoverBackgroundColor: '#E5E5E5',
-      backgroundColor: 'white',
     },
     TranferMessage: {
       inputColor: '#585858',

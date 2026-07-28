@@ -38,7 +38,6 @@ const customSlots = [
   'SvgIcons',
   'Buttons',
   'BaseButton',
-  'SettingsBackButton',
   'TranferMessage',
 ] as const
 

@@ -57,10 +57,10 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
     width: '99%',
     textAlign: 'start',
     margin: '2%',
-    backgroundColor: theme.SettingsBackButton.backgroundColor,
-    color: 'black',
+    backgroundColor: 'transparent',
+    color: 'text.primary',
     '&:hover': {
-      backgroundColor: theme.SettingsBackButton.hoverBackgroundColor,
+      backgroundColor: 'action.hover',
     },
     height: '36px',
     borderRadius: '12px',
