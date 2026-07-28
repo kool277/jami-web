@@ -20,6 +20,7 @@ import { Box, useMediaQuery, useTheme } from '@mui/material'
 import { useCallback, useEffect, useState } from 'react'
 
 import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext.js'
+import { getPeerBubbleColor } from '../utils/messagecolor.js'
 import AudioVisual from './AudioVisual.js'
 import { PauseIcon, PlayArrowIcon } from './SvgIcon.js'
 
@@ -144,7 +145,7 @@ function AudioPlayer({ blob, isAccountMessage }: AudioPlayerProps) {
     // TODO : update the color based on preferences context
     <Box
       sx={{
-        backgroundColor: isAccountMessage ? conversationColor : theme.ChatInterface.messageColor,
+        backgroundColor: isAccountMessage ? conversationColor : getPeerBubbleColor(theme),
         borderRadius: '15px',
         paddingRight: '5px',
         marginBottom: '4px',

@@ -20,7 +20,7 @@ import { darken } from '@mui/system'
 import { useTranslation } from 'react-i18next'
 
 import { useConversationPreferencesColorContext } from '../contexts/ConversationPreferencesColorContext.js'
-import { getTextColor } from '../utils/messagecolor.js'
+import { getPeerBubbleColor, getTextColor } from '../utils/messagecolor.js'
 import { useDataSizeUnits } from '../utils/units.js'
 import EllipsisMiddle from './EllipsisMiddle.js'
 import { AttachFileIcon } from './SvgIcon.js'
@@ -46,7 +46,7 @@ export default function ({
   const isMedium: boolean = useMediaQuery(theme.breakpoints.down('md'))
   const { conversationColor } = useConversationPreferencesColorContext()
 
-  const color = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
+  const color = isAccountMessage ? conversationColor : getPeerBubbleColor(theme)
   const backgroundColor = darken(color, 0.3)
   const textColor = isAccountMessage ? getTextColor(color) : theme.palette.text.primary
   const formattedTotalSize = useDataSizeUnits(totalSize)

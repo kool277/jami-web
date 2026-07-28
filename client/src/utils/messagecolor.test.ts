@@ -15,10 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { darken, lighten } from '@mui/material/styles'
 import { describe, expect, it } from 'vitest'
 
 import { buildDefaultTheme } from '../themes/Default.js'
-import { getReplyRing } from './messagecolor.js'
+import { getPeerBubbleColor, getReplyBubbleColor, getReplyRing } from './messagecolor.js'
 
 describe('getReplyRing', () => {
   const light = buildDefaultTheme('light', 'ltr')
@@ -32,5 +33,26 @@ describe('getReplyRing', () => {
   it('draws the ring in the surface behind the bubble', () => {
     expect(getReplyRing(light)).toContain(light.palette.background.default)
     expect(getReplyRing(dark)).toContain(dark.palette.background.default)
+  })
+})
+
+describe('message bubble colours', () => {
+  const light = buildDefaultTheme('light', 'ltr')
+  const dark = buildDefaultTheme('dark', 'ltr')
+
+  it('derives peer bubbles from the shared surface in light mode', () => {
+    expect(getPeerBubbleColor(light)).toBe(darken(light.palette.background.paper, 0.04))
+    expect(getReplyBubbleColor(light)).toBe(darken(light.palette.background.paper, 0.07))
+  })
+
+  it('derives peer bubbles from the shared surface in dark mode', () => {
+    expect(getPeerBubbleColor(dark)).toBe(lighten(dark.palette.background.paper, 0.36))
+    expect(getReplyBubbleColor(dark)).toBe(lighten(dark.palette.background.paper, 0.17))
+  })
+
+  it('keeps a quoted reply distinct from its enclosing peer bubble', () => {
+    for (const theme of [light, dark]) {
+      expect(getReplyBubbleColor(theme)).not.toBe(getPeerBubbleColor(theme))
+    }
   })
 })

@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Theme } from '@mui/material/styles'
+import { darken, lighten, Theme } from '@mui/material/styles'
 import CryptoJS from 'crypto-js'
 
 // do not modify the order of the colors
@@ -78,6 +78,20 @@ export function getSentTimeColor(color: string): string {
 // change and shift the whole thread.
 export function getReplyRing(theme: Theme): string {
   return `2px solid ${theme.palette.background.default}`
+}
+
+// Message bubbles sit over the app surface. Deriving their tones from that surface means a palette
+// change cannot leave a stale, unrelated chat colour behind.
+export function getPeerBubbleColor(theme: Theme): string {
+  return theme.palette.mode === 'light'
+    ? darken(theme.palette.background.paper, 0.04)
+    : lighten(theme.palette.background.paper, 0.36)
+}
+
+export function getReplyBubbleColor(theme: Theme): string {
+  return theme.palette.mode === 'light'
+    ? darken(theme.palette.background.paper, 0.07)
+    : lighten(theme.palette.background.paper, 0.17)
 }
 
 export function getColor(canonicalUri: string): string {

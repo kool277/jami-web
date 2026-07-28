@@ -42,7 +42,13 @@ import { useLinkPreviewQuery } from '../services/linkPreviewQueries.js'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages.js'
 import { formatRelativeDate, formatTime } from '../utils/dates&times.js'
 import { type EmojiClickData, EmojiPicker } from '../utils/emojiPicker.js'
-import { getReplyRing, getSentTimeColor, getTextColor } from '../utils/messagecolor.js'
+import {
+  getPeerBubbleColor,
+  getReplyBubbleColor,
+  getReplyRing,
+  getSentTimeColor,
+  getTextColor,
+} from '../utils/messagecolor.js'
 import { isEmoji } from '../utils/utils.js'
 import AudioPlayer from './AudioPlayer.js'
 import BaseIconButton from './common/BaseIconButton.js'
@@ -127,10 +133,10 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
   const position = isAccountMessage ? 'end' : 'start'
   const theme = useTheme()
   const { conversationColor } = useConversationPreferencesColorContext()
-  const messageColor = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
+  const messageColor = isAccountMessage ? conversationColor : getPeerBubbleColor(theme)
   const darkColor = darken(messageColor, 0.3)
 
-  const bubbleColor = isAccountMessage ? darkColor : theme.ChatInterface.messageColor
+  const bubbleColor = isAccountMessage ? darkColor : getPeerBubbleColor(theme)
   const textColor = theme.palette.text.secondary
 
   const callDuration = dayjs.duration(parseInt(message?.duration || ''))
@@ -214,7 +220,7 @@ const MessageDataTransfer = memo(
     const { conversationId, members } = useConversationContext()
     const setReplyMessage = useGlobalSetReplyMessage()
     const { conversationColor } = useConversationPreferencesColorContext()
-    const bubbleColor = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
+    const bubbleColor = isAccountMessage ? conversationColor : getPeerBubbleColor(theme)
     const [fileType, setFileType] = useState<FileType>()
     const extension = message.displayName?.split('.').pop()?.toLowerCase() || ''
 
@@ -632,7 +638,7 @@ const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfG
   const theme: Theme = useTheme()
 
   const position = isAccountMessage ? 'end' : 'start'
-  const bubbleColor = isAccountMessage ? conversationColor : theme.ChatInterface.messageColor
+  const bubbleColor = isAccountMessage ? conversationColor : getPeerBubbleColor(theme)
   const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message])
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('md'))
@@ -873,7 +879,7 @@ const UserMessageRow = memo(
 
     if (typeof replyMessage === 'object' && replyMessage !== undefined) {
       const member = members.find((member) => replyMessage?.author === member.contact.uri)
-      const bubbleColorReply = theme.ChatInterface.messageReplyColor
+      const bubbleColorReply = getReplyBubbleColor(theme)
       const name = member === undefined ? t('yourself') : member.contact.getDisplayName()
       replyMessageComponent = (
         <Box

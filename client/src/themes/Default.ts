@@ -24,10 +24,6 @@ const darkEmojiTheme = 'dark' as EmojiTheme
 
 declare module '@mui/material/styles' {
   interface Theme {
-    ChatInterface: {
-      messageColor: string
-      messageReplyColor: string
-    }
     EmojiPicker: {
       backgroundColor: EmojiTheme
     }
@@ -74,10 +70,6 @@ const palettes = {
         secondary: '#5C5C5C',
       },
     },
-    ChatInterface: {
-      messageColor: '#F0EBE3',
-      messageReplyColor: '#E8E2D9',
-    },
     EmojiPicker: {
       backgroundColor: lightEmojiTheme,
     },
@@ -123,10 +115,6 @@ const palettes = {
         primary: '#F5F5F5',
         secondary: '#B3B3B3',
       },
-    },
-    ChatInterface: {
-      messageColor: '#6C6C6C',
-      messageReplyColor: '#404040',
     },
     EmojiPicker: {
       backgroundColor: darkEmojiTheme,
