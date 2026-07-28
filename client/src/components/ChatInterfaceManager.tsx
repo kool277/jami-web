@@ -29,13 +29,13 @@ import {
 import { MessageStatusCode } from '@savoirfairelinux/jami-web-common/src/enums/message-status-code'
 import { createContext, memo, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 
-import LoadingPage from '../components/Loading.js'
 import MessageList from '../components/MessageList.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
 import { useMessagesQuery } from '../services/conversationQueries.js'
+import LoadingSkeleton from './common/LoadingSkeleton.js'
 import ComposingMembersIndicator from './ComposingMembersIndicator.js'
 import EditMessage from './EditMessage.js'
 import FilePreviewsList from './FilePreviewsList.js'
@@ -598,7 +598,7 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
   }, [messagesArray, account, conversationId, webSocket])
 
   if (isLoading) {
-    return <LoadingPage />
+    return <LoadingSkeleton />
   } else if (error) {
     return <div>Error loading {conversationId}</div>
   }
