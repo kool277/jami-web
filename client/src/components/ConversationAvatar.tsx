@@ -28,19 +28,19 @@ import { useUpdateAvatarMutation } from '../services/accountQueries.js'
 import { useContactProfilePicture } from '../services/contactQueries.js'
 import { FileHandler } from '../utils/files.js'
 import { getColor } from '../utils/messagecolor.js'
-import {
-  CancelPictureButton,
-  CloseButton,
-  CornerCloseButton,
-  EditPictureButton,
-  RecordButton,
-  RoundButton,
-  TakePictureButton,
-  UploadPictureButton,
-} from './Button.js'
+import BaseIconButton from './common/BaseIconButton.js'
+import RoundIconButton from './common/RoundIconButton.js'
 import { InfosDialog, useDialogHandler } from './Dialog.js'
 import { CircleMaskOverlay, FileDragOverlay } from './Overlay.js'
-import { CheckMarkIcon as Check, RefreshOutlinedIcon as RefreshOutlined } from './SvgIcon.js'
+import {
+  CameraIcon,
+  CancelIcon,
+  CheckMarkIcon as Check,
+  FolderIcon,
+  PenIcon,
+  RefreshOutlinedIcon as RefreshOutlined,
+  SaltireIcon,
+} from './SvgIcon.js'
 
 type ConversationAvatarProps = AvatarProps & {
   displayName: string
@@ -204,7 +204,15 @@ export const AvatarEditor = () => {
         }}
       >
         <Box sx={{ position: 'absolute', right: '19.89px', zIndex: 10 }}>
-          <EditPictureButton onClick={() => setEditionToolsIsOpen(true)} sx={{ width: '30px', height: '30px' }} />
+          <RoundIconButton
+            aria-label={t('picture_edit')}
+            tooltip={t('picture_edit')}
+            size="small"
+            sx={{ width: '30px', height: '30px', backgroundColor: 'inherit' }}
+            onClick={() => setEditionToolsIsOpen(true)}
+          >
+            <PenIcon fontSize="inherit" />
+          </RoundIconButton>
         </Box>
         <ConversationAvatar
           src={avatarHandler?.url || url}
@@ -236,10 +244,40 @@ export const AvatarEditor = () => {
               alignItems: 'center',
             }}
           >
-            <TakePictureButton onClick={openPhotoTaker} />
-            <UploadPictureButton onClick={openFilePicker} />
-            {avatarHandler && <CancelPictureButton onClick={removeAvatar} />}
-            <CloseButton onClick={closeTools} />
+            <RoundIconButton
+              aria-label={t('picture_take')}
+              tooltip={t('picture_take')}
+              size="large"
+              onClick={openPhotoTaker}
+            >
+              <CameraIcon fontSize="inherit" />
+            </RoundIconButton>
+            <RoundIconButton
+              aria-label={t('picture_upload')}
+              tooltip={t('picture_upload')}
+              size="large"
+              onClick={openFilePicker}
+            >
+              <FolderIcon fontSize="inherit" />
+            </RoundIconButton>
+            {avatarHandler && (
+              <RoundIconButton
+                aria-label={t('picture_remove')}
+                tooltip={t('picture_remove')}
+                size="large"
+                onClick={removeAvatar}
+              >
+                <CancelIcon fontSize="inherit" />
+              </RoundIconButton>
+            )}
+            <BaseIconButton
+              aria-label={t('picture_options_close')}
+              tooltip={t('picture_options_close')}
+              sx={{ color: 'SvgIcons.color', fontSize: '15px', height: '30px', width: '30px' }}
+              onClick={closeTools}
+            >
+              <SaltireIcon fontSize="inherit" />
+            </BaseIconButton>
           </Stack>
         </Stack>
       )}
@@ -255,7 +293,13 @@ type PhotoTakerProps = {
 }
 
 const circleLengthPercentage = '50%'
+const shutterSize = '50px'
+const shutterOutlineWidth = '1px'
+const shutterOutlineOffset = '4px'
+const shutterInnerSize =
+  parseInt(shutterSize) - parseInt(shutterOutlineWidth) * 2 - parseInt(shutterOutlineOffset) * 2 + 'px'
 const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
+  const { t } = useTranslation()
   const [isPaused, setIsPaused] = useState(false)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [stream, setStream] = useState<MediaStream | null>(null) // video.srcObject is not reliable
@@ -370,7 +414,21 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
             position: 'relative',
           }}
         >
-          <CornerCloseButton onClick={onClose} />
+          <BaseIconButton
+            aria-label={t('photo_camera_close')}
+            tooltip={t('photo_camera_close')}
+            sx={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              zIndex: 200,
+              color: 'common.white',
+              fontSize: '10px',
+            }}
+            onClick={onClose}
+          >
+            <SaltireIcon fontSize="inherit" />
+          </BaseIconButton>
           {stream && <CircleMaskOverlay size={circleLengthPercentage} />}
           <video ref={setVideoRef} style={{ transform: 'rotateY(180deg)' /* mirror */ }} />
         </Stack>
@@ -385,23 +443,48 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
         >
           {isPaused ? (
             <>
-              <RoundButton
-                Icon={RefreshOutlined}
-                aria-label="cancel photo"
+              <RoundIconButton
+                aria-label={t('photo_retake')}
+                tooltip={t('photo_retake')}
                 size="large"
                 sx={{ fontSize: '40px' }}
                 onClick={cancelPhoto}
-              />
-              <RoundButton
-                Icon={Check}
-                aria-label="save photo"
+              >
+                <RefreshOutlined fontSize="inherit" />
+              </RoundIconButton>
+              <RoundIconButton
+                aria-label={t('photo_confirm')}
+                tooltip={t('photo_confirm')}
                 size="large"
                 sx={{ fontSize: '40px' }}
                 onClick={savePhoto}
-              />
+              >
+                <Check fontSize="inherit" />
+              </RoundIconButton>
             </>
           ) : (
-            <RecordButton onClick={takePhoto} />
+            <BaseIconButton
+              aria-label={t('photo_capture')}
+              tooltip={t('photo_capture')}
+              sx={{ width: shutterSize, height: shutterSize, padding: 0 }}
+              onClick={takePhoto}
+            >
+              <Box
+                sx={{
+                  width: shutterInnerSize,
+                  height: shutterInnerSize,
+                  borderRadius: '100%',
+                  outline: `${shutterOutlineWidth} solid`,
+                  outlineColor: 'error.light',
+                  outlineOffset: shutterOutlineOffset,
+                  backgroundColor: 'error.light',
+                  '&:hover': {
+                    outlineColor: 'error.main',
+                    backgroundColor: 'error.main',
+                  },
+                }}
+              />
+            </BaseIconButton>
           )}
         </Stack>
       </Stack>

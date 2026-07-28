@@ -107,6 +107,20 @@ test.describe('Settings Navigation', () => {
     await page.goto('/contacts')
     await expect(page).toHaveURL(/\/contacts/)
   })
+
+  // The avatar controls once carried no accessible name, so the profile
+  // picture could not be changed without a mouse.
+  test('avatar picture controls are reachable by their accessible name', async ({ page }) => {
+    await page.goto('/settings/account/manage-account')
+
+    const edit = page.getByRole('button', { name: 'Edit picture' })
+    await expect(edit).toBeVisible({ timeout: 15_000 })
+    await edit.click()
+
+    for (const name of ['Take a picture', 'Upload a picture', 'Close picture options']) {
+      await expect(page.getByRole('button', { name })).toBeVisible({ timeout: 10_000 })
+    }
+  })
 })
 
 test.describe('Logout Flow', () => {
