@@ -49,7 +49,6 @@ import { useTranslation } from 'react-i18next'
 
 import { type EmojiClickData } from '../utils/emojiPicker.js'
 import BaseIconButton from './common/BaseIconButton.js'
-import { CancelIcon as RadioButtonUnchecked, CheckedIcon as RadioButtonChecked } from './SvgIcon.js'
 import { CrossedEyeIcon, EmojiIcon, ExpandLessIcon, EyeIcon, InfoIcon, SaltireIcon } from './SvgIcon.js'
 import CustomTooltip from './Tooltip.js'
 
@@ -128,6 +127,7 @@ export const ExpandableButton = ({
   IconButtonComp = IconButton,
   ...props
 }: ExpandableButtonProps) => {
+  const { t } = useTranslation()
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const handleClose = () => {
     setAnchorEl(null)
@@ -189,7 +189,7 @@ export const ExpandableButton = ({
       >
         {expandMenuOptions && (
           <IconButton
-            aria-label="expand options"
+            aria-label={t('call_expand_options')}
             onClick={(e) => setAnchorEl(e.currentTarget)}
             sx={{
               rotate: !isVertical ? '' : '-90deg',
@@ -234,36 +234,6 @@ export const InfoButton = ({ tooltipTitle, ...props }: InfoButtonProps) => {
     <CustomTooltip className="tooltip" title={tooltipTitle}>
       <RoundButton {...props} aria-label="informations" Icon={InfoIcon} size="small" />
     </CustomTooltip>
-  )
-}
-
-export type ToggleIconButtonProps = IconButtonProps & {
-  selected: boolean
-  toggle: () => void
-  IconOn?: ComponentType<SvgIconProps>
-  IconOff?: ComponentType<SvgIconProps>
-}
-
-export const ToggleIconButton = ({
-  IconOn = RadioButtonChecked,
-  IconOff = RadioButtonUnchecked,
-  selected,
-  toggle,
-  ...props
-}: ToggleIconButtonProps) => {
-  return (
-    <IconButton
-      {...props}
-      sx={{
-        color: selected ? 'white' : 'red',
-        ...props.sx,
-      }}
-      onClick={() => {
-        toggle()
-      }}
-    >
-      {selected ? <IconOn /> : <IconOff />}
-    </IconButton>
   )
 }
 
