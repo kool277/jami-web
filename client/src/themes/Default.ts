@@ -460,6 +460,7 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
   const ChatInterface = partialTheme.ChatInterface
   const BaseButton = partialTheme.BaseButton
   const Panel = partialTheme.Panel
+  const Buttons = partialTheme.Buttons
   const isDark = mode === 'dark'
 
   // Unified shadow system
@@ -714,6 +715,21 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
         styleOverrides: {
           root: {
             borderRadius: '50%',
+            color: Buttons.color,
+            transition: 'background-color 150ms ease, color 150ms ease',
+            '&:hover': {
+              backgroundColor: Buttons.hoverBackgroundColor,
+            },
+            '&.Mui-disabled': {
+              color: Buttons.disabledColor,
+            },
+            '&.Mui-focusVisible': {
+              outline: '2px solid currentColor',
+              outlineOffset: '2px',
+            },
+            '@media (prefers-reduced-motion: reduce)': {
+              transition: 'none',
+            },
           },
         },
       },
