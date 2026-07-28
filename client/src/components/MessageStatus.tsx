@@ -38,6 +38,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
   const { members } = useConversationContext()
   const messageStatus = use(CurrentLastSeenMessageContext)
   const theme = useTheme()
+  const statusColor = theme.palette.text.primary
 
   const highestStatus = useMemo(() => {
     let highest = MessageStatusCode.sending
@@ -80,7 +81,8 @@ export default function MessageStatus({ message }: MessageStatusProps) {
                     position: 'absolute',
                     right: `${index * 14}px`,
                     zIndex: 1,
-                    border: theme.StatusIcon.border,
+                    border: '4px solid',
+                    borderColor: 'background.default',
                     borderRadius: '25px',
                   }}
                 >
@@ -104,7 +106,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
           case MessageStatusCode.sending:
             return (
               <SendingIcon
-                style={{ color: theme.StatusIcon.color, stroke: theme.StatusIcon.color, fill: theme.StatusIcon.color }}
+                style={{ color: statusColor, stroke: statusColor, fill: statusColor }}
                 width={messageSentIconWidth}
               />
             )
@@ -115,7 +117,7 @@ export default function MessageStatus({ message }: MessageStatusProps) {
         }
       }
     },
-    [accountUri, highestStatus, members, messageStatus, theme],
+    [accountUri, highestStatus, members, messageStatus, statusColor],
   )
 
   const Icon = DisplayedIcon(message)

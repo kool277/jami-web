@@ -53,9 +53,6 @@ declare module '@mui/material/styles' {
       backgroundColor: string
       fileBackgroundColor: string
     }
-    MessageCall: {
-      textColorMissed: string
-    }
     MessageDataContent: {
       textColor: string
       backgroundColor: string
@@ -70,7 +67,6 @@ declare module '@mui/material/styles' {
     }
     CustomSelect: {
       backgroundColor: string
-      hoverColor: string
     }
     Panel: {
       outerBackground: string
@@ -116,10 +112,6 @@ declare module '@mui/material/styles' {
     SettingsBackButton: {
       hoverBackgroundColor: string
       backgroundColor: string
-    }
-    StatusIcon: {
-      color: string
-      border: string
     }
     TranferMessage: {
       inputColor: string
@@ -207,9 +199,6 @@ const palettes = {
       backgroundColor: 'white',
       fileBackgroundColor: 'lightgrey',
     },
-    MessageCall: {
-      textColorMissed: '#CC0022',
-    },
     MessageDataContent: {
       textColor: 'black',
       backgroundColor: '#7f7f7f',
@@ -265,10 +254,6 @@ const palettes = {
         color: '#000000',
         backgroundColor: 'transparent',
       },
-    },
-    StatusIcon: {
-      color: 'black',
-      border: '4px solid white',
     },
     SettingsBackButton: {
       hoverBackgroundColor: '#F0EBE3',
@@ -350,9 +335,6 @@ const palettes = {
       backgroundColor: '#181818',
       fileBackgroundColor: '#393838',
     },
-    MessageCall: {
-      textColorMissed: '#FA2E30',
-    },
     MessageDataContent: {
       textColor: 'white',
       backgroundColor: '#7f7f7f',
@@ -408,10 +390,6 @@ const palettes = {
         color: '#FFFFFF',
         backgroundColor: 'transparent',
       },
-    },
-    StatusIcon: {
-      color: 'white',
-      border: '4px solid #121212',
     },
     SettingsBackButton: {
       hoverBackgroundColor: '#E5E5E5',

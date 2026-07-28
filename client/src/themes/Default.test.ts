@@ -32,7 +32,6 @@ const customSlots = [
   'Dialog',
   'WelcomePage',
   'MediaViewer',
-  'MessageCall',
   'MessageDataContent',
   'Footer',
   'EmojiPicker',
@@ -43,7 +42,6 @@ const customSlots = [
   'Buttons',
   'BaseButton',
   'SettingsBackButton',
-  'StatusIcon',
   'TranferMessage',
   'SettingsNeedPassword',
 ] as const

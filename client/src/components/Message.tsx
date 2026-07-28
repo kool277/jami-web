@@ -159,9 +159,7 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
           paddingLeft: '8px',
         }}
       >
-        <Icon
-          sx={{ fontSize: '20px', color: isMissed ? theme.MessageCall.textColorMissed : textColor, marginLeft: '4px' }}
-        />
+        <Icon sx={{ fontSize: '20px', color: isMissed ? 'error.main' : textColor, marginLeft: '4px' }} />
         <Typography
           variant="body2"
           color={textColor}
