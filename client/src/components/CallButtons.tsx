@@ -24,7 +24,8 @@ import { useTranslation } from 'react-i18next'
 import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
 import { useUserMediaContext } from '../contexts/UserMediaProvider.js'
 import { CallStatus, VideoStatus } from '../services/CallManager.js'
-import { ColoredRoundButton, ExpandableButton, ExpandableButtonProps, ExpandMenuRadioOption } from './Button.js'
+import { ExpandableButton, ExpandableButtonProps, ExpandMenuRadioOption } from './Button.js'
+import FilledIconButton from './common/FilledIconButton.js'
 import ToggleIconButton from './common/ToggleIconButton.js'
 import {
   CallEndIcon,
@@ -73,15 +74,17 @@ export const CallingEndButton = (props: ExpandableButtonProps) => {
   const { t } = useTranslation()
   const { endCall } = useCallManagerContext()
   return (
-    <ColoredRoundButton
+    <FilledIconButton
       paletteColor={(theme) => theme.palette.error}
       onClick={() => {
         endCall()
       }}
       aria-label={t('end_call')}
-      Icon={CallEndIcon}
+      tooltip={t('end_call')}
       {...props}
-    />
+    >
+      <CallEndIcon fontSize="inherit" />
+    </FilledIconButton>
   )
 }
 
@@ -243,15 +246,17 @@ export const CallingCancelButton = (props: IconButtonProps) => {
   const { endCall } = useCallManagerContext()
 
   return (
-    <ColoredRoundButton
+    <FilledIconButton
       aria-label={t('call_cancel')}
+      tooltip={t('call_cancel')}
       onClick={() => {
         endCall()
       }}
-      Icon={CallEndIcon}
       paletteColor={(theme) => theme.palette.error}
       {...props}
-    />
+    >
+      <CallEndIcon fontSize="inherit" />
+    </FilledIconButton>
   )
 }
 
@@ -260,16 +265,18 @@ export const CallingAnswerAudioButton = (props: IconButtonProps) => {
   const { acceptCall, callStatus } = useCallManagerContext()
 
   return (
-    <ColoredRoundButton
+    <FilledIconButton
       disabled={callStatus === CallStatus.Loading || callStatus === CallStatus.Connecting}
       aria-label={t('call_answer_audio')}
+      tooltip={t('call_answer_audio')}
       onClick={() => {
         acceptCall(false)
       }}
-      Icon={PlaceAudioCallIcon}
       paletteColor={(theme) => theme.palette.success}
       {...props}
-    />
+    >
+      <PlaceAudioCallIcon fontSize="inherit" />
+    </FilledIconButton>
   )
 }
 
@@ -277,16 +284,18 @@ export const CallingAnswerVideoButton = (props: IconButtonProps) => {
   const { t } = useTranslation()
   const { acceptCall, callStatus } = useCallManagerContext()
   return (
-    <ColoredRoundButton
+    <FilledIconButton
       disabled={callStatus === CallStatus.Connecting || callStatus === CallStatus.Loading}
       aria-label={t('call_answer_video')}
+      tooltip={t('call_answer_video')}
       onClick={() => {
         acceptCall(true)
       }}
       paletteColor={(theme) => theme.palette.success}
-      Icon={VideoCameraIcon}
       {...props}
-    />
+    >
+      <VideoCameraIcon fontSize="inherit" />
+    </FilledIconButton>
   )
 }
 
@@ -294,14 +303,16 @@ export const CallingRefuseButton = (props: IconButtonProps) => {
   const { t } = useTranslation()
   const { endCall } = useCallManagerContext()
   return (
-    <ColoredRoundButton
+    <FilledIconButton
       aria-label={t('decline_call')}
+      tooltip={t('decline_call')}
       onClick={() => {
         endCall()
       }}
       paletteColor={(theme) => theme.palette.error}
-      Icon={RoundCloseIcon}
       {...props}
-    />
+    >
+      <RoundCloseIcon fontSize="inherit" />
+    </FilledIconButton>
   )
 }

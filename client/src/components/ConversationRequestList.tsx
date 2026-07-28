@@ -30,7 +30,7 @@ import {
   useConversationRequestsQuery,
   useDeclineConversationRequestMutation,
 } from '../services/conversationQueries.js'
-import { ColoredRoundButton } from './Button.js'
+import FilledIconButton from './common/FilledIconButton.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import { CustomListItemButton } from './CustomListItemButton.js'
 import { useDialogHandler } from './Dialog.js'
@@ -188,24 +188,30 @@ const HandleConversationRequestDialog = ({ conversationRequest, ...props }: Hand
               {t('conversation_request_ask_join')}
             </Typography>
             <Stack direction="row" spacing="30px">
-              <ColoredRoundButton
-                aria-label="block conversation"
+              <FilledIconButton
+                aria-label={t('conversation_request_block')}
+                tooltip={t('conversation_request_block')}
                 onClick={blockConversationRequest}
-                Icon={PersonWithCrossMarkIcon}
                 paletteColor={(theme) => theme.palette.warning}
-              />
-              <ColoredRoundButton
-                aria-label="decline conversation request"
+              >
+                <PersonWithCrossMarkIcon fontSize="inherit" />
+              </FilledIconButton>
+              <FilledIconButton
+                aria-label={t('conversation_request_decline')}
+                tooltip={t('conversation_request_decline')}
                 onClick={declineConversationRequest}
-                Icon={SaltireIcon}
                 paletteColor={(theme) => theme.palette.error}
-              />
-              <ColoredRoundButton
-                aria-label="accept conversation request"
+              >
+                <SaltireIcon fontSize="inherit" />
+              </FilledIconButton>
+              <FilledIconButton
+                aria-label={t('conversation_request_accept')}
+                tooltip={t('conversation_request_accept')}
                 onClick={acceptConversationRequest}
-                Icon={CheckMarkIcon}
                 paletteColor={(theme) => theme.palette.success}
-              />
+              >
+                <CheckMarkIcon fontSize="inherit" />
+              </FilledIconButton>
             </Stack>
           </>
         )}

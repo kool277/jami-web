@@ -16,11 +16,13 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Divider, Stack, Typography } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 
 import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import ChatInterface from '../pages/ChatInterface.js'
-import { CloseButton } from './Button.js'
+import BaseIconButton from './common/BaseIconButton.js'
+import { SaltireIcon } from './SvgIcon.js'
 
 export default () => {
   return (
@@ -43,6 +45,7 @@ export default () => {
 }
 
 const CallChatDrawerHeader = () => {
+  const { t } = useTranslation()
   const { setIsChatShown } = useCallManagerContext()
   const { conversationDisplayName } = useConversationContext()
 
@@ -55,11 +58,16 @@ const CallChatDrawerHeader = () => {
         alignItems: 'center',
       }}
     >
-      <CloseButton
+      <BaseIconButton
+        aria-label={t('call_close_chat')}
+        tooltip={t('call_close_chat')}
+        sx={{ color: 'SvgIcons.color', fontSize: '15px', height: '30px', width: '30px' }}
         onClick={() => {
           setIsChatShown(false)
         }}
-      />
+      >
+        <SaltireIcon fontSize="inherit" />
+      </BaseIconButton>
       <Stack direction="column">
         <Typography
           variant="h3"
