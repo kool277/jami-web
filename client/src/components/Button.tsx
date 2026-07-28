@@ -451,11 +451,11 @@ export const ShowOptionsMenuButton = (props: IconButtonProps) => {
 }
 
 export const StartVideoCallButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="start audio call" Icon={VideoCallIcon} />
+  return <SquareButton {...props} aria-label="start video call" Icon={VideoCallIcon} />
 }
 
 export const StartAudioCallButton = (props: IconButtonProps) => {
-  return <SquareButton {...props} aria-label="start video call" Icon={AudioCallIcon} />
+  return <SquareButton {...props} aria-label="start audio call" Icon={AudioCallIcon} />
 }
 
 export const UploadFileButton = (props: IconButtonProps) => {
