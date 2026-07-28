@@ -75,7 +75,6 @@ export default function Footer() {
       console.error('Failed to switch account', e)
     }
   }
-  const componentColor = theme.Footer.backgroundColor
 
   const location = useLocation()
   const currentUrl = location.pathname
@@ -90,7 +89,7 @@ export default function Footer() {
     <>
       <Card
         sx={{
-          backgroundColor: componentColor,
+          backgroundColor: 'background.paper',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -230,7 +229,7 @@ export default function Footer() {
           direction="row"
           sx={{
             alignItems: 'center',
-            color: theme.Footer.iconsColor,
+            color: 'text.primary',
             pr: '10px',
           }}
         >

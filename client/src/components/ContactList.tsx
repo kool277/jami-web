@@ -125,7 +125,7 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
                 '&:hover': {
                   borderColor: theme.palette.primary.light,
                   textShadow: '0 0 .01px black',
-                  backgroundColor: theme.Footer.backgroundColor,
+                  backgroundColor: 'background.paper',
                 },
                 '&.Mui-selected': {
                   backgroundColor: theme.ChatInterface.selectedColor,

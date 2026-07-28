@@ -55,10 +55,6 @@ declare module '@mui/material/styles' {
       backgroundColor: string
       textContentColor: string
     }
-    Footer: {
-      backgroundColor: string
-      iconsColor: string
-    }
     EmojiPicker: {
       backgroundColor: EmojiTheme
     }
@@ -176,10 +172,6 @@ const palettes = {
       backgroundColor: '#7f7f7f',
       textContentColor: '#555555',
     },
-    Footer: {
-      backgroundColor: '#F0EBE3',
-      iconsColor: '#333333',
-    },
     EmojiPicker: {
       backgroundColor: lightEmojiTheme,
     },
@@ -289,10 +281,6 @@ const palettes = {
       textColor: 'white',
       backgroundColor: '#7f7f7f',
       textContentColor: '#adacac',
-    },
-    Footer: {
-      backgroundColor: '#2e2d2d',
-      iconsColor: 'white',
     },
     EmojiPicker: {
       backgroundColor: darkEmojiTheme,

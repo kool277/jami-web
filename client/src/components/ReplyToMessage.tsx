@@ -105,7 +105,9 @@ export default function ReplyToMessage() {
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                 {t('replying_to') + ' ' + getName()}
               </Typography>
-              <div style={{ backgroundColor: theme.Footer.backgroundColor, borderRadius: '12px', overflow: 'hidden' }}>
+              <div
+                style={{ backgroundColor: theme.palette.background.paper, borderRadius: '12px', overflow: 'hidden' }}
+              >
                 <Box
                   sx={{
                     padding: '5px',

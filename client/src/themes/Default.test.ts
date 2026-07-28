@@ -32,7 +32,6 @@ const customSlots = [
   'WelcomePage',
   'MediaViewer',
   'MessageDataContent',
-  'Footer',
   'EmojiPicker',
   'Panel',
   'SvgIcons',
