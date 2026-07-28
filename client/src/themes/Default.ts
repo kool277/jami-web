@@ -159,7 +159,7 @@ const palettes = {
         dark: '#720013',
       },
       success: {
-        main: '#009980',
+        main: '#00705E',
       },
       secondary: {
         main: '#A3C2DA',
