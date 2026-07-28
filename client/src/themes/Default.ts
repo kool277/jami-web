@@ -39,9 +39,6 @@ declare module '@mui/material/styles' {
       selectedColor: string
       backgroundColor: string
     }
-    LoginPage: {
-      backgroundColor: string
-    }
     Dialog: {
       backgroundColor: string
     }
@@ -196,9 +193,6 @@ const palettes = {
       selectedColor: '#EDE7DD',
       backgroundColor: '#FEFCF9',
     },
-    LoginPage: {
-      backgroundColor: '#FAF6F0',
-    },
     Dialog: {
       backgroundColor: '#f4f0ef',
     },
@@ -341,9 +335,6 @@ const palettes = {
       reactionModalBackground: '#1e1f1e',
       selectedColor: '#122D42',
       backgroundColor: '#050505',
-    },
-    LoginPage: {
-      backgroundColor: '#f9fafc',
     },
     Dialog: {
       backgroundColor: 'rgb(24, 24, 24)',
