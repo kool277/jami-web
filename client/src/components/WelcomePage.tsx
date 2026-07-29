@@ -16,61 +16,26 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Link, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box } from '@mui/material'
 import { use, useState } from 'react'
-import { Trans, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 
-import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { CustomThemeContext } from '../contexts/CustomThemeProvider.js'
-import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider.js'
 import JamiLogo from '../icons/logo-jami-net.svg?react'
 import JamiLogoWhite from '../icons/logo-jami-net-white.svg?react'
-import {
-  contributorsCommunityManagement,
-  contributorsDevelopers,
-  contributorsMedia,
-  contributorsSpecialThanks,
-} from '../utils/contributors.js'
+import AboutJamiDialog from './AboutJamiDialog.js'
 import BaseButton from './common/BaseButton.js'
-import BaseIconButton from './common/BaseIconButton.js'
-import BaseModalDialog from './common/BaseModalDialog.js'
 import JamiIdDisplay from './JamiIdDisplay.js'
-import { VolunteerActivismIcon } from './SvgIcon.js'
-import { ContentCopyIcon, FavoriteBorderIcon, FeedbackIcon, InfoIcon } from './SvgIcon.js'
+import { InfoIcon } from './SvgIcon.js'
 import TipsDialog from './TipsDialog.js'
 
 export default function WelcomePage() {
   const { t } = useTranslation()
-  const theme = useTheme()
   const { account } = useAuthContext()
-  const { setAlertContent } = use(AlertSnackbarContext)
   const [isAboutOpen, setIsAboutOpen] = useState(false)
-  const { setIsMenuOpen } = useMobileMenuStateContext()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const { mode } = use(CustomThemeContext)
   const isDark = mode === 'dark'
-
-  if (isMobile) {
-    setIsMenuOpen(true)
-  }
-
-  const handleCopyVersion = async () => {
-    try {
-      await navigator.clipboard.writeText(`${__GIT_COMMIT_HASH__}-${__JAMI_CORE_VERSION__}`)
-      setAlertContent({
-        messageI18nKey: 'copied_to_clipboard',
-        severity: 'success',
-        alertOpen: true,
-      })
-    } catch {
-      setAlertContent({
-        messageI18nKey: 'unknown_error_alert',
-        severity: 'error',
-        alertOpen: true,
-      })
-    }
-  }
 
   return (
     <Box
@@ -108,159 +73,7 @@ export default function WelcomePage() {
         {t('about_jami')}
       </BaseButton>
       <TipsDialog />
-      <BaseModalDialog
-        open={isAboutOpen}
-        selectedValue=""
-        title={t('about_jami')}
-        onClose={() => setIsAboutOpen(false)}
-        closePolicy={['escapeKeyDown', 'backdropClick']}
-        dialogWidth="500px"
-        actions={
-          <>
-            <BaseButton
-              variant="text"
-              startIcon={<FavoriteBorderIcon />}
-              onClick={() => {
-                window.open('https://jami.net/donate/', '_blank', 'noopener,noreferrer')
-              }}
-            >
-              {t('donate')}
-            </BaseButton>
-            <BaseButton
-              variant="text"
-              startIcon={<VolunteerActivismIcon />}
-              onClick={() => {
-                window.open('https://jami.net/contribute/', '_blank', 'noopener,noreferrer')
-              }}
-            >
-              {t('contribute')}
-            </BaseButton>
-            <BaseButton
-              variant="text"
-              startIcon={<FeedbackIcon />}
-              onClick={() => {
-                window.open('mailto:jami@gnu.org')
-              }}
-            >
-              {t('feedback')}
-            </BaseButton>
-          </>
-        }
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', minWidth: 0 }}>
-          <Box sx={{ boxSizing: 'border-box', flex: '1 1 0', minWidth: 0, paddingRight: '8px' }}>
-            {isDark ? (
-              <JamiLogoWhite style={{ display: 'block', height: 'auto', width: '100%' }} />
-            ) : (
-              <JamiLogo style={{ display: 'block', height: 'auto', width: '100%' }} />
-            )}
-          </Box>
-          <Box
-            sx={{
-              backgroundColor: 'background.paper',
-              borderRadius: '12px',
-              maxWidth: '100%',
-              minWidth: '180px',
-              padding: '8px',
-              width: 'fit-content',
-            }}
-          >
-            <Typography sx={{ fontWeight: 'bolder' }}>Euclid</Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Box>
-                <Typography variant="body2" sx={{ color: 'grey' }}>
-                  {t('version')} :{' '}
-                  <Box component="span" sx={{ fontFamily: 'monospace' }}>
-                    {__GIT_COMMIT_HASH__}
-                  </Box>
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'grey' }}>
-                  Core:{' '}
-                  <Box component="span" sx={{ fontFamily: 'monospace' }}>
-                    {__JAMI_CORE_VERSION__}
-                  </Box>
-                </Typography>
-              </Box>
-              <BaseIconButton
-                aria-label={t('copy_to_clipboard')}
-                onClick={handleCopyVersion}
-                size="small"
-                sx={{ marginRight: '-5px' }}
-                tooltip={t('copy_to_clipboard')}
-              >
-                <ContentCopyIcon fontSize="small" />
-              </BaseIconButton>
-            </Box>
-          </Box>
-        </Box>
-        <Box sx={{ marginBottom: '24px' }}>
-          <Typography variant="body2">
-            <Trans
-              i18nKey="about_jami_text"
-              components={{ jamiLink: <Link href="https://jami.net/" rel="noreferrer" target="_blank" /> }}
-            />
-          </Typography>
-          <Typography variant="body2" sx={{ marginTop: '8px' }}>
-            <Trans
-              i18nKey="about_jami_text_warranty"
-              components={{
-                gplLink: <Link href="https://www.gnu.org/licenses/gpl-3.0.html" rel="noreferrer" target="_blank" />,
-              }}
-            />
-          </Typography>
-          <Typography variant="body2" sx={{ marginTop: '8px' }}>
-            © 2015-2025 <Link href="https://savoirfairelinux.com/">Savoir-faire Linux</Link>
-          </Typography>
-        </Box>
-        <Box
-          sx={{
-            backgroundColor: 'background.paper',
-            borderRadius: '12px',
-            maxHeight: '240px',
-            overflow: 'hidden',
-          }}
-        >
-          <Box
-            sx={{
-              boxSizing: 'border-box',
-              maxHeight: '240px',
-              overflowY: 'auto',
-              padding: '12px',
-              scrollbarGutter: 'stable',
-            }}
-          >
-            <Typography sx={{ fontWeight: 'bolder', marginBottom: '8px' }}>{t('developers')}</Typography>
-            {contributorsDevelopers.map((contributor) => (
-              <Typography variant="body2" key={contributor}>
-                {contributor}
-              </Typography>
-            ))}
-            <br />
-            <Typography sx={{ fontWeight: 'bolder', marginBottom: '8px' }}>{t('media')}</Typography>
-            {contributorsMedia.map((contributor) => (
-              <Typography variant="body2" key={contributor}>
-                {contributor}
-              </Typography>
-            ))}
-            <br />
-            <Typography sx={{ fontWeight: 'bolder', marginBottom: '8px' }}>{t('community_management')}</Typography>
-            {contributorsCommunityManagement.map((contributor) => (
-              <Typography variant="body2" key={contributor}>
-                {contributor}
-              </Typography>
-            ))}
-            <br />
-            <Typography sx={{ fontWeight: 'bolder', marginBottom: '8px' }}>{t('special_thanks_to')}</Typography>
-            {contributorsSpecialThanks.map((contributor) => (
-              <Typography variant="body2" key={contributor}>
-                {contributor}
-              </Typography>
-            ))}
-            <br />
-            <Typography variant="body2">{t('about_jami_text_volunteers')}</Typography>
-          </Box>
-        </Box>
-      </BaseModalDialog>
+      <AboutJamiDialog open={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
     </Box>
   )
 }
