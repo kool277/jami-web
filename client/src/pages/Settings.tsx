@@ -15,23 +15,25 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { useMediaQuery, useTheme } from '@mui/material'
 import { useTranslation } from 'react-i18next'
+import { Navigate } from 'react-router-dom'
 
-import EmptyState from '../components/common/EmptyState.js'
 import AppShell from '../components/shell/AppShell.js'
 import useDocumentTitle from '../hooks/useDocumentTitle.js'
 import { UserSettingsSelection } from '../settings/index.js'
+import { userSettingsRoutePaths } from '../settings/routes.js'
+
+export function SettingsIndex() {
+  const theme = useTheme()
+  const isCompact = useMediaQuery(theme.breakpoints.down('md'))
+
+  return isCompact ? null : <Navigate to={userSettingsRoutePaths.general} replace />
+}
 
 export default function Settings() {
   const { t } = useTranslation()
   useDocumentTitle(t('settings'))
 
-  return (
-    <AppShell
-      listRoute="/settings"
-      listPaneLabel={t('settings')}
-      listPane={<UserSettingsSelection />}
-      placeholder={<EmptyState title={t('settings_select')} />}
-    />
-  )
+  return <AppShell listRoute="/settings" listPaneLabel={t('settings')} listPane={<UserSettingsSelection />} />
 }

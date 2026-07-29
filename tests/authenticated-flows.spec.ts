@@ -103,6 +103,19 @@ test.describe('Settings Navigation', () => {
     await expect(page).toHaveURL(/\/settings\/general/)
   })
 
+  test('defaults to general settings', async ({ page }) => {
+    await page.goto('/settings')
+    await expect(page).toHaveURL(/\/settings\/general/)
+  })
+
+  test('keeps the settings list open in compact mode', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto('/settings')
+
+    await expect(page).toHaveURL(/\/settings$/)
+    await expect(page.getByRole('navigation', { name: 'Settings' })).toBeVisible()
+  })
+
   test('can navigate to contacts page', async ({ page }) => {
     await page.goto('/contacts')
     await expect(page).toHaveURL(/\/contacts/)

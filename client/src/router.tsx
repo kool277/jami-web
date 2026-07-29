@@ -25,6 +25,7 @@ import RouteErrorBoundary from './components/RouteErrorBoundary.js'
 import { AdminConfigurationOptions } from './enums/adminConfigurationOptions.js'
 import { AuthenticationMethods } from './enums/authenticationMethods.js'
 import { RouteParams } from './hooks/useUrlParams.js'
+import { userSettingsRoutePaths } from './settings/routes.js'
 
 const loadAdminBundle = () => import('./admin/index.js')
 const loadSettingsBundle = () => import('./settings/index.js')
@@ -91,6 +92,9 @@ const Messenger = lazy(() => import('./pages/Messenger.js'))
 const NotFound = lazy(() => import('./pages/NotFound.js'))
 const Registration = lazy(() => import('./pages/Registration.js'))
 const Settings = lazy(() => import('./pages/Settings.js'))
+const SettingsIndex = lazy(() =>
+  import('./pages/Settings.js').then(({ SettingsIndex }) => ({ default: SettingsIndex })),
+)
 
 export type ConversationRouteParams = RouteParams<{ conversationId?: string }, Record<string, never>>
 
@@ -208,11 +212,12 @@ export const router = createBrowserRouter(
           </Route>
           <Route path="invites" element={<Invites />} />
           <Route path="settings" element={<Settings />}>
-            <Route path="account/manage-account" element={<AccountSettings />} />
-            <Route path="account/calls" element={<CallSettings />} />
-            <Route path="account/linked-devices" element={<LinkedDevicesPage />} />
-            <Route path="account/linked-devices/export" element={<ExportToAnotherDevice />} />
-            <Route path="general" element={<GeneralSettings />} />
+            <Route index element={<SettingsIndex />} />
+            <Route path={userSettingsRoutePaths.manageAccount} element={<AccountSettings />} />
+            <Route path={userSettingsRoutePaths.calls} element={<CallSettings />} />
+            <Route path={userSettingsRoutePaths.linkedDevices} element={<LinkedDevicesPage />} />
+            <Route path={userSettingsRoutePaths.exportDevice} element={<ExportToAnotherDevice />} />
+            <Route path={userSettingsRoutePaths.general} element={<GeneralSettings />} />
           </Route>
           <Route path="contacts" element={<Contacts />} />
         </Route>

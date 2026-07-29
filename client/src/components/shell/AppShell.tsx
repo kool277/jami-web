@@ -18,7 +18,7 @@
 import { alpha, Box, IconButton, Stack, useMediaQuery, useTheme } from '@mui/material'
 import { type ReactNode, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link as RouterLink, useOutlet } from 'react-router-dom'
+import { Link as RouterLink, useLocation, useOutlet } from 'react-router-dom'
 
 import { useAuthContext } from '../../contexts/AuthProvider.js'
 import { useConversationRequestsQuery, useConversationsSummariesQuery } from '../../services/conversationQueries.js'
@@ -69,7 +69,9 @@ export default function AppShell({
   const { t } = useTranslation()
   const theme = useTheme()
   const isCompact = useMediaQuery(theme.breakpoints.down('md'))
+  const location = useLocation()
   const outlet = useOutlet()
+  const hasDetail = outlet !== null && location.pathname !== listRoute
   const isDark = theme.palette.mode === 'dark'
   const { account } = useAuthContext()
   const conversationRequestsQuery = useConversationRequestsQuery()
@@ -162,16 +164,16 @@ export default function AppShell({
         '& > *': { position: 'relative', zIndex: 1 },
       }}
     >
-      {(!isCompact || !outlet) && navigation}
-      {isCompact && outlet !== null && (
+      {(!isCompact || !hasDetail) && navigation}
+      {isCompact && hasDetail && (
         <Box sx={{ flexShrink: 0, p: 0.5, borderBottom: 1, borderColor: 'divider', ...paneSx }}>
           <IconButton component={RouterLink} to={listRoute} aria-label={t('back')}>
             <ArrowBackIcon />
           </IconButton>
         </Box>
       )}
-      {(!isCompact || outlet) && main}
-      {isCompact && !(outlet && immersiveDetail) && rail}
+      {(!isCompact || hasDetail) && main}
+      {isCompact && !(hasDetail && immersiveDetail) && rail}
     </Stack>
   )
 }
