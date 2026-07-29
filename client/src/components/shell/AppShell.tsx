@@ -95,7 +95,7 @@ export default function AppShell({
         ...(isCompact ? { flex: 1 } : { width: 320, flexShrink: 0 }),
       }}
     >
-      {listSearch}
+      {listSearch && <Box sx={isCompact ? { m: ISLAND_MARGIN } : undefined}>{listSearch}</Box>}
       <Stack sx={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>{listPane}</Stack>
     </Stack>
   )
@@ -127,27 +127,29 @@ export default function AppShell({
         height: '100dvh',
         overflow: 'hidden',
         position: 'relative',
-        backgroundColor: 'background.default',
+        backgroundColor: isCompact ? 'background.paper' : 'background.default',
         ...(isElectronMode() && { WebkitAppRegion: 'drag' }),
         // The backdrop is painted by pseudo-elements rather than a wrapper: a
         // filter applies to a whole element tree, so blurring a real ancestor
         // would blur the islands with it. The negative inset hides the soft
         // edge the blur leaves at the viewport border.
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          inset: -24,
-          backgroundImage: `url(${isDark ? BACKDROP_DARK : BACKDROP_LIGHT})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          filter: 'blur(16px)',
-        },
-        '&::after': {
-          content: '""',
-          position: 'absolute',
-          inset: 0,
-          backgroundColor: isDark ? alpha(theme.palette.common.black, 0.55) : alpha(theme.palette.common.white, 0.35),
-        },
+        ...(!isCompact && {
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            inset: -24,
+            backgroundImage: `url(${isDark ? BACKDROP_DARK : BACKDROP_LIGHT})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'blur(16px)',
+          },
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: isDark ? alpha(theme.palette.common.black, 0.55) : alpha(theme.palette.common.white, 0.35),
+          },
+        }),
         // Every pane sits above the backdrop layers.
         '& > *': { position: 'relative', zIndex: 1 },
       }}

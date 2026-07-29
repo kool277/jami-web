@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, InputBase, Stack, useTheme } from '@mui/material'
+import { Box, InputBase, Stack } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -31,23 +31,18 @@ interface ContactSearchBarProps {
 
 export default function ContactSearchBar({ placeholder, handleChange }: ContactSearchBarProps) {
   const navigate = useNavigate()
-  const theme = useTheme()
   const { t } = useTranslation()
 
-  // Concentricity: margin + height/2 = Panel.borderRadius
-  const searchBarMargin = `calc(${theme.Panel.padding} + ${theme.Panel.itemPadding})`
-  const searchBarHeight = `calc(2 * (${theme.Panel.borderRadius} - ${theme.Panel.padding} - ${theme.Panel.itemPadding}))`
-
   return (
-    <Stack direction="row">
+    <Stack direction="row" sx={{ flexShrink: 0 }}>
       <Box
+        data-testid="contact-search-bar"
         sx={{
           display: 'flex',
           alignItems: 'center',
           borderRadius: '9999px',
-          backgroundColor: theme.palette.background.paper,
-          m: searchBarMargin,
-          height: searchBarHeight,
+          backgroundColor: 'background.default',
+          height: 40,
           flex: 1,
         }}
       >

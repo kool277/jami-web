@@ -80,14 +80,16 @@ test.describe('RTL and Debug Tools Audit', () => {
     await page.route('**/api/conversations/**', (route) => route.fulfill({ json: {} }))
     await page.addInitScript(() => {
       localStorage.clear()
-      // The settings page gives this audit a real directional MaterialSymbol
-      // (Back to conversations) and a non-directional one (Settings).
+      // The narrow settings screen gives this audit a real directional
+      // MaterialSymbol (the shell back button) and a non-directional one
+      // (the Settings destination in the navigation bar).
       localStorage.setItem('accessToken', 'mock-user-token-preset')
     })
   })
 
   test('Verify debug tools and RTL/theme reset behavior', async ({ page }) => {
     // 1. Open a real authenticated app surface at `?debug-tools=1` in development.
+    await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/settings/general?debug-tools=1')
 
     // 2. Verify the Debug Tools control is visible.

@@ -225,12 +225,13 @@ test.describe('Conversation UI Elements', () => {
     await expect(message.first()).toBeVisible({ timeout: 15_000 })
   })
 
-  test('conversation view has a back navigation button', async ({ page }) => {
+  test('conversation view has a back navigation button on narrow screens', async ({ page }) => {
+    // The shell owns list/detail navigation, so the back button only exists where
+    // the panes are stacked.
+    await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/conversation/conv-1')
 
-    // ConversationHeader renders an ArrowBackIosNewIcon for navigation
-    const backButton = page.locator('text=arrow_back_ios_new')
-    await expect(backButton.first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('link', { name: 'Back' })).toBeVisible({ timeout: 15_000 })
   })
 
   test('message input textarea is at the bottom of the chat', async ({ page }) => {
@@ -249,9 +250,10 @@ test.describe('Conversation UI Elements', () => {
   })
 
   test('clicking back from conversation navigates to conversation list', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/conversation/conv-1')
 
-    const backButton = page.locator('text=arrow_back_ios_new').first()
+    const backButton = page.getByRole('link', { name: 'Back' })
     await expect(backButton).toBeVisible({ timeout: 15_000 })
     await backButton.click()
 

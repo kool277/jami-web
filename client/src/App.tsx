@@ -21,6 +21,7 @@ import axios from 'axios'
 import { Suspense, useState } from 'react'
 import { LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
 
+import LoadingSkeleton from './components/common/LoadingSkeleton.js'
 import WelcomeAnimation from './components/WelcomeAnimation.js'
 import { getAccessToken, setAccessToken } from './services/authQueries.js'
 import { apiUrl } from './utils/constants.js'
@@ -79,7 +80,7 @@ const App = () => {
   }
 
   return (
-    <Suspense fallback={null}>
+    <Suspense fallback={<LoadingSkeleton />}>
       <Outlet />
     </Suspense>
   )

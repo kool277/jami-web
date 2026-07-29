@@ -157,7 +157,10 @@ test.describe('About Jami dialog', () => {
     test('keeps dialog controls within the viewport', async ({ page }) => {
       await page.goto('/')
 
-      const aboutJamiButton = page.getByRole('button', { name: 'About Jami' })
+      // Narrow screens show the conversation list, so About Jami is reached
+      // through the account menu in the navigation bar.
+      await page.getByRole('button', { name: 'Account' }).click()
+      const aboutJamiButton = page.getByRole('menuitem', { name: 'About Jami' })
       await aboutJamiButton.focus()
       await page.keyboard.press('Enter')
       const dialog = page.getByRole('dialog', { name: 'About Jami' })

@@ -15,81 +15,29 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
 import { WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
-import { ChangeEvent, useCallback, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useEffect } from 'react'
 
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
-import {
-  useConversationRequestsQuery,
-  useConversationsSummariesQuery,
-  useRefreshConversationsSummaries,
-} from '../services/conversationQueries.js'
-import ContactSearchBar from './ContactSearchBar.js'
+import { useConversationsSummariesQuery, useRefreshConversationsSummaries } from '../services/conversationQueries.js'
 import ContactSearchResultList from './ContactSearchResultList.js'
-import { ConversationRequestList } from './ConversationRequestList.js'
 import { ConversationSummaryList } from './ConversationSummaryList.js'
-import { Tab, TabPanel, TabPanelProps, Tabs } from './Tabs.js'
 
-export default function ConversationList() {
-  const { t } = useTranslation()
-  const [searchFilter, setSearchFilter] = useState('')
-  const handleInputChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setSearchFilter(event.target.value)
-  }, [])
+export interface ConversationListProps {
+  /** Owned by the shell, since the search bar belongs to the island rather than the list. */
+  searchFilter?: string
+}
+
+export default function ConversationList({ searchFilter }: ConversationListProps) {
   return (
-    <>
-      <Box
-        sx={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 99,
-          overflow: 'hidden',
-        }}
-      >
-        <ContactSearchBar placeholder={t('find_users_and_conversations')} handleChange={handleInputChange} />
-      </Box>
-
-      <Stack sx={{ overflowY: 'auto', height: '100%', paddingBottom: '100px' }}>
-        {searchFilter ? <ContactSearchResultList searchFilter={searchFilter} /> : <ConversationTabs />}
-      </Stack>
-    </>
+    <Stack sx={{ overflowY: 'auto', flex: 1 }}>
+      {searchFilter ? <ContactSearchResultList searchFilter={searchFilter} /> : <ConversationSummaries />}
+    </Stack>
   )
 }
 
-const ConversationTabs = () => {
-  const summariesTabIndex = 0
-  const invitationsTabIndex = 1
-  const { t } = useTranslation()
-  const conversationRequestsQuery = useConversationRequestsQuery()
-  const conversationRequestsLength = conversationRequestsQuery.data?.length
-
-  const isShowingTabMenu = !!conversationRequestsLength
-  const [tabIndex, setTabIndex] = useState(summariesTabIndex)
-  const visibleTabIndex = isShowingTabMenu ? tabIndex : summariesTabIndex
-
-  const onChange = useCallback((_event: React.SyntheticEvent, value: number) => {
-    if (typeof value === 'number') {
-      setTabIndex(value)
-    }
-  }, [])
-
-  return (
-    <Box style={{ overflowY: 'auto' }}>
-      {isShowingTabMenu && (
-        <Tabs value={visibleTabIndex} onChange={onChange}>
-          <Tab label={t('conversations')} />
-          <Tab label={`${t('invitations')} ${conversationRequestsLength}`} />
-        </Tabs>
-      )}
-      <SummariesTabPanel index={summariesTabIndex} value={visibleTabIndex} />
-      <InvitationsTabPanel index={invitationsTabIndex} value={visibleTabIndex} />
-    </Box>
-  )
-}
-
-const SummariesTabPanel = (props: TabPanelProps) => {
+const ConversationSummaries = () => {
   const conversationsSummariesQuery = useConversationsSummariesQuery()
   const conversationsSummaries = conversationsSummariesQuery.data || []
   const websocket = useWebSocketContext()
@@ -106,17 +54,5 @@ const SummariesTabPanel = (props: TabPanelProps) => {
     }
   }, [websocket, refreshConversationsSummaries])
 
-  return (
-    <TabPanel sx={{ overflowY: 'auto', height: '100%' }} {...props}>
-      <ConversationSummaryList conversationsSummaries={conversationsSummaries} />
-    </TabPanel>
-  )
-}
-
-const InvitationsTabPanel = (props: TabPanelProps) => {
-  return (
-    <TabPanel {...props}>
-      <ConversationRequestList />
-    </TabPanel>
-  )
+  return <ConversationSummaryList conversationsSummaries={conversationsSummaries} />
 }

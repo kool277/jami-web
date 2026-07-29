@@ -22,7 +22,6 @@ import { createBrowserRouter, createRoutesFromElements, Navigate, Outlet, Route 
 
 import App, { appLoader } from './App.js'
 import RouteErrorBoundary from './components/RouteErrorBoundary.js'
-import MobileMenuStateProvider from './contexts/MobileMenuStateProvider.js'
 import { AdminConfigurationOptions } from './enums/adminConfigurationOptions.js'
 import { AuthenticationMethods } from './enums/authenticationMethods.js'
 import { RouteParams } from './hooks/useUrlParams.js'
@@ -43,14 +42,8 @@ const JamsAuthMethod = lazy(() => loadAdminBundle().then(({ JamsAuthMethod }) =>
 const LocalAuthMethod = lazy(() => loadAdminBundle().then(({ LocalAuthMethod }) => ({ default: LocalAuthMethod })))
 const MediaSettings = lazy(() => loadAdminBundle().then(({ MediaSettings }) => ({ default: MediaSettings })))
 const OpenIdAuthMethod = lazy(() => loadAdminBundle().then(({ OpenIdAuthMethod }) => ({ default: OpenIdAuthMethod })))
-const ContactList = lazy(() => import('./components/ContactList.js'))
 const ConversationView = lazy(() => import('./components/ConversationView.js'))
-import LayoutWrapper from './components/LayoutWrapper.js'
 const NotificationHandler = lazy(() => import('./components/NotificationHandler.js'))
-const UserSettingsSelection = lazy(() =>
-  loadSettingsBundle().then(({ UserSettingsSelection }) => ({ default: UserSettingsSelection })),
-)
-const WelcomePage = lazy(() => import('./components/WelcomePage.js'))
 const ActionMessageProvider = lazy(() => import('./contexts/ActionMessageProvider.js'))
 //const AuthProvider = lazy(() => import('./contexts/AuthProvider.js'))
 import AuthProvider from './contexts/AuthProvider.js'
@@ -91,149 +84,140 @@ const ImportAccountLock = lazy(() => import('./pages/LinkExistingDevice/ImportAc
 const ImportAccountTransferInProgress = lazy(
   () => import('./pages/LinkExistingDevice/ImportAccountTransferInProgress.js'),
 )
+const Contacts = lazy(() => import('./pages/Contacts.js'))
+const Invites = lazy(() => import('./pages/Invites.js'))
 const Login = lazy(() => import('./pages/Login.js'))
 const Messenger = lazy(() => import('./pages/Messenger.js'))
+const NotFound = lazy(() => import('./pages/NotFound.js'))
 const Registration = lazy(() => import('./pages/Registration.js'))
+const Settings = lazy(() => import('./pages/Settings.js'))
 
 export type ConversationRouteParams = RouteParams<{ conversationId?: string }, Record<string, never>>
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<App />} errorElement={<RouteErrorBoundary />} loader={appLoader}>
+      <Route path="login" element={<Login />} />
       <Route
         element={
-          <MobileMenuStateProvider>
-            <Outlet />
-          </MobileMenuStateProvider>
+          <WebSocketLinkProvider>
+            <ImportDeviceProvider>
+              <Outlet />
+            </ImportDeviceProvider>
+          </WebSocketLinkProvider>
         }
       >
-        <Route path="login" element={<Login />} />
+        <Route path="import-account" element={<ImportAccount />} />
+        <Route path="import-account-connecting" element={<ImportAccountConnecting />} />
+        <Route path="import-account-unlock" element={<ImportAccountLock />} />
+        <Route path="import-account-done" element={<ImportAccountConfirmation />} />
+        <Route path="import-account-in-progress" element={<ImportAccountTransferInProgress />} />
+      </Route>
+      <Route path="register" element={<Registration />} />
+      <Route path="admin" element={<Navigate to={'/admin/login'} />} />
+      <Route path="admin/login" element={<AdminLogin />} />
+      <Route
+        element={
+          <AdminAuthWrapper>
+            <AdminPanel>
+              <Outlet />
+            </AdminPanel>
+          </AdminAuthWrapper>
+        }
+      >
+        <Route path={`/admin/${AdminSettingSelection.ACCOUNTS}`} element={<AccountsOverview />} />
+        <Route path={`/admin/${AdminSettingSelection.AUTHENTICATION}`} element={<AuthMethods />} />
         <Route
-          element={
-            <WebSocketLinkProvider>
-              <ImportDeviceProvider>
-                <Outlet />
-              </ImportDeviceProvider>
-            </WebSocketLinkProvider>
-          }
-        >
-          <Route path="import-account" element={<ImportAccount />} />
-          <Route path="import-account-connecting" element={<ImportAccountConnecting />} />
-          <Route path="import-account-unlock" element={<ImportAccountLock />} />
-          <Route path="import-account-done" element={<ImportAccountConfirmation />} />
-          <Route path="import-account-in-progress" element={<ImportAccountTransferInProgress />} />
-        </Route>
-        <Route path="register" element={<Registration />} />
-        <Route path="admin" element={<Navigate to={'/admin/login'} />} />
-        <Route path="admin/login" element={<AdminLogin />} />
+          path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMI}`}
+          element={<LocalAuthMethod />}
+        />
         <Route
-          element={
-            <AdminAuthWrapper>
-              <AdminPanel>
-                <Outlet />
-              </AdminPanel>
-            </AdminAuthWrapper>
-          }
-        >
-          <Route path={`/admin/${AdminSettingSelection.ACCOUNTS}`} element={<AccountsOverview />} />
-          <Route path={`/admin/${AdminSettingSelection.AUTHENTICATION}`} element={<AuthMethods />} />
-          <Route
-            path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMI}`}
-            element={<LocalAuthMethod />}
-          />
-          <Route
-            path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMS}`}
-            element={<JamsAuthMethod />}
-          />
-          <Route
-            path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.GUEST}`}
-            element={<GuestAuthMethod />}
-          />
-          <Route
-            path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}`}
-            element={<OpenIdAuthMethod />}
-          />
-          <Route
-            path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}/:provider`}
-            element={<ConfigureOpenId />}
-          />
-          <Route
-            path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`}
-            element={<AdminAccountConfiguration />}
-          />
-          <Route
-            path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`}
-            element={<DownloadLimit />}
-          />
-          <Route
-            path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.MEDIA}`}
-            element={<MediaSettings />}
-          />
-        </Route>
-        <Route path="admin/setup" element={<Outlet />}>
-          <Route index element={<Navigate to={'/admin/setup/account'} />} />
-          <Route path={AdminWizardState.account} element={<AdminCreateAccount />} />
-          <Route path={AdminWizardState.local} element={<AdminConfigureNameServer />} />
-          <Route path={AdminWizardState.jams} element={<AdminConfigureJams />} />
-        </Route>
+          path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.JAMS}`}
+          element={<JamsAuthMethod />}
+        />
+        <Route
+          path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.GUEST}`}
+          element={<GuestAuthMethod />}
+        />
+        <Route
+          path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}`}
+          element={<OpenIdAuthMethod />}
+        />
+        <Route
+          path={`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}/:provider`}
+          element={<ConfigureOpenId />}
+        />
+        <Route
+          path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`}
+          element={<AdminAccountConfiguration />}
+        />
+        <Route
+          path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`}
+          element={<DownloadLimit />}
+        />
+        <Route
+          path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.MEDIA}`}
+          element={<MediaSettings />}
+        />
+      </Route>
+      <Route path="admin/setup" element={<Outlet />}>
+        <Route index element={<Navigate to={'/admin/setup/account'} />} />
+        <Route path={AdminWizardState.account} element={<AdminCreateAccount />} />
+        <Route path={AdminWizardState.local} element={<AdminConfigureNameServer />} />
+        <Route path={AdminWizardState.jams} element={<AdminConfigureJams />} />
+      </Route>
 
+      <Route
+        element={
+          <AuthProvider>
+            <WebSocketProvider>
+              <PresenceProvider>
+                <AccountDetailsListener>
+                  <UserMediaProvider>
+                    <CallManagerProvider>
+                      <Outlet />
+                    </CallManagerProvider>
+                  </UserMediaProvider>
+                </AccountDetailsListener>
+              </PresenceProvider>
+            </WebSocketProvider>
+          </AuthProvider>
+        }
+      >
         <Route
           element={
-            <AuthProvider>
-              <WebSocketProvider>
-                <PresenceProvider>
-                  <AccountDetailsListener>
-                    <UserMediaProvider>
-                      <CallManagerProvider>
-                        <Outlet />
-                      </CallManagerProvider>
-                    </UserMediaProvider>
-                  </AccountDetailsListener>
-                </PresenceProvider>
-              </WebSocketProvider>
-            </AuthProvider>
+            <MessengerProvider>
+              <NotificationHandler>
+                <Outlet />
+              </NotificationHandler>
+            </MessengerProvider>
           }
         >
-          <Route
-            element={
-              <MessengerProvider>
-                <Outlet />
-              </MessengerProvider>
-            }
-          >
-            <Route element={<Messenger />}>
-              <Route index element={<WelcomePage />} />
-              <Route path="conversation" element={<WelcomePage />} />
-              <Route
-                path="conversation/:conversationId"
-                element={
-                  <ActionMessageProvider>
-                    <ConversationProvider>
-                      <NotificationHandler>
-                        <ConversationView />
-                      </NotificationHandler>
-                    </ConversationProvider>
-                  </ActionMessageProvider>
-                }
-              />
-            </Route>
+          <Route index element={<Navigate to="/conversation" replace />} />
+          <Route path="conversation" element={<Messenger />}>
+            <Route
+              path=":conversationId"
+              element={
+                <ActionMessageProvider>
+                  <ConversationProvider>
+                    <ConversationView />
+                  </ConversationProvider>
+                </ActionMessageProvider>
+              }
+            />
           </Route>
-          <Route
-            element={
-              <NotificationHandler>
-                <LayoutWrapper sidebar={<UserSettingsSelection />} main={<Outlet />}></LayoutWrapper>
-              </NotificationHandler>
-            }
-          >
-            <Route path="settings/account/manage-account" element={<AccountSettings />} />
-            <Route path="settings/account/calls" element={<CallSettings />} />
-            <Route path="settings/account/linked-devices" element={<LinkedDevicesPage />} />
-            <Route path="settings/account/linked-devices/export" element={<ExportToAnotherDevice />} />
-            <Route path="settings/general" element={<GeneralSettings />} />
-            <Route path="contacts" element={<ContactList />} />
+          <Route path="invites" element={<Invites />} />
+          <Route path="settings" element={<Settings />}>
+            <Route path="account/manage-account" element={<AccountSettings />} />
+            <Route path="account/calls" element={<CallSettings />} />
+            <Route path="account/linked-devices" element={<LinkedDevicesPage />} />
+            <Route path="account/linked-devices/export" element={<ExportToAnotherDevice />} />
+            <Route path="general" element={<GeneralSettings />} />
           </Route>
+          <Route path="contacts" element={<Contacts />} />
         </Route>
       </Route>
+      <Route path="*" element={<NotFound />} />
     </Route>,
   ),
 )

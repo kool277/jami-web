@@ -15,13 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { IconButton, InputBase, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
-import { alpha } from '@mui/material/styles'
-import { lazy, useEffect, useMemo } from 'react'
+import { InputBase, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { alpha, darken, lighten } from '@mui/material/styles'
+import { lazy, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 
-import { useAppBackgroundContext } from '../contexts/AppBackgroundProvider.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
 import ConversationPreferencesColorProvider, {
@@ -32,7 +30,6 @@ import ConversationPreferencesStateProvider, {
   useConversationPreferencesStateContext,
 } from '../contexts/ConversationPreferencesStateContext.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
-import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider.js'
 //import CallInterface from '../pages/CallInterface.js'
 const CallInterface = lazy(() => import('../pages/CallInterface.js'))
 import ChatInterface from '../pages/ChatInterface.js'
@@ -62,12 +59,14 @@ const ConversationView = () => {
 
 const ConversationContent = () => {
   const { conversationColor } = useConversationPreferencesColorContext()
-  const { setTintColor } = useAppBackgroundContext()
-
-  useEffect(() => {
-    setTintColor(conversationColor)
-    return () => setTintColor(null)
-  }, [conversationColor, setTintColor])
+  const theme = useTheme()
+  // The conversation colour washes the chat pane rather than the whole window, so
+  // the pane stays identifiable without tinting the rest of the shell.
+  const background = conversationColor
+    ? theme.palette.mode === 'dark'
+      ? darken(conversationColor, 0.85)
+      : lighten(conversationColor, 0.85)
+    : 'background.default'
 
   return (
     <Stack
@@ -77,6 +76,8 @@ const ConversationContent = () => {
         width: '100%',
         position: 'relative',
         overflow: 'hidden',
+        backgroundColor: background,
+        transition: 'background-color 0.6s ease-in-out',
       }}
     >
       <ChatInterface />
@@ -92,19 +93,10 @@ export const ConversationHeader = () => {
   const { isOpen, setIsOpen, isSearchOpen, setIsSearchOpen, setSearchQuery } = useConversationPreferencesStateContext()
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-  const navigate = useNavigate()
-  const { setIsMenuOpen } = useMobileMenuStateContext()
 
   const otherMember = useMemo(() => members?.find((m) => m.contact.uri !== account.getUri()), [members, account])
   const contactUri = otherMember?.contact.uri ?? ''
   const subtitle = otherMember?.contact.registeredName
-
-  const onMenuIconClick = () => {
-    setIsMenuOpen(true)
-    if (location.pathname.startsWith('/conversation')) {
-      navigate('/conversation')
-    }
-  }
 
   const handleSearchClose = () => {
     setIsSearchOpen(false)
@@ -161,16 +153,6 @@ export const ConversationHeader = () => {
               overflow: 'hidden',
             }}
           >
-            <IconButton
-              onClick={() => onMenuIconClick()}
-              sx={{
-                height: '36px',
-                width: '36px',
-                borderRadius: '50%',
-              }}
-            >
-              <ArrowBackIosNewIcon sx={{ fontSize: 20 }} />
-            </IconButton>
             {contactUri && (
               <ConversationAvatar
                 displayName={conversationDisplayName}

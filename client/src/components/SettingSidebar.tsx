@@ -28,10 +28,9 @@ import Box from '@mui/system/Box'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { useMobileMenuStateContext } from '../contexts/MobileMenuStateProvider.js'
 import { ISettingItem } from '../utils/utils.js'
 import BaseButton from './common/BaseButton.js'
-import { ArrowBackIcon, LoginIcon } from './SvgIcon.js'
+import { LoginIcon } from './SvgIcon.js'
 
 interface SettingSidebarProps {
   settingMeta: ISettingItem[]
@@ -42,11 +41,9 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
   const navigate = useNavigate()
   const theme: Theme = useTheme()
   const { pathname } = useLocation()
-  const { setIsMenuOpen } = useMobileMenuStateContext()
   const { t } = useTranslation()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
-  const isSettings = pathname.startsWith('/settings')
   const isAdmin = pathname.startsWith('/admin')
 
   const isCurrentlyViewing = (text: string) => {
@@ -76,21 +73,6 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
           {pageTitle}
         </Typography>
       </Box>
-      {isSettings && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <BaseButton
-            variant="contained"
-            startIcon={<ArrowBackIcon />}
-            sx={buttonStyle}
-            onClick={() => {
-              navigate('/conversation')
-              setIsMenuOpen(false)
-            }}
-          >
-            {t('back_to_conversations')}
-          </BaseButton>
-        </Box>
-      )}
       {isAdmin && (
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
           <BaseButton
@@ -121,10 +103,7 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
                       ? `${theme.palette.primary.main}1A`
                       : undefined,
                   }}
-                  onClick={() => {
-                    navigate(settingItem.link)
-                    setIsMenuOpen(false)
-                  }}
+                  onClick={() => navigate(settingItem.link)}
                 >
                   {settingItem.icon && (
                     <ListItemIcon
@@ -179,10 +158,7 @@ function SettingSidebar({ settingMeta, pageTitle }: SettingSidebarProps) {
                                 : `${theme.palette.primary.main}0D`,
                             },
                           }}
-                          onClick={() => {
-                            navigate(submenuItem.link)
-                            setIsMenuOpen(false)
-                          }}
+                          onClick={() => navigate(submenuItem.link)}
                         >
                           {submenuItem.icon && (
                             <ListItemIcon

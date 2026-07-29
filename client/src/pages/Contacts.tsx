@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Savoir-faire Linux Inc.
+ * Copyright (C) 2022-2026 Savoir-faire Linux Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,30 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 
 import ContactList from '../components/ContactList.js'
-import Footer from '../components/Footer.js'
+import AppShell from '../components/shell/AppShell.js'
+import useDocumentTitle from '../hooks/useDocumentTitle.js'
 
 export default function Contacts() {
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-      <Box sx={{ backgroundColor: '#F2F2F2', width: '22vw', height: '100vh' }}>
-        <Footer />
-        <ContactList />
-      </Box>
-      <Box sx={{ width: '100%', height: '100%' }}>
-        <Box
-          sx={{
-            width: '100%',
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            textAlign: 'center',
-            marginTop: '20vh',
-          }}
-        ></Box>
-      </Box>
-    </Box>
-  )
+  const { t } = useTranslation()
+  useDocumentTitle(t('settings_menu_item_contacts'))
+
+  return <AppShell listRoute="/contacts" listPaneLabel={t('settings_menu_item_contacts')} listPane={<ContactList />} />
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Savoir-faire Linux Inc.
+ * Copyright (C) 2022-2026 Savoir-faire Linux Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,18 +15,33 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Outlet } from 'react-router-dom'
+import { type ChangeEvent, useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import ContactSearchBar from '../components/ContactSearchBar.js'
 import ConversationList from '../components/ConversationList.js'
-import LayoutWrapper from '../components/LayoutWrapper.js'
-import { AppBackgroundProvider } from '../contexts/AppBackgroundProvider.js'
+import AppShell from '../components/shell/AppShell.js'
+import WelcomePage from '../components/WelcomePage.js'
+import useDocumentTitle from '../hooks/useDocumentTitle.js'
 
-const Messenger = () => {
+export default function Messenger() {
+  const { t } = useTranslation()
+  useDocumentTitle(t('conversations'))
+  const [searchFilter, setSearchFilter] = useState('')
+  const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setSearchFilter(event.target.value)
+  }, [])
+
   return (
-    <AppBackgroundProvider>
-      <LayoutWrapper sidebar={<ConversationList />} main={<Outlet />} />
-    </AppBackgroundProvider>
+    <AppShell
+      listRoute="/conversation"
+      listPaneLabel={t('conversations')}
+      listSearch={
+        <ContactSearchBar placeholder={t('find_users_and_conversations')} handleChange={handleSearchChange} />
+      }
+      listPane={<ConversationList searchFilter={searchFilter} />}
+      placeholder={<WelcomePage />}
+      immersiveDetail
+    />
   )
 }
-
-export default Messenger

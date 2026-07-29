@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Savoir-faire Linux Inc.
+ * Copyright (C) 2026 Savoir-faire Linux Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,13 +15,23 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { useTranslation } from 'react-i18next'
 
-const NotFoundPage = () => {
+import EmptyState from '../components/common/EmptyState.js'
+import AppShell from '../components/shell/AppShell.js'
+import useDocumentTitle from '../hooks/useDocumentTitle.js'
+import { UserSettingsSelection } from '../settings/index.js'
+
+export default function Settings() {
+  const { t } = useTranslation()
+  useDocumentTitle(t('settings'))
+
   return (
-    <div>
-      <h3>404 Page not found</h3>
-    </div>
+    <AppShell
+      listRoute="/settings"
+      listPaneLabel={t('settings')}
+      listPane={<UserSettingsSelection />}
+      placeholder={<EmptyState title={t('settings_select')} />}
+    />
   )
 }
-
-export default NotFoundPage
