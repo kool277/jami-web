@@ -101,12 +101,13 @@ export default function MainSettingsSelection() {
   return (
     <Box
       sx={{
-        height: '95vh',
+        flex: 1,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
+        gap: 2,
+        pb: 2,
         width: '100%',
-        minWidth: '300px',
       }}
     >
       <Box>
