@@ -29,6 +29,7 @@ export interface NavRailProps {
   /** Compact renders the rail as a bottom navigation bar for small screens. */
   compact?: boolean
   inviteCount?: number
+  unreadConversationCount?: number
   accountSlot: ReactNode
   sx?: SxProps<Theme>
 }
@@ -37,12 +38,12 @@ export interface NavRailProps {
  * The four top-level destinations of the app: chats, invites, settings and the
  * account. Calls are started from a conversation, so they are not a destination.
  */
-export default function NavRail({ compact, inviteCount, accountSlot, sx }: NavRailProps) {
+export default function NavRail({ compact, inviteCount, unreadConversationCount, accountSlot, sx }: NavRailProps) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
 
   const destinations = [
-    { path: '/conversation', label: t('conversations'), Icon: ChatBubbleIcon },
+    { path: '/conversation', label: t('conversations'), Icon: ChatBubbleIcon, badgeCount: unreadConversationCount },
     { path: '/invites', label: t('invitations'), Icon: MailIcon, badgeCount: inviteCount },
     // Settings configures the app rather than showing people, so a separator
     // keeps it from reading as a third messaging destination.

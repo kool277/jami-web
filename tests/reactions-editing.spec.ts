@@ -48,7 +48,7 @@ test.describe('Reactions via WebSocket', () => {
     await waitForWsClient(request)
 
     // Verify the initial message is visible
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // Inject a reaction-added event via WebSocket
     await request.post(`${MOCK_API}/__ws-send`, {
@@ -81,7 +81,7 @@ test.describe('Reactions via WebSocket', () => {
   test('multiple reactions appear on a message', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
     await waitForWsClient(request)
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // Add first reaction
     await request.post(`${MOCK_API}/__ws-send`, {
@@ -131,7 +131,7 @@ test.describe('Reactions via WebSocket', () => {
   test('reaction disappears when reaction-removed event is received', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
     await waitForWsClient(request)
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // First add a reaction
     await request.post(`${MOCK_API}/__ws-send`, {
@@ -179,7 +179,7 @@ test.describe('Message Edition via WebSocket', () => {
     await waitForWsClient(request)
 
     // Verify the original message
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // Inject a message-edition event to update the message body
     await request.post(`${MOCK_API}/__ws-send`, {
@@ -209,7 +209,7 @@ test.describe('Message Edition via WebSocket', () => {
   test('edited message replaces the original text', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
     await waitForWsClient(request)
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // Edit the message
     await request.post(`${MOCK_API}/__ws-send`, {
@@ -246,7 +246,7 @@ test.describe('Message Hover Actions', () => {
     await page.goto('/conversation/conv-1')
     await waitForWsClient(request)
 
-    const message = page.getByText('Hello Alice!').first()
+    const message = page.getByTestId('message-list').getByText('Hello Alice!')
     await expect(message).toBeVisible({ timeout: 15_000 })
 
     // Hover over the message to show tooltip with action buttons
@@ -270,7 +270,7 @@ test.describe('Reactions with Pre-existing Data', () => {
     await page.goto('/conversation/conv-1')
     await waitForWsClient(request)
     // Ensure the conversation is loaded (and its message handler bound) before pushing
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // The initial message from the mock has reactions: [] (empty)
     // Let's inject a new message WITH reactions already populated
@@ -315,7 +315,7 @@ test.describe('Multiple Message Interactions', () => {
   test('can react to different messages independently', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
     await waitForWsClient(request)
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // Add a second message
     await request.post(`${MOCK_API}/__ws-send`, {
@@ -387,7 +387,7 @@ test.describe('Multiple Message Interactions', () => {
   test('editing a message preserves existing reactions', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
     await waitForWsClient(request)
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // Add a reaction to msg-1
     await request.post(`${MOCK_API}/__ws-send`, {

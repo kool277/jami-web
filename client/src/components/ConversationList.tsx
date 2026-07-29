@@ -19,25 +19,33 @@ import { Stack } from '@mui/material'
 import { WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { useEffect } from 'react'
 
+import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
 import { useConversationsSummariesQuery, useRefreshConversationsSummaries } from '../services/conversationQueries.js'
+import { type ConversationFilter, filterConversationSummaries } from '../utils/conversationFilters.js'
 import ContactSearchResultList from './ContactSearchResultList.js'
 import { ConversationSummaryList } from './ConversationSummaryList.js'
 
 export interface ConversationListProps {
   /** Owned by the shell, since the search bar belongs to the island rather than the list. */
   searchFilter?: string
+  conversationFilter: ConversationFilter
 }
 
-export default function ConversationList({ searchFilter }: ConversationListProps) {
+export default function ConversationList({ searchFilter, conversationFilter }: ConversationListProps) {
   return (
     <Stack sx={{ overflowY: 'auto', flex: 1 }}>
-      {searchFilter ? <ContactSearchResultList searchFilter={searchFilter} /> : <ConversationSummaries />}
+      {searchFilter ? (
+        <ContactSearchResultList searchFilter={searchFilter} conversationFilter={conversationFilter} />
+      ) : (
+        <ConversationSummaries conversationFilter={conversationFilter} />
+      )}
     </Stack>
   )
 }
 
-const ConversationSummaries = () => {
+const ConversationSummaries = ({ conversationFilter }: Pick<ConversationListProps, 'conversationFilter'>) => {
+  const { account } = useAuthContext()
   const conversationsSummariesQuery = useConversationsSummariesQuery()
   const conversationsSummaries = conversationsSummariesQuery.data || []
   const websocket = useWebSocketContext()
@@ -54,5 +62,9 @@ const ConversationSummaries = () => {
     }
   }, [websocket, refreshConversationsSummaries])
 
-  return <ConversationSummaryList conversationsSummaries={conversationsSummaries} />
+  return (
+    <ConversationSummaryList
+      conversationsSummaries={filterConversationSummaries(conversationsSummaries, conversationFilter, account.getUri())}
+    />
+  )
 }

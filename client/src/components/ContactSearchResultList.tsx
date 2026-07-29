@@ -19,6 +19,7 @@ import { Box, Dialog, DialogProps, Fab, List, ListSubheader, Typography } from '
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
+import { useAuthContext } from '../contexts/AuthProvider.js'
 import { Contact } from '../models/contact.js'
 import {
   useAddContactMutation,
@@ -26,6 +27,7 @@ import {
   useJamsContactsSearchQuery,
 } from '../services/contactQueries.js'
 import { useConversationsSummariesQuery } from '../services/conversationQueries.js'
+import { type ConversationFilter, filterConversationSummaries } from '../utils/conversationFilters.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import { ConversationSummaryList } from './ConversationSummaryList.js'
 import { CustomListItemButton } from './CustomListItemButton.js'
@@ -35,15 +37,16 @@ import { GroupAddRoundedIcon as GroupAddRounded } from './SvgIcon.js'
 
 type ContactSearchResultListProps = {
   searchFilter: string
+  conversationFilter: ConversationFilter
 }
 
-export default ({ searchFilter }: ContactSearchResultListProps) => {
+export default ({ searchFilter, conversationFilter }: ContactSearchResultListProps) => {
   const { t } = useTranslation()
+  const { account } = useAuthContext()
 
   const contactsSearchQuery = useContactsSearchQuery(searchFilter)
   const contactsJamsSearchQuery = useJamsContactsSearchQuery(searchFilter)
 
-  // TODO: Filter conversations
   const conversationsSummariesQuery = useConversationsSummariesQuery()
 
   const isLoading = contactsSearchQuery.isLoading && conversationsSummariesQuery.isLoading
@@ -53,6 +56,8 @@ export default ({ searchFilter }: ContactSearchResultListProps) => {
   }
 
   const conversationsSummaries = conversationsSummariesQuery.data
+    ? filterConversationSummaries(conversationsSummariesQuery.data, conversationFilter, account.getUri())
+    : undefined
   const contactsSearchResult = contactsSearchQuery.data
   const contactsJamsSearchResult = contactsJamsSearchQuery.data
 

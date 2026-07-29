@@ -18,7 +18,6 @@
 import { Box, List, Stack, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { IConversationSummary } from '@savoirfairelinux/jami-web-common'
-import { MessageStatusCode } from '@savoirfairelinux/jami-web-common/src/enums/message-status-code'
 import dayjs from 'dayjs'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useMemo, useState } from 'react'
@@ -33,6 +32,7 @@ import { ConversationRouteParams } from '../router.js'
 import { CallStatus } from '../services/CallManager.js'
 import { useMembersQuery } from '../services/conversationQueries.js'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages.js'
+import { isConversationUnread } from '../utils/conversationFilters.js'
 import { formatRelativeDate, formatTime } from '../utils/dates&times.js'
 import { getColor } from '../utils/messagecolor.js'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
@@ -206,14 +206,7 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
   const { callData, callStatus, isAudioOn } = useCallManagerContext()
   const { t, i18n } = useTranslation()
 
-  const isRead = useMemo(() => {
-    const lastMessage = conversationSummary.lastMessage
-    if (!lastMessage) {
-      return true
-    }
-    const status = JSON.parse(JSON.stringify(lastMessage.status))[accountUri]
-    return lastMessage.author === accountUri || status === MessageStatusCode.read
-  }, [accountUri, conversationSummary.lastMessage])
+  const isRead = !isConversationUnread(conversationSummary, accountUri)
 
   const lastMessageText = useMemo(() => {
     if (!callData || callData.conversationId !== conversationSummary.id) {

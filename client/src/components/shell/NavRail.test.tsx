@@ -39,11 +39,15 @@ vi.mock('../SvgIcon.js', () => {
   }
 })
 
-const renderNavRail = (initialPath: string, inviteCount?: number) =>
+const renderNavRail = (initialPath: string, inviteCount?: number, unreadConversationCount?: number) =>
   render(
     <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
       <MemoryRouter initialEntries={[initialPath]}>
-        <NavRail inviteCount={inviteCount} accountSlot={<button>account_menu</button>} />
+        <NavRail
+          inviteCount={inviteCount}
+          unreadConversationCount={unreadConversationCount}
+          accountSlot={<button>account_menu</button>}
+        />
       </MemoryRouter>
     </ThemeProvider>,
   )
@@ -84,5 +88,14 @@ describe('NavRail', () => {
     unmount()
     renderNavRail('/conversation', 0)
     expect(screen.getByRole('link', { name: 'invitations' })).not.toHaveTextContent('0')
+  })
+
+  it('badges conversations only while some are unread', () => {
+    const { unmount } = renderNavRail('/conversation', undefined, 3)
+    expect(screen.getByRole('link', { name: 'conversations' })).toHaveTextContent('3')
+
+    unmount()
+    renderNavRail('/conversation', undefined, 0)
+    expect(screen.getByRole('link', { name: 'conversations' })).not.toHaveTextContent('0')
   })
 })

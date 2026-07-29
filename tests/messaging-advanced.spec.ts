@@ -112,7 +112,7 @@ test.describe('Real-time Message Reception', () => {
     await waitForWsClient(request)
 
     // Verify initial message is visible
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // Simulate an incoming message from Bob via the /__ws-send endpoint
     await request.post(`${MOCK_API}/__ws-send`, {
@@ -143,7 +143,7 @@ test.describe('Real-time Message Reception', () => {
   test('multiple incoming messages appear in order', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
     await waitForWsClient(request)
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // Send multiple messages in sequence with small delays for browser processing
     const messages = ['First message', 'Second message', 'Third message']
@@ -176,7 +176,7 @@ test.describe('Real-time Message Reception', () => {
   test('messages from a different conversation are not shown', async ({ page, request }) => {
     await page.goto('/conversation/conv-1')
     await waitForWsClient(request)
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // Send a message for a different conversation
     await request.post(`${MOCK_API}/__ws-send`, {
@@ -221,7 +221,7 @@ test.describe('Conversation UI Elements', () => {
     await page.goto('/conversation/conv-1')
 
     // The mock returns a message "Hello Alice!" from Bob
-    const message = page.getByText('Hello Alice!')
+    const message = page.getByTestId('message-list').getByText('Hello Alice!')
     await expect(message.first()).toBeVisible({ timeout: 15_000 })
   })
 
@@ -267,7 +267,7 @@ test.describe('Message Display', () => {
     await page.goto('/conversation/conv-1')
 
     // Bob's message should be visible with Bob's name
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // The sender name "bob" should be visible in the message area
     const bobLabel = page.getByText('bob')
@@ -277,7 +277,7 @@ test.describe('Message Display', () => {
   test('messages show timestamp', async ({ page }) => {
     await page.goto('/conversation/conv-1')
 
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible({ timeout: 15_000 })
 
     // There should be a time indicator on the page — look for AM/PM pattern or HH:MM
     const timePattern = page.getByText(/\d{1,2}:\d{2}\s*(am|pm)?/i)
@@ -298,7 +298,7 @@ test.describe('Message Display', () => {
     await expect(page.getByText('My own message').first()).toBeVisible({ timeout: 15_000 })
 
     // Both Bob's message and our message should be visible
-    await expect(page.getByText('Hello Alice!').first()).toBeVisible()
+    await expect(page.getByTestId('message-list').getByText('Hello Alice!')).toBeVisible()
     await expect(page.getByText('My own message').first()).toBeVisible()
   })
 })

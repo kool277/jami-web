@@ -20,7 +20,9 @@ import { type ReactNode, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink, useOutlet } from 'react-router-dom'
 
-import { useConversationRequestsQuery } from '../../services/conversationQueries.js'
+import { useAuthContext } from '../../contexts/AuthProvider.js'
+import { useConversationRequestsQuery, useConversationsSummariesQuery } from '../../services/conversationQueries.js'
+import { isConversationUnread } from '../../utils/conversationFilters.js'
 import { isElectronMode } from '../../utils/electron.js'
 import Island, { ISLAND_MARGIN, ISLAND_PADDING } from '../common/Island.js'
 import LoadingSkeleton from '../common/LoadingSkeleton.js'
@@ -69,7 +71,12 @@ export default function AppShell({
   const isCompact = useMediaQuery(theme.breakpoints.down('md'))
   const outlet = useOutlet()
   const isDark = theme.palette.mode === 'dark'
+  const { account } = useAuthContext()
   const conversationRequestsQuery = useConversationRequestsQuery()
+  const conversationsSummariesQuery = useConversationsSummariesQuery()
+  const unreadConversationCount = (conversationsSummariesQuery.data || []).filter((conversation) =>
+    isConversationUnread(conversation, account.getUri()),
+  ).length
   // Electron draws no title bar of its own, so the shell background doubles as the
   // window drag surface while the panes on top of it stay interactive.
   const paneSx: { WebkitAppRegion?: string } = isElectronMode() ? { WebkitAppRegion: 'no-drag' } : {}
@@ -78,6 +85,7 @@ export default function AppShell({
     <NavRail
       compact={isCompact}
       inviteCount={conversationRequestsQuery.data?.length}
+      unreadConversationCount={unreadConversationCount}
       accountSlot={<AccountMenu compact={isCompact} />}
       sx={paneSx}
     />

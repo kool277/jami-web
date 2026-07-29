@@ -39,6 +39,7 @@ interface MockServerState {
     jamsUrl?: string
   }
   users: Record<string, { password: string; accountId: string }>
+  userTokens: Record<string, string>
   adminPasskeys: { credentialId: string; name: string; createdAt: string }[]
   userPasskeys: Record<string, { credentialId: string; name: string; createdAt: string }[]>
   autoDownloadLimit: number
@@ -58,6 +59,7 @@ const defaultState: MockServerState = {
     uploadPath: '/tmp/jami-uploads',
   },
   users: {},
+  userTokens: {},
   adminPasskeys: [],
   userPasskeys: {},
   autoDownloadLimit: 0,
@@ -82,6 +84,62 @@ const standaloneInitialState: Partial<MockServerState> = {
 const mockOAuthProviders = [
   { name: 'google', isActive: false, displayName: 'Google' },
   { name: 'github', isActive: false, displayName: 'GitHub' },
+]
+
+const conversationFixtures = [
+  { id: 'conv-1', title: '', mode: '0', membersNames: ['Bob'], body: 'Hello Alice!', unreadFor: ['alice'] },
+  { id: 'conv-2', title: '', mode: '0', membersNames: ['Casey'], body: 'See you tomorrow.', unreadFor: ['bob'] },
+  {
+    id: 'conv-3',
+    title: 'Weekend plans',
+    mode: '1',
+    membersNames: ['Alice', 'Bob', 'Casey'],
+    body: 'I booked the table for Saturday.',
+    unreadFor: ['alice', 'bob'],
+  },
+  { id: 'conv-4', title: '', mode: '0', membersNames: ['Drew'], body: 'Thanks for the update.', unreadFor: [] },
+  {
+    id: 'conv-5',
+    title: 'Book club',
+    mode: '1',
+    membersNames: ['Alice', 'Bob', 'Drew', 'Emery'],
+    body: 'Our next pick is ready.',
+    unreadFor: ['alice'],
+  },
+  { id: 'conv-6', title: '', mode: '0', membersNames: ['Emery'], body: 'Can you review this?', unreadFor: ['bob'] },
+  {
+    id: 'conv-7',
+    title: 'Project North',
+    mode: '1',
+    membersNames: ['Alice', 'Bob', 'Finley'],
+    body: 'The release notes are published.',
+    unreadFor: [],
+  },
+  {
+    id: 'conv-8',
+    title: '',
+    mode: '0',
+    membersNames: ['Finley'],
+    body: 'Quick question for you.',
+    unreadFor: ['alice', 'bob'],
+  },
+  {
+    id: 'conv-9',
+    title: 'Family chat',
+    mode: '1',
+    membersNames: ['Alice', 'Bob', 'Gale'],
+    body: 'Photos from the weekend are up.',
+    unreadFor: ['bob'],
+  },
+  { id: 'conv-10', title: '', mode: '0', membersNames: ['Gale'], body: 'Let us catch up soon.', unreadFor: ['alice'] },
+  {
+    id: 'conv-11',
+    title: 'Study group',
+    mode: '1',
+    membersNames: ['Alice', 'Bob', 'Harper'],
+    body: 'The notes are in the shared folder.',
+    unreadFor: [],
+  },
 ]
 
 export function createMockServer(initialState: Partial<MockServerState> = {}): {
@@ -383,7 +441,9 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
       res.status(401).send('Invalid credentials')
       return
     }
-    res.json({ accessToken: 'mock-user-token-' + Date.now() })
+    const accessToken = 'mock-user-token-' + Date.now()
+    state.userTokens[accessToken] = username
+    res.json({ accessToken })
   })
 
   api.get('/auth/oauth/providers', (_req, res) => {
@@ -431,6 +491,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     Object.assign(state, { ...defaultState })
     state.config = { ...defaultState.config }
     state.users = {}
+    state.userTokens = {}
     state.adminPasskeys = []
     state.userPasskeys = {}
     res.sendStatus(200)
@@ -438,15 +499,23 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
 
   // --- Account routes (authenticated) ---
 
-  api.get('/account', (_req, res) => {
+  api.get('/account', (req, res) => {
+    const token = req.get('authorization')?.replace(/^Bearer\s+/, '')
+    const username = token ? state.userTokens[token] : undefined
+    const user = username ? state.users[username] : undefined
+    if (!username || !user) {
+      res.sendStatus(401)
+      return
+    }
+
     res.json({
-      id: 'mock-account-id',
+      id: user.accountId,
       details: {
-        'Account.id': 'mock-account-id',
+        'Account.id': user.accountId,
         'Account.type': 'RING',
-        'Account.alias': 'Test User',
-        'Account.displayName': 'Test User',
-        'Account.username': 'testuser',
+        'Account.alias': username,
+        'Account.displayName': username,
+        'Account.username': username,
         'Account.deviceID': 'mock-device-id',
         'Account.deviceName': 'Mock Device',
         'Account.enable': 'true',
@@ -456,7 +525,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
         'RingNS.uri': '',
       },
       volatileDetails: {
-        'Account.registeredName': 'testuser',
+        'Account.registeredName': username,
         'Account.registrationStatus': 'REGISTERED',
       },
       defaultModerators: [],
@@ -505,26 +574,30 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   // --- Conversations routes ---
 
   api.get('/conversations', (_req, res) => {
-    res.json([
-      {
-        id: 'conv-1',
+    const now = Math.floor(Date.now() / 1000)
+    res.json(
+      conversationFixtures.map((conversation, index) => ({
+        id: conversation.id,
         avatar: '',
-        title: '',
-        mode: '0',
-        membersNames: ['Bob'],
+        title: conversation.title,
+        mode: conversation.mode,
+        membersNames: conversation.membersNames,
         lastMessage: {
-          id: 'msg-1',
-          author: 'contact-bob-uri',
-          body: 'Hello Alice!',
+          id: `msg-${index + 1}`,
+          author: `contact-${index + 1}`,
+          body: conversation.body,
           type: 'text/plain',
-          timestamp: String(Math.floor(Date.now() / 1000) - 60),
+          timestamp: now - (index + 1) * 300,
           linearizedParent: '',
           parents: '',
-          status: {},
+          status: {
+            alice: conversation.unreadFor.includes('alice') ? 2 : 3,
+            bob: conversation.unreadFor.includes('bob') ? 2 : 3,
+          },
           reactions: [],
         },
-      },
-    ])
+      })),
+    )
   })
 
   api.get('/conversations/:conversationId/infos', (req, res) => {
@@ -638,7 +711,29 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   })
 
   api.get('/conversation-requests', (_req, res) => {
-    res.json([])
+    res.json([
+      {
+        conversationId: 'invite-1',
+        infos: { avatar: '', mode: '0', title: '' },
+        from: { uri: 'contact-ivy-uri', registeredName: 'Ivy' },
+        received: String(Math.floor(Date.now() / 1000) - 1800),
+        membersNames: ['Ivy'],
+      },
+      {
+        conversationId: 'invite-2',
+        infos: { avatar: '', mode: '1', title: 'Garden planning' },
+        from: { uri: 'contact-jules-uri', registeredName: 'Jules' },
+        received: String(Math.floor(Date.now() / 1000) - 3600),
+        membersNames: ['Jules', 'Kai'],
+      },
+      {
+        conversationId: 'invite-3',
+        infos: { avatar: '', mode: '0', title: '' },
+        from: { uri: 'contact-lane-uri', registeredName: 'Lane' },
+        received: String(Math.floor(Date.now() / 1000) - 7200),
+        membersNames: ['Lane'],
+      },
+    ])
   })
 
   // --- File upload endpoint ---
