@@ -80,9 +80,16 @@ export const SettingSelect = <OptionPayload,>({
 interface SettingSwitchProps extends Setting {
   checked: SwitchProps['checked']
   onChange: SwitchProps['onChange']
+  controlOnly?: boolean
 }
 
-export const SettingSwitch = ({ checked, onChange, ...settingBaseProps }: SettingSwitchProps) => {
+export const SettingSwitch = ({ checked, onChange, controlOnly, ...settingBaseProps }: SettingSwitchProps) => {
+  if (controlOnly) {
+    return (
+      <Switch checked={checked} onChange={onChange} slotProps={{ input: { 'aria-label': settingBaseProps.label } }} />
+    )
+  }
+
   return (
     <SettingBase {...settingBaseProps}>
       <Switch checked={checked} onChange={onChange} />

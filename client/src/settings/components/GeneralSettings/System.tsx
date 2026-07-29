@@ -15,12 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Stack } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
-import LayoutSettings from '../../../components/LayoutSettings.js'
 import SettingLanguage from '../../../components/SettingLanguage.js'
-import { SettingsGroup } from '../../../components/Settings.js'
+import { SettingsPage, SettingsRow, SettingsSection } from '../SettingsPage.js'
 import SettingLinkPreview from './SettingLinkPreview.js'
 import SettingNotifications from './SettingNotifications.js'
 import SettingTheme from './SettingTheme.js'
@@ -29,36 +27,18 @@ import SettingTips from './SettingTips.js'
 function System() {
   const { t } = useTranslation()
 
-  const marginValue = '10px'
-  const style = { mt: marginValue, mb: marginValue }
-
   return (
-    <LayoutSettings title={t('general_settings')} disableMarginTop={true}>
-      <Stack
-        sx={{
-          padding: '3%',
-        }}
-      >
-        <SettingsGroup label={t('settings_title_system')}>
-          <Box sx={style}>
-            <SettingLanguage />
-          </Box>
-          <Box sx={style}>
-            <SettingNotifications />
-          </Box>
-          <Box sx={style}>
-            <SettingTheme />
-          </Box>
-          <SettingTips />
-          <Box sx={style}></Box>
-        </SettingsGroup>
-        <SettingsGroup label={t('settings_title_chat')}>
-          <Box sx={style}>
-            <SettingLinkPreview />
-          </Box>
-        </SettingsGroup>
-      </Stack>
-    </LayoutSettings>
+    <SettingsPage title={t('general_settings')}>
+      <SettingsSection title={t('settings_title_system')}>
+        <SettingsRow title={t('settings_language')} control={<SettingLanguage doNotDisplayLabel />} />
+        <SettingsRow title={t('settings_menu_item_notifications')} control={<SettingNotifications controlOnly />} />
+        <SettingsRow title={t('settings_dark_theme')} control={<SettingTheme controlOnly />} />
+        <SettingsRow title={t('show_tips')} control={<SettingTips controlOnly />} />
+      </SettingsSection>
+      <SettingsSection title={t('settings_title_chat')}>
+        <SettingsRow title={t('settings_link_preview')} control={<SettingLinkPreview controlOnly />} />
+      </SettingsSection>
+    </SettingsPage>
   )
 }
 

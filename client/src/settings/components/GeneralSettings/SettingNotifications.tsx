@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { SettingSwitch } from '../../../components/Settings.js'
 import { NotificationContext } from '../../../contexts/NotificationsProvider.js'
 
-const SettingNotifications = () => {
+const SettingNotifications = ({ controlOnly = false }: { controlOnly?: boolean }) => {
   const { t } = useTranslation()
   const { enable, setIsEnabled } = use(NotificationContext)
 
@@ -33,7 +33,14 @@ const SettingNotifications = () => {
     setIsOn((isOn) => !isOn)
   }, [isOn, setIsEnabled])
 
-  return <SettingSwitch label={t('settings_menu_item_notifications')} onChange={onChange} checked={isOn} />
+  return (
+    <SettingSwitch
+      controlOnly={controlOnly}
+      label={t('settings_menu_item_notifications')}
+      onChange={onChange}
+      checked={isOn}
+    />
+  )
 }
 
 export default SettingNotifications

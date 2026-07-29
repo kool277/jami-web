@@ -23,14 +23,19 @@ import { useTranslation } from 'react-i18next'
 import { SettingSwitch } from '../../../components/Settings.js'
 import { CustomThemeContext } from '../../../contexts/CustomThemeProvider.js'
 
-const SettingTheme = () => {
+const SettingTheme = ({ controlOnly = false }: { controlOnly?: boolean }) => {
   const { t } = useTranslation()
 
   const { mode, toggleMode } = use(CustomThemeContext)
 
   return (
     <Box sx={{ textAlign: 'start' }}>
-      <SettingSwitch label={t('settings_dark_theme')} onChange={toggleMode} checked={mode === 'dark'} />
+      <SettingSwitch
+        controlOnly={controlOnly}
+        label={t('settings_dark_theme')}
+        onChange={toggleMode}
+        checked={mode === 'dark'}
+      />
     </Box>
   )
 }

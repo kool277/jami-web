@@ -21,12 +21,17 @@ import { useTranslation } from 'react-i18next'
 import { SettingSwitch } from '../../../components/Settings.js'
 import { setTipsEnabled, useTipsEnabled } from '../../../utils/tips.js'
 
-const SettingTips = () => {
+const SettingTips = ({ controlOnly = false }: { controlOnly?: boolean }) => {
   const { t } = useTranslation()
   const tipsEnabled = useTipsEnabled()
 
   return (
-    <SettingSwitch label={t('show_tips')} onChange={(_, checked) => setTipsEnabled(checked)} checked={tipsEnabled} />
+    <SettingSwitch
+      controlOnly={controlOnly}
+      label={t('show_tips')}
+      onChange={(_, checked) => setTipsEnabled(checked)}
+      checked={tipsEnabled}
+    />
   )
 }
 

@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next'
 
 import { SettingSwitch } from '../../../components/Settings.js'
 
-const SettingLinkPreview = () => {
+const SettingLinkPreview = ({ controlOnly = false }: { controlOnly?: boolean }) => {
   const { t } = useTranslation()
   const [isOn, setIsOn] = useState<boolean>(() => localStorage.getItem('linkPreview') === 'true')
 
@@ -33,7 +33,12 @@ const SettingLinkPreview = () => {
 
   return (
     <Box sx={{ mt: '2%', mb: '2%' }}>
-      <SettingSwitch label={t('settings_link_preview')} onChange={onChange} checked={isOn} />{' '}
+      <SettingSwitch
+        controlOnly={controlOnly}
+        label={t('settings_link_preview')}
+        onChange={onChange}
+        checked={isOn}
+      />{' '}
     </Box>
   )
 }
