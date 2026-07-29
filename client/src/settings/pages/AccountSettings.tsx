@@ -15,15 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Container } from '@mui/material'
-
 import AccountPreferences from '../components/AccountPreferences.js'
+import { SettingsPage } from '../components/SettingsPage.js'
 
 export default function AccountSettings() {
-  // TODO: Improve component and sub-components UI.
   return (
-    <Container maxWidth="sm" sx={{ marginTop: '5vh' }}>
+    <SettingsPage title="Account">
       <AccountPreferences />
-    </Container>
+    </SettingsPage>
   )
 }

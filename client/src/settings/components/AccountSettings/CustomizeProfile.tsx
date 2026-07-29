@@ -15,11 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-
-import { Box, TextField } from '@mui/material'
+import { Box, Button, Stack, TextField } from '@mui/material'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
-import BaseButton from '../../../components/common/BaseButton.js'
 import { AvatarEditor } from '../../../components/ConversationAvatar.js'
 import { useAuthContext } from '../../../contexts/AuthProvider.js'
 import { useResetDisplayName, useSetDisplayName } from '../../../services/accountQueries.js'
@@ -34,6 +33,7 @@ function CustomizeProfile() {
 }
 
 const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName: string; displayName: string }) => {
+  const { t } = useTranslation()
   const [name, setName] = useState(displayName)
 
   const setDisplayName = useSetDisplayName()
@@ -52,31 +52,28 @@ const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName:
   }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        marginTop: '5%',
-      }}
-    >
+    <Stack sx={{ width: '100%', alignItems: 'center', gap: 2 }}>
       <AvatarEditor />
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <TextField value={name} onChange={handleNameChange} size="small" />
-        <Box sx={{ display: 'flex', gap: '5%', marginTop: '2%' }}>
-          <BaseButton sx={{ width: '50%' }} variant="contained" color="primary" onClick={handleChangeValidation}>
-            Save
-          </BaseButton>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: 1.5 }}>
+        <TextField
+          fullWidth
+          label={t('settings_customize_profile')}
+          value={name}
+          onChange={handleNameChange}
+          size="small"
+        />
+        <Stack direction="row" spacing={1} sx={{ width: '100%', justifyContent: 'center' }}>
+          <Button sx={{ minWidth: 120 }} variant="contained" color="primary" onClick={handleChangeValidation}>
+            {t('save_button')}
+          </Button>
           {registeredName !== displayName && (
-            <BaseButton sx={{ width: '50%' }} onClick={handleReset} variant="contained" color="primary">
-              Reset
-            </BaseButton>
+            <Button sx={{ minWidth: 120 }} onClick={handleReset} variant="outlined" color="primary">
+              {t('reset_to_default')}
+            </Button>
           )}
-        </Box>
+        </Stack>
       </Box>
-    </Box>
+    </Stack>
   )
 }
 
