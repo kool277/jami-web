@@ -15,34 +15,17 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import {
-  Card,
-  CardContent,
-  IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemIcon,
-  ListItemText,
-  Stack,
-  Switch,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Box, IconButton, Stack, Switch, TextField, Typography } from '@mui/material'
 import { AccountDetails } from '@savoirfairelinux/jami-web-common'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import ConversationAvatar from '../../components/ConversationAvatar.js'
-import {
-  AddCircleIcon as AddCircle,
-  AudioCallIcon as PhoneCallbackRounded,
-  DeleteIcon as DeleteRounded,
-  GroupsIcon as GroupRounded,
-} from '../../components/SvgIcon.js'
+import { AddCircleIcon, DeleteIcon } from '../../components/SvgIcon.js'
 import { useAuthContext } from '../../contexts/AuthProvider.js'
 import { thumbnailVariants } from '../../themes/MotionVariants.js'
+import { SettingsRow, SettingsSection } from './SettingsPage.js'
 
 export default function CallPreferences() {
   const { t } = useTranslation()
@@ -87,65 +70,41 @@ export default function CallPreferences() {
 
       <Stack spacing={2}>
         <motion.div variants={thumbnailVariants}>
-          <Card>
-            <List>
-              <ListItem>
-                <ListItemIcon>
-                  <GroupRounded />
-                </ListItemIcon>
-                <ListItemText
-                  id="switch-list-label-rendezvous"
-                  primary={t('settings_rendezvous_point')}
-                  secondary={t('settings_rendezvous_point_description')}
-                />
+          <SettingsSection title={t('settings_calls')}>
+            <SettingsRow
+              title={t('settings_rendezvous_point')}
+              description={t('settings_rendezvous_point_description')}
+              control={
                 <Switch
                   edge="end"
                   onChange={(e) => handleToggle('Account.rendezVous', e.target.checked)}
                   checked={details['Account.rendezVous'] === 'true'}
-                  slotProps={{
-                    input: {
-                      'aria-labelledby': 'switch-list-label-rendezvous',
-                    },
-                  }}
+                  slotProps={{ input: { 'aria-label': t('settings_rendezvous_point') } }}
                 />
-              </ListItem>
-            </List>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={thumbnailVariants}>
-          <Card>
-            <List>
-              <ListItem>
-                <ListItemIcon>
-                  <PhoneCallbackRounded />
-                </ListItemIcon>
-                <ListItemText
-                  id="switch-list-label-publicin"
-                  primary={t('settings_allow_unknown_peers')}
-                  secondary={t('settings_allow_unknown_peers_description')}
-                />
+              }
+            />
+            <SettingsRow
+              title={t('settings_allow_unknown_peers')}
+              description={t('settings_allow_unknown_peers_description')}
+              control={
                 <Switch
                   edge="end"
                   onChange={(e) => handleToggle('DHT.PublicInCalls', e.target.checked)}
                   checked={details['DHT.PublicInCalls'] === 'true'}
-                  slotProps={{
-                    input: { 'aria-labelledby': 'switch-list-label-publicin' },
-                  }}
+                  slotProps={{ input: { 'aria-label': t('settings_allow_unknown_peers') } }}
                 />
-              </ListItem>
-            </List>
-          </Card>
+              }
+            />
+          </SettingsSection>
         </motion.div>
 
         <motion.div variants={thumbnailVariants}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                {t('settings_default_moderators')}
-              </Typography>
-              <List>
-                <ListItem key="add">
+          <SettingsSection title={t('settings_default_moderators')}>
+            <SettingsRow
+              title={t('settings_add_moderator')}
+              description={t('settings_add_moderator_placeholder')}
+              control={
+                <Box sx={{ display: 'flex', gap: 1, minWidth: { xs: '100%', sm: 360 } }}>
                   <TextField
                     variant="outlined"
                     value={defaultModeratorUri}
@@ -155,30 +114,35 @@ export default function CallPreferences() {
                     size="small"
                     fullWidth
                   />
-                  <IconButton onClick={addModerator} size="large">
-                    <AddCircle />
+                  <IconButton aria-label={t('settings_add_moderator')} onClick={addModerator} size="medium">
+                    <AddCircleIcon />
                   </IconButton>
-                </ListItem>
-                {moderators.length === 0 ? (
-                  <ListItem key="placeholder">
-                    <ListItemText primary={t('settings_no_moderator')} />
-                  </ListItem>
-                ) : (
-                  moderators.map((moderator) => (
-                    <ListItem key={moderator.uri}>
-                      <ListItemAvatar>
-                        <ConversationAvatar displayName={moderator.getDisplayName()} contactUri={moderator.uri} />
-                      </ListItemAvatar>
-                      <ListItemText primary={moderator.getDisplayName()} />
-                      <IconButton onClick={() => removeModerator(moderator.uri)} size="large">
-                        <DeleteRounded />
+                </Box>
+              }
+            />
+            {moderators.length === 0 ? (
+              <SettingsRow title={t('settings_no_moderator')} />
+            ) : (
+              moderators.map((moderator) => (
+                <SettingsRow
+                  key={moderator.uri}
+                  title={moderator.getDisplayName()}
+                  control={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <ConversationAvatar displayName={moderator.getDisplayName()} contactUri={moderator.uri} />
+                      <IconButton
+                        aria-label={t('settings_remove_moderator', { moderator: moderator.getDisplayName() })}
+                        onClick={() => removeModerator(moderator.uri)}
+                        size="medium"
+                      >
+                        <DeleteIcon />
                       </IconButton>
-                    </ListItem>
-                  ))
-                )}
-              </List>
-            </CardContent>
-          </Card>
+                    </Box>
+                  }
+                />
+              ))
+            )}
+          </SettingsSection>
         </motion.div>
       </Stack>
     </motion.div>

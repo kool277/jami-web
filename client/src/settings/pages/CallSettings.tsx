@@ -15,14 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Container } from '@mui/material'
-
 import CallPreferences from '../components/CallPreferences.js'
+import { SettingsPage } from '../components/SettingsPage.js'
 
 export default function CallSettings() {
   return (
-    <Container maxWidth="sm" sx={{ marginTop: '5vh' }}>
+    <SettingsPage title="Calls">
       <CallPreferences />
-    </Container>
+    </SettingsPage>
   )
 }
