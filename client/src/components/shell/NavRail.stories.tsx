@@ -28,6 +28,7 @@ const meta = {
   component: NavRail,
   args: {
     inviteCount: 2,
+    unreadConversationCount: 5,
     accountSlot: <NavItem label="Account" icon={<Avatar sx={{ width: 32, height: 32 }}>A</Avatar>} />,
   },
   argTypes: {
