@@ -28,7 +28,7 @@ export function SettingsIndex() {
   const theme = useTheme()
   const isCompact = useMediaQuery(theme.breakpoints.down('md'))
 
-  return isCompact ? null : <Navigate to={userSettingsRoutePaths.general} replace />
+  return isCompact ? null : <Navigate to={userSettingsRoutePaths.generalSystem} replace />
 }
 
 export default function Settings() {

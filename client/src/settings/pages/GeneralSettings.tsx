@@ -15,14 +15,9 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box } from '@mui/material'
-
 import System from '../components/GeneralSettings/System.js'
+import { type GeneralSettingsSection } from '../components/GeneralSettings/System.js'
 
-export default function GeneralPreferences() {
-  return (
-    <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-      <System />
-    </Box>
-  )
+export default function GeneralPreferences({ section }: { section?: GeneralSettingsSection }) {
+  return <System section={section} />
 }

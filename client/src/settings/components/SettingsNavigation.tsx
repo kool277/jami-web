@@ -20,11 +20,17 @@ import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useMatch } from 'react-router-dom'
 
-import { AudioCallIcon, DevicesIcon, ManageAccountsIcon, SettingsIcon } from '../../components/SvgIcon.js'
+import {
+  AudioCallIcon,
+  ChatBubbleIcon,
+  DevicesIcon,
+  ManageAccountsIcon,
+  SettingsIcon,
+} from '../../components/SvgIcon.js'
 import { userSettingsPath, type UserSettingsRoutePath, userSettingsRoutePaths } from '../routes.js'
 
 interface SettingsNavigationItem {
-  icon: ReactNode
+  icon?: ReactNode
   titleKey: string
   path: UserSettingsRoutePath
 }
@@ -32,17 +38,25 @@ interface SettingsNavigationItem {
 interface SettingsNavigationSection {
   id: string
   titleKey?: string
+  icon?: ReactNode
   items: SettingsNavigationItem[]
 }
 
 const sections: SettingsNavigationSection[] = [
   {
     id: 'general',
-    items: [{ icon: <SettingsIcon />, titleKey: 'settings_title_general', path: userSettingsRoutePaths.general }],
+    titleKey: 'settings_title_general',
+    icon: <SettingsIcon />,
+    items: [
+      { icon: <SettingsIcon />, titleKey: 'settings_title_system', path: userSettingsRoutePaths.generalSystem },
+      { icon: <SettingsIcon />, titleKey: 'settings_appearance', path: userSettingsRoutePaths.generalAppearance },
+      { icon: <ChatBubbleIcon />, titleKey: 'settings_title_chat', path: userSettingsRoutePaths.generalChat },
+    ],
   },
   {
     id: 'account',
     titleKey: 'settings_title_account',
+    icon: <ManageAccountsIcon />,
     items: [
       {
         icon: <ManageAccountsIcon />,
@@ -62,7 +76,7 @@ function SettingsNavigationItem({ icon, titleKey, path }: SettingsNavigationItem
 
   return (
     <ListItemButton component={NavLink} to={to} end selected={selected}>
-      <ListItemIcon>{icon}</ListItemIcon>
+      {icon && <ListItemIcon>{icon}</ListItemIcon>}
       <ListItemText primary={t(titleKey)} />
     </ListItemButton>
   )
@@ -80,13 +94,16 @@ export default function SettingsNavigation() {
         {sections.map((section) => (
           <li key={section.id}>
             {section.titleKey && (
-              <ListSubheader component="h2" disableSticky sx={{ minHeight: 24, lineHeight: '24px' }}>
-                {t(section.titleKey)}
+              <ListSubheader component="h2" disableSticky sx={{ minHeight: 32, lineHeight: '32px' }}>
+                <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
+                  {section.icon}
+                  {t(section.titleKey)}
+                </Stack>
               </ListSubheader>
             )}
             <List disablePadding>
               {section.items.map((item) => (
-                <SettingsNavigationItem key={item.path} {...item} />
+                <SettingsNavigationItem key={item.path} {...item} icon={null} />
               ))}
             </List>
           </li>

@@ -24,24 +24,30 @@ import SettingNotifications from './SettingNotifications.js'
 import SettingTheme from './SettingTheme.js'
 import SettingTips from './SettingTips.js'
 
-function System() {
+export type GeneralSettingsSection = 'system' | 'appearance' | 'chat'
+
+function System({ section = 'system' }: { section?: GeneralSettingsSection }) {
   const { t } = useTranslation()
 
   return (
     <SettingsPage title={t('general_settings')}>
-      <SettingsSection title={t('settings_title_system')}>
-        <SettingsRow title={t('settings_menu_item_notifications')} control={<SettingNotifications controlOnly />} />
-        <SettingsRow title={t('settings_language')} control={<SettingLanguage doNotDisplayLabel />} />
-        <SettingsRow title={t('show_tips')} control={<SettingTips controlOnly />} />
-      </SettingsSection>
-      <SettingsSection title={t('settings_appearance')}>
-        <SettingsRow title={t('settings_dark_theme')} control={<SettingTheme controlOnly />} />
-      </SettingsSection>
-      <SettingsSection title={t('settings_title_chat')} list={false}>
+      {section === 'system' && (
+        <SettingsSection title={t('settings_title_system')}>
+          <SettingsRow title={t('settings_menu_item_notifications')} control={<SettingNotifications controlOnly />} />
+          <SettingsRow title={t('settings_language')} control={<SettingLanguage doNotDisplayLabel />} />
+        </SettingsSection>
+      )}
+      {section === 'appearance' && (
+        <SettingsSection title={t('settings_appearance')}>
+          <SettingsRow title={t('settings_dark_theme')} control={<SettingTheme controlOnly />} />
+          <SettingsRow title={t('show_tips')} control={<SettingTips controlOnly />} />
+        </SettingsSection>
+      )}
+      {section === 'chat' && (
         <SettingsSection title={t('settings_title_view')}>
           <SettingsRow title={t('settings_link_preview')} control={<SettingLinkPreview controlOnly />} />
         </SettingsSection>
-      </SettingsSection>
+      )}
     </SettingsPage>
   )
 }

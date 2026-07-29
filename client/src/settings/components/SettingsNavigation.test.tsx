@@ -49,7 +49,15 @@ describe('SettingsNavigation', () => {
       'href',
       '/settings/account/linked-devices',
     )
-    expect(screen.getByRole('link', { name: 'settings_title_general' })).toHaveAttribute('href', '/settings/general')
+    expect(screen.getByRole('link', { name: 'settings_title_system' })).toHaveAttribute(
+      'href',
+      '/settings/general/system',
+    )
+    expect(screen.getByRole('link', { name: 'settings_appearance' })).toHaveAttribute(
+      'href',
+      '/settings/general/appearance',
+    )
+    expect(screen.getByRole('link', { name: 'settings_title_chat' })).toHaveAttribute('href', '/settings/general/chat')
   })
 
   it('marks the route-matched page as current', () => {

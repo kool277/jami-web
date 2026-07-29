@@ -213,11 +213,17 @@ export const router = createBrowserRouter(
           <Route path="invites" element={<Invites />} />
           <Route path="settings" element={<Settings />}>
             <Route index element={<SettingsIndex />} />
+            <Route
+              path={userSettingsRoutePaths.general}
+              element={<Navigate to={userSettingsRoutePaths.generalSystem} replace />}
+            />
+            <Route path={userSettingsRoutePaths.generalSystem} element={<GeneralSettings section="system" />} />
+            <Route path={userSettingsRoutePaths.generalAppearance} element={<GeneralSettings section="appearance" />} />
+            <Route path={userSettingsRoutePaths.generalChat} element={<GeneralSettings section="chat" />} />
             <Route path={userSettingsRoutePaths.manageAccount} element={<AccountSettings />} />
             <Route path={userSettingsRoutePaths.calls} element={<CallSettings />} />
             <Route path={userSettingsRoutePaths.linkedDevices} element={<LinkedDevicesPage />} />
             <Route path={userSettingsRoutePaths.exportDevice} element={<ExportToAnotherDevice />} />
-            <Route path={userSettingsRoutePaths.general} element={<GeneralSettings />} />
           </Route>
           <Route path="contacts" element={<Contacts />} />
         </Route>

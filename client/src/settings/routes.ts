@@ -21,6 +21,9 @@ export const userSettingsRoutePaths = {
   linkedDevices: 'account/linked-devices',
   exportDevice: 'account/linked-devices/export',
   general: 'general',
+  generalSystem: 'general/system',
+  generalAppearance: 'general/appearance',
+  generalChat: 'general/chat',
 } as const
 
 export type UserSettingsRoutePath = (typeof userSettingsRoutePaths)[keyof typeof userSettingsRoutePaths]
