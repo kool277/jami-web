@@ -47,10 +47,11 @@ export function SettingsPage({ title, description, children }: SettingsPageProps
 interface SettingsSectionProps extends StackProps {
   title: string
   description?: string
+  list?: boolean
   children: ReactNode
 }
 
-export function SettingsSection({ title, description, children, ...props }: SettingsSectionProps) {
+export function SettingsSection({ title, description, list = true, children, ...props }: SettingsSectionProps) {
   return (
     <Stack component="section" sx={{ gap: 1.5 }} {...props}>
       <Stack sx={{ gap: 0.25 }}>
@@ -63,9 +64,13 @@ export function SettingsSection({ title, description, children, ...props }: Sett
           </Typography>
         )}
       </Stack>
-      <List disablePadding sx={{ borderTop: 1, borderBottom: 1, borderColor: 'divider' }}>
-        {children}
-      </List>
+      {list ? (
+        <List disablePadding sx={{ borderTop: 1, borderBottom: 1, borderColor: 'divider' }}>
+          {children}
+        </List>
+      ) : (
+        children
+      )}
     </Stack>
   )
 }

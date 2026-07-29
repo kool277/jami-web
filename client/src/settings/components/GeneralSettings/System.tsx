@@ -30,13 +30,17 @@ function System() {
   return (
     <SettingsPage title={t('general_settings')}>
       <SettingsSection title={t('settings_title_system')}>
-        <SettingsRow title={t('settings_language')} control={<SettingLanguage doNotDisplayLabel />} />
         <SettingsRow title={t('settings_menu_item_notifications')} control={<SettingNotifications controlOnly />} />
-        <SettingsRow title={t('settings_dark_theme')} control={<SettingTheme controlOnly />} />
+        <SettingsRow title={t('settings_language')} control={<SettingLanguage doNotDisplayLabel />} />
         <SettingsRow title={t('show_tips')} control={<SettingTips controlOnly />} />
       </SettingsSection>
-      <SettingsSection title={t('settings_title_chat')}>
-        <SettingsRow title={t('settings_link_preview')} control={<SettingLinkPreview controlOnly />} />
+      <SettingsSection title={t('settings_appearance')}>
+        <SettingsRow title={t('settings_dark_theme')} control={<SettingTheme controlOnly />} />
+      </SettingsSection>
+      <SettingsSection title={t('settings_title_chat')} list={false}>
+        <SettingsSection title={t('settings_title_view')}>
+          <SettingsRow title={t('settings_link_preview')} control={<SettingLinkPreview controlOnly />} />
+        </SettingsSection>
       </SettingsSection>
     </SettingsPage>
   )
