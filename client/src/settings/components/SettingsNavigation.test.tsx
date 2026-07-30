@@ -38,17 +38,8 @@ const renderSettingsNavigation = (path: string) =>
 
 describe('SettingsNavigation', () => {
   it('exposes every settings page as a navigable link', () => {
-    renderSettingsNavigation('/settings')
+    renderSettingsNavigation('/settings/general/system')
 
-    expect(screen.getByRole('link', { name: 'settings_manage_account' })).toHaveAttribute(
-      'href',
-      '/settings/account/manage-account',
-    )
-    expect(screen.getByRole('link', { name: 'settings_calls' })).toHaveAttribute('href', '/settings/account/calls')
-    expect(screen.getByRole('link', { name: 'settings_linked_devices' })).toHaveAttribute(
-      'href',
-      '/settings/account/linked-devices',
-    )
     expect(screen.getByRole('link', { name: 'settings_title_system' })).toHaveAttribute(
       'href',
       '/settings/general/system',
@@ -58,6 +49,7 @@ describe('SettingsNavigation', () => {
       '/settings/general/appearance',
     )
     expect(screen.getByRole('link', { name: 'settings_title_chat' })).toHaveAttribute('href', '/settings/general/chat')
+    expect(screen.queryByRole('link', { name: 'settings_manage_account' })).not.toBeInTheDocument()
   })
 
   it('marks the route-matched page as current', () => {
@@ -65,5 +57,12 @@ describe('SettingsNavigation', () => {
 
     expect(screen.getByRole('link', { name: 'settings_linked_devices' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'settings_manage_account' })).not.toHaveAttribute('aria-current')
+    expect(screen.queryByRole('link', { name: 'settings_title_system' })).not.toBeInTheDocument()
+  })
+
+  it('renders parent settings items as fully rounded pills', () => {
+    renderSettingsNavigation('/settings/general/system')
+
+    expect(screen.getByRole('link', { name: 'settings_title_general' })).toHaveStyle({ borderRadius: '9999px' })
   })
 })

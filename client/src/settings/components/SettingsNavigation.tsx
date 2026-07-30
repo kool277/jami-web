@@ -15,10 +15,20 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { List, ListItemButton, ListItemIcon, ListItemText, ListSubheader, Stack, Typography } from '@mui/material'
-import { type ReactNode } from 'react'
+import {
+  ButtonBase,
+  Collapse,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
+  Stack,
+  Typography,
+} from '@mui/material'
+import { cloneElement, isValidElement, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NavLink, useMatch } from 'react-router-dom'
+import { NavLink, useLocation, useMatch } from 'react-router-dom'
 
 import {
   AudioCallIcon,
@@ -63,6 +73,14 @@ const sections: SettingsNavigationSection[] = [
         titleKey: 'settings_manage_account',
         path: userSettingsRoutePaths.manageAccount,
       },
+      {
+        titleKey: 'settings_customize_profile',
+        path: userSettingsRoutePaths.customizeProfile,
+      },
+      {
+        titleKey: 'passkey_section_title',
+        path: userSettingsRoutePaths.passkeys,
+      },
       { icon: <AudioCallIcon />, titleKey: 'settings_calls', path: userSettingsRoutePaths.calls },
       { icon: <DevicesIcon />, titleKey: 'settings_linked_devices', path: userSettingsRoutePaths.linkedDevices },
     ],
@@ -75,15 +93,32 @@ function SettingsNavigationItem({ icon, titleKey, path }: SettingsNavigationItem
   const selected = useMatch({ path: to, end: true }) !== null
 
   return (
-    <ListItemButton component={NavLink} to={to} end selected={selected}>
+    <ListItemButton
+      component={NavLink}
+      to={to}
+      end
+      sx={{
+        minHeight: 32,
+        py: 0,
+        color: selected ? 'primary.dark' : 'text.primary',
+        transition: (theme) => theme.transitions.create('color'),
+      }}
+    >
       {icon && <ListItemIcon>{icon}</ListItemIcon>}
-      <ListItemText primary={t(titleKey)} />
+      <ListItemText
+        primary={t(titleKey)}
+        slotProps={{ primary: { variant: 'body2', sx: { fontWeight: selected ? 500 : 400 } } }}
+      />
     </ListItemButton>
   )
 }
 
 export default function SettingsNavigation() {
   const { t } = useTranslation()
+  const { pathname } = useLocation()
+  const activeSectionId = sections.find((section) =>
+    section.items.some((item) => userSettingsPath(item.path) === pathname),
+  )?.id
 
   return (
     <Stack component="nav" aria-label={t('settings')} sx={{ minHeight: 0, overflowY: 'auto', pb: 2 }}>
@@ -91,23 +126,71 @@ export default function SettingsNavigation() {
         {t('settings')}
       </Typography>
       <List disablePadding>
-        {sections.map((section) => (
-          <li key={section.id}>
-            {section.titleKey && (
-              <ListSubheader component="h2" disableSticky sx={{ minHeight: 32, lineHeight: '32px' }}>
-                <Stack direction="row" sx={{ alignItems: 'center', gap: 1 }}>
-                  {section.icon}
-                  {t(section.titleKey)}
-                </Stack>
-              </ListSubheader>
-            )}
-            <List disablePadding>
-              {section.items.map((item) => (
-                <SettingsNavigationItem key={item.path} {...item} icon={null} />
-              ))}
-            </List>
-          </li>
-        ))}
+        {sections.map((section) => {
+          const isSelected = activeSectionId === section.id
+          const selectedItemIndex = section.items.findIndex((item) => userSettingsPath(item.path) === pathname)
+
+          return (
+            <li key={section.id}>
+              {section.titleKey && (
+                <ListSubheader component="h2" disableSticky sx={{ minHeight: 48, lineHeight: '48px' }}>
+                  <ButtonBase
+                    component={NavLink}
+                    to={userSettingsPath(section.items[0].path)}
+                    aria-pressed={isSelected}
+                    sx={{
+                      width: '100%',
+                      minHeight: 48,
+                      justifyContent: 'flex-start',
+                      gap: 1,
+                      px: 1,
+                      borderRadius: '9999px',
+                      typography: 'body1',
+                      fontWeight: 500,
+                      color: isSelected ? 'primary.dark' : 'text.secondary',
+                      backgroundColor: isSelected ? 'primary.light' : 'transparent',
+                    }}
+                  >
+                    {isValidElement(section.icon) &&
+                      cloneElement(section.icon, { filled: isSelected } as Record<string, boolean>)}
+                    {t(section.titleKey)}
+                  </ButtonBase>
+                </ListSubheader>
+              )}
+              <Collapse in={isSelected} timeout="auto" unmountOnExit>
+                <List
+                  disablePadding
+                  sx={
+                    section.titleKey
+                      ? {
+                          ml: 3.5,
+                          pl: 1,
+                          borderLeft: 1,
+                          borderColor: 'divider',
+                          position: 'relative',
+                          '&::after': {
+                            content: '""',
+                            position: 'absolute',
+                            top: `${Math.max(selectedItemIndex, 0) * 32}px`,
+                            left: -1,
+                            width: 3,
+                            height: 32,
+                            opacity: selectedItemIndex === -1 ? 0 : 1,
+                            backgroundColor: 'primary.main',
+                            transition: (theme) => theme.transitions.create(['top', 'opacity']),
+                          },
+                        }
+                      : undefined
+                  }
+                >
+                  {section.items.map((item) => (
+                    <SettingsNavigationItem key={item.path} {...item} icon={null} />
+                  ))}
+                </List>
+              </Collapse>
+            </li>
+          )
+        })}
       </List>
     </Stack>
   )
