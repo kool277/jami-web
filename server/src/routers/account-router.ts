@@ -15,6 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { resolve } from 'node:path'
+
 import {
   AccountDetails,
   DeviceRevocationState,
@@ -91,7 +93,7 @@ accountRouter.patch('/', (req: Request<ParamsDictionary, string, Partial<Account
   res.sendStatus(HttpStatusCode.NoContent)
 })
 
-const dir = './profile-avatar'
+const dir = resolve(process.cwd(), 'profile-avatar')
 if (!fs.existsSync(dir)) {
   fs.mkdirSync(dir)
 }
@@ -118,10 +120,11 @@ accountRouter.post(
 
     const accountDetails = jamid.getAccountDetails(accountId)
     const files = req.files as Express.Multer.File[]
-    const path = dir + '/' + files[0].originalname
+    const path = files[0].path
+    const fileType = files[0].mimetype === 'image/jpeg' ? 'JPEG' : 'PNG'
 
     // so it does not change the displayName
-    jamid.updateProfile(accountId, accountDetails['Account.displayName'], path, 'PNG', '', 0)
+    jamid.updateProfile(accountId, accountDetails['Account.displayName'], path, fileType, '', 0)
 
     // Invalidate the cached avatar so the next read regenerates it from the
     // updated profile (otherwise the stale cached image keeps being served).

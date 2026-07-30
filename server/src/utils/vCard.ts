@@ -23,7 +23,7 @@ export async function decodeVCard(path: string) {
   const data: { name: string; photo?: string } = { name: '', photo: undefined }
   try {
     const file = await fs.readFile(path)
-    const card = parseVCards(file.toString())
+    const card = parseVCards(file.toString().replace(/\r?\n[ \t]/g, ''))
     if (card.vCards) {
       data.name = card.vCards[0].FN[0].value
       if (card.vCards[0].PHOTO) {
@@ -36,9 +36,16 @@ export async function decodeVCard(path: string) {
   }
 }
 
-export async function getVCard(accountId: string, contactUri: string) {
+export function getVCardPath(accountId: string, contactUri: string, isOwnProfile = false) {
+  if (isOwnProfile) {
+    return os.homedir() + '/.local/share/jami/' + accountId + '/profile.vcf'
+  }
   const fileName = btoa(contactUri) + '.vcf'
-  const path = os.homedir() + '/.local/share/jami/' + accountId + '/profiles/' + fileName
+  return os.homedir() + '/.local/share/jami/' + accountId + '/profiles/' + fileName
+}
+
+export async function getVCard(accountId: string, contactUri: string, isOwnProfile = false) {
+  const path = getVCardPath(accountId, contactUri, isOwnProfile)
   return decodeVCard(path)
 }
 
@@ -67,28 +74,72 @@ export async function getBotOwner(accountId: string): Promise<string | undefined
   }
 }
 
-export async function getAvatar(accountId: string, contactUri: string) {
+export function getAvatarBase64(photo: string) {
+  return photo.replace(/^data:image\/[a-z0-9.+-]+;base64,/i, '')
+}
+
+const avatarExtensions = ['png', 'jpeg', 'gif', 'webp'] as const
+
+async function clearAvatarImages(profileFolder: string, imageName: string) {
+  for (const extension of avatarExtensions) {
+    await fs.rm(`${profileFolder}/${imageName}.${extension}`, { force: true })
+  }
+}
+
+// The cached file extension determines the Content-Type express serves it with.
+// vCard photos are not necessarily PNG, so sniff the real format from the magic
+// bytes: an image served under a mismatched type is rejected by the browser.
+export function detectImageExtension(data: Buffer): (typeof avatarExtensions)[number] {
+  if (data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff) {
+    return 'jpeg'
+  }
+  if (data.subarray(0, 3).toString('latin1') === 'GIF') {
+    return 'gif'
+  }
+  if (data.subarray(0, 4).toString('latin1') === 'RIFF' && data.subarray(8, 12).toString('latin1') === 'WEBP') {
+    return 'webp'
+  }
+  return 'png'
+}
+
+export async function cacheAvatar(accountId: string, contactUri: string, photo: string) {
+  const profileFolder = os.homedir() + '/.local/share/jami/' + accountId + '/cache/profile'
+  const imageName = btoa(contactUri)
+  const buffer = Buffer.from(getAvatarBase64(photo), 'base64')
+  if (buffer.length === 0) {
+    return undefined
+  }
+
+  await fs.mkdir(profileFolder, { recursive: true })
+  await clearAvatarImages(profileFolder, imageName)
+  const imagePath = `${profileFolder}/${imageName}.${detectImageExtension(buffer)}`
+  await fs.writeFile(imagePath, buffer)
+  return imagePath
+}
+
+export async function getAvatar(accountId: string, contactUri: string, isOwnProfile = false) {
   const cacheFolder = os.homedir() + '/.local/share/jami/' + accountId + '/cache'
   const profileFolder = cacheFolder + '/profile'
   const imgName = btoa(contactUri)
-  const imgPath = profileFolder + '/' + imgName + '.png'
   await fs.mkdir(cacheFolder, { recursive: true })
   await fs.mkdir(profileFolder, { recursive: true })
-  try {
-    await fs.access(imgPath)
-    return imgPath
-  } catch (e) {
-    const data = await getVCard(accountId, contactUri)
-    if (data?.name) {
-      await fs.writeFile(profileFolder + '/' + imgName + '.txt', data.name)
+  for (const extension of avatarExtensions) {
+    const cachedPath = `${profileFolder}/${imgName}.${extension}`
+    try {
+      await fs.access(cachedPath)
+      return cachedPath
+    } catch (e) {
+      /* not cached under this extension */
     }
-    if (data?.photo) {
-      const base64Data = data.photo.replace(/^data:image\/png;base64,/, '')
-      await fs.writeFile(imgPath, base64Data, 'base64')
-      return imgPath
-    }
-    return undefined
   }
+  const data = await getVCard(accountId, contactUri, isOwnProfile)
+  if (data?.name) {
+    await fs.writeFile(profileFolder + '/' + imgName + '.txt', data.name)
+  }
+  if (data?.photo) {
+    return cacheAvatar(accountId, contactUri, data.photo)
+  }
+  return undefined
 }
 
 // Removes the cached avatar (and display name) for a contact so the next
@@ -97,6 +148,6 @@ export async function getAvatar(accountId: string, contactUri: string) {
 export async function clearAvatarCache(accountId: string, contactUri: string) {
   const profileFolder = os.homedir() + '/.local/share/jami/' + accountId + '/cache/profile'
   const imgName = btoa(contactUri)
-  await fs.rm(profileFolder + '/' + imgName + '.png', { force: true })
+  await clearAvatarImages(profileFolder, imgName)
   await fs.rm(profileFolder + '/' + imgName + '.txt', { force: true })
 }

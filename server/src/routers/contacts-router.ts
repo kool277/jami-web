@@ -98,7 +98,8 @@ contactsRouter.get('/:contactUri/profile/picture', async (req, res) => {
   const accountId = res.locals.accountId
   const contactUri = req.params.contactUri
 
-  const path = await getAvatar(accountId, contactUri)
+  const accountUri = jamid.getAccountDetails(accountId)['Account.username']
+  const path = await getAvatar(accountId, contactUri, contactUri === accountUri)
   if (path) {
     res.sendFile(path)
     return

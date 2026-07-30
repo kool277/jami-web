@@ -24,6 +24,7 @@ import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 import { ConversationService } from '../services/ConversationService.js'
+import { cacheAvatar } from '../utils/vCard.js'
 
 const jamid = Container.get(Jamid)
 const conversationService = Container.get(ConversationService)
@@ -51,7 +52,17 @@ conversationRequestRouter.post(
   asyncHandler<{ conversationId: string }>(async (req, res) => {
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
+    const conversationRequest = jamid
+      .getConversationRequests(accountId)
+      .find((request) => request.id === conversationId)
     await jamid.acceptConversationRequest(accountId, conversationId)
+    if (conversationRequest?.avatar) {
+      try {
+        await cacheAvatar(accountId, conversationRequest.from, conversationRequest.avatar)
+      } catch (error) {
+        console.error('Failed to cache conversation request avatar', error)
+      }
+    }
     const conversationSummary = await conversationService.createConversationSummary(accountId, conversationId)
     if (conversationSummary === undefined) {
       res.status(HttpStatusCode.NotFound).send('No such conversation found')

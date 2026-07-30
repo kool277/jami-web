@@ -52,7 +52,7 @@ import { filter, firstValueFrom, map, Subject } from 'rxjs'
 import { Service } from 'typedi'
 
 import { AdminAccount } from '../storage/admin-account.js'
-import { getAvatar } from '../utils/vCard.js'
+import { clearAvatarCache, getAvatar } from '../utils/vCard.js'
 import { WebSocketServer } from '../websocket/websocket-server.js'
 import { ConversationMemberInfos } from './conversation-member-infos.js'
 import { ConversationRequestMetadata } from './conversation-request-metadata.js'
@@ -1146,20 +1146,7 @@ export class Jamid {
       log.debug('Received ProfileReceived:', JSON.stringify(signal))
       const peer = signal.from
       const accountId = signal.accountId
-      const folder = os.homedir() + '/.local/share/jami/' + accountId + '/cache/profile/'
-      const fileName = btoa(peer)
-      const displayNameFile = fileName + '.txt'
-      const profilePictureFile = fileName + '.png'
-      try {
-        fs.unlinkSync(folder + profilePictureFile)
-      } catch (e) {
-        log.debug('Profile picture does not exist')
-      }
-      try {
-        fs.unlinkSync(folder + displayNameFile)
-      } catch (e) {
-        log.debug('Display name does not exist')
-      }
+      await clearAvatarCache(accountId, peer)
       await getAvatar(accountId, peer)
 
       this.webSocketServer.send(accountId, WebSocketMessageType.ProfileReceived, { peer })
