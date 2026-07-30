@@ -15,13 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Button, Stack, TextField } from '@mui/material'
+import { Box, Stack, TextField } from '@mui/material'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import BaseButton from '../../../components/common/BaseButton.js'
 import { AvatarEditor } from '../../../components/ConversationAvatar.js'
 import { useAuthContext } from '../../../contexts/AuthProvider.js'
-import { useResetDisplayName, useSetDisplayName } from '../../../services/accountQueries.js'
+import { useResetDisplayName, useSetDisplayName, useUpdateAvatarMutation } from '../../../services/accountQueries.js'
+import { SettingsSection } from '../SettingsPage.js'
 
 function CustomizeProfile() {
   const { account } = useAuthContext()
@@ -35,16 +37,30 @@ function CustomizeProfile() {
 const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName: string; displayName: string }) => {
   const { t } = useTranslation()
   const [name, setName] = useState(displayName)
+  const [avatar, setAvatar] = useState<File | null>(null)
 
   const setDisplayName = useSetDisplayName()
   const resetDisplayName = useResetDisplayName()
+  const updateAvatar = useUpdateAvatarMutation()
+  const displayNameChanged = name !== displayName
+  const avatarChanged = avatar !== null
+  const hasChanges = displayNameChanged || avatarChanged
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value)
   }
 
-  const handleChangeValidation = () => {
-    setDisplayName.mutate(name)
+  const handleSave = async () => {
+    const updates: Promise<unknown>[] = []
+    if (displayNameChanged) {
+      updates.push(setDisplayName.mutateAsync(name))
+    }
+    if (avatar) {
+      const data = new FormData()
+      data.append('avatar', avatar)
+      updates.push(updateAvatar.mutateAsync(data).then(() => setAvatar(null)))
+    }
+    await Promise.allSettled(updates)
   }
 
   const handleReset = () => {
@@ -52,28 +68,38 @@ const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName:
   }
 
   return (
-    <Stack sx={{ width: '100%', alignItems: 'center', gap: 2 }}>
-      <AvatarEditor />
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: 1.5 }}>
-        <TextField
-          fullWidth
-          label={t('settings_customize_profile')}
-          value={name}
-          onChange={handleNameChange}
-          size="small"
-        />
-        <Stack direction="row" spacing={1} sx={{ width: '100%', justifyContent: 'center' }}>
-          <Button sx={{ minWidth: 120 }} variant="contained" color="primary" onClick={handleChangeValidation}>
-            {t('save_button')}
-          </Button>
-          {registeredName !== displayName && (
-            <Button sx={{ minWidth: 120 }} onClick={handleReset} variant="outlined" color="primary">
-              {t('reset_to_default')}
-            </Button>
-          )}
+    <SettingsSection title={t('settings_customize_profile')} list={false}>
+      <Stack sx={{ width: '100%', gap: 2 }}>
+        <Stack sx={{ alignItems: 'center' }}>
+          <AvatarEditor onAvatarChange={setAvatar} />
         </Stack>
-      </Box>
-    </Stack>
+        <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 1.5 }}>
+          <TextField
+            fullWidth
+            label={t('settings_display_name')}
+            value={name}
+            onChange={handleNameChange}
+            size="small"
+          />
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+            <BaseButton
+              sx={{ minWidth: 120 }}
+              variant="contained"
+              color="primary"
+              disabled={!hasChanges || updateAvatar.isPending || setDisplayName.isPending}
+              onClick={handleSave}
+            >
+              {t('save_button')}
+            </BaseButton>
+            {registeredName !== displayName && (
+              <BaseButton sx={{ minWidth: 120 }} onClick={handleReset} variant="outlined" color="primary">
+                {t('reset_to_default')}
+              </BaseButton>
+            )}
+          </Stack>
+        </Box>
+      </Stack>
+    </SettingsSection>
   )
 }
 

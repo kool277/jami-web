@@ -151,20 +151,14 @@ export const useBlockContactMutation = () => {
 
 export const useContactProfilePicture = (contactId?: string) => {
   const { axiosInstance } = useAuthContext()
-  const queryClient = useQueryClient()
 
   return useQuery({
     queryKey: ['picture', contactId],
     queryFn: async () => {
-      const cachedData = queryClient.getQueryData<string>(['picture', contactId])
-      if (cachedData) {
-        return cachedData
-      }
       const { data } = await axiosInstance.get<File>(`/contacts/${contactId}/profile/picture`, {
         responseType: 'blob',
       })
       const blobUrl = URL.createObjectURL(data)
-      queryClient.setQueryData(['picture', contactId], blobUrl)
       return blobUrl
     },
     enabled: !!contactId,

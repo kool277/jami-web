@@ -16,8 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { removedLinkedDeviceContent } from '@savoirfairelinux/jami-web-common'
-import { useMutation } from '@tanstack/react-query'
-import { useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { use } from 'react'
 
@@ -26,8 +25,19 @@ import { useAuthContext } from '../contexts/AuthProvider.js'
 import { apiUrl } from '../utils/constants.js'
 import { IProvideAccountAuthentication } from '../utils/utils.js'
 
+export async function refreshProfilePicture(queryClient: QueryClient, uri: string) {
+  const queryKey = ['picture', uri]
+  const cachedUrl = queryClient.getQueryData<string>(queryKey)
+  await queryClient.invalidateQueries({ queryKey, refetchType: 'active' })
+  const refreshedUrl = queryClient.getQueryData<string>(queryKey)
+  if (cachedUrl && cachedUrl !== refreshedUrl) {
+    URL.revokeObjectURL(cachedUrl)
+  }
+}
+
 export const useUpdateAvatarMutation = () => {
   const { account, axiosInstance } = useAuthContext()
+  const { setAlertContent } = use(AlertSnackbarContext)
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (content: FormData) =>
@@ -37,16 +47,14 @@ export const useUpdateAvatarMutation = () => {
           Accept: '*/*',
         },
       }),
-    onSuccess: () => {
-      // Drop the cached profile picture so the new avatar is fetched from the
-      // server. The picture query caches a blob URL and never refetches on its
-      // own, so we must remove it explicitly to reflect the update.
-      const uri = account.getUri()
-      const cachedUrl = queryClient.getQueryData<string>(['picture', uri])
-      if (cachedUrl) {
-        URL.revokeObjectURL(cachedUrl)
-      }
-      queryClient.removeQueries({ queryKey: ['picture', uri] })
+    onSuccess: () => refreshProfilePicture(queryClient, account.getUri()),
+    onError: (error) => {
+      console.error('Error updating avatar', error)
+      setAlertContent({
+        messageI18nKey: 'unknown_error_alert',
+        severity: 'error',
+        alertOpen: true,
+      })
     },
   })
 }

@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Avatar, AvatarProps, Box, Dialog, Stack, Typography, useTheme } from '@mui/material'
+import { Avatar, AvatarProps, Box, Dialog, Popover, Stack, Typography, useTheme } from '@mui/material'
 import { ReactNode, use, useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
@@ -24,11 +24,12 @@ import { useTranslation } from 'react-i18next'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { PresenceContext } from '../contexts/PresenceProvider.js'
 import CallPermissionDenied from '../pages/CallPermissionDenied.js'
-import { useUpdateAvatarMutation } from '../services/accountQueries.js'
 import { useContactProfilePicture } from '../services/contactQueries.js'
 import { FileHandler } from '../utils/files.js'
 import { getColor } from '../utils/messagecolor.js'
+import BaseButton from './common/BaseButton.js'
 import BaseIconButton from './common/BaseIconButton.js'
+import FilledIconButton from './common/FilledIconButton.js'
 import RoundIconButton from './common/RoundIconButton.js'
 import { InfosDialog, useDialogHandler } from './Dialog.js'
 import { CircleMaskOverlay, FileDragOverlay } from './Overlay.js'
@@ -122,27 +123,27 @@ const ConversationAvatarPresence = ({ children, buddy }: { children: ReactNode; 
   )
 }
 
-export const AvatarEditor = () => {
+type AvatarEditorProps = {
+  onAvatarChange: (avatar: File | null) => void
+}
+
+export const AvatarEditor = ({ onAvatarChange }: AvatarEditorProps) => {
   const { t } = useTranslation()
   const { account } = useAuthContext()
   const profilePictureQuery = useContactProfilePicture(account.getUri())
   const url = profilePictureQuery.data
   const [editionToolsIsOpen, setEditionToolsIsOpen] = useState(false)
+  const [popupAnchor, setPopupAnchor] = useState<HTMLElement | null>(null)
   const [avatarHandler, setAvatarHandler] = useState<FileHandler | null>(null)
   const photoTakerHandler = useDialogHandler()
-  const updateAvatarMutation = useUpdateAvatarMutation()
-  const theme = useTheme()
-
   const onFilesDrop = useCallback(
     (acceptedFiles: File[]) => {
       const fileHandler = new FileHandler(acceptedFiles[0])
       setAvatarHandler(fileHandler)
       setEditionToolsIsOpen(false)
-      const data = new FormData()
-      data.append('avatar', fileHandler.file)
-      updateAvatarMutation.mutate(data)
+      onAvatarChange(fileHandler.file)
     },
-    [updateAvatarMutation],
+    [onAvatarChange],
   )
 
   const {
@@ -169,17 +170,16 @@ export const AvatarEditor = () => {
   const onPhotoConfirm = useCallback(
     (fileHandler: FileHandler) => {
       setAvatarHandler(fileHandler)
-      const data = new FormData()
-      data.append('avatar', fileHandler.file)
-      updateAvatarMutation.mutate(data)
+      onAvatarChange(fileHandler.file)
     },
-    [updateAvatarMutation],
+    [onAvatarChange],
   )
 
   const removeAvatar = useCallback(() => {
     setAvatarHandler(null)
     setEditionToolsIsOpen(false)
-  }, [])
+    onAvatarChange(null)
+  }, [onAvatarChange])
 
   const closeTools = useCallback(() => {
     setEditionToolsIsOpen(false)
@@ -203,84 +203,64 @@ export const AvatarEditor = () => {
           position: 'relative',
         }}
       >
-        <Box sx={{ position: 'absolute', right: '19.89px', zIndex: 10 }}>
-          <RoundIconButton
-            aria-label={t('picture_edit')}
-            tooltip={t('picture_edit')}
-            size="small"
-            sx={{ width: '30px', height: '30px', backgroundColor: 'inherit' }}
-            onClick={() => setEditionToolsIsOpen(true)}
-          >
-            <PenIcon fontSize="inherit" />
-          </RoundIconButton>
-        </Box>
         <ConversationAvatar
           src={avatarHandler?.url || url}
           contactUri={account.getUri()}
           displayName={account.getDisplayName()}
-          sx={{ width: '100%', height: '100%' }}
+          sx={{ width: '100%', height: '100%', fontSize: '4rem', fontWeight: 500 }}
         />
-      </Stack>
-      {editionToolsIsOpen && (
-        <Stack
-          spacing={'26px'}
+        <FilledIconButton
+          aria-label={t('change_picture')}
+          tooltip={t('change_picture')}
           sx={{
-            alignItems: 'center',
-            justifyContent: 'center',
             position: 'absolute',
-            height: '200px',
-            width: '200px',
-            zIndex: 10,
-            backgroundColor: theme.palette.background.paper,
-            borderRadius: '10px',
-            boxShadow: '5px 5px 10px 0px #1f1f1f',
+            top: 1,
+            right: 1,
+            width: 32,
+            height: 32,
+            opacity: 1,
+          }}
+          onClick={(event) => {
+            setPopupAnchor(event.currentTarget)
+            setEditionToolsIsOpen(true)
           }}
         >
-          <Typography variant="h2">{t('change_picture')}</Typography>
-          <Stack
-            direction="row"
-            spacing="9px"
-            sx={{
-              alignItems: 'center',
-            }}
-          >
-            <RoundIconButton
-              aria-label={t('picture_take')}
-              tooltip={t('picture_take')}
-              size="large"
-              onClick={openPhotoTaker}
-            >
-              <CameraIcon fontSize="inherit" />
-            </RoundIconButton>
-            <RoundIconButton
-              aria-label={t('picture_upload')}
-              tooltip={t('picture_upload')}
-              size="large"
-              onClick={openFilePicker}
-            >
-              <FolderIcon fontSize="inherit" />
-            </RoundIconButton>
+          <PenIcon fontSize="inherit" />
+        </FilledIconButton>
+      </Stack>
+      <Popover
+        open={editionToolsIsOpen}
+        anchorEl={popupAnchor}
+        onClose={closeTools}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        slotProps={{
+          paper: {
+            sx: {
+              width: 240,
+              p: 2,
+              borderRadius: 1,
+            },
+          },
+        }}
+      >
+        <Stack spacing={2}>
+          <Typography variant="h4">{t('change_picture')}</Typography>
+          <Stack spacing={1}>
+            <BaseButton startIcon={<CameraIcon />} onClick={openPhotoTaker} variant="outlined">
+              {t('picture_take')}
+            </BaseButton>
+            <BaseButton startIcon={<FolderIcon />} onClick={openFilePicker} variant="outlined">
+              {t('picture_upload')}
+            </BaseButton>
             {avatarHandler && (
-              <RoundIconButton
-                aria-label={t('picture_remove')}
-                tooltip={t('picture_remove')}
-                size="large"
-                onClick={removeAvatar}
-              >
-                <CancelIcon fontSize="inherit" />
-              </RoundIconButton>
+              <BaseButton color="error" startIcon={<CancelIcon />} onClick={removeAvatar} variant="text">
+                {t('picture_remove')}
+              </BaseButton>
             )}
-            <BaseIconButton
-              aria-label={t('picture_options_close')}
-              tooltip={t('picture_options_close')}
-              sx={{ color: 'primary.main', fontSize: '15px', height: '30px', width: '30px' }}
-              onClick={closeTools}
-            >
-              <SaltireIcon fontSize="inherit" />
-            </BaseIconButton>
           </Stack>
         </Stack>
-      )}
+      </Popover>
       <PhotoTakerDialog {...photoTakerHandler.props} onConfirm={onPhotoConfirm} />
     </Stack>
   )
