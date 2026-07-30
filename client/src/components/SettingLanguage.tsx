@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next'
 
 import { languagesInfos, LanguageTag, loadLanguageAsync } from '../i18n.js'
 import { SettingSelect, SettingSelectProps } from './Settings.js'
+import { LanguageIcon } from './SvgIcon.js'
 
 interface SettingLanguageProps {
   doNotDisplayLabel?: boolean
@@ -57,6 +58,7 @@ const SettingLanguage = ({ doNotDisplayLabel }: SettingLanguageProps) => {
       option={option}
       options={settingLanguageOptions}
       onChange={onChange}
+      startAdornment={<LanguageIcon />}
     />
   )
 }

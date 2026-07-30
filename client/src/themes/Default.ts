@@ -451,6 +451,22 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
         styleOverrides: {
           root: {
             borderRadius: '9999px',
+            '& .MuiInputAdornment-root, & .MuiInputAdornment-root .MuiIcon-root': {
+              color: palette.text.secondary,
+              transition: 'color 240ms ease-in-out',
+            },
+            '& .MuiOutlinedInput-notchedOutline': {
+              transition: 'border-color 240ms ease-in-out',
+            },
+            '&.Mui-focused .MuiInputAdornment-root, &.Mui-focused .MuiInputAdornment-root .MuiIcon-root': {
+              color: palette.primary.main,
+            },
+            '@media (prefers-reduced-motion: reduce)': {
+              '& .MuiInputAdornment-root, & .MuiInputAdornment-root .MuiIcon-root, & .MuiOutlinedInput-notchedOutline':
+                {
+                  transition: 'none',
+                },
+            },
           },
         },
       },

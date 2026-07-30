@@ -68,11 +68,18 @@ export const SettingSelect = <OptionPayload,>({
   options,
   option,
   onChange,
+  startAdornment,
   ...settingBaseProps
 }: SettingSelectProps<OptionPayload>) => {
   return (
     <SettingBase {...settingBaseProps}>
-      <CustomSelect<OptionPayload> option={option} options={options} onChange={onChange} size="small" />
+      <CustomSelect<OptionPayload>
+        option={option}
+        options={options}
+        onChange={onChange}
+        size="small"
+        startAdornment={startAdornment}
+      />
     </SettingBase>
   )
 }
