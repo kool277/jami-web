@@ -28,11 +28,11 @@ import {
   useRemoveContactMutation,
 } from '../services/contactQueries.js'
 import ContactDetailDialog from './ContactDetailDialog.js'
+import { ContactIdentity } from './ContactIdentity.js'
 import ContactSearchBar from './ContactSearchBar.js'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import { ConfirmationDialog, useDialogHandler } from './Dialog.js'
-import EllipsisMiddle from './EllipsisMiddle.js'
 import LoadingPage from './Loading.js'
 import { PopoverListItemData } from './PopoverList.js'
 import { BlockContactIcon, CancelIcon, PersonIcon } from './SvgIcon.js'
@@ -144,8 +144,13 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
                 <ConversationAvatar contactUri={contact.id} displayName={contact.username} />
               </ListItemAvatar>
               <ListItemText
-                primary={contact.displayName || contact.username}
-                secondary={<EllipsisMiddle text={contact.id} />}
+                primary={
+                  <ContactIdentity
+                    uri={contact.id}
+                    displayName={contact.displayName}
+                    registeredName={contact.username}
+                  />
+                }
               />
               <Box
                 sx={{

@@ -19,6 +19,7 @@ import { ContactDetails as ContactDetailType } from '@savoirfairelinux/jami-web-
 import { QRCodeCanvas } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
 
+import { IdentifierText } from './ContactIdentity.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import { InfosDialog } from './Dialog.js'
 import { DialogContentList } from './Dialog.js'
@@ -39,7 +40,7 @@ const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDial
     },
     {
       label: t('contact_details_identifier'),
-      value: contactDetail?.id,
+      value: <IdentifierText variant="body1">{contactDetail?.id}</IdentifierText>,
     },
     {
       label: t('contact_details_qr_code'),

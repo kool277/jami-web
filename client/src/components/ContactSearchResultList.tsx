@@ -28,6 +28,7 @@ import {
 } from '../services/contactQueries.js'
 import { useConversationsSummariesQuery } from '../services/conversationQueries.js'
 import { type ConversationFilter, filterConversationSummaries } from '../utils/conversationFilters.js'
+import { ContactIdentity } from './ContactIdentity.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import { ConversationSummaryList } from './ConversationSummaryList.js'
 import { CustomListItemButton } from './CustomListItemButton.js'
@@ -105,7 +106,13 @@ const ContactSearchResultListItem = ({ contact }: ContactSearchResultListItemPro
           dialogHandler.openDialog()
         }}
         icon={<ConversationAvatar contactUri={contact.uri} displayName={contact.getDisplayName()} />}
-        primaryText={<Typography variant="body1">{contact.getDisplayName()}</Typography>}
+        primaryText={
+          <ContactIdentity
+            uri={contact.uri}
+            displayName={contact.displayName}
+            registeredName={contact.registeredName}
+          />
+        }
       />
     </>
   )

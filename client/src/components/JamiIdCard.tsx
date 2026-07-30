@@ -18,6 +18,7 @@
 import { Box, Card, CardContent, Typography } from '@mui/material'
 
 import { Account } from '../models/account.js'
+import { IdentifierText } from './ContactIdentity.js'
 
 type JamiIdCardProps = {
   account: Account
@@ -31,9 +32,9 @@ export default function JamiIdCard(props: JamiIdCardProps) {
       <CardContent>
         <Box>
           <Typography color="textSecondary">Jami ID</Typography>
-          <Typography variant="h5" component="h2" gutterBottom noWrap>
+          <IdentifierText variant="h5" component="h2" gutterBottom noWrap>
             {account.getUri()}
-          </Typography>
+          </IdentifierText>
         </Box>
         {registeredName && (
           <Box>

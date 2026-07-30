@@ -18,6 +18,8 @@
 
 import Box from '@mui/material/Box'
 
+import { isJamiHash } from './ContactIdentity.js'
+
 interface EllipsisMiddleProps {
   text: string
   centerItem?: boolean
@@ -30,7 +32,7 @@ const EllipsisMiddle = ({ text, centerItem, padding }: EllipsisMiddleProps) => {
   }
 
   if (text.length < 12) {
-    return <span style={{ padding: padding }}>{text}</span>
+    return <span style={{ padding: padding, fontFamily: isJamiHash(text) ? 'monospace' : undefined }}>{text}</span>
   }
 
   const startFixedChars = 5
@@ -57,6 +59,7 @@ const EllipsisMiddle = ({ text, centerItem, padding }: EllipsisMiddleProps) => {
         textWrap: 'nowrap',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
+        fontFamily: isJamiHash(text) ? 'monospace' : undefined,
         display: centerItem ? 'flex' : 'unset',
         justifyContent: centerItem ? 'center' : 'unset',
       }}
