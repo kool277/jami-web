@@ -398,6 +398,7 @@
   "settings_calls": "Calls",
   "settings_customize_profile": "Customize profile",
   "settings_dark_theme": "Dark theme",
+  "settings_enable_animations": "Enable animations",
   "settings_default_moderators": "Default moderators",
   "settings_devices_linked": "Devices linked - {{count}}",
   "setting_display_name_success_alert": "Display name updated successfully.",

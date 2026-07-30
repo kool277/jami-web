@@ -17,7 +17,7 @@
  */
 import createCache from '@emotion/cache'
 import { CacheProvider } from '@emotion/react'
-import { CssBaseline, PaletteMode } from '@mui/material'
+import { CssBaseline, GlobalStyles, PaletteMode } from '@mui/material'
 import { type Direction, ThemeProvider } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import rtlPlugin from '@mui/stylis-plugin-rtl'
@@ -36,6 +36,8 @@ const DebugToolsDialog = import.meta.env.DEV ? lazy(() => import('../components/
 interface ICustomThemeContext {
   mode: PaletteMode
   toggleMode: () => void
+  animationsEnabled: boolean
+  toggleAnimations: () => void
 }
 
 export const CustomThemeContext = createContext<ICustomThemeContext>(undefined!)
@@ -43,6 +45,7 @@ export const CustomThemeContext = createContext<ICustomThemeContext>(undefined!)
 export default ({ children }: WithChildren) => {
   const { i18n } = useTranslation()
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)')
+  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
   const [debugDirection, setDebugDirection] = useState<Direction | null>(null)
   const showDebugTools = import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug-tools') === '1'
   const direction = debugDirection ?? i18n.dir(i18n.language)
@@ -54,6 +57,11 @@ export default ({ children }: WithChildren) => {
     return undefined
   })
   const mode = selectedMode ?? (prefersDarkMode ? 'dark' : 'light')
+  const [selectedAnimationsEnabled, setSelectedAnimationsEnabled] = useState<boolean | undefined>(() => {
+    const animationsEnabledInStorage = localStorage.getItem('animationsEnabled')
+    return animationsEnabledInStorage === null ? undefined : animationsEnabledInStorage === 'true'
+  })
+  const animationsEnabled = selectedAnimationsEnabled ?? !prefersReducedMotion
 
   const toggleMode = useCallback(() => {
     setSelectedMode((selectedMode) => {
@@ -63,6 +71,13 @@ export default ({ children }: WithChildren) => {
       return newMode
     })
   }, [prefersDarkMode])
+  const toggleAnimations = useCallback(() => {
+    setSelectedAnimationsEnabled((current) => {
+      const next = !(current ?? !prefersReducedMotion)
+      localStorage.setItem('animationsEnabled', String(next))
+      return next
+    })
+  }, [prefersReducedMotion])
 
   const resetDebugTools = useCallback(async () => {
     setDebugDirection(null)
@@ -83,8 +98,10 @@ export default ({ children }: WithChildren) => {
     () => ({
       mode,
       toggleMode,
+      animationsEnabled,
+      toggleAnimations,
     }),
-    [mode, toggleMode],
+    [animationsEnabled, mode, toggleAnimations, toggleMode],
   )
 
   return (
@@ -92,6 +109,16 @@ export default ({ children }: WithChildren) => {
       <CacheProvider value={direction === 'rtl' ? rtlCache : ltrCache}>
         <ThemeProvider theme={theme}>
           <CssBaseline enableColorScheme />
+          {!animationsEnabled && (
+            <GlobalStyles
+              styles={{
+                '*, *::before, *::after': {
+                  animationDuration: '0.01ms !important',
+                  transitionDuration: '0.01ms !important',
+                },
+              }}
+            />
+          )}
           {children}
           {showDebugTools && DebugToolsDialog && (
             <Suspense fallback={null}>

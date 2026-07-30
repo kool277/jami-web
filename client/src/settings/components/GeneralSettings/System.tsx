@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next'
 
 import SettingLanguage from '../../../components/SettingLanguage.js'
 import { SettingsPage, SettingsRow, SettingsSection } from '../SettingsPage.js'
+import SettingAnimations from './SettingAnimations.js'
 import SettingLinkPreview from './SettingLinkPreview.js'
 import SettingNotifications from './SettingNotifications.js'
 import SettingTheme from './SettingTheme.js'
@@ -45,6 +46,7 @@ function System({ section = 'system' }: { section?: GeneralSettingsSection }) {
       {section === 'appearance' && (
         <SettingsSection title={t('settings_appearance')}>
           <SettingsRow title={t('settings_dark_theme')} control={<SettingTheme controlOnly />} />
+          <SettingsRow title={t('settings_enable_animations')} control={<SettingAnimations controlOnly />} />
           <SettingsRow title={t('show_tips')} control={<SettingTips controlOnly />} />
         </SettingsSection>
       )}
