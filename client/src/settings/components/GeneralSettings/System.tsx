@@ -28,9 +28,14 @@ export type GeneralSettingsSection = 'system' | 'appearance' | 'chat'
 
 function System({ section = 'system' }: { section?: GeneralSettingsSection }) {
   const { t } = useTranslation()
+  const pageTitleKey = {
+    system: 'settings_title_system',
+    appearance: 'settings_appearance',
+    chat: 'settings_title_chat',
+  } as const
 
   return (
-    <SettingsPage title={t('general_settings')}>
+    <SettingsPage title={t(pageTitleKey[section])}>
       {section === 'system' && (
         <SettingsSection title={t('settings_title_system')}>
           <SettingsRow title={t('settings_menu_item_notifications')} control={<SettingNotifications controlOnly />} />

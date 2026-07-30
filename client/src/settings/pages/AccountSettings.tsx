@@ -15,12 +15,16 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { useTranslation } from 'react-i18next'
+
 import AccountPreferences from '../components/AccountPreferences.js'
 import { SettingsPage } from '../components/SettingsPage.js'
 
 export default function AccountSettings() {
+  const { t } = useTranslation()
+
   return (
-    <SettingsPage title="Account">
+    <SettingsPage title={t('settings_manage_account')}>
       <AccountPreferences />
     </SettingsPage>
   )

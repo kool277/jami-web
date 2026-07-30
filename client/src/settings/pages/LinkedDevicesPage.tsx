@@ -17,19 +17,24 @@
  */
 
 import { Box, Grid } from '@mui/material'
+import { useTranslation } from 'react-i18next'
 
 import LinkedDevices from '../components/AccountSettings/LinkedDevices.js'
+import { SettingsPage } from '../components/SettingsPage.js'
 
 export default function LinkedDevicesPage() {
+  const { t } = useTranslation()
   const styles = {
     textOverflow: 'ellipsis',
   }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', maxWidth: '100%' }}>
-      <Grid container size={{ xs: 10, sm: 12 }} sx={styles}>
-        <LinkedDevices />
-      </Grid>
-    </Box>
+    <SettingsPage title={t('settings_linked_devices')}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', maxWidth: '100%' }}>
+        <Grid container size={{ xs: 10, sm: 12 }} sx={styles}>
+          <LinkedDevices />
+        </Grid>
+      </Box>
+    </SettingsPage>
   )
 }

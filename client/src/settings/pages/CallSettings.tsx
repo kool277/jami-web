@@ -15,12 +15,16 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { useTranslation } from 'react-i18next'
+
 import CallPreferences from '../components/CallPreferences.js'
 import { SettingsPage } from '../components/SettingsPage.js'
 
 export default function CallSettings() {
+  const { t } = useTranslation()
+
   return (
-    <SettingsPage title="Calls">
+    <SettingsPage title={t('settings_calls')}>
       <CallPreferences />
     </SettingsPage>
   )

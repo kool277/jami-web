@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, IconButton, Stack, Switch, TextField, Typography } from '@mui/material'
+import { Box, IconButton, Stack, Switch, TextField } from '@mui/material'
 import { AccountDetails } from '@savoirfairelinux/jami-web-common'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
@@ -62,12 +62,6 @@ export default function CallPreferences() {
         exit: { transition: { staggerChildren: 0.02 } },
       }}
     >
-      <motion.div variants={thumbnailVariants}>
-        <Typography variant="h2" component="h2" gutterBottom>
-          {t('settings_calls')}
-        </Typography>
-      </motion.div>
-
       <Stack spacing={2}>
         <motion.div variants={thumbnailVariants}>
           <SettingsSection title={t('settings_calls')}>
