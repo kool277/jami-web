@@ -39,9 +39,27 @@ describe('SettingsPage', () => {
     )
 
     expect(screen.getByRole('heading', { level: 1, name: 'General' })).toBeVisible()
-    expect(screen.getByRole('heading', { level: 2, name: 'System' })).toBeVisible()
+    expect(screen.getByRole('heading', { level: 2, name: 'System' })).toBeInTheDocument()
     expect(screen.getByText('App preferences')).toBeVisible()
-    expect(screen.getByText('Show alerts for activity')).toBeVisible()
-    expect(screen.getByRole('button', { name: 'Configure' })).toBeVisible()
+    expect(screen.getByText('Show alerts for activity')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Configure' })).toBeInTheDocument()
+    expect(screen.getAllByTestId('settings-page-island')).toHaveLength(1)
+  })
+
+  it('can place its description below the header row', () => {
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <SettingsPage title="Jami authentication" description="Use a Jami account" descriptionOnOwnLine>
+          <SettingsSection list={false}>
+            <SettingsRow title="Enabled" />
+          </SettingsSection>
+        </SettingsPage>
+      </ThemeProvider>,
+    )
+
+    const title = screen.getByRole('heading', { level: 1, name: 'Jami authentication' })
+    const description = screen.getByText('Use a Jami account')
+
+    expect(title.parentElement).not.toContainElement(description)
   })
 })

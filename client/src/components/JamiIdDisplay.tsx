@@ -57,7 +57,8 @@ export default function JamiIdDisplay({ account }: JamiIdDisplayProps) {
   return (
     <Box
       sx={{
-        backgroundColor: alpha(theme.palette.background.paper, 0.8),
+        backgroundColor: alpha(theme.palette.text.primary, 0.06),
+        border: `1px solid ${alpha(theme.palette.text.primary, 0.12)}`,
         borderRadius: 3,
         display: 'flex',
         gap: 1,

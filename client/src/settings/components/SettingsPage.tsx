@@ -15,63 +15,123 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Divider, List, ListItem, type ListItemProps, Stack, type StackProps, Typography } from '@mui/material'
+import { Box, List, ListItem, type ListItemProps, Stack, type StackProps, Typography } from '@mui/material'
+import { motion } from 'framer-motion'
 import { type ReactNode } from 'react'
 
+import Island, { ISLAND_MARGIN, ISLAND_PADDING } from '../../components/common/Island.js'
+import { thumbnailVariants } from '../../themes/MotionVariants.js'
+
 interface SettingsPageProps {
-  title: string
+  title?: string
   description?: string
+  descriptionOnOwnLine?: boolean
+  icon?: ReactNode
+  headerAction?: ReactNode
   children: ReactNode
 }
 
-export function SettingsPage({ title, description, children }: SettingsPageProps) {
+export function SettingsPage({
+  title,
+  description,
+  descriptionOnOwnLine = false,
+  icon,
+  headerAction,
+  children,
+}: SettingsPageProps) {
+  const hasHeader = title || description || icon || headerAction
+
   return (
     <Box component="article" sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
-      <Stack sx={{ width: '100%', maxWidth: 720, mx: 'auto', p: { xs: 2, sm: 3 }, gap: 4 }}>
-        <Stack sx={{ gap: 0.5 }}>
-          <Typography component="h1" variant="h2">
-            {title}
-          </Typography>
-          {description && (
-            <Typography color="text.secondary" variant="body2">
-              {description}
-            </Typography>
+      <Stack sx={{ width: '100%', maxWidth: 680, mx: 'auto', p: ISLAND_MARGIN }}>
+        <Island data-testid="settings-page-island" sx={{ p: ISLAND_PADDING, gap: 0, boxShadow: 2 }}>
+          {hasHeader && (
+            <Stack sx={{ px: 2, pt: { xs: 2, md: 1 }, pb: description ? 0 : 1 }}>
+              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+                {headerAction}
+                {icon}
+                <Stack sx={{ gap: 0.5 }}>
+                  {title && (
+                    <Typography component="h1" variant="h3">
+                      {title}
+                    </Typography>
+                  )}
+                  {description && !descriptionOnOwnLine && (
+                    <Typography color="text.secondary" variant="body2">
+                      {description}
+                    </Typography>
+                  )}
+                </Stack>
+              </Stack>
+              {description && descriptionOnOwnLine && (
+                <Typography color="text.secondary" variant="body2" sx={{ mt: 1.5 }}>
+                  {description}
+                </Typography>
+              )}
+            </Stack>
           )}
-        </Stack>
-        {children}
+          <motion.div
+            initial="initial"
+            animate="enter"
+            exit="exit"
+            variants={{
+              ...thumbnailVariants,
+              enter: { ...thumbnailVariants.enter, transition: { staggerChildren: 0.05 } },
+            }}
+          >
+            <Stack sx={{ gap: 2 }}>{children}</Stack>
+          </motion.div>
+        </Island>
       </Stack>
     </Box>
   )
 }
 
 interface SettingsSectionProps extends StackProps {
-  title: string
+  title?: string
   description?: string
   list?: boolean
   children: ReactNode
 }
 
 export function SettingsSection({ title, description, list = true, children, ...props }: SettingsSectionProps) {
-  return (
-    <Stack component="section" sx={{ gap: 1.5 }} {...props}>
-      <Stack sx={{ gap: 0.25 }}>
-        <Typography component="h2" variant="h4">
+  const heading = (title || description) && (
+    <Stack sx={{ gap: 0.25 }}>
+      {title && (
+        <Typography
+          component="h2"
+          variant="body1"
+          sx={{ color: (theme) => theme.palette.primary.dark, fontWeight: 700 }}
+        >
           {title}
         </Typography>
-        {description && (
-          <Typography color="text.secondary" variant="body2">
-            {description}
-          </Typography>
-        )}
-      </Stack>
-      {list ? (
-        <List disablePadding sx={{ borderTop: 1, borderBottom: 1, borderColor: 'divider' }}>
-          {children}
-        </List>
-      ) : (
-        children
+      )}
+      {description && (
+        <Typography color="text.secondary" variant="body2">
+          {description}
+        </Typography>
       )}
     </Stack>
+  )
+
+  return (
+    <motion.div variants={thumbnailVariants}>
+      <Stack component="section" sx={{ gap: 0.75 }} {...props}>
+        {list ? (
+          <>
+            {heading && <Stack sx={{ px: 2, pt: 1.5 }}>{heading}</Stack>}
+            <List disablePadding sx={heading ? { '& > :first-of-type': { pt: 0.5 } } : undefined}>
+              {children}
+            </List>
+          </>
+        ) : (
+          <>
+            {heading && <Stack sx={{ px: 2, pt: 1.5 }}>{heading}</Stack>}
+            <Stack sx={heading ? { px: 2, pt: 0.5, pb: 2 } : { p: 2 }}>{children}</Stack>
+          </>
+        )}
+      </Stack>
+    </motion.div>
   )
 }
 
@@ -83,31 +143,29 @@ interface SettingsRowProps extends Omit<ListItemProps, 'children'> {
 
 export function SettingsRow({ title, description, control, sx, ...props }: SettingsRowProps) {
   return (
-    <>
-      <ListItem
-        sx={[
-          {
-            alignItems: { xs: 'flex-start', sm: 'center' },
-            gap: 2,
-            px: 0,
-            py: 1.5,
-            flexWrap: { xs: 'wrap', sm: 'nowrap' },
-          },
-          ...(Array.isArray(sx) ? sx : [sx]),
-        ]}
-        {...props}
-      >
-        <Stack sx={{ flex: 1, minWidth: 0, gap: 0.25 }}>
-          <Typography variant="body1">{title}</Typography>
-          {description && (
-            <Typography color="text.secondary" variant="body2">
-              {description}
-            </Typography>
-          )}
-        </Stack>
-        {control && <Box sx={{ flexShrink: 0, ml: { xs: 'auto', sm: 0 } }}>{control}</Box>}
-      </ListItem>
-      <Divider component="li" />
-    </>
+    <ListItem
+      disableGutters
+      sx={[
+        {
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          gap: 2,
+          px: 2,
+          py: 1.5,
+          flexWrap: { xs: 'wrap', sm: 'nowrap' },
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
+      {...props}
+    >
+      <Stack sx={{ flex: 1, minWidth: 0, gap: 0.25 }}>
+        <Typography variant="body1">{title}</Typography>
+        {description && (
+          <Typography color="text.secondary" variant="body2">
+            {description}
+          </Typography>
+        )}
+      </Stack>
+      {control && <Box sx={{ flexShrink: 0, ml: { xs: 'auto', sm: 0 } }}>{control}</Box>}
+    </ListItem>
   )
 }
