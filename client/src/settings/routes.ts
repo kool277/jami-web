@@ -17,6 +17,8 @@
  */
 export const userSettingsRoutePaths = {
   manageAccount: 'account/manage-account',
+  customizeProfile: 'account/customize-profile',
+  passkeys: 'account/passkeys',
   calls: 'account/calls',
   linkedDevices: 'account/linked-devices',
   exportDevice: 'account/linked-devices/export',

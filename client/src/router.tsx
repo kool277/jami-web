@@ -21,11 +21,12 @@ import { lazy } from 'react'
 import { createBrowserRouter, createRoutesFromElements, Navigate, Outlet, Route } from 'react-router-dom'
 
 import App, { appLoader } from './App.js'
+import NavigatePreservingSearch from './components/NavigatePreservingSearch.js'
 import RouteErrorBoundary from './components/RouteErrorBoundary.js'
 import { AdminConfigurationOptions } from './enums/adminConfigurationOptions.js'
 import { AuthenticationMethods } from './enums/authenticationMethods.js'
 import { RouteParams } from './hooks/useUrlParams.js'
-import { userSettingsRoutePaths } from './settings/routes.js'
+import { userSettingsPath, userSettingsRoutePaths } from './settings/routes.js'
 
 const loadAdminBundle = () => import('./admin/index.js')
 const loadSettingsBundle = () => import('./settings/index.js')
@@ -71,6 +72,12 @@ const AdminCreateAccount = lazy(() =>
   loadAdminBundle().then(({ AdminCreateAccount }) => ({ default: AdminCreateAccount })),
 )
 const CallSettings = lazy(() => loadSettingsBundle().then(({ CallSettings }) => ({ default: CallSettings })))
+const CustomizeProfileSettings = lazy(() =>
+  loadSettingsBundle().then(({ CustomizeProfileSettings }) => ({ default: CustomizeProfileSettings })),
+)
+const PasskeysSettings = lazy(() =>
+  loadSettingsBundle().then(({ PasskeysSettings }) => ({ default: PasskeysSettings })),
+)
 const ExportToAnotherDevice = lazy(() =>
   loadSettingsBundle().then(({ ExportToAnotherDevice }) => ({ default: ExportToAnotherDevice })),
 )
@@ -224,12 +231,14 @@ export const router = createBrowserRouter(
             <Route index element={<SettingsIndex />} />
             <Route
               path={userSettingsRoutePaths.general}
-              element={<Navigate to={userSettingsRoutePaths.generalSystem} replace />}
+              element={<NavigatePreservingSearch to={userSettingsPath(userSettingsRoutePaths.generalSystem)} replace />}
             />
             <Route path={userSettingsRoutePaths.generalSystem} element={<GeneralSettings section="system" />} />
             <Route path={userSettingsRoutePaths.generalAppearance} element={<GeneralSettings section="appearance" />} />
             <Route path={userSettingsRoutePaths.generalChat} element={<GeneralSettings section="chat" />} />
             <Route path={userSettingsRoutePaths.manageAccount} element={<AccountSettings />} />
+            <Route path={userSettingsRoutePaths.customizeProfile} element={<CustomizeProfileSettings />} />
+            <Route path={userSettingsRoutePaths.passkeys} element={<PasskeysSettings />} />
             <Route path={userSettingsRoutePaths.calls} element={<CallSettings />} />
             <Route path={userSettingsRoutePaths.linkedDevices} element={<LinkedDevicesPage />} />
             <Route path={userSettingsRoutePaths.exportDevice} element={<ExportToAnotherDevice />} />

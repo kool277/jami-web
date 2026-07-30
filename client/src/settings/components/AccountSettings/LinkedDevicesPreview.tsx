@@ -16,13 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box } from '@mui/material'
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Grid from '@mui/material/Grid'
-import ListItem from '@mui/material/ListItem'
-import ListItemText from '@mui/material/ListItemText'
-import Typography from '@mui/material/Typography'
+import { Stack, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -43,43 +37,27 @@ function LinkedDevicesPreview() {
   }
 
   return (
-    <Grid size={12} aria-label="linked-device">
-      <Card>
-        <CardContent sx={{ width: '100%' }}>
-          <Typography sx={{}} color="textSecondary" gutterBottom>
-            {t('devices')}
+    <Stack aria-label="linked-device" sx={{ gap: 2 }}>
+      <Stack sx={{ minWidth: 0, gap: 0.25 }}>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
+          <Typography variant="body1">{account.details['Account.deviceName']}</Typography>
+          <Typography color="primary" variant="caption">
+            {t('current_device')}
           </Typography>
-          <Typography gutterBottom variant="h5" component="h2">
-            <ListItem>
-              <ListItemText
-                id="switch-list-label-rendezvous"
-                primary={
-                  <>
-                    {account.details['Account.deviceName']}
-                    <Box component="span" sx={{ typography: 'caption', fontWeight: 'bolder', marginLeft: '3%' }}>
-                      {t('current_device')}
-                    </Box>
-                  </>
-                }
-                secondary={
-                  <Typography noWrap sx={{ textOverflow: 'ellipsis', overflow: 'hidden', maxWidth: '100%' }}>
-                    {account.volatileDetails['Account.deviceID']}
-                  </Typography>
-                }
-              />
-            </ListItem>
-          </Typography>
-          <Box sx={{ display: 'flex', width: '100%', justifyContent: 'space-evenly' }}>
-            <BaseButton onClick={seeAllDevices} variant="contained">
-              {t('see_all_devices')}
-            </BaseButton>
-            <BaseButton onClick={linkNewDevice} variant="contained">
-              {t('link_new_device')}
-            </BaseButton>
-          </Box>
-        </CardContent>
-      </Card>
-    </Grid>
+        </Stack>
+        <Typography color="text.secondary" noWrap variant="body2" sx={{ fontFamily: 'monospace' }}>
+          {account.volatileDetails['Account.deviceID']}
+        </Typography>
+      </Stack>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+        <BaseButton sx={{ flex: 1 }} onClick={seeAllDevices} variant="outlined">
+          {t('see_all_devices')}
+        </BaseButton>
+        <BaseButton sx={{ flex: 1 }} onClick={linkNewDevice} variant="contained">
+          {t('link_new_device')}
+        </BaseButton>
+      </Stack>
+    </Stack>
   )
 }
 

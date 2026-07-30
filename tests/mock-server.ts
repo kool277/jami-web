@@ -423,6 +423,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
       return
     }
     state.users[username] = { password, accountId: 'acc-' + Date.now() }
+    state.userTokens['mock-user-token-preset'] ??= username
     res.sendStatus(201)
   })
 

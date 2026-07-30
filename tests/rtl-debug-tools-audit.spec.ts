@@ -91,6 +91,7 @@ test.describe('RTL and Debug Tools Audit', () => {
     // 1. Open a real authenticated app surface at `?debug-tools=1` in development.
     await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/settings/general?debug-tools=1')
+    await expect(page).toHaveURL(/\/settings\/general\/system\?debug-tools=1$/)
 
     // 2. Verify the Debug Tools control is visible.
     const debugTools = page.getByRole('dialog', { name: 'Debug tools' })

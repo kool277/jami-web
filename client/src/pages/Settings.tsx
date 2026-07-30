@@ -17,23 +17,25 @@
  */
 import { useMediaQuery, useTheme } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { Navigate } from 'react-router-dom'
 
+import NavigatePreservingSearch from '../components/NavigatePreservingSearch.js'
 import AppShell from '../components/shell/AppShell.js'
 import useDocumentTitle from '../hooks/useDocumentTitle.js'
-import { UserSettingsSelection } from '../settings/index.js'
-import { userSettingsRoutePaths } from '../settings/routes.js'
+import SettingsNavigation from '../settings/components/SettingsNavigation.js'
+import { userSettingsPath, userSettingsRoutePaths } from '../settings/routes.js'
 
 export function SettingsIndex() {
   const theme = useTheme()
   const isCompact = useMediaQuery(theme.breakpoints.down('md'))
 
-  return isCompact ? null : <Navigate to={userSettingsRoutePaths.generalSystem} replace />
+  return isCompact ? null : (
+    <NavigatePreservingSearch to={userSettingsPath(userSettingsRoutePaths.generalSystem)} replace />
+  )
 }
 
 export default function Settings() {
   const { t } = useTranslation()
   useDocumentTitle(t('settings'))
 
-  return <AppShell listRoute="/settings" listPaneLabel={t('settings')} listPane={<UserSettingsSelection />} />
+  return <AppShell listRoute="/settings" listPaneLabel={t('settings')} listPane={<SettingsNavigation />} />
 }

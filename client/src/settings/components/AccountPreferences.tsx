@@ -15,18 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Stack, Typography } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
-import ConversationsOverviewCard from '../../components/ConversationsOverviewCard.js'
-import JamiIdCard from '../../components/JamiIdCard.js'
+import JamiIdDisplay from '../../components/JamiIdDisplay.js'
 import { useAuthContext } from '../../contexts/AuthProvider.js'
 import { thumbnailVariants } from '../../themes/MotionVariants.js'
-import CustomizeProfile from './AccountSettings/CustomizeProfile.js'
 import LinkedDevicesPreview from './AccountSettings/LinkedDevicesPreview.js'
-import PasskeyManager from './AccountSettings/PasskeyManager.js'
-import { SettingsRow, SettingsSection } from './SettingsPage.js'
+import { SettingsSection } from './SettingsPage.js'
 
 export default function AccountPreferences() {
   const { t } = useTranslation()
@@ -44,42 +41,20 @@ export default function AccountPreferences() {
         exit: { transition: { staggerChildren: 0.02 } },
       }}
     >
-      <motion.div variants={thumbnailVariants}>
-        <Typography variant="h2" component="h2" gutterBottom>
-          {t('settings_title_account')}
-        </Typography>
-      </motion.div>
-
       <Stack spacing={2}>
-        <motion.div variants={thumbnailVariants}>
-          <SettingsSection title={t('settings_customize_profile')}>
-            <SettingsRow title={t('settings_customize_profile')} control={<CustomizeProfile />} />
-          </SettingsSection>
-        </motion.div>
-
         {isJamiAccount && (
           <motion.div variants={thumbnailVariants}>
-            <SettingsSection title={t('jami_account')}>
-              <SettingsRow title={t('jami_account')} control={<JamiIdCard account={account} />} />
+            <SettingsSection title={t('jami_account')} list={false}>
+              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                <JamiIdDisplay account={account} />
+              </Box>
             </SettingsSection>
           </motion.div>
         )}
 
         <motion.div variants={thumbnailVariants}>
-          <SettingsSection title={t('conversations')}>
-            <SettingsRow title={t('conversations')} control={<ConversationsOverviewCard />} />
-          </SettingsSection>
-        </motion.div>
-
-        <motion.div variants={thumbnailVariants}>
-          <SettingsSection title={t('devices')}>
-            <SettingsRow title={t('devices')} control={<LinkedDevicesPreview />} />
-          </SettingsSection>
-        </motion.div>
-
-        <motion.div variants={thumbnailVariants}>
-          <SettingsSection title={t('passkey_section_title')}>
-            <SettingsRow title={t('passkey_section_title')} control={<PasskeyManager />} />
+          <SettingsSection title={t('devices')} list={false}>
+            <LinkedDevicesPreview />
           </SettingsSection>
         </motion.div>
       </Stack>

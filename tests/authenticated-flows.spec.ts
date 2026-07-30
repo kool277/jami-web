@@ -100,12 +100,12 @@ test.describe('Settings Navigation', () => {
 
   test('can navigate to general settings', async ({ page }) => {
     await page.goto('/settings/general')
-    await expect(page).toHaveURL(/\/settings\/general/)
+    await expect(page).toHaveURL(/\/settings\/general\/system$/)
   })
 
   test('defaults to general settings', async ({ page }) => {
     await page.goto('/settings')
-    await expect(page).toHaveURL(/\/settings\/general/)
+    await expect(page).toHaveURL(/\/settings\/general\/system$/)
   })
 
   test('keeps the settings list open in compact mode', async ({ page }) => {
@@ -124,15 +124,19 @@ test.describe('Settings Navigation', () => {
   // The avatar controls once carried no accessible name, so the profile
   // picture could not be changed without a mouse.
   test('avatar picture controls are reachable by their accessible name', async ({ page }) => {
-    await page.goto('/settings/account/manage-account')
+    await page.goto('/settings/account/customize-profile')
 
-    const edit = page.getByRole('button', { name: 'Edit picture' })
+    const edit = page.getByRole('button', { name: 'Change picture' })
     await expect(edit).toBeVisible({ timeout: 15_000 })
     await edit.click()
 
-    for (const name of ['Take a picture', 'Upload a picture', 'Close picture options']) {
+    for (const name of ['Take a picture', 'Upload a picture']) {
       await expect(page.getByRole('button', { name })).toBeVisible({ timeout: 10_000 })
     }
+
+    await page.keyboard.press('Escape')
+    await expect(page.getByRole('button', { name: 'Take a picture' })).toBeHidden()
+    await expect(edit).toBeFocused()
   })
 })
 

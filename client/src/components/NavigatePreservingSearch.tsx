@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Savoir-faire Linux Inc.
+ * Copyright (C) 2026 Savoir-faire Linux Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -15,10 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import SettingsNavigation from './SettingsNavigation.js'
+import { Navigate, useLocation } from 'react-router-dom'
 
-function UserSettingsSelection() {
-  return <SettingsNavigation />
+interface NavigatePreservingSearchProps {
+  to: string
+  replace?: boolean
 }
 
-export default UserSettingsSelection
+export default function NavigatePreservingSearch({ to, replace }: NavigatePreservingSearchProps) {
+  const { search } = useLocation()
+
+  return <Navigate to={{ pathname: to, search }} replace={replace} />
+}

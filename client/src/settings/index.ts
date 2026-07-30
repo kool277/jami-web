@@ -15,9 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-export { default as UserSettingsSelection } from './components/UserSettingsSelection.js'
 export { default as AccountSettings } from './pages/AccountSettings.js'
 export { default as CallSettings } from './pages/CallSettings.js'
+export { default as CustomizeProfileSettings } from './pages/CustomizeProfileSettings.js'
 export { ExportToAnotherDevice } from './pages/ExportToAnotherDevice.js'
 export { default as GeneralSettings } from './pages/GeneralSettings.js'
 export { default as LinkedDevicesPage } from './pages/LinkedDevicesPage.js'
+export { default as PasskeysSettings } from './pages/PasskeysSettings.js'
