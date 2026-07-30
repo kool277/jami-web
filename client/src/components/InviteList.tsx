@@ -19,7 +19,7 @@ import { Stack, Typography } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
 import { useConversationRequestsQuery } from '../services/conversationQueries.js'
-import EmptyState from './common/EmptyState.js'
+import ListPaneEmptyState from './common/ListPaneEmptyState.js'
 import LoadingSkeleton from './common/LoadingSkeleton.js'
 import { ConversationRequestList } from './ConversationRequestList.js'
 import { MailIcon } from './SvgIcon.js'
@@ -39,12 +39,20 @@ export default function InviteList() {
       ) : conversationRequestsQuery.data?.length ? (
         <ConversationRequestList />
       ) : (
-        <EmptyState
-          icon={<MailIcon sx={{ fontSize: 48, color: 'text.secondary' }} />}
-          title={t('invitations_empty')}
-          description={t('invitations_empty_description')}
-        />
+        <EmptyInvitations />
       )}
     </Stack>
+  )
+}
+
+export function EmptyInvitations() {
+  const { t } = useTranslation()
+
+  return (
+    <ListPaneEmptyState
+      icon={<MailIcon sx={{ fontSize: 48, color: 'text.secondary' }} />}
+      title={t('invitations_empty')}
+      description={t('invitations_empty_description')}
+    />
   )
 }
