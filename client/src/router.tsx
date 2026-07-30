@@ -129,6 +129,15 @@ export const router = createBrowserRouter(
           </AdminAuthWrapper>
         }
       >
+        <Route
+          path={`/admin/${AdminSettingSelection.CONFIGURATION}`}
+          element={
+            <Navigate
+              to={`/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`}
+              replace
+            />
+          }
+        />
         <Route path={`/admin/${AdminSettingSelection.ACCOUNTS}`} element={<AccountsOverview />} />
         <Route path={`/admin/${AdminSettingSelection.AUTHENTICATION}`} element={<AuthMethods />} />
         <Route
@@ -152,15 +161,15 @@ export const router = createBrowserRouter(
           element={<ConfigureOpenId />}
         />
         <Route
-          path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`}
+          path={`/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`}
           element={<AdminAccountConfiguration />}
         />
         <Route
-          path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`}
+          path={`/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.AUTO_DOWNLOAD_LIMIT}`}
           element={<DownloadLimit />}
         />
         <Route
-          path={`admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.MEDIA}`}
+          path={`/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.MEDIA}`}
           element={<MediaSettings />}
         />
       </Route>

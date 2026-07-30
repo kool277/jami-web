@@ -19,7 +19,7 @@ import { Box, Stack, useMediaQuery, useTheme } from '@mui/material'
 import { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import MainSettingsSelection from '../components/MainSettingsSelection.js'
+import AdminSettingsNavigation from '../components/AdminSettingsNavigation.js'
 
 interface AdminPanelProps {
   children: ReactElement
@@ -46,10 +46,10 @@ export default function AdminPanel({ children }: AdminPanelProps) {
           flexShrink: 0,
           ...(isCompact
             ? { borderBottom: 1, borderColor: 'divider' }
-            : { width: 360, overflowY: 'auto', borderInlineEnd: 1, borderColor: 'divider' }),
+            : { width: 320, overflowY: 'auto', borderInlineEnd: 1, borderColor: 'divider' }),
         }}
       >
-        <MainSettingsSelection />
+        <AdminSettingsNavigation />
       </Stack>
       <Box component="main" sx={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
         {children}
