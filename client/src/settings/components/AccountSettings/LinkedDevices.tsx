@@ -19,7 +19,6 @@ import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import IconButton from '@mui/material/IconButton'
-import Paper from '@mui/material/Paper'
 import { alpha, useTheme } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -331,89 +330,87 @@ export default function LinkedDevices() {
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
 
   return (
-    <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
-      <Box sx={{ width: '85%', marginTop: '5%' }}>
-        <Paper sx={{ width: '100%', mb: 2, borderRadius: '16px', overflow: 'hidden' }}>
-          <EnhancedTableToolbar
-            numSelected={selected.length}
-            devicesNumber={rows.length}
-            onDelete={handleDeleteSelected}
-          />
-          <TableContainer>
-            <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={'medium'}>
-              <EnhancedTableHead
-                numSelected={selected.length}
-                order={order}
-                orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
-                onRequestSort={handleRequestSort}
-                rowCount={rows.length}
-              />
-              <TableBody>
-                {visibleRows.map((row, index) => {
-                  const isItemSelected = selected.includes(row.deviceId)
-                  const labelId = `enhanced-table-checkbox-${index}`
+    <>
+      <Box sx={{ minWidth: 0, overflowX: 'auto' }}>
+        <EnhancedTableToolbar
+          numSelected={selected.length}
+          devicesNumber={rows.length}
+          onDelete={handleDeleteSelected}
+        />
+        <TableContainer>
+          <Table sx={{ minWidth: 600 }} aria-labelledby="tableTitle" size={'medium'}>
+            <EnhancedTableHead
+              numSelected={selected.length}
+              order={order}
+              orderBy={orderBy}
+              onSelectAllClick={handleSelectAllClick}
+              onRequestSort={handleRequestSort}
+              rowCount={rows.length}
+            />
+            <TableBody>
+              {visibleRows.map((row, index) => {
+                const isItemSelected = selected.includes(row.deviceId)
+                const labelId = `enhanced-table-checkbox-${index}`
 
-                  return (
-                    <TableRow
-                      hover
-                      onClick={(event) => handleClick(event, row.deviceId)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.deviceId}
-                      selected={isItemSelected}
-                      sx={{ cursor: 'pointer' }}
+                return (
+                  <TableRow
+                    hover
+                    onClick={(event) => handleClick(event, row.deviceId)}
+                    role="checkbox"
+                    aria-checked={isItemSelected}
+                    tabIndex={-1}
+                    key={row.deviceId}
+                    selected={isItemSelected}
+                    sx={{ cursor: 'pointer' }}
+                  >
+                    {/* Device Name */}
+                    <TableCell
+                      component="th"
+                      id={labelId}
+                      scope="row"
+                      padding="none"
+                      sx={{ paddingLeft: paddingValue }}
                     >
-                      {/* Device Name */}
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                        sx={{ paddingLeft: paddingValue }}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <DevicesIcon sx={{ height: '20px', width: '20px' }} />
-                          {row.deviceName}
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ typography: 'caption', fontFamily: 'monospace' }} align="left">
-                        {row.deviceId}
-                      </TableCell>
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          slotProps={{
-                            input: {
-                              'aria-labelledby': labelId,
-                            },
-                          }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-                {emptyRows > 0 && (
-                  <TableRow style={{ height: 53 * emptyRows }}>
-                    <TableCell colSpan={4} />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <DevicesIcon sx={{ height: '20px', width: '20px' }} />
+                        {row.deviceName}
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={{ typography: 'caption', fontFamily: 'monospace' }} align="left">
+                      {row.deviceId}
+                    </TableCell>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        color="primary"
+                        checked={isItemSelected}
+                        slotProps={{
+                          input: {
+                            'aria-labelledby': labelId,
+                          },
+                        }}
+                      />
+                    </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                )
+              })}
+              {emptyRows > 0 && (
+                <TableRow style={{ height: 53 * emptyRows }}>
+                  <TableCell colSpan={4} />
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-          <TablePagination
-            rowsPerPageOptions={rowsPerPageOptions}
-            component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
+        <TablePagination
+          rowsPerPageOptions={rowsPerPageOptions}
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
       </Box>
       {open && (
         <PasswordRequiredModal
@@ -427,6 +424,6 @@ export default function LinkedDevices() {
           info={t('revoke_device_info')}
         />
       )}
-    </Box>
+    </>
   )
 }

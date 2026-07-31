@@ -47,7 +47,7 @@ export function SettingsPage({
 
   return (
     <Box component="article" sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
-      <Stack sx={{ width: '100%', maxWidth: 680, mx: 'auto', p: ISLAND_MARGIN }}>
+      <Stack sx={{ width: '100%', maxWidth: 680, mx: 'auto', p: ISLAND_MARGIN, pl: { md: 0 } }}>
         <Island data-testid="settings-page-island" sx={{ p: ISLAND_PADDING, gap: 0, boxShadow: 2 }}>
           {hasHeader && (
             <Stack sx={{ px: 2, pt: { xs: 2, md: 1 }, pb: description ? 0 : 1 }}>
