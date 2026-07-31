@@ -74,12 +74,14 @@ export default function AuthMethods() {
         <Stack spacing={2}>
           <PasswordField
             label={t('admin_page_password_old_placeholder')}
+            size="small"
             value={oldPassword}
             onChange={(event) => setOldPassword(event.target.value)}
             startAdornment={<PasswordIcon />}
           />
           <PasswordField
             label={t('admin_page_password_placeholder')}
+            size="small"
             value={newPassword}
             onChange={(event) => setNewPassword(event.target.value)}
             autoComplete="new-password"
@@ -87,21 +89,17 @@ export default function AuthMethods() {
           />
           <PasswordField
             label={t('admin_page_password_repeat_placeholder')}
+            size="small"
             value={repeatPassword}
             onChange={(event) => setRepeatPassword(event.target.value)}
             autoComplete="new-password"
             startAdornment={<PasswordIcon />}
           />
-          <Typography
-            variant="caption"
-            color="error"
-            sx={{
-              visibility:
-                newPassword !== repeatPassword && newPassword !== '' && repeatPassword !== '' ? 'visible' : 'hidden',
-            }}
-          >
-            {t('password_input_helper_text_not_match')}
-          </Typography>
+          {newPassword !== repeatPassword && newPassword !== '' && repeatPassword !== '' && (
+            <Typography variant="caption" color="error">
+              {t('password_input_helper_text_not_match')}
+            </Typography>
+          )}
           <BaseButton
             variant="contained"
             type="submit"
