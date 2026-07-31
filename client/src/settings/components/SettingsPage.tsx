@@ -29,6 +29,7 @@ interface SettingsPageProps {
   icon?: ReactNode
   headerAction?: ReactNode
   headerEndAction?: ReactNode
+  sectionGap?: number
   children?: ReactNode
 }
 
@@ -39,6 +40,7 @@ export function SettingsPage({
   icon,
   headerAction,
   headerEndAction,
+  sectionGap = 2,
   children,
 }: SettingsPageProps) {
   const hasHeader = title || description || icon || headerAction || headerEndAction
@@ -82,7 +84,7 @@ export function SettingsPage({
               enter: { ...thumbnailVariants.enter, transition: { staggerChildren: 0.05 } },
             }}
           >
-            <Stack sx={{ gap: 2 }}>{children}</Stack>
+            <Stack sx={{ gap: sectionGap }}>{children}</Stack>
           </motion.div>
         </Island>
       </Stack>

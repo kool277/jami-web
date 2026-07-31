@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, IconButton, Stack, Switch, TextField } from '@mui/material'
+import { Box, IconButton, InputAdornment, Stack, Switch, TextField } from '@mui/material'
 import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
 import { use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -24,7 +24,14 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import BaseButton from '../../components/common/BaseButton.js'
 import BaseIconButton from '../../components/common/BaseIconButton.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
-import { ArrowBackIcon, ContentCopyIcon, DescriptionIcon } from '../../components/SvgIcon.js'
+import {
+  ArrowBackIcon,
+  BadgeIcon,
+  ContentCopyIcon,
+  DescriptionIcon,
+  KeyIcon,
+  LinkIcon,
+} from '../../components/SvgIcon.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
 import { SettingsPage, SettingsSection } from '../../settings/components/SettingsPage.js'
@@ -95,6 +102,7 @@ export default function ConfigureOpenId() {
     <SettingsPage
       title={provider.data.displayName}
       description={t('oauth2_provider')}
+      sectionGap={0}
       icon={
         provider.data.icon && (
           <Box component="img" alt="" src={provider.data.icon} sx={{ width: 40, height: 40, objectFit: 'contain' }} />
@@ -115,14 +123,25 @@ export default function ConfigureOpenId() {
         />
       }
     >
-      <SettingsSection title={t('oauth2_provider')} description={t('configure_oauth_provider_info')} list={false} />
+      <SettingsSection description={t('configure_oauth_provider_info')} list={false} />
       <SettingsSection title={t('redirect_uri')} list={false}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <TextField
             fullWidth
             size="small"
+            sx={{ mb: 0 }}
             value={provider.data.redirectUri}
-            slotProps={{ input: { readOnly: true } }}
+            slotProps={{
+              input: {
+                readOnly: true,
+                'aria-label': t('redirect_uri'),
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LinkIcon />
+                  </InputAdornment>
+                ),
+              },
+            }}
           />
           <IconButton aria-label={t('copy_to_clipboard')} onClick={() => onCopy(provider.data.redirectUri)}>
             <ContentCopyIcon />
@@ -136,6 +155,16 @@ export default function ConfigureOpenId() {
           value={clientId}
           onChange={(event) => setClientId(event.target.value)}
           placeholder={t('client_secret_placeholder') + provider.data.displayName}
+          slotProps={{
+            input: {
+              'aria-label': t('client_id'),
+              startAdornment: (
+                <InputAdornment position="start">
+                  <BadgeIcon />
+                </InputAdornment>
+              ),
+            },
+          }}
         />
       </SettingsSection>
       <SettingsSection title={t('client_secret')} list={false}>
@@ -146,6 +175,16 @@ export default function ConfigureOpenId() {
           value={clientSecret}
           onChange={(event) => setClientSecret(event.target.value)}
           placeholder={t('client_secret_placeholder') + provider.data.displayName}
+          slotProps={{
+            input: {
+              'aria-label': t('client_secret'),
+              startAdornment: (
+                <InputAdornment position="start">
+                  <KeyIcon />
+                </InputAdornment>
+              ),
+            },
+          }}
         />
       </SettingsSection>
       <Stack direction="row" sx={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
