@@ -17,6 +17,7 @@
  */
 import { ThemeProvider } from '@mui/material/styles'
 import { render, screen } from '@testing-library/react'
+import { userEvent } from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -66,9 +67,49 @@ describe('SettingsNavigation', () => {
     expect(screen.getByRole('link', { name: 'settings_title_general' })).toHaveStyle({ borderRadius: '9999px' })
   })
 
+  it('aligns the settings controls with the navigation rail slots', () => {
+    renderSettingsNavigation('/settings/general/system')
+
+    expect(screen.getByRole('heading', { name: 'settings' })).toHaveStyle({
+      height: '40px',
+      paddingTop: '0px',
+      paddingBottom: '0px',
+    })
+
+    const search = screen.getByRole('textbox', { name: 'Search settings' }).closest('.MuiFormControl-root')
+    if (!search) {
+      throw new Error('Expected the settings search control to have a form-control container')
+    }
+    expect(search).toHaveStyle({ marginTop: '4px', marginBottom: '0px' })
+    expect(screen.getAllByRole('list')[0]).toHaveStyle({ marginTop: '1px' })
+  })
+
   it('keeps a parent page selected while visiting one of its nested routes', () => {
     renderSettingsNavigation('/settings/account/linked-devices/export')
 
     expect(screen.getByRole('link', { name: 'settings_linked_devices' })).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('finds settings from contextual search terms', async () => {
+    const user = userEvent.setup()
+    renderSettingsNavigation('/settings/general/system')
+
+    await user.type(screen.getByRole('textbox', { name: 'Search settings' }), 'moderator')
+
+    expect(screen.getByRole('link', { name: 'settings_calls' })).toHaveAttribute('href', '/settings/account/calls')
+    expect(screen.queryByRole('link', { name: 'settings_title_system' })).not.toBeInTheDocument()
+  })
+
+  it('finds contextual settings outside the calls page', async () => {
+    const user = userEvent.setup()
+    renderSettingsNavigation('/settings/general/system')
+
+    await user.type(screen.getByRole('textbox', { name: 'Search settings' }), 'biometric')
+
+    expect(screen.getByRole('link', { name: 'passkey_section_title' })).toHaveAttribute(
+      'href',
+      '/settings/account/passkeys',
+    )
+    expect(screen.queryByRole('link', { name: 'settings_calls' })).not.toBeInTheDocument()
   })
 })

@@ -24,9 +24,12 @@ import {
   ListItemText,
   ListSubheader,
   Stack,
+  TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material'
-import type { ComponentType, ReactNode } from 'react'
+import { type ComponentType, type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router-dom'
 
@@ -35,6 +38,7 @@ import {
   ChatBubbleIcon,
   DevicesIcon,
   ManageAccountsIcon,
+  SearchRoundedIcon,
   SettingsIcon,
   type SymbolIconProps,
 } from '../../components/SvgIcon.js'
@@ -43,6 +47,7 @@ import { userSettingsPath, type UserSettingsRoutePath, userSettingsRoutePaths } 
 
 interface SettingsNavigationItem {
   icon?: ReactNode
+  searchTerms?: string[]
   titleKey: string
   path: UserSettingsRoutePath
 }
@@ -51,6 +56,7 @@ interface SettingsNavigationSection {
   id: string
   titleKey?: string
   icon?: ComponentType<SymbolIconProps>
+  searchTerms?: string[]
   items: SettingsNavigationItem[]
 }
 
@@ -59,32 +65,62 @@ const sections: SettingsNavigationSection[] = [
     id: 'general',
     titleKey: 'settings_title_general',
     icon: SettingsIcon,
+    searchTerms: ['preferences', 'application'],
     items: [
-      { icon: <SettingsIcon />, titleKey: 'settings_title_system', path: userSettingsRoutePaths.generalSystem },
-      { icon: <SettingsIcon />, titleKey: 'settings_appearance', path: userSettingsRoutePaths.generalAppearance },
-      { icon: <ChatBubbleIcon />, titleKey: 'settings_title_chat', path: userSettingsRoutePaths.generalChat },
+      {
+        icon: <SettingsIcon />,
+        titleKey: 'settings_title_system',
+        path: userSettingsRoutePaths.generalSystem,
+        searchTerms: ['language', 'notification', 'notifications'],
+      },
+      {
+        icon: <SettingsIcon />,
+        titleKey: 'settings_appearance',
+        path: userSettingsRoutePaths.generalAppearance,
+        searchTerms: ['theme', 'dark mode', 'animation', 'animations', 'tips'],
+      },
+      {
+        icon: <ChatBubbleIcon />,
+        titleKey: 'settings_title_chat',
+        path: userSettingsRoutePaths.generalChat,
+        searchTerms: ['link preview', 'links'],
+      },
     ],
   },
   {
     id: 'account',
     titleKey: 'settings_title_account',
     icon: ManageAccountsIcon,
+    searchTerms: ['profile', 'security', 'device'],
     items: [
       {
         icon: <ManageAccountsIcon />,
         titleKey: 'settings_manage_account',
         path: userSettingsRoutePaths.manageAccount,
+        searchTerms: ['jami id', 'account details'],
       },
       {
         titleKey: 'settings_customize_profile',
         path: userSettingsRoutePaths.customizeProfile,
+        searchTerms: ['avatar', 'photo', 'display name', 'picture'],
       },
       {
         titleKey: 'passkey_section_title',
         path: userSettingsRoutePaths.passkeys,
+        searchTerms: ['passkey', 'webauthn', 'security key', 'biometric'],
       },
-      { icon: <AudioCallIcon />, titleKey: 'settings_calls', path: userSettingsRoutePaths.calls },
-      { icon: <DevicesIcon />, titleKey: 'settings_linked_devices', path: userSettingsRoutePaths.linkedDevices },
+      {
+        icon: <AudioCallIcon />,
+        titleKey: 'settings_calls',
+        path: userSettingsRoutePaths.calls,
+        searchTerms: ['moderator', 'moderators', 'conference'],
+      },
+      {
+        icon: <DevicesIcon />,
+        titleKey: 'settings_linked_devices',
+        path: userSettingsRoutePaths.linkedDevices,
+        searchTerms: ['device', 'devices', 'link', 'export', 'transfer'],
+      },
     ],
   },
 ]
@@ -119,22 +155,71 @@ function SettingsNavigationItem({ icon, titleKey, path }: SettingsNavigationItem
 export default function SettingsNavigation() {
   const { t } = useTranslation()
   const { pathname } = useLocation()
+  const theme = useTheme()
+  const isCompact = useMediaQuery(theme.breakpoints.down('md'))
+  const [search, setSearch] = useState('')
+  const normalizedSearch = search.trim().toLocaleLowerCase()
   const activeSectionId = sections.find((section) =>
     section.items.some((item) => isRoutePathActive(pathname, userSettingsPath(item.path))),
   )?.id
 
   return (
     <Stack component="nav" aria-label={t('settings')} sx={{ minHeight: 0, overflowY: 'auto', pb: 2 }}>
-      <Typography variant="h3" sx={{ px: 2, pt: { xs: 2, md: 1 }, pb: 1 }}>
+      <Typography
+        variant="h3"
+        sx={isCompact ? { px: 2, pt: 2, pb: 1 } : { px: 2, height: 40, display: 'flex', alignItems: 'center' }}
+      >
         {t('settings')}
       </Typography>
-      <List disablePadding>
+      <TextField
+        placeholder="Search settings"
+        size="small"
+        value={search}
+        onChange={(event) => setSearch(event.target.value)}
+        slotProps={{
+          htmlInput: { 'aria-label': 'Search settings' },
+          input: {
+            startAdornment: (
+              <SearchRoundedIcon
+                sx={{
+                  color: 'text.secondary',
+                  transition: (theme) => theme.transitions.create('color'),
+                  '.Mui-focused &': { color: 'primary.main' },
+                }}
+              />
+            ),
+          },
+        }}
+        sx={isCompact ? { mx: 1, mb: 1 } : { mx: 1, mt: 0.5, mb: 0 }}
+      />
+      {/* General is 48px high while rail destinations are 40px, so its list
+          starts one pixel below the search field to align their centers. */}
+      <List disablePadding sx={isCompact ? undefined : { mt: '1px' }}>
         {sections.map((section) => {
           const isSelected = activeSectionId === section.id
-          const selectedItemIndex = section.items.findIndex((item) =>
+          const sectionMatches =
+            normalizedSearch.length > 0 &&
+            [section.titleKey && t(section.titleKey), ...(section.searchTerms ?? [])].some((term) =>
+              term?.toLocaleLowerCase().includes(normalizedSearch),
+            )
+          const visibleItems =
+            normalizedSearch.length > 0
+              ? sectionMatches
+                ? section.items
+                : section.items.filter((item) =>
+                    [t(item.titleKey), ...(item.searchTerms ?? [])].some((term) =>
+                      term.toLocaleLowerCase().includes(normalizedSearch),
+                    ),
+                  )
+              : section.items
+          const selectedItemIndex = visibleItems.findIndex((item) =>
             isRoutePathActive(pathname, userSettingsPath(item.path)),
           )
           const SectionIcon = section.icon
+
+          if (normalizedSearch && visibleItems.length === 0) {
+            return null
+          }
 
           return (
             <li key={section.id}>
@@ -162,7 +247,7 @@ export default function SettingsNavigation() {
                   </ButtonBase>
                 </ListSubheader>
               )}
-              <Collapse in={isSelected} timeout="auto" unmountOnExit>
+              <Collapse in={normalizedSearch.length > 0 || isSelected} timeout="auto" unmountOnExit>
                 <List
                   disablePadding
                   sx={
@@ -197,7 +282,7 @@ export default function SettingsNavigation() {
                       : undefined
                   }
                 >
-                  {section.items.map((item) => (
+                  {visibleItems.map((item) => (
                     <SettingsNavigationItem key={item.path} {...item} icon={null} />
                   ))}
                 </List>
