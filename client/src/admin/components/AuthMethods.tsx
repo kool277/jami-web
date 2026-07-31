@@ -58,7 +58,7 @@ export default function AuthMethods() {
             component={NavLink}
             to={`/admin/${AdminSettingSelection.AUTHENTICATION}/${method}`}
             key={method}
-            sx={{ py: 1.5 }}
+            sx={{ height: 64, mx: 1, my: 0.5, py: 1, borderRadius: '16px' }}
           >
             <ListItemText
               primary={title}

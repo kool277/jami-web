@@ -53,7 +53,11 @@ export default function OpenIdAuthMethod() {
           <SettingsRow title={t('no_oauth_providers')} />
         ) : (
           providers.data.map((provider: OAuthProviderSummary) => (
-            <ListItemButton key={provider.name} onClick={() => handleSelection(provider.name)} sx={{ py: 1.5 }}>
+            <ListItemButton
+              key={provider.name}
+              onClick={() => handleSelection(provider.name)}
+              sx={{ height: 64, borderRadius: '16px' }}
+            >
               {provider.icon && (
                 <Box
                   component="img"
