@@ -162,19 +162,16 @@ function AdminPasskeySection() {
           ) : (
             <SettingsRow title={t('passkey_no_credentials')} />
           ))}
-        <SettingsRow
-          title={t('passkey_register_button')}
-          control={
-            <BaseButton
-              variant="outlined"
-              startIcon={<Fingerprint />}
-              onClick={() => setDialogOpen(true)}
-              disabled={registerMutation.isPending}
-            >
-              {t('passkey_register_button')}
-            </BaseButton>
-          }
-        />
+        <Stack sx={{ alignItems: 'flex-end', px: 2, py: 1.5 }}>
+          <BaseButton
+            variant="outlined"
+            startIcon={<Fingerprint />}
+            onClick={() => setDialogOpen(true)}
+            disabled={registerMutation.isPending}
+          >
+            {t('passkey_register_button')}
+          </BaseButton>
+        </Stack>
       </SettingsSection>
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle>{t('passkey_register_button')}</DialogTitle>
