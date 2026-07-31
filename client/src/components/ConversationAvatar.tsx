@@ -23,24 +23,26 @@ import { useTranslation } from 'react-i18next'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { PresenceContext } from '../contexts/PresenceProvider.js'
-import CallPermissionDenied from '../pages/CallPermissionDenied.js'
 import { useContactProfilePicture } from '../services/contactQueries.js'
 import { FileHandler } from '../utils/files.js'
 import { getColor } from '../utils/messagecolor.js'
 import BaseButton from './common/BaseButton.js'
 import BaseIconButton from './common/BaseIconButton.js'
 import FilledIconButton from './common/FilledIconButton.js'
-import RoundIconButton from './common/RoundIconButton.js'
-import { InfosDialog, useDialogHandler } from './Dialog.js'
+import { useDialogHandler } from './Dialog.js'
 import { CircleMaskOverlay, FileDragOverlay } from './Overlay.js'
 import {
   CameraIcon,
   CancelIcon,
   CheckMarkIcon as Check,
   FolderIcon,
+  MoodIcon,
   PenIcon,
   RefreshOutlinedIcon as RefreshOutlined,
-  SaltireIcon,
+  SentimentCalmIcon,
+  SentimentExcitedIcon,
+  Timer3AltIcon,
+  TimerOffIcon,
 } from './SvgIcon.js'
 
 type ConversationAvatarProps = AvatarProps & {
@@ -272,15 +274,19 @@ type PhotoTakerProps = {
   onConfirm: (photoHandler: FileHandler) => void
 }
 
+const photoFeedback = [
+  { messageKey: 'photo_looking_good', Icon: SentimentCalmIcon },
+  { messageKey: 'photo_nice_shot', Icon: MoodIcon },
+  { messageKey: 'photo_smile_approved', Icon: SentimentExcitedIcon },
+] as const
+
 const circleLengthPercentage = '50%'
-const shutterSize = '50px'
-const shutterOutlineWidth = '1px'
-const shutterOutlineOffset = '4px'
-const shutterInnerSize =
-  parseInt(shutterSize) - parseInt(shutterOutlineWidth) * 2 - parseInt(shutterOutlineOffset) * 2 + 'px'
 const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
   const { t } = useTranslation()
   const [isPaused, setIsPaused] = useState(false)
+  const [isTimerEnabled, setIsTimerEnabled] = useState(false)
+  const [countdown, setCountdown] = useState<number | null>(null)
+  const [feedback, setFeedback] = useState<(typeof photoFeedback)[number] | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const [stream, setStream] = useState<MediaStream | null>(null) // video.srcObject is not reliable
   const [permissionState, setPermissionState] = useState<PermissionState>('prompt')
@@ -340,17 +346,51 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
     }
   }, [stream])
 
-  const takePhoto = useCallback(() => {
+  const capturePhoto = useCallback(() => {
     const video = videoRef.current
     video?.pause()
     setIsPaused(true)
+    setFeedback(photoFeedback[Math.floor(Math.random() * photoFeedback.length)])
   }, [])
+
+  const takePhoto = useCallback(() => {
+    if (isTimerEnabled) {
+      setCountdown(3)
+      return
+    }
+
+    capturePhoto()
+  }, [capturePhoto, isTimerEnabled])
+
+  useEffect(() => {
+    if (countdown === null || !open) {
+      return
+    }
+
+    const timer = window.setTimeout(() => {
+      if (countdown === 1) {
+        capturePhoto()
+        setCountdown(null)
+        return
+      }
+
+      setCountdown(countdown - 1)
+    }, 1000)
+    return () => window.clearTimeout(timer)
+  }, [capturePhoto, countdown, open])
 
   const cancelPhoto = useCallback(() => {
     const video = videoRef.current
     video?.play()
     setIsPaused(false)
+    setFeedback(null)
   }, [])
+
+  const closePhotoTaker = useCallback(() => {
+    setCountdown(null)
+    setFeedback(null)
+    onClose()
+  }, [onClose])
 
   const savePhoto = useCallback(async () => {
     const video = videoRef.current
@@ -376,96 +416,127 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
         const file = new File([blob], 'avatar.jpg', { type: 'image/jpeg' })
         const fileHandler = new FileHandler(file)
         onConfirm(fileHandler)
-        onClose()
+        closePhotoTaker()
       }
     }
-  }, [onConfirm, onClose])
+  }, [closePhotoTaker, onConfirm])
 
   if (permissionState === 'denied') {
-    // TODO: UI needs to be improved
-    return <InfosDialog title="" open={open} onClose={onClose} content={<CallPermissionDenied />} />
+    return (
+      <Dialog open={open} onClose={closePhotoTaker}>
+        <Stack
+          spacing={2}
+          sx={{
+            width: 360,
+            minHeight: 280,
+            px: 4,
+            py: 5,
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+          }}
+        >
+          <Box component="img" src="/jami-failure.svg" alt="" sx={{ width: 96, height: 96 }} />
+          <Typography variant="h5">{t('permission_denied_title')}</Typography>
+          <Typography color="text.secondary" variant="body2">
+            {t('permission_denied_details')}
+          </Typography>
+          <BaseButton onClick={closePhotoTaker}>{t('dialog_close')}</BaseButton>
+        </Stack>
+      </Dialog>
+    )
   }
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={closePhotoTaker}>
       <Stack>
         <Stack
           sx={{
             position: 'relative',
           }}
         >
-          <BaseIconButton
-            aria-label={t('photo_camera_close')}
-            tooltip={t('photo_camera_close')}
-            sx={{
-              position: 'absolute',
-              top: '20px',
-              right: '20px',
-              zIndex: 200,
-              color: 'common.white',
-              fontSize: '10px',
-            }}
-            onClick={onClose}
-          >
-            <SaltireIcon fontSize="inherit" />
-          </BaseIconButton>
           {stream && <CircleMaskOverlay size={circleLengthPercentage} />}
+          {countdown !== null && (
+            <Box
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                display: 'grid',
+                placeItems: 'center',
+                color: 'common.white',
+                typography: 'h1',
+                fontWeight: 700,
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.7)',
+                zIndex: 100,
+              }}
+            >
+              {countdown}
+            </Box>
+          )}
           <video ref={setVideoRef} style={{ transform: 'rotateY(180deg)' /* mirror */ }} />
         </Stack>
         <Stack
-          direction="row"
-          spacing="10px"
+          spacing={2}
           sx={{
-            height: '89px',
+            minHeight: isPaused ? '128px' : '89px',
+            pt: isPaused ? 2 : 0,
             justifyContent: 'center',
             alignItems: 'center',
           }}
         >
-          {isPaused ? (
-            <>
-              <RoundIconButton
-                aria-label={t('photo_retake')}
-                tooltip={t('photo_retake')}
-                size="large"
-                sx={{ fontSize: '40px' }}
-                onClick={cancelPhoto}
-              >
-                <RefreshOutlined fontSize="inherit" />
-              </RoundIconButton>
-              <RoundIconButton
-                aria-label={t('photo_confirm')}
-                tooltip={t('photo_confirm')}
-                size="large"
-                sx={{ fontSize: '40px' }}
-                onClick={savePhoto}
-              >
-                <Check fontSize="inherit" />
-              </RoundIconButton>
-            </>
-          ) : (
-            <BaseIconButton
-              aria-label={t('photo_capture')}
-              tooltip={t('photo_capture')}
-              sx={{ width: shutterSize, height: shutterSize, padding: 0 }}
-              onClick={takePhoto}
-            >
-              <Box
-                sx={{
-                  width: shutterInnerSize,
-                  height: shutterInnerSize,
-                  borderRadius: '100%',
-                  outline: `${shutterOutlineWidth} solid`,
-                  outlineColor: 'error.light',
-                  outlineOffset: shutterOutlineOffset,
-                  backgroundColor: 'error.light',
-                  '&:hover': {
-                    outlineColor: 'error.main',
-                    backgroundColor: 'error.main',
-                  },
-                }}
-              />
-            </BaseIconButton>
+          {isPaused && feedback && (
+            <Typography sx={{ display: 'flex', alignItems: 'center', gap: 1 }} variant="h3">
+              <feedback.Icon fontSize="large" />
+              {t(feedback.messageKey)}
+            </Typography>
           )}
+          <Stack direction="row" spacing="10px">
+            {isPaused ? (
+              <>
+                <FilledIconButton
+                  aria-label={t('photo_retake')}
+                  tooltip={t('photo_retake')}
+                  size="large"
+                  sx={{ width: 48, height: 48 }}
+                  onClick={cancelPhoto}
+                >
+                  <RefreshOutlined fontSize="large" />
+                </FilledIconButton>
+                <FilledIconButton
+                  aria-label={t('photo_confirm')}
+                  tooltip={t('photo_confirm')}
+                  size="large"
+                  sx={{ width: 48, height: 48 }}
+                  onClick={savePhoto}
+                >
+                  <Check fontSize="large" />
+                </FilledIconButton>
+              </>
+            ) : (
+              <>
+                <BaseIconButton
+                  aria-label={t('photo_capture')}
+                  tooltip={t('photo_capture')}
+                  size="large"
+                  disabled={countdown !== null}
+                  onClick={takePhoto}
+                >
+                  <CameraIcon />
+                </BaseIconButton>
+                <BaseIconButton
+                  aria-label={t('photo_timer')}
+                  aria-pressed={isTimerEnabled}
+                  tooltip={t(isTimerEnabled ? 'photo_timer_disable' : 'photo_timer_enable')}
+                  size="large"
+                  disabled={countdown !== null}
+                  sx={{ color: isTimerEnabled ? 'primary.main' : undefined }}
+                  onClick={() => setIsTimerEnabled((enabled) => !enabled)}
+                >
+                  {isTimerEnabled ? <Timer3AltIcon /> : <TimerOffIcon />}
+                </BaseIconButton>
+              </>
+            )}
+          </Stack>
         </Stack>
       </Stack>
     </Dialog>
