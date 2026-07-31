@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Input, Stack, Switch } from '@mui/material'
+import { Stack, Switch, TextField } from '@mui/material'
 import { urlRegex } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -24,7 +24,7 @@ import { Form, Navigate } from 'react-router-dom'
 import BaseButton from '../../components/common/BaseButton.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
-import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
+import { SettingsPage, SettingsSection } from '../../settings/components/SettingsPage.js'
 import {
   useGetAdminConfigQuery,
   useGetJamsUrl,
@@ -87,23 +87,28 @@ const JamsAuthMethodForm = ({
   }
 
   return (
-    <SettingsPage title={t('jams_authentication')} description={t('jams_authentication_info')} descriptionOnOwnLine>
-      <SettingsSection list={false}>
-        <SettingsRow
-          title={t('setting_auth_change', { authMethod: t('jams') })}
-          control={<Switch checked={data.jamsAuthEnabled} onChange={handleChange} />}
+    <SettingsPage
+      title={t('jams_authentication')}
+      description={t('jams_authentication_info')}
+      descriptionOnOwnLine
+      headerEndAction={
+        <Switch
+          checked={data.jamsAuthEnabled}
+          onChange={handleChange}
+          slotProps={{ input: { 'aria-label': t('setting_auth_change', { authMethod: t('jams') }) } }}
         />
-      </SettingsSection>
+      }
+    >
       <SettingsSection title={t('jams_url')} list={false}>
         <Form>
           <Stack spacing={2}>
-            <Input
+            <TextField
               id="jams-url-input"
               fullWidth
               value={jamsUrl}
               onChange={(event: ChangeEvent<HTMLInputElement>) => setJamsUrl(event.target.value)}
               placeholder={t('enter_jams_server')}
-              inputProps={{ 'aria-label': t('jams_url') }}
+              slotProps={{ input: { 'aria-label': t('jams_url') } }}
             />
             <BaseButton variant="contained" type="submit" onClick={submitNewJamsUrl} sx={{ alignSelf: 'flex-end' }}>
               {t('save_button')}

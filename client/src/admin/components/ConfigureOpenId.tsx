@@ -27,7 +27,7 @@ import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { ArrowBackIcon, ContentCopyIcon, DescriptionIcon } from '../../components/SvgIcon.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
-import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
+import { SettingsPage, SettingsSection } from '../../settings/components/SettingsPage.js'
 import { useGetProviderInfo, useUpdateProviderInfo } from '../services/adminQueries.js'
 
 export default function ConfigureOpenId() {
@@ -105,13 +105,17 @@ export default function ConfigureOpenId() {
           <ArrowBackIcon />
         </BaseIconButton>
       }
-    >
-      <SettingsSection title={t('oauth2_provider')} description={t('configure_oauth_provider_info')} list={false}>
-        <SettingsRow
-          title={t('setting_auth_change', { authMethod: provider.data.displayName })}
-          control={<Switch checked={provider.data.isActive} onChange={onSwitchChange} />}
+      headerEndAction={
+        <Switch
+          checked={provider.data.isActive}
+          onChange={onSwitchChange}
+          slotProps={{
+            input: { 'aria-label': t('setting_auth_change', { authMethod: provider.data.displayName }) },
+          }}
         />
-      </SettingsSection>
+      }
+    >
+      <SettingsSection title={t('oauth2_provider')} description={t('configure_oauth_provider_info')} list={false} />
       <SettingsSection title={t('redirect_uri')} list={false}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <TextField

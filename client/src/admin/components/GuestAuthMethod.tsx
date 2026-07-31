@@ -20,7 +20,7 @@ import { Switch } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
 import ProcessingRequest from '../../components/ProcessingRequest.js'
-import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
+import { SettingsPage } from '../../settings/components/SettingsPage.js'
 import { useGetAdminConfigQuery, useUpdateAdminConfigMutation } from '../services/adminQueries.js'
 
 export default function GuestAuthMethod() {
@@ -38,13 +38,17 @@ export default function GuestAuthMethod() {
   }
 
   return (
-    <SettingsPage title={t('guest_authentication')} description={t('guest_authentication_info')} descriptionOnOwnLine>
-      <SettingsSection list={false}>
-        <SettingsRow
-          title={t('setting_auth_change', { authMethod: t('guest') })}
-          control={<Switch checked={data.guestAccessEnabled} onChange={handleChange} />}
+    <SettingsPage
+      title={t('guest_authentication')}
+      description={t('guest_authentication_info')}
+      descriptionOnOwnLine
+      headerEndAction={
+        <Switch
+          checked={data.guestAccessEnabled}
+          onChange={handleChange}
+          slotProps={{ input: { 'aria-label': t('setting_auth_change', { authMethod: t('guest') }) } }}
         />
-      </SettingsSection>
-    </SettingsPage>
+      }
+    />
   )
 }

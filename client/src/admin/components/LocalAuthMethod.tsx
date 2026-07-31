@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Input, Stack, Switch } from '@mui/material'
+import { Stack, Switch, TextField } from '@mui/material'
 import { urlRegex } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -24,7 +24,7 @@ import { Form, Navigate } from 'react-router-dom'
 import BaseButton from '../../components/common/BaseButton.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
-import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
+import { SettingsPage, SettingsSection } from '../../settings/components/SettingsPage.js'
 import {
   useGetAdminConfigQuery,
   useGetNameServer,
@@ -82,22 +82,27 @@ const LocalAuthMethodForm = ({
   }
 
   return (
-    <SettingsPage title={t('jami_authentication')} description={t('jami_authentication_info')} descriptionOnOwnLine>
-      <SettingsSection list={false}>
-        <SettingsRow
-          title={t('setting_auth_change', { authMethod: t('jami') })}
-          control={<Switch checked={data.localAuthEnabled} onChange={handleChange} />}
+    <SettingsPage
+      title={t('jami_authentication')}
+      description={t('jami_authentication_info')}
+      descriptionOnOwnLine
+      headerEndAction={
+        <Switch
+          checked={data.localAuthEnabled}
+          onChange={handleChange}
+          slotProps={{ input: { 'aria-label': t('setting_auth_change', { authMethod: t('jami') }) } }}
         />
-      </SettingsSection>
+      }
+    >
       <SettingsSection title={t('setting_name_server')} list={false}>
         <Form>
           <Stack spacing={2}>
-            <Input
+            <TextField
               id="name-server-input"
               fullWidth
               value={nameServer}
               onChange={(event: ChangeEvent<HTMLInputElement>) => setNameServer(event.target.value)}
-              inputProps={{ 'aria-label': t('setting_name_server') }}
+              slotProps={{ input: { 'aria-label': t('setting_name_server') } }}
             />
             <Stack direction="row" sx={{ justifyContent: 'flex-end', flexWrap: 'wrap', gap: 1 }}>
               <BaseButton variant="contained" onClick={() => resetServerNameMutation.mutate()}>

@@ -62,4 +62,15 @@ describe('SettingsPage', () => {
 
     expect(title.parentElement).not.toContainElement(description)
   })
+
+  it('keeps a trailing header action alongside the page title', () => {
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <SettingsPage title="Jami authentication" headerEndAction={<Button>Enabled</Button>} />
+      </ThemeProvider>,
+    )
+
+    const title = screen.getByRole('heading', { level: 1, name: 'Jami authentication' })
+    expect(title.parentElement?.parentElement).toContainElement(screen.getByRole('button', { name: 'Enabled' }))
+  })
 })

@@ -28,7 +28,8 @@ interface SettingsPageProps {
   descriptionOnOwnLine?: boolean
   icon?: ReactNode
   headerAction?: ReactNode
-  children: ReactNode
+  headerEndAction?: ReactNode
+  children?: ReactNode
 }
 
 export function SettingsPage({
@@ -37,9 +38,10 @@ export function SettingsPage({
   descriptionOnOwnLine = false,
   icon,
   headerAction,
+  headerEndAction,
   children,
 }: SettingsPageProps) {
-  const hasHeader = title || description || icon || headerAction
+  const hasHeader = title || description || icon || headerAction || headerEndAction
 
   return (
     <Box component="article" sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
@@ -47,7 +49,7 @@ export function SettingsPage({
         <Island data-testid="settings-page-island" sx={{ p: ISLAND_PADDING, gap: 0, boxShadow: 2 }}>
           {hasHeader && (
             <Stack sx={{ px: 2, pt: { xs: 2, md: 1 }, pb: description ? 0 : 1 }}>
-              <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+              <Stack direction="row" spacing={1.5} useFlexGap sx={{ alignItems: 'center' }}>
                 {headerAction}
                 {icon}
                 <Stack sx={{ gap: 0.5 }}>
@@ -62,6 +64,7 @@ export function SettingsPage({
                     </Typography>
                   )}
                 </Stack>
+                {headerEndAction && <Box sx={{ ml: 'auto', flexShrink: 0 }}>{headerEndAction}</Box>}
               </Stack>
               {description && descriptionOnOwnLine && (
                 <Typography color="text.secondary" variant="body2" sx={{ mt: 1.5 }}>
@@ -91,10 +94,11 @@ interface SettingsSectionProps extends StackProps {
   title?: string
   description?: string
   list?: boolean
-  children: ReactNode
+  children?: ReactNode
 }
 
 export function SettingsSection({ title, description, list = true, children, ...props }: SettingsSectionProps) {
+  const hasContent = children !== undefined && children !== null
   const heading = (title || description) && (
     <Stack sx={{ gap: 0.25 }}>
       {title && (
@@ -120,14 +124,16 @@ export function SettingsSection({ title, description, list = true, children, ...
         {list ? (
           <>
             {heading && <Stack sx={{ px: 2, pt: 1.5 }}>{heading}</Stack>}
-            <List disablePadding sx={heading ? { '& > :first-of-type': { pt: 0.5 } } : undefined}>
-              {children}
-            </List>
+            {hasContent && (
+              <List disablePadding sx={heading ? { '& > :first-of-type': { pt: 0.5 } } : undefined}>
+                {children}
+              </List>
+            )}
           </>
         ) : (
           <>
             {heading && <Stack sx={{ px: 2, pt: 1.5 }}>{heading}</Stack>}
-            <Stack sx={heading ? { px: 2, pt: 0.5, pb: 2 } : { p: 2 }}>{children}</Stack>
+            {hasContent && <Stack sx={heading ? { px: 2, pt: 0.5, pb: 2 } : { p: 2 }}>{children}</Stack>}
           </>
         )}
       </Stack>
@@ -165,7 +171,9 @@ export function SettingsRow({ title, description, control, sx, ...props }: Setti
           </Typography>
         )}
       </Stack>
-      {control && <Box sx={{ flexShrink: 0, ml: { xs: 'auto', sm: 0 } }}>{control}</Box>}
+      {control && (
+        <Box sx={{ flexShrink: 0, ml: { xs: 'auto', sm: 0 }, '& .MuiFormControl-root': { mb: 0 } }}>{control}</Box>
+      )}
     </ListItem>
   )
 }
