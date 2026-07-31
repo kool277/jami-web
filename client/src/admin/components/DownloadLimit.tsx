@@ -16,11 +16,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { TextField } from '@mui/material'
+import { Stack, TextField } from '@mui/material'
+import { defaultAutoDownloadLimit } from '@savoirfairelinux/jami-web-common'
 import { use, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import BaseButton from '../../components/common/BaseButton.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
+import { SettingsBackupRestoreIcon } from '../../components/SvgIcon.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { useGetAutoDownloadLimit } from '../../services/dataTransferQueries.js'
 import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
@@ -39,8 +42,9 @@ export default function DownloadLimit() {
 const DownloadLimitForm = ({ configuredLimit }: { configuredLimit: number }) => {
   const [currentLimit, setCurrentLimit] = useState<number>(configuredLimit)
   const currentLimitRef = useRef<number>(configuredLimit)
+  const savedLimitRef = useRef<number>(configuredLimit)
   const { setAlertContent } = use(AlertSnackbarContext)
-  const { mutate } = useSetAutoDownloadLimit()
+  const { mutate, isPending } = useSetAutoDownloadLimit()
   const { t } = useTranslation()
 
   const handleLimitChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,13 +64,20 @@ const DownloadLimitForm = ({ configuredLimit }: { configuredLimit: number }) => 
           alertOpen: true,
         })
         return
-      } else if (limit === configuredLimit) {
+      } else if (limit === savedLimitRef.current) {
         return
       }
+      savedLimitRef.current = limit
       mutate(limit)
     },
-    [configuredLimit, mutate, setAlertContent],
+    [mutate, setAlertContent],
   )
+
+  const resetToDefault = () => {
+    setCurrentLimit(defaultAutoDownloadLimit)
+    currentLimitRef.current = defaultAutoDownloadLimit
+    saveIfNeeded(defaultAutoDownloadLimit)
+  }
 
   useEffect(() => {
     return () => {
@@ -76,10 +87,9 @@ const DownloadLimitForm = ({ configuredLimit }: { configuredLimit: number }) => 
 
   return (
     <SettingsPage title={t('download_limit')} description={t('download_limit_details')}>
-      <SettingsSection title={t('download_limit')} list={false}>
+      <SettingsSection list={false}>
         <SettingsRow
           title={t('download_limit')}
-          description={t('download_limit_details')}
           control={
             <TextField
               type="number"
@@ -90,6 +100,16 @@ const DownloadLimitForm = ({ configuredLimit }: { configuredLimit: number }) => 
             />
           }
         />
+        <Stack direction="row" sx={{ alignSelf: 'flex-end' }}>
+          <BaseButton
+            variant="outlined"
+            startIcon={<SettingsBackupRestoreIcon />}
+            onClick={resetToDefault}
+            disabled={currentLimit === defaultAutoDownloadLimit || isPending}
+          >
+            {t('reset_to_default')}
+          </BaseButton>
+        </Stack>
       </SettingsSection>
     </SettingsPage>
   )

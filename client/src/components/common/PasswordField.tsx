@@ -16,15 +16,21 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { InputAdornment, TextField, type TextFieldProps } from '@mui/material'
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { CrossedEyeIcon, EyeIcon } from '../SvgIcon.js'
 import BaseIconButton from './BaseIconButton.js'
 
-export type PasswordFieldProps = Omit<TextFieldProps, 'slotProps'>
+export type PasswordFieldProps = Omit<TextFieldProps, 'slotProps'> & {
+  startAdornment?: ReactNode
+}
 
-export default function PasswordField({ autoComplete = 'current-password', ...props }: PasswordFieldProps) {
+export default function PasswordField({
+  autoComplete = 'current-password',
+  startAdornment,
+  ...props
+}: PasswordFieldProps) {
   const { t } = useTranslation()
   const [visible, setVisible] = useState(false)
   const label = visible ? t('password_hide') : t('password_show')
@@ -36,6 +42,7 @@ export default function PasswordField({ autoComplete = 'current-password', ...pr
       type={visible ? 'text' : 'password'}
       slotProps={{
         input: {
+          startAdornment: startAdornment && <InputAdornment position="start">{startAdornment}</InputAdornment>,
           endAdornment: (
             <InputAdornment position="end">
               <BaseIconButton

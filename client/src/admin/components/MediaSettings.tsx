@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { MenuItem, Switch, TextField, Typography } from '@mui/material'
+import { Switch, Typography } from '@mui/material'
 import {
   ConferenceResolution,
   conferenceResolutionValues,
@@ -25,6 +25,7 @@ import {
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { CustomSelect, type SelectOption } from '../../components/CustomSelect.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { useGetConferenceResolution } from '../../services/dataTransferQueries.js'
 import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
@@ -77,8 +78,17 @@ const MediaSettingsForm = ({
     saveAdminConfigMutation.mutate({ noLocalMediaEnabled: !noLocalMediaEnabled })
   }
 
-  const handleConferenceResolutionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const nextResolution = event.target.value as ConferenceResolution
+  const resolutionOptions: SelectOption<ConferenceResolution>[] = conferenceResolutionValues.map((resolution) => ({
+    label: t(`conference_resolution_option_${resolution}`),
+    payload: resolution,
+  }))
+
+  const handleConferenceResolutionChange = (option: SelectOption<ConferenceResolution> | null) => {
+    if (!option) {
+      return
+    }
+
+    const nextResolution = option.payload
     setConferenceResolution(nextResolution)
     if (nextResolution && nextResolution !== configuredConferenceResolution) {
       mutate(nextResolution)
@@ -87,7 +97,7 @@ const MediaSettingsForm = ({
 
   return (
     <SettingsPage title={t('media_settings')} description={t('media_settings_details')}>
-      <SettingsSection title={t('media_settings')} list={false}>
+      <SettingsSection list={false}>
         <SettingsRow
           title={t('no_local_media')}
           description={t('no_local_media_details')}
@@ -97,19 +107,12 @@ const MediaSettingsForm = ({
           title={t('conference_resolution')}
           description={t('conference_resolution_details')}
           control={
-            <TextField
-              select
-              value={conferenceResolution}
-              size="small"
-              sx={{ minWidth: 220 }}
+            <CustomSelect
+              option={resolutionOptions.find((option) => option.payload === conferenceResolution)}
+              options={resolutionOptions}
               onChange={handleConferenceResolutionChange}
-            >
-              {conferenceResolutionValues.map((resolution) => (
-                <MenuItem key={resolution} value={resolution}>
-                  {t(`conference_resolution_option_${resolution}`)}
-                </MenuItem>
-              ))}
-            </TextField>
+              size="small"
+            />
           }
         />
         <Typography color="text.secondary" variant="body2">

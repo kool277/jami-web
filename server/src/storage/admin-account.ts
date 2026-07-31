@@ -20,6 +20,7 @@ import { writeFile } from 'node:fs/promises'
 
 import {
   AdminWizardState,
+  defaultAutoDownloadLimit,
   defaultConferenceResolution,
   IAdminAccount,
   IAdminConfigState,
@@ -105,7 +106,7 @@ export class AdminAccount {
   init() {
     this.adminAccount.config = this.defaultConfig()
     this.adminAccount.lastWizardState = AdminWizardState.account
-    this.adminAccount.autoDownloadLimit = 20 // default value
+    this.adminAccount.autoDownloadLimit = defaultAutoDownloadLimit
     if (!this.adminAccount.openIdProviders) {
       this.adminAccount.openIdProviders = {}
     }
@@ -188,7 +189,7 @@ export class AdminAccount {
 
   setAutoDownloadLimit(limit: number) {
     if (!('autoDownloadLimit' in this.adminAccount)) {
-      this.adminAccount.autoDownloadLimit = 20
+      this.adminAccount.autoDownloadLimit = defaultAutoDownloadLimit
     }
     if (limit < 0) {
       return
@@ -198,7 +199,7 @@ export class AdminAccount {
 
   getAutoDownloadLimit() {
     if (!('autoDownloadLimit' in this.adminAccount)) {
-      this.adminAccount.autoDownloadLimit = 20
+      this.adminAccount.autoDownloadLimit = defaultAutoDownloadLimit
     }
     return this.adminAccount.autoDownloadLimit
   }

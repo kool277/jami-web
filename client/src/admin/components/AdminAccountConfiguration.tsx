@@ -32,7 +32,7 @@ import { useTranslation } from 'react-i18next'
 
 import BaseButton from '../../components/common/BaseButton.js'
 import PasswordField from '../../components/common/PasswordField.js'
-import { DeleteIcon } from '../../components/SvgIcon.js'
+import { DeleteIcon, PasswordIcon } from '../../components/SvgIcon.js'
 import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
 import {
   useAdminDeletePasskeyMutation,
@@ -76,18 +76,21 @@ export default function AuthMethods() {
             label={t('admin_page_password_old_placeholder')}
             value={oldPassword}
             onChange={(event) => setOldPassword(event.target.value)}
+            startAdornment={<PasswordIcon />}
           />
           <PasswordField
             label={t('admin_page_password_placeholder')}
             value={newPassword}
             onChange={(event) => setNewPassword(event.target.value)}
             autoComplete="new-password"
+            startAdornment={<PasswordIcon />}
           />
           <PasswordField
             label={t('admin_page_password_repeat_placeholder')}
             value={repeatPassword}
             onChange={(event) => setRepeatPassword(event.target.value)}
             autoComplete="new-password"
+            startAdornment={<PasswordIcon />}
           />
           <Typography
             variant="caption"
@@ -161,16 +164,20 @@ function AdminPasskeySection() {
           ) : (
             <SettingsRow title={t('passkey_no_credentials')} />
           ))}
+        <SettingsRow
+          title={t('passkey_register_button')}
+          control={
+            <BaseButton
+              variant="outlined"
+              startIcon={<Fingerprint />}
+              onClick={() => setDialogOpen(true)}
+              disabled={registerMutation.isPending}
+            >
+              {t('passkey_register_button')}
+            </BaseButton>
+          }
+        />
       </SettingsSection>
-      <BaseButton
-        variant="outlined"
-        startIcon={<Fingerprint />}
-        onClick={() => setDialogOpen(true)}
-        disabled={registerMutation.isPending}
-        sx={{ alignSelf: 'flex-start' }}
-      >
-        {t('passkey_register_button')}
-      </BaseButton>
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle>{t('passkey_register_button')}</DialogTitle>
         <DialogContent>

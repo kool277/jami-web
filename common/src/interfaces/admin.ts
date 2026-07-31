@@ -21,6 +21,7 @@ import { AdminWizardState } from '../enums/admin-wizard-state.js'
 export const conferenceResolutionValues = ['720p', '1080p', '1440p'] as const
 export type ConferenceResolution = (typeof conferenceResolutionValues)[number]
 export const defaultConferenceResolution: ConferenceResolution = '720p'
+export const defaultAutoDownloadLimit = 20
 
 export interface IAdminConfigState {
   localAuthEnabled: boolean
