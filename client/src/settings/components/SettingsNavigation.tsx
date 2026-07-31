@@ -26,9 +26,9 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import { cloneElement, isValidElement, type ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NavLink, useLocation, useMatch } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
 import {
   AudioCallIcon,
@@ -36,7 +36,9 @@ import {
   DevicesIcon,
   ManageAccountsIcon,
   SettingsIcon,
+  type SymbolIconProps,
 } from '../../components/SvgIcon.js'
+import { isRoutePathActive } from '../../utils/routes.js'
 import { userSettingsPath, type UserSettingsRoutePath, userSettingsRoutePaths } from '../routes.js'
 
 interface SettingsNavigationItem {
@@ -48,7 +50,7 @@ interface SettingsNavigationItem {
 interface SettingsNavigationSection {
   id: string
   titleKey?: string
-  icon?: ReactNode
+  icon?: ComponentType<SymbolIconProps>
   items: SettingsNavigationItem[]
 }
 
@@ -56,7 +58,7 @@ const sections: SettingsNavigationSection[] = [
   {
     id: 'general',
     titleKey: 'settings_title_general',
-    icon: <SettingsIcon />,
+    icon: SettingsIcon,
     items: [
       { icon: <SettingsIcon />, titleKey: 'settings_title_system', path: userSettingsRoutePaths.generalSystem },
       { icon: <SettingsIcon />, titleKey: 'settings_appearance', path: userSettingsRoutePaths.generalAppearance },
@@ -66,7 +68,7 @@ const sections: SettingsNavigationSection[] = [
   {
     id: 'account',
     titleKey: 'settings_title_account',
-    icon: <ManageAccountsIcon />,
+    icon: ManageAccountsIcon,
     items: [
       {
         icon: <ManageAccountsIcon />,
@@ -89,14 +91,15 @@ const sections: SettingsNavigationSection[] = [
 
 function SettingsNavigationItem({ icon, titleKey, path }: SettingsNavigationItem) {
   const { t } = useTranslation()
+  const { pathname } = useLocation()
   const to = userSettingsPath(path)
-  const selected = useMatch({ path: to, end: true }) !== null
+  const selected = isRoutePathActive(pathname, to)
 
   return (
     <ListItemButton
       component={NavLink}
       to={to}
-      end
+      aria-current={selected ? 'page' : undefined}
       sx={{
         minHeight: 32,
         py: 0,
@@ -117,7 +120,7 @@ export default function SettingsNavigation() {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const activeSectionId = sections.find((section) =>
-    section.items.some((item) => userSettingsPath(item.path) === pathname),
+    section.items.some((item) => isRoutePathActive(pathname, userSettingsPath(item.path))),
   )?.id
 
   return (
@@ -128,7 +131,10 @@ export default function SettingsNavigation() {
       <List disablePadding>
         {sections.map((section) => {
           const isSelected = activeSectionId === section.id
-          const selectedItemIndex = section.items.findIndex((item) => userSettingsPath(item.path) === pathname)
+          const selectedItemIndex = section.items.findIndex((item) =>
+            isRoutePathActive(pathname, userSettingsPath(item.path)),
+          )
+          const SectionIcon = section.icon
 
           return (
             <li key={section.id}>
@@ -151,8 +157,7 @@ export default function SettingsNavigation() {
                       backgroundColor: isSelected ? 'primary.light' : 'transparent',
                     }}
                   >
-                    {isValidElement(section.icon) &&
-                      cloneElement(section.icon, { filled: isSelected } as Record<string, boolean>)}
+                    {SectionIcon && <SectionIcon filled={isSelected} />}
                     {t(section.titleKey)}
                   </ButtonBase>
                 </ListSubheader>

@@ -65,4 +65,10 @@ describe('SettingsNavigation', () => {
 
     expect(screen.getByRole('link', { name: 'settings_title_general' })).toHaveStyle({ borderRadius: '9999px' })
   })
+
+  it('keeps a parent page selected while visiting one of its nested routes', () => {
+    renderSettingsNavigation('/settings/account/linked-devices/export')
+
+    expect(screen.getByRole('link', { name: 'settings_linked_devices' })).toHaveAttribute('aria-current', 'page')
+  })
 })

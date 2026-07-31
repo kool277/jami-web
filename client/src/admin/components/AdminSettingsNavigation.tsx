@@ -25,6 +25,7 @@ import BaseButton from '../../components/common/BaseButton.js'
 import { AdminPanelSettingsIcon, GppMaybeIcon, LogoutIcon, ManageAccountsIcon } from '../../components/SvgIcon.js'
 import { AdminConfigurationOptions } from '../../enums/adminConfigurationOptions.js'
 import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
+import { isRoutePathActive } from '../../utils/routes.js'
 
 interface NavigationItem {
   title: string
@@ -113,9 +114,8 @@ export default function AdminSettingsNavigation() {
       </Typography>
       <List disablePadding>
         {sections.map((section) => {
-          const isSelected = pathname === section.activePath || pathname.startsWith(`${section.activePath}/`)
-          const selectedItemIndex =
-            section.items?.findIndex((item) => pathname === item.path || pathname.startsWith(`${item.path}/`)) ?? -1
+          const isSelected = isRoutePathActive(pathname, section.activePath)
+          const selectedItemIndex = section.items?.findIndex((item) => isRoutePathActive(pathname, item.path)) ?? -1
 
           return (
             <li key={section.id}>
@@ -174,14 +174,14 @@ export default function AdminSettingsNavigation() {
                     }}
                   >
                     {section.items.map((item) => {
-                      const selected = pathname === item.path || pathname.startsWith(`${item.path}/`)
+                      const selected = isRoutePathActive(pathname, item.path)
 
                       return (
                         <ListItemButton
                           key={item.path}
                           component={NavLink}
                           to={item.path}
-                          end
+                          aria-current={selected ? 'page' : undefined}
                           sx={{
                             minHeight: 32,
                             py: 0,
