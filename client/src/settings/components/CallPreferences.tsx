@@ -15,23 +15,13 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { keyframes } from '@emotion/react'
-import {
-  Autocomplete,
-  Box,
-  IconButton,
-  InputAdornment,
-  Paper,
-  type PaperProps,
-  Stack,
-  Switch,
-  TextField,
-} from '@mui/material'
+import { Autocomplete, Box, IconButton, InputAdornment, Stack, Switch, TextField } from '@mui/material'
 import { AccountDetails } from '@savoirfairelinux/jami-web-common'
 import { motion } from 'framer-motion'
-import { forwardRef, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useAutocompleteMenuAnimation } from '../../components/common/useAutocompleteMenuAnimation.js'
 import { ContactIdentity } from '../../components/ContactIdentity.js'
 import ConversationAvatar from '../../components/ConversationAvatar.js'
 import { AddModeratorIcon, DeleteIcon } from '../../components/SvgIcon.js'
@@ -45,77 +35,19 @@ import {
 import { thumbnailVariants } from '../../themes/MotionVariants.js'
 import { SettingsRow, SettingsSection } from './SettingsPage.js'
 
-const expandModeratorMenu = keyframes`
-  from {
-    opacity: 0;
-    transform: scaleY(0);
-  }
-
-  to {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-`
-
-const collapseModeratorMenu = keyframes`
-  from {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-
-  to {
-    opacity: 0;
-    transform: scaleY(0);
-  }
-`
-
-const AnimatedAutocompletePaper = forwardRef<HTMLDivElement, PaperProps>(function AnimatedAutocompletePaper(
-  { children, ...props },
-  ref,
-) {
-  return (
-    <Paper ref={ref} {...props} sx={{ animation: `${expandModeratorMenu} 180ms ease-out`, transformOrigin: 'top' }}>
-      {children}
-    </Paper>
-  )
-})
-
-const CollapsingAutocompletePaper = forwardRef<HTMLDivElement, PaperProps>(function CollapsingAutocompletePaper(
-  { children, ...props },
-  ref,
-) {
-  return (
-    <Paper
-      ref={ref}
-      {...props}
-      sx={{ animation: `${collapseModeratorMenu} 180ms ease-out forwards`, transformOrigin: 'top' }}
-    >
-      {children}
-    </Paper>
-  )
-})
-
 export default function CallPreferences() {
   const { t } = useTranslation()
   const { account, axiosInstance } = useAuthContext()
 
   const [moderators, setModerators] = useState(account.defaultModerators)
   const [defaultModeratorUri, setDefaultModeratorUri] = useState('')
-  const [isModeratorMenuOpen, setIsModeratorMenuOpen] = useState(false)
-  const [isModeratorMenuClosing, setIsModeratorMenuClosing] = useState(false)
   const [details, setDetails] = useState(account.details)
   const moderatorInputId = useId()
-  const moderatorMenuCloseTimer = useRef<number | undefined>(undefined)
+  const moderatorMenuAnimation = useAutocompleteMenuAnimation()
   const contactListQuery = useContactListQuery()
   const contactsSearchQuery = useContactsSearchQuery(defaultModeratorUri)
   const jamsContactsSearchQuery = useJamsContactsSearchQuery(defaultModeratorUri)
 
-  useEffect(
-    () => () => {
-      window.clearTimeout(moderatorMenuCloseTimer.current)
-    },
-    [],
-  )
   const localModeratorOptions = useMemo(
     () =>
       (contactListQuery.data ?? []).map((contactDetails) => {
@@ -183,7 +115,7 @@ export default function CallPreferences() {
     >
       <Stack spacing={2}>
         <motion.div variants={thumbnailVariants}>
-          <SettingsSection title={t('settings_calls')}>
+          <SettingsSection>
             <SettingsRow
               title={t('settings_rendezvous_point')}
               description={t('settings_rendezvous_point_description')}
@@ -233,8 +165,8 @@ export default function CallPreferences() {
               </Box>
               <Autocomplete
                 id={moderatorInputId}
-                open={isModeratorMenuOpen}
-                slots={{ paper: isModeratorMenuClosing ? CollapsingAutocompletePaper : AnimatedAutocompletePaper }}
+                open={moderatorMenuAnimation.open}
+                slots={moderatorMenuAnimation.slots}
                 options={moderatorOptions}
                 value={null}
                 inputValue={defaultModeratorUri}
@@ -243,22 +175,8 @@ export default function CallPreferences() {
                 loading={contactsSearchQuery.isFetching || jamsContactsSearchQuery.isFetching}
                 filterOptions={(options) => options}
                 openOnFocus
-                onOpen={() => {
-                  window.clearTimeout(moderatorMenuCloseTimer.current)
-                  setIsModeratorMenuClosing(false)
-                  setIsModeratorMenuOpen(true)
-                }}
-                onClose={() => {
-                  if (!isModeratorMenuOpen || isModeratorMenuClosing) {
-                    return
-                  }
-
-                  setIsModeratorMenuClosing(true)
-                  moderatorMenuCloseTimer.current = window.setTimeout(() => {
-                    setIsModeratorMenuOpen(false)
-                    setIsModeratorMenuClosing(false)
-                  }, 180)
-                }}
+                onOpen={moderatorMenuAnimation.onOpen}
+                onClose={moderatorMenuAnimation.onClose}
                 onInputChange={(_, value) => setDefaultModeratorUri(value)}
                 onChange={(_, contact) => {
                   if (contact) {
@@ -307,10 +225,7 @@ export default function CallPreferences() {
                 sx={{
                   flex: 1,
                   minWidth: 0,
-                  '& .MuiAutocomplete-popupIndicator': {
-                    transform: isModeratorMenuOpen && !isModeratorMenuClosing ? 'rotate(180deg)' : 'rotate(0deg)',
-                    transition: 'transform 180ms ease-out',
-                  },
+                  ...moderatorMenuAnimation.popupIndicatorSx,
                 }}
               />
             </Box>

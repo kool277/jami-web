@@ -68,7 +68,7 @@ const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName:
   }
 
   return (
-    <SettingsSection title={t('settings_customize_profile')} list={false}>
+    <SettingsSection list={false}>
       <Stack sx={{ width: '100%', gap: 2 }}>
         <Stack sx={{ alignItems: 'center' }}>
           <AvatarEditor onAvatarChange={setAvatar} />
@@ -81,9 +81,9 @@ const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName:
             onChange={handleNameChange}
             size="small"
           />
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ width: '100%' }}>
             <BaseButton
-              sx={{ minWidth: 120 }}
+              sx={{ flex: 1, minWidth: 0 }}
               variant="contained"
               color="primary"
               disabled={!hasChanges || updateAvatar.isPending || setDisplayName.isPending}
@@ -92,7 +92,7 @@ const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName:
               {t('save_button')}
             </BaseButton>
             {registeredName !== displayName && (
-              <BaseButton sx={{ minWidth: 120 }} onClick={handleReset} variant="outlined" color="primary">
+              <BaseButton sx={{ flex: 1, minWidth: 0 }} onClick={handleReset} variant="outlined" color="primary">
                 {t('reset_to_default')}
               </BaseButton>
             )}

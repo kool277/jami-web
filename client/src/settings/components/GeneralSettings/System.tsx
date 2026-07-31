@@ -38,13 +38,13 @@ function System({ section = 'system' }: { section?: GeneralSettingsSection }) {
   return (
     <SettingsPage title={t(pageTitleKey[section])}>
       {section === 'system' && (
-        <SettingsSection title={t('settings_title_system')}>
+        <SettingsSection>
           <SettingsRow title={t('settings_menu_item_notifications')} control={<SettingNotifications controlOnly />} />
           <SettingsRow title={t('settings_language')} control={<SettingLanguage doNotDisplayLabel />} />
         </SettingsSection>
       )}
       {section === 'appearance' && (
-        <SettingsSection title={t('settings_appearance')}>
+        <SettingsSection>
           <SettingsRow title={t('settings_dark_theme')} control={<SettingTheme controlOnly />} />
           <SettingsRow title={t('settings_enable_animations')} control={<SettingAnimations controlOnly />} />
           <SettingsRow title={t('show_tips')} control={<SettingTips controlOnly />} />

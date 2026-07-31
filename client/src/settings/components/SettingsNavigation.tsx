@@ -165,9 +165,17 @@ export default function SettingsNavigation() {
                       ? {
                           ml: 3.5,
                           pl: 1,
-                          borderLeft: 1,
-                          borderColor: 'divider',
                           position: 'relative',
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            bottom: 0,
+                            left: -1,
+                            width: 3,
+                            borderRadius: 999,
+                            backgroundColor: 'divider',
+                          },
                           '&::after': {
                             content: '""',
                             position: 'absolute',
@@ -176,6 +184,7 @@ export default function SettingsNavigation() {
                             width: 3,
                             height: 32,
                             opacity: selectedItemIndex === -1 ? 0 : 1,
+                            borderRadius: 999,
                             backgroundColor: 'primary.main',
                             transition: (theme) => theme.transitions.create(['top', 'opacity']),
                           },

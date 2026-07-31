@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022-2025 Savoir-faire Linux Inc.
+ * Copyright (C) 2025 Savoir-faire Linux Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -16,23 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import Fingerprint from '@mui/icons-material/Fingerprint'
-import {
-  Box,
-  Card,
-  CardContent,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemSecondaryAction,
-  ListItemText,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField } from '@mui/material'
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -44,26 +28,21 @@ import {
   usePasskeyCredentialsQuery,
   useRegisterPasskeyMutation,
 } from '../../../services/passkeyQueries.js'
+import { SettingsRow, SettingsSection } from '../SettingsPage.js'
 
 export default function PasskeyManager() {
   const { t } = useTranslation()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [passkeyName, setPasskeyName] = useState('')
-
   const { data: passkeys, isLoading } = usePasskeyCredentialsQuery()
   const registerMutation = useRegisterPasskeyMutation()
   const deleteMutation = useDeletePasskeyMutation()
 
   if (!browserSupportsWebAuthn()) {
     return (
-      <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            {t('passkey_section_title')}
-          </Typography>
-          <Typography color="textSecondary">{t('passkey_not_available')}</Typography>
-        </CardContent>
-      </Card>
+      <SettingsSection description={t('passkey_section_description')}>
+        <SettingsRow title={t('passkey_not_available')} />
+      </SettingsSection>
     )
   }
 
@@ -74,58 +53,43 @@ export default function PasskeyManager() {
   }
 
   return (
-    <Card>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          {t('passkey_section_title')}
-        </Typography>
-        <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-          {t('passkey_section_description')}
-        </Typography>
-
-        {isLoading ? null : passkeys && passkeys.length > 0 ? (
-          <List dense>
-            {passkeys.map((pk) => (
-              <ListItem key={pk.credentialId}>
-                <ListItemIcon>
-                  <Fingerprint />
-                </ListItemIcon>
-                <ListItemText
-                  primary={pk.name}
-                  secondary={t('passkey_registered_on', {
-                    date: new Date(pk.createdAt).toLocaleDateString(),
-                  })}
-                />
-                <ListItemSecondaryAction>
+    <>
+      <SettingsSection description={t('passkey_section_description')}>
+        {!isLoading &&
+          (passkeys && passkeys.length > 0 ? (
+            passkeys.map((passkey) => (
+              <SettingsRow
+                key={passkey.credentialId}
+                title={passkey.name}
+                description={t('passkey_registered_on', { date: new Date(passkey.createdAt).toLocaleDateString() })}
+                control={
                   <IconButton
-                    edge="end"
-                    onClick={() => deleteMutation.mutate(pk.credentialId)}
+                    aria-label={t('remove_button')}
+                    onClick={() => deleteMutation.mutate(passkey.credentialId)}
                     disabled={deleteMutation.isPending}
                   >
                     <DeleteIcon />
                   </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        ) : (
-          <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
-            {t('passkey_no_credentials')}
-          </Typography>
-        )}
-
-        <Box sx={{ mt: 1 }}>
-          <BaseButton
-            variant="outlined"
-            startIcon={<Fingerprint />}
-            onClick={() => setDialogOpen(true)}
-            disabled={registerMutation.isPending}
-          >
-            {t('passkey_register_button')}
-          </BaseButton>
-        </Box>
-      </CardContent>
-
+                }
+              />
+            ))
+          ) : (
+            <SettingsRow title={t('passkey_no_credentials')} />
+          ))}
+        <SettingsRow
+          title={t('passkey_register_button')}
+          control={
+            <BaseButton
+              variant="outlined"
+              startIcon={<Fingerprint />}
+              onClick={() => setDialogOpen(true)}
+              disabled={registerMutation.isPending}
+            >
+              {t('passkey_register_button')}
+            </BaseButton>
+          }
+        />
+      </SettingsSection>
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle>{t('passkey_register_button')}</DialogTitle>
         <DialogContent>
@@ -136,7 +100,7 @@ export default function PasskeyManager() {
             placeholder={t('passkey_name_placeholder')}
             fullWidth
             value={passkeyName}
-            onChange={(e) => setPasskeyName(e.target.value)}
+            onChange={(event) => setPasskeyName(event.target.value)}
           />
         </DialogContent>
         <DialogActions>
@@ -148,6 +112,6 @@ export default function PasskeyManager() {
           </BaseButton>
         </DialogActions>
       </Dialog>
-    </Card>
+    </>
   )
 }

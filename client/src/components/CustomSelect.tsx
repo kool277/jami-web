@@ -19,6 +19,7 @@ import { Autocomplete, Box, InputAdornment, TextField } from '@mui/material'
 import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { useAutocompleteMenuAnimation } from './common/useAutocompleteMenuAnimation.js'
 export interface SelectOption<Payload> {
   label: string
   payload: Payload
@@ -42,15 +43,20 @@ export const CustomSelect = <OptionPayload,>({
   startAdornment,
 }: CustomSelectProps<OptionPayload>) => {
   const { t } = useTranslation()
+  const menuAnimation = useAutocompleteMenuAnimation()
 
   return (
     <Autocomplete
       disableClearable
+      open={menuAnimation.open}
+      slots={menuAnimation.slots}
       options={options}
       value={option}
       getOptionLabel={(selectOption) => selectOption.label}
       isOptionEqualToValue={(selectOption, value) => selectOption.payload === value.payload}
       openOnFocus
+      onOpen={menuAnimation.onOpen}
+      onClose={menuAnimation.onClose}
       onChange={(_, newValue) => onChange(newValue)}
       renderOption={({ key, ...props }, selectOption) => (
         <Box key={key} component="li" {...props}>
@@ -76,7 +82,7 @@ export const CustomSelect = <OptionPayload,>({
           }}
         />
       )}
-      sx={{ width }}
+      sx={{ width, ...menuAnimation.popupIndicatorSx }}
     />
   )
 }
