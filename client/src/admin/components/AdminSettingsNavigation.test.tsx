@@ -26,6 +26,18 @@ import AdminSettingsNavigation from './AdminSettingsNavigation.js'
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
+vi.mock('../../components/SvgIcon.js', () => {
+  const symbol = (name: string) =>
+    function Symbol({ filled }: { filled?: boolean }) {
+      return <span data-symbol={name} data-filled={String(Boolean(filled))} />
+    }
+  return {
+    AdminPanelSettingsIcon: symbol('admin_panel_settings'),
+    GppMaybeIcon: symbol('gpp_maybe'),
+    LogoutIcon: symbol('logout'),
+    ManageAccountsIcon: symbol('manage_accounts'),
+  }
+})
 
 const renderAdminSettingsNavigation = (path: string) =>
   render(
@@ -42,5 +54,24 @@ describe('AdminSettingsNavigation', () => {
 
     expect(screen.getByRole('link', { name: 'authentication' })).toHaveAttribute('aria-pressed', 'true')
     expect(screen.getByRole('link', { name: 'openid' })).toHaveAttribute('aria-current', 'page')
+  })
+
+  it('matches parent items to the user navigation rail radius', () => {
+    renderAdminSettingsNavigation('/admin/authentication')
+
+    expect(screen.getByRole('link', { name: 'authentication' })).toHaveStyle({ borderRadius: '40px' })
+  })
+
+  it('fills only the selected section icon', () => {
+    renderAdminSettingsNavigation('/admin/authentication')
+
+    expect(
+      screen.getByRole('link', { name: 'authentication' }).querySelector('[data-symbol="gpp_maybe"]'),
+    ).toHaveAttribute('data-filled', 'true')
+    expect(
+      screen
+        .getByRole('link', { name: 'admin_account_configuration' })
+        .querySelector('[data-symbol="admin_panel_settings"]'),
+    ).toHaveAttribute('data-filled', 'false')
   })
 })

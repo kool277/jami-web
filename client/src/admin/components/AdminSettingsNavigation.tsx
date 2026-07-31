@@ -15,14 +15,29 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ButtonBase, Collapse, List, ListItemButton, ListSubheader, Stack, Typography } from '@mui/material'
+import {
+  ButtonBase,
+  Collapse,
+  List,
+  ListItemButton,
+  ListItemText,
+  ListSubheader,
+  Stack,
+  Typography,
+} from '@mui/material'
 import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
-import { isValidElement, type ReactNode } from 'react'
+import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 
 import BaseButton from '../../components/common/BaseButton.js'
-import { AdminPanelSettingsIcon, GppMaybeIcon, LogoutIcon, ManageAccountsIcon } from '../../components/SvgIcon.js'
+import {
+  AdminPanelSettingsIcon,
+  GppMaybeIcon,
+  LogoutIcon,
+  ManageAccountsIcon,
+  type SymbolIconProps,
+} from '../../components/SvgIcon.js'
 import { AdminConfigurationOptions } from '../../enums/adminConfigurationOptions.js'
 import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
 import { isRoutePathActive } from '../../utils/routes.js'
@@ -34,7 +49,7 @@ interface NavigationItem {
 
 interface NavigationSection {
   id: string
-  icon: ReactNode
+  icon: ComponentType<SymbolIconProps>
   title: string
   path: string
   activePath: string
@@ -49,7 +64,7 @@ export default function AdminSettingsNavigation() {
   const sections: NavigationSection[] = [
     {
       id: 'configuration',
-      icon: <AdminPanelSettingsIcon />,
+      icon: AdminPanelSettingsIcon,
       title: t('admin_account_configuration'),
       path: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`,
       activePath: `/admin/${AdminSettingSelection.CONFIGURATION}`,
@@ -70,14 +85,14 @@ export default function AdminSettingsNavigation() {
     },
     {
       id: 'accounts',
-      icon: <ManageAccountsIcon />,
+      icon: ManageAccountsIcon,
       title: t('accounts'),
       path: `/admin/${AdminSettingSelection.ACCOUNTS}`,
       activePath: `/admin/${AdminSettingSelection.ACCOUNTS}`,
     },
     {
       id: 'authentication',
-      icon: <GppMaybeIcon />,
+      icon: GppMaybeIcon,
       title: t('authentication'),
       path: `/admin/${AdminSettingSelection.AUTHENTICATION}`,
       activePath: `/admin/${AdminSettingSelection.AUTHENTICATION}`,
@@ -116,6 +131,7 @@ export default function AdminSettingsNavigation() {
         {sections.map((section) => {
           const isSelected = isRoutePathActive(pathname, section.activePath)
           const selectedItemIndex = section.items?.findIndex((item) => isRoutePathActive(pathname, item.path)) ?? -1
+          const SectionIcon = section.icon
 
           return (
             <li key={section.id}>
@@ -130,14 +146,14 @@ export default function AdminSettingsNavigation() {
                     justifyContent: 'flex-start',
                     gap: 1,
                     px: 1,
-                    borderRadius: 1,
+                    borderRadius: 2,
                     typography: 'body1',
                     fontWeight: 500,
                     color: isSelected ? 'primary.dark' : 'text.secondary',
                     backgroundColor: isSelected ? 'primary.light' : 'transparent',
                   }}
                 >
-                  {isValidElement(section.icon) ? section.icon : null}
+                  <SectionIcon filled={isSelected} />
                   {section.title}
                 </ButtonBase>
               </ListSubheader>
@@ -187,10 +203,12 @@ export default function AdminSettingsNavigation() {
                             py: 0,
                             color: selected ? 'primary.dark' : 'text.primary',
                             transition: (theme) => theme.transitions.create('color'),
-                            '& .MuiListItemText-primary': { fontWeight: selected ? 500 : 400 },
                           }}
                         >
-                          {item.title}
+                          <ListItemText
+                            primary={item.title}
+                            slotProps={{ primary: { variant: 'body2', sx: { fontWeight: selected ? 500 : 400 } } }}
+                          />
                         </ListItemButton>
                       )
                     })}
