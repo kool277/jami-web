@@ -285,15 +285,15 @@ export default function AccountsOverview() {
   )
 
   return (
-    <SettingsPage title={t('accounts')}>
-      <SettingsSection title={t('admin_page_accounts_overview_title', { count: rows.length })} list={false}>
+    <SettingsPage>
+      <SettingsSection list={false}>
         <EnhancedTableToolbar
           numSelected={selected.length}
           accountsNumber={rows.length}
           onDelete={handleSubmitDeletion}
         />
         <TableContainer sx={{ borderTop: 1, borderBottom: 1, borderColor: 'divider' }}>
-          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={'medium'}>
+          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="medium">
             <EnhancedTableHead
               numSelected={selected.length}
               order={order}

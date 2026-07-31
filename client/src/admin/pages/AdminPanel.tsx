@@ -15,11 +15,17 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Stack, useMediaQuery, useTheme } from '@mui/material'
+import { alpha, Box, IconButton, Stack, useMediaQuery, useTheme } from '@mui/material'
 import { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link as RouterLink, useLocation } from 'react-router-dom'
 
+import Island, { ISLAND_MARGIN, ISLAND_PADDING } from '../../components/common/Island.js'
+import { ArrowBackIcon } from '../../components/SvgIcon.js'
 import AdminSettingsNavigation from '../components/AdminSettingsNavigation.js'
+
+const BACKDROP_LIGHT = './admin/background.jpg'
+const BACKDROP_DARK = './admin/background_dark.jpg'
 
 interface AdminPanelProps {
   children: ReactElement
@@ -33,27 +39,64 @@ export default function AdminPanel({ children }: AdminPanelProps) {
   const { t } = useTranslation()
   const theme = useTheme()
   const isCompact = useMediaQuery(theme.breakpoints.down('md'))
+  const { pathname } = useLocation()
+  const isDark = theme.palette.mode === 'dark'
+  const listRoute = '/admin/settings'
+  const hasDetail = pathname !== listRoute
+  const navigation = (
+    <Stack
+      sx={{
+        minHeight: 0,
+        flexShrink: 0,
+        ...(isCompact ? { borderBottom: 1, borderColor: 'divider' } : { flex: 1, width: 320, overflowY: 'auto' }),
+      }}
+    >
+      <AdminSettingsNavigation />
+    </Stack>
+  )
 
   return (
     <Stack
       direction={isCompact ? 'column' : 'row'}
-      sx={{ height: '100dvh', overflow: isCompact ? 'auto' : 'hidden', backgroundColor: 'background.default' }}
+      sx={{
+        height: '100dvh',
+        overflow: 'hidden',
+        position: 'relative',
+        backgroundColor: isCompact ? 'background.paper' : 'background.default',
+        ...(!isCompact && {
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            inset: -24,
+            backgroundImage: `url(${isDark ? BACKDROP_DARK : BACKDROP_LIGHT})`,
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+            filter: 'blur(16px)',
+          },
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: isDark ? alpha(theme.palette.common.black, 0.55) : alpha(theme.palette.common.white, 0.35),
+          },
+        }),
+        '& > *': { position: 'relative', zIndex: 1 },
+      }}
     >
-      <Stack
-        component="nav"
-        aria-label={t('admin_page_welcome')}
-        sx={{
-          flexShrink: 0,
-          ...(isCompact
-            ? { borderBottom: 1, borderColor: 'divider' }
-            : { width: 320, overflowY: 'auto', borderInlineEnd: 1, borderColor: 'divider' }),
-        }}
-      >
-        <AdminSettingsNavigation />
-      </Stack>
-      <Box component="main" sx={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
-        {children}
-      </Box>
+      {(!isCompact || !hasDetail) &&
+        (isCompact ? navigation : <Island sx={{ m: ISLAND_MARGIN, p: ISLAND_PADDING }}>{navigation}</Island>)}
+      {isCompact && hasDetail && (
+        <Box sx={{ flexShrink: 0, p: 0.5, borderBottom: 1, borderColor: 'divider' }}>
+          <IconButton component={RouterLink} to={listRoute} aria-label={t('back')}>
+            <ArrowBackIcon />
+          </IconButton>
+        </Box>
+      )}
+      {(!isCompact || hasDetail) && (
+        <Box component="main" sx={{ flex: 1, minWidth: 0, minHeight: 0, overflowY: 'auto' }}>
+          {children}
+        </Box>
+      )}
     </Stack>
   )
 }

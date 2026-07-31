@@ -107,18 +107,15 @@ export default function AdminSettingsNavigation() {
   }
 
   return (
-    <Stack
-      component="nav"
-      aria-label={t('admin_page_welcome')}
-      sx={{ minHeight: 0, height: '100%', overflowY: 'auto' }}
-    >
+    <Stack component="nav" aria-label={t('admin_page_welcome')} sx={{ minHeight: 0, flex: 1, overflowY: 'auto' }}>
       <Typography variant="h3" sx={{ px: 2, pt: { xs: 2, md: 1 }, pb: 1 }}>
         {t('admin_page_welcome')}
       </Typography>
       <List disablePadding>
         {sections.map((section) => {
           const isSelected = pathname === section.activePath || pathname.startsWith(`${section.activePath}/`)
-          const selectedItemIndex = section.items?.findIndex((item) => pathname === item.path) ?? -1
+          const selectedItemIndex =
+            section.items?.findIndex((item) => pathname === item.path || pathname.startsWith(`${item.path}/`)) ?? -1
 
           return (
             <li key={section.id}>
@@ -151,9 +148,17 @@ export default function AdminSettingsNavigation() {
                     sx={{
                       ml: 3.5,
                       pl: 1,
-                      borderLeft: 1,
-                      borderColor: 'divider',
                       position: 'relative',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        bottom: 0,
+                        left: -1,
+                        width: 3,
+                        borderRadius: 999,
+                        backgroundColor: 'divider',
+                      },
                       '&::after': {
                         content: '""',
                         position: 'absolute',
@@ -162,13 +167,14 @@ export default function AdminSettingsNavigation() {
                         width: 3,
                         height: 32,
                         opacity: selectedItemIndex === -1 ? 0 : 1,
+                        borderRadius: 999,
                         backgroundColor: 'primary.main',
                         transition: (theme) => theme.transitions.create(['top', 'opacity']),
                       },
                     }}
                   >
                     {section.items.map((item) => {
-                      const selected = pathname === item.path
+                      const selected = pathname === item.path || pathname.startsWith(`${item.path}/`)
 
                       return (
                         <ListItemButton

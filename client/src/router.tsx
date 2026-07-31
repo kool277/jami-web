@@ -136,6 +136,7 @@ export const router = createBrowserRouter(
           </AdminAuthWrapper>
         }
       >
+        <Route path="admin/settings" element={<></>} />
         <Route
           path={`/admin/${AdminSettingSelection.CONFIGURATION}`}
           element={
