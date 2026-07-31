@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Stack, Switch, TextField } from '@mui/material'
+import { Box, InputAdornment, Stack, Switch, TextField } from '@mui/material'
 import { urlRegex } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -24,6 +24,7 @@ import { Form, Navigate } from 'react-router-dom'
 import BaseButton from '../../components/common/BaseButton.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
+import jamiLogoIcon from '../../icons/jamiLogoIcon.svg'
 import { SettingsPage, SettingsSection } from '../../settings/components/SettingsPage.js'
 import {
   useGetAdminConfigQuery,
@@ -105,10 +106,33 @@ const JamsAuthMethodForm = ({
             <TextField
               id="jams-url-input"
               fullWidth
+              size="small"
               value={jamsUrl}
               onChange={(event: ChangeEvent<HTMLInputElement>) => setJamsUrl(event.target.value)}
               placeholder={t('enter_jams_server')}
-              slotProps={{ input: { 'aria-label': t('jams_url') } }}
+              slotProps={{
+                input: {
+                  'aria-label': t('jams_url'),
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Box
+                        aria-hidden
+                        sx={{
+                          width: 20,
+                          height: 20,
+                          bgcolor: 'currentColor',
+                          mask: `url(${jamiLogoIcon}) center / contain no-repeat`,
+                          WebkitMask: `url(${jamiLogoIcon}) center / contain no-repeat`,
+                          transition: 'background-color 240ms ease-in-out',
+                          '@media (prefers-reduced-motion: reduce)': {
+                            transition: 'none',
+                          },
+                        }}
+                      />
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <BaseButton variant="contained" type="submit" onClick={submitNewJamsUrl} sx={{ alignSelf: 'flex-end' }}>
               {t('save_button')}

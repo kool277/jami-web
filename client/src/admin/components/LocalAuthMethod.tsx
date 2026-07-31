@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Stack, Switch, TextField } from '@mui/material'
+import { InputAdornment, Stack, Switch, TextField } from '@mui/material'
 import { urlRegex } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -23,6 +23,7 @@ import { Form, Navigate } from 'react-router-dom'
 
 import BaseButton from '../../components/common/BaseButton.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
+import { DnsIcon } from '../../components/SvgIcon.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { SettingsPage, SettingsSection } from '../../settings/components/SettingsPage.js'
 import {
@@ -100,9 +101,19 @@ const LocalAuthMethodForm = ({
             <TextField
               id="name-server-input"
               fullWidth
+              size="small"
               value={nameServer}
               onChange={(event: ChangeEvent<HTMLInputElement>) => setNameServer(event.target.value)}
-              slotProps={{ input: { 'aria-label': t('setting_name_server') } }}
+              slotProps={{
+                input: {
+                  'aria-label': t('setting_name_server'),
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <DnsIcon />
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <Stack direction="row" sx={{ justifyContent: 'flex-end', flexWrap: 'wrap', gap: 1 }}>
               <BaseButton variant="contained" onClick={() => resetServerNameMutation.mutate()}>
