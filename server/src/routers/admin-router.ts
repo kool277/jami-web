@@ -669,12 +669,13 @@ adminRouter.get(
   '/oauth/providers',
   asyncHandler(async (_, res) => {
     const supportedProviders = providersSupport.getProviders()
-    const data: { name: string; isActive: boolean; displayName: string }[] = []
+    const data: { name: string; isActive: boolean; displayName: string; icon?: string }[] = []
     Array.from(supportedProviders).map(([key, values]) => {
       data.push({
         name: key,
         isActive: adminAccount.isProviderActive(key),
         displayName: values.displayName,
+        icon: values.icon,
       })
     })
     res.send(data)

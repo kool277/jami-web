@@ -82,8 +82,8 @@ const LocalAuthMethodForm = ({
   }
 
   return (
-    <SettingsPage title={t('jami_authentication')} description={t('jami_authentication_info')}>
-      <SettingsSection title={t('jami_authentication')} list={false}>
+    <SettingsPage title={t('jami_authentication')} description={t('jami_authentication_info')} descriptionOnOwnLine>
+      <SettingsSection list={false}>
         <SettingsRow
           title={t('setting_auth_change', { authMethod: t('jami') })}
           control={<Switch checked={data.localAuthEnabled} onChange={handleChange} />}

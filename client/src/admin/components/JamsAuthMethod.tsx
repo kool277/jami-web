@@ -87,8 +87,8 @@ const JamsAuthMethodForm = ({
   }
 
   return (
-    <SettingsPage title={t('jams_authentication')} description={t('jams_authentication_info')}>
-      <SettingsSection title={t('jams_authentication')} list={false}>
+    <SettingsPage title={t('jams_authentication')} description={t('jams_authentication_info')} descriptionOnOwnLine>
+      <SettingsSection list={false}>
         <SettingsRow
           title={t('setting_auth_change', { authMethod: t('jams') })}
           control={<Switch checked={data.jamsAuthEnabled} onChange={handleChange} />}

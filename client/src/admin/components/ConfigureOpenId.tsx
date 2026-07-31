@@ -22,8 +22,9 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import BaseButton from '../../components/common/BaseButton.js'
+import BaseIconButton from '../../components/common/BaseIconButton.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
-import { ContentCopyIcon, DescriptionIcon } from '../../components/SvgIcon.js'
+import { ArrowBackIcon, ContentCopyIcon, DescriptionIcon } from '../../components/SvgIcon.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
 import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
@@ -36,6 +37,7 @@ export default function ConfigureOpenId() {
   const { setAlertContent } = use(AlertSnackbarContext)
   const [clientId, setClientId] = useState<string>()
   const [clientSecret, setClientSecret] = useState('')
+  const openIdPath = `/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}`
   const providerName = location.pathname.split('/').at(-1)
 
   if (providerName === undefined) {
@@ -44,7 +46,7 @@ export default function ConfigureOpenId() {
       severity: 'error',
       alertOpen: true,
     })
-    navigate(`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}`)
+    navigate(openIdPath)
   }
 
   const provider = useGetProviderInfo(providerName || '')
@@ -90,7 +92,20 @@ export default function ConfigureOpenId() {
   }
 
   return (
-    <SettingsPage title={provider.data.displayName} description={t('oauth2_provider')}>
+    <SettingsPage
+      title={provider.data.displayName}
+      description={t('oauth2_provider')}
+      icon={
+        provider.data.icon && (
+          <Box component="img" alt="" src={provider.data.icon} sx={{ width: 40, height: 40, objectFit: 'contain' }} />
+        )
+      }
+      headerAction={
+        <BaseIconButton aria-label={t('back')} tooltip={t('back')} onClick={() => navigate(openIdPath)}>
+          <ArrowBackIcon />
+        </BaseIconButton>
+      }
+    >
       <SettingsSection title={t('oauth2_provider')} description={t('configure_oauth_provider_info')} list={false}>
         <SettingsRow
           title={t('setting_auth_change', { authMethod: provider.data.displayName })}

@@ -6,7 +6,7 @@
     "displayName": "Google",
     "documentation": "https://developers.google.com/identity/protocols/oauth2",
     "icon": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg",
-    "colorTheme": "#d9d9d9"
+    "colorTheme": "#ef4d30"
   },
   "github": {
     "tokenUri": "https://github.com/login/oauth/access_token",
@@ -15,7 +15,7 @@
     "displayName": "GitHub",
     "documentation": "https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/",
     "icon": "https://upload.wikimedia.org/wikipedia/commons/c/c2/GitHub_Invertocat_Logo.svg",
-    "colorTheme": "#d9d9d9"
+    "colorTheme": "#000000"
   },
   "sfl-gitlab": {
     "tokenUri": "https://git.jami.net/oauth/token",
@@ -24,7 +24,7 @@
     "displayName": "SFL GitLab",
     "documentation": "https://docs.gitlab.com/ee/api/oauth2.html",
     "icon": "https://upload.wikimedia.org/wikipedia/commons/3/35/GitLab_icon.svg",
-    "colorTheme": "#d9d9d9"
+    "colorTheme": "#fea811"
   },
   "discord": {
     "tokenUri": "https://discord.com/api/oauth2/token",
@@ -34,7 +34,7 @@
     "documentation": "https://discord.com/developers/docs/topics/oauth2",
     "scope": "identify+email",
     "icon": "https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a69f118df70ad7828d4_icon_clyde_blurple_RGB.svg",
-    "colorTheme": "#d9d9d9"
+    "colorTheme": "#4e65e9"
   },
   "linkedin": {
     "tokenUri": "https://www.linkedin.com/oauth/v2/accessToken",
@@ -43,6 +43,6 @@
     "displayName": "LinkedIn",
     "documentation": "https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow",
     "icon": "https://upload.wikimedia.org/wikipedia/commons/8/81/LinkedIn_icon.svg",
-    "colorTheme": "#d9d9d9"
+    "colorTheme": "#1981c1"
   }
 }

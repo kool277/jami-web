@@ -52,7 +52,7 @@ export default function AuthMethods() {
 
   return (
     <SettingsPage title={t('authentication')}>
-      <SettingsSection title={t('authentication')}>
+      <SettingsSection>
         {methods.map(({ title, enabled, method }) => (
           <ListItemButton
             component={NavLink}
@@ -63,7 +63,7 @@ export default function AuthMethods() {
             <ListItemText
               primary={title}
               secondary={
-                <Typography color={enabled ? 'success.main' : 'error.main'} variant="body2">
+                <Typography sx={{ color: enabled ? 'success.main' : 'error.main' }} variant="body2">
                   {enabled ? t('setting_enabled') : t('setting_disabled')}
                 </Typography>
               }

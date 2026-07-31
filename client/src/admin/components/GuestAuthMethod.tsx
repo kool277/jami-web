@@ -38,8 +38,8 @@ export default function GuestAuthMethod() {
   }
 
   return (
-    <SettingsPage title={t('guest_authentication')} description={t('guest_authentication_info')}>
-      <SettingsSection title={t('guest_authentication')} list={false}>
+    <SettingsPage title={t('guest_authentication')} description={t('guest_authentication_info')} descriptionOnOwnLine>
+      <SettingsSection list={false}>
         <SettingsRow
           title={t('setting_auth_change', { authMethod: t('guest') })}
           control={<Switch checked={data.guestAccessEnabled} onChange={handleChange} />}

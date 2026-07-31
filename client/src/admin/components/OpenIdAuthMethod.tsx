@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { ListItemButton, ListItemText, Typography } from '@mui/material'
+import { Box, ListItemButton, ListItemText, Typography } from '@mui/material'
 import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -29,6 +29,7 @@ type OAuthProviderSummary = {
   name: string
   isActive: boolean
   displayName: string
+  icon?: string
 }
 
 export default function OpenIdAuthMethod() {
@@ -47,16 +48,24 @@ export default function OpenIdAuthMethod() {
 
   return (
     <SettingsPage title={t('openid_authentication')}>
-      <SettingsSection title={t('openid_authentication')}>
+      <SettingsSection>
         {providers.data.length === 0 ? (
           <SettingsRow title={t('no_oauth_providers')} />
         ) : (
           providers.data.map((provider: OAuthProviderSummary) => (
             <ListItemButton key={provider.name} onClick={() => handleSelection(provider.name)} sx={{ py: 1.5 }}>
+              {provider.icon && (
+                <Box
+                  component="img"
+                  alt=""
+                  src={provider.icon}
+                  sx={{ width: 32, height: 32, mr: 2, objectFit: 'contain', flexShrink: 0 }}
+                />
+              )}
               <ListItemText
                 primary={provider.displayName}
                 secondary={
-                  <Typography color={provider.isActive ? 'success.main' : 'error.main'} variant="body2">
+                  <Typography sx={{ color: provider.isActive ? 'success.main' : 'error.main' }} variant="body2">
                     {provider.isActive ? t('setting_enabled') : t('setting_disabled')}
                   </Typography>
                 }
