@@ -46,8 +46,13 @@ export async function getAvailableLanguages() {
     })
 
     for (const language of content.data) {
+      const tag = language.attributes.code
+      if (!fs.existsSync(getTranslationPath(tag))) {
+        continue
+      }
+
       languages.push({
-        tag: language.attributes.code,
+        tag,
         fullName: language.attributes.name,
       })
     }
