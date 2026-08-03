@@ -101,7 +101,10 @@ contactsRouter.get('/:contactUri/profile/picture', async (req, res) => {
   const accountUri = jamid.getAccountDetails(accountId)['Account.username']
   const path = await getAvatar(accountId, contactUri, contactUri === accountUri)
   if (path) {
-    res.sendFile(path)
+    // The avatar cache lives under ~/.local/share/jami; sendFile refuses
+    // paths with dot-segments by default, which would turn every avatar
+    // into a 500 despite the file existing.
+    res.sendFile(path, { dotfiles: 'allow' })
     return
   }
   res.sendStatus(HttpStatusCode.NotFound)

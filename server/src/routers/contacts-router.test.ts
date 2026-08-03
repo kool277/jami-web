@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import assert from 'node:assert/strict'
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { createServer, type Server } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -34,7 +34,11 @@ let app: express.Express
 
 before(async () => {
   tempDirectory = await mkdtemp(join(tmpdir(), 'jami-web-avatar-route-'))
-  avatarPath = join(tempDirectory, 'avatar.png')
+  // The real cache lives under ~/.local/share/jami: the dot-segment must not
+  // trip express's sendFile dotfiles handling, so reproduce it here.
+  const dotDirectory = join(tempDirectory, '.cache')
+  await mkdir(dotDirectory, { recursive: true })
+  avatarPath = join(dotDirectory, 'avatar.png')
   await writeFile(avatarPath, pngBytes)
 
   Container.set(MockJamid, {
