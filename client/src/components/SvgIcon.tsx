@@ -33,12 +33,15 @@ const bidirectionalSymbols = new Set([
   'format_list_bulleted',
 ])
 
+/** Callers may override the fill, which is how a selected state is drawn. */
+export type SymbolIconProps = SvgIconProps & { filled?: boolean }
+
 const ms = (symbol: string, filled?: boolean) => {
   const Comp = (props: any) => (
     <MaterialSymbol bidirectional={bidirectionalSymbols.has(symbol)} symbol={symbol} filled={filled} {...props} />
   )
   Comp.displayName = `MS_${symbol}`
-  return Comp as React.ComponentType<SvgIconProps>
+  return Comp as React.ComponentType<SymbolIconProps>
 }
 
 export const ArrowIcon = ms('arrow_back')
@@ -143,6 +146,7 @@ export const InfoOutlinedIcon = ms('info')
 export const LinkIcon = ms('link')
 export const LoginIcon = ms('login')
 export const LogoutIcon = ms('logout')
+export const MailIcon = ms('mail')
 export const ManageAccountsIcon = ms('manage_accounts')
 export const MoreHorizIcon = ms('more_horiz')
 export const PauseIcon = ms('pause')
