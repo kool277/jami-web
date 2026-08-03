@@ -28,16 +28,8 @@ export const callTimeoutMs = 60_000
 
 export const jamiAuthLogoSize = '200px'
 
-const devApiUrl = import.meta.env.VITE_API_URL
-
 export const isDevMode = import.meta.env.DEV
 
-let currentBaseUrl = window.location.origin
-
-if (isDevMode) {
-  currentBaseUrl = devApiUrl
-}
-
-const apiUrl: string = currentBaseUrl + '/api'
+const apiUrl: string = window.location.origin + '/api'
 
 export { apiUrl }
