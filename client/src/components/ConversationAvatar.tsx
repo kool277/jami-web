@@ -51,23 +51,22 @@ type ConversationAvatarProps = AvatarProps & {
   presence?: boolean
 }
 
-export default function ConversationAvatar({ displayName, contactUri, presence, ...props }: ConversationAvatarProps) {
+export default function ConversationAvatar({
+  displayName,
+  contactUri,
+  presence,
+  src: srcProp,
+  ...props
+}: ConversationAvatarProps) {
   const profilePictureQuery = useContactProfilePicture(contactUri)
   const url = profilePictureQuery.data
-  const src = props.src || url || '/broken'
+  const src = srcProp || url || '/broken'
   const color = getColor(contactUri ? 'jami:' + contactUri : '')
-  delete props.src
-
-  useEffect(() => {
-    const updatedSrc = props.src || url || '/broken'
-    document.getElementById('avatar' + contactUri)?.setAttribute('src', updatedSrc)
-  }, [contactUri, props.src, url])
 
   if (presence) {
     return (
       <ConversationAvatarPresence buddy={contactUri}>
         <Avatar
-          id={'avatar' + contactUri}
           {...props}
           alt={displayName?.toUpperCase()}
           src={src}
@@ -78,7 +77,6 @@ export default function ConversationAvatar({ displayName, contactUri, presence, 
   }
   return (
     <Avatar
-      id={'avatar' + contactUri}
       {...props}
       alt={displayName?.toUpperCase()}
       src={src}
