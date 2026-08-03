@@ -33,7 +33,7 @@ import { CallStatus } from '../services/CallManager.js'
 import { useMembersQuery } from '../services/conversationQueries.js'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages.js'
 import { isConversationUnread } from '../utils/conversationFilters.js'
-import { formatRelativeDate, formatTime } from '../utils/dates&times.js'
+import { formatConversationDate } from '../utils/dates&times.js'
 import { getColor } from '../utils/messagecolor.js'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
 import ConversationAvatar from './ConversationAvatar.js'
@@ -180,11 +180,7 @@ const TimeIndicator = ({ conversationSummary }: { conversationSummary: IConversa
       return ''
     }
     const time = dayjs.unix(Number(message.timestamp))
-    if (time.isToday()) {
-      return formatTime(time, i18n)
-    } else {
-      return formatRelativeDate(time, i18n)
-    }
+    return formatConversationDate(time, i18n)
   }, [conversationSummary, i18n])
 
   return (

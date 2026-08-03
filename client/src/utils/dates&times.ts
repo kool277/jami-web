@@ -36,6 +36,29 @@ export const formatRelativeDate = (time: Dayjs, i18n: i18n) => {
   }
 }
 
+export const formatConversationDate = (time: Dayjs, i18n: i18n) => {
+  const languageTag = i18n.language.replace(/_/g, '-')
+  const today = dayjs()
+  const daysDiff = today.startOf('day').diff(time.startOf('day'), 'day')
+
+  if (daysDiff === 0) {
+    return formatTime(time, i18n)
+  }
+  if (daysDiff === 1) {
+    return new Intl.RelativeTimeFormat(languageTag, { numeric: 'auto' }).format(-1, 'day')
+  }
+
+  if (daysDiff > 0 && daysDiff < 7) {
+    return new Intl.DateTimeFormat(languageTag, { weekday: 'long' }).format(time.toDate())
+  }
+
+  return new Intl.DateTimeFormat(languageTag, {
+    month: 'short',
+    day: 'numeric',
+    ...(time.year() === today.year() ? {} : { year: 'numeric' }),
+  }).format(time.toDate())
+}
+
 export const formatCallDuration = (duration: Duration) => {
   const minutes = Math.floor(duration.asMinutes()).toString().padStart(2, '0')
   const seconds = duration.format('ss')
