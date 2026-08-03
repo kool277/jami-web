@@ -15,20 +15,84 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { alpha, Box, IconButton, Stack, useMediaQuery, useTheme } from '@mui/material'
+import { alpha, Box, Stack, useMediaQuery, useTheme } from '@mui/material'
+import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
 import { ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link as RouterLink, useLocation } from 'react-router-dom'
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
 
 import Island, { ISLAND_MARGIN, ISLAND_PADDING } from '../../components/common/Island.js'
-import { ArrowBackIcon } from '../../components/SvgIcon.js'
+import NavItem from '../../components/shell/NavItem.js'
+import { AdminPanelSettingsIcon, GppMaybeIcon, LogoutIcon, ManageAccountsIcon } from '../../components/SvgIcon.js'
+import { AdminConfigurationOptions } from '../../enums/adminConfigurationOptions.js'
+import { isRoutePathActive } from '../../utils/routes.js'
 import AdminSettingsNavigation from '../components/AdminSettingsNavigation.js'
 
 const BACKDROP_LIGHT = './admin/background.jpg'
 const BACKDROP_DARK = './admin/background_dark.jpg'
+const ADMIN_LIST_ROUTE = '/admin/settings'
 
 interface AdminPanelProps {
   children: ReactElement
+}
+
+function AdminNavRail() {
+  const { t } = useTranslation()
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const destinations = [
+    {
+      path: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`,
+      activePath: `/admin/${AdminSettingSelection.CONFIGURATION}`,
+      label: t('admin_account_configuration'),
+      Icon: AdminPanelSettingsIcon,
+    },
+    {
+      path: `/admin/${AdminSettingSelection.ACCOUNTS}`,
+      activePath: `/admin/${AdminSettingSelection.ACCOUNTS}`,
+      label: t('accounts'),
+      Icon: ManageAccountsIcon,
+    },
+    {
+      path: `/admin/${AdminSettingSelection.AUTHENTICATION}`,
+      activePath: `/admin/${AdminSettingSelection.AUTHENTICATION}`,
+      label: t('authentication'),
+      Icon: GppMaybeIcon,
+    },
+  ]
+
+  const logout = () => {
+    localStorage.removeItem('adminAccessToken')
+    navigate('/admin/login')
+  }
+
+  return (
+    <Stack
+      component="nav"
+      aria-label={t('admin_page_welcome')}
+      direction="row"
+      sx={{ gap: 0.5, p: 1, flexShrink: 0, backgroundColor: 'background.paper', borderTop: 1, borderColor: 'divider' }}
+    >
+      {destinations.map(({ path, activePath, label, Icon }) => {
+        const selected =
+          isRoutePathActive(pathname, activePath) ||
+          (pathname === ADMIN_LIST_ROUTE && activePath === `/admin/${AdminSettingSelection.CONFIGURATION}`)
+
+        return (
+          <NavItem
+            key={path}
+            component={RouterLink}
+            to={path}
+            compact
+            label={label}
+            icon={<Icon filled={selected} />}
+            selected={selected}
+          />
+        )
+      })}
+      <NavItem compact label={t('logout')} icon={<LogoutIcon />} onClick={logout} />
+    </Stack>
+  )
 }
 
 /**
@@ -41,14 +105,14 @@ export default function AdminPanel({ children }: AdminPanelProps) {
   const isCompact = useMediaQuery(theme.breakpoints.down('md'))
   const { pathname } = useLocation()
   const isDark = theme.palette.mode === 'dark'
-  const listRoute = '/admin/settings'
-  const hasDetail = pathname !== listRoute
   const navigation = (
     <Stack
       sx={{
         minHeight: 0,
         flexShrink: 0,
-        ...(isCompact ? { borderBottom: 1, borderColor: 'divider' } : { flex: 1, width: 320, overflowY: 'auto' }),
+        flex: 1,
+        width: 320,
+        overflowY: 'auto',
       }}
     >
       <AdminSettingsNavigation />
@@ -83,20 +147,11 @@ export default function AdminPanel({ children }: AdminPanelProps) {
         '& > *': { position: 'relative', zIndex: 1 },
       }}
     >
-      {(!isCompact || !hasDetail) &&
-        (isCompact ? navigation : <Island sx={{ m: ISLAND_MARGIN, p: ISLAND_PADDING }}>{navigation}</Island>)}
-      {isCompact && hasDetail && (
-        <Box sx={{ flexShrink: 0, p: 0.5, borderBottom: 1, borderColor: 'divider' }}>
-          <IconButton component={RouterLink} to={listRoute} aria-label={t('back')}>
-            <ArrowBackIcon />
-          </IconButton>
-        </Box>
-      )}
-      {(!isCompact || hasDetail) && (
-        <Box component="main" sx={{ flex: 1, minWidth: 0, minHeight: 0, overflowY: 'auto' }}>
-          {children}
-        </Box>
-      )}
+      {!isCompact && <Island sx={{ m: ISLAND_MARGIN, p: ISLAND_PADDING }}>{navigation}</Island>}
+      <Box component="main" sx={{ flex: 1, minWidth: 0, minHeight: 0, overflowY: 'auto' }}>
+        {children}
+      </Box>
+      {isCompact && <AdminNavRail />}
     </Stack>
   )
 }

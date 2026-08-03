@@ -136,7 +136,15 @@ export const router = createBrowserRouter(
           </AdminAuthWrapper>
         }
       >
-        <Route path="admin/settings" element={<></>} />
+        <Route
+          path="admin/settings"
+          element={
+            <Navigate
+              to={`/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`}
+              replace
+            />
+          }
+        />
         <Route
           path={`/admin/${AdminSettingSelection.CONFIGURATION}`}
           element={
