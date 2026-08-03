@@ -138,6 +138,7 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
         icon={
           <ConversationAvatar
             presence={true}
+            presenceBackgroundColor={isSelected ? theme.palette.primary.light : undefined}
             contactUri={
               Number(conversationSummary.mode) === 0 && filteredMembers.length > 0 ? filteredMembers[0].contact.uri : ''
             }

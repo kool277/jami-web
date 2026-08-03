@@ -48,12 +48,17 @@ describe('ConversationAvatar', () => {
     expect(image).toHaveAttribute('src', 'blob:http://localhost/1234')
   })
 
-  it('anchors the online indicator over the avatar corner', () => {
+  it('renders a proportional cutaway ring around the online indicator', () => {
     contactQueries.useContactProfilePicture.mockReturnValue({ data: undefined })
 
     render(
       <PresenceContext value={{ getPresence: () => 1, presence: new Map() }}>
-        <ConversationAvatar presence displayName="Ada" contactUri="260d9aaee80c84ffda86bdc579a0be8d07a70b65" />
+        <ConversationAvatar
+          presence
+          presenceBackgroundColor="#E5EEF5"
+          displayName="Ada"
+          contactUri="260d9aaee80c84ffda86bdc579a0be8d07a70b65"
+        />
       </PresenceContext>,
     )
 
@@ -61,9 +66,14 @@ describe('ConversationAvatar', () => {
     const indicator = image.parentElement?.parentElement?.querySelector('[aria-hidden="true"]')
     expect(indicator).toHaveStyle({
       position: 'absolute',
-      right: '-1px',
-      bottom: '-1px',
+      right: '-2px',
+      bottom: '-2px',
       width: '30%',
+      backgroundColor: '#E5EEF5',
+    })
+    expect(indicator?.firstElementChild).toHaveStyle({
+      position: 'absolute',
+      inset: '20%',
     })
   })
 })

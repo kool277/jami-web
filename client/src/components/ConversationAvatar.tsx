@@ -49,12 +49,14 @@ type ConversationAvatarProps = AvatarProps & {
   displayName: string
   contactUri: string
   presence?: boolean
+  presenceBackgroundColor?: string
 }
 
 export default function ConversationAvatar({
   displayName,
   contactUri,
   presence,
+  presenceBackgroundColor,
   src: srcProp,
   ...props
 }: ConversationAvatarProps) {
@@ -65,7 +67,7 @@ export default function ConversationAvatar({
 
   if (presence) {
     return (
-      <ConversationAvatarPresence buddy={contactUri}>
+      <ConversationAvatarPresence buddy={contactUri} backgroundColor={presenceBackgroundColor}>
         <Avatar
           {...props}
           alt={displayName?.toUpperCase()}
@@ -85,7 +87,15 @@ export default function ConversationAvatar({
   )
 }
 
-const ConversationAvatarPresence = ({ children, buddy }: { children: ReactNode; buddy: string }) => {
+const ConversationAvatarPresence = ({
+  children,
+  buddy,
+  backgroundColor,
+}: {
+  children: ReactNode
+  buddy: string
+  backgroundColor?: string
+}) => {
   const theme = useTheme()
   const { getPresence } = use(PresenceContext)
   const presenceState = getPresence(buddy)
@@ -100,16 +110,24 @@ const ConversationAvatarPresence = ({ children, buddy }: { children: ReactNode; 
       <Box
         sx={{
           position: 'absolute',
-          right: '-1px',
-          bottom: '-1px',
+          right: '-2px',
+          bottom: '-2px',
           width: '30%',
           aspectRatio: '1',
-          backgroundColor: '#33cc33',
+          backgroundColor: backgroundColor || theme.palette.background.paper,
           borderRadius: '50%',
-          border: '2px solid ' + theme.palette.background.paper,
         }}
         aria-hidden="true"
-      />
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: '20%',
+            backgroundColor: '#33cc33',
+            borderRadius: '50%',
+          }}
+        />
+      </Box>
     </Box>
   )
 }
