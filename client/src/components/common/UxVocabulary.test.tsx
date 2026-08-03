@@ -40,9 +40,22 @@ describe('UX vocabulary', () => {
   })
 
   it('marks loading skeletons as busy without exposing decorative placeholders', () => {
-    renderWithTheme(<LoadingSkeleton />)
+    const { rerender } = renderWithTheme(<LoadingSkeleton fullPage />)
 
     expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getAllByTestId('loading-skeleton-island')).toHaveLength(1)
+    expect(screen.getByTestId('loading-skeleton-navigation')).toBeVisible()
+    expect(screen.getAllByTestId('loading-skeleton-conversation')).toHaveLength(5)
+
+    rerender(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <LoadingSkeleton fullPage contentIsland navigation="settings" />
+      </ThemeProvider>,
+    )
+
+    expect(screen.getAllByTestId('loading-skeleton-island')).toHaveLength(2)
+    expect(screen.getByTestId('loading-skeleton-settings-navigation')).toBeVisible()
+    expect(screen.getAllByTestId('loading-skeleton-settings-row')).toHaveLength(5)
   })
 
   it('exposes durable errors as alerts', () => {

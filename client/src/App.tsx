@@ -19,7 +19,7 @@ import './dayjsInitializer.js' // Initialized once and globally to ensure availa
 
 import axios from 'axios'
 import { Suspense, useState } from 'react'
-import { LoaderFunctionArgs, Outlet, redirect } from 'react-router-dom'
+import { LoaderFunctionArgs, Outlet, redirect, useLocation } from 'react-router-dom'
 
 import LoadingSkeleton from './components/common/LoadingSkeleton.js'
 import WelcomeAnimation from './components/WelcomeAnimation.js'
@@ -74,13 +74,21 @@ export async function appLoader({ request }: LoaderFunctionArgs) {
 
 const App = () => {
   const [displayWelcome, setDisplayWelcome] = useState<boolean>(() => getAccessToken() === undefined)
+  const { pathname } = useLocation()
+  const isAdmin = pathname.startsWith('/admin')
+  const isSettings = pathname.startsWith('/settings')
+  const contentIsland = isAdmin || isSettings || /^\/conversation\/[^/]+$/.test(pathname)
 
   if (displayWelcome) {
     return <WelcomeAnimation onComplete={() => setDisplayWelcome(false)} />
   }
 
   return (
-    <Suspense fallback={<LoadingSkeleton />}>
+    <Suspense
+      fallback={
+        <LoadingSkeleton fullPage contentIsland={contentIsland} navigation={isSettings ? 'settings' : undefined} />
+      }
+    >
       <Outlet />
     </Suspense>
   )
