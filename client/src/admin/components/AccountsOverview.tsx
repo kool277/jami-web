@@ -18,7 +18,6 @@
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import IconButton from '@mui/material/IconButton'
-import Paper from '@mui/material/Paper'
 import { alpha } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -38,6 +37,7 @@ import { ChangeEvent, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { DeleteIcon } from '../../components/SvgIcon.js'
+import { SettingsPage, SettingsSection } from '../../settings/components/SettingsPage.js'
 import { getDataSizeUnits } from '../../utils/units.js'
 import { useDeleteAccounts, useGetAllAccounts } from '../services/adminQueries.js'
 import ValidationRequiredModal from './ValidationRequiredModal.js'
@@ -285,84 +285,82 @@ export default function AccountsOverview() {
   )
 
   return (
-    <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center' }}>
-      <Box sx={{ width: '85%', marginTop: '5%' }}>
-        <Paper sx={{ width: '100%', mb: 2, borderRadius: '16px' }}>
-          <EnhancedTableToolbar
-            numSelected={selected.length}
-            accountsNumber={rows.length}
-            onDelete={handleSubmitDeletion}
-          />
-          <TableContainer>
-            <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={'medium'}>
-              <EnhancedTableHead
-                numSelected={selected.length}
-                order={order}
-                orderBy={orderBy}
-                onSelectAllClick={handleSelectAllClick}
-                onRequestSort={handleRequestSort}
-                rowCount={rows.length}
-              />
-              <TableBody>
-                {visibleRows.map((row, index) => {
-                  const isItemSelected = selected.includes(row.accountUri)
-                  const labelId = `enhanced-table-checkbox-${index}`
+    <SettingsPage title={t('accounts')}>
+      <SettingsSection title={t('admin_page_accounts_overview_title', { count: rows.length })} list={false}>
+        <EnhancedTableToolbar
+          numSelected={selected.length}
+          accountsNumber={rows.length}
+          onDelete={handleSubmitDeletion}
+        />
+        <TableContainer sx={{ borderTop: 1, borderBottom: 1, borderColor: 'divider' }}>
+          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={'medium'}>
+            <EnhancedTableHead
+              numSelected={selected.length}
+              order={order}
+              orderBy={orderBy}
+              onSelectAllClick={handleSelectAllClick}
+              onRequestSort={handleRequestSort}
+              rowCount={rows.length}
+            />
+            <TableBody>
+              {visibleRows.map((row, index) => {
+                const isItemSelected = selected.includes(row.accountUri)
+                const labelId = `enhanced-table-checkbox-${index}`
 
-                  return (
-                    <TableRow
-                      hover
-                      onClick={(event) => handleClick(event, row.accountUri)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.accountUri}
-                      selected={isItemSelected}
-                      sx={{ cursor: 'pointer' }}
-                    >
-                      <TableCell sx={{ paddingLeft: '0.5%' }} component="th" id={labelId} scope="row" padding="none">
-                        {row.username}
-                        <Box sx={{ typography: 'caption', color: 'text.secondary' }}>{row.accountUri}</Box>
-                      </TableCell>
-                      <TableCell align="right">{row.accountId}</TableCell>
-                      <TableCell align="right">{row.auth}</TableCell>
-                      <TableCell align="right">{getDataSizeUnits(row.storage, i18n.language)}</TableCell>
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          slotProps={{
-                            input: {
-                              'aria-labelledby': labelId,
-                            },
-                          }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-                {emptyRows > 0 && (
+                return (
                   <TableRow
-                    style={{
-                      height: 53 * emptyRows,
-                    }}
+                    hover
+                    onClick={(event) => handleClick(event, row.accountUri)}
+                    role="checkbox"
+                    aria-checked={isItemSelected}
+                    tabIndex={-1}
+                    key={row.accountUri}
+                    selected={isItemSelected}
+                    sx={{ cursor: 'pointer' }}
                   >
-                    <TableCell colSpan={6} />
+                    <TableCell sx={{ paddingLeft: '0.5%' }} component="th" id={labelId} scope="row" padding="none">
+                      {row.username}
+                      <Box sx={{ typography: 'caption', color: 'text.secondary' }}>{row.accountUri}</Box>
+                    </TableCell>
+                    <TableCell align="right">{row.accountId}</TableCell>
+                    <TableCell align="right">{row.auth}</TableCell>
+                    <TableCell align="right">{getDataSizeUnits(row.storage, i18n.language)}</TableCell>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        color="primary"
+                        checked={isItemSelected}
+                        slotProps={{
+                          input: {
+                            'aria-labelledby': labelId,
+                          },
+                        }}
+                      />
+                    </TableCell>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={rowPerPagesOptions}
-            component="div"
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
-      </Box>
+                )
+              })}
+              {emptyRows > 0 && (
+                <TableRow
+                  style={{
+                    height: 53 * emptyRows,
+                  }}
+                >
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={rowPerPagesOptions}
+          component="div"
+          count={rows.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </SettingsSection>
       {modalOpen && (
         <ValidationRequiredModal
           info={t('remove_account_info')}
@@ -373,6 +371,6 @@ export default function AccountsOverview() {
           onValidation={handleSubmitDeletionValidation}
         />
       )}
-    </Box>
+    </SettingsPage>
   )
 }

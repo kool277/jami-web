@@ -15,16 +15,16 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Input, Stack, Switch, Typography } from '@mui/material'
+import { Input, Stack, Switch } from '@mui/material'
 import { urlRegex } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, use, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Form, Navigate } from 'react-router-dom'
 
 import BaseButton from '../../components/common/BaseButton.js'
-import LayoutSettings from '../../components/LayoutSettings.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
+import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
 import {
   useGetAdminConfigQuery,
   useGetNameServer,
@@ -43,7 +43,6 @@ const LocalAuthMethod = () => {
     return <Navigate to="/admin/login" replace />
   }
 
-  // TODO: handle error and notify the user that something went wrong
   if (data === undefined || nameServerConfigured === undefined) {
     return <ProcessingRequest open />
   }
@@ -69,16 +68,7 @@ const LocalAuthMethodForm = ({
     saveAdminConfigMutation.mutate({ localAuthEnabled: !data.localAuthEnabled })
   }
 
-  const handleNameChangeNameServer = (event: ChangeEvent<HTMLInputElement>) => {
-    setNameServer(event.target.value)
-  }
-
-  const deleteNameServer = async () => {
-    resetServerNameMutation.mutate()
-  }
-
   const submitNewNameServer = async () => {
-    // verifies if the string is a server address or name server
     if (urlRegex.test(nameServer) && nameServer !== nameServerConfigured) {
       setNameServerMutation.mutate(nameServer)
       setNameServer('')
@@ -92,45 +82,40 @@ const LocalAuthMethodForm = ({
   }
 
   return (
-    <LayoutSettings title={t('jami_authentication')} text={t('jami_authentication_info')} disableMarginTop>
-      <Stack spacing={3} sx={{ width: '100%', minWidth: '300px', pb: 2 }}>
-        <Box sx={{ textAlign: 'start', width: '100%' }}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
-            <Typography>{t('setting_auth_change', { authMethod: t('jami') })}</Typography>
-            <Switch checked={data.localAuthEnabled} onChange={handleChange} />
-          </Box>
-          <Stack spacing={1.5} sx={{ mt: 3 }}>
-            <Typography component="label" htmlFor="name-server-input">
-              {t('setting_name_server')}
-            </Typography>
-            <Form style={{ width: '100%' }}>
-              <Input id="name-server-input" fullWidth value={nameServer} onChange={handleNameChangeNameServer} />
-            </Form>
+    <SettingsPage title={t('jami_authentication')} description={t('jami_authentication_info')}>
+      <SettingsSection title={t('jami_authentication')} list={false}>
+        <SettingsRow
+          title={t('setting_auth_change', { authMethod: t('jami') })}
+          control={<Switch checked={data.localAuthEnabled} onChange={handleChange} />}
+        />
+      </SettingsSection>
+      <SettingsSection title={t('setting_name_server')} list={false}>
+        <Form>
+          <Stack spacing={2}>
+            <Input
+              id="name-server-input"
+              fullWidth
+              value={nameServer}
+              onChange={(event: ChangeEvent<HTMLInputElement>) => setNameServer(event.target.value)}
+              inputProps={{ 'aria-label': t('setting_name_server') }}
+            />
+            <Stack direction="row" sx={{ justifyContent: 'flex-end', flexWrap: 'wrap', gap: 1 }}>
+              <BaseButton variant="contained" onClick={() => resetServerNameMutation.mutate()}>
+                {t('reset_nameserver_button')}
+              </BaseButton>
+              <BaseButton
+                variant="contained"
+                type="submit"
+                onClick={submitNewNameServer}
+                disabled={nameServer === nameServerConfigured}
+              >
+                {t('save_button')}
+              </BaseButton>
+            </Stack>
           </Stack>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: 1, mt: 3 }}>
-            <BaseButton variant="contained" onClick={deleteNameServer}>
-              {t('reset_nameserver_button')}
-            </BaseButton>
-            <BaseButton
-              variant="contained"
-              type="submit"
-              onClick={submitNewNameServer}
-              disabled={nameServer === nameServerConfigured}
-            >
-              {t('save_button')}
-            </BaseButton>
-          </Box>
-        </Box>
-      </Stack>
-    </LayoutSettings>
+        </Form>
+      </SettingsSection>
+    </SettingsPage>
   )
 }
 

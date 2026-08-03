@@ -15,23 +15,21 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Divider, List, ListItem, ListItemText } from '@mui/material'
+import { ListItemButton, ListItemText, Typography } from '@mui/material'
 import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate, NavLink } from 'react-router-dom'
 
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
-import rightChevron from '../../icons/rightChevron.svg'
+import { SettingsPage, SettingsSection } from '../../settings/components/SettingsPage.js'
 import { useGetAdminConfigQuery } from '../services/adminQueries.js'
 
 export default function AuthMethods() {
   const { t } = useTranslation()
   const [accessToken] = useState(() => localStorage.getItem('adminAccessToken'))
   const { data } = useGetAdminConfigQuery()
-  const navigate = useNavigate()
 
   if (!accessToken) {
     return <Navigate to="/admin/login" replace />
@@ -45,133 +43,34 @@ export default function AuthMethods() {
   const isOpenIdEnabled = data.openIdAuthEnabled
   const isGuestEnabled = data.guestAccessEnabled
 
-  const handleAuthMethodSelection = async (authMethod: AuthenticationMethods) => {
-    await new Promise((r) => setTimeout(r, 200))
-    navigate(`/admin/${AdminSettingSelection.AUTHENTICATION}/${authMethod}`)
-  }
-
-  const listStyle = {
-    py: 0,
-    width: '100vw',
-    maxWidth: '360px',
-    borderRadius: 2,
-    border: '1px solid',
-    borderColor: 'divider',
-    backgroundColor: 'background.paper',
-    margin: '5%',
-  }
-
-  const listItemStyle = {
-    width: '100%',
-    borderRadius: '12px',
-    textAlign: 'center',
-    ':hover': { cursor: 'pointer' },
-  }
-  const listItemText = {
-    ':hover': { fontWeight: 'bolder' },
-  }
-
-  const activeIndicatorStyle = {
-    typography: 'caption',
-    marginTop: '-0.4rem',
-  }
-  const disabledColor = '#CC0022'
-  const enabledColor = '#00796B'
+  const methods = [
+    { title: t('jami'), enabled: isLocalEnabled, method: AuthenticationMethods.JAMI },
+    { title: t('jams'), enabled: isJamsEnabled, method: AuthenticationMethods.JAMS },
+    { title: t('openid'), enabled: isOpenIdEnabled, method: AuthenticationMethods.OPENID },
+    { title: t('guest'), enabled: isGuestEnabled, method: AuthenticationMethods.GUEST },
+  ]
 
   return (
-    <AnimatePresence>
-      <motion.div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'center',
-          alignContent: 'center',
-          marginTop: '8%',
-        }}
-        initial={{ x: -20 }}
-        animate={{ x: 0 }}
-        exit={{ x: 20 }}
-        transition={{ duration: 0.5 }}
-      >
-        <List sx={listStyle}>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.99 }}>
-            <ListItem
-              sx={listItemStyle}
-              onClick={() => {
-                handleAuthMethodSelection(AuthenticationMethods.JAMI)
-              }}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                <Box sx={{ textAlign: 'start' }}>
-                  <ListItemText sx={listItemText} primary={t('jami')} />
-                  <Box sx={activeIndicatorStyle} style={{ color: isLocalEnabled ? enabledColor : disabledColor }}>
-                    {isLocalEnabled ? t('setting_enabled') : t('setting_disabled')}
-                  </Box>
-                </Box>
-                <img src={rightChevron} alt=">" />
-              </Box>
-            </ListItem>
-          </motion.div>
-          <Divider variant="middle" component="li" />
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.99 }}>
-            <ListItem
-              sx={listItemStyle}
-              onClick={() => {
-                handleAuthMethodSelection(AuthenticationMethods.JAMS)
-              }}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                <Box sx={{ textAlign: 'start' }}>
-                  <ListItemText sx={listItemText} primary={t('jams')} />
-                  <Box sx={activeIndicatorStyle} style={{ color: isJamsEnabled ? enabledColor : disabledColor }}>
-                    {isJamsEnabled ? t('setting_enabled') : t('setting_disabled')}
-                  </Box>
-                </Box>
-                <img src={rightChevron} alt=">" />
-              </Box>
-            </ListItem>
-          </motion.div>
-
-          <Divider variant="middle" component="li" />
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.99 }}>
-            <ListItem
-              sx={listItemStyle}
-              onClick={() => {
-                handleAuthMethodSelection(AuthenticationMethods.OPENID)
-              }}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                <Box sx={{ textAlign: 'start' }}>
-                  <ListItemText sx={listItemText} primary={t('openid')} />
-                  <Box sx={activeIndicatorStyle} style={{ color: isOpenIdEnabled ? enabledColor : disabledColor }}>
-                    {isOpenIdEnabled ? t('setting_enabled') : t('setting_disabled')}
-                  </Box>
-                </Box>
-                <img src={rightChevron} alt=">" />
-              </Box>
-            </ListItem>
-          </motion.div>
-          <Divider variant="middle" component="li" />
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.99 }}>
-            <ListItem
-              sx={listItemStyle}
-              onClick={() => {
-                handleAuthMethodSelection(AuthenticationMethods.GUEST)
-              }}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                <Box sx={{ textAlign: 'start' }}>
-                  <ListItemText sx={listItemText} primary={t('guest')} />
-                  <Box sx={activeIndicatorStyle} style={{ color: isGuestEnabled ? enabledColor : disabledColor }}>
-                    {isGuestEnabled ? t('setting_enabled') : t('setting_disabled')}
-                  </Box>
-                </Box>
-                <img src={rightChevron} alt=">" />
-              </Box>
-            </ListItem>
-          </motion.div>
-        </List>
-      </motion.div>
-    </AnimatePresence>
+    <SettingsPage title={t('authentication')}>
+      <SettingsSection title={t('authentication')}>
+        {methods.map(({ title, enabled, method }) => (
+          <ListItemButton
+            component={NavLink}
+            to={`/admin/${AdminSettingSelection.AUTHENTICATION}/${method}`}
+            key={method}
+            sx={{ py: 1.5 }}
+          >
+            <ListItemText
+              primary={title}
+              secondary={
+                <Typography color={enabled ? 'success.main' : 'error.main'} variant="body2">
+                  {enabled ? t('setting_enabled') : t('setting_disabled')}
+                </Typography>
+              }
+            />
+          </ListItemButton>
+        ))}
+      </SettingsSection>
+    </SettingsPage>
   )
 }

@@ -17,29 +17,23 @@
  */
 import Fingerprint from '@mui/icons-material/Fingerprint'
 import {
-  Box,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemSecondaryAction,
-  ListItemText,
+  Stack,
   TextField,
   Typography,
 } from '@mui/material'
 import { browserSupportsWebAuthn } from '@simplewebauthn/browser'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import BaseButton from '../../components/common/BaseButton.js'
 import PasswordField from '../../components/common/PasswordField.js'
-import LayoutSettings from '../../components/LayoutSettings.js'
 import { DeleteIcon } from '../../components/SvgIcon.js'
+import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
 import {
   useAdminDeletePasskeyMutation,
   useAdminPasskeyCredentialsQuery,
@@ -52,7 +46,6 @@ export default function AuthMethods() {
   const [oldPassword, setOldPassword] = useState<string>('')
   const [newPassword, setNewPassword] = useState<string>('')
   const [repeatPassword, setRepeatPassword] = useState<string>('')
-
   const passwordMutation = useUpdateAdminPasswordMutation()
 
   function validatePasswordChange() {
@@ -71,95 +64,60 @@ export default function AuthMethods() {
     setRepeatPassword('')
   }
 
-  function onOldPasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setOldPassword(event.target.value)
-  }
-
-  function onNewPasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setNewPassword(event.target.value)
-  }
-
-  function onRepeatPasswordChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setRepeatPassword(event.target.value)
-  }
-
   return (
-    <>
-      <LayoutSettings title={t('setting_change_admin_password')} text={t('setting_change_admin_password_text')}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-          }}
-        >
-          <AnimatePresence>
-            <motion.div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignContent: 'center',
-              }}
-              initial={{ x: -20 }}
-              animate={{ x: 0 }}
-              exit={{ x: 20 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <PasswordField
-                  label={t('admin_page_password_old_placeholder')}
-                  value={oldPassword}
-                  onChange={onOldPasswordChange}
-                />
-                <PasswordField
-                  label={t('admin_page_password_placeholder')}
-                  value={newPassword}
-                  onChange={onNewPasswordChange}
-                  autoComplete="new-password"
-                />
-                <PasswordField
-                  label={t('admin_page_password_repeat_placeholder')}
-                  value={repeatPassword}
-                  onChange={onRepeatPasswordChange}
-                  autoComplete="new-password"
-                />
-                <Box
-                  sx={{
-                    typography: 'caption',
-                    color: '#CC0022',
-                    visibility:
-                      newPassword !== repeatPassword && newPassword !== '' && repeatPassword !== ''
-                        ? 'visible'
-                        : 'hidden',
-                  }}
-                >
-                  {t('password_input_helper_text_not_match')}
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', marginTop: '10%' }}>
-                  <BaseButton
-                    variant="contained"
-                    type="submit"
-                    onClick={validatePasswordChange}
-                    disabled={
-                      oldPassword === '' ||
-                      newPassword === '' ||
-                      repeatPassword === '' ||
-                      newPassword !== repeatPassword ||
-                      oldPassword === newPassword
-                    }
-                  >
-                    {t('admin_page_password_submit')}
-                  </BaseButton>
-                </Box>
-              </Box>
-            </motion.div>
-          </AnimatePresence>
-        </Box>
-      </LayoutSettings>
-
+    <SettingsPage title={t('admin_account_configuration')}>
+      <SettingsSection
+        title={t('setting_change_admin_password')}
+        description={t('setting_change_admin_password_text')}
+        list={false}
+      >
+        <Stack spacing={2}>
+          <PasswordField
+            label={t('admin_page_password_old_placeholder')}
+            value={oldPassword}
+            onChange={(event) => setOldPassword(event.target.value)}
+          />
+          <PasswordField
+            label={t('admin_page_password_placeholder')}
+            value={newPassword}
+            onChange={(event) => setNewPassword(event.target.value)}
+            autoComplete="new-password"
+          />
+          <PasswordField
+            label={t('admin_page_password_repeat_placeholder')}
+            value={repeatPassword}
+            onChange={(event) => setRepeatPassword(event.target.value)}
+            autoComplete="new-password"
+          />
+          <Typography
+            variant="caption"
+            color="error"
+            sx={{
+              visibility:
+                newPassword !== repeatPassword && newPassword !== '' && repeatPassword !== '' ? 'visible' : 'hidden',
+            }}
+          >
+            {t('password_input_helper_text_not_match')}
+          </Typography>
+          <BaseButton
+            variant="contained"
+            type="submit"
+            onClick={validatePasswordChange}
+            disabled={
+              oldPassword === '' ||
+              newPassword === '' ||
+              repeatPassword === '' ||
+              newPassword !== repeatPassword ||
+              oldPassword === newPassword
+            }
+            sx={{ alignSelf: 'flex-end' }}
+          >
+            {t('admin_page_password_submit')}
+          </BaseButton>
+        </Stack>
+      </SettingsSection>
       {browserSupportsWebAuthn() && <AdminPasskeySection />}
-    </>
+    </SettingsPage>
   )
 }
 
@@ -167,7 +125,6 @@ function AdminPasskeySection() {
   const { t } = useTranslation()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [passkeyName, setPasskeyName] = useState('')
-
   const { data: passkeys, isLoading } = useAdminPasskeyCredentialsQuery()
   const registerMutation = useAdminRegisterPasskeyMutation()
   const deleteMutation = useAdminDeletePasskeyMutation()
@@ -179,50 +136,41 @@ function AdminPasskeySection() {
   }
 
   return (
-    <LayoutSettings title={t('passkey_section_title')} text={t('passkey_section_description')}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        {isLoading ? null : passkeys && passkeys.length > 0 ? (
-          <List dense sx={{ width: '100%', maxWidth: 400 }}>
-            {passkeys.map((pk) => (
-              <ListItem key={pk.credentialId}>
-                <ListItemIcon>
-                  <Fingerprint />
-                </ListItemIcon>
-                <ListItemText
-                  primary={pk.name}
-                  secondary={t('passkey_registered_on', {
-                    date: new Date(pk.createdAt).toLocaleDateString(),
-                  })}
-                />
-                <ListItemSecondaryAction>
+    <>
+      <SettingsSection title={t('passkey_section_title')} description={t('passkey_section_description')}>
+        {!isLoading &&
+          (passkeys && passkeys.length > 0 ? (
+            passkeys.map((pk) => (
+              <SettingsRow
+                key={pk.credentialId}
+                title={pk.name}
+                description={t('passkey_registered_on', {
+                  date: new Date(pk.createdAt).toLocaleDateString(),
+                })}
+                control={
                   <IconButton
-                    edge="end"
+                    aria-label={t('remove_button')}
                     onClick={() => deleteMutation.mutate(pk.credentialId)}
                     disabled={deleteMutation.isPending}
                   >
                     <DeleteIcon />
                   </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))}
-          </List>
-        ) : (
-          <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
-            {t('passkey_no_credentials')}
-          </Typography>
-        )}
-
-        <BaseButton
-          variant="outlined"
-          startIcon={<Fingerprint />}
-          onClick={() => setDialogOpen(true)}
-          disabled={registerMutation.isPending}
-          sx={{ mt: 1 }}
-        >
-          {t('passkey_register_button')}
-        </BaseButton>
-      </Box>
-
+                }
+              />
+            ))
+          ) : (
+            <SettingsRow title={t('passkey_no_credentials')} />
+          ))}
+      </SettingsSection>
+      <BaseButton
+        variant="outlined"
+        startIcon={<Fingerprint />}
+        onClick={() => setDialogOpen(true)}
+        disabled={registerMutation.isPending}
+        sx={{ alignSelf: 'flex-start' }}
+      >
+        {t('passkey_register_button')}
+      </BaseButton>
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle>{t('passkey_register_button')}</DialogTitle>
         <DialogContent>
@@ -233,7 +181,7 @@ function AdminPasskeySection() {
             placeholder={t('passkey_name_placeholder')}
             fullWidth
             value={passkeyName}
-            onChange={(e) => setPasskeyName(e.target.value)}
+            onChange={(event) => setPasskeyName(event.target.value)}
           />
         </DialogContent>
         <DialogActions>
@@ -245,6 +193,6 @@ function AdminPasskeySection() {
           </BaseButton>
         </DialogActions>
       </Dialog>
-    </LayoutSettings>
+    </>
   )
 }

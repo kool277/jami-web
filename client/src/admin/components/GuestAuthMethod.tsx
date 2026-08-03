@@ -16,11 +16,11 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, FormControl, FormControlLabel, FormGroup, Switch } from '@mui/material'
+import { Switch } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
-import LayoutSettings from '../../components/LayoutSettings.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
+import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
 import { useGetAdminConfigQuery, useUpdateAdminConfigMutation } from '../services/adminQueries.js'
 
 export default function GuestAuthMethod() {
@@ -38,30 +38,13 @@ export default function GuestAuthMethod() {
   }
 
   return (
-    <LayoutSettings title={t('guest_authentication')} text={t('guest_authentication_info')}>
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80%', width: '100%' }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', width: '300px', gap: '20px' }}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignContent: 'center',
-              height: '3rem',
-            }}
-          >
-            <span style={{ paddingRight: '10%' }}>{t('setting_auth_change', { authMethod: t('guest') })}</span>
-            <FormControl>
-              <FormGroup style={{ marginTop: '2%', alignItems: 'center' }}>
-                <FormControlLabel
-                  control={<Switch checked={data.guestAccessEnabled} onChange={handleChange} />}
-                  label={undefined}
-                />
-              </FormGroup>
-            </FormControl>
-          </Box>
-        </Box>
-      </Box>
-    </LayoutSettings>
+    <SettingsPage title={t('guest_authentication')} description={t('guest_authentication_info')}>
+      <SettingsSection title={t('guest_authentication')} list={false}>
+        <SettingsRow
+          title={t('setting_auth_change', { authMethod: t('guest') })}
+          control={<Switch checked={data.guestAccessEnabled} onChange={handleChange} />}
+        />
+      </SettingsSection>
+    </SettingsPage>
   )
 }

@@ -16,14 +16,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, TextField } from '@mui/material'
+import { TextField } from '@mui/material'
 import { use, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import LayoutSettings from '../../components/LayoutSettings.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { useGetAutoDownloadLimit } from '../../services/dataTransferQueries.js'
+import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
 import { useSetAutoDownloadLimit } from '../services/adminQueries.js'
 
 export default function DownloadLimit() {
@@ -75,18 +75,22 @@ const DownloadLimitForm = ({ configuredLimit }: { configuredLimit: number }) => 
   }, [saveIfNeeded])
 
   return (
-    <LayoutSettings title={t('download_limit')} text={t('download_limit_details')}>
-      <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', gap: '10px' }}>
-        <TextField
-          type="number"
-          value={currentLimit}
-          onChange={handleLimitChange}
-          size="small"
-          slotProps={{
-            htmlInput: { min: '0' },
-          }}
+    <SettingsPage title={t('download_limit')} description={t('download_limit_details')}>
+      <SettingsSection title={t('download_limit')} list={false}>
+        <SettingsRow
+          title={t('download_limit')}
+          description={t('download_limit_details')}
+          control={
+            <TextField
+              type="number"
+              value={currentLimit}
+              onChange={handleLimitChange}
+              size="small"
+              slotProps={{ htmlInput: { min: '0' } }}
+            />
+          }
         />
-      </Box>
-    </LayoutSettings>
+      </SettingsSection>
+    </SettingsPage>
   )
 }

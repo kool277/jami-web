@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, MenuItem, Stack, Switch, TextField, Typography } from '@mui/material'
+import { MenuItem, Switch, TextField, Typography } from '@mui/material'
 import {
   ConferenceResolution,
   conferenceResolutionValues,
@@ -25,9 +25,9 @@ import {
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import LayoutSettings from '../../components/LayoutSettings.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { useGetConferenceResolution } from '../../services/dataTransferQueries.js'
+import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
 import {
   useGetAdminConfigQuery,
   useSetConferenceResolution,
@@ -86,39 +86,22 @@ const MediaSettingsForm = ({
   }
 
   return (
-    <LayoutSettings title={t('media_settings')} text={t('media_settings_details')}>
-      <Stack spacing={3} sx={{ width: '100%', minWidth: '300px', pb: 2 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 2,
-            width: '100%',
-          }}
-        >
-          <Box sx={{ textAlign: 'start' }}>
-            <Typography>{t('no_local_media')}</Typography>
-            <Typography variant="body2" color="textSecondary">
-              {t('no_local_media_details')}
-            </Typography>
-          </Box>
-          <Switch checked={noLocalMediaEnabled} onChange={handleNoLocalMediaChange} />
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: '100%' }}>
-          <Box sx={{ textAlign: 'start' }}>
-            <Typography>{t('conference_resolution')}</Typography>
-            <Typography variant="body2" color="textSecondary">
-              {t('conference_resolution_details')}
-            </Typography>
-          </Box>
-          <Box sx={{ mt: 1, width: '100%', display: 'flex', justifyContent: 'center' }}>
+    <SettingsPage title={t('media_settings')} description={t('media_settings_details')}>
+      <SettingsSection title={t('media_settings')} list={false}>
+        <SettingsRow
+          title={t('no_local_media')}
+          description={t('no_local_media_details')}
+          control={<Switch checked={noLocalMediaEnabled} onChange={handleNoLocalMediaChange} />}
+        />
+        <SettingsRow
+          title={t('conference_resolution')}
+          description={t('conference_resolution_details')}
+          control={
             <TextField
               select
               value={conferenceResolution}
               size="small"
-              sx={{ minWidth: '220px' }}
+              sx={{ minWidth: 220 }}
               onChange={handleConferenceResolutionChange}
             >
               {conferenceResolutionValues.map((resolution) => (
@@ -127,12 +110,12 @@ const MediaSettingsForm = ({
                 </MenuItem>
               ))}
             </TextField>
-          </Box>
-        </Box>
-        <Typography variant="body2" color="textSecondary" sx={{ textAlign: 'start' }}>
+          }
+        />
+        <Typography color="text.secondary" variant="body2">
           {t('media_settings_restart_required')}
         </Typography>
-      </Stack>
-    </LayoutSettings>
+      </SettingsSection>
+    </SettingsPage>
   )
 }

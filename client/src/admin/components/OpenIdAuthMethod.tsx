@@ -15,16 +15,14 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-
-import { Box, Divider, List, ListItem, ListItemText, Typography } from '@mui/material'
+import { ListItemButton, ListItemText, Typography } from '@mui/material'
 import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
-import rightChevron from '../../icons/rightChevron.svg'
+import { SettingsPage, SettingsRow, SettingsSection } from '../../settings/components/SettingsPage.js'
 import { useGetAdminConfigQuery, useGetAllOauthClients } from '../services/adminQueries.js'
 
 type OAuthProviderSummary = {
@@ -43,98 +41,30 @@ export default function OpenIdAuthMethod() {
     return <ProcessingRequest open />
   }
 
-  const listStyle = {
-    py: 0,
-    width: '100vw',
-    maxWidth: '360px',
-    borderRadius: 2,
-    border: '1px solid',
-    borderColor: 'divider',
-    backgroundColor: 'background.paper',
-    margin: '5%',
-  }
-
-  const listItemStyle = {
-    width: '100%',
-    borderRadius: '12px',
-    textAlign: 'center',
-    ':hover': { cursor: 'pointer' },
-  }
-
-  const listItemText = {
-    ':hover': { fontWeight: 'bolder' },
-  }
-
-  const activeIndicatorStyle = {
-    typography: 'caption',
-    marginTop: '-0.4rem',
-  }
-
-  const disabledColor = '#CC0022'
-  const enabledColor = '#00796B'
-
   const handleSelection = (provider: string) => {
     navigate(`/admin/${AdminSettingSelection.AUTHENTICATION}/${AuthenticationMethods.OPENID}/${provider}`)
   }
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '80%', width: '100%' }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', width: '350px', gap: '20px' }}>
-        <Box>
-          <Typography variant="h6">{t('openid_authentication')}</Typography>
-        </Box>
-        <AnimatePresence>
-          <motion.div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'center',
-              alignContent: 'center',
-            }}
-            initial={{ x: -20 }}
-            animate={{ x: 0 }}
-            exit={{ x: 20 }}
-            transition={{ duration: 0.5 }}
-          >
-            {providers.data.length === 0 ? (
-              <Box sx={{ ...listStyle, p: 2, textAlign: 'center' }}>
-                <Typography color="text.secondary">{t('no_oauth_providers')}</Typography>
-              </Box>
-            ) : (
-              <List sx={listStyle}>
-                {providers.data.map((provider: OAuthProviderSummary, index: number) => (
-                  <Box key={provider.name}>
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.99 }}>
-                      <ListItem
-                        sx={listItemStyle}
-                        onClick={() => {
-                          handleSelection(provider.name)
-                        }}
-                      >
-                        <Box
-                          sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}
-                        >
-                          <Box sx={{ textAlign: 'start' }}>
-                            <ListItemText sx={listItemText} primary={provider.displayName} />
-                            <Box
-                              sx={activeIndicatorStyle}
-                              style={{ color: provider.isActive ? enabledColor : disabledColor }}
-                            >
-                              {provider.isActive ? t('setting_enabled') : t('setting_disabled')}
-                            </Box>
-                          </Box>
-                          <img src={rightChevron} alt=">" />
-                        </Box>
-                      </ListItem>
-                    </motion.div>
-                    {providers.data.length - 1 !== index && <Divider variant="middle" component="li" />}
-                  </Box>
-                ))}
-              </List>
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </Box>
-    </Box>
+    <SettingsPage title={t('openid_authentication')}>
+      <SettingsSection title={t('openid_authentication')}>
+        {providers.data.length === 0 ? (
+          <SettingsRow title={t('no_oauth_providers')} />
+        ) : (
+          providers.data.map((provider: OAuthProviderSummary) => (
+            <ListItemButton key={provider.name} onClick={() => handleSelection(provider.name)} sx={{ py: 1.5 }}>
+              <ListItemText
+                primary={provider.displayName}
+                secondary={
+                  <Typography color={provider.isActive ? 'success.main' : 'error.main'} variant="body2">
+                    {provider.isActive ? t('setting_enabled') : t('setting_disabled')}
+                  </Typography>
+                }
+              />
+            </ListItemButton>
+          ))
+        )}
+      </SettingsSection>
+    </SettingsPage>
   )
 }
