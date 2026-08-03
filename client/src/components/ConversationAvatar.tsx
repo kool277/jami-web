@@ -94,31 +94,22 @@ const ConversationAvatarPresence = ({ children, buddy }: { children: ReactNode; 
     return children
   }
 
-  const presenceIconSize = '12px'
-
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', width: 'auto', height: 'auto' }}>
+    <Box sx={{ position: 'relative', display: 'inline-flex', flexShrink: 0 }}>
       {children}
       <Box
         sx={{
-          display: 'flex',
-          width: '100%',
-          justifyContent: 'flex-end',
-          marginTop: '-7px',
-          marginLeft: '-3px',
-          zIndex: '100',
+          position: 'absolute',
+          right: '-1px',
+          bottom: '-1px',
+          width: '30%',
+          aspectRatio: '1',
+          backgroundColor: '#33cc33',
+          borderRadius: '50%',
+          border: '2px solid ' + theme.palette.background.paper,
         }}
-      >
-        <Box
-          sx={{
-            width: presenceIconSize,
-            height: presenceIconSize,
-            backgroundColor: '#33cc33',
-            borderRadius: '50%',
-            border: '2px solid ' + theme.palette.background.paper,
-          }}
-        />
-      </Box>
+        aria-hidden="true"
+      />
     </Box>
   )
 }

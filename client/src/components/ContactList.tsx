@@ -141,7 +141,7 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
               }}
             >
               <ListItemAvatar>
-                <ConversationAvatar contactUri={contact.id} displayName={contact.username} />
+                <ConversationAvatar presence contactUri={contact.id} displayName={contact.username} />
               </ListItemAvatar>
               <ListItemText
                 primary={

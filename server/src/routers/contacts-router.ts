@@ -22,8 +22,10 @@ import { Container } from 'typedi'
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
+import { PresenceService } from '../services/PresenceService.js'
 import { getAvatar, getDisplayName } from '../utils/vCard.js'
 const jamid = Container.get(Jamid)
+const presenceService = Container.get(PresenceService)
 export const contactsRouter = Router()
 
 contactsRouter.use(authenticateToken)
@@ -32,6 +34,7 @@ contactsRouter.use(extendIfGuest)
 contactsRouter.get('/', async (_req, res) => {
   const contacts = jamid.getContacts(res.locals.accountId)
   for (const contact of contacts) {
+    presenceService.subscribe(res.locals.accountId, contact.id)
     contact.displayName = await getDisplayName(res.locals.accountId, contact.id)
     try {
       const username = await jamid.lookupAddress(contact.id, '', res.locals.accountId)

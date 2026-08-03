@@ -18,6 +18,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
+import { PresenceContext } from '../contexts/PresenceProvider.js'
 import ConversationAvatar from './ConversationAvatar.js'
 
 const contactQueries = vi.hoisted(() => ({
@@ -45,5 +46,24 @@ describe('ConversationAvatar', () => {
 
     const image = screen.getByRole('img')
     expect(image).toHaveAttribute('src', 'blob:http://localhost/1234')
+  })
+
+  it('anchors the online indicator over the avatar corner', () => {
+    contactQueries.useContactProfilePicture.mockReturnValue({ data: undefined })
+
+    render(
+      <PresenceContext value={{ getPresence: () => 1, presence: new Map() }}>
+        <ConversationAvatar presence displayName="Ada" contactUri="260d9aaee80c84ffda86bdc579a0be8d07a70b65" />
+      </PresenceContext>,
+    )
+
+    const image = screen.getByRole('img')
+    const indicator = image.parentElement?.parentElement?.querySelector('[aria-hidden="true"]')
+    expect(indicator).toHaveStyle({
+      position: 'absolute',
+      right: '-1px',
+      bottom: '-1px',
+      width: '30%',
+    })
   })
 })

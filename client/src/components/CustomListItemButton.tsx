@@ -34,7 +34,6 @@ export const CustomListItemButton = ({ icon, primaryText, secondaryText, ...prop
       alignItems="center"
       sx={{
         borderRadius: '9999px',
-        mx: theme.Panel.padding,
         py: theme.Panel.itemPadding,
         pl: '6px',
         pr: '12px',

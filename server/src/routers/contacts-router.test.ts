@@ -25,8 +25,11 @@ import { after, before, describe, it, mock } from 'node:test'
 import express from 'express'
 import { Container } from 'typedi'
 
+import { PresenceService } from '../services/PresenceService.js'
+
 const pngBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
 class MockJamid {}
+const subscribe = mock.fn()
 
 let avatarPath: string
 let tempDirectory: string
@@ -43,7 +46,10 @@ before(async () => {
 
   Container.set(MockJamid, {
     getAccountDetails: () => ({ 'Account.username': 'alice' }),
+    getContacts: () => [{ id: 'bob', username: 'Bob' }],
+    lookupAddress: async () => ({ name: 'Bob' }),
   })
+  Container.set(PresenceService, { subscribe })
   mock.module('../jamid/jamid.js', {
     namedExports: {
       Jamid: MockJamid,
@@ -78,6 +84,7 @@ before(async () => {
 after(async () => {
   mock.restoreAll()
   Container.remove(MockJamid)
+  Container.remove(PresenceService)
   await rm(tempDirectory, { recursive: true })
 })
 
@@ -99,6 +106,18 @@ function closeServer(server: Server): Promise<void> {
     server.close((error) => (error ? reject(error) : resolve()))
   })
 }
+
+describe('GET /contacts', () => {
+  it('subscribes every listed contact to presence updates', async () => {
+    const response = await request('/contacts')
+
+    assert.equal(response.status, 200)
+    assert.deepEqual(
+      subscribe.mock.calls.map((call) => call.arguments),
+      [['account-id', 'bob']],
+    )
+  })
+})
 
 describe('GET /contacts/:contactUri/profile/picture', () => {
   it('serves cached avatars with the image MIME type inferred from the extension', async () => {
