@@ -20,7 +20,6 @@ import { type ReactNode, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink, useLocation, useOutlet } from 'react-router-dom'
 
-import { useAuthContext } from '../../contexts/AuthProvider.js'
 import { useConversationRequestsQuery, useConversationsSummariesQuery } from '../../services/conversationQueries.js'
 import { isConversationUnread } from '../../utils/conversationFilters.js'
 import { isElectronMode } from '../../utils/electron.js'
@@ -73,11 +72,10 @@ export default function AppShell({
   const outlet = useOutlet()
   const hasDetail = outlet !== null && location.pathname !== listRoute
   const isDark = theme.palette.mode === 'dark'
-  const { account } = useAuthContext()
   const conversationRequestsQuery = useConversationRequestsQuery()
   const conversationsSummariesQuery = useConversationsSummariesQuery()
   const unreadConversationCount = (conversationsSummariesQuery.data || []).filter((conversation) =>
-    isConversationUnread(conversation, account.getUri()),
+    isConversationUnread(conversation),
   ).length
   // Electron draws no title bar of its own, so the shell background doubles as the
   // window drag surface while the panes on top of it stay interactive.

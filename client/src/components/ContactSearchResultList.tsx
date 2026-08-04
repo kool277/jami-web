@@ -19,7 +19,6 @@ import { Box, Dialog, DialogProps, Fab, List, ListSubheader, Typography } from '
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
-import { useAuthContext } from '../contexts/AuthProvider.js'
 import { Contact } from '../models/contact.js'
 import {
   useAddContactMutation,
@@ -43,7 +42,6 @@ type ContactSearchResultListProps = {
 
 export default ({ searchFilter, conversationFilter }: ContactSearchResultListProps) => {
   const { t } = useTranslation()
-  const { account } = useAuthContext()
 
   const contactsSearchQuery = useContactsSearchQuery(searchFilter)
   const contactsJamsSearchQuery = useJamsContactsSearchQuery(searchFilter)
@@ -57,7 +55,7 @@ export default ({ searchFilter, conversationFilter }: ContactSearchResultListPro
   }
 
   const conversationsSummaries = conversationsSummariesQuery.data
-    ? filterConversationSummaries(conversationsSummariesQuery.data, conversationFilter, account.getUri())
+    ? filterConversationSummaries(conversationsSummariesQuery.data, conversationFilter)
     : undefined
   const contactsSearchResult = contactsSearchQuery.data
   const contactsJamsSearchResult = contactsJamsSearchQuery.data

@@ -519,11 +519,9 @@ export class Jamid {
       throw new Error(accountId + ': Error looking up address: ' + address + ' with nameserver: ' + nameserver)
     }
 
-    console.log(`[DIAG] lookupAddress WAITING: address=${address.substring(0, 8)}`)
     const data = await firstValueFrom(
       this.events.onRegisteredNameFound.pipe(filter((value) => value.query === address)),
     )
-    console.log(`[DIAG] lookupAddress RESOLVED: address=${address.substring(0, 8)} name=${data.name}`)
     return data
   }
 

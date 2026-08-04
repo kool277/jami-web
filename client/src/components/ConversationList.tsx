@@ -20,7 +20,6 @@ import { WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
 import { useConversationsSummariesQuery, useRefreshConversationsSummaries } from '../services/conversationQueries.js'
 import { type ConversationFilter, filterConversationSummaries } from '../utils/conversationFilters.js'
@@ -47,7 +46,6 @@ export default function ConversationList({ searchFilter, conversationFilter }: C
 }
 
 const ConversationSummaries = ({ conversationFilter }: Pick<ConversationListProps, 'conversationFilter'>) => {
-  const { account } = useAuthContext()
   const conversationsSummariesQuery = useConversationsSummariesQuery()
   const conversationsSummaries = conversationsSummariesQuery.data || []
   const websocket = useWebSocketContext()
@@ -64,11 +62,7 @@ const ConversationSummaries = ({ conversationFilter }: Pick<ConversationListProp
     }
   }, [websocket, refreshConversationsSummaries])
 
-  const filteredConversations = filterConversationSummaries(
-    conversationsSummaries,
-    conversationFilter,
-    account.getUri(),
-  )
+  const filteredConversations = filterConversationSummaries(conversationsSummaries, conversationFilter)
 
   if (conversationsSummariesQuery.isSuccess) {
     const emptyState = getEmptyConversationState(

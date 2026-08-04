@@ -93,9 +93,7 @@ conversationRouter.get(
     const accountId = res.locals.accountId
     const conversationId = req.params.conversationId
 
-    console.log(`[DIAG] GET /conversations/${conversationId.substring(0, 8)} START`)
     const conversationSummary = await conversationService.createConversationSummary(accountId, conversationId)
-    console.log(`[DIAG] GET /conversations/${conversationId.substring(0, 8)} DONE`)
     if (conversationSummary === undefined) {
       res.status(HttpStatusCode.NotFound).send('No such conversation found')
       return
@@ -229,7 +227,6 @@ conversationRouter.get(
     const limit = Number.isFinite(requestedLimit) && requestedLimit > 0 ? requestedLimit : MESSAGES_NUMBER_TO_LOAD
     const infos = jamid.getConversationInfos(accountId, conversationId)
 
-    console.log(`[DIAG] GET /conversations/${conversationId.substring(0, 8)}/messages START`)
     jamid.clearCache(accountId, conversationId)
 
     if (Object.keys(infos).length === 0) {
@@ -238,7 +235,6 @@ conversationRouter.get(
     }
     const messages = await jamid.getSwarmMessages(accountId, conversationId, from, limit)
 
-    console.log(`[DIAG] GET /conversations/${conversationId.substring(0, 8)}/messages DONE (${messages.length} msgs)`)
     res.send(messages)
   }),
 )

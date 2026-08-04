@@ -18,6 +18,14 @@
 
 export const MESSAGES_NUMBER_TO_LOAD = 16
 
+/**
+ * Upper bound on the unread messages counted per conversation. The daemon
+ * exposes no "count interactions" binding, so the count requires loading
+ * messages; without a bound, rendering the conversation list would pull the
+ * entire history of every conversation. Counts at the bound mean "or more".
+ */
+export const MAX_UNREAD_MESSAGE_COUNT = 99
+
 export const MIN_PASSWORD_LENGTH = 8
 
 export const urlRegex = /^(https?:\/\/)?(localhost|([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?::\d{1,5})?(\/[^\s]*)?$/

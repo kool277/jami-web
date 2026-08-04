@@ -19,6 +19,7 @@
 import {
   IConversationRequest,
   IConversationSummary,
+  MAX_UNREAD_MESSAGE_COUNT,
   Message,
   WebSocketMessageType,
 } from '@savoirfairelinux/jami-web-common'
@@ -26,6 +27,7 @@ import { Container, Service } from 'typedi'
 
 import { ConversationRequestMetadata } from '../jamid/conversation-request-metadata.js'
 import { Jamid } from '../jamid/jamid.js'
+import { countUnreadMessages } from '../utils/unread-message-count.js'
 import { WebSocketServer } from '../websocket/websocket-server.js'
 import { ContactService } from './ContactService.js'
 import { PresenceService } from './PresenceService.js'
@@ -86,12 +88,19 @@ export class ConversationService {
     infos.avatar = infos.avatar ? `data:image/jpeg;base64,${infos.avatar}` : undefined
     jamid.clearCache(accountId, conversationId)
 
-    const [membersNames, message] = await Promise.all([
+    const accountUri = jamid.getAccountDetails(accountId)['Account.username']
+    const lastDisplayed = jamid
+      .getConversationMembers(accountId, conversationId)
+      .find((member) => member.uri === accountUri)?.lastDisplayed
+
+    // A single bounded load serves both the preview and the unread count: the
+    // daemon returns messages newest first, so the first one is the last message.
+    const [membersNames, messages] = await Promise.all([
       this.getMembersNames(accountId, conversationId),
-      jamid.getSwarmMessages(accountId, conversationId, '', 1),
+      jamid.getSwarmMessages(accountId, conversationId, '', MAX_UNREAD_MESSAGE_COUNT + 1),
     ])
 
-    const lastMessage: Message = message[0]
+    const lastMessage: Message = messages[0]
     return {
       id: conversationId,
       avatar: infos.avatar,
@@ -99,6 +108,7 @@ export class ConversationService {
       mode: infos.mode,
       membersNames,
       lastMessage,
+      unreadMessages: countUnreadMessages(messages, accountUri, lastDisplayed),
     }
   }
 
@@ -107,7 +117,6 @@ export class ConversationService {
     const accountUri = jamid.getAccountDetails(accountId)['Account.username']
     const members = jamid.getConversationMembers(accountId, conversationId)
 
-    console.log(`[DIAG] getMembersNames conv=${conversationId.substring(0, 8)} members=${members.length}`)
     const membersNamesPromises = members.map(async (member) => {
       if (member.uri === accountUri) {
         return
@@ -125,7 +134,6 @@ export class ConversationService {
       }
     })
     const membersNames = (await Promise.all(membersNamesPromises)).filter((name): name is string => name !== undefined)
-    console.log(`[DIAG] getMembersNames DONE conv=${conversationId.substring(0, 8)}`)
     return membersNames
   }
 }

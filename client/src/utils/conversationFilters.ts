@@ -15,34 +15,16 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { IConversationSummary, Message } from '@savoirfairelinux/jami-web-common'
-import { MessageStatusCode } from '@savoirfairelinux/jami-web-common/src/enums/message-status-code'
+import { IConversationSummary } from '@savoirfairelinux/jami-web-common'
 
 export type ConversationFilter = 'all' | 'unread' | 'groups'
 
-const readStatusFor = (message: Message, accountUri: string) => {
-  if (message.status instanceof Map) {
-    return message.status.get(accountUri)
-  }
+export const isConversationUnread = (conversation: IConversationSummary) => conversation.unreadMessages > 0
 
-  return (message.status as unknown as Record<string, MessageStatusCode>)[accountUri]
-}
-
-export const isConversationUnread = (conversation: IConversationSummary, accountUri: string) => {
-  const message = conversation.lastMessage
-  return Boolean(
-    message && message.author !== accountUri && readStatusFor(message, accountUri) !== MessageStatusCode.read,
-  )
-}
-
-export const filterConversationSummaries = (
-  conversations: IConversationSummary[],
-  filter: ConversationFilter,
-  accountUri: string,
-) => {
+export const filterConversationSummaries = (conversations: IConversationSummary[], filter: ConversationFilter) => {
   switch (filter) {
     case 'unread':
-      return conversations.filter((conversation) => isConversationUnread(conversation, accountUri))
+      return conversations.filter((conversation) => isConversationUnread(conversation))
     case 'groups':
       return conversations.filter((conversation) => conversation.mode !== '0')
     default:

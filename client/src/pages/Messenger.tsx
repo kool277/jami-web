@@ -24,20 +24,18 @@ import ConversationFilterChips from '../components/ConversationFilterChips.js'
 import ConversationList from '../components/ConversationList.js'
 import AppShell from '../components/shell/AppShell.js'
 import WelcomePage from '../components/WelcomePage.js'
-import { useAuthContext } from '../contexts/AuthProvider.js'
 import useDocumentTitle from '../hooks/useDocumentTitle.js'
 import { useConversationsSummariesQuery } from '../services/conversationQueries.js'
 import { type ConversationFilter, isConversationUnread } from '../utils/conversationFilters.js'
 
 export default function Messenger() {
   const { t } = useTranslation()
-  const { account } = useAuthContext()
   const conversationsSummariesQuery = useConversationsSummariesQuery()
   useDocumentTitle(t('conversations'))
   const [searchFilter, setSearchFilter] = useState('')
   const [conversationFilter, setConversationFilter] = useState<ConversationFilter>('all')
   const unreadConversationCount = (conversationsSummariesQuery.data || []).filter((conversation) =>
-    isConversationUnread(conversation, account.getUri()),
+    isConversationUnread(conversation),
   ).length
   const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setSearchFilter(event.target.value)

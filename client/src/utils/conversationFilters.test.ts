@@ -15,30 +15,29 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { MessageStatusCode } from '@savoirfairelinux/jami-web-common/src/enums/message-status-code'
 import { describe, expect, it } from 'vitest'
 
 import { filterConversationSummaries, isConversationUnread } from './conversationFilters.js'
 
-const summary = (mode: string, author = 'other', status = MessageStatusCode.read) =>
+const summary = (mode: string, unreadMessages = 0) =>
   ({
     mode,
-    lastMessage: { author, status: { me: status } },
+    unreadMessages,
   }) as never
 
 describe('conversation filters', () => {
   it('keeps every conversation in All', () => {
-    expect(filterConversationSummaries([summary('0'), summary('1')], 'all', 'me')).toHaveLength(2)
+    expect(filterConversationSummaries([summary('0'), summary('1')], 'all')).toHaveLength(2)
   })
 
   it('keeps only incoming unread conversations in Unread', () => {
-    const unread = summary('0', 'other', MessageStatusCode.sent)
-    expect(isConversationUnread(unread, 'me')).toBe(true)
-    expect(filterConversationSummaries([unread, summary('0'), summary('0', 'me')], 'unread', 'me')).toEqual([unread])
+    const unread = summary('0', 2)
+    expect(isConversationUnread(unread)).toBe(true)
+    expect(filterConversationSummaries([unread, summary('0'), summary('0')], 'unread')).toEqual([unread])
   })
 
   it('keeps only non-direct conversations in Groups', () => {
     const group = summary('1')
-    expect(filterConversationSummaries([summary('0'), group], 'groups', 'me')).toEqual([group])
+    expect(filterConversationSummaries([summary('0'), group], 'groups')).toEqual([group])
   })
 })

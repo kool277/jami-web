@@ -96,6 +96,7 @@ export interface IConversationSummary {
   mode: ConversationInfos['mode']
   membersNames: string[]
   lastMessage: Message
+  unreadMessages: number
 }
 
 export interface IConversationRequest {
