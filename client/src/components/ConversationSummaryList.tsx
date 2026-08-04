@@ -68,6 +68,7 @@ export const ConversationSummaryList = ({ conversationsSummaries }: Conversation
   return (
     <List
       sx={{
+        flexShrink: 0,
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis',

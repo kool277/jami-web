@@ -17,12 +17,13 @@
  */
 import { Box, Stack } from '@mui/material'
 import { WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
-import { useEffect } from 'react'
+import { type UIEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
 import { useConversationsSummariesQuery, useRefreshConversationsSummaries } from '../services/conversationQueries.js'
 import { type ConversationFilter, filterConversationSummaries } from '../utils/conversationFilters.js'
+import { ISLAND_PADDING } from './common/Island.js'
 import ListPaneEmptyState from './common/ListPaneEmptyState.js'
 import ContactSearchResultList from './ContactSearchResultList.js'
 import { ConversationSummaryList } from './ConversationSummaryList.js'
@@ -33,15 +34,87 @@ export interface ConversationListProps {
   conversationFilter: ConversationFilter
 }
 
+const SCROLL_FADE_HEIGHT = 24
+const SCROLL_EDGE_TOLERANCE = 1
+
+export function getConversationListFades(scrollTop: number, clientHeight: number, scrollHeight: number) {
+  const maxScrollTop = scrollHeight - clientHeight
+  const isScrollable = maxScrollTop > SCROLL_EDGE_TOLERANCE
+
+  return {
+    top: isScrollable && scrollTop > SCROLL_EDGE_TOLERANCE,
+    bottom: isScrollable && scrollTop < maxScrollTop - SCROLL_EDGE_TOLERANCE,
+  }
+}
+
 export default function ConversationList({ searchFilter, conversationFilter }: ConversationListProps) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [fades, setFades] = useState({ top: false, bottom: false })
+  const updateFades = useCallback(() => {
+    const scrollContainer = scrollContainerRef.current
+    if (scrollContainer) {
+      setFades(
+        getConversationListFades(scrollContainer.scrollTop, scrollContainer.clientHeight, scrollContainer.scrollHeight),
+      )
+    }
+  }, [])
+
+  useEffect(() => {
+    updateFades()
+
+    const scrollContainer = scrollContainerRef.current
+    const content = contentRef.current
+    if (!scrollContainer || !content) {
+      return
+    }
+
+    const resizeObserver = new ResizeObserver(updateFades)
+    resizeObserver.observe(scrollContainer)
+    resizeObserver.observe(content)
+    return () => resizeObserver.disconnect()
+  }, [updateFades])
+
+  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+    const { scrollTop, clientHeight, scrollHeight } = event.currentTarget
+    setFades(getConversationListFades(scrollTop, clientHeight, scrollHeight))
+  }
+
   return (
-    <Stack sx={{ overflowY: 'auto', flex: 1 }}>
-      {searchFilter ? (
-        <ContactSearchResultList searchFilter={searchFilter} conversationFilter={conversationFilter} />
-      ) : (
-        <ConversationSummaries conversationFilter={conversationFilter} />
-      )}
+    <Stack sx={{ position: 'relative', overflow: 'hidden', flex: 1, minHeight: 0 }}>
+      <Stack ref={scrollContainerRef} onScroll={handleScroll} sx={{ overflowY: 'auto', flex: 1, pr: ISLAND_PADDING }}>
+        <Box ref={contentRef} sx={{ flexShrink: 0 }}>
+          {searchFilter ? (
+            <ContactSearchResultList searchFilter={searchFilter} conversationFilter={conversationFilter} />
+          ) : (
+            <ConversationSummaries conversationFilter={conversationFilter} />
+          )}
+        </Box>
+      </Stack>
+      <ScrollFade position="top" visible={fades.top} />
+      <ScrollFade position="bottom" visible={fades.bottom} />
     </Stack>
+  )
+}
+
+function ScrollFade({ position, visible }: { position: 'top' | 'bottom'; visible: boolean }) {
+  return (
+    <Box
+      aria-hidden="true"
+      sx={{
+        position: 'absolute',
+        top: position === 'top' ? 0 : undefined,
+        bottom: position === 'bottom' ? 0 : undefined,
+        right: 0,
+        left: 0,
+        height: SCROLL_FADE_HEIGHT,
+        pointerEvents: 'none',
+        opacity: visible ? 1 : 0,
+        transition: (theme) => theme.transitions.create('opacity'),
+        background: (theme) =>
+          `linear-gradient(to ${position === 'top' ? 'bottom' : 'top'}, ${theme.palette.background.paper}, transparent)`,
+      }}
+    />
   )
 }
 

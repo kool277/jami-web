@@ -115,7 +115,10 @@ export default function AppShell({
   const navigation = isCompact ? (
     list
   ) : (
-    <Island direction="row" sx={{ m: ISLAND_MARGIN, p: ISLAND_PADDING, gap: ISLAND_PADDING, ...paneSx }}>
+    <Island
+      direction="row"
+      sx={{ m: ISLAND_MARGIN, p: `${ISLAND_PADDING} 0px 0px ${ISLAND_PADDING}`, gap: ISLAND_PADDING, ...paneSx }}
+    >
       {rail}
       {list}
     </Island>

@@ -19,6 +19,7 @@ import { Stack } from '@mui/material'
 import { type ChangeEvent, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { ISLAND_PADDING } from '../components/common/Island.js'
 import ContactSearchBar from '../components/ContactSearchBar.js'
 import ConversationFilterChips from '../components/ConversationFilterChips.js'
 import ConversationList from '../components/ConversationList.js'
@@ -46,7 +47,7 @@ export default function Messenger() {
       listRoute="/conversation"
       listPaneLabel={t('conversations')}
       listSearch={
-        <Stack sx={{ gap: 1 }}>
+        <Stack sx={{ gap: 1, pr: ISLAND_PADDING, pb: '4px' }}>
           <ContactSearchBar placeholder={t('find_users_and_conversations')} handleChange={handleSearchChange} />
           <ConversationFilterChips
             value={conversationFilter}

@@ -24,6 +24,7 @@ import {
   EmptyConversations,
   EmptyGroupsConversations,
   EmptyUnreadConversations,
+  getConversationListFades,
   getEmptyConversationState,
 } from './ConversationList.js'
 
@@ -32,6 +33,13 @@ vi.mock('react-i18next', () => ({
 }))
 
 describe('EmptyConversations', () => {
+  it('shows fades only for scrollable content beyond the current edge', () => {
+    expect(getConversationListFades(0, 400, 400)).toEqual({ top: false, bottom: false })
+    expect(getConversationListFades(0, 400, 800)).toEqual({ top: false, bottom: true })
+    expect(getConversationListFades(200, 400, 800)).toEqual({ top: true, bottom: true })
+    expect(getConversationListFades(400, 400, 800)).toEqual({ top: true, bottom: false })
+  })
+
   it('prioritizes the unread empty state when the unread tab is selected', () => {
     expect(getEmptyConversationState('unread', 0, 0)).toBe('unread')
   })
