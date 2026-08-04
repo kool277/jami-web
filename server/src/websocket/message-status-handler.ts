@@ -19,6 +19,7 @@ import { AccountMessageStatus, WebSocketMessageType } from '@savoirfairelinux/ja
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
+import { toDaemonConversationUri } from '../utils/conversation-uri.js'
 import { WebSocketServer } from './websocket-server.js'
 
 const jamid = Container.get(Jamid)
@@ -27,10 +28,8 @@ const webSocketServer = Container.get(WebSocketServer)
 export function bindMessageStatusChangeCallbacks() {
   webSocketServer.bind(
     WebSocketMessageType.AccountMessageStatus,
-    (accountId: string, { messageId, conversationId, peer, status }: AccountMessageStatus) => {
-      console.debug('Received AccountMessageStatus from client', accountId, messageId, conversationId, peer, status)
-
-      const valid = jamid.setMessageDisplayed(accountId, conversationId, messageId, status)
+    (accountId: string, { messageId, conversationId, status }: AccountMessageStatus) => {
+      const valid = jamid.setMessageDisplayed(accountId, toDaemonConversationUri(conversationId), messageId, status)
       if (!valid) {
         console.error('Error setting message displayed ', accountId, conversationId, messageId, status)
       }

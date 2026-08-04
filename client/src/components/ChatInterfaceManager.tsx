@@ -27,14 +27,15 @@ import {
   WebSocketMessageType,
 } from '@savoirfairelinux/jami-web-common'
 import { MessageStatusCode } from '@savoirfairelinux/jami-web-common/src/enums/message-status-code'
-import { createContext, memo, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import { createContext, memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 
 import MessageList from '../components/MessageList.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
-import { useMessagesQuery } from '../services/conversationQueries.js'
+import { useMarkConversationSummaryRead, useMessagesQuery } from '../services/conversationQueries.js'
+import { getReadReceiptTarget } from '../utils/readReceipts.js'
 import LoadingSkeleton from './common/LoadingSkeleton.js'
 import ComposingMembersIndicator from './ComposingMembersIndicator.js'
 import EditMessage from './EditMessage.js'
@@ -103,6 +104,8 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
   const { conversationId, members } = useConversationContext()
   const [state, dispatch] = useReducer(reducer, initialState)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const lastSentReadReceiptRef = useRef<string>(undefined)
+  const markConversationSummaryRead = useMarkConversationSummaryRead()
   const { messagesMap, messageOrder, replies, lastSeen, isLoading, error } = state
 
   const messagesQuery = useMessagesQuery(conversationId, messagesMap.size === 0)
@@ -148,16 +151,6 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
             })
             userView.add(peerId)
           }
-        }
-
-        if (message.author !== account.getUri() && message.status.get(account.getUri()) !== MessageStatusCode.read) {
-          const args = {
-            messageId: message.id,
-            peer: message.author,
-            conversationId: conversationId,
-            status: MessageStatusCode.read,
-          }
-          webSocket.send(WebSocketMessageType.AccountMessageStatus, args)
         }
 
         if (message['reply-to'] && typeof message['reply-to'] === 'string') {
@@ -256,14 +249,6 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
       }
       const message = { ...data.message, animate: true }
 
-      const args = {
-        messageId: message.id,
-        peer: account.getUri(),
-        conversationId: conversationId,
-        status: MessageStatusCode.read,
-      }
-      webSocket.send(WebSocketMessageType.AccountMessageStatus, args)
-
       const newMessagesMap = new Map(messagesMap)
       const newMessage = { ...message }
 
@@ -300,7 +285,7 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
         messageOrder: addMessageId(messageOrder, message, messagesMap, true),
       })
     },
-    [account, conversationId, members, messagesMap, updateReplies, webSocket, messageOrder],
+    [account, conversationId, members, messagesMap, updateReplies, messageOrder],
   )
 
   const reactionsAddedListener = useCallback(
@@ -400,17 +385,6 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
         if (messagesMap.has(message.id)) {
           continue
         }
-        const messageStatus = message.status.get(account.getUri()) || 0
-        if (message.author !== account.getUri() && messageStatus !== MessageStatusCode.read) {
-          const args = {
-            messageId: message.id,
-            peer: account.getUri(),
-            conversationId: conversationId,
-            status: MessageStatusCode.read,
-          }
-          webSocket.send(WebSocketMessageType.AccountMessageStatus, args)
-        }
-
         if (!newMessagesMap.has(message.id)) {
           newMessageOrder.push(message.id)
           newMessagesMap.set(message.id, message)
@@ -462,16 +436,6 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
 
         if (messagesMap.has(message.id)) {
           continue
-        }
-        const messageStatus = message.status.get(account.getUri()) || 0
-        if (message.author !== account.getUri() && messageStatus !== MessageStatusCode.read) {
-          const args = {
-            messageId: message.id,
-            peer: account.getUri(),
-            conversationId: conversationId,
-            status: MessageStatusCode.read,
-          }
-          webSocket.send(WebSocketMessageType.AccountMessageStatus, args)
         }
         if (!newMessagesMap.has(message.id)) {
           newMessagesMap.set(message.id, message)
@@ -575,27 +539,29 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
   }, [messagesArray, searchQuery])
 
   useEffect(() => {
-    const accUri = account.getUri()
-    for (const message of messagesArray) {
-      if (!message) {
-        continue
-      }
-      const cStatus = message.status.get(accUri)
-      if (cStatus === MessageStatusCode.read) {
-        return
-      }
-
-      if (message) {
-        const args = {
-          messageId: message.id,
-          peer: accUri,
-          conversationId: conversationId,
-          status: MessageStatusCode.read,
-        }
-        webSocket.send(WebSocketMessageType.AccountMessageStatus, args)
-      }
+    if (messagesArray.length === 0) {
+      return
     }
-  }, [messagesArray, account, conversationId, webSocket])
+
+    // Opening a conversation clears its badge even when the daemon already has
+    // an up-to-date marker, since the cached summaries would otherwise keep
+    // serving the count they were fetched with.
+    markConversationSummaryRead(conversationId)
+
+    const accountUri = account.getUri()
+    const messageId = getReadReceiptTarget(messagesArray, accountUri)
+    if (!messageId || lastSentReadReceiptRef.current === messageId) {
+      return
+    }
+
+    lastSentReadReceiptRef.current = messageId
+    webSocket.send(WebSocketMessageType.AccountMessageStatus, {
+      messageId,
+      peer: accountUri,
+      conversationId,
+      status: MessageStatusCode.read,
+    })
+  }, [messagesArray, account, conversationId, webSocket, markConversationSummaryRead])
 
   if (isLoading) {
     return <LoadingSkeleton />

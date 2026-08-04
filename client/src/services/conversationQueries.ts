@@ -32,6 +32,7 @@ import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { ConversationMember } from '../models/conversation-member.js'
 import { useAddToCache, useRemoveFromCache } from '../utils/reactquery.js'
+import { markSummaryRead } from '../utils/readReceipts.js'
 
 export const useConversationInfosQuery = (conversationId?: string) => {
   const { axiosInstance } = useAuthContext()
@@ -91,6 +92,18 @@ export const useRemoveConversationMutation = () => {
       removeConversationSummaryFromCache(conversationId)
     },
   })
+}
+
+export const useMarkConversationSummaryRead = () => {
+  const queryClient = useQueryClient()
+  return useCallback(
+    (conversationId: string) => {
+      queryClient.setQueryData<IConversationSummary[]>(['conversations', 'summaries'], (summaries) =>
+        summaries ? markSummaryRead(summaries, conversationId) : summaries,
+      )
+    },
+    [queryClient],
+  )
 }
 
 export const useRefreshConversationsSummaries = () => {
