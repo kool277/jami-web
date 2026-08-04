@@ -16,26 +16,15 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Dialog, DialogProps, List, Stack, Typography } from '@mui/material'
+import { List, Typography } from '@mui/material'
 import { IConversationRequest } from '@savoirfairelinux/jami-web-common'
-import { useCallback, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName.js'
-import { Contact } from '../models/contact.js'
-import {
-  useAcceptConversationRequestMutation,
-  useBlockConversationRequestMutation,
-  useConversationRequestsQuery,
-  useDeclineConversationRequestMutation,
-} from '../services/conversationQueries.js'
-import FilledIconButton from './common/FilledIconButton.js'
+import { useConversationRequestsQuery } from '../services/conversationQueries.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import { CustomListItemButton } from './CustomListItemButton.js'
-import { useDialogHandler } from './Dialog.js'
-import LoadingPage from './Loading.js'
-import { CheckMarkIcon, PersonWithCrossMarkIcon, SaltireIcon } from './SvgIcon.js'
+import EllipsisMiddle from './EllipsisMiddle.js'
 
 export const ConversationRequestList = () => {
   const conversationRequestsQuery = useConversationRequestsQuery()
@@ -58,164 +47,21 @@ type ConversationRequestListItemProps = {
 }
 
 const ConversationRequestListItem = ({ conversationRequest }: ConversationRequestListItemProps) => {
-  const dialogHandler = useDialogHandler()
+  const { conversationId: selectedConversationId } = useParams()
+  const navigate = useNavigate()
   const infos = conversationRequest.infos
-
   const conversationName = useConversationDisplayNameShort(null, infos.title, conversationRequest.membersNames)
 
   return (
-    <>
-      <HandleConversationRequestDialog {...dialogHandler.props} conversationRequest={conversationRequest} />
-      <CustomListItemButton
-        onClick={dialogHandler.openDialog}
-        icon={<ConversationAvatar displayName={conversationName} src={infos.avatar} contactUri="" />}
-        primaryText={<Typography variant="body1">{conversationName}</Typography>}
-      />
-    </>
-  )
-}
-
-type HandleConversationRequestDialogProps = DialogProps & {
-  conversationRequest: IConversationRequest
-}
-
-const HandleConversationRequestDialog = ({ conversationRequest, ...props }: HandleConversationRequestDialogProps) => {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-
-  const {
-    conversationId,
-    infos: { avatar, title },
-  } = conversationRequest
-
-  const contact = useMemo(() => {
-    return new Contact(conversationRequest.from.uri, conversationRequest.from.registeredName)
-  }, [conversationRequest])
-
-  const closeDialog = useCallback(
-    () => props.onClose?.({}, 'escapeKeyDown'), // dummy arguments
-    [props],
-  )
-
-  const blockConversationRequestMutation = useBlockConversationRequestMutation()
-  const acceptConversationRequestMutation = useAcceptConversationRequestMutation()
-  const declineConversationRequestMutation = useDeclineConversationRequestMutation()
-
-  const blockConversationRequest = useCallback(() => {
-    blockConversationRequestMutation.mutate(
-      { conversationId },
-      {
-        onSettled: closeDialog,
-      },
-    )
-  }, [blockConversationRequestMutation, conversationId, closeDialog])
-
-  const acceptConversationRequest = useCallback(() => {
-    acceptConversationRequestMutation.mutate(
-      { conversationId },
-      {
-        onSuccess: () => navigate(`/conversation/${conversationId}`),
-        onSettled: closeDialog,
-      },
-    )
-  }, [acceptConversationRequestMutation, conversationId, closeDialog, navigate])
-
-  const declineConversationRequest = useCallback(() => {
-    declineConversationRequestMutation.mutate(
-      { conversationId },
-      {
-        onSettled: closeDialog,
-      },
-    )
-  }, [declineConversationRequestMutation, conversationId, closeDialog])
-
-  return (
-    <Dialog {...props}>
-      <Stack
-        spacing="40px"
-        sx={{
-          alignItems: 'center',
-          position: 'relative',
-        }}
-      >
-        <Typography
-          variant="caption"
-          sx={{
-            visibility: acceptConversationRequestMutation.isPending ? 'hidden' : 'visible',
-          }}
-        >
-          {t('conversation_request_has_sent_request', { contact: contact.getDisplayName() })}
+    <CustomListItemButton
+      onClick={() => navigate(`/invites/${conversationRequest.conversationId}`)}
+      selected={conversationRequest.conversationId === selectedConversationId}
+      icon={<ConversationAvatar displayName={conversationName} src={infos.avatar} contactUri="" />}
+      primaryText={
+        <Typography component="div" variant="body1" sx={{ minWidth: 0 }}>
+          <EllipsisMiddle text={conversationName} />
         </Typography>
-        <ConversationAvatar
-          displayName={title || ''}
-          src={avatar}
-          sx={{ width: '112px', height: '112px' }}
-          contactUri=""
-        />
-        {acceptConversationRequestMutation.isPending ? (
-          <>
-            <Typography
-              variant="h3"
-              sx={{
-                whiteSpace: 'pre-line',
-                textAlign: 'center',
-                fontWeight: 'bold',
-              }}
-            >
-              {t('conversation_request_accepted')}
-            </Typography>
-            <Typography
-              variant="caption"
-              sx={{
-                whiteSpace: 'pre-line',
-                textAlign: 'center',
-              }}
-            >
-              {t('conversation_request_waiting_for_sync', { contact: contact.getDisplayName() })}
-            </Typography>
-            <LoadingPage />
-          </>
-        ) : (
-          <>
-            <Typography
-              variant="h3"
-              sx={{
-                whiteSpace: 'pre-line',
-                textAlign: 'center',
-                fontWeight: 'bold',
-              }}
-            >
-              {t('conversation_request_ask_join')}
-            </Typography>
-            <Stack direction="row" spacing="30px">
-              <FilledIconButton
-                aria-label={t('conversation_request_block')}
-                tooltip={t('conversation_request_block')}
-                onClick={blockConversationRequest}
-                paletteColor={(theme) => theme.palette.warning}
-              >
-                <PersonWithCrossMarkIcon fontSize="inherit" />
-              </FilledIconButton>
-              <FilledIconButton
-                aria-label={t('conversation_request_decline')}
-                tooltip={t('conversation_request_decline')}
-                onClick={declineConversationRequest}
-                paletteColor={(theme) => theme.palette.error}
-              >
-                <SaltireIcon fontSize="inherit" />
-              </FilledIconButton>
-              <FilledIconButton
-                aria-label={t('conversation_request_accept')}
-                tooltip={t('conversation_request_accept')}
-                onClick={acceptConversationRequest}
-                paletteColor={(theme) => theme.palette.success}
-              >
-                <CheckMarkIcon fontSize="inherit" />
-              </FilledIconButton>
-            </Stack>
-          </>
-        )}
-      </Stack>
-    </Dialog>
+      }
+    />
   )
 }

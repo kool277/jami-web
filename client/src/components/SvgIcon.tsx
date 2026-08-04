@@ -94,9 +94,9 @@ export const PasswordIcon = ms('password')
 export const TipIcon = ms('lightbulb')
 export const Timer3AltIcon = ms('timer_3_alt_1')
 export const TimerOffIcon = ms('timer_off')
-export const JamiIdIcon = ({ sx }: SvgIconProps) => (
+export const JamiIdIcon = ({ sx, ...props }: SvgIconProps) => (
   <Box sx={{ display: 'inline-flex', alignItems: 'center', ...sx }}>
-    <JamiIDLogoSvg style={{ width: '24px', height: 'auto' }} />
+    <JamiIDLogoSvg {...props} style={{ width: '24px', height: 'auto' }} />
   </Box>
 )
 export const DownloadFileIcon = ms('download')

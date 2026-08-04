@@ -93,6 +93,7 @@ const ImportAccountTransferInProgress = lazy(
   () => import('./pages/LinkExistingDevice/ImportAccountTransferInProgress.js'),
 )
 const Contacts = lazy(() => import('./pages/Contacts.js'))
+const InviteDetail = lazy(() => import('./components/InviteDetail.js'))
 const Invites = lazy(() => import('./pages/Invites.js'))
 const Login = lazy(() => import('./pages/Login.js'))
 const Messenger = lazy(() => import('./pages/Messenger.js'))
@@ -235,7 +236,9 @@ export const router = createBrowserRouter(
               }
             />
           </Route>
-          <Route path="invites" element={<Invites />} />
+          <Route path="invites" element={<Invites />}>
+            <Route path=":conversationId" element={<InviteDetail />} />
+          </Route>
           <Route path="settings" element={<Settings />}>
             <Route index element={<SettingsIndex />} />
             <Route
