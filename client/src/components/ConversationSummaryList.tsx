@@ -15,12 +15,12 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, List, Stack, Typography, useMediaQuery } from '@mui/material'
+import { Box, List, Stack, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
-import { IConversationSummary } from '@savoirfairelinux/jami-web-common'
+import { IConversationSummary, MAX_UNREAD_MESSAGE_COUNT } from '@savoirfairelinux/jami-web-common'
 import dayjs from 'dayjs'
 import { QRCodeCanvas } from 'qrcode.react'
-import { useMemo, useState } from 'react'
+import { ReactNode, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -34,12 +34,13 @@ import { useMembersQuery } from '../services/conversationQueries.js'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages.js'
 import { isConversationUnread } from '../utils/conversationFilters.js'
 import { formatConversationDate } from '../utils/dates&times.js'
+import { getFileType } from '../utils/fileTypes.js'
 import { getColor } from '../utils/messagecolor.js'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import { CustomListItemButton } from './CustomListItemButton.js'
 import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog.js'
-import EllipsisMiddle from './EllipsisMiddle.js'
+import MaterialSymbol from './MaterialSymbol.js'
 import { PopoverListItemData } from './PopoverList.js'
 import RemoveConversationDialog from './RemoveComversationDialog.js'
 import { CancelIcon, MessageIcon, PersonIcon } from './SvgIcon.js'
@@ -95,13 +96,13 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
   const members = useMembersQuery(conversationSummary.id)
   const memberArray = members.data
   const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
   const filteredMembers = useMemo(() => {
     return memberArray?.filter((member) => member.contact.uri !== account.getUri()) || []
   }, [memberArray, account])
 
   const conversationId = conversationSummary.id
   const isSelected = conversationId === selectedConversationId
+  const isUnread = isConversationUnread(conversationSummary)
   const onClick = () => {
     if (conversationId) {
       navigate(`/conversation/${conversationId}`)
@@ -150,18 +151,26 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
           <Stack
             direction="row"
             sx={{
-              justifyContent: 'space-between',
               alignItems: 'center',
               width: '100%',
+              minWidth: 0,
+              gap: 1,
             }}
           >
-            <Box sx={{ maxWidth: isMobile ? '180px' : '170px' }}>
-              <EllipsisMiddle text={conversationName}></EllipsisMiddle>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography
+                variant="body2"
+                noWrap
+                title={conversationName}
+                sx={{ minWidth: 0, flex: 1, fontWeight: isUnread ? 'bold' : 'normal' }}
+              >
+                {conversationName}
+              </Typography>
             </Box>
             <TimeIndicator conversationSummary={conversationSummary} />
           </Stack>
         }
-        secondaryText={<SecondaryText conversationSummary={conversationSummary} isSelected={isSelected} />}
+        secondaryText={<SecondaryText conversationSummary={conversationSummary} />}
       />
     </Box>
   )
@@ -169,7 +178,6 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
 
 type SecondaryTextProps = {
   conversationSummary: IConversationSummary
-  isSelected: boolean
 }
 
 const TimeIndicator = ({ conversationSummary }: { conversationSummary: IConversationSummary }) => {
@@ -197,15 +205,14 @@ const TimeIndicator = ({ conversationSummary }: { conversationSummary: IConversa
   )
 }
 
-const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) => {
+const SecondaryText = ({ conversationSummary }: SecondaryTextProps) => {
   const { account } = useAuthContext()
-  const accountUri = account.getUri()
   const { callData, callStatus, isAudioOn } = useCallManagerContext()
   const { t, i18n } = useTranslation()
 
-  const isRead = !isConversationUnread(conversationSummary, accountUri)
+  const isRead = !isConversationUnread(conversationSummary)
 
-  const lastMessageText = useMemo(() => {
+  const lastMessageText = useMemo<ReactNode>(() => {
     if (!callData || callData.conversationId !== conversationSummary.id) {
       const message = conversationSummary.lastMessage
       if (!message) {
@@ -216,14 +223,118 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
           return t('message_swarm_created')
         }
         case 'application/data-transfer+json': {
-          return message.displayName
+          const fileType = getFileType(message.displayName)
+          return (
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'auto minmax(0, 1fr)',
+                alignItems: 'center',
+                width: '100%',
+                minWidth: 0,
+                gap: 0.5,
+              }}
+            >
+              <MaterialSymbol
+                symbol={
+                  fileType === 'image'
+                    ? 'image'
+                    : fileType === 'video'
+                      ? 'smart_display'
+                      : fileType === 'audio'
+                        ? 'mic'
+                        : 'attachment'
+                }
+                weight={isRead ? 300 : 500}
+                aria-hidden="true"
+                sx={{
+                  fontSize: '1rem',
+                  display: 'inline-flex',
+                  flexShrink: 0,
+                  lineHeight: 1,
+                  marginLeft: 0,
+                  marginRight: '2px',
+                }}
+              />
+              <Typography component="span" variant="inherit" noWrap sx={{ minWidth: 0 }}>
+                {message.displayName}
+              </Typography>
+            </Box>
+          )
         }
         case 'application/call-history+json': {
           const isAccountMessage = message.author === account.getUri()
-          return getMessageCallText(isAccountMessage, message, i18n)
+          const isMissed = Number(message.duration) === 0
+          const iconSymbol = isMissed ? 'call_missed' : isAccountMessage ? 'call_made' : 'call_received'
+
+          return (
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'auto minmax(0, 1fr)',
+                alignItems: 'center',
+                width: '100%',
+                minWidth: 0,
+                gap: 0.5,
+              }}
+            >
+              <MaterialSymbol
+                symbol={iconSymbol}
+                bidirectional
+                weight={isRead ? 300 : 500}
+                aria-hidden="true"
+                sx={{
+                  fontSize: '1rem',
+                  flexShrink: 0,
+                  lineHeight: 1,
+                  marginRight: '2px',
+                  transform: isMissed && isAccountMessage ? 'scaleX(-1)' : undefined,
+                }}
+              />
+              <Typography component="span" variant="inherit" noWrap sx={{ minWidth: 0 }}>
+                {getMessageCallText(isAccountMessage, message, i18n)}
+              </Typography>
+            </Box>
+          )
         }
         case 'member': {
-          return getMessageMemberText(message, i18n)
+          return (
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: ['add', 'join', 'remove'].includes(message.action ?? '')
+                  ? 'auto minmax(0, 1fr)'
+                  : 'minmax(0, 1fr)',
+                alignItems: 'center',
+                width: '100%',
+                minWidth: 0,
+                gap: 0.5,
+              }}
+            >
+              {(['add', 'join', 'remove'] as const).includes(message.action as 'add' | 'join' | 'remove') && (
+                <MaterialSymbol
+                  symbol={
+                    message.action === 'add' ? 'person_add' : message.action === 'join' ? 'hand_gesture' : 'door_open'
+                  }
+                  weight={isRead ? 300 : 500}
+                  aria-hidden="true"
+                  sx={{
+                    fontSize: '1rem',
+                    display: 'inline-flex',
+                    flexShrink: 0,
+                    lineHeight: 1,
+                    marginLeft: message.action === 'join' ? '4px' : 0,
+                    marginRight: '2px',
+                    overflow: 'visible',
+                    transform: message.action === 'join' ? 'rotate(45deg)' : undefined,
+                  }}
+                />
+              )}
+              <Typography component="span" variant="inherit" noWrap sx={{ minWidth: 0 }}>
+                {getMessageMemberText(message, i18n)}
+              </Typography>
+            </Box>
+          )
         }
         case 'text/plain': {
           return message.body
@@ -247,7 +358,7 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
     }
 
     return callData.role === 'caller' ? t('outgoing_call') : t('incoming_call')
-  }, [account, conversationSummary, callData, callStatus, isAudioOn, t, i18n])
+  }, [account, conversationSummary, callData, callStatus, isAudioOn, isRead, t, i18n])
 
   const lastMessageStyle = {
     overflow: 'hidden',
@@ -256,18 +367,45 @@ const SecondaryText = ({ conversationSummary, isSelected }: SecondaryTextProps) 
   }
 
   return (
-    <Typography
-      variant="body2"
-      sx={[
-        {
-          color: 'text.secondary',
-          fontWeight: isSelected ? 'bold' : isRead ? 'normal' : 'bold',
-        },
-        ...(Array.isArray(lastMessageStyle) ? lastMessageStyle : [lastMessageStyle]),
-      ]}
-    >
-      {lastMessageText}
-    </Typography>
+    <Stack direction="row" sx={{ alignItems: 'center', minWidth: 0, gap: 1 }}>
+      <Typography
+        component="div"
+        variant="body2"
+        sx={[
+          {
+            color: 'text.secondary',
+            fontWeight: isRead ? 'normal' : 'bold',
+            minWidth: 0,
+            flex: 1,
+          },
+          ...(Array.isArray(lastMessageStyle) ? lastMessageStyle : [lastMessageStyle]),
+        ]}
+      >
+        {lastMessageText}
+      </Typography>
+      {conversationSummary.unreadMessages > 0 && (
+        <Box
+          aria-label={`${conversationSummary.unreadMessages} unread messages`}
+          sx={{
+            minWidth: '18px',
+            height: '18px',
+            px: '4px',
+            flexShrink: 0,
+            borderRadius: '9px',
+            backgroundColor: 'primary.main',
+            color: 'primary.contrastText',
+            fontSize: '0.6875rem',
+            fontWeight: 'bold',
+            lineHeight: '18px',
+            textAlign: 'center',
+          }}
+        >
+          {conversationSummary.unreadMessages >= MAX_UNREAD_MESSAGE_COUNT
+            ? `${MAX_UNREAD_MESSAGE_COUNT}+`
+            : conversationSummary.unreadMessages}
+        </Box>
+      )}
+    </Stack>
   )
 }
 

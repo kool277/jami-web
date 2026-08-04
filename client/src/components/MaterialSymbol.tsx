@@ -20,13 +20,14 @@ import { Icon, type IconProps, useTheme } from '@mui/material'
 export interface MaterialSymbolProps extends IconProps {
   symbol: string
   filled?: boolean
+  weight?: number
   bidirectional?: boolean
 }
 
 /**
  * Renders a Material Symbols Outlined icon with weight 300.
  */
-const MaterialSymbol = ({ symbol, filled, bidirectional = false, sx, ...props }: MaterialSymbolProps) => {
+const MaterialSymbol = ({ symbol, filled, weight = 300, bidirectional = false, sx, ...props }: MaterialSymbolProps) => {
   const theme = useTheme()
 
   return (
@@ -35,7 +36,7 @@ const MaterialSymbol = ({ symbol, filled, bidirectional = false, sx, ...props }:
       {...props}
       sx={[
         {
-          fontVariationSettings: `'wght' 300${filled ? ", 'FILL' 1" : ''}`,
+          fontVariationSettings: `'wght' ${weight}${filled ? ", 'FILL' 1" : ''}`,
         },
         ...(Array.isArray(sx) ? sx : sx === undefined ? [] : [sx]),
       ]}
