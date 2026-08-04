@@ -100,10 +100,8 @@ function AdminNavRail() {
  * own two-pane layout instead of borrowing the messenger navigation rail.
  */
 export default function AdminPanel({ children }: AdminPanelProps) {
-  const { t } = useTranslation()
   const theme = useTheme()
   const isCompact = useMediaQuery(theme.breakpoints.down('md'))
-  const { pathname } = useLocation()
   const isDark = theme.palette.mode === 'dark'
   const navigation = (
     <Stack
