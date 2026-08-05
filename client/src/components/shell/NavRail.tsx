@@ -21,6 +21,7 @@ import { Fragment, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 
+import { isRoutePathActive } from '../../utils/routes.js'
 import { ChatBubbleIcon, MailIcon, SettingsIcon } from '../SvgIcon.js'
 import AnimatedLogo from './AnimatedLogo.js'
 import NavItem from './NavItem.js'
@@ -75,7 +76,7 @@ export default function NavRail({ compact, inviteCount, unreadConversationCount,
       ]}
     >
       {destinations.map(({ path, label, Icon, badgeCount, separated }) => {
-        const selected = pathname.startsWith(path)
+        const selected = isRoutePathActive(pathname, path)
         return (
           <Fragment key={path}>
             {/* The bottom bar reads as one row of equal destinations, so the grouping

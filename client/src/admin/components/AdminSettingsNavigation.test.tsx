@@ -52,7 +52,7 @@ describe('AdminSettingsNavigation', () => {
   it('keeps a parent authentication method current on a provider route', () => {
     renderAdminSettingsNavigation('/admin/authentication/openid/google')
 
-    expect(screen.getByRole('link', { name: 'authentication' })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('link', { name: 'authentication' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('link', { name: 'openid' })).toHaveAttribute('aria-current', 'page')
   })
 

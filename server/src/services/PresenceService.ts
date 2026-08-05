@@ -33,13 +33,16 @@ export class PresenceService {
   }
 
   subscribe(accountId: string, buddyUri: string) {
-    this.getJamid().subscribeBuddy(accountId, buddyUri, true)
     const set = this.activeSubscribers.get(accountId)
-    if (!set) {
-      this.activeSubscribers.set(accountId, new Set([buddyUri]))
+    if (set?.has(buddyUri)) {
       return
     }
-    this.activeSubscribers.set(accountId, set.add(buddyUri))
+    if (!set) {
+      this.activeSubscribers.set(accountId, new Set([buddyUri]))
+    } else {
+      set.add(buddyUri)
+    }
+    this.getJamid().subscribeBuddy(accountId, buddyUri, true)
   }
 
   unsubscribeAll(accountId: string) {
@@ -50,14 +53,15 @@ export class PresenceService {
     for (const uri of set) {
       this.getJamid().subscribeBuddy(accountId, uri, false)
     }
+    this.activeSubscribers.delete(accountId)
   }
 
   unsubscribe(accountId: string, buddyUri: string) {
-    this.getJamid().subscribeBuddy(accountId, buddyUri, false)
     const set = this.activeSubscribers.get(accountId)
-    if (!set) {
+    if (!set?.has(buddyUri)) {
       return
     }
     set.delete(buddyUri)
+    this.getJamid().subscribeBuddy(accountId, buddyUri, false)
   }
 }

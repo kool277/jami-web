@@ -89,9 +89,12 @@ async function clearAvatarImages(profileFolder: string, imageName: string) {
 // The cached file extension determines the Content-Type express serves it with.
 // vCard photos are not necessarily PNG, so sniff the real format from the magic
 // bytes: an image served under a mismatched type is rejected by the browser.
-export function detectImageExtension(data: Buffer): (typeof avatarExtensions)[number] {
+export function detectImageExtension(data: Buffer): (typeof avatarExtensions)[number] | undefined {
   if (data[0] === 0xff && data[1] === 0xd8 && data[2] === 0xff) {
     return 'jpeg'
+  }
+  if (data.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) {
+    return 'png'
   }
   if (data.subarray(0, 3).toString('latin1') === 'GIF') {
     return 'gif'
@@ -99,20 +102,24 @@ export function detectImageExtension(data: Buffer): (typeof avatarExtensions)[nu
   if (data.subarray(0, 4).toString('latin1') === 'RIFF' && data.subarray(8, 12).toString('latin1') === 'WEBP') {
     return 'webp'
   }
-  return 'png'
+  return undefined
 }
 
 export async function cacheAvatar(accountId: string, contactUri: string, photo: string) {
   const profileFolder = os.homedir() + '/.local/share/jami/' + accountId + '/cache/profile'
   const imageName = btoa(contactUri)
   const buffer = Buffer.from(getAvatarBase64(photo), 'base64')
-  if (buffer.length === 0) {
+  await fs.mkdir(profileFolder, { recursive: true })
+  const extension = detectImageExtension(buffer)
+  await clearAvatarImages(profileFolder, imageName)
+  if (!extension) {
     return undefined
   }
 
-  await fs.mkdir(profileFolder, { recursive: true })
-  await clearAvatarImages(profileFolder, imageName)
-  const imagePath = `${profileFolder}/${imageName}.${detectImageExtension(buffer)}`
+  if (buffer.length === 0) {
+    return undefined
+  }
+  const imagePath = `${profileFolder}/${imageName}.${extension}`
   await fs.writeFile(imagePath, buffer)
   return imagePath
 }

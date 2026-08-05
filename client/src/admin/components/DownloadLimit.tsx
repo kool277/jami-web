@@ -67,8 +67,11 @@ const DownloadLimitForm = ({ configuredLimit }: { configuredLimit: number }) => 
       } else if (limit === savedLimitRef.current) {
         return
       }
-      savedLimitRef.current = limit
-      mutate(limit)
+      mutate(limit, {
+        onSuccess: () => {
+          savedLimitRef.current = limit
+        },
+      })
     },
     [mutate, setAlertContent],
   )

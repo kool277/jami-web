@@ -113,8 +113,10 @@ export default ({ children }: WithChildren) => {
             <GlobalStyles
               styles={{
                 '*, *::before, *::after': {
-                  animationDuration: '0.01ms !important',
-                  transitionDuration: '0.01ms !important',
+                  animationDuration: '0s !important',
+                  animationIterationCount: '1 !important',
+                  transitionDuration: '0s !important',
+                  scrollBehavior: 'auto !important',
                 },
               }}
             />

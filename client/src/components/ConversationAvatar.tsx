@@ -144,15 +144,34 @@ export const AvatarEditor = ({ onAvatarChange }: AvatarEditorProps) => {
   const [editionToolsIsOpen, setEditionToolsIsOpen] = useState(false)
   const [popupAnchor, setPopupAnchor] = useState<HTMLElement | null>(null)
   const [avatarHandler, setAvatarHandler] = useState<FileHandler | null>(null)
+  const avatarHandlerRef = useRef<FileHandler | null>(null)
   const photoTakerHandler = useDialogHandler()
+
+  const replaceAvatarHandler = useCallback((nextHandler: FileHandler | null) => {
+    const previousHandler = avatarHandlerRef.current
+    if (previousHandler && previousHandler !== nextHandler) {
+      URL.revokeObjectURL(previousHandler.url)
+    }
+    avatarHandlerRef.current = nextHandler
+    setAvatarHandler(nextHandler)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (avatarHandlerRef.current) {
+        URL.revokeObjectURL(avatarHandlerRef.current.url)
+      }
+    }
+  }, [])
+
   const onFilesDrop = useCallback(
     (acceptedFiles: File[]) => {
       const fileHandler = new FileHandler(acceptedFiles[0])
-      setAvatarHandler(fileHandler)
+      replaceAvatarHandler(fileHandler)
       setEditionToolsIsOpen(false)
       onAvatarChange(fileHandler.file)
     },
-    [onAvatarChange],
+    [onAvatarChange, replaceAvatarHandler],
   )
 
   const {
@@ -178,17 +197,17 @@ export const AvatarEditor = ({ onAvatarChange }: AvatarEditorProps) => {
 
   const onPhotoConfirm = useCallback(
     (fileHandler: FileHandler) => {
-      setAvatarHandler(fileHandler)
+      replaceAvatarHandler(fileHandler)
       onAvatarChange(fileHandler.file)
     },
-    [onAvatarChange],
+    [onAvatarChange, replaceAvatarHandler],
   )
 
   const removeAvatar = useCallback(() => {
-    setAvatarHandler(null)
+    replaceAvatarHandler(null)
     setEditionToolsIsOpen(false)
     onAvatarChange(null)
-  }, [onAvatarChange])
+  }, [onAvatarChange, replaceAvatarHandler])
 
   const closeTools = useCallback(() => {
     setEditionToolsIsOpen(false)
@@ -262,7 +281,7 @@ export const AvatarEditor = ({ onAvatarChange }: AvatarEditorProps) => {
             <BaseButton startIcon={<FolderIcon />} onClick={openFilePicker} variant="outlined">
               {t('picture_upload')}
             </BaseButton>
-            {avatarHandler && (
+            {(avatarHandler || url) && (
               <BaseButton color="error" startIcon={<CancelIcon />} onClick={removeAvatar} variant="text">
                 {t('picture_remove')}
               </BaseButton>
@@ -396,6 +415,7 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
   const closePhotoTaker = useCallback(() => {
     setCountdown(null)
     setFeedback(null)
+    setIsPaused(false)
     onClose()
   }, [onClose])
 
@@ -462,6 +482,14 @@ const PhotoTakerDialog = ({ open, onClose, onConfirm }: PhotoTakerProps) => {
             position: 'relative',
           }}
         >
+          <BaseIconButton
+            aria-label={t('photo_camera_close')}
+            tooltip={t('photo_camera_close')}
+            onClick={closePhotoTaker}
+            sx={{ position: 'absolute', top: 1, right: 1, zIndex: 101, color: 'common.white' }}
+          >
+            <CancelIcon />
+          </BaseIconButton>
           {stream && <CircleMaskOverlay size={circleLengthPercentage} />}
           {countdown !== null && (
             <Box

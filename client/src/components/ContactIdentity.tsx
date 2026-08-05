@@ -29,7 +29,10 @@ export function IdentifierText({ children, sx, ...props }: TypographyProps) {
   const value = typeof children === 'string' ? children : ''
 
   return (
-    <Typography {...props} sx={{ fontFamily: isJamiHash(value) ? 'monospace' : undefined, ...sx }}>
+    <Typography
+      {...props}
+      sx={[{ fontFamily: isJamiHash(value) ? 'monospace' : undefined }, ...(Array.isArray(sx) ? sx : [sx])]}
+    >
       {children}
     </Typography>
   )
@@ -52,7 +55,7 @@ export function ContactIdentity({
   const secondaryName = displayName && registeredName && displayName !== registeredName ? registeredName : undefined
 
   return (
-    <Stack {...props} sx={{ minWidth: 0, gap: 0.25, ...props.sx }}>
+    <Stack {...props} sx={[{ minWidth: 0, gap: 0.25 }, ...(Array.isArray(props.sx) ? props.sx : [props.sx])]}>
       <IdentifierText noWrap variant={primaryVariant}>
         {primaryName}
       </IdentifierText>

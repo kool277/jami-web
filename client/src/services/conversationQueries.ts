@@ -58,7 +58,7 @@ export const useConversationInfosMutation = (conversationId: string) => {
   })
 }
 
-export const useConversationsSummariesQuery = () => {
+export const useConversationsSummariesQuery = (enabled = true) => {
   const { axiosInstance } = useAuthContext()
   return useQuery({
     queryKey: ['conversations', 'summaries'],
@@ -66,6 +66,7 @@ export const useConversationsSummariesQuery = () => {
       const { data } = await axiosInstance.get<IConversationSummary[]>(`/conversations`)
       return data
     },
+    enabled,
   })
 }
 

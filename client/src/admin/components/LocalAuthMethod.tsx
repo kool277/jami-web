@@ -82,6 +82,11 @@ const LocalAuthMethodForm = ({
     }
   }
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    void submitNewNameServer()
+  }
+
   return (
     <SettingsPage
       title={t('jami_authentication')}
@@ -96,7 +101,7 @@ const LocalAuthMethodForm = ({
       }
     >
       <SettingsSection title={t('setting_name_server')} list={false}>
-        <Form>
+        <Form onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <TextField
               id="name-server-input"
@@ -105,8 +110,10 @@ const LocalAuthMethodForm = ({
               value={nameServer}
               onChange={(event: ChangeEvent<HTMLInputElement>) => setNameServer(event.target.value)}
               slotProps={{
-                input: {
+                htmlInput: {
                   'aria-label': t('setting_name_server'),
+                },
+                input: {
                   startAdornment: (
                     <InputAdornment position="start">
                       <DnsIcon />
@@ -116,15 +123,10 @@ const LocalAuthMethodForm = ({
               }}
             />
             <Stack direction="row" sx={{ justifyContent: 'flex-end', flexWrap: 'wrap', gap: 1 }}>
-              <BaseButton variant="contained" onClick={() => resetServerNameMutation.mutate()}>
+              <BaseButton variant="contained" type="button" onClick={() => resetServerNameMutation.mutate()}>
                 {t('reset_nameserver_button')}
               </BaseButton>
-              <BaseButton
-                variant="contained"
-                type="submit"
-                onClick={submitNewNameServer}
-                disabled={nameServer === nameServerConfigured}
-              >
+              <BaseButton variant="contained" type="submit" disabled={nameServer === nameServerConfigured}>
                 {t('save_button')}
               </BaseButton>
             </Stack>

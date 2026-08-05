@@ -30,8 +30,8 @@ import AccountMenu from './AccountMenu.js'
 import NavRail from './NavRail.js'
 
 /** Lives in `client/public/admin/`, served from the site root. */
-const BACKDROP_LIGHT = './admin/background.jpg'
-const BACKDROP_DARK = './admin/background_dark.jpg'
+const BACKDROP_LIGHT = '/admin/background.jpg'
+const BACKDROP_DARK = '/admin/background_dark.jpg'
 
 export interface AppShellProps {
   /** The middle pane: the list of things the detail pane can show. */
@@ -70,7 +70,8 @@ export default function AppShell({
   const isCompact = useMediaQuery(theme.breakpoints.down('md'))
   const location = useLocation()
   const outlet = useOutlet()
-  const hasDetail = outlet !== null && location.pathname !== listRoute
+  const normalizeRoute = (route: string) => route.replace(/\/+$/, '') || '/'
+  const hasDetail = outlet !== null && normalizeRoute(location.pathname) !== normalizeRoute(listRoute)
   const isDark = theme.palette.mode === 'dark'
   const conversationRequestsQuery = useConversationRequestsQuery()
   const conversationsSummariesQuery = useConversationsSummariesQuery()

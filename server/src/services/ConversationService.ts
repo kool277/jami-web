@@ -97,7 +97,7 @@ export class ConversationService {
     // daemon returns messages newest first, so the first one is the last message.
     const [membersNames, messages] = await Promise.all([
       this.getMembersNames(accountId, conversationId),
-      jamid.getSwarmMessages(accountId, conversationId, '', MAX_UNREAD_MESSAGE_COUNT + 1),
+      this.getMessagesForSummary(accountId, conversationId, accountUri, lastDisplayed ?? ''),
     ])
 
     const lastMessage: Message = messages[0]
@@ -110,6 +110,45 @@ export class ConversationService {
       lastMessage,
       unreadMessages: countUnreadMessages(messages, accountUri, lastDisplayed),
     }
+  }
+
+  private async getMessagesForSummary(
+    accountId: string,
+    conversationId: string,
+    accountUri: string,
+    lastDisplayed: string,
+  ): Promise<Message[]> {
+    const pageSize = MAX_UNREAD_MESSAGE_COUNT + 1
+    const messages: Message[] = []
+    let fromMessage = ''
+
+    for (let page = 0; page < 100; page++) {
+      const nextMessages = await jamid.getSwarmMessages(accountId, conversationId, fromMessage, pageSize)
+      if (nextMessages.length === 0) {
+        break
+      }
+
+      for (const message of nextMessages) {
+        if (!messages.some((existing) => existing.id === message.id)) {
+          messages.push(message)
+        }
+      }
+      if (
+        countUnreadMessages(messages, accountUri, lastDisplayed) >= MAX_UNREAD_MESSAGE_COUNT ||
+        nextMessages.some((message) => message.id === lastDisplayed) ||
+        nextMessages.length < pageSize
+      ) {
+        break
+      }
+
+      const nextFromMessage = nextMessages[nextMessages.length - 1]?.id
+      if (!nextFromMessage || nextFromMessage === fromMessage) {
+        break
+      }
+      fromMessage = nextFromMessage
+    }
+
+    return messages
   }
 
   async getMembersNames(accountId: string, conversationId: string): Promise<string[]> {

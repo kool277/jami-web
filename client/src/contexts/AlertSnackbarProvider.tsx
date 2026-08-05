@@ -74,6 +74,7 @@ const defaultAlertSnackbarContext: IAlertSnackbarContext = {
 
 //Don't forget to add the cases in the switch statement below
 type AlertMessageKeys =
+  | 'account_switch_error'
   | 'copied_to_clipboard'
   | 'redirect_admin_setup_complete'
   | 'password_input_helper_text_not_match'
@@ -152,6 +153,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
   const getAlertMessageText = useCallback(
     (messageI18nKey: AlertMessageKeys, messageI18nContext?: object): string => {
       switch (messageI18nKey) {
+        case 'account_switch_error':
+          return t('account_switch_error')
         case 'missed_incoming_call':
           return t('missed_incoming_call', { ...messageI18nContext })
         case 'unknown_error_alert':

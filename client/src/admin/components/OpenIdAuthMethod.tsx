@@ -56,13 +56,14 @@ export default function OpenIdAuthMethod() {
             <ListItemButton
               key={provider.name}
               onClick={() => handleSelection(provider.name)}
-              sx={{ height: 64, borderRadius: '16px' }}
+              sx={{ minHeight: 64, borderRadius: '16px' }}
             >
               {provider.icon && (
                 <Box
                   component="img"
                   alt=""
                   src={provider.icon}
+                  referrerPolicy="no-referrer"
                   sx={{ width: 32, height: 32, mr: 2, objectFit: 'contain', flexShrink: 0 }}
                 />
               )}

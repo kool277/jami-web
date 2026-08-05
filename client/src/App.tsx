@@ -26,6 +26,7 @@ import WelcomeAnimation from './components/WelcomeAnimation.js'
 import { getAccessToken, setAccessToken } from './services/authQueries.js'
 import { apiUrl } from './utils/constants.js'
 import { isElectronMode } from './utils/electron.js'
+import { isRoutePathActive } from './utils/routes.js'
 
 export async function appLoader({ request }: LoaderFunctionArgs) {
   const initialUrl = new URL(request.url)
@@ -75,9 +76,9 @@ export async function appLoader({ request }: LoaderFunctionArgs) {
 const App = () => {
   const [displayWelcome, setDisplayWelcome] = useState<boolean>(() => getAccessToken() === undefined)
   const { pathname } = useLocation()
-  const isAdmin = pathname.startsWith('/admin')
-  const isSettings = pathname.startsWith('/settings')
-  const contentIsland = isAdmin || isSettings || /^\/conversation\/[^/]+$/.test(pathname)
+  const isAdmin = isRoutePathActive(pathname, '/admin')
+  const isSettings = isRoutePathActive(pathname, '/settings')
+  const contentIsland = isAdmin || isSettings || /^\/conversation\/[^/]+(?:\/|$)/.test(pathname)
 
   if (displayWelcome) {
     return <WelcomeAnimation onComplete={() => setDisplayWelcome(false)} />

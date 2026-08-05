@@ -104,7 +104,7 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
   const { conversationId, members } = useConversationContext()
   const [state, dispatch] = useReducer(reducer, initialState)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
-  const lastSentReadReceiptRef = useRef<string>(undefined)
+  const lastSentReadReceiptRef = useRef<string | undefined>(undefined)
   const markConversationSummaryRead = useMarkConversationSummaryRead()
   const { messagesMap, messageOrder, replies, lastSeen, isLoading, error } = state
 

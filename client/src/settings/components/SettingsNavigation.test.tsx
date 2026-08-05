@@ -25,7 +25,17 @@ import { buildDefaultTheme } from '../../themes/Default.js'
 import SettingsNavigation from './SettingsNavigation.js'
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string) =>
+      ({
+        ['settings_search_aria_label']: 'Search settings',
+        ['settings_search_placeholder']: 'Search settings',
+        ['settings_search_moderator']: 'moderator',
+        ['settings_search_moderators']: 'moderators',
+        ['settings_search_conference']: 'conference',
+        ['settings_search_biometric']: 'biometric',
+      })[key] ?? key,
+  }),
 }))
 
 const renderSettingsNavigation = (path: string) =>

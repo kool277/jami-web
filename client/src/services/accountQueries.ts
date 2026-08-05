@@ -30,8 +30,17 @@ export async function refreshProfilePicture(queryClient: QueryClient, uri: strin
   const cachedUrl = queryClient.getQueryData<string>(queryKey)
   await queryClient.invalidateQueries({ queryKey, refetchType: 'active' })
   const refreshedUrl = queryClient.getQueryData<string>(queryKey)
-  if (cachedUrl && cachedUrl !== refreshedUrl) {
+  const pictureQuery = queryClient.getQueryCache().find({ queryKey, exact: true })
+  const hasObservers = (pictureQuery?.getObserversCount() ?? 0) > 0
+  const wasReplaced = !!cachedUrl && !!refreshedUrl && cachedUrl !== refreshedUrl
+  const wasRemoved = !!cachedUrl && refreshedUrl === undefined && pictureQuery?.state.status === 'success'
+  const isInactiveAndUnchanged = !!cachedUrl && !hasObservers && cachedUrl === refreshedUrl
+
+  if (wasReplaced || wasRemoved || isInactiveAndUnchanged) {
     URL.revokeObjectURL(cachedUrl)
+  }
+  if (isInactiveAndUnchanged) {
+    queryClient.removeQueries({ queryKey, exact: true })
   }
 }
 
@@ -50,6 +59,25 @@ export const useUpdateAvatarMutation = () => {
     onSuccess: () => refreshProfilePicture(queryClient, account.getUri()),
     onError: (error) => {
       console.error('Error updating avatar', error)
+      setAlertContent({
+        messageI18nKey: 'unknown_error_alert',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
+  })
+}
+
+export const useRemoveAvatarMutation = () => {
+  const { account, axiosInstance } = useAuthContext()
+  const { setAlertContent } = use(AlertSnackbarContext)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: () => axiosInstance.delete('/account/avatar'),
+    onSuccess: () => refreshProfilePicture(queryClient, account.getUri()),
+    onError: (error) => {
+      console.error('Error removing avatar', error)
       setAlertContent({
         messageI18nKey: 'unknown_error_alert',
         severity: 'error',

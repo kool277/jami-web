@@ -385,7 +385,7 @@ const SecondaryText = ({ conversationSummary }: SecondaryTextProps) => {
       </Typography>
       {conversationSummary.unreadMessages > 0 && (
         <Box
-          aria-label={`${conversationSummary.unreadMessages} unread messages`}
+          aria-label={t('unread_messages', { count: conversationSummary.unreadMessages })}
           sx={{
             minWidth: '18px',
             height: '18px',

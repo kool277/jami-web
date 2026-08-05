@@ -28,8 +28,8 @@ import { AdminConfigurationOptions } from '../../enums/adminConfigurationOptions
 import { isRoutePathActive } from '../../utils/routes.js'
 import AdminSettingsNavigation from '../components/AdminSettingsNavigation.js'
 
-const BACKDROP_LIGHT = './admin/background.jpg'
-const BACKDROP_DARK = './admin/background_dark.jpg'
+const BACKDROP_LIGHT = '/admin/background.jpg'
+const BACKDROP_DARK = '/admin/background_dark.jpg'
 const ADMIN_LIST_ROUTE = '/admin/settings'
 
 interface AdminPanelProps {

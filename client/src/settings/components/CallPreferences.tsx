@@ -39,7 +39,12 @@ export default function CallPreferences() {
   const { t } = useTranslation()
   const { account, axiosInstance } = useAuthContext()
 
-  const [moderators, setModerators] = useState(account.defaultModerators)
+  const [moderatorState, setModeratorState] = useState({
+    source: account.defaultModerators,
+    values: account.defaultModerators,
+  })
+  const moderators =
+    moderatorState.source === account.defaultModerators ? moderatorState.values : account.defaultModerators
   const [defaultModeratorUri, setDefaultModeratorUri] = useState('')
   const [details, setDetails] = useState(account.details)
   const moderatorInputId = useId()
@@ -80,19 +85,31 @@ export default function CallPreferences() {
     contact = moderatorOptions.find((option) => option.uri === uri),
   ) => {
     if (uri) {
-      await axiosInstance.put(`/default-moderators/${uri}`)
-      setModerators((currentModerators) =>
-        currentModerators.some((moderator) => moderator.uri === uri)
-          ? currentModerators
-          : [...currentModerators, contact ?? new Contact(uri)],
-      )
+      await axiosInstance.put(`/default-moderators/${encodeURIComponent(uri)}`)
+      setModeratorState((currentState) => {
+        const currentModerators =
+          currentState.source === account.defaultModerators ? currentState.values : account.defaultModerators
+        return {
+          source: account.defaultModerators,
+          values: currentModerators.some((moderator) => moderator.uri === uri)
+            ? currentModerators
+            : [...currentModerators, contact ?? new Contact(uri)],
+        }
+      })
       setDefaultModeratorUri('')
     }
   }
 
   const removeModerator = async (uri: string) => {
-    await axiosInstance.delete(`/default-moderators/${uri}`)
-    setModerators((currentModerators) => currentModerators.filter((moderator) => moderator.uri !== uri))
+    await axiosInstance.delete(`/default-moderators/${encodeURIComponent(uri)}`)
+    setModeratorState((currentState) => {
+      const currentModerators =
+        currentState.source === account.defaultModerators ? currentState.values : account.defaultModerators
+      return {
+        source: account.defaultModerators,
+        values: currentModerators.filter((moderator) => moderator.uri !== uri),
+      }
+    })
   }
 
   const handleToggle = async (key: keyof AccountDetails, value: boolean) => {
@@ -205,6 +222,12 @@ export default function CallPreferences() {
                     variant="outlined"
                     size="small"
                     fullWidth
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' && defaultModeratorUri.trim()) {
+                        event.preventDefault()
+                        void addModerator()
+                      }
+                    }}
                     placeholder={t('settings_add_moderator_placeholder')}
                     slotProps={{
                       ...params.slotProps,

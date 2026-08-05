@@ -17,9 +17,10 @@
  */
 import { Divider, IconButton, ListItemIcon, ListItemText, Menu, MenuItem, Stack, Typography } from '@mui/material'
 import axios from 'axios'
-import { useCallback, useEffect, useState } from 'react'
+import { use, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { useAuthContext } from '../../contexts/AuthProvider.js'
 import { useContactProfilePicture } from '../../services/contactQueries.js'
 import { apiUrl } from '../../utils/constants.js'
@@ -47,6 +48,7 @@ interface AccountMenuProps {
 export default function AccountMenu({ compact }: AccountMenuProps) {
   const { t } = useTranslation()
   const { account, logout, switchAccount } = useAuthContext()
+  const { setAlertContent } = use(AlertSnackbarContext)
   const profilePictureQuery = useContactProfilePicture(account.getUri())
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
   const [isQrCodeOpen, setIsQrCodeOpen] = useState(false)
@@ -75,9 +77,14 @@ export default function AccountMenu({ compact }: AccountMenuProps) {
         switchAccount(data.accessToken)
       } catch (error) {
         console.error('Failed to switch account', error)
+        setAlertContent({
+          messageI18nKey: 'account_switch_error',
+          severity: 'error',
+          alertOpen: true,
+        })
       }
     },
-    [closeMenu, switchAccount],
+    [closeMenu, setAlertContent, switchAccount],
   )
 
   const otherAccounts = localAccounts.filter((localAccount) => localAccount.id !== account.id)

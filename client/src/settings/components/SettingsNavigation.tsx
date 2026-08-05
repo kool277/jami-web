@@ -65,25 +65,30 @@ const sections: SettingsNavigationSection[] = [
     id: 'general',
     titleKey: 'settings_title_general',
     icon: SettingsIcon,
-    searchTerms: ['preferences', 'application'],
+    searchTerms: ['settings_search_preferences', 'settings_search_application'],
     items: [
       {
         icon: <SettingsIcon />,
         titleKey: 'settings_title_system',
         path: userSettingsRoutePaths.generalSystem,
-        searchTerms: ['language', 'notification', 'notifications'],
+        searchTerms: ['settings_search_language', 'settings_search_notifications'],
       },
       {
         icon: <SettingsIcon />,
         titleKey: 'settings_appearance',
         path: userSettingsRoutePaths.generalAppearance,
-        searchTerms: ['theme', 'dark mode', 'animation', 'animations', 'tips'],
+        searchTerms: [
+          'settings_search_theme',
+          'settings_search_dark_mode',
+          'settings_search_animations',
+          'settings_search_tips',
+        ],
       },
       {
         icon: <ChatBubbleIcon />,
         titleKey: 'settings_title_chat',
         path: userSettingsRoutePaths.generalChat,
-        searchTerms: ['link preview', 'links'],
+        searchTerms: ['settings_search_link_preview', 'settings_search_links'],
       },
     ],
   },
@@ -91,35 +96,51 @@ const sections: SettingsNavigationSection[] = [
     id: 'account',
     titleKey: 'settings_title_account',
     icon: ManageAccountsIcon,
-    searchTerms: ['profile', 'security', 'device'],
+    searchTerms: ['settings_search_profile', 'settings_search_security', 'settings_search_device'],
     items: [
       {
         icon: <ManageAccountsIcon />,
         titleKey: 'settings_manage_account',
         path: userSettingsRoutePaths.manageAccount,
-        searchTerms: ['jami id', 'account details'],
+        searchTerms: ['settings_search_jami_id', 'settings_search_account_details'],
       },
       {
         titleKey: 'settings_customize_profile',
         path: userSettingsRoutePaths.customizeProfile,
-        searchTerms: ['avatar', 'photo', 'display name', 'picture'],
+        searchTerms: [
+          'settings_search_avatar',
+          'settings_search_photo',
+          'settings_search_display_name',
+          'settings_search_picture',
+        ],
       },
       {
         titleKey: 'passkey_section_title',
         path: userSettingsRoutePaths.passkeys,
-        searchTerms: ['passkey', 'webauthn', 'security key', 'biometric'],
+        searchTerms: [
+          'settings_search_passkey',
+          'settings_search_webauthn',
+          'settings_search_security_key',
+          'settings_search_biometric',
+        ],
       },
       {
         icon: <AudioCallIcon />,
         titleKey: 'settings_calls',
         path: userSettingsRoutePaths.calls,
-        searchTerms: ['moderator', 'moderators', 'conference'],
+        searchTerms: ['settings_search_moderator', 'settings_search_moderators', 'settings_search_conference'],
       },
       {
         icon: <DevicesIcon />,
         titleKey: 'settings_linked_devices',
         path: userSettingsRoutePaths.linkedDevices,
-        searchTerms: ['device', 'devices', 'link', 'export', 'transfer'],
+        searchTerms: [
+          'settings_search_device',
+          'settings_search_devices',
+          'settings_search_link',
+          'settings_search_export',
+          'settings_search_transfer',
+        ],
       },
     ],
   },
@@ -136,11 +157,24 @@ function SettingsNavigationItem({ icon, titleKey, path }: SettingsNavigationItem
       component={NavLink}
       to={to}
       aria-current={selected ? 'page' : undefined}
+      selected={selected}
       sx={{
         minHeight: 32,
         py: 0,
         color: selected ? 'primary.dark' : 'text.primary',
         transition: (theme) => theme.transitions.create('color'),
+        ...(selected && {
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: -9,
+            width: 3,
+            borderRadius: 999,
+            backgroundColor: 'primary.main',
+          },
+        }),
       }}
     >
       {icon && <ListItemIcon>{icon}</ListItemIcon>}
@@ -159,6 +193,7 @@ export default function SettingsNavigation() {
   const isCompact = useMediaQuery(theme.breakpoints.down('md'))
   const [search, setSearch] = useState('')
   const normalizedSearch = search.trim().toLocaleLowerCase()
+  const searchTerms = (terms: string[] | undefined) => (terms ?? []).map((term) => t(term))
   const activeSectionId = sections.find((section) =>
     section.items.some((item) => isRoutePathActive(pathname, userSettingsPath(item.path))),
   )?.id
@@ -172,12 +207,12 @@ export default function SettingsNavigation() {
         {t('settings')}
       </Typography>
       <TextField
-        placeholder="Search settings"
+        placeholder={t('settings_search_placeholder')}
         size="small"
         value={search}
         onChange={(event) => setSearch(event.target.value)}
         slotProps={{
-          htmlInput: { 'aria-label': 'Search settings' },
+          htmlInput: { 'aria-label': t('settings_search_aria_label') },
           input: {
             startAdornment: (
               <SearchRoundedIcon
@@ -199,7 +234,7 @@ export default function SettingsNavigation() {
           const isSelected = activeSectionId === section.id
           const sectionMatches =
             normalizedSearch.length > 0 &&
-            [section.titleKey && t(section.titleKey), ...(section.searchTerms ?? [])].some((term) =>
+            [section.titleKey && t(section.titleKey), ...searchTerms(section.searchTerms)].some((term) =>
               term?.toLocaleLowerCase().includes(normalizedSearch),
             )
           const visibleItems =
@@ -207,14 +242,11 @@ export default function SettingsNavigation() {
               ? sectionMatches
                 ? section.items
                 : section.items.filter((item) =>
-                    [t(item.titleKey), ...(item.searchTerms ?? [])].some((term) =>
+                    [t(item.titleKey), ...searchTerms(item.searchTerms)].some((term) =>
                       term.toLocaleLowerCase().includes(normalizedSearch),
                     ),
                   )
               : section.items
-          const selectedItemIndex = visibleItems.findIndex((item) =>
-            isRoutePathActive(pathname, userSettingsPath(item.path)),
-          )
           const SectionIcon = section.icon
 
           if (normalizedSearch && visibleItems.length === 0) {
@@ -265,18 +297,6 @@ export default function SettingsNavigation() {
                             width: 3,
                             borderRadius: 999,
                             backgroundColor: 'divider',
-                          },
-                          '&::after': {
-                            content: '""',
-                            position: 'absolute',
-                            top: `${Math.max(selectedItemIndex, 0) * 32}px`,
-                            left: -1,
-                            width: 3,
-                            height: 32,
-                            opacity: selectedItemIndex === -1 ? 0 : 1,
-                            borderRadius: 999,
-                            backgroundColor: 'primary.main',
-                            transition: (theme) => theme.transitions.create(['top', 'opacity']),
                           },
                         }
                       : undefined

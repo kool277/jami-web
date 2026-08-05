@@ -115,7 +115,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [adminSetupGatePlugin(env.VITE_API_URL, debugDesktopMode), react(), svgr()],
     server: {
-      host: '0.0.0.0',
+      host: process.env.VITE_HOST ?? env.VITE_HOST ?? '127.0.0.1',
       port: 3000,
       proxy: {
         '/api': {

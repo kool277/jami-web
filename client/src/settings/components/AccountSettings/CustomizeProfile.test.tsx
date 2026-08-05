@@ -24,6 +24,7 @@ import { buildDefaultTheme } from '../../../themes/Default.js'
 import CustomizeProfile from './CustomizeProfile.js'
 
 const mutations = vi.hoisted(() => ({
+  removeAvatar: vi.fn(),
   resetDisplayName: vi.fn(),
   setDisplayName: vi.fn(),
   updateAvatar: vi.fn(),
@@ -48,6 +49,7 @@ vi.mock('../../../contexts/AuthProvider.js', () => ({
   }),
 }))
 vi.mock('../../../services/accountQueries.js', () => ({
+  useRemoveAvatarMutation: () => ({ isPending: false, mutateAsync: mutations.removeAvatar }),
   useResetDisplayName: () => ({ mutate: mutations.resetDisplayName }),
   useSetDisplayName: () => ({ isPending: false, mutateAsync: mutations.setDisplayName }),
   useUpdateAvatarMutation: () => ({ isPending: false, mutateAsync: mutations.updateAvatar }),
@@ -66,6 +68,7 @@ function renderCustomizeProfile() {
 
 describe('CustomizeProfile', () => {
   beforeEach(() => {
+    mutations.removeAvatar.mockReset().mockResolvedValue(undefined)
     mutations.resetDisplayName.mockReset()
     mutations.setDisplayName.mockReset().mockResolvedValue(undefined)
     mutations.updateAvatar.mockReset().mockResolvedValue(undefined)

@@ -72,6 +72,13 @@ describe('NavRail', () => {
     expect(screen.getByRole('link', { name: 'conversations' })).not.toHaveAttribute('aria-current')
   })
 
+  it('does not select a destination with only a shared prefix', () => {
+    renderNavRail('/conversation-settings')
+
+    expect(screen.getByRole('link', { name: 'conversations' })).not.toHaveAttribute('aria-current')
+    expect(screen.getByRole('link', { name: 'settings' })).not.toHaveAttribute('aria-current')
+  })
+
   it('fills the symbol of the current destination only', () => {
     renderNavRail('/conversation')
 

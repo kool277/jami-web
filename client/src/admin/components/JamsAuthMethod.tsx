@@ -87,6 +87,11 @@ const JamsAuthMethodForm = ({
     setJamsUrlMutation.mutate(jamsUrl)
   }
 
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    void submitNewJamsUrl()
+  }
+
   return (
     <SettingsPage
       title={t('jams_authentication')}
@@ -101,7 +106,7 @@ const JamsAuthMethodForm = ({
       }
     >
       <SettingsSection title={t('jams_url')} list={false}>
-        <Form>
+        <Form onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <TextField
               id="jams-url-input"
@@ -111,8 +116,10 @@ const JamsAuthMethodForm = ({
               onChange={(event: ChangeEvent<HTMLInputElement>) => setJamsUrl(event.target.value)}
               placeholder={t('enter_jams_server')}
               slotProps={{
-                input: {
+                htmlInput: {
                   'aria-label': t('jams_url'),
+                },
+                input: {
                   startAdornment: (
                     <InputAdornment position="start">
                       <Box
@@ -134,7 +141,7 @@ const JamsAuthMethodForm = ({
                 },
               }}
             />
-            <BaseButton variant="contained" type="submit" onClick={submitNewJamsUrl} sx={{ alignSelf: 'flex-end' }}>
+            <BaseButton variant="contained" type="submit" sx={{ alignSelf: 'flex-end' }}>
               {t('save_button')}
             </BaseButton>
           </Stack>

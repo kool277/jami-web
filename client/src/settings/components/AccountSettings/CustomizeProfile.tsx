@@ -22,7 +22,12 @@ import { useTranslation } from 'react-i18next'
 import BaseButton from '../../../components/common/BaseButton.js'
 import { AvatarEditor } from '../../../components/ConversationAvatar.js'
 import { useAuthContext } from '../../../contexts/AuthProvider.js'
-import { useResetDisplayName, useSetDisplayName, useUpdateAvatarMutation } from '../../../services/accountQueries.js'
+import {
+  useRemoveAvatarMutation,
+  useResetDisplayName,
+  useSetDisplayName,
+  useUpdateAvatarMutation,
+} from '../../../services/accountQueries.js'
 import { SettingsSection } from '../SettingsPage.js'
 
 function CustomizeProfile() {
@@ -38,13 +43,21 @@ const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName:
   const { t } = useTranslation()
   const [name, setName] = useState(displayName)
   const [avatar, setAvatar] = useState<File | null>(null)
+  const [avatarRemovalRequested, setAvatarRemovalRequested] = useState(false)
+  const [avatarEditorKey, setAvatarEditorKey] = useState(0)
 
   const setDisplayName = useSetDisplayName()
   const resetDisplayName = useResetDisplayName()
   const updateAvatar = useUpdateAvatarMutation()
+  const removeAvatar = useRemoveAvatarMutation()
   const displayNameChanged = name !== displayName
-  const avatarChanged = avatar !== null
+  const avatarChanged = avatar !== null || avatarRemovalRequested
   const hasChanges = displayNameChanged || avatarChanged
+
+  const handleAvatarChange = (nextAvatar: File | null) => {
+    setAvatar(nextAvatar)
+    setAvatarRemovalRequested(nextAvatar === null)
+  }
 
   const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value)
@@ -58,7 +71,20 @@ const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName:
     if (avatar) {
       const data = new FormData()
       data.append('avatar', avatar)
-      updates.push(updateAvatar.mutateAsync(data).then(() => setAvatar(null)))
+      updates.push(
+        updateAvatar.mutateAsync(data).then(() => {
+          setAvatar(null)
+          setAvatarRemovalRequested(false)
+          setAvatarEditorKey((key) => key + 1)
+        }),
+      )
+    } else if (avatarRemovalRequested) {
+      updates.push(
+        removeAvatar.mutateAsync().then(() => {
+          setAvatarRemovalRequested(false)
+          setAvatarEditorKey((key) => key + 1)
+        }),
+      )
     }
     await Promise.allSettled(updates)
   }
@@ -71,7 +97,7 @@ const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName:
     <SettingsSection list={false}>
       <Stack sx={{ width: '100%', gap: 2 }}>
         <Stack sx={{ alignItems: 'center' }}>
-          <AvatarEditor onAvatarChange={setAvatar} />
+          <AvatarEditor key={avatarEditorKey} onAvatarChange={handleAvatarChange} />
         </Stack>
         <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 1.5 }}>
           <TextField
@@ -86,7 +112,7 @@ const CustomizeProfileForm = ({ registeredName, displayName }: { registeredName:
               sx={{ flex: 1, minWidth: 0 }}
               variant="contained"
               color="primary"
-              disabled={!hasChanges || updateAvatar.isPending || setDisplayName.isPending}
+              disabled={!hasChanges || updateAvatar.isPending || removeAvatar.isPending || setDisplayName.isPending}
               onClick={handleSave}
             >
               {t('save_button')}

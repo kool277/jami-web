@@ -5,6 +5,7 @@ services:
     image: jami-web
     environment:
       NODE_ENV: development
+      VITE_HOST: 0.0.0.0
     build:
       context: .
       target: development

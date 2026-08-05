@@ -139,7 +139,7 @@ export default function AdminSettingsNavigation() {
                 <ButtonBase
                   component={NavLink}
                   to={section.path}
-                  aria-pressed={isSelected}
+                  aria-current={isSelected ? 'page' : undefined}
                   sx={{
                     width: '100%',
                     minHeight: 48,

@@ -134,6 +134,17 @@ accountRouter.post(
     res.status(HttpStatusCode.Ok).send()
   }),
 )
+accountRouter.delete(
+  '/avatar',
+  asyncHandler(async (req, res) => {
+    const accountId = res.locals.accountId
+    const accountDetails = jamid.getAccountDetails(accountId)
+
+    jamid.updateProfile(accountId, accountDetails['Account.displayName'], '', '', '', 0)
+    await clearAvatarCache(accountId, accountDetails['Account.username'])
+    res.sendStatus(HttpStatusCode.NoContent)
+  }),
+)
 accountRouter.post(
   '/:deviceId/revoke',
   asyncHandler<{ deviceId: string }>(async (req, res) => {

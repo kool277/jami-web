@@ -22,8 +22,8 @@ import { useCallback, useRef } from 'react'
  * The clips are encoded over the rail's own surface colour, one per palette
  * mode, because they carry no alpha channel of their own.
  */
-const LOGO_LIGHT = './logo_light.webm'
-const LOGO_DARK = './logo_dark.webm'
+const LOGO_LIGHT = '/logo_light.webm'
+const LOGO_DARK = '/logo_dark.webm'
 
 export interface AnimatedLogoProps {
   size?: number

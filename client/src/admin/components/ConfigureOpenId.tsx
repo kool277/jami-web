@@ -105,7 +105,13 @@ export default function ConfigureOpenId() {
       sectionGap={0}
       icon={
         provider.data.icon && (
-          <Box component="img" alt="" src={provider.data.icon} sx={{ width: 40, height: 40, objectFit: 'contain' }} />
+          <Box
+            component="img"
+            alt=""
+            src={provider.data.icon}
+            referrerPolicy="no-referrer"
+            sx={{ width: 40, height: 40, objectFit: 'contain' }}
+          />
         )
       }
       headerAction={
