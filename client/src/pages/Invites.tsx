@@ -15,16 +15,29 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import EmptyState from '../components/common/EmptyState.js'
 import InviteList from '../components/InviteList.js'
 import AppShell from '../components/shell/AppShell.js'
 import useDocumentTitle from '../hooks/useDocumentTitle.js'
+import { useConversationRequestsQuery } from '../services/conversationQueries.js'
 
 export default function Invites() {
   const { t } = useTranslation()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const conversationRequestsQuery = useConversationRequestsQuery()
   useDocumentTitle(t('invitations'))
+
+  useEffect(() => {
+    const firstInvitation = conversationRequestsQuery.data?.[0]
+    if (location.pathname === '/invites' && firstInvitation) {
+      navigate(`/invites/${firstInvitation.conversationId}`, { replace: true })
+    }
+  }, [conversationRequestsQuery.data, location.pathname, navigate])
 
   return (
     <AppShell

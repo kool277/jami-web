@@ -16,11 +16,12 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ThemeProvider } from '@mui/material/styles'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
-import { MemoryRouter, useLocation } from 'react-router-dom'
+import { MemoryRouter, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 
+import Invites from '../pages/Invites.js'
 import { buildDefaultTheme } from '../themes/Default.js'
 import { ConversationRequestList } from './ConversationRequestList.js'
 import { EmptyInvitations } from './InviteList.js'
@@ -41,6 +42,13 @@ vi.mock('../services/conversationQueries.js', () => ({
         received: '2026-08-04T12:00:00Z',
         membersNames: [hash],
       },
+      {
+        conversationId: 'request-2',
+        infos: { title: 'Second invitation' },
+        from: { uri: '0c32ab20bb55bd442334553dc5c9a1dfb31c3152', registeredName: '' },
+        received: '2026-08-04T11:00:00Z',
+        membersNames: ['Second invitation'],
+      },
     ],
   }),
 }))
@@ -51,6 +59,10 @@ vi.mock('./ConversationAvatar.js', () => ({
 
 vi.mock('./EllipsisMiddle.js', () => ({
   default: ({ text }: { text: string }) => <span data-testid="invite-name">{text}</span>,
+}))
+
+vi.mock('./shell/AppShell.js', () => ({
+  default: () => <Outlet />,
 }))
 
 describe('EmptyInvitations', () => {
@@ -79,12 +91,32 @@ describe('ConversationRequestList', () => {
       </ThemeProvider>,
     )
 
-    expect(screen.getByTestId('invite-name')).toHaveTextContent(hash)
+    expect(screen.getByText(hash, { selector: '[data-testid="invite-name"]' })).toBeVisible()
 
     await user.click(screen.getByRole('button', { name: hash }))
 
     expect(screen.getByTestId('current-path')).toHaveTextContent('/invites/request-1')
     expect(document.querySelector('.MuiDialog-root')).not.toBeInTheDocument()
+  })
+})
+
+describe('Invites', () => {
+  it('opens the first invitation by default', async () => {
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <MemoryRouter initialEntries={['/invites']}>
+          <Routes>
+            <Route path="/invites" element={<Invites />}>
+              <Route path=":conversationId" element={<span>Invitation detail</span>} />
+            </Route>
+          </Routes>
+          <CurrentPath />
+        </MemoryRouter>
+      </ThemeProvider>,
+    )
+
+    await waitFor(() => expect(screen.getByTestId('current-path')).toHaveTextContent('/invites/request-1'))
+    expect(screen.getByText('Invitation detail')).toBeVisible()
   })
 })
 
