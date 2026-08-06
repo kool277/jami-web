@@ -89,6 +89,7 @@ type AlertMessageKeys =
   | 'registration_success'
   | 'incorrect_password'
   | 'admin_password_changed_successfully'
+  | 'account_password_changed_successfully'
   | 'setting_jams_server_error'
   | 'setting_jams_server_error_same_value'
   | ''
@@ -181,6 +182,8 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('incorrect_password')
         case 'admin_password_changed_successfully':
           return t('admin_password_changed_successfully')
+        case 'account_password_changed_successfully':
+          return t('account_password_changed_successfully')
         case 'setting_jams_server_error':
           return t('setting_jams_server_error')
         case 'setting_name_server_error':

@@ -531,7 +531,35 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
       },
       defaultModerators: [],
       devices: { 'mock-device-id': 'Mock Device' },
+      canChangePassword: true,
     })
+  })
+
+  api.patch('/account/password', (req, res) => {
+    const token = req.get('authorization')?.replace(/^Bearer\s+/, '')
+    const username = token ? state.userTokens[token] : undefined
+    const user = username ? state.users[username] : undefined
+    const { currentPassword, newPassword } = req.body
+
+    if (!user) {
+      res.sendStatus(401)
+      return
+    }
+    if (typeof currentPassword !== 'string' || typeof newPassword !== 'string' || !currentPassword || !newPassword) {
+      res.status(400).send('Current and new passwords are required')
+      return
+    }
+    if (newPassword.length < 8 || newPassword === currentPassword) {
+      res.status(422).send('New password does not meet requirements')
+      return
+    }
+    if (user.password !== currentPassword) {
+      res.status(409).send('Incorrect current password')
+      return
+    }
+
+    user.password = newPassword
+    res.sendStatus(204)
   })
 
   api.get('/account/profile/picture', (_req, res) => {

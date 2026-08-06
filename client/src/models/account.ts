@@ -27,13 +27,21 @@ export class Account implements IAccount {
   volatileDetails: VolatileDetails
   defaultModerators: Contact[] = []
   devices: Devices = {}
+  canChangePassword: boolean
   contacts: Contact[] = []
 
-  constructor(id: string, details: AccountDetails, volatileDetails: VolatileDetails, devices: Devices = {}) {
+  constructor(
+    id: string,
+    details: AccountDetails,
+    volatileDetails: VolatileDetails,
+    devices: Devices = {},
+    canChangePassword = false,
+  ) {
     this.id = id
     this.details = details
     this.volatileDetails = volatileDetails
     this.devices = devices
+    this.canChangePassword = canChangePassword
   }
 
   static fromInterface(accountInterface: IAccount) {
@@ -42,6 +50,7 @@ export class Account implements IAccount {
       accountInterface.details,
       accountInterface.volatileDetails,
       accountInterface.devices,
+      accountInterface.canChangePassword,
     )
     account.defaultModerators = accountInterface.defaultModerators.map(Contact.fromInterface)
     return account

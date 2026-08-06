@@ -17,14 +17,22 @@
  */
 import { useTranslation } from 'react-i18next'
 
+import { useAuthContext } from '../../contexts/AuthProvider.js'
+import ChangePassword from '../components/AccountSettings/ChangePassword.js'
 import PasskeyManager from '../components/AccountSettings/PasskeyManager.js'
-import { SettingsPage } from '../components/SettingsPage.js'
+import { SettingsPage, SettingsSection } from '../components/SettingsPage.js'
 
 export default function PasskeysSettings() {
   const { t } = useTranslation()
+  const { account } = useAuthContext()
 
   return (
     <SettingsPage title={t('passkey_section_title')}>
+      {account.canChangePassword && (
+        <SettingsSection title={t('change_password')} description={t('change_password_description')} list={false}>
+          <ChangePassword />
+        </SettingsSection>
+      )}
       <PasskeyManager />
     </SettingsPage>
   )

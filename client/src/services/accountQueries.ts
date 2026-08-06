@@ -124,6 +124,24 @@ export const useRemoveLinkedDevice = () => {
   })
 }
 
+export const useUpdateAccountPasswordMutation = () => {
+  const { axiosInstance } = useAuthContext()
+  const { setAlertContent } = use(AlertSnackbarContext)
+
+  return useMutation({
+    mutationFn: async (passwords: { currentPassword: string; newPassword: string }) => {
+      await axiosInstance.patch('/account/password', passwords)
+    },
+    onSuccess: () => {
+      setAlertContent({
+        messageI18nKey: 'account_password_changed_successfully',
+        severity: 'success',
+        alertOpen: true,
+      })
+    },
+  })
+}
+
 export const useSetDisplayName = () => {
   const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
