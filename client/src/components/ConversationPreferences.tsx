@@ -108,6 +108,10 @@ export function getConversationPreferencesPageTransition(
   }
 }
 
+export function getInsetCornerRadius(radius: number, inset: number): number {
+  return radius - inset
+}
+
 export function getConversationType(memberCount: number): ConversationType {
   return memberCount > 2 ? 'group' : 'private'
 }
@@ -259,7 +263,18 @@ export default function ConversationPreferences() {
                     sx={{ justifyContent: 'center', '& .MuiCardHeader-content': { flex: 'initial' } }}
                   />
                   <ConversationDetailsFields isAdmin={isAdmin} />
-                  <CardContent sx={{ display: 'flex', flex: 1, flexDirection: 'column', minHeight: 0, paddingTop: 1 }}>
+                  <CardContent
+                    sx={{
+                      display: 'flex',
+                      flex: 1,
+                      flexDirection: 'column',
+                      minHeight: 0,
+                      paddingBottom: 1,
+                      paddingX: 2,
+                      paddingTop: 1,
+                      '&:last-child': { paddingBottom: ISLAND_MARGIN },
+                    }}
+                  >
                     <Box
                       sx={{
                         alignItems: 'center',
@@ -750,8 +765,15 @@ export const Files = ({ showAll, viewMode = 'grid' }: FilesProps) => {
 
 const LeaveConversationAction = () => {
   const { t } = useTranslation()
+  const theme = useTheme()
   const RemoveConversationDialogHandler = useDialogHandler()
   const { conversationId } = useConversationContext()
+  const cardContentPadding = Number.parseFloat(theme.spacing(2))
+  const bottomInset = Number.parseFloat(ISLAND_MARGIN)
+  const panelRadius = Number.parseFloat(`${theme.Panel.borderRadius}`)
+  const buttonCornerRadius = getInsetCornerRadius(panelRadius, bottomInset)
+  const horizontalMargin = bottomInset - cardContentPadding
+  const widthExpansion = -2 * horizontalMargin
 
   return (
     <>
@@ -761,18 +783,20 @@ const LeaveConversationAction = () => {
           flexDirection: 'column',
           alignItems: 'center',
           alignContent: 'center',
-          width: '100%',
+          marginX: `${horizontalMargin}px`,
+          width: `calc(100% + ${widthExpansion}px)`,
         }}
       >
         <BaseButton
           variant="contained"
           sx={{
-            width: '90%',
             backgroundColor: 'red',
+            borderRadius: `${buttonCornerRadius}px`,
             display: 'flex',
             justifyContent: 'space-evenly',
+            minHeight: `${buttonCornerRadius * 2}px`,
+            width: '100%',
             '&:hover': { backgroundColor: 'red' },
-            maxWidth: '200px',
           }}
           onClick={() => {
             RemoveConversationDialogHandler.openDialog()

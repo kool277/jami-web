@@ -66,6 +66,7 @@ import {
   getConversationPreferencesTransition,
   getConversationType,
   getFilesByRecency,
+  getInsetCornerRadius,
   getNextMediaViewMode,
   getRecentFiles,
 } from './ConversationPreferences.js'
@@ -96,6 +97,10 @@ describe('ConversationPreferences', () => {
       animate: { x: 0 },
       exit: { x: 0 },
     })
+  })
+
+  it('calculates an inset corner radius that remains concentric with the Island', () => {
+    expect(getInsetCornerRadius(32, 8)).toBe(24)
   })
 
   it('identifies direct and group conversations from their member count', () => {
