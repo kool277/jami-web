@@ -52,7 +52,7 @@ import { filter, firstValueFrom, map, Subject } from 'rxjs'
 import { Service } from 'typedi'
 
 import { AdminAccount } from '../storage/admin-account.js'
-import { clearAvatarCache, getAvatar } from '../utils/vCard.js'
+import { cacheProfile, clearAvatarCache, decodeVCard, getAvatar, getDisplayName } from '../utils/vCard.js'
 import { WebSocketServer } from '../websocket/websocket-server.js'
 import { ConversationMemberInfos } from './conversation-member-infos.js'
 import { ConversationRequestMetadata } from './conversation-request-metadata.js'
@@ -1145,9 +1145,15 @@ export class Jamid {
       const peer = signal.from
       const accountId = signal.accountId
       await clearAvatarCache(accountId, peer)
-      await getAvatar(accountId, peer)
+      const profile = await decodeVCard(signal.path)
+      if (profile) {
+        await cacheProfile(accountId, peer, profile)
+      } else {
+        await getAvatar(accountId, peer)
+      }
+      const displayName = profile?.name || (await getDisplayName(accountId, peer))
 
-      this.webSocketServer.send(accountId, WebSocketMessageType.ProfileReceived, { peer })
+      this.webSocketServer.send(accountId, WebSocketMessageType.ProfileReceived, { peer, displayName })
     })
 
     this.events.onComposingStatusChanged.subscribe((signal) => {

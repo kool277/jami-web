@@ -22,7 +22,15 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, it, mock } from 'node:test'
 
-import { cacheAvatar, decodeVCard, detectImageExtension, getAvatarBase64, getVCardPath } from './vCard.js'
+import {
+  cacheAvatar,
+  cacheProfile,
+  decodeVCard,
+  detectImageExtension,
+  getAvatarBase64,
+  getDisplayName,
+  getVCardPath,
+} from './vCard.js'
 
 describe('getAvatarBase64', () => {
   it('removes PNG and JPEG vCard data URI prefixes', () => {
@@ -87,6 +95,24 @@ describe('cacheAvatar', () => {
 
       assert.deepEqual(await readFile(join(profileFolder, `${imageName}.jpeg`)), Buffer.from('/9j/4AAQSkY=', 'base64'))
       await assert.rejects(readFile(join(profileFolder, `${imageName}.png`)), { code: 'ENOENT' })
+    } finally {
+      homedir.mock.restore()
+      await rm(home, { recursive: true })
+    }
+  })
+})
+
+describe('cacheProfile', () => {
+  it('stores a received vCard name without rereading the local profile path', async () => {
+    const home = await mkdtemp(join(tmpdir(), 'jami-web-profile-cache-'))
+    const accountId = 'account-id'
+    const contactUri = 'contact-id'
+    const homedir = mock.method(os, 'homedir', () => home)
+
+    try {
+      await cacheProfile(accountId, contactUri, { name: 'Updated Ada' })
+
+      assert.equal(await getDisplayName(accountId, contactUri), 'Updated Ada')
     } finally {
       homedir.mock.restore()
       await rm(home, { recursive: true })

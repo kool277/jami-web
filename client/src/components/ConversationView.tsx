@@ -30,6 +30,7 @@ import ConversationPreferencesStateProvider, {
   useConversationPreferencesStateContext,
 } from '../contexts/ConversationPreferencesStateContext.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { useContactQuery } from '../services/contactQueries.js'
 //import CallInterface from '../pages/CallInterface.js'
 const CallInterface = lazy(() => import('../pages/CallInterface.js'))
 import ChatInterface from '../pages/ChatInterface.js'
@@ -122,8 +123,10 @@ export const ConversationHeader = () => {
   const otherMember = useMemo(() => members?.find((m) => m.contact.uri !== account.getUri()), [members, account])
   const avatarUri = otherMember?.contact.uri
   const contactUri = members.length === 1 ? avatarUri : undefined
+  const contactQuery = useContactQuery(contactUri)
+  const displayName = contactQuery.data?.displayName || conversationDisplayName
   const { primary, secondary, primaryIsJamiId } = getConversationHeaderIdentity(
-    conversationDisplayName,
+    displayName,
     contactUri ? otherMember?.contact.registeredName : undefined,
     contactUri,
   )
@@ -185,7 +188,7 @@ export const ConversationHeader = () => {
           >
             {avatarUri && (
               <ConversationAvatar
-                displayName={conversationDisplayName}
+                displayName={displayName}
                 contactUri={avatarUri}
                 presence={true}
                 sx={{ width: 40, height: 40, fontSize: '1rem' }}

@@ -93,6 +93,7 @@ export interface ReactionRemoved {
 
 export interface ProfileReceived {
   peer: string
+  displayName?: string
 }
 
 export interface LoadMoreMessages {

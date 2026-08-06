@@ -124,6 +124,20 @@ export async function cacheAvatar(accountId: string, contactUri: string, photo: 
   return imagePath
 }
 
+export async function cacheProfile(accountId: string, contactUri: string, profile: { name: string; photo?: string }) {
+  const profileFolder = os.homedir() + '/.local/share/jami/' + accountId + '/cache/profile'
+  const imageName = btoa(contactUri)
+
+  await fs.mkdir(profileFolder, { recursive: true })
+  if (profile.name) {
+    await fs.writeFile(`${profileFolder}/${imageName}.txt`, profile.name)
+  }
+  if (profile.photo) {
+    return cacheAvatar(accountId, contactUri, profile.photo)
+  }
+  return undefined
+}
+
 export async function getAvatar(accountId: string, contactUri: string, isOwnProfile = false) {
   const cacheFolder = os.homedir() + '/.local/share/jami/' + accountId + '/cache'
   const profileFolder = cacheFolder + '/profile'

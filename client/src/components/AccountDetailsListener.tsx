@@ -17,12 +17,13 @@
  */
 
 import {
+  ContactDetails,
   IAccountDetails,
   IKnownDevicesChanged,
   ProfileReceived,
   WebSocketMessageType,
 } from '@savoirfairelinux/jami-web-common'
-import { useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
@@ -32,6 +33,21 @@ interface AccountDetailsListenerProps {
   children: React.ReactNode
 }
 
+type ProfileQueryClient = Pick<QueryClient, 'invalidateQueries' | 'removeQueries' | 'refetchQueries' | 'setQueryData'>
+
+export function refreshContactProfile(queryClient: ProfileQueryClient, peer: string, displayName?: string) {
+  if (displayName) {
+    queryClient.setQueryData<ContactDetails>(['contacts', peer], (contact) =>
+      contact ? { ...contact, displayName } : contact,
+    )
+  }
+  queryClient.invalidateQueries({ queryKey: ['picture', peer] })
+  queryClient.removeQueries({ queryKey: ['picture', peer] })
+  queryClient.refetchQueries({ queryKey: ['picture', peer] })
+  queryClient.invalidateQueries({ queryKey: ['contacts', peer] })
+  queryClient.invalidateQueries({ queryKey: ['contact', 'list'] })
+}
+
 export default function AccountDetailsListener({ children }: AccountDetailsListenerProps) {
   const { account, updateDevices } = useAuthContext()
   const webSocket = useWebSocketContext()
@@ -39,9 +55,7 @@ export default function AccountDetailsListener({ children }: AccountDetailsListe
 
   useEffect(() => {
     const profileReceivedHandler = (data: ProfileReceived) => {
-      queryClient.invalidateQueries({ queryKey: ['picture', data.peer] })
-      queryClient.removeQueries({ queryKey: ['picture', data.peer] })
-      queryClient.refetchQueries({ queryKey: ['picture', data.peer] })
+      refreshContactProfile(queryClient, data.peer, data.displayName)
     }
 
     const knownDevicesChangedHandler = (data: IKnownDevicesChanged) => {
