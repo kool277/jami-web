@@ -58,13 +58,13 @@ import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './Contex
 import ConversationAvatar, { GroupConversationAvatar } from './ConversationAvatar.js'
 import ConversationSettingsFileItem from './ConversationSettingsFileItem.js'
 import { ConfirmationDialog, useDialogHandler } from './Dialog.js'
-import EllipsisMiddle from './EllipsisMiddle.js'
 import { PopoverListItemData } from './PopoverList.js'
 import RemoveConversationDialog from './RemoveComversationDialog.js'
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ColorsIcon,
+  CrownIcon,
   DescriptionIcon,
   ExitToAppIcon,
   FormatCodeIcon,
@@ -596,9 +596,6 @@ const MemberInfo = ({ member, isAdmin }: MemberInfoProps) => {
   const contextMenuHandler = useContextMenuHandler()
   const isBanned = member.role === 'banned'
   const { t } = useTranslation()
-  const isMobile = useMediaQuery(useTheme().breakpoints.only('xs'))
-  const isMedium = useMediaQuery(useTheme().breakpoints.only('sm'))
-
   const {
     props: { open: dialogOpen, onClose: closeContactDialog },
     openDialog: openContactDialog,
@@ -616,16 +613,6 @@ const MemberInfo = ({ member, isAdmin }: MemberInfoProps) => {
   }, [contactDetail, contactDetailDialogOpen])
 
   const bestName = member.getDisplayName() || member.contact.registeredName || member.contact.uri
-
-  const getBestWidth = () => {
-    if (isMobile) {
-      return '165px'
-    }
-    if (isMedium) {
-      return '140px'
-    }
-    return '135px'
-  }
 
   return (
     <>
@@ -664,29 +651,44 @@ const MemberInfo = ({ member, isAdmin }: MemberInfoProps) => {
             flexDirection: 'row',
             alignContent: 'center',
             alignItems: 'center',
-            width: '100%',
+            flex: 1,
+            minWidth: 0,
           }}
         >
-          {' '}
-          <ConversationAvatar presence={true} contactUri={member.contact.uri} displayName={bestName} />
-          <Box
-            sx={{
-              maxWidth: getBestWidth,
-              marginLeft: '8px',
-            }}
-          >
-            {bestName.length > 15 ? <EllipsisMiddle text={bestName} /> : bestName}
+          <Box sx={{ display: 'flex', position: 'relative' }}>
+            <ConversationAvatar presence={true} contactUri={member.contact.uri} displayName={bestName} />
+            {member.role === 'admin' && (
+              <Box
+                role="img"
+                aria-label={t('admin')}
+                sx={{
+                  color: 'warning.main',
+                  lineHeight: 0,
+                  position: 'absolute',
+                  right: -5,
+                  top: -8,
+                  transform: 'rotate(15deg)',
+                }}
+              >
+                <CrownIcon aria-hidden sx={{ filter: 'drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5))', fontSize: 18 }} />
+              </Box>
+            )}
           </Box>
+          <Typography
+            noWrap
+            title={bestName}
+            sx={{ flex: 1, marginLeft: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}
+          >
+            {bestName}
+          </Typography>
         </Box>
         <Box
           sx={{
             display: 'flex',
             flexDirection: 'row',
-            justifyContent: 'space-between',
-            minWidth: isMedium ? '120px' : '105px',
+            alignItems: 'center',
           }}
         >
-          {member.role && <Box sx={{ typography: 'caption' }}>{t(member.role)}</Box>}
           <MoreHorizIcon
             sx={{
               '&:hover': { cursor: 'pointer' },
