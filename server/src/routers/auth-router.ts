@@ -54,7 +54,8 @@ const backgroundTask = () => {
   clearPendingAccounts()
 }
 const INTERVAL = 7200000
-setInterval(backgroundTask, INTERVAL)
+// Housekeeping only: it must not be a reason for the process to stay alive.
+setInterval(backgroundTask, INTERVAL).unref()
 
 function clearPendingAccounts() {
   const pendingAccounts = accounts.getPendingAccounts()
@@ -390,7 +391,7 @@ authRouter.post(
 
     jamid.provideAccountAuthentication(accountId, password, scheme)
 
-    res.status(HttpStatusCode.Ok)
+    res.status(HttpStatusCode.Ok).end()
   }),
 )
 
@@ -400,7 +401,7 @@ authRouter.post(
     const accountId = req.body.accountId
     accounts.removeAndDeletePendingAccount(accountId)
     accounts.save()
-    res.status(HttpStatusCode.Ok)
+    res.status(HttpStatusCode.Ok).end()
   }),
 )
 
