@@ -17,7 +17,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { getConversationPreferencesTransition } from './ConversationPreferences.js'
+import { getConversationPreferencesTransition, getConversationType } from './ConversationPreferences.js'
 
 describe('ConversationPreferences', () => {
   it('slides without bouncing and respects disabled animations', () => {
@@ -27,5 +27,10 @@ describe('ConversationPreferences', () => {
       ease: 'easeOut',
     })
     expect(getConversationPreferencesTransition(false)).toEqual({ duration: 0 })
+  })
+
+  it('identifies direct and group conversations from their member count', () => {
+    expect(getConversationType(2)).toBe('private')
+    expect(getConversationType(3)).toBe('group')
   })
 })

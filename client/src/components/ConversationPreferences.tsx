@@ -30,7 +30,7 @@ import {
 } from '@mui/material'
 import { Message } from '@savoirfairelinux/jami-web-common'
 import { motion, type Transition } from 'framer-motion'
-import { memo, ReactElement, SetStateAction, use, useMemo, useState } from 'react'
+import { memo, SetStateAction, use, useMemo, useState } from 'react'
 import { BlockPicker, ColorResult } from 'react-color'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -68,7 +68,6 @@ import {
   ExitToAppIcon,
   FormatCodeIcon,
   GroupsIcon,
-  InfoOutlinedIcon as InfoIcon,
   MoreHorizIcon,
   NotificationsActiveIcon,
   NotificationsOffIcon,
@@ -78,8 +77,9 @@ import { BlockContactIcon, JamiIdIcon, KickMemberIcon, MessageIcon, PersonIcon }
 enum TABS {
   FILES = 0,
   SETTINGS = 1,
-  INFOS = 2,
 }
+
+export type ConversationType = 'private' | 'group'
 
 const readOnlyFieldSx = {
   '& .MuiInputBase-input': {
@@ -92,6 +92,10 @@ export function getConversationPreferencesTransition(animationsEnabled: boolean)
   return animationsEnabled ? { type: 'tween' as const, duration: 0.2, ease: 'easeOut' } : { duration: 0 }
 }
 
+export function getConversationType(memberCount: number): ConversationType {
+  return memberCount > 2 ? 'group' : 'private'
+}
+
 export default function ConversationPreferences() {
   const { t } = useTranslation()
   const { animationsEnabled } = use(CustomThemeContext)
@@ -100,7 +104,7 @@ export default function ConversationPreferences() {
   const { account } = useAuthContext()
   const theme = useTheme()
 
-  const [currentTab, setCurrentTab] = useState<TABS>(TABS.INFOS)
+  const [currentTab, setCurrentTab] = useState<TABS>(TABS.SETTINGS)
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
@@ -172,6 +176,7 @@ export default function ConversationPreferences() {
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <ConversationNotificationToggle />
                 <ColorPicker conversationId={conversationId} />
+                <ConversationTypeIcon type={getConversationType(members.length)} />
               </Box>
             </Box>
           }
@@ -184,18 +189,6 @@ export default function ConversationPreferences() {
             aria-label={t('conversation_preferences')}
             sx={{ display: 'flex', justifyContent: 'center', marginTop: '1vh' }}
           >
-            <BaseButton
-              variant="text"
-              aria-label={t('conversation_info')}
-              aria-pressed={currentTab === TABS.INFOS}
-              sx={buttonStyle}
-              style={{ opacity: currentTab === TABS.INFOS ? 1 : 0.7 }}
-              onClick={() => {
-                setCurrentTab(TABS.INFOS)
-              }}
-            >
-              <InfoIcon />
-            </BaseButton>
             <BaseButton
               variant="text"
               aria-label={t('conversation_files')}
@@ -222,37 +215,12 @@ export default function ConversationPreferences() {
             </BaseButton>
           </Box>
           <Box sx={{ marginTop: '10%', display: 'flex', justifyContent: 'center' }}>
-            {currentTab === TABS.INFOS && <Infos />}
             {currentTab === TABS.FILES && <Files />}
             {currentTab === TABS.SETTINGS && <Settings />}
           </Box>
         </CardContent>
       </Card>
     </motion.span>
-  )
-}
-
-interface SettingsItemWrapperProps {
-  title: string
-  children?: ReactElement
-}
-
-const SettingsItemWrapper = ({ title, children }: SettingsItemWrapperProps) => {
-  return (
-    <Box
-      sx={{
-        width: '95%',
-        margin: '1px',
-        paddingTop: '2%',
-        paddingBottom: '2%',
-        display: 'flex',
-        justifyContent: 'space-between',
-        borderRadius: '2px',
-      }}
-    >
-      <Box sx={{ textWrap: 'nowrap' }}>{title}</Box>
-      <Box>{children}</Box>
-    </Box>
   )
 }
 
@@ -377,25 +345,20 @@ const ConversationNotificationToggle = () => {
   )
 }
 
-const Infos = () => {
+interface ConversationTypeIconProps {
+  type: ConversationType
+}
+
+const ConversationTypeIcon = ({ type }: ConversationTypeIconProps) => {
   const { t } = useTranslation()
-  const { members } = useConversationContext()
-  const conversationType = members.length > 2 ? t('conversation_type_group') : t('conversation_type_private')
 
   return (
     <Box
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        alignContent: 'center',
-        width: '100%',
-      }}
+      role="img"
+      aria-label={t(type === 'group' ? 'conversation_type_group' : 'conversation_type_private')}
+      sx={{ display: 'flex', justifyContent: 'center' }}
     >
-      <SettingsItemWrapper title={t('conversation_type')}>
-        <Box>{conversationType}</Box>
-      </SettingsItemWrapper>
+      {type === 'group' ? <GroupsIcon aria-hidden /> : <PersonIcon aria-hidden />}
     </Box>
   )
 }
