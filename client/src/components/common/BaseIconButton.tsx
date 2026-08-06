@@ -17,6 +17,7 @@
  */
 import IconButton, { type IconButtonProps } from '@mui/material/IconButton'
 import { type TooltipProps } from '@mui/material/Tooltip'
+import { useState } from 'react'
 
 import Tooltip from '../Tooltip.js'
 
@@ -25,11 +26,24 @@ export type BaseIconButtonProps = Omit<IconButtonProps, 'aria-label'> & {
   tooltip: TooltipProps['title']
 }
 
-export default function BaseIconButton({ tooltip, ...props }: BaseIconButtonProps) {
+export default function BaseIconButton({ tooltip, onClick, ...props }: BaseIconButtonProps) {
+  const [tooltipOpen, setTooltipOpen] = useState(false)
+
   return (
-    <Tooltip title={tooltip}>
+    <Tooltip
+      onClose={() => setTooltipOpen(false)}
+      onOpen={() => setTooltipOpen(true)}
+      open={tooltipOpen}
+      title={tooltip}
+    >
       <span>
-        <IconButton {...props} />
+        <IconButton
+          {...props}
+          onClick={(event) => {
+            setTooltipOpen(false)
+            onClick?.(event)
+          }}
+        />
       </span>
     </Tooltip>
   )
