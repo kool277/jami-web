@@ -254,6 +254,7 @@ const MessageDataTransfer = memo(
     const totalSize = Number(message.totalSize) / 1000000
 
     const isDeleted = message.fileId === ''
+    const hasReactions = message.reactions.length > 0
 
     const member = members.find((member) => member.contact.uri === message.author)
 
@@ -506,46 +507,46 @@ const MessageDataTransfer = memo(
             member={member}
           />
         )}
-        <MessageTooltip
-          isDeleted={isDeleted}
-          position={position}
-          message={message}
-          isMedia={true}
-          handleDownload={handleDownload}
-        >
-          <Box
-            onClick={onMediaPreview}
-            onDoubleClick={onDoubleClick}
-            sx={isDeleted || fileType === FileType.Audio ? null : { cursor: 'pointer' }}
+        <Box sx={{ position: 'relative', width: 'fit-content', pb: hasReactions ? '18px' : 0 }}>
+          <MessageTooltip
+            isDeleted={isDeleted}
+            position={position}
+            message={message}
+            isMedia={true}
+            handleDownload={handleDownload}
           >
-            <Bubble
-              bubbleColor={bubbleColor}
-              position={position}
-              isFirstOfGroup={isFirstOfGroup}
-              isLastOfGroup={isLastOfGroup}
-              sentTime={sentTime}
-              edited={false} // edited is not used in data-transfer message
-              isMedia={fileType !== FileType.Document && (preview || audioBlob) ? true : false}
-              isAudio={fileType === FileType.Audio}
-              deleted={isDeleted}
+            <Box
+              onClick={onMediaPreview}
+              onDoubleClick={onDoubleClick}
+              sx={isDeleted || fileType === FileType.Audio ? null : { cursor: 'pointer' }}
             >
-              {isDeleted ? (
-                <Box
-                  sx={{
-                    color: textColor,
-                    userSelect: 'none',
-                  }}
-                >
-                  {t('media_deleted')}
-                </Box>
-              ) : (
-                dataComponent()
-              )}
-            </Bubble>
-          </Box>
-        </MessageTooltip>
-        <Box sx={{ width: '95%', display: 'flex', justifyContent: isAccountMessage ? 'flex-start' : 'flex-end' }}>
-          <MessageReaction message={message} />
+              <Bubble
+                bubbleColor={bubbleColor}
+                position={position}
+                isFirstOfGroup={isFirstOfGroup}
+                isLastOfGroup={isLastOfGroup}
+                sentTime={sentTime}
+                edited={false} // edited is not used in data-transfer message
+                isMedia={fileType !== FileType.Document && (preview || audioBlob) ? true : false}
+                isAudio={fileType === FileType.Audio}
+                deleted={isDeleted}
+              >
+                {isDeleted ? (
+                  <Box
+                    sx={{
+                      color: textColor,
+                      userSelect: 'none',
+                    }}
+                  >
+                    {t('media_deleted')}
+                  </Box>
+                ) : (
+                  dataComponent()
+                )}
+              </Bubble>
+            </Box>
+          </MessageTooltip>
+          <MessageReaction message={message} position={position} />
         </Box>
       </>
     )
@@ -657,6 +658,7 @@ const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfG
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('md'))
   const isDeleted = message.body === ''
   const isEdited = message.editions !== undefined && message.editions.length > 0
+  const hasReactions = message.reactions.length > 0
   const setReplyMessage = useGlobalSetReplyMessage()
   const [isPreviewEnabled] = useState(() => localStorage.getItem('linkPreview') === 'true')
 
@@ -670,18 +672,11 @@ const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfG
   if (!isDeleted && message.body.length === 2 && isEmoji(message.body)) {
     return (
       <Box data-cy="message">
-        <MessageTooltip isDeleted={isDeleted} position={position} message={message} isMedia={false}>
-          <Box sx={{ fontSize: '40px', padding: '4px' }}>{message.body}</Box>
-        </MessageTooltip>
-        <Box
-          sx={{
-            width: '95%',
-            display: 'flex',
-            justifyContent: isAccountMessage ? 'flex-start' : 'flex-end',
-            marginTop: '-8px',
-          }}
-        >
-          <MessageReaction message={message} />
+        <Box sx={{ position: 'relative', width: 'fit-content', pb: hasReactions ? '18px' : 0 }}>
+          <MessageTooltip isDeleted={isDeleted} position={position} message={message} isMedia={false}>
+            <Box sx={{ fontSize: '40px', padding: '4px' }}>{message.body}</Box>
+          </MessageTooltip>
+          <MessageReaction message={message} position={position} />
         </Box>
       </Box>
     )
@@ -689,7 +684,7 @@ const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfG
 
   return (
     <>
-      <Box data-cy="message">
+      <Box data-cy="message" sx={{ position: 'relative', width: 'fit-content', pb: hasReactions ? '18px' : 0 }}>
         <MessageTooltip isDeleted={isDeleted} position={position} message={message} isMedia={false}>
           <Box onDoubleClick={() => onDoubleClick()}>
             <Bubble
@@ -710,9 +705,7 @@ const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfG
             </Bubble>
           </Box>
         </MessageTooltip>
-      </Box>
-      <Box sx={{ width: '95%', display: 'flex', justifyContent: isAccountMessage ? 'flex-start' : 'flex-end' }}>
-        <MessageReaction message={message} />
+        <MessageReaction message={message} position={position} />
       </Box>
     </>
   )

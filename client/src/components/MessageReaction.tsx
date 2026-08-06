@@ -31,9 +31,12 @@ import EllipsisMiddle from './EllipsisMiddle.js'
 
 export interface MessageReactionProps {
   message: Message
+  position: 'start' | 'end'
 }
 
-const MessageReaction = ({ message }: MessageReactionProps) => {
+const messageCornerRadius = '20px'
+
+const MessageReaction = ({ message, position }: MessageReactionProps) => {
   interface ReactionAttributes {
     body: string
     id: string
@@ -45,7 +48,6 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const { members } = useConversationContext()
   const { account } = useAuthContext()
-  const isAccount = account.getUri() === message.author
   const membersMap = useMemo(() => new Map(members.map((member) => [member.contact.uri, member])), [members])
   const reactionsArray = useMemo(() => {
     const reactionAttributesArray: Array<ReactionAttributes> = []
@@ -109,33 +111,31 @@ const MessageReaction = ({ message }: MessageReactionProps) => {
 
   return (
     <>
-      <Box data-cy="emoji-reaction-list" onClick={() => setIsOpen(!isOpen)} sx={{ ':hover': { cursor: 'pointer' } }}>
+      <Box
+        data-cy="emoji-reaction-list"
+        onClick={() => setIsOpen(!isOpen)}
+        sx={{
+          position: 'absolute',
+          bottom: 0,
+          ...(position === 'start' ? { left: messageCornerRadius } : { right: messageCornerRadius }),
+          cursor: 'pointer',
+        }}
+      >
         <motion.div
           initial={message.animate ? 'hidden' : undefined}
           animate={message.animate ? 'visible' : undefined}
           variants={message.animate ? container : undefined}
-          style={
-            message.animate
-              ? {
-                  display: 'flex',
-                  flexDirection: 'row',
-                  flexWrap: 'nowrap',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '15px',
-                  backgroundColor: 'rgba(0,0,0,0.0)',
-                  paddingLeft: '7px',
-                  paddingRight: '5px',
-                  paddingBottom: '2px',
-                  paddingTop: '2px',
-                  marginTop: '-4px',
-                  marginBottom: '5px',
-                  marginRight: isAccount ? '45px' : '0px',
-                  marginLeft: isAccount ? '0px' : '65px',
-                  boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)',
-                }
-              : undefined
-          }
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'nowrap',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '15px',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            padding: '2px 6px',
+            boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.24)',
+          }}
         >
           {sortedReactionsArray.slice(0, 3).map((reaction: ReactionAttributes) => (
             <motion.span variants={message.animate ? item : undefined} key={reaction.id}>
