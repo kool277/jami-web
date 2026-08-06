@@ -27,7 +27,7 @@ export default function PasskeysSettings() {
   const { account } = useAuthContext()
 
   return (
-    <SettingsPage title={t('passkey_section_title')}>
+    <SettingsPage title={t('password_and_passkeys')}>
       {account.canChangePassword && (
         <SettingsSection title={t('change_password')} description={t('change_password_description')} list={false}>
           <ChangePassword />

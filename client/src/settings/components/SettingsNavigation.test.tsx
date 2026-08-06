@@ -60,14 +60,14 @@ describe('SettingsNavigation', () => {
       '/settings/general/appearance',
     )
     expect(screen.getByRole('link', { name: 'settings_title_chat' })).toHaveAttribute('href', '/settings/general/chat')
-    expect(screen.queryByRole('link', { name: 'settings_manage_account' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: 'settings_account_information' })).not.toBeInTheDocument()
   })
 
   it('marks the route-matched page as current', () => {
     renderSettingsNavigation('/settings/account/linked-devices')
 
     expect(screen.getByRole('link', { name: 'settings_linked_devices' })).toHaveAttribute('aria-current', 'page')
-    expect(screen.getByRole('link', { name: 'settings_manage_account' })).not.toHaveAttribute('aria-current')
+    expect(screen.getByRole('link', { name: 'settings_account_information' })).not.toHaveAttribute('aria-current')
     expect(screen.queryByRole('link', { name: 'settings_title_system' })).not.toBeInTheDocument()
   })
 
@@ -116,7 +116,7 @@ describe('SettingsNavigation', () => {
 
     await user.type(screen.getByRole('textbox', { name: 'Search settings' }), 'biometric')
 
-    expect(screen.getByRole('link', { name: 'passkey_section_title' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'password_and_passkeys' })).toHaveAttribute(
       'href',
       '/settings/account/passkeys',
     )

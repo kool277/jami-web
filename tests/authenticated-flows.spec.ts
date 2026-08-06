@@ -98,6 +98,35 @@ test.describe('Settings Navigation', () => {
     await expect(page).toHaveURL(/\/settings\/account/)
   })
 
+  test('can change the local account password without ending the active session', async ({ page }) => {
+    await page.goto('/settings/account/passkeys')
+
+    await expect(page.getByRole('heading', { name: 'Password & Passkeys' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Change password' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Passkeys', exact: true })).toBeVisible()
+
+    const passwordInputs = page.locator('input[type="password"]')
+    await passwordInputs.nth(0).fill('WrongPass1!')
+    await passwordInputs.nth(1).fill('AliceNewPass1!')
+    await passwordInputs.nth(2).fill('AliceNewPass1!')
+    await page.getByRole('button', { name: 'Change password' }).click()
+
+    await expect(page.getByRole('alert')).toHaveText('The current password is incorrect.')
+    await expect(page.evaluate(() => localStorage.getItem('accessToken'))).toBeTruthy()
+
+    await passwordInputs.nth(0).fill('AlicePass1!')
+    await page.getByRole('button', { name: 'Change password' }).click()
+    await expect(page.getByText('Password changed successfully.')).toBeVisible()
+    await expect(page.evaluate(() => localStorage.getItem('accessToken'))).toBeTruthy()
+
+    await page.evaluate(() => localStorage.removeItem('accessToken'))
+    await page.goto('/login')
+    await page.locator('[data-cy="username-input"] input').fill('alice')
+    await page.locator('[data-cy="password-input"] input').fill('AliceNewPass1!')
+    await page.locator('[data-cy="login-button"]').click()
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('accessToken'))).toBeTruthy()
+  })
+
   test('can navigate to general settings', async ({ page }) => {
     await page.goto('/settings/general')
     await expect(page).toHaveURL(/\/settings\/general\/system$/)

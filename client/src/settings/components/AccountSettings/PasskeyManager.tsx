@@ -40,7 +40,7 @@ export default function PasskeyManager() {
 
   if (!browserSupportsWebAuthn()) {
     return (
-      <SettingsSection description={t('passkey_section_description')}>
+      <SettingsSection title={t('passkey_section_title')} description={t('passkey_section_description')}>
         <SettingsRow title={t('passkey_not_available')} />
       </SettingsSection>
     )
@@ -54,7 +54,7 @@ export default function PasskeyManager() {
 
   return (
     <>
-      <SettingsSection description={t('passkey_section_description')}>
+      <SettingsSection title={t('passkey_section_title')} description={t('passkey_section_description')}>
         {!isLoading &&
           (passkeys && passkeys.length > 0 ? (
             passkeys.map((passkey) => (

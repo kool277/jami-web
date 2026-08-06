@@ -100,7 +100,7 @@ const sections: SettingsNavigationSection[] = [
     items: [
       {
         icon: <ManageAccountsIcon />,
-        titleKey: 'settings_manage_account',
+        titleKey: 'settings_account_information',
         path: userSettingsRoutePaths.manageAccount,
         searchTerms: ['settings_search_jami_id', 'settings_search_account_details'],
       },
@@ -115,7 +115,7 @@ const sections: SettingsNavigationSection[] = [
         ],
       },
       {
-        titleKey: 'passkey_section_title',
+        titleKey: 'password_and_passkeys',
         path: userSettingsRoutePaths.passkeys,
         searchTerms: [
           'settings_search_passkey',

@@ -24,7 +24,7 @@ export default function AccountSettings() {
   const { t } = useTranslation()
 
   return (
-    <SettingsPage title={t('settings_manage_account')}>
+    <SettingsPage title={t('settings_account_information')}>
       <AccountPreferences />
     </SettingsPage>
   )
