@@ -248,6 +248,9 @@ components:
             $ref: '#/components/schemas/IContact'
         devices:
           $ref: '#/components/schemas/Devices'
+        canChangePassword:
+          type: boolean
+          description: Whether this account uses a local Jami Web password credential.
 
     # ── Conversations ─────────────────────────────────────
     ConversationInfos:
@@ -944,6 +947,34 @@ paths:
           description: Account details updated
         '400':
           description: Invalid account ID
+
+  /account/password:
+    patch:
+      tags: [Account]
+      summary: Change the local Jami Web account password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+      responses:
+        '204':
+          description: Password changed
+        '400':
+          description: Missing or invalid password fields
+        '403':
+          description: Password changes are unavailable for this account
+        '409':
+          description: Incorrect current password
+        '422':
+          description: New password does not meet requirements
 
   /account/avatar:
     post:

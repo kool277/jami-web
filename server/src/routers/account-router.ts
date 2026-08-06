@@ -23,6 +23,7 @@ import {
   HttpStatusCode,
   IAccount,
   IContact,
+  MIN_PASSWORD_LENGTH,
 } from '@savoirfairelinux/jami-web-common'
 import { Request, Router } from 'express'
 import asyncHandler from 'express-async-handler'
@@ -34,9 +35,12 @@ import { Container } from 'typedi'
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
+import { Accounts } from '../storage/accounts.js'
+import { hashPassword, verifyPassword } from '../utils/password.js'
 import { clearAvatarCache } from '../utils/vCard.js'
 
 const jamid = Container.get(Jamid)
+const accounts = Container.get(Accounts)
 export const accountRouter = Router()
 
 accountRouter.use(authenticateToken)
@@ -73,6 +77,7 @@ accountRouter.get(
       volatileDetails: jamid.getVolatileAccountDetails(accountId),
       defaultModerators: namedDefaultModerators,
       devices: jamid.getDevices(accountId),
+      canChangePassword: accounts.getLocalByAccountId(accountId) !== undefined,
     }
     res.send(account)
   }),
@@ -92,6 +97,59 @@ accountRouter.patch('/', (req: Request<ParamsDictionary, string, Partial<Account
 
   res.sendStatus(HttpStatusCode.NoContent)
 })
+
+accountRouter.patch(
+  '/password',
+  asyncHandler(async (req, res) => {
+    const accountId = res.locals.accountId
+    const { currentPassword, newPassword } = req.body
+
+    if (
+      typeof accountId !== 'string' ||
+      typeof currentPassword !== 'string' ||
+      typeof newPassword !== 'string' ||
+      currentPassword === '' ||
+      newPassword === ''
+    ) {
+      res.status(HttpStatusCode.BadRequest).send('Current and new passwords are required')
+      return
+    }
+
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      res
+        .status(HttpStatusCode.UnprocessableEntity)
+        .send(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`)
+      return
+    }
+
+    if (currentPassword === newPassword) {
+      res.status(HttpStatusCode.UnprocessableEntity).send('New password must differ from the current password')
+      return
+    }
+
+    const account = accounts.getLocalByAccountId(accountId)
+    if (!account) {
+      res.status(HttpStatusCode.Forbidden).send('Password changes are unavailable for this account')
+      return
+    }
+
+    if (!(await verifyPassword(account.password, currentPassword))) {
+      res.status(HttpStatusCode.Conflict).send('Incorrect current password')
+      return
+    }
+
+    const hashedPassword = await hashPassword(newPassword)
+    const previousHashedPassword = account.password
+    accounts.updateLocalPassword(accountId, hashedPassword)
+    try {
+      await accounts.save()
+    } catch (error) {
+      accounts.updateLocalPassword(accountId, previousHashedPassword)
+      throw error
+    }
+    res.sendStatus(HttpStatusCode.NoContent)
+  }),
+)
 
 const dir = resolve(process.cwd(), 'profile-avatar')
 if (!fs.existsSync(dir)) {

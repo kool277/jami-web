@@ -161,6 +161,20 @@ export class Accounts {
     return this.accounts
   }
 
+  getLocalByAccountId(accountId: string) {
+    return Object.values(this.accounts.local).find((account) => account.accountId === accountId)
+  }
+
+  updateLocalPassword(accountId: string, password: string): boolean {
+    const account = this.getLocalByAccountId(accountId)
+    if (!account) {
+      return false
+    }
+
+    account.password = password
+    return true
+  }
+
   removeByAccountId(accountId: string): boolean {
     let removed = false
 

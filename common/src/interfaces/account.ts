@@ -23,6 +23,7 @@ export interface IAccount {
   volatileDetails: VolatileDetails
   defaultModerators: IContact[]
   devices: Devices
+  canChangePassword: boolean
 }
 
 /**
