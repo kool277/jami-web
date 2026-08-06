@@ -326,7 +326,7 @@ const SecondaryText = ({ conversationSummary }: SecondaryTextProps) => {
               {(['add', 'join', 'remove'] as const).includes(message.action as 'add' | 'join' | 'remove') && (
                 <MaterialSymbol
                   symbol={
-                    message.action === 'add' ? 'person_add' : message.action === 'join' ? 'hand_gesture' : 'door_open'
+                    message.action === 'add' ? 'person_add' : message.action === 'join' ? 'waving_hand' : 'door_open'
                   }
                   weight={isRead ? 300 : 500}
                   aria-hidden="true"
@@ -335,10 +335,10 @@ const SecondaryText = ({ conversationSummary }: SecondaryTextProps) => {
                     display: 'inline-flex',
                     flexShrink: 0,
                     lineHeight: 1,
-                    marginLeft: message.action === 'join' ? '4px' : 0,
+                    marginLeft: 0,
                     marginRight: '2px',
                     overflow: 'visible',
-                    transform: message.action === 'join' ? 'rotate(45deg)' : undefined,
+                    transform: message.action === 'join' ? 'rotate(-20deg)' : undefined,
                   }}
                 />
               )}
