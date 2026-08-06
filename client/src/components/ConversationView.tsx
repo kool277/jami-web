@@ -207,7 +207,7 @@ export const ConversationHeader = () => {
               }}
             >
               <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', minWidth: 0 }}>
-                {primaryIsJamiId && <JamiIdIcon aria-hidden="true" sx={{ flexShrink: 0 }} />}
+                {primaryIsJamiId && <JamiIdIcon aria-hidden="true" size={16} sx={{ flexShrink: 0 }} />}
                 <Typography
                   noWrap
                   variant="body1"
@@ -221,7 +221,11 @@ export const ConversationHeader = () => {
               </Stack>
               {secondary && (
                 <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', minWidth: 0 }}>
-                  <JamiIdIcon aria-hidden="true" sx={{ flexShrink: 0 }} />
+                  <JamiIdIcon
+                    aria-hidden="true"
+                    size={16}
+                    sx={{ flexShrink: 0, color: theme.palette.text.secondary }}
+                  />
                   <Typography
                     noWrap
                     variant="caption"
