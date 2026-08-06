@@ -29,8 +29,8 @@ import {
   useTheme,
 } from '@mui/material'
 import { Message } from '@savoirfairelinux/jami-web-common'
-import { motion } from 'framer-motion'
-import { memo, ReactElement, SetStateAction, useMemo, useState } from 'react'
+import { motion, type Transition } from 'framer-motion'
+import { memo, ReactElement, SetStateAction, use, useMemo, useState } from 'react'
 import { BlockPicker, ColorResult } from 'react-color'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -40,6 +40,7 @@ import { useConversationPreferencesColorContext } from '../contexts/Conversation
 import { useConversationPreferencesNotificationsContext } from '../contexts/ConversationPreferencesNotificationsContext.js'
 import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { CustomThemeContext } from '../contexts/CustomThemeProvider.js'
 import { ConversationMember } from '../models/conversation-member.js'
 import { useBlockContactMutation, useContactQuery } from '../services/contactQueries.js'
 import {
@@ -50,6 +51,7 @@ import {
 } from '../services/conversationQueries.js'
 import { messageColors } from '../utils/messagecolor.js'
 import BaseButton from './common/BaseButton.js'
+import { ISLAND_MARGIN } from './common/Island.js'
 import ContactDetailDialog from './ContactDetailDialog.js'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
 import ConversationAvatar from './ConversationAvatar.js'
@@ -76,8 +78,13 @@ enum TABS {
   INFOS = 3,
 }
 
+export function getConversationPreferencesTransition(animationsEnabled: boolean): Transition {
+  return animationsEnabled ? { type: 'tween' as const, duration: 0.2, ease: 'easeOut' } : { duration: 0 }
+}
+
 export default function ConversationPreferences() {
   const { t } = useTranslation()
+  const { animationsEnabled } = use(CustomThemeContext)
   const { conversationColor } = useConversationPreferencesColorContext()
   const { isOpen } = useConversationPreferencesStateContext()
   const { members, conversationId, conversationDisplayName, conversationInfos } = useConversationContext()
@@ -131,20 +138,16 @@ export default function ConversationPreferences() {
 
   return (
     <motion.span
-      style={{ width: getWidth(), marginLeft: '-0.2vw', minWidth: !(isMedium || isMobile) ? '350px' : 'unset' }}
+      style={{ width: getWidth(), minWidth: !(isMedium || isMobile) ? '350px' : 'unset' }}
       initial={{ scale: 1, x: 100 }}
       animate={{ scale: 1, x: 0 }}
-      transition={{
-        type: 'spring',
-        stiffness: 300,
-        damping: 20,
-      }}
+      transition={getConversationPreferencesTransition(animationsEnabled)}
     >
       <Card
         sx={{
           backgroundColor: 'background.paper',
           height: 'calc(100vh - 16px)',
-          margin: '8px',
+          margin: ISLAND_MARGIN,
           ml: 0,
           border: '0.5px solid',
           borderColor: 'divider',

@@ -34,7 +34,9 @@ import { useConversationContext } from '../contexts/ConversationProvider.js'
 const CallInterface = lazy(() => import('../pages/CallInterface.js'))
 import ChatInterface from '../pages/ChatInterface.js'
 import BaseIconButton from './common/BaseIconButton.js'
+import Island, { ISLAND_MARGIN } from './common/Island.js'
 import ConversationAvatar from './ConversationAvatar.js'
+import ConversationPreferences from './ConversationPreferences.js'
 import { ArrowBackIosNewIcon } from './SvgIcon.js'
 import { AudioCallIcon, ListIcon, SearchRoundedIcon, VideoCallIcon } from './SvgIcon.js'
 
@@ -59,7 +61,10 @@ const ConversationView = () => {
 
 const ConversationContent = () => {
   const { conversationColor } = useConversationPreferencesColorContext()
+  const { isOpen } = useConversationPreferencesStateContext()
   const theme = useTheme()
+  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
   // The conversation colour washes the chat pane rather than the whole window, so
   // the pane stays identifiable without tinting the rest of the shell.
   const background = conversationColor
@@ -69,18 +74,28 @@ const ConversationContent = () => {
     : 'background.default'
 
   return (
-    <Stack
-      sx={{
-        flexGrow: 1,
-        height: '100%',
-        width: '100%',
-        position: 'relative',
-        overflow: 'hidden',
-        backgroundColor: background,
-        transition: 'background-color 0.6s ease-in-out',
-      }}
-    >
-      <ChatInterface />
+    <Stack direction="row" sx={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
+      <Stack
+        sx={{
+          flex: isOpen && (isMobile || isMedium) ? '0 1 0px' : 1,
+          minWidth: 0,
+          minHeight: 0,
+        }}
+      >
+        <Island
+          sx={{
+            flex: 1,
+            m: ISLAND_MARGIN,
+            ml: 0,
+            position: 'relative',
+            backgroundColor: background,
+            transition: 'background-color 0.6s ease-in-out',
+          }}
+        >
+          <ChatInterface />
+        </Island>
+      </Stack>
+      <ConversationPreferences />
     </Stack>
   )
 }

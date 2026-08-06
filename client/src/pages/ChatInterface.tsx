@@ -15,26 +15,19 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Stack, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import { memo, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 
 import ChatInterfaceManager from '../components/ChatInterfaceManager.js'
-import ConversationPreferences from '../components/ConversationPreferences.js'
 import { ConversationHeader } from '../components/ConversationView.js'
 import { FileDragOverlay } from '../components/Overlay.js'
 import { useActionMessageReadContext, useActionMessageWriteContext } from '../contexts/ActionMessageProvider.js'
-import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext.js'
 import { FileHandler } from '../utils/files.js'
 
 const ChatInterface = () => {
   const { setFileHandlers } = useActionMessageWriteContext()
   const { fileHandlers } = useActionMessageReadContext()
-  const { isOpen } = useConversationPreferencesStateContext()
-
-  const theme = useTheme()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-  const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
 
   const onFilesDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -57,30 +50,20 @@ const ChatInterface = () => {
 
   return (
     <Stack
-      direction="row"
-      spacing={0}
+      {...getRootProps()}
       sx={{
         flex: 1,
         overflow: 'hidden',
+        position: 'relative',
       }}
     >
-      <Stack
-        {...getRootProps()}
-        sx={{
-          width: isOpen && (isMobile || isMedium) ? '0px' : '100%',
-          overflow: 'hidden',
-          position: 'relative',
-        }}
-      >
-        <ConversationHeader />
-        {isDragActive && <FileDragOverlay />}
-        <input {...getInputProps()} />
+      <ConversationHeader />
+      {isDragActive && <FileDragOverlay />}
+      <input {...getInputProps()} />
 
-        <Box sx={{ pt: '56px', pb: '8px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <ChatInterfaceManager openFilePicker={openFilePicker} />
-        </Box>
-      </Stack>
-      <ConversationPreferences />
+      <Box sx={{ pt: '56px', pb: '8px', flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <ChatInterfaceManager openFilePicker={openFilePicker} />
+      </Box>
     </Stack>
   )
 }
