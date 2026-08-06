@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { createServer, type Server } from 'node:http'
 import { dirname, resolve } from 'node:path'
@@ -23,6 +24,30 @@ import { fileURLToPath } from 'node:url'
 import cors from 'cors'
 import express from 'express'
 import { WebSocket, WebSocketServer as WsServer } from 'ws'
+
+const mockApiTokenScopes = [
+  'conversations:read',
+  'conversations:write',
+  'contacts:read',
+  'contacts:write',
+  'calls:read',
+  'calls:write',
+  'files:read',
+  'files:write',
+  'account:read',
+  'account:write',
+] as const
+
+type MockApiTokenScope = (typeof mockApiTokenScopes)[number]
+
+interface MockApiToken {
+  id: string
+  prefix: string
+  name: string
+  scopes: MockApiTokenScope[]
+  createdAt: string
+  expiresAt?: string
+}
 
 interface MockServerState {
   isSetupComplete: boolean
@@ -40,6 +65,7 @@ interface MockServerState {
   }
   users: Record<string, { password: string; accountId: string }>
   userTokens: Record<string, string>
+  apiTokens: Record<string, MockApiToken[]>
   adminPasskeys: { credentialId: string; name: string; createdAt: string }[]
   userPasskeys: Record<string, { credentialId: string; name: string; createdAt: string }[]>
   autoDownloadLimit: number
@@ -60,6 +86,7 @@ const defaultState: MockServerState = {
   },
   users: {},
   userTokens: {},
+  apiTokens: {},
   adminPasskeys: [],
   userPasskeys: {},
   autoDownloadLimit: 0,
@@ -79,6 +106,11 @@ const standaloneInitialState: Partial<MockServerState> = {
   users: {
     testuser: { password: 'Test1234!', accountId: 'acc-testuser' },
   },
+}
+
+function getAuthenticatedUsername(req: express.Request, state: MockServerState): string | undefined {
+  const token = req.get('authorization')?.replace(/^Bearer\s+/, '')
+  return token ? state.userTokens[token] : undefined
 }
 
 const mockOAuthProviders = [
@@ -493,6 +525,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     state.config = { ...defaultState.config }
     state.users = {}
     state.userTokens = {}
+    state.apiTokens = {}
     state.adminPasskeys = []
     state.userPasskeys = {}
     res.sendStatus(200)
@@ -533,6 +566,77 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
       devices: { 'mock-device-id': 'Mock Device' },
       canChangePassword: true,
     })
+  })
+
+  // --- API token routes (authenticated) ---
+
+  api.get('/tokens', (req, res) => {
+    const username = getAuthenticatedUsername(req, state)
+    if (!username) {
+      res.sendStatus(401)
+      return
+    }
+
+    res.json(state.apiTokens[username] ?? [])
+  })
+
+  api.post('/tokens', (req, res) => {
+    const username = getAuthenticatedUsername(req, state)
+    if (!username) {
+      res.sendStatus(401)
+      return
+    }
+
+    const { name, scopes, expiresInSeconds } = req.body
+    if (typeof name !== 'string' || name.trim().length === 0 || name.trim().length > 100) {
+      res.status(400).send('Token name must be between 1 and 100 characters')
+      return
+    }
+    if (
+      !Array.isArray(scopes) ||
+      !scopes.every((scope): scope is MockApiTokenScope => mockApiTokenScopes.includes(scope)) ||
+      new Set(scopes).size !== scopes.length
+    ) {
+      res.status(400).send('Token scopes must be unique supported scopes')
+      return
+    }
+    if (expiresInSeconds !== undefined && (!Number.isSafeInteger(expiresInSeconds) || expiresInSeconds <= 0)) {
+      res.status(400).send('Token lifetime is invalid')
+      return
+    }
+
+    const rawToken = randomUUID().replaceAll('-', '')
+    const token = `jm_sk_${rawToken}`
+    const createdAt = new Date().toISOString()
+    const info: MockApiToken = {
+      id: randomUUID(),
+      prefix: token.slice(0, 14),
+      name: name.trim(),
+      scopes,
+      createdAt,
+      expiresAt: expiresInSeconds ? new Date(Date.now() + expiresInSeconds * 1000).toISOString() : undefined,
+    }
+    state.apiTokens[username] ??= []
+    state.apiTokens[username].unshift(info)
+    res.status(201).json({ token, info })
+  })
+
+  api.delete('/tokens/:tokenId', (req, res) => {
+    const username = getAuthenticatedUsername(req, state)
+    if (!username) {
+      res.sendStatus(401)
+      return
+    }
+
+    const tokens = state.apiTokens[username] ?? []
+    const tokenIndex = tokens.findIndex((token) => token.id === req.params.tokenId)
+    if (tokenIndex === -1) {
+      res.status(404).send('Token not found')
+      return
+    }
+
+    tokens.splice(tokenIndex, 1)
+    res.sendStatus(204)
   })
 
   api.patch('/account/password', (req, res) => {
