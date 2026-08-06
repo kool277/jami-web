@@ -65,6 +65,7 @@ import {
   getConversationPreferencesTransition,
   getConversationType,
   getFilesByRecency,
+  getNextMediaViewMode,
   getRecentFiles,
 } from './ConversationPreferences.js'
 
@@ -93,6 +94,11 @@ describe('ConversationPreferences', () => {
     const files = [{ timestamp: 1 }, { timestamp: 3 }, { timestamp: 2 }] as Message[]
 
     expect(getRecentFiles(files, 2).map((file) => file.timestamp)).toEqual([3, 2])
+  })
+
+  it('toggles the full media view between grid and list', () => {
+    expect(getNextMediaViewMode('grid')).toBe('list')
+    expect(getNextMediaViewMode('list')).toBe('grid')
   })
 
   it('uses cached messages for the compact attachment preview', () => {

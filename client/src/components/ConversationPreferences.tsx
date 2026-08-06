@@ -68,15 +68,18 @@ import {
   DescriptionIcon,
   ExitToAppIcon,
   FormatCodeIcon,
+  GridViewIcon,
   GroupsIcon,
   MoreHorizIcon,
   NotificationsActiveIcon,
   NotificationsOffIcon,
   PermMediaIcon,
+  ViewListIcon,
 } from './SvgIcon.js'
 import { BlockContactIcon, JamiIdIcon, KickMemberIcon, MessageIcon, PersonIcon } from './SvgIcon.js'
 
 export type ConversationType = 'private' | 'group'
+type MediaViewMode = 'grid' | 'list'
 
 const readOnlyFieldSx = {
   '& .MuiInputBase-input': {
@@ -101,6 +104,10 @@ export function getRecentFiles(files: Message[], limit: number): Message[] {
   return getFilesByRecency(files).slice(0, limit)
 }
 
+export function getNextMediaViewMode(viewMode: MediaViewMode): MediaViewMode {
+  return viewMode === 'grid' ? 'list' : 'grid'
+}
+
 export default function ConversationPreferences() {
   const { t } = useTranslation()
   const { animationsEnabled } = use(CustomThemeContext)
@@ -109,6 +116,7 @@ export default function ConversationPreferences() {
   const { account } = useAuthContext()
   const theme = useTheme()
   const [attachmentsPageOpen, setAttachmentsPageOpen] = useState(false)
+  const [mediaViewMode, setMediaViewMode] = useState<MediaViewMode>('grid')
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
@@ -161,24 +169,38 @@ export default function ConversationPreferences() {
                 color: 'text.primary',
                 display: 'flex',
                 gap: 1,
-                justifyContent: 'flex-start',
+                justifyContent: 'space-between',
                 // Centers the 40px button on the panel's rounded corner arc.
                 marginLeft: `calc(${theme.Panel.borderRadius} - 20px)`,
+                marginRight: `calc(${theme.Panel.borderRadius} - 20px)`,
                 marginTop: `calc(${theme.Panel.borderRadius} - 20px)`,
               }}
             >
+              <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
+                <BaseIconButton
+                  aria-label={t('conversation_files')}
+                  tooltip={t('conversation_files')}
+                  onClick={() => setAttachmentsPageOpen(false)}
+                  sx={{ height: '40px', width: '40px' }}
+                >
+                  <ChevronLeftIcon
+                    aria-hidden
+                    sx={{ transform: theme.direction === 'rtl' ? 'scaleX(-1)' : undefined }}
+                  />
+                </BaseIconButton>
+                <Typography variant="h3">{t('conversation_files')}</Typography>
+              </Box>
               <BaseIconButton
-                aria-label={t('conversation_files')}
-                tooltip={t('conversation_files')}
-                onClick={() => setAttachmentsPageOpen(false)}
+                aria-label={t(mediaViewMode === 'grid' ? 'conversation_media_list' : 'conversation_media_grid')}
+                tooltip={t(mediaViewMode === 'grid' ? 'conversation_media_list' : 'conversation_media_grid')}
+                onClick={() => setMediaViewMode(getNextMediaViewMode)}
                 sx={{ height: '40px', width: '40px' }}
               >
-                <ChevronLeftIcon aria-hidden sx={{ transform: theme.direction === 'rtl' ? 'scaleX(-1)' : undefined }} />
+                {mediaViewMode === 'grid' ? <ViewListIcon aria-hidden /> : <GridViewIcon aria-hidden />}
               </BaseIconButton>
-              <Typography variant="h3">{t('conversation_files')}</Typography>
             </Box>
             <Box sx={{ display: 'flex', flex: 1, minHeight: 0, pb: 2, pt: 1, px: 2 }}>
-              <Files showAll={true} />
+              <Files showAll={true} viewMode={mediaViewMode} />
             </Box>
           </CardContent>
         ) : (
@@ -635,11 +657,12 @@ const MemberInfo = ({ member, isAdmin }: MemberInfoProps) => {
 
 interface FilesProps {
   showAll: boolean
+  viewMode?: MediaViewMode
 }
 
 const ATTACHMENT_PREVIEW_LIMIT = 6
 
-export const Files = ({ showAll }: FilesProps) => {
+export const Files = ({ showAll, viewMode = 'grid' }: FilesProps) => {
   // TODO : Fetch store blob url of files alredy loaded
   // in the conversation to avoid loading them again
   const { conversationId } = useConversationContext()
@@ -664,7 +687,7 @@ export const Files = ({ showAll }: FilesProps) => {
     <Box
       sx={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: viewMode === 'list' ? '1fr' : 'repeat(3, 1fr)',
         gap: '8px',
         width: '100%',
         height: '100%',
@@ -684,6 +707,7 @@ export const Files = ({ showAll }: FilesProps) => {
             fileId={file?.fileId || ''}
             author={file.author}
             messageId={file.id}
+            listView={viewMode === 'list'}
           />
         )
       })}

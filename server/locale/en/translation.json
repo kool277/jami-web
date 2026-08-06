@@ -140,6 +140,8 @@
   "conversation_files": "Media",
   "conversation_filters": "Conversation filters",
   "conversation_info": "Information",
+  "conversation_media_grid": "Show as grid",
+  "conversation_media_list": "Show as list",
   "groups": "Groups",
   "conversation_message": "Message",
   "conversation_no_unread_description": "No unread messages are waiting for you.",

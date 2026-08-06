@@ -34,6 +34,7 @@ interface ConversationSettingsFileItemProps {
   fileId: string
   author: string
   messageId: string
+  listView?: boolean
 }
 
 const ConversationSettingsFileItem = ({
@@ -43,6 +44,7 @@ const ConversationSettingsFileItem = ({
   fileId,
   author,
   messageId,
+  listView = false,
 }: ConversationSettingsFileItemProps) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -198,11 +200,20 @@ const ConversationSettingsFileItem = ({
 
   return (
     <>
-      <Box sx={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <Box
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          justifyContent: listView ? 'flex-start' : 'center',
+          alignItems: 'center',
+        }}
+      >
         <Box
           sx={{
-            width: isMobile ? '70px' : '90px',
-            height: isMobile ? '70px' : '90px',
+            width: listView && getFileType() === 'image' ? '100%' : isMobile ? '70px' : '90px',
+            height: listView && getFileType() === 'image' ? 'auto' : isMobile ? '70px' : '90px',
+            aspectRatio: listView && getFileType() === 'image' ? '16 / 9' : undefined,
             backgroundColor: 'grey',
             backgroundImage: `url(${blobUrl})`,
             backgroundSize: 'cover',
