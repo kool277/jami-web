@@ -77,11 +77,16 @@ import {
   ArrowLeftCurved,
   ArrowLeftDown,
   ArrowRightUp,
+  BlockContactIcon,
+  DoorOpenIcon,
   DownloadFileIcon,
   ForwardIcon,
+  OutgoingMailIcon,
   PenIcon,
+  PeopleWithPlusSignIcon,
   TrashBinIcon,
   TwoSheetsIcon,
+  WavingHandIcon,
 } from './SvgIcon.js'
 import TransferMessage from './TransferMessage.js'
 import UseLongPress from './UseLongPress.js'
@@ -164,7 +169,6 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup 
       isFirstOfGroup={isFirstOfGroup}
       isLastOfGroup={isLastOfGroup}
       bubbleColor={bubbleColor}
-      edited={false} // edited is not used in call message
       isMedia={false}
       deleted={false} // deleted is not used in call message
     >
@@ -522,7 +526,6 @@ const MessageDataTransfer = memo(
                 position={position}
                 isFirstOfGroup={isFirstOfGroup}
                 isLastOfGroup={isLastOfGroup}
-                edited={false} // edited is not used in data-transfer message
                 isMedia={fileType !== FileType.Document && (preview || audioBlob) ? true : false}
                 isAudio={fileType === FileType.Audio}
                 deleted={isDeleted}
@@ -559,6 +562,19 @@ const MessageMember = ({ message }: MessageMemberProps) => {
   const isReduced = useMediaQuery(theme.breakpoints.down('md'))
 
   const text = getMessageMemberText(message, i18n)
+  const Icon =
+    message.action === 'add'
+      ? OutgoingMailIcon
+      : message.action === 'unban'
+        ? PeopleWithPlusSignIcon
+        : message.action === 'join'
+          ? WavingHandIcon
+          : message.action === 'remove'
+            ? DoorOpenIcon
+            : message.action === 'ban'
+              ? BlockContactIcon
+              : PeopleWithPlusSignIcon
+
   return (
     <Chip
       sx={{
@@ -567,6 +583,13 @@ const MessageMember = ({ message }: MessageMemberProps) => {
         textOverflow: 'ellipsis',
         overflow: 'hidden',
       }}
+      icon={
+        <Icon
+          aria-hidden
+          fontSize="small"
+          sx={message.action === 'join' ? { transform: 'rotate(-20deg)' } : undefined}
+        />
+      }
       label={text}
     />
   )
@@ -648,6 +671,7 @@ const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfG
 
   const position = isAccountMessage ? 'end' : 'start'
   const bubbleColor = isAccountMessage ? conversationColor : getPeerBubbleColor(theme)
+  const editedLabelColor = getSentTimeColor(getPeerBubbleColor(theme))
   const link = useMemo(() => linkify.find(message?.body ?? '', 'url')[0]?.href, [message])
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('md'))
@@ -679,25 +703,44 @@ const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfG
 
   return (
     <>
-      <Box data-cy="message" sx={{ position: 'relative', width: 'fit-content', pb: hasReactions ? '18px' : 0 }}>
-        <MessageTooltip isDeleted={isDeleted} position={position} message={message} isMedia={false}>
-          <Box onDoubleClick={() => onDoubleClick()}>
-            <Bubble
-              bubbleColor={bubbleColor}
-              position={position}
-              isFirstOfGroup={isFirstOfGroup}
-              isLastOfGroup={isLastOfGroup}
-              maxWidth={isMobile ? '200px' : isMedium ? '380px' : '600px'}
-              edited={isEdited}
-              deleted={isDeleted}
-              hasReply={message['reply-to'] !== undefined}
-            >
-              <Linkify options={{ render: RenderLink as any, target: '_blank' }}>{message.body}</Linkify>
-              <Box>{link && isPreviewEnabled && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}</Box>
-            </Bubble>
+      <Box data-cy="message">
+        <Box sx={{ width: 'fit-content' }}>
+          <Box sx={{ position: 'relative', width: 'fit-content', pb: hasReactions ? '18px' : 0 }}>
+            <MessageTooltip isDeleted={isDeleted} position={position} message={message} isMedia={false}>
+              <Box onDoubleClick={() => onDoubleClick()}>
+                <Bubble
+                  bubbleColor={bubbleColor}
+                  position={position}
+                  isFirstOfGroup={isFirstOfGroup}
+                  isLastOfGroup={isLastOfGroup}
+                  maxWidth={isMobile ? '200px' : isMedium ? '380px' : '600px'}
+                  deleted={isDeleted}
+                  hasReply={message['reply-to'] !== undefined}
+                >
+                  <Linkify options={{ render: RenderLink as any, target: '_blank' }}>{message.body}</Linkify>
+                  <Box>
+                    {link && isPreviewEnabled && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}
+                  </Box>
+                </Bubble>
+              </Box>
+            </MessageTooltip>
+            <MessageReaction message={message} position={position} />
           </Box>
-        </MessageTooltip>
-        <MessageReaction message={message} position={position} />
+          {isEdited && !isDeleted && (
+            <Box
+              sx={{
+                width: '100%',
+                mt: hasReactions ? '-18px' : 0,
+                ...(position === 'start' ? { pr: '20px', textAlign: 'right' } : { pl: '20px', textAlign: 'left' }),
+                userSelect: 'none',
+              }}
+            >
+              <Typography variant="caption" sx={{ color: editedLabelColor }}>
+                {t('edited_message')}
+              </Typography>
+            </Box>
+          )}
+        </Box>
       </Box>
     </>
   )
@@ -896,7 +939,6 @@ const UserMessageRow = memo(
               isFirstOfGroup={true}
               isLastOfGroup={true}
               maxWidth={getMaxReplyWidth()}
-              edited={false} // edited is not used in reply message
               deleted={replyMessage.body === ''}
             >
               {replyMessage.type === 'text/plain' ? (
@@ -1361,7 +1403,6 @@ interface BubbleProps {
   bubbleColor: string
   maxWidth?: string
   children: ReactNode
-  edited: boolean
   deleted: boolean
   isMedia?: boolean
   isAudio?: boolean
@@ -1376,7 +1417,6 @@ const Bubble = memo(
     bubbleColor,
     maxWidth,
     children,
-    edited,
     deleted,
     isMedia,
     isAudio,
@@ -1453,11 +1493,6 @@ const Bubble = memo(
             {deleted ? t(isMedia ? 'media_deleted' : 'message_deleted') : children}
           </Box>
         </Box>
-        {edited && !deleted && (
-          <Typography variant="caption" sx={{ color: getSentTimeColor(bubbleColor), ml: 1, userSelect: 'none' }}>
-            {t('edited_message')}
-          </Typography>
-        )}
       </Box>
     )
   },
