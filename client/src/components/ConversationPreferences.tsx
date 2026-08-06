@@ -76,10 +76,9 @@ import {
 import { BlockContactIcon, JamiIdIcon, KickMemberIcon, MessageIcon, PersonIcon } from './SvgIcon.js'
 
 enum TABS {
-  MEMBERS = 0,
-  FILES = 1,
-  SETTINGS = 2,
-  INFOS = 3,
+  FILES = 0,
+  SETTINGS = 1,
+  INFOS = 2,
 }
 
 const readOnlyFieldSx = {
@@ -178,7 +177,7 @@ export default function ConversationPreferences() {
           }
           sx={{ justifyContent: 'center', '& .MuiCardHeader-content': { flex: 'initial' } }}
         />
-        <ConversationDetailsFields />
+        <ConversationDetailsFields isAdmin={isAdmin} />
         <CardContent>
           <Box
             role="group"
@@ -197,21 +196,6 @@ export default function ConversationPreferences() {
             >
               <InfoIcon />
             </BaseButton>
-            {members.length > 2 && (
-              <BaseButton
-                variant="text"
-                aria-label={t('conversation_members')}
-                aria-pressed={currentTab === TABS.MEMBERS}
-                sx={buttonStyle}
-                style={{ opacity: currentTab === TABS.MEMBERS ? 1 : 0.7 }}
-                onClick={() => {
-                  setCurrentTab(TABS.MEMBERS)
-                }}
-              >
-                <GroupsIcon />
-              </BaseButton>
-            )}
-
             <BaseButton
               variant="text"
               aria-label={t('conversation_files')}
@@ -239,7 +223,6 @@ export default function ConversationPreferences() {
           </Box>
           <Box sx={{ marginTop: '10%', display: 'flex', justifyContent: 'center' }}>
             {currentTab === TABS.INFOS && <Infos />}
-            {currentTab === TABS.MEMBERS && <Members isAdmin={isAdmin} />}
             {currentTab === TABS.FILES && <Files />}
             {currentTab === TABS.SETTINGS && <Settings />}
           </Box>
@@ -273,7 +256,11 @@ const SettingsItemWrapper = ({ title, children }: SettingsItemWrapperProps) => {
   )
 }
 
-const ConversationDetailsFields = () => {
+interface ConversationDetailsFieldsProps {
+  isAdmin: boolean
+}
+
+const ConversationDetailsFields = ({ isAdmin }: ConversationDetailsFieldsProps) => {
   const { t } = useTranslation()
   const { conversationId, conversationDisplayName, conversationInfos, members } = useConversationContext()
   const isGroup = members.length > 2
@@ -365,6 +352,7 @@ const ConversationDetailsFields = () => {
             },
           }}
         />
+        {isGroup && <Members isAdmin={isAdmin} />}
       </Box>
     </Box>
   )
@@ -533,7 +521,7 @@ interface MembersProps {
 const Members = ({ isAdmin }: MembersProps) => {
   const { members } = useConversationContext()
   return (
-    <Box sx={{ display: 'flex', width: '100%', flexDirection: 'column', height: '60vh', overflowY: 'scroll' }}>
+    <Box sx={{ display: 'flex', width: '100%', flexDirection: 'column', maxHeight: '180px', overflowY: 'auto' }}>
       {members.map((member) => {
         return <MemberInfo key={member.contact.uri} member={member} isAdmin={isAdmin} />
       })}
