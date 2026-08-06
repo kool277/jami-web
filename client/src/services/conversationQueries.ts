@@ -219,6 +219,10 @@ const CheckConversationRequestsAreEqual = (
 const checkIsConversationRequestFn = (conversationRequest: IConversationRequest, conversationId: string) =>
   conversationRequest.conversationId === conversationId
 
+export const normalizeConversationRequests = (
+  requests: IConversationRequest[] | IConversationRequest | undefined,
+): IConversationRequest[] => (Array.isArray(requests) ? requests : requests ? [requests] : [])
+
 export const useAddConversationRequestToCache = () =>
   useAddToCache(['conversationsRequests'], CheckConversationRequestsAreEqual)
 export const useRemoveConversationRequestFromCache = () =>
@@ -230,8 +234,9 @@ export const useConversationRequestsQuery = () => {
     queryKey: ['conversationRequests'],
     queryFn: async () => {
       const { data } = await axiosInstance.get<IConversationRequest[]>('/conversation-requests/')
-      return data
+      return normalizeConversationRequests(data)
     },
+    select: normalizeConversationRequests,
   })
 }
 
