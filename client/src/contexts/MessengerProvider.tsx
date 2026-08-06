@@ -16,23 +16,27 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { IConversationRequest, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
-import { createContext, ReactNode, useEffect, useMemo } from 'react'
+import { createContext, ReactNode, useEffect, useMemo, useState } from 'react'
 
 import { useAddConversationRequestToCache } from '../services/conversationQueries.js'
 import { useWebSocketContext } from './WebSocketProvider.js'
 
-// It is not sure yet we want this context to have no value
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface IMessengerContext {}
+export interface IMessengerContext {
+  lastConversationId?: string
+  setLastConversationId: (conversationId: string | undefined) => void
+}
 
-const defaultMessengerContext: IMessengerContext = {}
+const defaultMessengerContext: IMessengerContext = {
+  lastConversationId: undefined,
+  setLastConversationId: () => undefined,
+}
 
 export const MessengerContext = createContext<IMessengerContext>(defaultMessengerContext)
 
 export default ({ children }: { children: ReactNode }) => {
   const webSocket = useWebSocketContext()
-
   const addConversationRequestToCache = useAddConversationRequestToCache()
+  const [lastConversationId, setLastConversationId] = useState<string>()
 
   useEffect(() => {
     const conversationRequestListener = (conversationRequest: IConversationRequest) => {
@@ -46,7 +50,7 @@ export default ({ children }: { children: ReactNode }) => {
     }
   }, [addConversationRequestToCache, webSocket])
 
-  const value = useMemo<IMessengerContext>(() => ({}), [])
+  const value = useMemo<IMessengerContext>(() => ({ lastConversationId, setLastConversationId }), [lastConversationId])
 
   return <MessengerContext value={value}>{children}</MessengerContext>
 }

@@ -17,10 +17,11 @@
  */
 import { Divider, Stack } from '@mui/material'
 import type { SxProps, Theme } from '@mui/material/styles'
-import { Fragment, type ReactNode } from 'react'
+import { Fragment, type ReactNode, use, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink, useLocation } from 'react-router-dom'
 
+import { MessengerContext } from '../../contexts/MessengerProvider.js'
 import { isRoutePathActive } from '../../utils/routes.js'
 import { ChatBubbleIcon, MailIcon, SettingsIcon } from '../SvgIcon.js'
 import AnimatedLogo from './AnimatedLogo.js'
@@ -42,14 +43,28 @@ export interface NavRailProps {
 export default function NavRail({ compact, inviteCount, unreadConversationCount, accountSlot, sx }: NavRailProps) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
+  const { lastConversationId, setLastConversationId } = use(MessengerContext)
 
   const destinations = [
-    { path: '/conversation', label: t('conversations'), Icon: ChatBubbleIcon, badgeCount: unreadConversationCount },
+    {
+      path: lastConversationId ? `/conversation/${lastConversationId}` : '/conversation',
+      activePath: '/conversation',
+      label: t('conversations'),
+      Icon: ChatBubbleIcon,
+      badgeCount: unreadConversationCount,
+    },
     { path: '/invites', label: t('invitations'), Icon: MailIcon, badgeCount: inviteCount },
     // Settings configures the app rather than showing people, so a separator
     // keeps it from reading as a third messaging destination.
     { path: '/settings', label: t('settings'), Icon: SettingsIcon, separated: true },
   ]
+
+  useEffect(() => {
+    const conversationId = pathname.match(/^\/conversation\/([^/]+)$/)?.[1]
+    if (conversationId) {
+      setLastConversationId(conversationId)
+    }
+  }, [pathname, setLastConversationId])
 
   return (
     <Stack
@@ -75,8 +90,8 @@ export default function NavRail({ compact, inviteCount, unreadConversationCount,
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
     >
-      {destinations.map(({ path, label, Icon, badgeCount, separated }) => {
-        const selected = isRoutePathActive(pathname, path)
+      {destinations.map(({ path, activePath = path, label, Icon, badgeCount, separated }) => {
+        const selected = isRoutePathActive(pathname, activePath)
         return (
           <Fragment key={path}>
             {/* The bottom bar reads as one row of equal destinations, so the grouping

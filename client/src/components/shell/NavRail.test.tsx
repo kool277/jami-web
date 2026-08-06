@@ -16,10 +16,12 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ThemeProvider } from '@mui/material/styles'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
+import { type ReactNode, useState } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 
+import { MessengerContext } from '../../contexts/MessengerProvider.js'
 import { buildDefaultTheme } from '../../themes/Default.js'
 import NavRail from './NavRail.js'
 
@@ -39,18 +41,26 @@ vi.mock('../SvgIcon.js', () => {
   }
 })
 
-const renderNavRail = (initialPath: string, inviteCount?: number, unreadConversationCount?: number) =>
-  render(
+const renderNavRail = (initialPath: string, inviteCount?: number, unreadConversationCount?: number) => {
+  const MessengerContextProvider = ({ children }: { children: ReactNode }) => {
+    const [lastConversationId, setLastConversationId] = useState<string>()
+    return <MessengerContext value={{ lastConversationId, setLastConversationId }}>{children}</MessengerContext>
+  }
+
+  return render(
     <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
-      <MemoryRouter initialEntries={[initialPath]}>
-        <NavRail
-          inviteCount={inviteCount}
-          unreadConversationCount={unreadConversationCount}
-          accountSlot={<button>account_menu</button>}
-        />
-      </MemoryRouter>
+      <MessengerContextProvider>
+        <MemoryRouter initialEntries={[initialPath]}>
+          <NavRail
+            inviteCount={inviteCount}
+            unreadConversationCount={unreadConversationCount}
+            accountSlot={<button>account_menu</button>}
+          />
+        </MemoryRouter>
+      </MessengerContextProvider>
     </ThemeProvider>,
   )
+}
 
 describe('NavRail', () => {
   it('offers exactly the four top-level destinations', () => {
@@ -86,6 +96,17 @@ describe('NavRail', () => {
       screen.getByRole('link', { name }).querySelector('[data-symbol]')?.getAttribute('data-filled')
     expect(symbolOf('conversations')).toBe('true')
     expect(symbolOf('settings')).toBe('false')
+  })
+
+  it('returns to the last opened conversation', async () => {
+    renderNavRail('/conversation/conversation-1')
+
+    await waitFor(() =>
+      expect(screen.getByRole('link', { name: 'conversations' })).toHaveAttribute(
+        'href',
+        '/conversation/conversation-1',
+      ),
+    )
   })
 
   it('badges invites only while some are pending', () => {
