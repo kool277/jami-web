@@ -37,8 +37,18 @@ import BaseIconButton from './common/BaseIconButton.js'
 import Island, { ISLAND_MARGIN } from './common/Island.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import ConversationPreferences from './ConversationPreferences.js'
-import { ArrowBackIosNewIcon } from './SvgIcon.js'
+import { ArrowBackIosNewIcon, JamiIdIcon } from './SvgIcon.js'
 import { AudioCallIcon, ListIcon, SearchRoundedIcon, VideoCallIcon } from './SvgIcon.js'
+
+export function getConversationHeaderIdentity(displayName: string, registeredName?: string, hash?: string) {
+  const jamiId = registeredName || hash
+
+  if (!jamiId || displayName !== jamiId) {
+    return { primary: displayName, secondary: jamiId }
+  }
+
+  return { primary: jamiId, primaryIsJamiId: true }
+}
 
 const ConversationView = () => {
   const { conversationId } = useConversationContext()
@@ -110,8 +120,13 @@ export const ConversationHeader = () => {
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
   const otherMember = useMemo(() => members?.find((m) => m.contact.uri !== account.getUri()), [members, account])
-  const contactUri = otherMember?.contact.uri ?? ''
-  const subtitle = otherMember?.contact.registeredName
+  const avatarUri = otherMember?.contact.uri
+  const contactUri = members.length === 1 ? avatarUri : undefined
+  const { primary, secondary, primaryIsJamiId } = getConversationHeaderIdentity(
+    conversationDisplayName,
+    contactUri ? otherMember?.contact.registeredName : undefined,
+    contactUri,
+  )
 
   const handleSearchClose = () => {
     setIsSearchOpen(false)
@@ -168,12 +183,12 @@ export const ConversationHeader = () => {
               overflow: 'hidden',
             }}
           >
-            {contactUri && (
+            {avatarUri && (
               <ConversationAvatar
                 displayName={conversationDisplayName}
-                contactUri={contactUri}
+                contactUri={avatarUri}
                 presence={true}
-                sx={{ width: 36, height: 36, fontSize: '0.9rem' }}
+                sx={{ width: 40, height: 40, fontSize: '1rem' }}
               />
             )}
             <Stack
@@ -182,28 +197,34 @@ export const ConversationHeader = () => {
                 justifyContent: 'center',
               }}
             >
-              <Typography
-                noWrap
-                variant="h4"
-                sx={{
-                  textOverflow: 'ellipsis',
-                  maxWidth: isMobile ? '120px' : '400px',
-                }}
-              >
-                {conversationDisplayName}
-              </Typography>
-              {subtitle && subtitle !== conversationDisplayName && (
+              <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', minWidth: 0 }}>
+                {primaryIsJamiId && <JamiIdIcon aria-hidden="true" sx={{ flexShrink: 0 }} />}
                 <Typography
                   noWrap
-                  variant="caption"
+                  variant="body1"
                   sx={{
                     textOverflow: 'ellipsis',
-                    color: theme.palette.text.secondary,
                     maxWidth: isMobile ? '120px' : '400px',
                   }}
                 >
-                  {subtitle}
+                  {primary}
                 </Typography>
+              </Stack>
+              {secondary && (
+                <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', minWidth: 0 }}>
+                  <JamiIdIcon aria-hidden="true" sx={{ flexShrink: 0 }} />
+                  <Typography
+                    noWrap
+                    variant="caption"
+                    sx={{
+                      textOverflow: 'ellipsis',
+                      color: theme.palette.text.secondary,
+                      maxWidth: isMobile ? '120px' : '400px',
+                    }}
+                  >
+                    {secondary}
+                  </Typography>
+                </Stack>
               )}
             </Stack>
           </Stack>
