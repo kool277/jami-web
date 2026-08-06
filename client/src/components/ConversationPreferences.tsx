@@ -63,7 +63,6 @@ import { PopoverListItemData } from './PopoverList.js'
 import ProcessingRequest from './ProcessingRequest.js'
 import RemoveConversationDialog from './RemoveComversationDialog.js'
 import {
-  AdminPanelSettingsIcon,
   AttachFileIcon,
   ColorsIcon,
   DescriptionIcon,
@@ -75,11 +74,6 @@ import {
   NotificationsOffIcon,
 } from './SvgIcon.js'
 import { BlockContactIcon, JamiIdIcon, KickMemberIcon, MessageIcon, PersonIcon } from './SvgIcon.js'
-
-enum TABS {
-  FILES = 0,
-  SETTINGS = 1,
-}
 
 export type ConversationType = 'private' | 'group'
 
@@ -106,7 +100,7 @@ export default function ConversationPreferences() {
   const { account } = useAuthContext()
   const theme = useTheme()
 
-  const [currentTab, setCurrentTab] = useState<TABS>(TABS.SETTINGS)
+  const [filesOpen, setFilesOpen] = useState(false)
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
@@ -156,6 +150,8 @@ export default function ConversationPreferences() {
           borderRadius: theme.Panel.borderRadius,
           boxShadow: theme.Panel.shadow,
           overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         <CardHeader
@@ -185,7 +181,7 @@ export default function ConversationPreferences() {
           sx={{ justifyContent: 'center', '& .MuiCardHeader-content': { flex: 'initial' } }}
         />
         <ConversationDetailsFields isAdmin={isAdmin} />
-        <CardContent>
+        <CardContent sx={{ display: 'flex', flex: 1, flexDirection: 'column', minHeight: 0 }}>
           <Box
             role="group"
             aria-label={t('conversation_preferences')}
@@ -194,32 +190,20 @@ export default function ConversationPreferences() {
             <BaseButton
               variant="text"
               aria-label={t('conversation_files')}
-              aria-pressed={currentTab === TABS.FILES}
+              aria-pressed={filesOpen}
               sx={buttonStyle}
-              style={{ opacity: currentTab === TABS.FILES ? 1 : 0.7 }}
+              style={{ opacity: filesOpen ? 1 : 0.7 }}
               onClick={() => {
-                setCurrentTab(TABS.FILES)
+                setFilesOpen((open) => !open)
               }}
             >
               <AttachFileIcon />
             </BaseButton>
-            <BaseButton
-              variant="text"
-              aria-label={t('settings')}
-              aria-pressed={currentTab === TABS.SETTINGS}
-              sx={buttonStyle}
-              style={{ opacity: currentTab === TABS.SETTINGS ? 1 : 0.7 }}
-              onClick={() => {
-                setCurrentTab(TABS.SETTINGS)
-              }}
-            >
-              <AdminPanelSettingsIcon />
-            </BaseButton>
           </Box>
-          <Box sx={{ marginTop: '10%', display: 'flex', justifyContent: 'center' }}>
-            {currentTab === TABS.FILES && <Files />}
-            {currentTab === TABS.SETTINGS && <Settings />}
+          <Box sx={{ marginTop: '10%', display: 'flex', flex: 1, justifyContent: 'center', minHeight: 0 }}>
+            {filesOpen && <Files />}
           </Box>
+          <LeaveConversationAction />
         </CardContent>
       </Card>
     </motion.span>
@@ -623,9 +607,6 @@ const Files = () => {
   const filesQuery = useGetAllFilesQuery(conversationId)
   const files = filesQuery.data
   const { t } = useTranslation()
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
-
   if (filesQuery.isLoading) {
     ;<ProcessingRequest open={true} />
   }
@@ -645,7 +626,7 @@ const Files = () => {
         gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '8px',
         width: '100%',
-        height: isMobile ? 'calc(70vh - 30px)' : '70vh',
+        height: '100%',
         overflowY: 'auto',
         paddingBottom: '8px',
         overflowX: 'hidden',
@@ -669,7 +650,7 @@ const Files = () => {
   )
 }
 
-const Settings = () => {
+const LeaveConversationAction = () => {
   const { t } = useTranslation()
   const RemoveConversationDialogHandler = useDialogHandler()
   const { conversationId } = useConversationContext()
@@ -689,7 +670,6 @@ const Settings = () => {
           variant="contained"
           sx={{
             width: '90%',
-            marginTop: '5%',
             backgroundColor: 'red',
             display: 'flex',
             justifyContent: 'space-evenly',
