@@ -45,37 +45,34 @@ export function ExportToAnotherDevice() {
   const [opId, setOpId] = useState<number | undefined>()
   const [uri, setUri] = useState<string | undefined>()
   const isSentRef = useRef(false)
+  // The daemon reports the operation id asynchronously, so a ref keeps it available to events
+  // arriving before the state update has been rendered.
+  const opIdRef = useRef<number | undefined>(undefined)
   const [state, setState] = useState(DeviceAuthStateCode.Init)
   const [peerAddress, setPeerAddress] = useState<string | undefined>()
 
   useEffect(() => {
     function addDeviceStateChangedListener(data: AddDeviceStateChanged) {
-      console.log(data)
+      if (!isSentRef.current) {
+        // The operation was not started from this page.
+        return
+      }
 
-      if (opId !== undefined && opId !== data.opId) {
+      if (opIdRef.current === undefined) {
+        opIdRef.current = data.opId
+        setOpId(data.opId)
+      } else if (opIdRef.current !== data.opId) {
         // not the same operation
         return
       }
 
-      const details = data.details as unknown as { [key: string]: string }
-
-      if (opId === undefined && data.state === DeviceAuthStateCode.Connecting) {
-        setOpId(data.opId)
-      } else if (opId === undefined) {
-        setAlertContent({
-          messageI18nKey: 'link_device_could_not_initiate',
-          severity: 'error',
-          alertOpen: true,
-        })
-        navigate('/settings/account/linked-devices')
-      }
+      const details = data.details ?? {}
 
       setState(data.state)
       switch (data.state) {
         case DeviceAuthStateCode.Authenticating:
           // accept or not authentication
           setPeerAddress(details['peer_address'])
-          isSentRef.current = true
           break
         case DeviceAuthStateCode.Done:
           if (details['error'] === DeviceAuthError.Authentication) {
@@ -112,22 +109,36 @@ export function ExportToAnotherDevice() {
     return () => {
       webSocket.unbind(WebSocketMessageType.AddDeviceStateChanged, addDeviceStateChangedListener)
     }
-  }, [navigate, opId, setAlertContent, webSocket])
+  }, [navigate, setAlertContent, webSocket])
 
   useEffect(() => {
     if (uri && !isSentRef.current) {
-      exportAccountMutation.mutate(uri)
       isSentRef.current = true
+      exportAccountMutation.mutate(uri)
     }
   }, [uri, exportAccountMutation])
+
+  const exportFailed = exportAccountMutation.isError
+
+  useEffect(() => {
+    if (!exportFailed) {
+      return
+    }
+    setAlertContent({
+      messageI18nKey: 'link_device_could_not_initiate',
+      severity: 'error',
+      alertOpen: true,
+    })
+    navigate('/settings/account/linked-devices')
+  }, [exportFailed, navigate, setAlertContent])
 
   return (
     <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
       <Card sx={{ width: '600px', height: '700px' }}>
         {state === DeviceAuthStateCode.Init && <EnterCode setCode={setUri} />}
         {state === DeviceAuthStateCode.Connecting && <InProgress isConnecting={true} />}
-        {state === DeviceAuthStateCode.Authenticating && (
-          <AcceptLink peerAddress={peerAddress || 'unknown'} opId={opId || -1} />
+        {state === DeviceAuthStateCode.Authenticating && opId !== undefined && (
+          <AcceptLink peerAddress={peerAddress || 'unknown'} opId={opId} />
         )}
         {state === DeviceAuthStateCode.InProgress && <InProgress isConnecting={false} />}
         {state === DeviceAuthStateCode.Done && <ExportDone />}
@@ -198,18 +209,7 @@ interface AcceptLinkProps {
 }
 
 const AcceptLink = ({ peerAddress, opId }: AcceptLinkProps) => {
-  const navigate = useNavigate()
   const { t } = useTranslation()
-  const { setAlertContent } = use(AlertSnackbarContext)
-  if (opId === -1) {
-    setAlertContent({
-      messageI18nKey: 'unknown_error_alert',
-      severity: 'error',
-      alertOpen: true,
-    })
-    navigate('/settings/account/linked-devices')
-  }
-
   const cancelMutation = useCancelAddDeviceMutation(opId)
   const confirmMutation = useConfirmAddDeviceMutation(opId)
 
