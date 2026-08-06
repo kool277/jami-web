@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Chip, Divider, Link, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material'
+import { Box, Chip, Divider, Link, Popper, Stack, Tooltip, Typography, useMediaQuery } from '@mui/material'
 import { styled, Theme, useTheme } from '@mui/material/styles'
 import { darken } from '@mui/system'
 import { Message, ReactionAdded, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
@@ -24,7 +24,18 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { t } from 'i18next'
 import Linkify from 'linkify-react'
 import * as linkify from 'linkifyjs'
-import { memo, ReactElement, ReactNode, use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  memo,
+  type MouseEvent as ReactMouseEvent,
+  ReactElement,
+  ReactNode,
+  use,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useGlobalSetEditMessage } from '../contexts/ActionMessageProvider.js'
@@ -1019,6 +1030,7 @@ const MessageTooltip = styled(
     const [open, setOpen] = useState(false)
     const [transferModalOpen, setTransferModalOpen] = useState(false)
     const [emojiIsOpen, setEmojiIsOpen] = useState(false)
+    const [emojiPickerAnchorEl, setEmojiPickerAnchorEl] = useState<HTMLButtonElement | null>(null)
     const setReplyMessage = useGlobalSetReplyMessage()
     const setEditMessage = useGlobalSetEditMessage()
 
@@ -1039,6 +1051,7 @@ const MessageTooltip = styled(
     const onClose = () => {
       setOpen(false)
       setEmojiIsOpen(false)
+      setEmojiPickerAnchorEl(null)
     }
 
     const closeTooltip = () => {
@@ -1055,7 +1068,7 @@ const MessageTooltip = styled(
     useEffect(() => {
       const handleClickOutside = (event: TouchEvent) => {
         const target = event.target as Element | null
-        if (target && !target.closest('.MuiTooltip-tooltip')) {
+        if (target && !target.closest('.MuiTooltip-tooltip, .message-emoji-picker')) {
           setTooltipOpen(false)
           onClose()
         }
@@ -1070,7 +1083,7 @@ const MessageTooltip = styled(
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
         const target = event.target as Element | null
-        if (target && !target.closest('.MuiTooltip-tooltip')) {
+        if (target && !target.closest('.MuiTooltip-tooltip, .message-emoji-picker')) {
           setTooltipOpen(false)
           onClose()
         }
@@ -1161,7 +1174,8 @@ const MessageTooltip = styled(
       width: '24px',
     }
 
-    const onEmojiClickHandler = () => {
+    const onEmojiClickHandler = (event: ReactMouseEvent<HTMLButtonElement>) => {
+      setEmojiPickerAnchorEl(event.currentTarget)
       setEmojiIsOpen(true)
     }
 
@@ -1302,14 +1316,6 @@ const MessageTooltip = styled(
                   </motion.div>
                 )}
               </AnimatePresence>
-              {emojiIsOpen && (
-                <EmojiPicker
-                  theme={theme.EmojiPicker.backgroundColor}
-                  onEmojiClick={onEmojiClick}
-                  autoFocusSearch={false}
-                  skinTonesDisabled={true}
-                />
-              )}
             </div>
           }
           slotProps={{
@@ -1332,6 +1338,16 @@ const MessageTooltip = styled(
             {children}
           </div>
         </Tooltip>
+        <Popper anchorEl={emojiPickerAnchorEl} open={emojiIsOpen} placement="bottom-start" sx={{ zIndex: 2 }}>
+          <Box className="message-emoji-picker" onMouseEnter={handleMouseEnter} onMouseLeave={scheduleTooltipClose}>
+            <EmojiPicker
+              theme={theme.EmojiPicker.backgroundColor}
+              onEmojiClick={onEmojiClick}
+              autoFocusSearch={false}
+              skinTonesDisabled={true}
+            />
+          </Box>
+        </Popper>
         <TransferMessage
           conversationId={conversationId}
           message={message}
