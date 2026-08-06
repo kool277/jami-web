@@ -71,6 +71,7 @@ export const ChevronLeftIcon = ms('chevron_left')
 export const ChevronRightIcon = ms('chevron_right')
 export const ColorFillIcon = ms('format_color_fill')
 export const ColorsIcon = ms('colors')
+export const ContactIcon = ms('contacts')
 export const CrownIcon = ms('crown')
 export const CrossedEyeIcon = ms('visibility_off')
 export const CrossIcon = ms('close')
@@ -104,6 +105,7 @@ export const PermMediaIcon = ms('perm_media')
 export const TipIcon = ms('lightbulb')
 export const Timer3AltIcon = ms('timer_3_alt_1')
 export const TimerOffIcon = ms('timer_off')
+export const TokenIcon = ms('token')
 export const JamiIdIcon = ({ sx, size = 24, ...props }: SvgIconProps & { size?: number | string }) => (
   <Box sx={{ display: 'inline-flex', alignItems: 'center', ...sx }}>
     <JamiIDLogoSvg {...props} style={{ width: size, height: 'auto' }} />

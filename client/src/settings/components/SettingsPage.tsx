@@ -153,13 +153,14 @@ export function SettingsSection({ title, description, list = true, children, ...
   )
 }
 
-interface SettingsRowProps extends Omit<ListItemProps, 'children'> {
-  title: string
-  description?: string
+interface SettingsRowProps extends Omit<ListItemProps, 'children' | 'title'> {
+  title: ReactNode
+  description?: ReactNode
+  titleControl?: ReactNode
   control?: ReactNode
 }
 
-export function SettingsRow({ title, description, control, sx, ...props }: SettingsRowProps) {
+export function SettingsRow({ title, description, titleControl, control, sx, ...props }: SettingsRowProps) {
   return (
     <ListItem
       disableGutters
@@ -176,7 +177,12 @@ export function SettingsRow({ title, description, control, sx, ...props }: Setti
       {...props}
     >
       <Stack sx={{ flex: 1, minWidth: 0, gap: 0.25 }}>
-        <Typography variant="body1">{title}</Typography>
+        <Stack direction="row" sx={{ alignItems: 'center', gap: 1, minWidth: 0 }}>
+          <Typography variant="body1" sx={{ flex: 1, minWidth: 0 }}>
+            {title}
+          </Typography>
+          {titleControl && <Box sx={{ flexShrink: 0 }}>{titleControl}</Box>}
+        </Stack>
         {description && (
           <Typography color="text.secondary" variant="body2">
             {description}

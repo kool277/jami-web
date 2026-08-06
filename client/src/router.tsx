@@ -60,6 +60,9 @@ const UserMediaProvider = lazy(() => import('./contexts/UserMediaProvider.js'))
 import WebSocketLinkProvider from './contexts/WebSocketLinkProvider.js'
 import WebSocketProvider from './contexts/WebSocketProvider.js'
 const AccountSettings = lazy(() => loadSettingsBundle().then(({ AccountSettings }) => ({ default: AccountSettings })))
+const AppAccessSettings = lazy(() =>
+  loadSettingsBundle().then(({ AppAccessSettings }) => ({ default: AppAccessSettings })),
+)
 const AdminLogin = lazy(() => loadAdminBundle().then(({ AdminLogin }) => ({ default: AdminLogin })))
 const AdminPanel = lazy(() => loadAdminBundle().then(({ AdminPanel }) => ({ default: AdminPanel })))
 const AdminConfigureJams = lazy(() =>
@@ -251,6 +254,7 @@ export const router = createBrowserRouter(
             <Route path={userSettingsRoutePaths.manageAccount} element={<AccountSettings />} />
             <Route path={userSettingsRoutePaths.customizeProfile} element={<CustomizeProfileSettings />} />
             <Route path={userSettingsRoutePaths.passkeys} element={<PasskeysSettings />} />
+            <Route path={userSettingsRoutePaths.appAccess} element={<AppAccessSettings />} />
             <Route path={userSettingsRoutePaths.calls} element={<CallSettings />} />
             <Route path={userSettingsRoutePaths.linkedDevices} element={<LinkedDevicesPage />} />
             <Route path={userSettingsRoutePaths.exportDevice} element={<ExportToAnotherDevice />} />

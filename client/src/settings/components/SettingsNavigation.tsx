@@ -37,6 +37,7 @@ import {
   AudioCallIcon,
   ChatBubbleIcon,
   DevicesIcon,
+  KeyIcon,
   ManageAccountsIcon,
   SearchRoundedIcon,
   SettingsIcon,
@@ -129,6 +130,12 @@ const sections: SettingsNavigationSection[] = [
         titleKey: 'settings_calls',
         path: userSettingsRoutePaths.calls,
         searchTerms: ['settings_search_moderator', 'settings_search_moderators', 'settings_search_conference'],
+      },
+      {
+        icon: <KeyIcon />,
+        titleKey: 'app_access_title',
+        path: userSettingsRoutePaths.appAccess,
+        searchTerms: ['app_access_search_terms'],
       },
       {
         icon: <DevicesIcon />,

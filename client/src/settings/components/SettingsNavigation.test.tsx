@@ -34,6 +34,7 @@ vi.mock('react-i18next', () => ({
         ['settings_search_moderators']: 'moderators',
         ['settings_search_conference']: 'conference',
         ['settings_search_biometric']: 'biometric',
+        ['app_access_search_terms']: 'api token tokens app access developer integration',
       })[key] ?? key,
   }),
 }))
@@ -61,6 +62,18 @@ describe('SettingsNavigation', () => {
     )
     expect(screen.getByRole('link', { name: 'settings_title_chat' })).toHaveAttribute('href', '/settings/general/chat')
     expect(screen.queryByRole('link', { name: 'settings_account_information' })).not.toBeInTheDocument()
+  })
+
+  it('links to app access from account settings', async () => {
+    const user = userEvent.setup()
+    renderSettingsNavigation('/settings/account/manage-account')
+
+    await user.type(screen.getByRole('textbox', { name: 'Search settings' }), 'api token')
+
+    expect(screen.getByRole('link', { name: 'app_access_title' })).toHaveAttribute(
+      'href',
+      '/settings/account/app-access',
+    )
   })
 
   it('marks the route-matched page as current', () => {

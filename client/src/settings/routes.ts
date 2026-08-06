@@ -22,6 +22,7 @@ export const userSettingsRoutePaths = {
   calls: 'account/calls',
   linkedDevices: 'account/linked-devices',
   exportDevice: 'account/linked-devices/export',
+  appAccess: 'account/app-access',
   general: 'general',
   generalSystem: 'general/system',
   generalAppearance: 'general/appearance',

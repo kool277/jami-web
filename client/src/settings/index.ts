@@ -16,6 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 export { default as AccountSettings } from './pages/AccountSettings.js'
+export { default as AppAccessSettings } from './pages/AppAccessSettings.js'
 export { default as CallSettings } from './pages/CallSettings.js'
 export { default as CustomizeProfileSettings } from './pages/CustomizeProfileSettings.js'
 export { ExportToAnotherDevice } from './pages/ExportToAnotherDevice.js'
