@@ -52,6 +52,7 @@ import { filter, firstValueFrom, map, Subject } from 'rxjs'
 import { Service } from 'typedi'
 
 import { AdminAccount } from '../storage/admin-account.js'
+import { toStringRecord } from '../utils/string-record.js'
 import { cacheProfile, clearAvatarCache, decodeVCard, getAvatar, getDisplayName } from '../utils/vCard.js'
 import { WebSocketServer } from '../websocket/websocket-server.js'
 import { ConversationMemberInfos } from './conversation-member-infos.js'
@@ -936,7 +937,7 @@ export class Jamid {
       const data = {
         opId: signal.opId,
         state: signal.state,
-        details: signal.details,
+        details: toStringRecord(signal.details),
       }
 
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.AddDeviceStateChanged, data)
@@ -948,7 +949,7 @@ export class Jamid {
       const data = {
         accountId: signal.accountId,
         state: signal.state,
-        details: signal.details,
+        details: toStringRecord(signal.details),
       }
 
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.DeviceAuthStateChanged, data)

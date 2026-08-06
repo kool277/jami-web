@@ -61,14 +61,14 @@ export interface AccountMessageStatus {
 
 export interface AddDeviceStateChanged {
   state: DeviceAuthStateCode
-  details: Map<string, string>
+  details: Record<string, string>
   opId: number
 }
 
 export interface DeviceAuthStateChanged {
   accountId: string
   state: DeviceAuthStateCode
-  details: Map<string, string>
+  details: Record<string, string>
 }
 
 export interface ReactionAdded {
