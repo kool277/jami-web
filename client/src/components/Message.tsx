@@ -138,10 +138,9 @@ interface MessageCallProps {
   isAccountMessage: boolean
   isFirstOfGroup: boolean
   isLastOfGroup: boolean
-  sentTime: Dayjs
 }
 
-const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup, sentTime }: MessageCallProps) => {
+const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup }: MessageCallProps) => {
   const { i18n } = useTranslation()
   const position = isAccountMessage ? 'end' : 'start'
   const theme = useTheme()
@@ -165,7 +164,6 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
       isFirstOfGroup={isFirstOfGroup}
       isLastOfGroup={isLastOfGroup}
       bubbleColor={bubbleColor}
-      sentTime={sentTime}
       edited={false} // edited is not used in call message
       isMedia={false}
       deleted={false} // deleted is not used in call message
@@ -189,7 +187,7 @@ const MessageCall = ({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup,
             userSelect: 'none',
           }}
         >
-          {text + '              '}
+          {text}
         </Typography>
       </Stack>
     </Bubble>
@@ -217,7 +215,6 @@ interface MessageDataTransferProps {
   isAccountMessage: boolean
   isFirstOfGroup: boolean
   isLastOfGroup: boolean
-  sentTime: Dayjs
 }
 
 enum FileType {
@@ -228,7 +225,7 @@ enum FileType {
 }
 
 const MessageDataTransfer = memo(
-  ({ isAccountMessage, isFirstOfGroup, isLastOfGroup, message, sentTime }: MessageDataTransferProps) => {
+  ({ isAccountMessage, isFirstOfGroup, isLastOfGroup, message }: MessageDataTransferProps) => {
     const theme: Theme = useTheme()
     const { conversationId, members } = useConversationContext()
     const setReplyMessage = useGlobalSetReplyMessage()
@@ -525,7 +522,6 @@ const MessageDataTransfer = memo(
                 position={position}
                 isFirstOfGroup={isFirstOfGroup}
                 isLastOfGroup={isLastOfGroup}
-                sentTime={sentTime}
                 edited={false} // edited is not used in data-transfer message
                 isMedia={fileType !== FileType.Document && (preview || audioBlob) ? true : false}
                 isAudio={fileType === FileType.Audio}
@@ -644,10 +640,9 @@ interface MessageTextProps {
   isAccountMessage: boolean
   isFirstOfGroup: boolean
   isLastOfGroup: boolean
-  sentTime: Dayjs
 }
 
-const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup, sentTime }: MessageTextProps) => {
+const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfGroup }: MessageTextProps) => {
   const { conversationColor } = useConversationPreferencesColorContext()
   const theme: Theme = useTheme()
 
@@ -693,14 +688,11 @@ const MessageText = memo(({ message, isAccountMessage, isFirstOfGroup, isLastOfG
               isFirstOfGroup={isFirstOfGroup}
               isLastOfGroup={isLastOfGroup}
               maxWidth={isMobile ? '200px' : isMedium ? '380px' : '600px'}
-              sentTime={sentTime}
               edited={isEdited}
               deleted={isDeleted}
               hasReply={message['reply-to'] !== undefined}
             >
-              <Linkify options={{ render: RenderLink as any, target: '_blank' }}>
-                {message.body + '            '}
-              </Linkify>
+              <Linkify options={{ render: RenderLink as any, target: '_blank' }}>{message.body}</Linkify>
               <Box>{link && isPreviewEnabled && <LinkPreview isAccountMessage={isAccountMessage} link={link} />}</Box>
             </Bubble>
           </Box>
@@ -828,7 +820,6 @@ const UserMessageRow = memo(
       isAccountMessage,
       isFirstOfGroup,
       isLastOfGroup,
-      sentTime,
     }
     let MessageComponent
 
@@ -948,15 +939,13 @@ const UserMessageRow = memo(
                 },
                 isMobile
                   ? {
-                      maxWidth: isAccountMessage ? 'unset' : '100px',
-                      textOverflow: 'ellipsis',
-                      textWrap: 'nowrap',
+                      maxWidth: isAccountMessage ? 'unset' : '200px',
                       marginLeft: !isAccountMessage ? '-8px' : '0',
                     }
                   : {},
               ]}
             >
-              <ParticipantName name={authorName} />
+              <ParticipantName name={authorName} position={position} sentTime={sentTime} />
             </Box>
           )}
           <Box sx={isAccountMessage ? { marginRight: '24px' } : { marginLeft: '48px' }}>{replyMessageComponent}</Box>
@@ -1372,7 +1361,6 @@ interface BubbleProps {
   bubbleColor: string
   maxWidth?: string
   children: ReactNode
-  sentTime?: Dayjs
   edited: boolean
   deleted: boolean
   isMedia?: boolean
@@ -1388,7 +1376,6 @@ const Bubble = memo(
     bubbleColor,
     maxWidth,
     children,
-    sentTime,
     edited,
     deleted,
     isMedia,
@@ -1441,26 +1428,6 @@ const Bubble = memo(
     const messageContentBubbleStyle = {
       wordWrap: 'break-word',
     }
-    const sentTimeStyle = {
-      userSelect: 'none',
-      color: getSentTimeColor(bubbleColor),
-      typography: 'caption',
-      flexWrap: 'nowrap',
-      textWrap: 'nowrap',
-      whiteSpace: 'nowrap',
-    }
-
-    const boxedBubbleSentTime = {
-      zIndex: 3,
-      marginRight: '16px',
-      marginTop: '-24px',
-    }
-
-    const editedBoxedBubbleSentTime = {
-      ...boxedBubbleSentTime,
-      marginRight: position === 'start' ? '20px' : '16px',
-    }
-
     const deletedMessageStyle = {
       color: theme.palette.text.disabled,
       fontStyle: 'italic',
@@ -1483,24 +1450,13 @@ const Bubble = memo(
                 : { ...messageContentBubbleStyle, userSelect: deleted ? 'none' : 'auto' }
             }
           >
-            {deleted ? t(isMedia ? 'media_deleted' : 'message_deleted') + '            ' : children}
+            {deleted ? t(isMedia ? 'media_deleted' : 'message_deleted') : children}
           </Box>
         </Box>
-        {edited && !deleted ? (
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', ...sentTimeStyle }}>
-            <Box sx={{ marginLeft: '8px' }}>
-              <div data-cy={`message-edited`}>{t('edited_message')}</div>
-            </Box>
-            <Box sx={editedBoxedBubbleSentTime}>
-              {sentTime && <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>}
-            </Box>
-          </Box>
-        ) : (
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end', ...sentTimeStyle }}>
-            <Box sx={boxedBubbleSentTime}>
-              {sentTime && <div data-cy={`message-sent-time`}>{sentTime.format('h:mm a')}</div>}
-            </Box>
-          </Box>
+        {edited && !deleted && (
+          <Typography variant="caption" sx={{ color: getSentTimeColor(bubbleColor), ml: 1, userSelect: 'none' }}>
+            {t('edited_message')}
+          </Typography>
         )}
       </Box>
     )
@@ -1509,21 +1465,36 @@ const Bubble = memo(
 
 interface ParticipantNameProps {
   name: string
+  position: MessagePosition
+  sentTime: Dayjs
 }
 
-const ParticipantName = ({ name }: ParticipantNameProps) => {
+const ParticipantName = ({ name, position, sentTime }: ParticipantNameProps) => {
   const theme = useTheme()
 
   return (
-    <Typography
-      variant="caption"
-      sx={{
-        color: theme.palette.text.secondary,
-        fontWeight: 700,
-      }}
-    >
-      {name}
-    </Typography>
+    <Stack direction={position === 'start' ? 'row' : 'row-reverse'} spacing={0.5} sx={{ alignItems: 'center' }}>
+      <Typography
+        variant="caption"
+        sx={{
+          color: theme.palette.text.secondary,
+          fontWeight: 700,
+          minWidth: 0,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {name}
+      </Typography>
+      <Typography
+        data-cy="message-sent-time"
+        variant="caption"
+        sx={{ color: theme.palette.text.secondary, flexShrink: 0, fontSize: '0.6875rem' }}
+      >
+        {sentTime.format('h:mm a')}
+      </Typography>
+    </Stack>
   )
 }
 
