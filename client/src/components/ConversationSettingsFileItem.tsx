@@ -16,13 +16,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, useMediaQuery, useTheme } from '@mui/material'
-import { useCallback, useEffect, useState } from 'react'
+import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import { GetDownloadedFile, useGetAutoDownloadLimit, useGetDownloadFileInfo } from '../services/dataTransferQueries.js'
 import { useDataSizeUnits } from '../utils/units.js'
+import ConversationAvatar from './ConversationAvatar.js'
 import EllipsisMiddle from './EllipsisMiddle.js'
 import MediaViewer from './MediaViewer.js'
 import { AttachFileIcon, AudioFileIcon, PictureAsPdfIcon, VideoFileIcon } from './SvgIcon.js'
@@ -36,6 +37,10 @@ interface ConversationSettingsFileItemProps {
   messageId: string
   listView?: boolean
 }
+
+const AUTHOR_OVERLAY_TRANSITION_MS = 150
+const ATTACHMENT_RADIUS = '10px'
+const AUTHOR_AVATAR_SIZE = '16px'
 
 const ConversationSettingsFileItem = ({
   displayName,
@@ -59,8 +64,19 @@ const ConversationSettingsFileItem = ({
   const [blob, setBlob] = useState<Blob>()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDownloaded, setIsDownloaded] = useState(false)
+  const [isAuthorOverlayMounted, setIsAuthorOverlayMounted] = useState(false)
+  const [isAuthorOverlayVisible, setIsAuthorOverlayVisible] = useState(false)
+  const [isAuthorNameElided, setIsAuthorNameElided] = useState(false)
+  const authorOverlayHideTimeoutRef = useRef<number | undefined>(undefined)
+  const authorOverlayShowFrameRef = useRef<number | undefined>(undefined)
+  const authorNameRef = useRef<HTMLSpanElement | null>(null)
 
   const conversationMember = members.find((member) => member.contact.uri === author)
+  const authorName =
+    conversationMember?.getDisplayName() ||
+    conversationMember?.contact.registeredName ||
+    conversationMember?.contact.uri ||
+    author
   const content = { messageId: messageId, fileId: fileId || '' }
   const isFileAlreadyInCache = useGetDownloadFileInfo({ content, conversationId })
 
@@ -82,6 +98,62 @@ const ConversationSettingsFileItem = ({
     }
     return 'none'
   }, [displayName])
+
+  const showAuthorOverlay = () => {
+    if (authorOverlayHideTimeoutRef.current !== undefined) {
+      window.clearTimeout(authorOverlayHideTimeoutRef.current)
+    }
+    setIsAuthorOverlayMounted(true)
+    setIsAuthorNameElided(false)
+    authorOverlayShowFrameRef.current = window.requestAnimationFrame(() => {
+      setIsAuthorOverlayVisible(true)
+    })
+  }
+
+  const hideAuthorOverlay = () => {
+    if (authorOverlayShowFrameRef.current !== undefined) {
+      window.cancelAnimationFrame(authorOverlayShowFrameRef.current)
+    }
+    setIsAuthorOverlayVisible(false)
+    authorOverlayHideTimeoutRef.current = window.setTimeout(() => {
+      setIsAuthorOverlayMounted(false)
+    }, AUTHOR_OVERLAY_TRANSITION_MS)
+  }
+
+  useEffect(
+    () => () => {
+      if (authorOverlayHideTimeoutRef.current !== undefined) {
+        window.clearTimeout(authorOverlayHideTimeoutRef.current)
+      }
+      if (authorOverlayShowFrameRef.current !== undefined) {
+        window.cancelAnimationFrame(authorOverlayShowFrameRef.current)
+      }
+    },
+    [],
+  )
+
+  useEffect(() => {
+    const authorNameElement = authorNameRef.current
+    if (!isAuthorOverlayMounted || !authorNameElement) return
+
+    const updateNameElision = () => {
+      setIsAuthorNameElided(authorNameElement.scrollWidth > authorNameElement.clientWidth)
+    }
+
+    const animationFrame = window.requestAnimationFrame(updateNameElision)
+
+    if (!window.ResizeObserver) {
+      return () => window.cancelAnimationFrame(animationFrame)
+    }
+
+    const resizeObserver = new ResizeObserver(updateNameElision)
+    resizeObserver.observe(authorNameElement)
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame)
+      resizeObserver.disconnect()
+    }
+  }, [isAuthorOverlayMounted])
 
   const getBlob = useCallback(
     async (type: string) => {
@@ -219,10 +291,14 @@ const ConversationSettingsFileItem = ({
             backgroundSize: 'cover',
             backgroundRepeat: 'no-repeat',
             backgroundPosition: 'center',
-            borderRadius: '10px',
+            borderRadius: ATTACHMENT_RADIUS,
             ':hover': { cursor: 'pointer' },
             display: 'flex',
+            overflow: 'hidden',
+            position: 'relative',
           }}
+          onMouseEnter={showAuthorOverlay}
+          onMouseLeave={hideAuthorOverlay}
           onClick={() => {
             if (isDownloaded) {
               setIsModalOpen(true)
@@ -295,6 +371,51 @@ const ConversationSettingsFileItem = ({
               </Box>
             )}
           </Box>
+          {isAuthorOverlayMounted && (
+            <Box
+              sx={{
+                bottom: 0,
+                left: 0,
+                pointerEvents: 'none',
+                position: 'absolute',
+                right: 0,
+                opacity: isAuthorOverlayVisible ? 1 : 0,
+                transition: `opacity ${AUTHOR_OVERLAY_TRANSITION_MS}ms ease-out`,
+              }}
+            >
+              <Box
+                sx={{
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                  borderTopRightRadius: isAuthorNameElided ? 0 : ATTACHMENT_RADIUS,
+                  color: 'common.white',
+                  display: 'flex',
+                  gap: 0.5,
+                  maxWidth: '100%',
+                  minWidth: 0,
+                  padding: 0.25,
+                  paddingRight: 0.5,
+                  width: isAuthorNameElided ? '100%' : 'fit-content',
+                }}
+              >
+                <ConversationAvatar
+                  contactUri={author}
+                  displayName={authorName}
+                  sx={{ flexShrink: 0, height: AUTHOR_AVATAR_SIZE, width: AUTHOR_AVATAR_SIZE }}
+                />
+                <Typography
+                  ref={authorNameRef}
+                  component="span"
+                  noWrap
+                  title={authorName}
+                  variant="caption"
+                  sx={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}
+                >
+                  {authorName}
+                </Typography>
+              </Box>
+            </Box>
+          )}
         </Box>
       </Box>
       <MediaViewer
