@@ -31,7 +31,7 @@ import {
 } from '@mui/material'
 import { Message } from '@savoirfairelinux/jami-web-common'
 import { AnimatePresence, motion, type Transition } from 'framer-motion'
-import { memo, SetStateAction, use, useMemo, useState } from 'react'
+import { memo, use, useMemo, useState } from 'react'
 import { BlockPicker, ColorResult } from 'react-color'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -54,11 +54,9 @@ import BaseButton from './common/BaseButton.js'
 import BaseIconButton from './common/BaseIconButton.js'
 import { ISLAND_MARGIN } from './common/Island.js'
 import ContactDetailDialog from './ContactDetailDialog.js'
-import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
 import ConversationAvatar, { GroupConversationAvatar } from './ConversationAvatar.js'
 import ConversationSettingsFileItem from './ConversationSettingsFileItem.js'
 import { ConfirmationDialog, useDialogHandler } from './Dialog.js'
-import { PopoverListItemData } from './PopoverList.js'
 import RemoveConversationDialog from './RemoveComversationDialog.js'
 import {
   ChevronLeftIcon,
@@ -70,7 +68,6 @@ import {
   FormatCodeIcon,
   GridViewIcon,
   GroupsIcon,
-  MoreHorizIcon,
   NotificationsActiveIcon,
   NotificationsOffIcon,
   PermMediaIcon,
@@ -452,92 +449,6 @@ const ConversationTypeIcon = ({ type }: ConversationTypeIconProps) => {
   )
 }
 
-interface ContactMenuProps {
-  isBanned: boolean
-  isAdmin: boolean
-  currentConversationId: string
-  conversationId?: string
-  memberUri: string
-  contextMenuProps: ContextMenuHandler['props']
-  openContactDialog: () => void
-  setIsBlocking: React.Dispatch<SetStateAction<boolean>>
-  setContactDetailDialogOpen: React.Dispatch<SetStateAction<boolean>>
-}
-
-const ContactMenu = ({
-  isBanned,
-  isAdmin,
-  currentConversationId,
-  conversationId,
-  memberUri,
-  contextMenuProps,
-  openContactDialog,
-  setIsBlocking,
-  setContactDetailDialogOpen,
-}: ContactMenuProps) => {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const kickMemberMutation = useRemoveMemberFromSwarm(currentConversationId)
-  const menuOptions: PopoverListItemData[] = useMemo(() => {
-    const options: PopoverListItemData[] = [
-      {
-        label: t('contact_details_text'),
-        Icon: PersonIcon,
-        onClick: () => {
-          setContactDetailDialogOpen(true)
-        },
-      },
-      {
-        label: t('contact_block'),
-        Icon: BlockContactIcon,
-        onClick: () => {
-          openContactDialog()
-          setIsBlocking(true)
-        },
-      },
-    ]
-
-    return [
-      ...(conversationId
-        ? [
-            {
-              label: t('go_to_conversation'),
-              Icon: MessageIcon,
-              onClick: () => {
-                navigate(`/conversation/${conversationId}`)
-              },
-            },
-          ]
-        : []),
-      ...options,
-      ...(isAdmin && !isBanned
-        ? [
-            {
-              label: t('kick_member'),
-              Icon: KickMemberIcon,
-              onClick: () => {
-                kickMemberMutation.mutate(memberUri)
-              },
-            },
-          ]
-        : []),
-    ]
-  }, [
-    conversationId,
-    isAdmin,
-    isBanned,
-    kickMemberMutation,
-    memberUri,
-    navigate,
-    openContactDialog,
-    setContactDetailDialogOpen,
-    setIsBlocking,
-    t,
-  ])
-
-  return <ContextMenu {...contextMenuProps} items={menuOptions} />
-}
-
 interface ContactDialogProps {
   isBlocking: boolean
   open: boolean
@@ -593,7 +504,8 @@ const MemberInfo = ({ member, isAdmin }: MemberInfoProps) => {
   const singleContactQuery = useContactQuery(member.contact.uri)
   const { conversationId: currentConversationId } = useConversationContext()
   const { data: contactDetail } = singleContactQuery
-  const contextMenuHandler = useContextMenuHandler()
+  const navigate = useNavigate()
+  const kickMemberMutation = useRemoveMemberFromSwarm(currentConversationId)
   const isBanned = member.role === 'banned'
   const { t } = useTranslation()
   const {
@@ -623,23 +535,27 @@ const MemberInfo = ({ member, isAdmin }: MemberInfoProps) => {
         currentContactId={member.contact.uri}
       />
       {ContactDetailDialogElement}
-      <ContactMenu
-        memberUri={member.contact.uri}
-        isBanned={isBanned}
-        isAdmin={isAdmin}
-        currentConversationId={currentConversationId}
-        conversationId={contactDetail?.conversationId}
-        contextMenuProps={contextMenuHandler.props}
-        openContactDialog={openContactDialog}
-        setIsBlocking={setIsBlocking}
-        setContactDetailDialogOpen={setContactDetailDialogOpen}
-      />
       <Box
         key={member.contact.uri}
+        role="button"
+        tabIndex={0}
+        aria-label={t('contact_details_text')}
+        onClick={() => setContactDetailDialogOpen(true)}
+        onKeyDown={(event) => {
+          if (event.target !== event.currentTarget || (event.key !== 'Enter' && event.key !== ' ')) return
+          event.preventDefault()
+          setContactDetailDialogOpen(true)
+        }}
         sx={{
+          '&:focus-within .member-actions, &:hover .member-actions': {
+            opacity: 1,
+            pointerEvents: 'auto',
+          },
           display: 'flex',
           flexDirection: 'row',
           alignItems: 'center',
+          cursor: 'pointer',
+          position: 'relative',
           width: '100%',
           padding: '2%',
           justifyContent: 'space-between',
@@ -682,24 +598,77 @@ const MemberInfo = ({ member, isAdmin }: MemberInfoProps) => {
             {bestName}
           </Typography>
         </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
-          <MoreHorizIcon
+        {member.contact.uri !== account.getUri() && (
+          <Box
+            className="member-actions"
             sx={{
-              '&:hover': { cursor: 'pointer' },
-              visibility: member.contact.uri === account.getUri() ? 'hidden' : 'visible',
+              display: 'flex',
+              gap: 0.5,
+              opacity: 0,
+              pointerEvents: 'none',
+              position: 'absolute',
+              right: '2%',
+              transition: 'opacity 150ms ease-out',
             }}
-            onClick={(e) => {
-              if (member.contact.uri === account.getUri()) return
-              contextMenuHandler.handleAnchorPosition(e)
-            }}
-          />
-        </Box>
+          >
+            <BaseIconButton
+              aria-label={t('contact_block')}
+              tooltip={t('contact_block')}
+              onClick={(event) => {
+                event.stopPropagation()
+                openContactDialog()
+                setIsBlocking(true)
+              }}
+              sx={{
+                '&:hover': { backgroundColor: 'error.dark' },
+                backgroundColor: 'error.main',
+                color: 'error.contrastText',
+                height: 32,
+                width: 32,
+              }}
+            >
+              <BlockContactIcon aria-hidden fontSize="small" />
+            </BaseIconButton>
+            {contactDetail?.conversationId && (
+              <BaseIconButton
+                aria-label={t('go_to_conversation')}
+                tooltip={t('go_to_conversation')}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  navigate(`/conversation/${contactDetail.conversationId}`)
+                }}
+                sx={{
+                  '&:hover': { backgroundColor: 'primary.dark' },
+                  backgroundColor: 'primary.main',
+                  color: 'primary.contrastText',
+                  height: 32,
+                  width: 32,
+                }}
+              >
+                <MessageIcon aria-hidden fontSize="small" />
+              </BaseIconButton>
+            )}
+            {isAdmin && !isBanned && (
+              <BaseIconButton
+                aria-label={t('kick_member')}
+                tooltip={t('kick_member')}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  kickMemberMutation.mutate(member.contact.uri)
+                }}
+                sx={{
+                  '&:hover': { backgroundColor: 'warning.dark' },
+                  backgroundColor: 'warning.main',
+                  color: 'warning.contrastText',
+                  height: 32,
+                  width: 32,
+                }}
+              >
+                <KickMemberIcon aria-hidden fontSize="small" />
+              </BaseIconButton>
+            )}
+          </Box>
+        )}
       </Box>
     </>
   )
