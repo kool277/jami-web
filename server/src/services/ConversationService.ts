@@ -27,6 +27,7 @@ import { Container, Service } from 'typedi'
 
 import { ConversationRequestMetadata } from '../jamid/conversation-request-metadata.js'
 import { Jamid } from '../jamid/jamid.js'
+import { getLastDisplayableMessage } from '../utils/conversation-summary.js'
 import { countUnreadMessages } from '../utils/unread-message-count.js'
 import { WebSocketServer } from '../websocket/websocket-server.js'
 import { ContactService } from './ContactService.js'
@@ -93,14 +94,14 @@ export class ConversationService {
       .getConversationMembers(accountId, conversationId)
       .find((member) => member.uri === accountUri)?.lastDisplayed
 
-    // A single bounded load serves both the preview and the unread count: the
-    // daemon returns messages newest first, so the first one is the last message.
+    // A single bounded load serves both the preview and the unread count. The
+    // daemon returns messages newest first, including internal group metadata.
     const [membersNames, messages] = await Promise.all([
       this.getMembersNames(accountId, conversationId),
       this.getMessagesForSummary(accountId, conversationId, accountUri, lastDisplayed ?? ''),
     ])
 
-    const lastMessage: Message = messages[0]
+    const lastMessage: Message = getLastDisplayableMessage(messages)
     return {
       id: conversationId,
       avatar: infos.avatar,
