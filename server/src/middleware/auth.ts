@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { HttpStatusCode } from '@savoirfairelinux/jami-web-common'
+import { type ApiTokenScope, HttpStatusCode } from '@savoirfairelinux/jami-web-common'
 import { NextFunction, Request, Response } from 'express'
 import { Container } from 'typedi'
 
@@ -28,6 +28,9 @@ const accounts = Container.get(Accounts)
 const tokenStore = Container.get(ApiTokenStore)
 
 const API_TOKEN_PREFIX = 'jm_sk_'
+
+type CredentialKind = 'apiToken' | 'session'
+type ApiTokenResource = 'account' | 'calls' | 'contacts' | 'conversations' | 'files'
 
 function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -42,9 +45,9 @@ function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
       return
     }
 
-    const token = authorizationHeader.split(' ')[1]
-    if (token === undefined) {
-      res.status(HttpStatusCode.BadRequest).send('Missing access token')
+    const token = parseBearerToken(authorizationHeader)
+    if (!token) {
+      res.status(HttpStatusCode.BadRequest).send('Authorization header must use the Bearer scheme')
       return
     }
 
@@ -57,6 +60,8 @@ function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
       }
       res.locals.accountId = result.accountId
       res.locals.tokenScopes = result.scopes
+      res.locals.credentialKind = 'apiToken' satisfies CredentialKind
+      await tokenStore.save()
       next()
       return
     }
@@ -74,7 +79,7 @@ function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
         }
       }
       res.locals.accountId = accountId
-      // si accId
+      res.locals.credentialKind = 'session' satisfies CredentialKind
       next()
     } catch (e) {
       res.status(HttpStatusCode.Unauthorized).send('Invalid access token')
@@ -85,6 +90,42 @@ function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
 export const authenticateToken = createAuthenticationMiddleware(true)
 
 export const authenticateOptionalToken = createAuthenticationMiddleware(false)
+
+export function requireSessionAuthentication(req: Request, res: Response, next: NextFunction): void {
+  if (res.locals.credentialKind !== 'session') {
+    res.status(HttpStatusCode.Forbidden).send('API tokens cannot manage API tokens')
+    return
+  }
+  next()
+}
+
+export function requireApiTokenScope(resource: ApiTokenResource) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (res.locals.credentialKind !== 'apiToken') {
+      next()
+      return
+    }
+
+    const scopes = res.locals.tokenScopes as ApiTokenScope[]
+    if (scopes.length === 0) {
+      next()
+      return
+    }
+
+    const operation = req.method === 'GET' || req.method === 'HEAD' ? 'read' : 'write'
+    const requiredScope = `${resource}:${operation}` as ApiTokenScope
+    if (!scopes.includes(requiredScope)) {
+      res.status(HttpStatusCode.Forbidden).send('API token does not have the required scope')
+      return
+    }
+    next()
+  }
+}
+
+function parseBearerToken(header: string): string | undefined {
+  const match = /^Bearer ([^\s]+)$/.exec(header)
+  return match?.[1]
+}
 
 export const adminAuthenticationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   if (isElectronMode) {
@@ -97,9 +138,9 @@ export const adminAuthenticationMiddleware = async (req: Request, res: Response,
     res.sendStatus(HttpStatusCode.Unauthorized)
     return
   }
-  const token = authorizationHeader.split(' ')[1]
-  if (token === undefined) {
-    res.status(HttpStatusCode.Unauthorized).send('Missing JSON web token')
+  const token = parseBearerToken(authorizationHeader)
+  if (!token) {
+    res.status(HttpStatusCode.Unauthorized).send('Authorization header must use the Bearer scheme')
     return
   }
 

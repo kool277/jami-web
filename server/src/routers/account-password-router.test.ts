@@ -56,6 +56,7 @@ mock.module('../middleware/auth.js', {
       res.locals.accountId = accountId
       next()
     },
+    requireApiTokenScope: () => (_req: express.Request, _res: express.Response, next: express.NextFunction) => next(),
   },
 })
 mock.module('../middleware/guest.js', {

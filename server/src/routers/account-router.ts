@@ -33,7 +33,7 @@ import multer from 'multer'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
-import { authenticateToken } from '../middleware/auth.js'
+import { authenticateToken, requireApiTokenScope } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 import { Accounts } from '../storage/accounts.js'
 import { hashPassword, verifyPassword } from '../utils/password.js'
@@ -45,6 +45,7 @@ export const accountRouter = Router()
 
 accountRouter.use(authenticateToken)
 accountRouter.use(extendIfGuest)
+accountRouter.use(requireApiTokenScope('account'))
 
 // TODO: Do we really need this route to return the default moderators?
 // It would be cleaner just to GET /default-moderators for this

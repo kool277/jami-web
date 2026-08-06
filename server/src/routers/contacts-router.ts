@@ -20,7 +20,7 @@ import { Router } from 'express'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
-import { authenticateToken } from '../middleware/auth.js'
+import { authenticateToken, requireApiTokenScope } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 import { PresenceService } from '../services/PresenceService.js'
 import { getAvatar, getDisplayName } from '../utils/vCard.js'
@@ -30,6 +30,7 @@ export const contactsRouter = Router()
 
 contactsRouter.use(authenticateToken)
 contactsRouter.use(extendIfGuest)
+contactsRouter.use(requireApiTokenScope('contacts'))
 
 contactsRouter.get('/', async (_req, res) => {
   const contacts = jamid.getContacts(res.locals.accountId)

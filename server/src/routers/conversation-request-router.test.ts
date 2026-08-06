@@ -66,6 +66,7 @@ before(async () => {
         res.locals.accountId = 'account-id'
         next()
       },
+      requireApiTokenScope: () => (_req: express.Request, _res: express.Response, next: express.NextFunction) => next(),
     },
   })
   mock.module('../middleware/guest.js', {

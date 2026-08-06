@@ -16,42 +16,23 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { createHash, randomBytes } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import { writeFile } from 'node:fs/promises'
 
+import { API_TOKEN_SCOPES, type ApiTokenInfo, type ApiTokenScope } from '@savoirfairelinux/jami-web-common'
 import { Service } from 'typedi'
 
 import { dataDir } from '../utils/env.js'
 
-const _TOKEN_SCOPES = [
-  'conversations:read',
-  'conversations:write',
-  'contacts:read',
-  'contacts:write',
-  'calls:read',
-  'calls:write',
-  'files:read',
-  'files:write',
-  'account:read',
-  'account:write',
-] as const
+export { API_TOKEN_SCOPES }
+export type TokenScope = ApiTokenScope
 
-export type TokenScope = (typeof _TOKEN_SCOPES)[number]
+export const MAX_API_TOKEN_NAME_LENGTH = 100
+export const MAX_API_TOKEN_LIFETIME_SECONDS = 5 * 365 * 24 * 60 * 60
 
 export interface StoredApiToken {
   id: string
   hash: string
-  prefix: string
-  accountId: string
-  scopes: TokenScope[]
-  name: string
-  createdAt: string
-  expiresAt?: string
-  lastUsedAt?: string
-}
-
-export interface ApiTokenInfo {
-  id: string
   prefix: string
   accountId: string
   scopes: TokenScope[]
@@ -73,8 +54,11 @@ export class ApiTokenStore {
   constructor() {
     try {
       const buffer = readFileSync(this.filename)
-      this.store = JSON.parse(buffer.toString())
-    } catch {
+      this.store = parseTokenStore(buffer.toString())
+    } catch (error) {
+      if (!isMissingFileError(error)) {
+        throw error
+      }
       this.store = { tokens: [] }
     }
   }
@@ -83,7 +67,7 @@ export class ApiTokenStore {
     accountId: string,
     name: string,
     scopes?: TokenScope[],
-    expiresIn?: string,
+    expiresInSeconds?: number,
   ): { token: string; info: ApiTokenInfo } {
     const rawToken = randomBytes(32).toString('hex')
     const prefix = `jm_sk_${rawToken.slice(0, 8)}`
@@ -91,11 +75,8 @@ export class ApiTokenStore {
     const hash = createHash('sha256').update(fullToken).digest('hex')
 
     let expiresAt: string | undefined
-    if (expiresIn) {
-      const ms = parseDuration(expiresIn)
-      if (ms > 0) {
-        expiresAt = new Date(Date.now() + ms).toISOString()
-      }
+    if (expiresInSeconds !== undefined) {
+      expiresAt = new Date(Date.now() + expiresInSeconds * 1000).toISOString()
     }
 
     const stored: StoredApiToken = {
@@ -103,7 +84,7 @@ export class ApiTokenStore {
       hash,
       prefix,
       accountId,
-      scopes: scopes && scopes.length > 0 ? scopes : [],
+      scopes: scopes ?? [],
       name,
       createdAt: new Date().toISOString(),
       expiresAt,
@@ -114,7 +95,6 @@ export class ApiTokenStore {
     const info: ApiTokenInfo = {
       id: stored.id,
       prefix: stored.prefix,
-      accountId: stored.accountId,
       scopes: stored.scopes,
       name: stored.name,
       createdAt: stored.createdAt,
@@ -139,7 +119,10 @@ export class ApiTokenStore {
   }
 
   listTokens(accountId: string): ApiTokenInfo[] {
-    return this.store.tokens.filter((t) => t.accountId === accountId).map(({ hash: _hash, ...info }) => info)
+    return this.store.tokens
+      .filter((t) => t.accountId === accountId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .map(({ hash: _hash, accountId: _accountId, ...info }) => info)
   }
 
   revokeToken(tokenId: string, accountId: string): boolean {
@@ -149,25 +132,33 @@ export class ApiTokenStore {
     return true
   }
 
+  revokeAllTokens(accountId: string): boolean {
+    const originalLength = this.store.tokens.length
+    this.store.tokens = this.store.tokens.filter((token) => token.accountId !== accountId)
+    return this.store.tokens.length !== originalLength
+  }
+
   async save(): Promise<void> {
-    await writeFile(this.filename, JSON.stringify(this.store, null, 2) + '\n')
+    if (!existsSync(dataDir)) {
+      mkdirSync(dataDir, { recursive: true })
+    }
+    await writeFile(this.filename, JSON.stringify(this.store, null, 2) + '\n', { mode: 0o600 })
   }
 }
 
-function parseDuration(s: string): number {
-  const match = s.match(/^(\d+)(s|m|h|d)$/)
-  if (!match) return 0
-  const value = parseInt(match[1], 10)
-  switch (match[2]) {
-    case 's':
-      return value * 1000
-    case 'm':
-      return value * 60 * 1000
-    case 'h':
-      return value * 3600 * 1000
-    case 'd':
-      return value * 86400 * 1000
-    default:
-      return 0
+function isMissingFileError(error: unknown): error is NodeJS.ErrnoException {
+  return typeof error === 'object' && error !== null && 'code' in error && error.code === 'ENOENT'
+}
+
+function parseTokenStore(value: string): TokenStoreFormat {
+  const parsed: unknown = JSON.parse(value)
+  if (
+    typeof parsed !== 'object' ||
+    parsed === null ||
+    !('tokens' in parsed) ||
+    !Array.isArray((parsed as TokenStoreFormat).tokens)
+  ) {
+    throw new Error('Invalid API token store format')
   }
+  return parsed as TokenStoreFormat
 }

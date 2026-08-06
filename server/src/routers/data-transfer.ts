@@ -25,7 +25,7 @@ import path from 'path'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
-import { authenticateToken } from '../middleware/auth.js'
+import { authenticateToken, requireApiTokenScope } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 import { AdminAccount } from '../storage/admin-account.js'
 import { resolveConversationDataFilePath } from '../utils/conversation-data-path.js'
@@ -87,6 +87,7 @@ dataTransferRouter.get('/conference-resolution', (req, res) => {
 
 dataTransferRouter.use(authenticateToken)
 dataTransferRouter.use(extendIfGuest)
+dataTransferRouter.use(requireApiTokenScope('files'))
 
 dataTransferRouter.post('/transfer-file', (req, res) => {
   const accountId = res.locals.accountId

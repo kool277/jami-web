@@ -23,7 +23,7 @@ import asyncHandler from 'express-async-handler'
 import { getLinkPreview } from 'link-preview-js'
 import * as linkify from 'linkifyjs'
 
-import { authenticateToken } from '../middleware/auth.js'
+import { authenticateToken, requireApiTokenScope } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 
 export const linkPreviewRouter = Router()
@@ -49,6 +49,7 @@ type LinkPreviewJs = {
 
 linkPreviewRouter.use(authenticateToken)
 linkPreviewRouter.use(extendIfGuest)
+linkPreviewRouter.use(requireApiTokenScope('conversations'))
 
 export async function resolvePreviewHost(url: string): Promise<string> {
   const previewUrl = new URL(url)

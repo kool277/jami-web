@@ -20,7 +20,7 @@ import { Router } from 'express'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
-import { authenticateToken } from '../middleware/auth.js'
+import { authenticateToken, requireApiTokenScope } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 
 const jamid = Container.get(Jamid)
@@ -29,6 +29,7 @@ export const callRouter = Router()
 
 callRouter.use(authenticateToken)
 callRouter.use(extendIfGuest)
+callRouter.use(requireApiTokenScope('calls'))
 
 callRouter.get('/', (_req, res) => {
   const callIds = jamid.getCallIds(res.locals.accountId)

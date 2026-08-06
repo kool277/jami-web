@@ -29,7 +29,7 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
-import { authenticateToken } from '../middleware/auth.js'
+import { authenticateToken, requireApiTokenScope } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 import { ContactService } from '../services/ContactService.js'
 import { ConversationService } from '../services/ConversationService.js'
@@ -42,6 +42,7 @@ export const conversationRouter = Router()
 
 conversationRouter.use(authenticateToken)
 conversationRouter.use(extendIfGuest)
+conversationRouter.use(requireApiTokenScope('conversations'))
 
 conversationRouter.get(
   '/',

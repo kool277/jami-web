@@ -21,7 +21,7 @@ import asyncHandler from 'express-async-handler'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
-import { authenticateToken } from '../middleware/auth.js'
+import { authenticateToken, requireApiTokenScope } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 import { ConversationService } from '../services/ConversationService.js'
 import { cacheAvatar } from '../utils/vCard.js'
@@ -33,6 +33,7 @@ export const conversationRequestRouter = Router()
 
 conversationRequestRouter.use(authenticateToken)
 conversationRequestRouter.use(extendIfGuest)
+conversationRequestRouter.use(requireApiTokenScope('conversations'))
 
 conversationRequestRouter.get(
   '/',

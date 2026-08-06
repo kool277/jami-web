@@ -494,12 +494,11 @@ components:
     # ── Tokens ────────────────────────────────────────────
     ApiTokenInfo:
       type: object
+      required: [id, prefix, scopes, name, createdAt]
       properties:
         id:
           type: string
         prefix:
-          type: string
-        accountId:
           type: string
         scopes:
           type: array
@@ -2072,13 +2071,14 @@ paths:
     post:
       tags: [Tokens]
       summary: Create a new API token
+      description: Requires a session JWT. API tokens cannot manage API tokens.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [name]
+              required: [name, scopes]
               properties:
                 name:
                   type: string
@@ -2098,9 +2098,9 @@ paths:
                       - files:write
                       - account:read
                       - account:write
-                expiresIn:
+                expiresInSeconds:
                   type: number
-                  description: Token lifetime in seconds
+                  description: Optional token lifetime in seconds. Omit for a token that does not expire.
       responses:
         '201':
           description: Token created
@@ -2116,9 +2116,12 @@ paths:
                     $ref: '#/components/schemas/ApiTokenInfo'
         '400':
           description: Missing or invalid token name
+        '403':
+          description: API-token credentials cannot manage tokens
     get:
       tags: [Tokens]
       summary: List all API tokens for the current account
+      description: Requires a session JWT. API tokens cannot manage API tokens.
       responses:
         '200':
           description: List of token info (without secret values)
@@ -2128,11 +2131,14 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ApiTokenInfo'
+        '403':
+          description: API-token credentials cannot manage tokens
 
   /tokens/{token-id}:
     delete:
       tags: [Tokens]
       summary: Revoke an API token
+      description: Requires a session JWT. API tokens cannot manage API tokens.
       parameters:
         - name: token-id
           in: path
@@ -2144,6 +2150,8 @@ paths:
           description: Token revoked
         '404':
           description: Token not found
+        '403':
+          description: API-token credentials cannot manage tokens
 
   # ════════════════════════════════════════════════════════
   #  ADMIN

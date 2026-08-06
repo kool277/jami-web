@@ -21,13 +21,14 @@ import asyncHandler from 'express-async-handler'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
-import { authenticateToken } from '../middleware/auth.js'
+import { authenticateToken, requireApiTokenScope } from '../middleware/auth.js'
 
 const jamid = Container.get(Jamid)
 
 export const defaultModeratorsRouter = Router()
 
 defaultModeratorsRouter.use(authenticateToken)
+defaultModeratorsRouter.use(requireApiTokenScope('account'))
 
 defaultModeratorsRouter.get(
   '/',

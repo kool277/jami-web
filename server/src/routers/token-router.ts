@@ -15,13 +15,18 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { HttpStatusCode } from '@savoirfairelinux/jami-web-common'
+import { API_TOKEN_SCOPES, type CreateApiTokenRequest, HttpStatusCode } from '@savoirfairelinux/jami-web-common'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import { Container } from 'typedi'
 
-import { authenticateToken } from '../middleware/auth.js'
-import { ApiTokenStore } from '../storage/api-tokens.js'
+import { authenticateToken, requireSessionAuthentication } from '../middleware/auth.js'
+import {
+  ApiTokenStore,
+  MAX_API_TOKEN_LIFETIME_SECONDS,
+  MAX_API_TOKEN_NAME_LENGTH,
+  type TokenScope,
+} from '../storage/api-tokens.js'
 
 const tokenStore = Container.get(ApiTokenStore)
 
@@ -29,20 +34,43 @@ export const tokenRouter = Router()
 
 // All token routes require authentication
 tokenRouter.use(authenticateToken)
+tokenRouter.use(requireSessionAuthentication)
 
 // Create a new API token
 tokenRouter.post(
   '/',
   asyncHandler(async (req, res) => {
     const accountId = res.locals.accountId as string
-    const { name, scopes, expiresIn } = req.body
+    const body = req.body as Partial<CreateApiTokenRequest>
+    const name = body.name?.trim()
+    const scopes = body.scopes
 
-    if (!name || typeof name !== 'string') {
-      res.status(HttpStatusCode.BadRequest).send('Token name is required')
+    if (!name || name.length > MAX_API_TOKEN_NAME_LENGTH) {
+      res.status(HttpStatusCode.BadRequest).send('Token name must be between 1 and 100 characters')
       return
     }
 
-    const { token, info } = tokenStore.createToken(accountId, name, scopes, expiresIn)
+    if (
+      !Array.isArray(scopes) ||
+      !scopes.every((scope): scope is TokenScope => API_TOKEN_SCOPES.includes(scope as TokenScope)) ||
+      new Set(scopes).size !== scopes.length
+    ) {
+      res.status(HttpStatusCode.BadRequest).send('Token scopes must be unique supported scopes')
+      return
+    }
+
+    const expiresInSeconds = body.expiresInSeconds
+    if (
+      expiresInSeconds !== undefined &&
+      (!Number.isSafeInteger(expiresInSeconds) ||
+        expiresInSeconds <= 0 ||
+        expiresInSeconds > MAX_API_TOKEN_LIFETIME_SECONDS)
+    ) {
+      res.status(HttpStatusCode.BadRequest).send('Token lifetime is invalid')
+      return
+    }
+
+    const { token, info } = tokenStore.createToken(accountId, name, scopes, expiresInSeconds)
     await tokenStore.save()
 
     res.status(HttpStatusCode.Created).json({ token, info })

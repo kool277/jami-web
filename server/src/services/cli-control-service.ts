@@ -182,6 +182,9 @@ export async function removeCliAccount(accountId: string): Promise<CliRemoveAcco
   }
 
   jamid.removeAccount(accountId)
+  if (tokenStore.revokeAllTokens(accountId)) {
+    await tokenStore.save()
+  }
 
   if (accountsStore.removeByAccountId(accountId)) {
     await accountsStore.save()

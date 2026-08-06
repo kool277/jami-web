@@ -50,6 +50,7 @@ import { adminAuthenticationMiddleware } from '../middleware/auth.js'
 import { checkAdminSetup } from '../middleware/setup.js'
 import { Accounts } from '../storage/accounts.js'
 import { AdminAccount } from '../storage/admin-account.js'
+import { ApiTokenStore } from '../storage/api-tokens.js'
 import { OpenIdProviders } from '../storage/openid-providers.js'
 import { PasskeyStore } from '../storage/passkey-store.js'
 import { isConfigValid } from '../utils/admin.js'
@@ -61,6 +62,7 @@ import { hashPassword, verifyPassword } from '../utils/password.js'
 const jamid = Container.get(Jamid)
 const adminAccount = Container.get(AdminAccount)
 const accounts = Container.get(Accounts)
+const tokenStore = Container.get(ApiTokenStore)
 const providersSupport = Container.get(OpenIdProviders)
 const passkeyStore = Container.get(PasskeyStore)
 
@@ -655,12 +657,14 @@ adminRouter.delete(
     for (const user of users) {
       const accountId = user.accountId
       jamid.removeAccount(accountId)
+      tokenStore.revokeAllTokens(accountId)
       accounts.remove(user.username, user.auth)
       const userFilePath = multerPath + accountId + '/'
       if (fs.existsSync(userFilePath)) {
         fs.rmdirSync(userFilePath, { recursive: true })
       }
     }
+    await tokenStore.save()
     res.sendStatus(HttpStatusCode.Ok)
   }),
 )
