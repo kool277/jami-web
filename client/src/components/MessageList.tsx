@@ -15,8 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Typography, useTheme } from '@mui/material'
-import { Box, Stack, useMediaQuery } from '@mui/system'
+import { Box, Stack } from '@mui/system'
 import { Message, MESSAGES_NUMBER_TO_LOAD, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { memo, useRef, useState } from 'react'
@@ -26,8 +25,9 @@ import { InView } from 'react-intersection-observer'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
+import FilledIconButton from './common/FilledIconButton.js'
 import { findNextVisibleMessage, findPreviousVisibleMessage, MessageRow } from './Message.js'
-import { ArrowDownIcon } from './SvgIcon.js'
+import { ArrowHeadDown } from './SvgIcon.js'
 
 const MemoizedMessageRow = memo(MessageRow, (prevProps, nextProps) => {
   return (
@@ -53,7 +53,6 @@ export default function MessageList({ messages }: MessageListProps) {
   const { members, conversationId } = useConversationContext()
   const [showScrollButton, setShowScrollButton] = useState(false)
   const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null)
-  const listBottomRef = useRef<HTMLElement>(null)
   const webSocket = useWebSocketContext()
   const lastMessageId = messages[messages.length - 1]?.id
   const parentRef = useRef<HTMLDivElement>(null)
@@ -94,8 +93,6 @@ export default function MessageList({ messages }: MessageListProps) {
           overflowX: 'hidden',
         }}
       >
-        {/* Here is the bottom of the list of messages because of 'column-reverse' */}
-        <Box ref={listBottomRef} />
         <InView
           as="span"
           root={scrollContainer}
@@ -166,7 +163,7 @@ export default function MessageList({ messages }: MessageListProps) {
               zIndex: 2,
             }}
           >
-            <ScrollToEndButton listBottomRef={listBottomRef} />
+            <ScrollToEndButton scrollContainer={scrollContainer} />
           </Box>
         </Box>
       )}
@@ -175,43 +172,19 @@ export default function MessageList({ messages }: MessageListProps) {
 }
 
 interface ScrollToEndButtonProps {
-  listBottomRef: React.RefObject<HTMLElement | null>
+  scrollContainer: HTMLDivElement | null
 }
 
-const ScrollToEndButton = ({ listBottomRef }: ScrollToEndButtonProps) => {
+const ScrollToEndButton = ({ scrollContainer }: ScrollToEndButtonProps) => {
   const { t } = useTranslation()
-  const theme = useTheme()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
-  const textColor = 'white'
+
   return (
-    <Stack
-      direction="row"
-      spacing="12px"
-      onClick={() => listBottomRef.current?.scrollIntoView({ behavior: 'smooth' })}
-      sx={{
-        borderRadius: '12px',
-        height: isMobile ? '35px' : '30px',
-        alignItems: 'center',
-        padding: '0 16px',
-        textAlign: 'center',
-
-        // TODO: use another color
-        backgroundColor: theme.palette.primary.main,
-
-        cursor: 'pointer',
-      }}
+    <FilledIconButton
+      aria-label={t('messages_scroll_to_end')}
+      tooltip={t('messages_scroll_to_end')}
+      onClick={() => scrollContainer?.scrollTo({ behavior: 'smooth', top: 0 })}
     >
-      <ArrowDownIcon sx={{ fontSize: '14px', color: textColor }} />
-      <Typography
-        variant="caption"
-        color={textColor}
-        sx={{
-          fontWeight: 'bold',
-          textWrap: 'nowrap',
-        }}
-      >
-        {t('messages_scroll_to_end')}
-      </Typography>
-    </Stack>
+      <ArrowHeadDown />
+    </FilledIconButton>
   )
 }
