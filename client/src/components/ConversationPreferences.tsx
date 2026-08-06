@@ -30,7 +30,7 @@ import {
   useTheme,
 } from '@mui/material'
 import { Message } from '@savoirfairelinux/jami-web-common'
-import { motion, type Transition } from 'framer-motion'
+import { AnimatePresence, motion, type Transition } from 'framer-motion'
 import { memo, SetStateAction, use, useMemo, useState } from 'react'
 import { BlockPicker, ColorResult } from 'react-color'
 import { useTranslation } from 'react-i18next'
@@ -80,6 +80,7 @@ import { BlockContactIcon, JamiIdIcon, KickMemberIcon, MessageIcon, PersonIcon }
 
 export type ConversationType = 'private' | 'group'
 type MediaViewMode = 'grid' | 'list'
+type PageNavigationDirection = 'forward' | 'backward'
 
 const readOnlyFieldSx = {
   '& .MuiInputBase-input': {
@@ -90,6 +91,21 @@ const readOnlyFieldSx = {
 
 export function getConversationPreferencesTransition(animationsEnabled: boolean): Transition {
   return animationsEnabled ? { type: 'tween' as const, duration: 0.2, ease: 'easeOut' } : { duration: 0 }
+}
+
+export function getConversationPreferencesPageTransition(
+  animationsEnabled: boolean,
+  direction: PageNavigationDirection,
+) {
+  const enteringOffset = animationsEnabled ? (direction === 'forward' ? '-100%' : '100%') : 0
+  const exitingOffset = animationsEnabled ? (direction === 'forward' ? '100%' : '-100%') : 0
+
+  return {
+    animate: { x: 0 },
+    exit: { x: exitingOffset },
+    initial: { x: enteringOffset },
+    transition: getConversationPreferencesTransition(animationsEnabled),
+  }
 }
 
 export function getConversationType(memberCount: number): ConversationType {
@@ -117,6 +133,7 @@ export default function ConversationPreferences() {
   const theme = useTheme()
   const [attachmentsPageOpen, setAttachmentsPageOpen] = useState(false)
   const [mediaViewMode, setMediaViewMode] = useState<MediaViewMode>('grid')
+  const [pageNavigationDirection, setPageNavigationDirection] = useState<PageNavigationDirection>('forward')
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
@@ -161,105 +178,121 @@ export default function ConversationPreferences() {
           flexDirection: 'column',
         }}
       >
-        {attachmentsPageOpen ? (
-          <CardContent sx={{ display: 'flex', flex: 1, flexDirection: 'column', minHeight: 0, padding: 0 }}>
-            <Box
-              sx={{
-                alignItems: 'center',
-                color: 'text.primary',
-                display: 'flex',
-                gap: 1,
-                justifyContent: 'space-between',
-                // Centers the 40px button on the panel's rounded corner arc.
-                marginLeft: `calc(${theme.Panel.borderRadius} - 20px)`,
-                marginRight: `calc(${theme.Panel.borderRadius} - 20px)`,
-                marginTop: `calc(${theme.Panel.borderRadius} - 20px)`,
-              }}
+        <Box sx={{ display: 'flex', flex: 1, minHeight: 0, position: 'relative' }}>
+          <AnimatePresence initial={false}>
+            <motion.div
+              key={attachmentsPageOpen ? 'media' : 'preferences'}
+              style={{ display: 'flex', flex: 1, flexDirection: 'column', inset: 0, position: 'absolute' }}
+              {...getConversationPreferencesPageTransition(animationsEnabled, pageNavigationDirection)}
             >
-              <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
-                <BaseIconButton
-                  aria-label={t('conversation_files')}
-                  tooltip={t('conversation_files')}
-                  onClick={() => setAttachmentsPageOpen(false)}
-                  sx={{ height: '40px', width: '40px' }}
-                >
-                  <ChevronLeftIcon
-                    aria-hidden
-                    sx={{ transform: theme.direction === 'rtl' ? 'scaleX(-1)' : undefined }}
-                  />
-                </BaseIconButton>
-                <Typography variant="h3">{t('conversation_files')}</Typography>
-              </Box>
-              <BaseIconButton
-                aria-label={t(mediaViewMode === 'grid' ? 'conversation_media_list' : 'conversation_media_grid')}
-                tooltip={t(mediaViewMode === 'grid' ? 'conversation_media_list' : 'conversation_media_grid')}
-                onClick={() => setMediaViewMode(getNextMediaViewMode)}
-                sx={{ height: '40px', width: '40px' }}
-              >
-                {mediaViewMode === 'grid' ? <ViewListIcon aria-hidden /> : <GridViewIcon aria-hidden />}
-              </BaseIconButton>
-            </Box>
-            <Box sx={{ display: 'flex', flex: 1, minHeight: 0, pb: 2, pt: 1, px: 2 }}>
-              <Files showAll={true} viewMode={mediaViewMode} />
-            </Box>
-          </CardContent>
-        ) : (
-          <>
-            <CardHeader
-              title={
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  {Number(conversationInfos.mode) === 0 ? (
-                    <ConversationAvatar
-                      contactUri={otherMember?.contact.uri || ''}
-                      sx={{ width: '160px', height: '160px' }}
-                      displayName={conversationDisplayName}
-                    />
-                  ) : (
-                    <GroupConversationAvatar
-                      displayName={conversationDisplayName}
-                      members={members}
-                      src={conversationInfos.avatar}
-                      sx={{ width: '160px', height: '160px' }}
-                    />
-                  )}
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    <ConversationNotificationToggle />
-                    <ColorPicker conversationId={conversationId} />
-                    <ConversationTypeIcon type={getConversationType(members.length)} />
+              {attachmentsPageOpen ? (
+                <CardContent sx={{ display: 'flex', flex: 1, flexDirection: 'column', minHeight: 0, padding: 0 }}>
+                  <Box
+                    sx={{
+                      alignItems: 'center',
+                      color: 'text.primary',
+                      display: 'flex',
+                      gap: 1,
+                      justifyContent: 'space-between',
+                      // Centers the 40px button on the panel's rounded corner arc.
+                      marginLeft: `calc(${theme.Panel.borderRadius} - 20px)`,
+                      marginRight: `calc(${theme.Panel.borderRadius} - 20px)`,
+                      marginTop: `calc(${theme.Panel.borderRadius} - 20px)`,
+                    }}
+                  >
+                    <Box sx={{ alignItems: 'center', display: 'flex', gap: 1 }}>
+                      <BaseIconButton
+                        aria-label={t('conversation_files')}
+                        tooltip={t('conversation_files')}
+                        onClick={() => {
+                          setPageNavigationDirection('backward')
+                          setAttachmentsPageOpen(false)
+                        }}
+                        sx={{ height: '40px', width: '40px' }}
+                      >
+                        <ChevronLeftIcon
+                          aria-hidden
+                          sx={{ transform: theme.direction === 'rtl' ? 'scaleX(-1)' : undefined }}
+                        />
+                      </BaseIconButton>
+                      <Typography variant="h3">{t('conversation_files')}</Typography>
+                    </Box>
+                    <BaseIconButton
+                      aria-label={t(mediaViewMode === 'grid' ? 'conversation_media_list' : 'conversation_media_grid')}
+                      tooltip={t(mediaViewMode === 'grid' ? 'conversation_media_list' : 'conversation_media_grid')}
+                      onClick={() => setMediaViewMode(getNextMediaViewMode)}
+                      sx={{ height: '40px', width: '40px' }}
+                    >
+                      {mediaViewMode === 'grid' ? <ViewListIcon aria-hidden /> : <GridViewIcon aria-hidden />}
+                    </BaseIconButton>
                   </Box>
-                </Box>
-              }
-              sx={{ justifyContent: 'center', '& .MuiCardHeader-content': { flex: 'initial' } }}
-            />
-            <ConversationDetailsFields isAdmin={isAdmin} />
-            <CardContent sx={{ display: 'flex', flex: 1, flexDirection: 'column', minHeight: 0, paddingTop: 1 }}>
-              <Box
-                sx={{
-                  alignItems: 'center',
-                  color: 'text.primary',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <PermMediaIcon aria-hidden />
-                  <Typography variant="h3">{t('conversation_files')}</Typography>
-                </Box>
-                <BaseIconButton
-                  aria-label={t('conversation_files')}
-                  tooltip={t('conversation_files')}
-                  onClick={() => setAttachmentsPageOpen(true)}
-                >
-                  <ChevronRightIcon aria-hidden />
-                </BaseIconButton>
-              </Box>
-              <Box sx={{ marginTop: 1, display: 'flex', flex: 1, justifyContent: 'center', minHeight: 0 }}>
-                <Files showAll={false} />
-              </Box>
-              <LeaveConversationAction />
-            </CardContent>
-          </>
-        )}
+                  <Box sx={{ display: 'flex', flex: 1, minHeight: 0, pb: 2, pt: 1, px: 2 }}>
+                    <Files showAll={true} viewMode={mediaViewMode} />
+                  </Box>
+                </CardContent>
+              ) : (
+                <>
+                  <CardHeader
+                    title={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {Number(conversationInfos.mode) === 0 ? (
+                          <ConversationAvatar
+                            contactUri={otherMember?.contact.uri || ''}
+                            sx={{ width: '160px', height: '160px' }}
+                            displayName={conversationDisplayName}
+                          />
+                        ) : (
+                          <GroupConversationAvatar
+                            displayName={conversationDisplayName}
+                            members={members}
+                            src={conversationInfos.avatar}
+                            sx={{ width: '160px', height: '160px' }}
+                          />
+                        )}
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          <ConversationNotificationToggle />
+                          <ColorPicker conversationId={conversationId} />
+                          <ConversationTypeIcon type={getConversationType(members.length)} />
+                        </Box>
+                      </Box>
+                    }
+                    sx={{ justifyContent: 'center', '& .MuiCardHeader-content': { flex: 'initial' } }}
+                  />
+                  <ConversationDetailsFields isAdmin={isAdmin} />
+                  <CardContent sx={{ display: 'flex', flex: 1, flexDirection: 'column', minHeight: 0, paddingTop: 1 }}>
+                    <Box
+                      sx={{
+                        alignItems: 'center',
+                        color: 'text.primary',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <PermMediaIcon aria-hidden />
+                        <Typography variant="h3">{t('conversation_files')}</Typography>
+                      </Box>
+                      <BaseIconButton
+                        aria-label={t('conversation_files')}
+                        tooltip={t('conversation_files')}
+                        onClick={() => {
+                          setPageNavigationDirection('forward')
+                          setAttachmentsPageOpen(true)
+                        }}
+                      >
+                        <ChevronRightIcon aria-hidden />
+                      </BaseIconButton>
+                    </Box>
+                    <Box sx={{ marginTop: 1, display: 'flex', flex: 1, justifyContent: 'center', minHeight: 0 }}>
+                      <Files showAll={false} />
+                    </Box>
+                    <LeaveConversationAction />
+                  </CardContent>
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </Box>
       </Card>
     </motion.span>
   )

@@ -62,6 +62,7 @@ vi.mock('../services/conversationQueries.js', async (importOriginal) => {
 import {
   ColorPicker,
   Files,
+  getConversationPreferencesPageTransition,
   getConversationPreferencesTransition,
   getConversationType,
   getFilesByRecency,
@@ -77,6 +78,24 @@ describe('ConversationPreferences', () => {
       ease: 'easeOut',
     })
     expect(getConversationPreferencesTransition(false)).toEqual({ duration: 0 })
+  })
+
+  it('inverts the return transition from media to preferences', () => {
+    expect(getConversationPreferencesPageTransition(true, 'forward')).toMatchObject({
+      initial: { x: '-100%' },
+      animate: { x: 0 },
+      exit: { x: '100%' },
+    })
+    expect(getConversationPreferencesPageTransition(true, 'backward')).toMatchObject({
+      initial: { x: '100%' },
+      animate: { x: 0 },
+      exit: { x: '-100%' },
+    })
+    expect(getConversationPreferencesPageTransition(false, 'forward')).toMatchObject({
+      initial: { x: 0 },
+      animate: { x: 0 },
+      exit: { x: 0 },
+    })
   })
 
   it('identifies direct and group conversations from their member count', () => {
