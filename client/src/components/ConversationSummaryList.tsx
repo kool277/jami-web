@@ -431,19 +431,6 @@ interface ConversationMenuProps {
   conversationMemberUri?: string
 }
 
-const ColoredCancelIcon = () => {
-  const theme = useTheme()
-  return <CancelIcon sx={{ color: theme.palette.primary.main, width: '16px', height: '16px' }} />
-}
-const ColoredPersonIcon = () => {
-  const theme = useTheme()
-  return <PersonIcon sx={{ color: theme.palette.primary.main, width: '16px', height: '16px' }} />
-}
-const ColoredMessageIcon = () => {
-  const theme = useTheme()
-  return <MessageIcon sx={{ color: theme.palette.primary.main, width: '16px', height: '16px' }} />
-}
-
 const ConversationMenu = ({
   conversationMemberUri,
   conversationId,
@@ -473,7 +460,7 @@ const ConversationMenu = ({
     () => [
       {
         label: t('conversation_message'),
-        Icon: ColoredMessageIcon,
+        Icon: MessageIcon,
         onClick: onMessageClick,
       },
       /*{
@@ -498,7 +485,7 @@ const ConversationMenu = ({
         ? [
             {
               label: t('conversation_close'),
-              Icon: ColoredCancelIcon,
+              Icon: CancelIcon,
               onClick: () => {
                 navigate(`/`)
               },
@@ -507,14 +494,14 @@ const ConversationMenu = ({
         : []),
       {
         label: t('conversation_details'),
-        Icon: ColoredPersonIcon,
+        Icon: PersonIcon,
         onClick: () => {
           detailsDialogHandler.openDialog()
         },
       },
       {
         label: t('conversation_delete'),
-        Icon: ColoredCancelIcon,
+        Icon: CancelIcon,
         onClick: () => {
           RemoveConversationDialogHandler.openDialog()
         },
@@ -523,7 +510,7 @@ const ConversationMenu = ({
         ? [
             {
               label: t('contact_confirm_remove'),
-              Icon: ColoredCancelIcon,
+              Icon: CancelIcon,
               onClick: removeContactDialogHandler.openDialog,
             },
           ]
