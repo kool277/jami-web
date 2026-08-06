@@ -1512,11 +1512,13 @@ interface ParticipantNameProps {
 }
 
 const ParticipantName = ({ name }: ParticipantNameProps) => {
+  const theme = useTheme()
+
   return (
     <Typography
       variant="caption"
       sx={{
-        color: '#A7A7A7',
+        color: theme.palette.text.secondary,
         fontWeight: 700,
       }}
     >
