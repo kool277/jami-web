@@ -21,6 +21,7 @@ import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
 import { useTranslation } from 'react-i18next'
 
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
+import CancelLinkDeviceButton from './CancelLinkDeviceButton.js'
 import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountConnecting() {
@@ -57,6 +58,7 @@ export default function ImportAccountConnecting() {
           <Typography variant="body2" gutterBottom>
             {t('import_confirm_account')}
           </Typography>
+          <CancelLinkDeviceButton />
         </Box>
       </Box>
     </UnconnectedUserLayout>

@@ -21,6 +21,7 @@ import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
 import { useTranslation } from 'react-i18next'
 
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
+import CancelLinkDeviceButton from './CancelLinkDeviceButton.js'
 import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountTransferInProgress() {
@@ -53,6 +54,7 @@ export default function ImportAccountTransferInProgress() {
           <Typography variant="body2" gutterBottom>
             {t('import_account_in_progress')}
           </Typography>
+          <CancelLinkDeviceButton />
         </Box>
       </Box>
     </UnconnectedUserLayout>

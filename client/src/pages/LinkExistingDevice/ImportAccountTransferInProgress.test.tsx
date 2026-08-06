@@ -17,16 +17,17 @@
  */
 import { ThemeProvider } from '@mui/material/styles'
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
-import { render } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { buildDefaultTheme } from '../../themes/Default.js'
 import ImportAccountTransferInProgress from './ImportAccountTransferInProgress.js'
 
-const { navigate, importDeviceContext } = vi.hoisted(() => ({
+const { navigate, cancelLinkDevice, importDeviceContext } = vi.hoisted(() => ({
   navigate: vi.fn(),
+  cancelLinkDevice: vi.fn(),
   importDeviceContext: {
-    value: { state: 4 as DeviceAuthStateCode, token: 'link-token' },
+    value: { state: 4 as DeviceAuthStateCode, token: 'link-token', accountId: 'account-1' },
   },
 }))
 
@@ -34,6 +35,9 @@ vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }))
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 vi.mock('../../contexts/ImportDeviceProvider.js', () => ({
   useImportDeviceContext: () => importDeviceContext.value,
+}))
+vi.mock('../../services/authQueries.js', () => ({
+  useCancelLinkDeviceMutation: () => ({ mutate: cancelLinkDevice, isPending: false }),
 }))
 vi.mock('../../components/UnconnectedUserLayout.js', () => ({
   default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -49,7 +53,8 @@ const renderPage = () =>
 describe('ImportAccountTransferInProgress', () => {
   beforeEach(() => {
     navigate.mockClear()
-    importDeviceContext.value = { state: DeviceAuthStateCode.InProgress, token: 'link-token' }
+    cancelLinkDevice.mockClear()
+    importDeviceContext.value = { state: DeviceAuthStateCode.InProgress, token: 'link-token', accountId: 'account-1' }
   })
 
   it('stays on the page while the transfer is in progress', () => {
@@ -64,8 +69,16 @@ describe('ImportAccountTransferInProgress', () => {
     expect(navigate).not.toHaveBeenCalledWith('/import-account-in-progress')
   })
 
+  it('lets the user leave a transfer that never completes', () => {
+    renderPage()
+
+    fireEvent.click(screen.getByRole('button', { name: 'dialog_cancel' }))
+
+    expect(cancelLinkDevice).toHaveBeenCalledWith('account-1')
+  })
+
   it('follows the flow to the done page', () => {
-    importDeviceContext.value = { state: DeviceAuthStateCode.Done, token: 'link-token' }
+    importDeviceContext.value = { state: DeviceAuthStateCode.Done, token: 'link-token', accountId: 'account-1' }
 
     renderPage()
 
@@ -73,7 +86,7 @@ describe('ImportAccountTransferInProgress', () => {
   })
 
   it('returns home when no link token is available', () => {
-    importDeviceContext.value = { state: DeviceAuthStateCode.InProgress, token: '' }
+    importDeviceContext.value = { state: DeviceAuthStateCode.InProgress, token: '', accountId: 'account-1' }
 
     renderPage()
 
