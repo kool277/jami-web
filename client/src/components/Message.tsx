@@ -20,11 +20,11 @@ import { styled, Theme, useTheme } from '@mui/material/styles'
 import { darken } from '@mui/system'
 import { Message, ReactionAdded, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import dayjs, { Dayjs } from 'dayjs'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { t } from 'i18next'
 import Linkify from 'linkify-react'
 import * as linkify from 'linkifyjs'
-import { memo, ReactElement, ReactNode, use, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, ReactElement, ReactNode, use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useGlobalSetEditMessage } from '../contexts/ActionMessageProvider.js'
@@ -60,13 +60,14 @@ import MessageReaction from './MessageReaction.js'
 import MessageStatus from './MessageStatus.js'
 import PopoverList, { PopoverListItemData } from './PopoverList.js'
 import {
+  AddReactionIcon,
   Arrow3Icon,
+  ArrowHeadDown,
   ArrowLeftCurved,
   ArrowLeftDown,
   ArrowRightUp,
-  CrossIcon,
   DownloadFileIcon,
-  OppositeArrowsIcon,
+  ForwardIcon,
   PenIcon,
   TrashBinIcon,
   TwoSheetsIcon,
@@ -119,6 +120,7 @@ export const findNextVisibleMessage = (messages: Message[], messageIndex: number
 const avatarSize = '22px'
 const spacingBetweenAvatarAndBubble = '10px'
 const bubblePadding = '8px'
+const messageActionHeight = 56
 
 interface MessageCallProps {
   message: Message
@@ -1010,6 +1012,7 @@ interface MessageTooltipProps {
 
 const MessageTooltip = styled(
   memo(({ message, className, position, children, isDeleted, isMedia, handleDownload }: MessageTooltipProps) => {
+    const hoverCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
     const { conversationId } = useConversationContext()
     const webSocket = useWebSocketContext()
     const { account } = useAuthContext()
@@ -1036,6 +1039,17 @@ const MessageTooltip = styled(
     const onClose = () => {
       setOpen(false)
       setEmojiIsOpen(false)
+    }
+
+    const closeTooltip = () => {
+      clearTimeout(hoverCloseTimeoutRef.current)
+      setTooltipOpen(false)
+      onClose()
+    }
+
+    const scheduleTooltipClose = () => {
+      clearTimeout(hoverCloseTimeoutRef.current)
+      hoverCloseTimeoutRef.current = setTimeout(closeTooltip, 200)
     }
 
     useEffect(() => {
@@ -1068,6 +1082,12 @@ const MessageTooltip = styled(
       }
     }, [])
 
+    useEffect(() => {
+      return () => {
+        clearTimeout(hoverCloseTimeoutRef.current)
+      }
+    }, [])
+
     // No actions if message is deleted
     if (isDeleted) {
       return <>{children}</>
@@ -1092,8 +1112,10 @@ const MessageTooltip = styled(
 
     const additionalOptions: PopoverListItemData[] = [
       {
-        Icon: OppositeArrowsIcon,
-        label: 'Transfer',
+        Icon: ForwardIcon,
+        iconColor: 'inherit',
+        iconSize: '22px',
+        label: 'Forward',
         onClick: handleTransfer,
       },
     ]
@@ -1101,6 +1123,8 @@ const MessageTooltip = styled(
     if (isMedia) {
       additionalOptions.push({
         Icon: DownloadFileIcon,
+        iconColor: 'inherit',
+        iconSize: '22px',
         label: 'Download',
         onClick: () => {
           if (handleDownload) {
@@ -1111,6 +1135,8 @@ const MessageTooltip = styled(
     } else {
       additionalOptions.push({
         Icon: TwoSheetsIcon,
+        iconColor: 'inherit',
+        iconSize: '22px',
         label: 'Copy',
         onClick: handleCopyMessage,
       })
@@ -1119,6 +1145,8 @@ const MessageTooltip = styled(
     if (account.getUri() === message.author) {
       additionalOptions.push({
         Icon: TrashBinIcon,
+        iconColor: 'inherit',
+        iconSize: '22px',
         label: 'Delete message',
         onClick: () => {
           deleteMessageMutation.mutate(message.id)
@@ -1127,6 +1155,11 @@ const MessageTooltip = styled(
     }
 
     const toggleMoreMenu = () => setOpen((open) => !open)
+    const messageActionButtonSx = {
+      fontSize: '22px',
+      height: '24px',
+      width: '24px',
+    }
 
     const onEmojiClickHandler = () => {
       setEmojiIsOpen(true)
@@ -1135,11 +1168,13 @@ const MessageTooltip = styled(
     function onReply() {
       setEditMessage(undefined)
       setReplyMessage(message)
+      closeTooltip()
     }
 
     function onEdit() {
       setReplyMessage(undefined)
       setEditMessage(message)
+      closeTooltip()
     }
 
     function onEmojiSelected(emoji: string) {
@@ -1174,15 +1209,12 @@ const MessageTooltip = styled(
     const onEmojiClick = (emoji: EmojiClickData, _: MouseEvent) => {
       onEmojiSelected(emoji.emoji)
       setEmojiIsOpen(false)
-      handleMouseLeave()
+      closeTooltip()
     }
     const handleMouseEnter = () => {
       if (isMobile) return
+      clearTimeout(hoverCloseTimeoutRef.current)
       setTooltipOpen(true)
-    }
-    const handleMouseLeave = () => {
-      setTooltipOpen(false)
-      onClose()
     }
 
     // No actions if message is deleted
@@ -1200,7 +1232,7 @@ const MessageTooltip = styled(
           disableFocusListener
           disableTouchListener={!isMobile}
           title={
-            <div onMouseLeave={handleMouseLeave} onMouseEnter={handleMouseEnter}>
+            <div onMouseLeave={scheduleTooltipClose} onMouseEnter={handleMouseEnter}>
               <Stack
                 direction="row"
                 spacing="16px"
@@ -1213,16 +1245,16 @@ const MessageTooltip = styled(
                   data-cy="emoji-reaction-button"
                   aria-label={t('message_react')}
                   tooltip={t('message_react')}
-                  sx={{ fontSize: '20px', height: '20px', width: '20px' }}
+                  sx={messageActionButtonSx}
                   onClick={onEmojiClickHandler}
                 >
-                  😃
+                  <AddReactionIcon fontSize="inherit" />
                 </BaseIconButton>
                 <BaseIconButton
                   data-cy="reply-button"
                   aria-label={t('message_reply')}
                   tooltip={t('message_reply')}
-                  sx={{ color: 'primary.dark', fontSize: '20px', height: '20px', width: '20px' }}
+                  sx={messageActionButtonSx}
                   onClick={onReply}
                 >
                   <Arrow3Icon fontSize="inherit" />
@@ -1232,7 +1264,7 @@ const MessageTooltip = styled(
                     data-cy="edit-button"
                     aria-label={t('message_edit')}
                     tooltip={t('message_edit')}
-                    sx={{ fontSize: '20px', height: '20px', width: '20px' }}
+                    sx={messageActionButtonSx}
                     onClick={onEdit}
                   >
                     <PenIcon fontSize="inherit" />
@@ -1240,25 +1272,36 @@ const MessageTooltip = styled(
                 )}
                 <BaseIconButton
                   aria-label={t('message_more_options')}
-                  tooltip={t('message_more_options')}
+                  tooltip={open ? 'Less' : 'More'}
                   sx={{
-                    border: `1px solid ${theme.palette.primary.main}`,
-                    fontSize: '10px',
-                    height: '20px',
-                    width: '20px',
+                    ...messageActionButtonSx,
                     '&:active': { color: theme.palette.common.white, background: theme.palette.primary.dark },
                   }}
                   onClick={toggleMoreMenu}
                 >
-                  <CrossIcon fontSize="inherit" />
+                  <motion.span
+                    animate={{ rotate: open ? 180 : 0 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    style={{ display: 'inline-flex' }}
+                  >
+                    <ArrowHeadDown fontSize="inherit" />
+                  </motion.span>
                 </BaseIconButton>
               </Stack>
-              {open && (
-                <>
-                  <Divider sx={{ marginX: '16px' }} />
-                  <PopoverList items={additionalOptions} />
-                </>
-              )}
+              <AnimatePresence initial={false}>
+                {open && (
+                  <motion.div
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    initial={{ height: 0, opacity: 0 }}
+                    style={{ overflow: 'hidden' }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                  >
+                    <Divider sx={{ marginX: '16px' }} />
+                    <PopoverList items={additionalOptions} onClose={() => closeTooltip()} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
               {emojiIsOpen && (
                 <EmojiPicker
                   theme={theme.EmojiPicker.backgroundColor}
@@ -1275,14 +1318,17 @@ const MessageTooltip = styled(
                 {
                   name: 'offset',
                   options: {
-                    offset: [-2, -18],
+                    offset: ({ reference }: { reference: { height: number } }) => [
+                      reference.height / 2 - messageActionHeight / 2,
+                      -2,
+                    ],
                   },
                 },
               ],
             },
           }}
         >
-          <div {...longPressProps} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+          <div {...longPressProps} onMouseEnter={handleMouseEnter} onMouseLeave={scheduleTooltipClose}>
             {children}
           </div>
         </Tooltip>

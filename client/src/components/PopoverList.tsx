@@ -32,18 +32,24 @@ import { ComponentType } from 'react'
 export type PopoverListItemData = {
   label: string
   Icon: ComponentType<SvgIconProps>
+  iconColor?: string
+  iconSize?: string
   onClick: () => void
 }
 
 interface ListIconProps extends SvgIconProps {
   Icon: ComponentType<SvgIconProps>
+  iconColor?: string
+  iconSize?: string
 }
 
-const ListIcon = styled(({ Icon, ...props }: ListIconProps) => <Icon {...props} />)(({ theme }) => ({
-  height: '16px',
-  fontSize: '16px',
-  color: theme?.palette?.primary?.dark,
-}))
+const ListIcon = styled(({ Icon, iconColor, iconSize, ...props }: ListIconProps) => <Icon {...props} />)(
+  ({ iconColor, iconSize = '16px', theme }) => ({
+    height: iconSize,
+    fontSize: iconSize,
+    color: iconColor ?? theme?.palette?.primary?.dark,
+  }),
+)
 
 interface ListLabelProps extends ListItemTextProps {
   label: string
@@ -80,8 +86,8 @@ const PopoverListItem = styled(({ item, closeMenu, ...props }: PopoverListItemPr
       paddingX: '16px',
     }}
   >
-    <Stack direction="row" spacing="10px">
-      <ListIcon Icon={item.Icon} />
+    <Stack direction="row" spacing="10px" sx={{ alignItems: 'center' }}>
+      <ListIcon Icon={item.Icon} iconColor={item.iconColor} iconSize={item.iconSize} />
       <ListLabel label={item.label} />
     </Stack>
   </MenuItem>
