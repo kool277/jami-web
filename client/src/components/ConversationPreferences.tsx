@@ -46,7 +46,7 @@ import { ConversationMember } from '../models/conversation-member.js'
 import { useBlockContactMutation, useContactQuery } from '../services/contactQueries.js'
 import {
   useConversationPreferencesMutation,
-  useGetAllFilesQuery,
+  useMessagesQuery,
   useRemoveMemberFromSwarm,
 } from '../services/conversationQueries.js'
 import { messageColors } from '../utils/messagecolor.js'
@@ -60,10 +60,10 @@ import ConversationSettingsFileItem from './ConversationSettingsFileItem.js'
 import { ConfirmationDialog, useDialogHandler } from './Dialog.js'
 import EllipsisMiddle from './EllipsisMiddle.js'
 import { PopoverListItemData } from './PopoverList.js'
-import ProcessingRequest from './ProcessingRequest.js'
 import RemoveConversationDialog from './RemoveComversationDialog.js'
 import {
-  AttachFileIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   ColorsIcon,
   DescriptionIcon,
   ExitToAppIcon,
@@ -72,6 +72,7 @@ import {
   MoreHorizIcon,
   NotificationsActiveIcon,
   NotificationsOffIcon,
+  PermMediaIcon,
 } from './SvgIcon.js'
 import { BlockContactIcon, JamiIdIcon, KickMemberIcon, MessageIcon, PersonIcon } from './SvgIcon.js'
 
@@ -92,6 +93,14 @@ export function getConversationType(memberCount: number): ConversationType {
   return memberCount > 2 ? 'group' : 'private'
 }
 
+export function getFilesByRecency(files: Message[]): Message[] {
+  return [...files].sort((first, second) => second.timestamp - first.timestamp)
+}
+
+export function getRecentFiles(files: Message[], limit: number): Message[] {
+  return getFilesByRecency(files).slice(0, limit)
+}
+
 export default function ConversationPreferences() {
   const { t } = useTranslation()
   const { animationsEnabled } = use(CustomThemeContext)
@@ -99,8 +108,7 @@ export default function ConversationPreferences() {
   const { members, conversationId, conversationDisplayName, conversationInfos } = useConversationContext()
   const { account } = useAuthContext()
   const theme = useTheme()
-
-  const [filesOpen, setFilesOpen] = useState(false)
+  const [attachmentsPageOpen, setAttachmentsPageOpen] = useState(false)
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
@@ -112,15 +120,6 @@ export default function ConversationPreferences() {
 
   const isAdmin = members.some((member) => member.contact.uri === account.getUri() && member.role === 'admin')
   const otherMember = members.find((member) => member.contact.uri !== account.getUri())
-
-  const buttonStyle = {
-    backgroundColor: 'inherit',
-    color: theme.palette.text.primary,
-    border: 'none',
-    margin: '0 5px',
-    height: '40px',
-    '&:hover': { backgroundColor: 'inherit' },
-  }
 
   function getWidth(): string {
     if (isMobile) {
@@ -154,57 +153,91 @@ export default function ConversationPreferences() {
           flexDirection: 'column',
         }}
       >
-        <CardHeader
-          title={
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {Number(conversationInfos.mode) === 0 ? (
-                <ConversationAvatar
-                  contactUri={otherMember?.contact.uri || ''}
-                  sx={{ width: '160px', height: '160px' }}
-                  displayName={conversationDisplayName}
-                />
-              ) : (
-                <GroupConversationAvatar
-                  displayName={conversationDisplayName}
-                  members={members}
-                  src={conversationInfos.avatar}
-                  sx={{ width: '160px', height: '160px' }}
-                />
-              )}
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <ConversationNotificationToggle />
-                <ColorPicker conversationId={conversationId} />
-                <ConversationTypeIcon type={getConversationType(members.length)} />
-              </Box>
-            </Box>
-          }
-          sx={{ justifyContent: 'center', '& .MuiCardHeader-content': { flex: 'initial' } }}
-        />
-        <ConversationDetailsFields isAdmin={isAdmin} />
-        <CardContent sx={{ display: 'flex', flex: 1, flexDirection: 'column', minHeight: 0 }}>
-          <Box
-            role="group"
-            aria-label={t('conversation_preferences')}
-            sx={{ display: 'flex', justifyContent: 'center', marginTop: '1vh' }}
-          >
-            <BaseButton
-              variant="text"
-              aria-label={t('conversation_files')}
-              aria-pressed={filesOpen}
-              sx={buttonStyle}
-              style={{ opacity: filesOpen ? 1 : 0.7 }}
-              onClick={() => {
-                setFilesOpen((open) => !open)
+        {attachmentsPageOpen ? (
+          <CardContent sx={{ display: 'flex', flex: 1, flexDirection: 'column', minHeight: 0, padding: 0 }}>
+            <Box
+              sx={{
+                alignItems: 'center',
+                color: 'text.primary',
+                display: 'flex',
+                gap: 1,
+                justifyContent: 'flex-start',
+                // Centers the 40px button on the panel's rounded corner arc.
+                marginLeft: `calc(${theme.Panel.borderRadius} - 20px)`,
+                marginTop: `calc(${theme.Panel.borderRadius} - 20px)`,
               }}
             >
-              <AttachFileIcon />
-            </BaseButton>
-          </Box>
-          <Box sx={{ marginTop: '10%', display: 'flex', flex: 1, justifyContent: 'center', minHeight: 0 }}>
-            {filesOpen && <Files />}
-          </Box>
-          <LeaveConversationAction />
-        </CardContent>
+              <BaseIconButton
+                aria-label={t('conversation_files')}
+                tooltip={t('conversation_files')}
+                onClick={() => setAttachmentsPageOpen(false)}
+                sx={{ height: '40px', width: '40px' }}
+              >
+                <ChevronLeftIcon aria-hidden sx={{ transform: theme.direction === 'rtl' ? 'scaleX(-1)' : undefined }} />
+              </BaseIconButton>
+              <Typography variant="h3">{t('conversation_files')}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flex: 1, minHeight: 0, pb: 2, pt: 1, px: 2 }}>
+              <Files showAll={true} />
+            </Box>
+          </CardContent>
+        ) : (
+          <>
+            <CardHeader
+              title={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {Number(conversationInfos.mode) === 0 ? (
+                    <ConversationAvatar
+                      contactUri={otherMember?.contact.uri || ''}
+                      sx={{ width: '160px', height: '160px' }}
+                      displayName={conversationDisplayName}
+                    />
+                  ) : (
+                    <GroupConversationAvatar
+                      displayName={conversationDisplayName}
+                      members={members}
+                      src={conversationInfos.avatar}
+                      sx={{ width: '160px', height: '160px' }}
+                    />
+                  )}
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <ConversationNotificationToggle />
+                    <ColorPicker conversationId={conversationId} />
+                    <ConversationTypeIcon type={getConversationType(members.length)} />
+                  </Box>
+                </Box>
+              }
+              sx={{ justifyContent: 'center', '& .MuiCardHeader-content': { flex: 'initial' } }}
+            />
+            <ConversationDetailsFields isAdmin={isAdmin} />
+            <CardContent sx={{ display: 'flex', flex: 1, flexDirection: 'column', minHeight: 0, paddingTop: 1 }}>
+              <Box
+                sx={{
+                  alignItems: 'center',
+                  color: 'text.primary',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <PermMediaIcon aria-hidden />
+                  <Typography variant="h3">{t('conversation_files')}</Typography>
+                </Box>
+                <BaseIconButton
+                  aria-label={t('conversation_files')}
+                  tooltip={t('conversation_files')}
+                  onClick={() => setAttachmentsPageOpen(true)}
+                >
+                  <ChevronRightIcon aria-hidden />
+                </BaseIconButton>
+              </Box>
+              <Box sx={{ marginTop: 1, display: 'flex', flex: 1, justifyContent: 'center', minHeight: 0 }}>
+                <Files showAll={false} />
+              </Box>
+              <LeaveConversationAction />
+            </CardContent>
+          </>
+        )}
       </Card>
     </motion.span>
   )
@@ -600,18 +633,26 @@ const MemberInfo = ({ member, isAdmin }: MemberInfoProps) => {
   )
 }
 
-const Files = () => {
+interface FilesProps {
+  showAll: boolean
+}
+
+const ATTACHMENT_PREVIEW_LIMIT = 6
+
+export const Files = ({ showAll }: FilesProps) => {
   // TODO : Fetch store blob url of files alredy loaded
   // in the conversation to avoid loading them again
   const { conversationId } = useConversationContext()
-  const filesQuery = useGetAllFilesQuery(conversationId)
-  const files = filesQuery.data
+  const messagesQuery = useMessagesQuery(conversationId, showAll)
+  const files = (messagesQuery.data ?? []).filter((message) => message.fileId)
+  const displayedFiles = showAll ? getFilesByRecency(files) : getRecentFiles(files, ATTACHMENT_PREVIEW_LIMIT)
   const { t } = useTranslation()
-  if (filesQuery.isLoading) {
-    ;<ProcessingRequest open={true} />
+
+  if (messagesQuery.isLoading) {
+    return null
   }
 
-  if (filesQuery.isSuccess && files.length === 0) {
+  if (messagesQuery.isSuccess && files.length === 0) {
     return (
       <Box>
         <Typography>{t('no_files_found')}</Typography>
@@ -627,13 +668,13 @@ const Files = () => {
         gap: '8px',
         width: '100%',
         height: '100%',
-        overflowY: 'auto',
+        overflowY: showAll ? 'auto' : 'hidden',
         paddingBottom: '8px',
         overflowX: 'hidden',
         alignContent: 'start',
       }}
     >
-      {files?.map((file: Message) => {
+      {displayedFiles.map((file) => {
         return (
           <ConversationSettingsFileItem
             key={file.id + file.fileId}

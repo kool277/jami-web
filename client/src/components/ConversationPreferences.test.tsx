@@ -15,12 +15,16 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { type Message } from '@savoirfairelinux/jami-web-common'
 import { render, screen } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { type ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
-const { popperSpy } = vi.hoisted(() => ({ popperSpy: vi.fn() }))
+const { messagesQuerySpy, popperSpy } = vi.hoisted(() => ({
+  messagesQuerySpy: vi.fn(),
+  popperSpy: vi.fn(),
+}))
 
 vi.mock('@mui/material', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@mui/material')>()
@@ -38,16 +42,31 @@ vi.mock('../contexts/ConversationPreferencesColorContext.js', () => ({
   useConversationPreferencesColorContext: () => ({ conversationColor: '#000000' }),
 }))
 
+vi.mock('../contexts/ConversationProvider.js', () => ({
+  useConversationContext: () => ({ conversationId: 'conversation-id' }),
+}))
+
 vi.mock('../services/conversationQueries.js', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../services/conversationQueries.js')>()
 
   return {
     ...actual,
     useConversationPreferencesMutation: () => ({ mutate: vi.fn() }),
+    useMessagesQuery: (...args: unknown[]) => {
+      messagesQuerySpy(...args)
+      return { data: undefined, isLoading: false }
+    },
   }
 })
 
-import { ColorPicker, getConversationPreferencesTransition, getConversationType } from './ConversationPreferences.js'
+import {
+  ColorPicker,
+  Files,
+  getConversationPreferencesTransition,
+  getConversationType,
+  getFilesByRecency,
+  getRecentFiles,
+} from './ConversationPreferences.js'
 
 describe('ConversationPreferences', () => {
   it('slides without bouncing and respects disabled animations', () => {
@@ -62,6 +81,30 @@ describe('ConversationPreferences', () => {
   it('identifies direct and group conversations from their member count', () => {
     expect(getConversationType(2)).toBe('private')
     expect(getConversationType(3)).toBe('group')
+  })
+
+  it('orders attachments with the most recent first', () => {
+    const files = [{ timestamp: 1 }, { timestamp: 3 }, { timestamp: 2 }] as Message[]
+
+    expect(getFilesByRecency(files).map((file) => file.timestamp)).toEqual([3, 2, 1])
+  })
+
+  it('limits the compact attachment preview to recent files', () => {
+    const files = [{ timestamp: 1 }, { timestamp: 3 }, { timestamp: 2 }] as Message[]
+
+    expect(getRecentFiles(files, 2).map((file) => file.timestamp)).toEqual([3, 2])
+  })
+
+  it('uses cached messages for the compact attachment preview', () => {
+    render(<Files showAll={false} />)
+
+    expect(messagesQuerySpy).toHaveBeenLastCalledWith('conversation-id', false)
+  })
+
+  it('fetches messages when opening all attachments', () => {
+    render(<Files showAll />)
+
+    expect(messagesQuerySpy).toHaveBeenLastCalledWith('conversation-id', true)
   })
 
   it('opens the color picker above the preferences panel', async () => {
