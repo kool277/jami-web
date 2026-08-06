@@ -51,6 +51,10 @@ export function getConversationHeaderIdentity(displayName: string, registeredNam
   return { primary: jamiId, primaryIsJamiId: true }
 }
 
+export function getConversationHeaderSecondary(isGroup: boolean, description: string | undefined, identity?: string) {
+  return isGroup ? description?.trim() || undefined : identity
+}
+
 const ConversationView = () => {
   const { conversationId } = useConversationContext()
   const { callData } = useCallManagerContext()
@@ -137,6 +141,7 @@ export const ConversationHeader = () => {
     contactUri ? otherMember?.contact.registeredName : undefined,
     contactUri,
   )
+  const headerSecondary = getConversationHeaderSecondary(isGroup, conversationInfos.description, secondary)
 
   const handleSearchClose = () => {
     setIsSearchOpen(false)
@@ -229,13 +234,15 @@ export const ConversationHeader = () => {
                   {primary}
                 </Typography>
               </Stack>
-              {secondary && (
+              {headerSecondary && (
                 <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', minWidth: 0 }}>
-                  <JamiIdIcon
-                    aria-hidden="true"
-                    size={16}
-                    sx={{ flexShrink: 0, color: theme.palette.text.secondary }}
-                  />
+                  {!isGroup && (
+                    <JamiIdIcon
+                      aria-hidden="true"
+                      size={16}
+                      sx={{ flexShrink: 0, color: theme.palette.text.secondary }}
+                    />
+                  )}
                   <Typography
                     noWrap
                     variant="caption"
@@ -245,7 +252,7 @@ export const ConversationHeader = () => {
                       maxWidth: isMobile ? '120px' : '400px',
                     }}
                   >
-                    {secondary}
+                    {headerSecondary}
                   </Typography>
                 </Stack>
               )}

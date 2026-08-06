@@ -17,7 +17,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { getConversationHeaderIdentity } from './ConversationView.js'
+import { getConversationHeaderIdentity, getConversationHeaderSecondary } from './ConversationView.js'
 
 const hash = '260d9aaee80c84ffda86bdc579a0be8d07a70b65'
 
@@ -33,6 +33,20 @@ describe('getConversationHeaderIdentity', () => {
     expect(getConversationHeaderIdentity('Ada Lovelace', undefined, hash)).toEqual({
       primary: 'Ada Lovelace',
       secondary: hash,
+    })
+  })
+
+  describe('getConversationHeaderSecondary', () => {
+    it('shows a non-empty group description instead of an identity', () => {
+      expect(getConversationHeaderSecondary(true, 'Project planning', 'ignored')).toBe('Project planning')
+    })
+
+    it('hides an empty group description', () => {
+      expect(getConversationHeaderSecondary(true, '  ', 'ignored')).toBeUndefined()
+    })
+
+    it('keeps the contact identity for private conversations', () => {
+      expect(getConversationHeaderSecondary(false, 'Ignored description', 'ada')).toBe('ada')
     })
   })
 
