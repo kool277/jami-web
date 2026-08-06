@@ -15,9 +15,39 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { describe, expect, it } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { userEvent } from '@testing-library/user-event'
+import { type ReactNode } from 'react'
+import { describe, expect, it, vi } from 'vitest'
 
-import { getConversationPreferencesTransition, getConversationType } from './ConversationPreferences.js'
+const { popperSpy } = vi.hoisted(() => ({ popperSpy: vi.fn() }))
+
+vi.mock('@mui/material', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@mui/material')>()
+
+  return {
+    ...actual,
+    Popper: ({ children, ...props }: { children: ReactNode; open: boolean }) => {
+      popperSpy(props)
+      return props.open ? children : null
+    },
+  }
+})
+
+vi.mock('../contexts/ConversationPreferencesColorContext.js', () => ({
+  useConversationPreferencesColorContext: () => ({ conversationColor: '#000000' }),
+}))
+
+vi.mock('../services/conversationQueries.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../services/conversationQueries.js')>()
+
+  return {
+    ...actual,
+    useConversationPreferencesMutation: () => ({ mutate: vi.fn() }),
+  }
+})
+
+import { ColorPicker, getConversationPreferencesTransition, getConversationType } from './ConversationPreferences.js'
 
 describe('ConversationPreferences', () => {
   it('slides without bouncing and respects disabled animations', () => {
@@ -32,5 +62,38 @@ describe('ConversationPreferences', () => {
   it('identifies direct and group conversations from their member count', () => {
     expect(getConversationType(2)).toBe('private')
     expect(getConversationType(3)).toBe('group')
+  })
+
+  it('opens the color picker above the preferences panel', async () => {
+    const user = userEvent.setup()
+    render(<ColorPicker conversationId="conversation-id" />)
+
+    await user.click(screen.getByRole('button'))
+
+    expect(popperSpy).toHaveBeenLastCalledWith(expect.objectContaining({ sx: { zIndex: 2 } }))
+  })
+
+  it('closes the color picker when clicking outside', async () => {
+    const user = userEvent.setup()
+    render(<ColorPicker conversationId="conversation-id" />)
+
+    await user.click(screen.getByRole('button'))
+    expect(screen.getByRole('textbox')).toBeInTheDocument()
+
+    await user.click(document.body)
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+  })
+
+  it('reopens the color picker at its trigger after clicking outside', async () => {
+    const user = userEvent.setup()
+    render(<ColorPicker conversationId="conversation-id" />)
+    const colorButton = screen.getByRole('button')
+
+    await user.click(colorButton)
+    await user.click(document.body)
+    await user.click(colorButton)
+
+    expect(popperSpy).toHaveBeenLastCalledWith(expect.objectContaining({ anchorEl: colorButton, open: true }))
   })
 })

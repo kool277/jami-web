@@ -21,6 +21,7 @@ import {
   Card,
   CardContent,
   CardHeader,
+  ClickAwayListener,
   InputAdornment,
   Popper,
   TextField,
@@ -64,6 +65,7 @@ import RemoveConversationDialog from './RemoveComversationDialog.js'
 import {
   AdminPanelSettingsIcon,
   AttachFileIcon,
+  ColorsIcon,
   DescriptionIcon,
   ExitToAppIcon,
   FormatCodeIcon,
@@ -715,8 +717,9 @@ interface ColorPickerProps {
   conversationId: string
 }
 
-const ColorPicker = ({ conversationId }: ColorPickerProps) => {
+export const ColorPicker = ({ conversationId }: ColorPickerProps) => {
   const { t } = useTranslation()
+  const theme = useTheme()
   const { conversationColor } = useConversationPreferencesColorContext()
   const [open, setOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -726,41 +729,55 @@ const ColorPicker = ({ conversationId }: ColorPickerProps) => {
     conversationPreferencesMutation.mutate({ color })
   }
 
+  const handleCloseColorPicker = () => {
+    setAnchorEl(null)
+    setOpen(false)
+  }
+
   const handleOpenColorPicker = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(anchorEl ? null : event.currentTarget)
-    setOpen((prev) => !prev)
+    if (open) {
+      handleCloseColorPicker()
+    } else {
+      setAnchorEl(event.currentTarget)
+      setOpen(true)
+    }
   }
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <BaseButton
-          aria-label={t('conversation_color')}
-          aria-expanded={open}
-          onClick={(event) => handleOpenColorPicker(event)}
-          variant="text"
-          sx={{
-            width: '30px',
-            minWidth: 0,
-            height: '30px',
-            padding: 0,
-            backgroundColor: conversationColor,
-            borderRadius: '50%',
-            '&:hover': { backgroundColor: conversationColor },
-          }}
-        />
-        <Popper open={open} anchorEl={anchorEl} placement="bottom">
-          <BlockPicker
-            triangle="hide"
-            styles={{}}
-            color={conversationColor}
-            colors={messageColors}
-            onChange={(color: ColorResult) => {
-              handleNewColor(color.hex)
+    <ClickAwayListener onClickAway={handleCloseColorPicker}>
+      <Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <BaseButton
+            aria-label={t('conversation_color')}
+            aria-expanded={open}
+            onClick={(event) => handleOpenColorPicker(event)}
+            variant="text"
+            sx={{
+              width: '30px',
+              minWidth: 0,
+              height: '30px',
+              padding: 0,
+              backgroundColor: conversationColor,
+              borderRadius: '50%',
+              color: theme.palette.getContrastText(conversationColor),
+              '&:hover': { backgroundColor: conversationColor },
             }}
-          />
-        </Popper>
+          >
+            <ColorsIcon aria-hidden fontSize="small" />
+          </BaseButton>
+          <Popper sx={{ zIndex: 2 }} open={open} anchorEl={anchorEl} placement="bottom">
+            <BlockPicker
+              triangle="hide"
+              styles={{}}
+              color={conversationColor}
+              colors={messageColors}
+              onChange={(color: ColorResult) => {
+                handleNewColor(color.hex)
+              }}
+            />
+          </Popper>
+        </Box>
       </Box>
-    </Box>
+    </ClickAwayListener>
   )
 }
