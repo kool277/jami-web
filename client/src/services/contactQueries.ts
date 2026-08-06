@@ -120,8 +120,9 @@ export const useRemoveContactMutation = () => {
       const { data } = await axiosInstance.delete(`/contacts/${contactId}`)
       return data
     },
-    onSuccess: () => {
+    onSuccess: (_data, contactId) => {
       queryClient.invalidateQueries({ queryKey: ['contact', 'list'] })
+      queryClient.removeQueries({ queryKey: ['contacts', contactId] })
     },
     onError: () => {
       console.log(`Error deleting contact`)

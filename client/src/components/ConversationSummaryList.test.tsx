@@ -20,7 +20,7 @@ import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import { buildDefaultTheme } from '../themes/Default.js'
-import { ConversationSummaryList } from './ConversationSummaryList.js'
+import { ConversationSummaryList, getConversationContactUri } from './ConversationSummaryList.js'
 
 describe('ConversationSummaryList', () => {
   // The list is a flex child of the scrolling pane: letting it shrink would make it
@@ -33,5 +33,11 @@ describe('ConversationSummaryList', () => {
     )
 
     expect(container.querySelector('ul')).toHaveStyle({ flexShrink: '0' })
+  })
+
+  it('exposes a removable contact only for direct conversations', () => {
+    expect(getConversationContactUri('0', ['contact-uri'])).toBe('contact-uri')
+    expect(getConversationContactUri('1', ['contact-uri'])).toBeUndefined()
+    expect(getConversationContactUri('0', [])).toBeUndefined()
   })
 })

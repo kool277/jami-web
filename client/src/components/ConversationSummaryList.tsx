@@ -30,6 +30,7 @@ import { useConversationDisplayNameShort } from '../hooks/useConversationDisplay
 import { useUrlParams } from '../hooks/useUrlParams.js'
 import { ConversationRouteParams } from '../router.js'
 import { CallStatus } from '../services/CallManager.js'
+import { useRemoveContactMutation } from '../services/contactQueries.js'
 import { useMembersQuery } from '../services/conversationQueries.js'
 import { getMessageCallText, getMessageMemberText } from '../utils/chatmessages.js'
 import { isConversationUnread } from '../utils/conversationFilters.js'
@@ -39,7 +40,7 @@ import { getColor } from '../utils/messagecolor.js'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import { CustomListItemButton } from './CustomListItemButton.js'
-import { DialogContentList, InfosDialog, useDialogHandler } from './Dialog.js'
+import { ConfirmationDialog, DialogContentList, InfosDialog, useDialogHandler } from './Dialog.js'
 import MaterialSymbol from './MaterialSymbol.js'
 import { PopoverListItemData } from './PopoverList.js'
 import RemoveConversationDialog from './RemoveComversationDialog.js'
@@ -87,6 +88,9 @@ type ConversationSummaryListItemProps = {
   conversationSummary: IConversationSummary
 }
 
+export const getConversationContactUri = (mode: string | undefined, memberUris: string[]): string | undefined =>
+  Number(mode) === 0 ? memberUris[0] : undefined
+
 const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummaryListItemProps) => {
   const { account } = useAuthContext()
   const {
@@ -119,13 +123,10 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
   return (
     <Box>
       <ConversationMenu
-        conversationMemberUri={
-          Number(conversationSummary.mode) === 0
-            ? filteredMembers.length > 0
-              ? filteredMembers[0].contact.uri
-              : undefined
-            : undefined
-        }
+        conversationMemberUri={getConversationContactUri(
+          conversationSummary.mode,
+          filteredMembers.map((member) => member.contact.uri),
+        )}
         conversationAvatar={conversationSummary.avatar}
         conversationId={conversationId}
         conversationName={conversationName}
@@ -447,8 +448,16 @@ const ConversationMenu = ({
   const [isSwarm] = useState(true)
   const detailsDialogHandler = useDialogHandler()
   const RemoveConversationDialogHandler = useDialogHandler()
+  const removeContactDialogHandler = useDialogHandler()
+  const removeContactMutation = useRemoveContactMutation()
 
   const navigate = useNavigate()
+  const removeContact = () => {
+    if (!conversationMemberUri) {
+      return
+    }
+    removeContactMutation.mutate(conversationMemberUri, { onSettled: removeContactDialogHandler.props.onClose })
+  }
 
   const menuOptions: PopoverListItemData[] = useMemo(
     () => [
@@ -500,6 +509,15 @@ const ConversationMenu = ({
           RemoveConversationDialogHandler.openDialog()
         },
       },
+      ...(conversationMemberUri
+        ? [
+            {
+              label: t('contact_confirm_remove'),
+              Icon: ColoredCancelIcon,
+              onClick: removeContactDialogHandler.openDialog,
+            },
+          ]
+        : []),
     ],
     [
       navigate,
@@ -507,6 +525,8 @@ const ConversationMenu = ({
       isSelected,
       detailsDialogHandler,
       RemoveConversationDialogHandler,
+      conversationMemberUri,
+      removeContactDialogHandler.openDialog,
       t,
       /*startCall,
       conversationId,*/
@@ -530,6 +550,13 @@ const ConversationMenu = ({
         {...RemoveConversationDialogHandler.props}
         conversationId={conversationId}
         isCurrent={isSelected}
+      />
+      <ConfirmationDialog
+        {...removeContactDialogHandler.props}
+        title={t('dialog_confirm_title_default')}
+        content={t('contact_ask_confirm_remove')}
+        onConfirm={removeContact}
+        confirmButtonText={t('contact_confirm_remove')}
       />
     </>
   )
