@@ -16,10 +16,12 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { Skeleton, Stack } from '@mui/material'
+import { type ReactNode } from 'react'
 
 import Island, { ISLAND_PADDING } from './Island.js'
 
 export interface LoadingSkeletonProps {
+  content?: ReactNode
   contentIsland?: boolean
   fullPage?: boolean
   lines?: number
@@ -122,6 +124,7 @@ function ConversationSkeleton() {
 }
 
 export default function LoadingSkeleton({
+  content,
   contentIsland = false,
   fullPage = false,
   lines = 4,
@@ -146,7 +149,7 @@ export default function LoadingSkeleton({
         </Island>
         {contentIsland && (
           <Island data-testid="loading-skeleton-island" spacing={1.5} sx={{ flex: 1, p: ISLAND_PADDING }}>
-            {placeholders}
+            {content ?? placeholders}
           </Island>
         )}
       </Stack>

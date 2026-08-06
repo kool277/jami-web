@@ -18,8 +18,9 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { render, screen, waitFor } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
+import { type ReactNode } from 'react'
 import { MemoryRouter, Outlet, Route, Routes, useLocation } from 'react-router-dom'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import Invites from '../pages/Invites.js'
 import { buildDefaultTheme } from '../themes/Default.js'
@@ -27,6 +28,7 @@ import { ConversationRequestList } from './ConversationRequestList.js'
 import { EmptyInvitations } from './InviteList.js'
 
 const hash = '260d9aaee80c84ffda86bdc579a0be8d07a70b65'
+let isConversationRequestsPending = false
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -34,22 +36,25 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('../services/conversationQueries.js', () => ({
   useConversationRequestsQuery: () => ({
-    data: [
-      {
-        conversationId: 'request-1',
-        infos: { title: '' },
-        from: { uri: hash, registeredName: '' },
-        received: '2026-08-04T12:00:00Z',
-        membersNames: [hash],
-      },
-      {
-        conversationId: 'request-2',
-        infos: { title: 'Second invitation' },
-        from: { uri: '0c32ab20bb55bd442334553dc5c9a1dfb31c3152', registeredName: '' },
-        received: '2026-08-04T11:00:00Z',
-        membersNames: ['Second invitation'],
-      },
-    ],
+    data: isConversationRequestsPending
+      ? undefined
+      : [
+          {
+            conversationId: 'request-1',
+            infos: { title: '' },
+            from: { uri: hash, registeredName: '' },
+            received: '2026-08-04T12:00:00Z',
+            membersNames: [hash],
+          },
+          {
+            conversationId: 'request-2',
+            infos: { title: 'Second invitation' },
+            from: { uri: '0c32ab20bb55bd442334553dc5c9a1dfb31c3152', registeredName: '' },
+            received: '2026-08-04T11:00:00Z',
+            membersNames: ['Second invitation'],
+          },
+        ],
+    isPending: isConversationRequestsPending,
   }),
 }))
 
@@ -62,8 +67,17 @@ vi.mock('./EllipsisMiddle.js', () => ({
 }))
 
 vi.mock('./shell/AppShell.js', () => ({
-  default: () => <Outlet />,
+  default: ({ placeholder }: { placeholder?: ReactNode }) => (
+    <>
+      {placeholder}
+      <Outlet />
+    </>
+  ),
 }))
+
+afterEach(() => {
+  isConversationRequestsPending = false
+})
 
 describe('EmptyInvitations', () => {
   it('explains when there are no pending invitations', () => {
@@ -101,6 +115,22 @@ describe('ConversationRequestList', () => {
 })
 
 describe('Invites', () => {
+  it('shows the detail skeleton while invitations are loading', () => {
+    isConversationRequestsPending = true
+
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <MemoryRouter initialEntries={['/invites']}>
+          <Routes>
+            <Route path="/invites" element={<Invites />} />
+          </Routes>
+        </MemoryRouter>
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByTestId('invite-detail-skeleton')).toBeVisible()
+  })
+
   it('opens the first invitation by default', async () => {
     render(
       <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>

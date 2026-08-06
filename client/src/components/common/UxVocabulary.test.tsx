@@ -56,6 +56,18 @@ describe('UX vocabulary', () => {
     expect(screen.getAllByTestId('loading-skeleton-island')).toHaveLength(2)
     expect(screen.getByTestId('loading-skeleton-settings-navigation')).toBeVisible()
     expect(screen.getAllByTestId('loading-skeleton-settings-row')).toHaveLength(5)
+
+    rerender(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <LoadingSkeleton
+          fullPage
+          contentIsland
+          content={<output data-testid="loading-skeleton-custom-content">Invitation detail</output>}
+        />
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByTestId('loading-skeleton-custom-content')).toBeVisible()
   })
 
   it('exposes durable errors as alerts', () => {

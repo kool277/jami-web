@@ -35,6 +35,7 @@ import { formatConversationDate, formatRelativeDate, formatTime } from '../utils
 import BaseIconButton from './common/BaseIconButton.js'
 import EmptyState from './common/EmptyState.js'
 import FilledIconButton from './common/FilledIconButton.js'
+import InviteDetailSkeleton from './common/InviteDetailSkeleton.js'
 import Island, { ISLAND_MARGIN, ISLAND_PADDING } from './common/Island.js'
 import { isJamiHash } from './ContactIdentity.js'
 import ConversationAvatar from './ConversationAvatar.js'
@@ -179,7 +180,7 @@ export default function InviteDetail() {
   )
 
   if (conversationRequestsQuery.isPending) {
-    return <LoadingPage />
+    return <InviteDetailSkeleton />
   }
 
   if (!conversationRequest) {

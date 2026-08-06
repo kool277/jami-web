@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import EmptyState from '../components/common/EmptyState.js'
+import InviteDetailSkeleton from '../components/common/InviteDetailSkeleton.js'
 import InviteList from '../components/InviteList.js'
 import AppShell from '../components/shell/AppShell.js'
 import useDocumentTitle from '../hooks/useDocumentTitle.js'
@@ -44,7 +45,10 @@ export default function Invites() {
       listRoute="/invites"
       listPaneLabel={t('invitations')}
       listPane={<InviteList />}
-      placeholder={<EmptyState title={t('invitations_select')} />}
+      placeholder={
+        conversationRequestsQuery.isPending ? <InviteDetailSkeleton /> : <EmptyState title={t('invitations_select')} />
+      }
+      detailLoadingFallback={<InviteDetailSkeleton />}
     />
   )
 }

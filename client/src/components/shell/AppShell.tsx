@@ -43,6 +43,8 @@ export interface AppShellProps {
   listRoute: string
   /** Shown in the detail pane while no child route is matched. */
   placeholder?: ReactNode
+  /** Shown while a matched detail route is still loading. */
+  detailLoadingFallback?: ReactNode
   /**
    * Hide the narrow-screen navigation bar while a detail is open. The chat
    * surface needs the height for its composer; other destinations keep the bar.
@@ -63,6 +65,7 @@ export default function AppShell({
   listSearch,
   listRoute,
   placeholder,
+  detailLoadingFallback,
   immersiveDetail,
 }: AppShellProps) {
   const { t } = useTranslation()
@@ -126,7 +129,7 @@ export default function AppShell({
 
   const main = (
     <Box component="main" sx={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'hidden', display: 'flex', ...paneSx }}>
-      <Suspense fallback={<LoadingSkeleton />}>
+      <Suspense fallback={detailLoadingFallback ?? <LoadingSkeleton />}>
         {outlet ?? <Stack sx={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>{placeholder}</Stack>}
       </Suspense>
     </Box>

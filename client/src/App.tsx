@@ -21,6 +21,7 @@ import axios from 'axios'
 import { Suspense, useState } from 'react'
 import { LoaderFunctionArgs, Outlet, redirect, useLocation } from 'react-router-dom'
 
+import { InviteDetailSkeletonContent } from './components/common/InviteDetailSkeleton.js'
 import LoadingSkeleton from './components/common/LoadingSkeleton.js'
 import WelcomeAnimation from './components/WelcomeAnimation.js'
 import { getAccessToken, setAccessToken } from './services/authQueries.js'
@@ -77,8 +78,9 @@ const App = () => {
   const [displayWelcome, setDisplayWelcome] = useState<boolean>(() => getAccessToken() === undefined)
   const { pathname } = useLocation()
   const isAdmin = isRoutePathActive(pathname, '/admin')
+  const isInvites = isRoutePathActive(pathname, '/invites')
   const isSettings = isRoutePathActive(pathname, '/settings')
-  const contentIsland = isAdmin || isSettings || /^\/conversation\/[^/]+(?:\/|$)/.test(pathname)
+  const contentIsland = isAdmin || isInvites || isSettings || /^\/conversation\/[^/]+(?:\/|$)/.test(pathname)
 
   if (displayWelcome) {
     return <WelcomeAnimation onComplete={() => setDisplayWelcome(false)} />
@@ -87,7 +89,12 @@ const App = () => {
   return (
     <Suspense
       fallback={
-        <LoadingSkeleton fullPage contentIsland={contentIsland} navigation={isSettings ? 'settings' : undefined} />
+        <LoadingSkeleton
+          fullPage
+          contentIsland={contentIsland}
+          content={isInvites ? <InviteDetailSkeletonContent /> : undefined}
+          navigation={isSettings ? 'settings' : undefined}
+        />
       }
     >
       <Outlet />

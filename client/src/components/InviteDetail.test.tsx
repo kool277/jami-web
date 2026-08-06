@@ -34,6 +34,7 @@ const conversationRequest = {
   membersNames: ['Ada'],
 }
 let conversationRequests = [conversationRequest]
+let isConversationRequestsPending = false
 type MockIconProps = HTMLAttributes<HTMLSpanElement> & { sx?: unknown }
 
 vi.mock('../services/conversationQueries.js', () => ({
@@ -41,7 +42,7 @@ vi.mock('../services/conversationQueries.js', () => ({
   useBlockConversationRequestMutation: () => ({ isPending: false, mutate: vi.fn() }),
   useConversationRequestsQuery: () => ({
     data: conversationRequests,
-    isPending: false,
+    isPending: isConversationRequestsPending,
   }),
   useDeclineConversationRequestMutation: () => ({ isPending: false, mutate: vi.fn() }),
 }))
@@ -89,6 +90,7 @@ describe('InviteDetail', () => {
   afterEach(() => {
     vi.useRealTimers()
     vi.restoreAllMocks()
+    isConversationRequestsPending = false
     conversationRequests = [conversationRequest]
   })
 
@@ -204,6 +206,26 @@ describe('InviteDetail', () => {
         .getByTestId('invite-received')
         .compareDocumentPosition(screen.getByLabelText('conversation_request_accept')),
     ).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+  })
+
+  it('shows a group invitation card skeleton while loading', () => {
+    isConversationRequestsPending = true
+
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <MemoryRouter initialEntries={['/invites/request-1']}>
+          <Routes>
+            <Route path="/invites/:conversationId" element={<InviteDetail />} />
+          </Routes>
+        </MemoryRouter>
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByTestId('invite-detail-skeleton')).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByTestId('invite-detail-skeleton-avatar')).toHaveStyle({ height: '200px', width: '200px' })
+    expect(screen.getByTestId('invite-detail-skeleton-group-title')).toBeVisible()
+    expect(screen.getByTestId('invite-detail-skeleton-description')).toBeVisible()
+    expect(screen.getByTestId('invite-detail-skeleton-actions')).toBeVisible()
   })
 
   it('uses the direct invitation title as the inviter display name', () => {
