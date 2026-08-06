@@ -30,22 +30,24 @@ import { useGetLinkTokenQuery } from '../../services/authQueries.js'
 
 export default function ImportAccount() {
   const { t } = useTranslation()
-  const { setToken: setImportToken, token: wsToken } = useWebSocketLinkContext()
+  const { setToken: setWebSocketToken, token: webSocketToken } = useWebSocketLinkContext()
   const { token, setToken } = useImportDeviceContext()
   const values = useGetLinkTokenQuery()
   const [copied, setCopied] = useState(false)
 
   const fetchedToken = values.data?.details?.['token']
+  const webSocketJwt = values.data?.jwt
 
   useEffect(() => {
-    if (token === '' && fetchedToken !== undefined && fetchedToken !== '') {
-      const importToken = localStorage.getItem('importToken')
-      if (importToken && wsToken === undefined) {
-        setImportToken(importToken)
-      }
+    // The websocket must be opened as soon as the token is issued, otherwise the states the daemon
+    // reports while the user reads the code are sent to nobody.
+    if (webSocketToken === undefined && webSocketJwt) {
+      setWebSocketToken(webSocketJwt)
+    }
+    if (token === '' && fetchedToken) {
       setToken(fetchedToken)
     }
-  }, [token, fetchedToken, wsToken, setImportToken, setToken])
+  }, [token, fetchedToken, webSocketJwt, webSocketToken, setWebSocketToken, setToken])
 
   const handleCopy = () => {
     navigator.clipboard.writeText(token)
