@@ -36,7 +36,7 @@ const CallInterface = lazy(() => import('../pages/CallInterface.js'))
 import ChatInterface from '../pages/ChatInterface.js'
 import BaseIconButton from './common/BaseIconButton.js'
 import Island, { ISLAND_MARGIN } from './common/Island.js'
-import ConversationAvatar from './ConversationAvatar.js'
+import ConversationAvatar, { GroupConversationAvatar } from './ConversationAvatar.js'
 import ConversationPreferences from './ConversationPreferences.js'
 import { ArrowBackIosNewIcon, JamiIdIcon } from './SvgIcon.js'
 import { AudioCallIcon, ListIcon, SearchRoundedIcon, VideoCallIcon } from './SvgIcon.js'
@@ -113,7 +113,7 @@ const ConversationContent = () => {
 
 export const ConversationHeader = () => {
   const { t } = useTranslation()
-  const { conversationDisplayName, conversationId, members } = useConversationContext()
+  const { conversationDisplayName, conversationId, conversationInfos, members } = useConversationContext()
   const { account } = useAuthContext()
   const { startCall } = useCallManagerContext()
   const { isOpen, setIsOpen, isSearchOpen, setIsSearchOpen, setSearchQuery } = useConversationPreferencesStateContext()
@@ -127,6 +127,7 @@ export const ConversationHeader = () => {
     [members, account],
   )
   const otherMember = otherMembers[0]
+  const isGroup = Number(conversationInfos.mode) !== 0
   const avatarUri = otherMember?.contact.uri
   const contactUri = otherMembers.length === 1 ? avatarUri : undefined
   const contactQuery = useContactQuery(contactUri)
@@ -192,13 +193,22 @@ export const ConversationHeader = () => {
               overflow: 'hidden',
             }}
           >
-            {avatarUri && (
-              <ConversationAvatar
-                displayName={displayName}
-                contactUri={avatarUri}
-                presence={true}
-                sx={{ width: 40, height: 40, fontSize: '1rem' }}
+            {isGroup ? (
+              <GroupConversationAvatar
+                displayName={conversationDisplayName}
+                members={members}
+                src={conversationInfos.avatar}
+                sx={{ width: 40, height: 40, flexShrink: 0 }}
               />
+            ) : (
+              avatarUri && (
+                <ConversationAvatar
+                  displayName={displayName}
+                  contactUri={avatarUri}
+                  presence={true}
+                  sx={{ width: 40, height: 40, fontSize: '1rem' }}
+                />
+              )
             )}
             <Stack
               sx={{

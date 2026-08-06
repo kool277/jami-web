@@ -19,7 +19,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { PresenceContext } from '../contexts/PresenceProvider.js'
-import ConversationAvatar from './ConversationAvatar.js'
+import ConversationAvatar, { GroupConversationAvatar } from './ConversationAvatar.js'
 
 const contactQueries = vi.hoisted(() => ({
   useContactProfilePicture: vi.fn(),
@@ -46,6 +46,20 @@ describe('ConversationAvatar', () => {
 
     const image = screen.getByRole('img')
     expect(image).toHaveAttribute('src', 'blob:http://localhost/1234')
+  })
+
+  it('uses a custom group picture before participant avatars', () => {
+    contactQueries.useContactProfilePicture.mockReturnValue({ data: undefined })
+
+    render(<GroupConversationAvatar displayName="Design team" members={[]} src="data:image/png;base64,group" />)
+
+    expect(screen.getByRole('img')).toHaveAttribute('src', 'data:image/png;base64,group')
+  })
+
+  it('falls back to a group icon when a group has no members', () => {
+    render(<GroupConversationAvatar displayName="Design team" members={[]} />)
+
+    expect(screen.getByRole('img', { name: 'Design team' })).toBeInTheDocument()
   })
 
   it('renders a proportional cutaway ring around the online indicator', () => {

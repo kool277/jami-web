@@ -17,12 +17,14 @@
  */
 
 import { Avatar, AvatarProps, Box, Dialog, Popover, Stack, Typography, useTheme } from '@mui/material'
+import { type SxProps, type Theme } from '@mui/material/styles'
 import { ReactNode, use, useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { PresenceContext } from '../contexts/PresenceProvider.js'
+import { ConversationMember } from '../models/conversation-member.js'
 import { useContactProfilePicture } from '../services/contactQueries.js'
 import { FileHandler } from '../utils/files.js'
 import { getColor } from '../utils/messagecolor.js'
@@ -36,6 +38,7 @@ import {
   CancelIcon,
   CheckMarkIcon as Check,
   FolderIcon,
+  GroupsIcon,
   MoodIcon,
   PenIcon,
   RefreshOutlinedIcon as RefreshOutlined,
@@ -85,6 +88,96 @@ export default function ConversationAvatar({
       style={{ backgroundColor: color, color: '#E5E5E5' }}
     />
   )
+}
+
+type GroupConversationAvatarProps = AvatarProps & {
+  displayName: string
+  members: ConversationMember[]
+  src?: string
+}
+
+export function GroupConversationAvatar({ displayName, members, src, sx, ...props }: GroupConversationAvatarProps) {
+  const visibleMembers = members
+    .filter((member) => ['admin', 'member', 'invited'].includes(member.role ?? 'member'))
+    .sort((a, b) => Number(b.role === 'admin') - Number(a.role === 'admin'))
+    .slice(0, 3)
+
+  if (src) {
+    return <ConversationAvatar {...props} displayName={displayName} contactUri="" src={src} sx={sx} />
+  }
+
+  if (visibleMembers.length === 0) {
+    return (
+      <Box
+        {...props}
+        role="img"
+        aria-label={displayName}
+        sx={{ width: 40, height: 40, flexShrink: 0, borderRadius: '50%', overflow: 'hidden', ...sx }}
+      >
+        <Avatar
+          aria-hidden
+          sx={(theme) => ({
+            width: '100%',
+            height: '100%',
+            backgroundColor: getGroupAvatarBackground(theme),
+            color: theme.palette.text.secondary,
+          })}
+        >
+          <GroupsIcon />
+        </Avatar>
+      </Box>
+    )
+  }
+
+  return (
+    <Box
+      {...props}
+      role="img"
+      aria-label={displayName}
+      sx={{
+        position: 'relative',
+        width: 40,
+        height: 40,
+        flexShrink: 0,
+        overflow: 'hidden',
+        borderRadius: '50%',
+        backgroundColor: getGroupAvatarBackground,
+        ...sx,
+      }}
+    >
+      {visibleMembers.map((member, index) => (
+        <ConversationAvatar
+          key={member.contact.uri}
+          aria-hidden
+          displayName={member.getDisplayName()}
+          contactUri={member.contact.uri}
+          sx={getGroupMemberAvatarSx(visibleMembers.length, index)}
+        />
+      ))}
+    </Box>
+  )
+}
+
+function getGroupAvatarBackground(theme: Theme) {
+  return theme.Panel?.outerBackground || theme.palette.grey[theme.palette.mode === 'dark' ? 900 : 200]
+}
+
+function getGroupMemberAvatarSx(count: number, index: number): SxProps<Theme> {
+  if (count === 1) {
+    return { position: 'absolute', inset: 0, width: '100%', height: '100%' }
+  }
+
+  if (count === 2) {
+    return index === 0
+      ? { position: 'absolute', top: '13%', left: '13%', width: '46%', height: '46%' }
+      : { position: 'absolute', right: '13%', bottom: '13%', width: '46%', height: '46%' }
+  }
+
+  return [
+    { position: 'absolute', top: '12%', left: '14%', width: '46%', height: '46%' },
+    { position: 'absolute', top: '33%', right: '7%', width: '34%', height: '34%' },
+    { position: 'absolute', bottom: '7%', left: '29%', width: '34%', height: '34%' },
+  ][index]
 }
 
 const ConversationAvatarPresence = ({

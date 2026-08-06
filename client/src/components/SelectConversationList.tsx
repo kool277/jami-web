@@ -24,7 +24,7 @@ import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import { useConversationDisplayNameShort } from '../hooks/useConversationDisplayName.js'
 import { useConversationsSummariesQuery, useMembersQuery } from '../services/conversationQueries.js'
-import ConversationAvatar from './ConversationAvatar.js'
+import ConversationAvatar, { GroupConversationAvatar } from './ConversationAvatar.js'
 import { CustomListItemButton } from './CustomListItemButton.js'
 
 interface SelectConversationListProps {
@@ -114,13 +114,23 @@ const SelectConversationListItem = ({
         selected={isSelected}
         onClick={onClick}
         icon={
-          <ConversationAvatar
-            contactUri={
-              Number(conversationSummary.mode) === 0 && filteredMembers.length > 0 ? filteredMembers[0].contact.uri : ''
-            }
-            displayName={conversationName}
-            src={conversationSummary.avatar}
-          />
+          Number(conversationSummary.mode) !== 0 ? (
+            <GroupConversationAvatar
+              displayName={conversationName}
+              members={memberArray || []}
+              src={conversationSummary.avatar}
+            />
+          ) : (
+            <ConversationAvatar
+              contactUri={
+                Number(conversationSummary.mode) === 0 && filteredMembers.length > 0
+                  ? filteredMembers[0].contact.uri
+                  : ''
+              }
+              displayName={conversationName}
+              src={conversationSummary.avatar}
+            />
+          )
         }
         primaryText={<Typography variant="body1">{conversationName}</Typography>}
       />

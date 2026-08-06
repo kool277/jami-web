@@ -38,7 +38,7 @@ import { formatConversationDate } from '../utils/dates&times.js'
 import { getFileType } from '../utils/fileTypes.js'
 import { getColor } from '../utils/messagecolor.js'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
-import ConversationAvatar from './ConversationAvatar.js'
+import ConversationAvatar, { GroupConversationAvatar } from './ConversationAvatar.js'
 import { CustomListItemButton } from './CustomListItemButton.js'
 import { ConfirmationDialog, DialogContentList, InfosDialog, useDialogHandler } from './Dialog.js'
 import MaterialSymbol from './MaterialSymbol.js'
@@ -139,15 +139,25 @@ const ConversationSummaryListItem = ({ conversationSummary }: ConversationSummar
         onClick={onClick}
         onContextMenu={contextMenuHandler.handleAnchorPosition}
         icon={
-          <ConversationAvatar
-            presence={true}
-            presenceBackgroundColor={isSelected ? theme.palette.primary.light : undefined}
-            contactUri={
-              Number(conversationSummary.mode) === 0 && filteredMembers.length > 0 ? filteredMembers[0].contact.uri : ''
-            }
-            displayName={conversationName}
-            src={conversationSummary.avatar}
-          />
+          Number(conversationSummary.mode) !== 0 ? (
+            <GroupConversationAvatar
+              displayName={conversationName}
+              members={memberArray || []}
+              src={conversationSummary.avatar}
+            />
+          ) : (
+            <ConversationAvatar
+              presence={true}
+              presenceBackgroundColor={isSelected ? theme.palette.primary.light : undefined}
+              contactUri={
+                Number(conversationSummary.mode) === 0 && filteredMembers.length > 0
+                  ? filteredMembers[0].contact.uri
+                  : ''
+              }
+              displayName={conversationName}
+              src={conversationSummary.avatar}
+            />
+          )
         }
         primaryText={
           <Stack

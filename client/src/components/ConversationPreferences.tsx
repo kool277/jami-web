@@ -54,7 +54,7 @@ import BaseIconButton from './common/BaseIconButton.js'
 import { ISLAND_MARGIN } from './common/Island.js'
 import ContactDetailDialog from './ContactDetailDialog.js'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
-import ConversationAvatar from './ConversationAvatar.js'
+import ConversationAvatar, { GroupConversationAvatar } from './ConversationAvatar.js'
 import ConversationSettingsFileItem from './ConversationSettingsFileItem.js'
 import { ConfirmationDialog, useDialogHandler } from './Dialog.js'
 import EllipsisMiddle from './EllipsisMiddle.js'
@@ -156,11 +156,20 @@ export default function ConversationPreferences() {
         <CardHeader
           title={
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <ConversationAvatar
-                contactUri={conversationInfos.mode === '0' ? otherMember?.contact.uri || '' : ''}
-                sx={{ width: '160px', height: '160px' }}
-                displayName={conversationDisplayName}
-              />
+              {Number(conversationInfos.mode) === 0 ? (
+                <ConversationAvatar
+                  contactUri={otherMember?.contact.uri || ''}
+                  sx={{ width: '160px', height: '160px' }}
+                  displayName={conversationDisplayName}
+                />
+              ) : (
+                <GroupConversationAvatar
+                  displayName={conversationDisplayName}
+                  members={members}
+                  src={conversationInfos.avatar}
+                  sx={{ width: '160px', height: '160px' }}
+                />
+              )}
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <ConversationNotificationToggle />
                 <ColorPicker conversationId={conversationId} />
