@@ -120,9 +120,15 @@ export const ConversationHeader = () => {
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
-  const otherMember = useMemo(() => members?.find((m) => m.contact.uri !== account.getUri()), [members, account])
+  // `members` includes the local account, so a one-to-one conversation has two
+  // entries: resolve the contact from the peers rather than the total count.
+  const otherMembers = useMemo(
+    () => members?.filter((m) => m.contact.uri !== account.getUri()) ?? [],
+    [members, account],
+  )
+  const otherMember = otherMembers[0]
   const avatarUri = otherMember?.contact.uri
-  const contactUri = members.length === 1 ? avatarUri : undefined
+  const contactUri = otherMembers.length === 1 ? avatarUri : undefined
   const contactQuery = useContactQuery(contactUri)
   const displayName = contactQuery.data?.displayName || conversationDisplayName
   const { primary, secondary, primaryIsJamiId } = getConversationHeaderIdentity(

@@ -22,13 +22,14 @@ export class Contact implements IContact {
   registeredName?: string
   displayName?: string
 
-  constructor(uri: string, registeredName?: string) {
+  constructor(uri: string, registeredName?: string, displayName?: string) {
     this.uri = uri
     this.registeredName = registeredName
+    this.displayName = displayName
   }
 
   static fromInterface(contactInterface: IContact) {
-    return new Contact(contactInterface.uri, contactInterface.registeredName)
+    return new Contact(contactInterface.uri, contactInterface.registeredName, contactInterface.displayName)
   }
 
   getDisplayName() {

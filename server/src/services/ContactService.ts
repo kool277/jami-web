@@ -20,22 +20,26 @@ import { IContact } from '@savoirfairelinux/jami-web-common'
 import { Container, Service } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
+import { getDisplayName } from '../utils/vCard.js'
 
 const jamid = Container.get(Jamid)
 
 @Service()
 export class ContactService {
   async getContactFromUri(accountId: string, contactUri: string): Promise<IContact> {
+    const displayName = await getDisplayName(accountId, contactUri)
     try {
       const { name } = await jamid.lookupAddress(contactUri, '', accountId)
       return {
         uri: contactUri,
         registeredName: name,
+        displayName,
       }
     } catch (e) {
       return {
         uri: contactUri,
         registeredName: contactUri,
+        displayName,
       }
     }
   }

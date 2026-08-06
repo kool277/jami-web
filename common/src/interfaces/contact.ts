@@ -18,6 +18,7 @@
 export interface IContact {
   uri: string
   registeredName?: string
+  displayName?: string
 }
 
 export interface ContactDetails {

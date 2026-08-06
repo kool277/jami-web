@@ -56,7 +56,7 @@ export class ConversationService {
     // Currently, this does not work.
     // It seems the members are unable to be accessed yet. Same on jami-android
     if (membersNames.length === 0) {
-      membersNames.push(contact.registeredName || contact.uri)
+      membersNames.push(contact.displayName || contact.registeredName || contact.uri)
     }
 
     return {
@@ -163,14 +163,10 @@ export class ConversationService {
 
       presenceService.subscribe(accountId, member.uri)
 
-      // Add usernames for conversation members
-      try {
-        const data = await jamid.lookupAddress(member.uri, '', accountId)
-        const username = data.name
-        return username || member.uri
-      } catch (e) {
-        return member.uri
-      }
+      // The vCard display name is what the peer chose to be called; it takes
+      // precedence over the registered name so profile updates are visible.
+      const contact = await contactService.getContactFromUri(accountId, member.uri)
+      return contact.displayName || contact.registeredName || member.uri
     })
     const membersNames = (await Promise.all(membersNamesPromises)).filter((name): name is string => name !== undefined)
     return membersNames

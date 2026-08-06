@@ -31,10 +31,12 @@ import { Container } from 'typedi'
 import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
+import { ContactService } from '../services/ContactService.js'
 import { ConversationService } from '../services/ConversationService.js'
 
 const jamid = Container.get(Jamid)
 const conversationService = Container.get(ConversationService)
+const contactService = Container.get(ContactService)
 
 export const conversationRouter = Router()
 
@@ -191,26 +193,10 @@ conversationRouter.get(
     }
 
     const members = jamid.getConversationMembers(accountId, conversationId)
-    const namedMembersPromises = members.map(async (member) => {
-      try {
-        const { name } = await jamid.lookupAddress(member.uri, '', accountId)
-        return {
-          role: member.role,
-          contact: {
-            uri: member.uri,
-            registeredName: name,
-          },
-        }
-      } catch (e) {
-        return {
-          role: member.role,
-          contact: {
-            uri: member.uri,
-            registeredName: member.uri,
-          },
-        }
-      }
-    })
+    const namedMembersPromises = members.map(async (member) => ({
+      role: member.role,
+      contact: await contactService.getContactFromUri(accountId, member.uri),
+    }))
 
     const namedMembers = (await Promise.all(namedMembersPromises)).filter(Boolean)
     res.send(namedMembers)
