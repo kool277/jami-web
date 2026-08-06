@@ -18,47 +18,14 @@
 
 import { Box, Typography } from '@mui/material'
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
-import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
-import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
+import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountTransferInProgress() {
   const { t } = useTranslation()
-  const { state, token } = useImportDeviceContext()
-  const navigate = useNavigate()
-
-  if (state === DeviceAuthStateCode.Done) {
-    navigate('/import-account-done')
-  }
-
-  useEffect(() => {
-    if (!token) {
-      navigate('/')
-    }
-
-    if (state !== DeviceAuthStateCode.Done) {
-      switch (state) {
-        case DeviceAuthStateCode.Init:
-          navigate('/')
-          break
-        case DeviceAuthStateCode.Connecting:
-          navigate('/import-account-connecting')
-          break
-        case DeviceAuthStateCode.InProgress:
-          navigate('/import-account-in-progress')
-          break
-        case DeviceAuthStateCode.Authenticating:
-          navigate('/import-account-unlock')
-          break
-        default:
-          navigate('/')
-          break
-      }
-    }
-  }, [state, token, navigate])
+  useImportFlowGuard(DeviceAuthStateCode.InProgress)
 
   return (
     <UnconnectedUserLayout pageName={t('import_account')}>

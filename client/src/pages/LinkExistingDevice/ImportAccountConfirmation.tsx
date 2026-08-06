@@ -18,9 +18,8 @@
 
 import { Box, Typography } from '@mui/material'
 import { DeviceAuthStateCode, MIN_PASSWORD_LENGTH } from '@savoirfairelinux/jami-web-common'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 
 import BaseButton from '../../components/common/BaseButton.js'
 import PasswordField from '../../components/common/PasswordField.js'
@@ -30,38 +29,12 @@ import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 import { PasswordStrength } from '../../enums/passwordStrength.js'
 import { checkPasswordStrength, type PasswordStatus, useSetPasswordMutation } from '../../services/authQueries.js'
+import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountConfirmation() {
   const { t } = useTranslation()
   const [hasConfirmed, setHasConfirmed] = useState(false)
-  const navigate = useNavigate()
-  const { state, token } = useImportDeviceContext()
-
-  useEffect(() => {
-    if (!token) {
-      navigate('/')
-    }
-
-    if (state !== DeviceAuthStateCode.Done) {
-      switch (state) {
-        case DeviceAuthStateCode.Init:
-          navigate('/')
-          break
-        case DeviceAuthStateCode.Connecting:
-          navigate('/import-account-connecting')
-          break
-        case DeviceAuthStateCode.InProgress:
-          navigate('/import-account-in-progress')
-          break
-        case DeviceAuthStateCode.Authenticating:
-          navigate('/import-account-unlock')
-          break
-        default:
-          navigate('/')
-          break
-      }
-    }
-  }, [state, token, navigate])
+  useImportFlowGuard(DeviceAuthStateCode.Done)
 
   return (
     <UnconnectedUserLayout pageName={t('import_account')}>

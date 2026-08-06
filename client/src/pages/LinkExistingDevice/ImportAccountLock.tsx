@@ -20,7 +20,6 @@ import { Box, Card, CardContent, TextField, Typography, useMediaQuery, useTheme 
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
 import { t } from 'i18next'
 import { use, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 import BaseButton from '../../components/common/BaseButton.js'
 import EllipsisMiddle from '../../components/EllipsisMiddle.js'
@@ -29,13 +28,13 @@ import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 import { useProvideAccountAuthentication } from '../../services/accountQueries.js'
 import { IProvideAccountAuthentication } from '../../utils/utils.js'
+import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountLock() {
   const theme = useTheme()
   const [password, setPassword] = useState('')
   const { setAlertContent } = use(AlertSnackbarContext)
-  const navigate = useNavigate()
-  const { details, accountId, state, token } = useImportDeviceContext()
+  const { details, accountId } = useImportDeviceContext()
   const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
   const peerId = details.get('peer_id')
   const peerDeviceId = details.get('peer_device_id')
@@ -43,39 +42,18 @@ export default function ImportAccountLock() {
   const authError = details.get('auth_error') === 'bad_password'
   const provideAccountAuthenticationMutation = useProvideAccountAuthentication()
 
+  useImportFlowGuard(DeviceAuthStateCode.Authenticating)
+
   useEffect(() => {
-    if (!token) {
-      navigate('/')
+    if (!authError) {
+      return
     }
-
-    if (state !== DeviceAuthStateCode.Authenticating) {
-      switch (state) {
-        case DeviceAuthStateCode.Init:
-          navigate('/')
-          break
-        case DeviceAuthStateCode.Connecting:
-          navigate('/import-account-connecting')
-          break
-        case DeviceAuthStateCode.InProgress:
-          navigate('/import-account-in-progress')
-          break
-        case DeviceAuthStateCode.Done:
-          navigate('/import-account-done')
-          break
-        default:
-          navigate('/')
-          break
-      }
-    }
-  }, [token, state, navigate])
-
-  if (authError) {
     setAlertContent({
       messageI18nKey: 'auth_error_while_linking_device',
       severity: 'error',
       alertOpen: true,
     })
-  }
+  }, [authError, setAlertContent])
 
   const handleSubmit = () => {
     if (hasPassword) {

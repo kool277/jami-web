@@ -18,48 +18,16 @@
 
 import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
-import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
-import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
+import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountConnecting() {
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const { t } = useTranslation()
-  const { state, token } = useImportDeviceContext()
-  const navigate = useNavigate()
-
-  console.log('state', state)
-
-  useEffect(() => {
-    if (!token) {
-      navigate('/')
-    }
-
-    if (state !== DeviceAuthStateCode.Connecting) {
-      console.log('HERE', state)
-      switch (state) {
-        case DeviceAuthStateCode.Init:
-          navigate('/')
-          break
-        case DeviceAuthStateCode.Done:
-          navigate('/import-account-done')
-          break
-        case DeviceAuthStateCode.InProgress:
-          navigate('/import-account-in-progress')
-          break
-        case DeviceAuthStateCode.Authenticating:
-          navigate('/import-account-unlock')
-          break
-        default:
-          navigate('/')
-          break
-      }
-    }
-  }, [token, state, navigate])
+  useImportFlowGuard(DeviceAuthStateCode.Connecting)
 
   return (
     <UnconnectedUserLayout pageName={t('import_account')} message={''}>
