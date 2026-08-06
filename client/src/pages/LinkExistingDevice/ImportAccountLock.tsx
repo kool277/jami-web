@@ -56,17 +56,10 @@ export default function ImportAccountLock() {
   }, [authError, setAlertContent])
 
   const handleSubmit = () => {
-    if (hasPassword) {
-      const data: IProvideAccountAuthentication = {
-        password: password,
-        scheme: 'password',
-        accountId: accountId,
-      }
-      provideAccountAuthenticationMutation.mutate(data)
-      return
-    }
+    // An empty password is a legitimate answer: the account may be protected by a scheme the daemon
+    // resolves on its own, and only the daemon can tell whether the credentials are accepted.
     const data: IProvideAccountAuthentication = {
-      password: '',
+      password: hasPassword ? password : '',
       scheme: 'password',
       accountId: accountId,
     }
@@ -135,7 +128,7 @@ export default function ImportAccountLock() {
             <TextField onChange={onChangepassword} size="small" />
           </>
         )}
-        <BaseButton variant="contained" onClick={handleSubmit} disabled={hasPassword && password === ''}>
+        <BaseButton variant="contained" onClick={handleSubmit}>
           {hasPassword ? t('connect') : t('confirm')}
         </BaseButton>
       </Box>

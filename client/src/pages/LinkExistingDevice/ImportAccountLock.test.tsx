@@ -17,15 +17,16 @@
  */
 import { ThemeProvider } from '@mui/material/styles'
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
-import { render } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { buildDefaultTheme } from '../../themes/Default.js'
 import ImportAccountLock from './ImportAccountLock.js'
 
-const { navigate, setAlertContent, importDeviceContext } = vi.hoisted(() => ({
+const { navigate, setAlertContent, provideAuthentication, importDeviceContext } = vi.hoisted(() => ({
   navigate: vi.fn(),
   setAlertContent: vi.fn(),
+  provideAuthentication: vi.fn(),
   importDeviceContext: {
     value: {
       state: 3 as DeviceAuthStateCode,
@@ -46,7 +47,7 @@ vi.mock('../../contexts/ImportDeviceProvider.js', () => ({
   useImportDeviceContext: () => importDeviceContext.value,
 }))
 vi.mock('../../services/accountQueries.js', () => ({
-  useProvideAccountAuthentication: () => ({ mutate: vi.fn(), isPending: false }),
+  useProvideAccountAuthentication: () => ({ mutate: provideAuthentication, isPending: false }),
 }))
 vi.mock('../../components/UnconnectedUserLayout.js', () => ({
   default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -63,6 +64,7 @@ describe('ImportAccountLock', () => {
   beforeEach(() => {
     navigate.mockClear()
     setAlertContent.mockClear()
+    provideAuthentication.mockClear()
     importDeviceContext.value = {
       state: DeviceAuthStateCode.Authenticating,
       token: 'link-token',
@@ -95,6 +97,19 @@ describe('ImportAccountLock', () => {
       messageI18nKey: 'auth_error_while_linking_device',
       severity: 'error',
       alertOpen: true,
+    })
+  })
+
+  it('submits an empty password for a password protected account', () => {
+    importDeviceContext.value.details = new Map([['auth_scheme', 'password']])
+
+    renderPage()
+    fireEvent.click(screen.getByRole('button', { name: 'connect' }))
+
+    expect(provideAuthentication).toHaveBeenCalledWith({
+      password: '',
+      scheme: 'password',
+      accountId: 'account-1',
     })
   })
 
