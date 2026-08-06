@@ -21,9 +21,9 @@ import {
   Card,
   CardContent,
   CardHeader,
-  Input,
+  InputAdornment,
   Popper,
-  Switch,
+  TextField,
   Typography,
   useMediaQuery,
   useTheme,
@@ -44,13 +44,13 @@ import { CustomThemeContext } from '../contexts/CustomThemeProvider.js'
 import { ConversationMember } from '../models/conversation-member.js'
 import { useBlockContactMutation, useContactQuery } from '../services/contactQueries.js'
 import {
-  useConversationInfosMutation,
   useConversationPreferencesMutation,
   useGetAllFilesQuery,
   useRemoveMemberFromSwarm,
 } from '../services/conversationQueries.js'
 import { messageColors } from '../utils/messagecolor.js'
 import BaseButton from './common/BaseButton.js'
+import BaseIconButton from './common/BaseIconButton.js'
 import { ISLAND_MARGIN } from './common/Island.js'
 import ContactDetailDialog from './ContactDetailDialog.js'
 import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './ContextMenu.js'
@@ -64,18 +64,29 @@ import RemoveConversationDialog from './RemoveComversationDialog.js'
 import {
   AdminPanelSettingsIcon,
   AttachFileIcon,
+  DescriptionIcon,
   ExitToAppIcon,
+  FormatCodeIcon,
   GroupsIcon,
   InfoOutlinedIcon as InfoIcon,
   MoreHorizIcon,
+  NotificationsActiveIcon,
+  NotificationsOffIcon,
 } from './SvgIcon.js'
-import { BlockContactIcon, KickMemberIcon, MessageIcon, PersonIcon } from './SvgIcon.js'
+import { BlockContactIcon, JamiIdIcon, KickMemberIcon, MessageIcon, PersonIcon } from './SvgIcon.js'
 
 enum TABS {
   MEMBERS = 0,
   FILES = 1,
   SETTINGS = 2,
   INFOS = 3,
+}
+
+const readOnlyFieldSx = {
+  '& .MuiInputBase-input': {
+    caretColor: 'transparent',
+    cursor: 'default',
+  },
 }
 
 export function getConversationPreferencesTransition(animationsEnabled: boolean): Transition {
@@ -85,14 +96,11 @@ export function getConversationPreferencesTransition(animationsEnabled: boolean)
 export default function ConversationPreferences() {
   const { t } = useTranslation()
   const { animationsEnabled } = use(CustomThemeContext)
-  const { conversationColor } = useConversationPreferencesColorContext()
   const { isOpen } = useConversationPreferencesStateContext()
   const { members, conversationId, conversationDisplayName, conversationInfos } = useConversationContext()
   const { account } = useAuthContext()
-  const useConversationInfosMutationQuery = useConversationInfosMutation(conversationId)
   const theme = useTheme()
 
-  const [title, setTitle] = useState(conversationDisplayName)
   const [currentTab, setCurrentTab] = useState<TABS>(TABS.INFOS)
 
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
@@ -104,6 +112,7 @@ export default function ConversationPreferences() {
   }
 
   const isAdmin = members.some((member) => member.contact.uri === account.getUri() && member.role === 'admin')
+  const otherMember = members.find((member) => member.contact.uri !== account.getUri())
 
   const buttonStyle = {
     backgroundColor: 'inherit',
@@ -112,18 +121,6 @@ export default function ConversationPreferences() {
     margin: '0 5px',
     height: '40px',
     '&:hover': { backgroundColor: 'inherit' },
-  }
-
-  const onTitleValidation = () => {
-    useConversationInfosMutationQuery.mutate({ title })
-  }
-
-  const onTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(event.target.value)
-  }
-
-  const onTitleAbort = () => {
-    setTitle(conversationDisplayName)
   }
 
   function getWidth(): string {
@@ -158,35 +155,21 @@ export default function ConversationPreferences() {
       >
         <CardHeader
           title={
-            <Input
-              disabled={!isAdmin}
-              onChange={onTitleChange}
-              value={title}
-              onAbort={() => {
-                setTitle(conversationDisplayName)
-              }}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  onTitleValidation()
-                } else if (event.key === 'Escape') {
-                  onTitleAbort()
-                }
-              }}
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ConversationAvatar
+                contactUri={conversationInfos.mode === '0' ? otherMember?.contact.uri || '' : ''}
+                sx={{ width: '160px', height: '160px' }}
+                displayName={conversationDisplayName}
+              />
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <ConversationNotificationToggle />
+                <ColorPicker conversationId={conversationId} />
+              </Box>
+            </Box>
           }
-          avatar={
-            <ConversationAvatar
-              contactUri={
-                conversationInfos.mode && conversationInfos.mode === '0'
-                  ? members.filter((member) => member.contact.uri !== account.getUri())[0].contact.uri
-                  : ''
-              }
-              sx={{ width: '45px', height: '45px' }}
-              displayName={conversationDisplayName}
-            />
-          }
-          sx={{ backgroundColor: conversationColor, height: '12%', borderRadius: '12px' }}
+          sx={{ justifyContent: 'center', '& .MuiCardHeader-content': { flex: 'initial' } }}
         />
+        <ConversationDetailsFields />
         <CardContent>
           <Box
             role="group"
@@ -281,26 +264,12 @@ const SettingsItemWrapper = ({ title, children }: SettingsItemWrapperProps) => {
   )
 }
 
-const Infos = () => {
+const ConversationDetailsFields = () => {
   const { t } = useTranslation()
-  const { conversationId, conversationInfos, members } = useConversationContext()
-  const conversationType = members.length > 2 ? t('conversation_type_group') : t('conversation_type_private')
+  const { conversationId, conversationDisplayName, conversationInfos, members } = useConversationContext()
+  const isGroup = members.length > 2
   const { account } = useAuthContext()
-  const [description, setDescription] = useState(conversationInfos.description || '')
-  const useConversationInfosMutationQuery = useConversationInfosMutation(conversationId)
-  const isAdmin = members.some((member) => member.contact.uri === account.getUri() && member.role === 'admin')
-  const isMedium = useMediaQuery(useTheme().breakpoints.only('sm'))
-
-  const onDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDescription(event.target.value)
-  }
-  const onDescriptionValidation = () => {
-    useConversationInfosMutationQuery.mutate({ description })
-  }
-
-  const onDescriptionAbort = () => {
-    setDescription(conversationInfos.description || '')
-  }
+  const otherMember = members.find((member) => member.contact.uri !== account.getUri())
 
   return (
     <Box
@@ -313,43 +282,122 @@ const Infos = () => {
         width: '100%',
       }}
     >
-      <SettingsItemWrapper title="Description">
-        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-          <Input
-            type="text"
-            disabled={!isAdmin}
-            onChange={onDescriptionChange}
-            sx={{ maxWidth: '80%', textWrap: 'wrap', marginTop: '-6px' }}
-            value={description}
-            onAbort={() => {
-              setDescription(conversationInfos.description || '')
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                onDescriptionValidation()
-              } else if (event.key === 'Escape') {
-                onDescriptionAbort()
-              }
+      <Box sx={{ width: '95%', display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <TextField
+          fullWidth
+          label={isGroup ? t('conversation_details_group_name') : t('contact_details_name')}
+          size="small"
+          value={conversationDisplayName}
+          sx={readOnlyFieldSx}
+          slotProps={{
+            input: {
+              readOnly: true,
+              startAdornment: (
+                <InputAdornment position="start">
+                  {isGroup ? <GroupsIcon aria-hidden /> : <PersonIcon aria-hidden />}
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+        {isGroup && (
+          <TextField
+            fullWidth
+            label={t('conversation_details_description')}
+            size="small"
+            value={conversationInfos.description || ''}
+            placeholder={t('conversation_details_no_description')}
+            sx={readOnlyFieldSx}
+            slotProps={{
+              input: {
+                readOnly: true,
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <DescriptionIcon aria-hidden />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
-        </Box>
-      </SettingsItemWrapper>
-      {/* <SettingsItemWrapper title='Secure peer-to-peer connection'><LockIcon/></SettingsItemWrapper> */}
+        )}
+        {!isGroup && (
+          <TextField
+            fullWidth
+            label={t('conversation_details_jami_id')}
+            size="small"
+            value={otherMember?.contact.uri || ''}
+            sx={[readOnlyFieldSx, { '& .MuiInputBase-input': { fontFamily: 'monospace' } }]}
+            slotProps={{
+              input: {
+                readOnly: true,
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <JamiIdIcon size={20} aria-hidden />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+        )}
+        <TextField
+          fullWidth
+          label={t('conversation_details_swarm_id')}
+          size="small"
+          value={conversationId}
+          sx={[readOnlyFieldSx, { '& .MuiInputBase-input': { fontFamily: 'monospace' } }]}
+          slotProps={{
+            input: {
+              readOnly: true,
+              startAdornment: (
+                <InputAdornment position="start">
+                  <FormatCodeIcon aria-hidden />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
+      </Box>
+    </Box>
+  )
+}
+
+const ConversationNotificationToggle = () => {
+  const { t } = useTranslation()
+  const { conversationId } = useConversationContext()
+  const { ignoreNotifications } = useConversationPreferencesNotificationsContext()
+  const conversationPreferencesMutation = useConversationPreferencesMutation(conversationId)
+
+  return (
+    <BaseIconButton
+      aria-label={t('mute_conversation')}
+      aria-pressed={ignoreNotifications}
+      tooltip={t('mute_conversation')}
+      onClick={() => conversationPreferencesMutation.mutate({ ignoreNotifications: !ignoreNotifications })}
+      sx={{ backgroundColor: ignoreNotifications ? 'action.selected' : 'transparent' }}
+    >
+      {ignoreNotifications ? <NotificationsOffIcon /> : <NotificationsActiveIcon />}
+    </BaseIconButton>
+  )
+}
+
+const Infos = () => {
+  const { t } = useTranslation()
+  const { members } = useConversationContext()
+  const conversationType = members.length > 2 ? t('conversation_type_group') : t('conversation_type_private')
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignContent: 'center',
+        width: '100%',
+      }}
+    >
       <SettingsItemWrapper title={t('conversation_type')}>
         <Box>{conversationType}</Box>
-      </SettingsItemWrapper>
-      <SettingsItemWrapper title="Swarm ID">
-        <Box
-          sx={{
-            maxWidth: isMedium ? '220px' : '180px',
-            marginRight: '-15px',
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-          }}
-        >
-          <EllipsisMiddle text={conversationId} />
-        </Box>
       </SettingsItemWrapper>
     </Box>
   )
@@ -663,12 +711,6 @@ const Settings = () => {
   const { t } = useTranslation()
   const RemoveConversationDialogHandler = useDialogHandler()
   const { conversationId } = useConversationContext()
-  const conversationPreferencesMutation = useConversationPreferencesMutation(conversationId)
-  const { ignoreNotifications } = useConversationPreferencesNotificationsContext()
-
-  const onConversationMuteChange = () => {
-    conversationPreferencesMutation.mutate({ ignoreNotifications: !ignoreNotifications })
-  }
 
   return (
     <>
@@ -681,15 +723,6 @@ const Settings = () => {
           width: '100%',
         }}
       >
-        <SettingsItemWrapper title={t('conversation_color')}>
-          <Box sx={{ marginRight: '13px' }}>
-            <ColorPicker conversationId={conversationId} />
-          </Box>
-        </SettingsItemWrapper>
-        <SettingsItemWrapper title={t('mute_conversation')}>
-          <Switch onChange={onConversationMuteChange} checked={ignoreNotifications} />
-        </SettingsItemWrapper>
-
         <BaseButton
           variant="contained"
           sx={{
@@ -723,6 +756,7 @@ interface ColorPickerProps {
 }
 
 const ColorPicker = ({ conversationId }: ColorPickerProps) => {
+  const { t } = useTranslation()
   const { conversationColor } = useConversationPreferencesColorContext()
   const [open, setOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -732,7 +766,7 @@ const ColorPicker = ({ conversationId }: ColorPickerProps) => {
     conversationPreferencesMutation.mutate({ color })
   }
 
-  const handleOpenColorPicker = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handleOpenColorPicker = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(anchorEl ? null : event.currentTarget)
     setOpen((prev) => !prev)
   }
@@ -740,29 +774,32 @@ const ColorPicker = ({ conversationId }: ColorPickerProps) => {
   return (
     <Box>
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Box
-          component="div"
+        <BaseButton
+          aria-label={t('conversation_color')}
+          aria-expanded={open}
           onClick={(event) => handleOpenColorPicker(event)}
+          variant="text"
           sx={{
             width: '30px',
+            minWidth: 0,
             height: '30px',
+            padding: 0,
             backgroundColor: conversationColor,
             borderRadius: '50%',
-            '&:hover': { cursor: 'pointer' },
+            '&:hover': { backgroundColor: conversationColor },
           }}
-        >
-          <Popper open={open} anchorEl={anchorEl} placement="bottom">
-            <BlockPicker
-              triangle="hide"
-              styles={{}}
-              color={conversationColor}
-              colors={messageColors}
-              onChange={(color: ColorResult) => {
-                handleNewColor(color.hex)
-              }}
-            />
-          </Popper>
-        </Box>
+        />
+        <Popper open={open} anchorEl={anchorEl} placement="bottom">
+          <BlockPicker
+            triangle="hide"
+            styles={{}}
+            color={conversationColor}
+            colors={messageColors}
+            onChange={(color: ColorResult) => {
+              handleNewColor(color.hex)
+            }}
+          />
+        </Popper>
       </Box>
     </Box>
   )

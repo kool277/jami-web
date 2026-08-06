@@ -271,8 +271,10 @@ export const ConversationHeader = () => {
             </BaseIconButton>
             <BaseIconButton
               aria-label={t('conversation_show_options')}
+              aria-pressed={isOpen}
               tooltip={t('conversation_show_options')}
               onClick={() => setIsOpen(!isOpen)}
+              sx={{ backgroundColor: isOpen ? 'action.selected' : 'transparent' }}
             >
               <ListIcon />
             </BaseIconButton>
