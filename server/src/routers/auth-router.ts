@@ -207,17 +207,13 @@ authRouter.post(
       const sessionTime = 2 * 60 * 60 * 1000
       const date = Date.now() + sessionTime
 
-      accounts.set(accountId, date.toString(), 'guest', '')
-      accounts.save()
+      accounts.set(accountId, date.toString(), 'guest', accountId)
+      await accounts.save()
 
-      const details = jamid.getAccountDetails(accountId)
-      const username = details['Account.username']
       const jwt = await signJwtWithExpiration(accountId, '2h')
 
       res.send({ accessToken: jwt })
-      setTimeout(() => {
-        clearGuest(accountId, username)
-      }, sessionTime)
+      setTimeout(() => clearGuest(accountId), sessionTime).unref()
       return
     }
 

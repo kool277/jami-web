@@ -85,6 +85,32 @@ test.describe.serial('User Login → Messenger Flow', () => {
   })
 })
 
+test.describe('Guest Login', () => {
+  test.beforeEach(async ({ request }) => {
+    await request.post(`${MOCK_API}/__reset`)
+    await request.post(`${MOCK_API}/api/admin/create`, {
+      data: { password: 'AdminPass123!' },
+    })
+    await request.post(`${MOCK_API}/api/admin/admin-wizard-state`, {
+      data: { state: 'complete' },
+    })
+    await request.patch(`${MOCK_API}/api/admin/config`, {
+      data: { guestAccessEnabled: true },
+    })
+  })
+
+  test('guest login retains its token and opens the messenger', async ({ page }) => {
+    await page.goto('/login')
+
+    const guestLoginButton = page.locator('[data-cy="guest-login-button"]')
+    await expect(guestLoginButton).toBeVisible({ timeout: 30_000 })
+    await guestLoginButton.click()
+
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('accessToken'))).toContain('mock-guest-token-')
+    await expect(page).toHaveURL(/\/conversation/, { timeout: 30_000 })
+  })
+})
+
 test.describe('Settings Navigation', () => {
   test.beforeEach(async ({ page, request }) => {
     await setupWithUser(request)

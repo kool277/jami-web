@@ -460,7 +460,21 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   })
 
   api.post('/auth/login', (req, res) => {
-    const { username, password } = req.body
+    const { username, password, authMethod } = req.body
+    if (authMethod === 'guest') {
+      if (!state.config.guestAccessEnabled) {
+        res.status(400).send('Guest authentication is disabled')
+        return
+      }
+
+      const guestUsername = `guest-${Date.now()}`
+      state.users[guestUsername] = { password: '', accountId: `acc-${guestUsername}` }
+      const accessToken = `mock-guest-token-${Date.now()}`
+      state.userTokens[accessToken] = guestUsername
+      res.json({ accessToken })
+      return
+    }
+
     if (!username || !password) {
       res.status(400).send('Missing username or password')
       return

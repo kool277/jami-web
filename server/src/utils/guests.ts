@@ -24,30 +24,23 @@ import { Accounts } from '../storage/accounts.js'
 const jamid = Container.get(Jamid)
 const accounts = Container.get(Accounts)
 
-export function clearGuest(accId: string, username: string) {
+export function clearGuest(accId: string) {
   const guests = accounts.getGuests()
   if (guests[accId] !== undefined) {
-    const date = Number(guests[username])
+    const date = Number(guests[accId])
     if (date < Date.now()) {
       jamid.removeAccount(accId)
       accounts.remove(accId, 'guest')
       accounts.save()
       return
     }
-    setTimeout(() => {
-      clearGuest(accId, username)
-    }, date - Date.now())
+    setTimeout(() => clearGuest(accId), date - Date.now()).unref()
   }
 }
 
 export function clearGuests() {
   const guests = accounts.getGuests()
   for (const accId in guests) {
-    const details = jamid.getAccountDetails(accId)
-    if (details === undefined) {
-      continue
-    }
-    const username = details['Account.username']
-    clearGuest(guests[accId], username)
+    clearGuest(accId)
   }
 }

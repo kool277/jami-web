@@ -24,6 +24,7 @@ import { Container } from 'typedi'
 
 const removedPendingAccounts: string[] = []
 const providedAuthentications: Array<{ accountId: string; credentials: string; scheme: string }> = []
+const accountWrites: Array<{ username: string; value: string; authMethod: string; accountId: string }> = []
 
 class MockJamid {}
 class MockAccounts {}
@@ -32,6 +33,7 @@ class MockOpenIdProviders {}
 
 const jamid = {
   getLinkToken: () => undefined,
+  addAccount: async () => ({ accountId: 'guest-account-1' }),
   provideAccountAuthentication: (accountId: string, credentials: string, scheme: string) => {
     providedAuthentications.push({ accountId, credentials, scheme })
     return true
@@ -43,6 +45,9 @@ const accounts = {
   addPendingAccount: () => undefined,
   removeAndDeletePendingAccount: (accountId: string) => {
     removedPendingAccounts.push(accountId)
+  },
+  set: (username: string, value: string, authMethod: string, accountId: string) => {
+    accountWrites.push({ username, value, authMethod, accountId })
   },
   save: () => undefined,
 }
@@ -77,7 +82,7 @@ let app: express.Express
 before(async () => {
   Container.set(MockJamid, jamid)
   Container.set(MockAccounts, accounts)
-  Container.set(MockAdminAccount, {})
+  Container.set(MockAdminAccount, { getConfig: () => ({ guestAccessEnabled: true }) })
   Container.set(MockOpenIdProviders, { getProviders: () => [] })
   const authRouterModule = './auth-router.js?auth-router-test'
   const { authRouter } = await import(authRouterModule)
@@ -89,6 +94,7 @@ before(async () => {
 beforeEach(() => {
   removedPendingAccounts.length = 0
   providedAuthentications.length = 0
+  accountWrites.length = 0
 })
 
 after(() => {
@@ -133,5 +139,33 @@ describe('auth router device linking', () => {
 
     assert.equal(response.status, 200)
     assert.deepEqual(providedAuthentications, [{ accountId: 'account-1', credentials: '', scheme: 'password' }])
+  })
+})
+
+describe('auth router guest login', () => {
+  it('registers the created guest account ID before issuing its token', async () => {
+    const response = await request('/auth/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ authMethod: 'guest' }),
+    })
+
+    assert.equal(response.status, 200)
+    assert.deepEqual(await response.json(), { accessToken: 'jwt' })
+    assert.equal(accountWrites.length, 1)
+    const accountWrite = accountWrites[0]!
+    assert.deepEqual(
+      {
+        username: accountWrite.username,
+        authMethod: accountWrite.authMethod,
+        accountId: accountWrite.accountId,
+      },
+      {
+        username: 'guest-account-1',
+        authMethod: 'guest',
+        accountId: 'guest-account-1',
+      },
+    )
+    assert.equal(Number.isFinite(Number(accountWrite.value)), true)
   })
 })
