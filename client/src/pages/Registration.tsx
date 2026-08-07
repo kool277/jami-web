@@ -158,7 +158,14 @@ function RegistrationForm() {
   return (
     <>
       <ProcessingRequest open={isPending} />
-      <UnconnectedUserLayout>
+      <UnconnectedUserLayout
+        showAppearanceControls
+        headerAccessory={
+          <BaseIconButton aria-label={t('back')} tooltip={t('back')} onClick={() => navigate('/login')}>
+            <ArrowBackIcon />
+          </BaseIconButton>
+        }
+      >
         <Box
           sx={{
             width: '100%',

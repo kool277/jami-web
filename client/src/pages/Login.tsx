@@ -107,7 +107,7 @@ function LoginForm() {
   return (
     <>
       <ProcessingRequest open={isPending || isPasskeyPending} />
-      <UnconnectedUserLayout>
+      <UnconnectedUserLayout cardWidth="700px" showAppearanceControls>
         <Box
           sx={{
             width: '100%',

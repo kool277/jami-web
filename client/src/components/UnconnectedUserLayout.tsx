@@ -15,9 +15,15 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import DarkMode from '@mui/icons-material/DarkMode'
+import LightMode from '@mui/icons-material/LightMode'
 import { Box, Card, CardContent, CardHeader, Container, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { motion } from 'framer-motion'
+import { use } from 'react'
+import { useTranslation } from 'react-i18next'
 
+import { CustomThemeContext } from '../contexts/CustomThemeProvider.js'
+import BaseIconButton from './common/BaseIconButton.js'
 import SettingLanguage from './SettingLanguage.js'
 
 interface UnconnectedUserLayoutProps {
@@ -28,6 +34,7 @@ interface UnconnectedUserLayoutProps {
   footerAccessory?: React.ReactNode
   /** Widen the card for content that cannot be wrapped, such as a code meant to be read out. */
   cardWidth?: string
+  showAppearanceControls?: boolean
 }
 
 export default function UnconnectedUserLayout({
@@ -37,9 +44,12 @@ export default function UnconnectedUserLayout({
   centerMessage = false,
   footerAccessory,
   cardWidth = '450px',
+  showAppearanceControls = false,
 }: UnconnectedUserLayoutProps) {
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const { t } = useTranslation()
+  const { mode, toggleMode } = use(CustomThemeContext)
 
   const mainContainerStyle = {
     display: 'flex',
@@ -73,72 +83,93 @@ export default function UnconnectedUserLayout({
   }
 
   return (
-    <>
-      <Box sx={{ position: 'absolute', right: '0', padding: '1px' }}>
-        <SettingLanguage doNotDisplayLabel={true}></SettingLanguage>
-      </Box>
-      <Box sx={backgroundStyle}>
-        <Container className="message-list" sx={mainContainerStyle}>
-          <motion.div
-            initial={{ y: isMobile ? 0 : -15, opacity: isMobile ? 1 : 0.5 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <Card sx={cardStyle}>
-              <CardHeader
-                title={pageName}
-                slotProps={{ title: { variant: 'h3', align: 'center' } }}
-                sx={{ pb: 0, '& .MuiCardHeader-content': { flex: 1 } }}
-              />
-              <CardContent
+    <Box sx={backgroundStyle}>
+      <Container className="message-list" sx={mainContainerStyle}>
+        <motion.div
+          initial={{ y: isMobile ? 0 : -15, opacity: isMobile ? 1 : 0.5 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card sx={cardStyle}>
+            <CardHeader
+              title={pageName}
+              slotProps={{ title: { variant: 'h3', align: 'center' } }}
+              sx={{ pb: 0, '& .MuiCardHeader-content': { flex: 1 } }}
+            />
+            <CardContent
+              sx={
+                isMobile
+                  ? {
+                      pt: 0,
+                      width: '100%',
+                      height: '90%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                    }
+                  : { pt: 0 }
+              }
+              component="div"
+            >
+              <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 2 }}>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    width: '100%',
+                    textAlign: centerMessage ? 'center' : 'start',
+                  }}
+                >
+                  {message}
+                </Typography>
+              </Box>
+              <Box
                 sx={
                   isMobile
                     ? {
-                        pt: 0,
+                        height: '80%',
                         width: '100%',
-                        height: '90%',
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'center',
+                        justifyContent: 'space-between',
                       }
-                    : { pt: 0 }
+                    : {}
                 }
-                component="div"
               >
-                <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 2 }}>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      width: '100%',
-                      textAlign: centerMessage ? 'center' : 'start',
-                    }}
+                {children}
+              </Box>
+            </CardContent>
+            {footerAccessory && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', px: 2, pb: 2 }}>{footerAccessory}</Box>
+            )}
+            {showAppearanceControls && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mt: 2,
+                  mx: isMobile ? -1 : -2,
+                  mb: -1,
+                }}
+              >
+                <Box sx={{ transform: 'translateY(4px)' }}>
+                  <BaseIconButton
+                    aria-label={t('settings_dark_theme')}
+                    tooltip={t('settings_dark_theme')}
+                    aria-pressed={mode === 'dark'}
+                    onClick={toggleMode}
                   >
-                    {message}
-                  </Typography>
+                    {mode === 'dark' ? <LightMode /> : <DarkMode />}
+                  </BaseIconButton>
                 </Box>
-                <Box
-                  sx={
-                    isMobile
-                      ? {
-                          height: '80%',
-                          width: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                        }
-                      : {}
-                  }
-                >
-                  {children}
+                <Box sx={{ transform: 'translateY(8px)' }}>
+                  <SettingLanguage doNotDisplayLabel />
                 </Box>
-              </CardContent>
-              {footerAccessory && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', px: 2, pb: 2 }}>{footerAccessory}</Box>
-              )}
-            </Card>
-          </motion.div>
-        </Container>
-      </Box>
-    </>
+              </Box>
+            )}
+          </Card>
+        </motion.div>
+      </Container>
+    </Box>
   )
 }
