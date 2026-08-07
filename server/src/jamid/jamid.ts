@@ -957,7 +957,6 @@ export class Jamid {
 
     this.events.onVolatileDetailsChanged.subscribe(({ accountId, details }) => {
       const username = details['Account.registeredName']
-      const uri = this.getAccountDetails(accountId)['Account.username']
       log.debug(
         `Received VolatileDetailsChanged: {"accountId":"${accountId}",` +
           `"details":{"Account.registeredName":"${username}", ...}}`,
@@ -967,9 +966,17 @@ export class Jamid {
         // Keep map of usernames to account IDs
         this.usernamesToAccountIds.set(username.toLowerCase(), accountId)
       }
-      if (!this.accountUrisToAccountIds.has(uri)) {
-        this.accountUrisToAccountIds.set(uri, accountId)
-      }
+
+      // The daemon thread that emitted this signal is blocked until the callback
+      // returns, and it still holds the account lock that getAccountDetails needs.
+      // Querying it from here deadlocks the daemon and the Node main thread against
+      // each other, so wait until the callback has unwound.
+      setImmediate(() => {
+        const uri = this.getAccountDetails(accountId)['Account.username']
+        if (!this.accountUrisToAccountIds.has(uri)) {
+          this.accountUrisToAccountIds.set(uri, accountId)
+        }
+      })
     })
 
     this.events.onRegistrationStateChanged.subscribe((signal) => {
