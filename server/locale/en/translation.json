@@ -181,6 +181,8 @@
   "password_hide": "Hide password",
   "password_show": "Show password",
   "show_more_information": "Show more information",
+  "show_jami_id": "Show Jami ID",
+  "show_registered_name": "Show registered name",
   "conversation_details_is_swarm": "Swarm technology",
   "conversation_details_is_swarm_false": "False",
   "conversation_details_is_swarm_true": "True",

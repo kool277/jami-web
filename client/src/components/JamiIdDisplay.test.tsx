@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ThemeProvider } from '@mui/material/styles'
-import { render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { type ContextType } from 'react'
 import { describe, expect, it, vi } from 'vitest'
@@ -31,19 +31,29 @@ vi.mock('react-i18next', () => ({
 }))
 vi.mock('./SvgIcon.js', () => ({
   ContentCopyIcon: () => <span />,
+  FingerprintIcon: () => <span />,
   JamiIdIcon: () => <span />,
   QrCodeIcon: () => <span />,
 }))
 
 const jamiUri = 'jami:0123456789abcdef'
+const registeredName = 'alice'
 
-function createAccount() {
+function createAccount(accountRegisteredName?: string) {
   const account = Object.create(Account.prototype)
   vi.spyOn(account, 'getUri').mockReturnValue(jamiUri)
+  vi.spyOn(account, 'getRegisteredName').mockReturnValue(accountRegisteredName)
   return account
 }
 
-function renderJamiIdDisplay(setAlertContent = vi.fn()) {
+function renderJamiIdDisplay({
+  registeredName: accountRegisteredName,
+  setAlertContent,
+}: {
+  registeredName?: string
+  setAlertContent?: ContextType<typeof AlertSnackbarContext>['setAlertContent']
+} = {}) {
+  const alertContentSetter = setAlertContent ?? vi.fn<ContextType<typeof AlertSnackbarContext>['setAlertContent']>()
   const alertContext: ContextType<typeof AlertSnackbarContext> = {
     alertContent: {
       alertOpen: false,
@@ -51,18 +61,18 @@ function renderJamiIdDisplay(setAlertContent = vi.fn()) {
       severity: 'info',
     },
     closeAlert: () => {},
-    setAlertContent,
+    setAlertContent: alertContentSetter,
   }
 
   render(
     <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
       <AlertSnackbarContext value={alertContext}>
-        <JamiIdDisplay account={createAccount()} />
+        <JamiIdDisplay account={createAccount(accountRegisteredName)} />
       </AlertSnackbarContext>
     </ThemeProvider>,
   )
 
-  return setAlertContent
+  return alertContentSetter
 }
 
 function setClipboard(writeText: ReturnType<typeof vi.fn> | undefined) {
@@ -120,5 +130,52 @@ describe('JamiIdDisplay clipboard feedback', () => {
         severity: 'error',
       }),
     )
+  })
+})
+
+describe('JamiIdDisplay registered name', () => {
+  it('shows the registered name initially and toggles to the account hash', () => {
+    const getBoundingClientRect = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      const width = this.textContent === jamiUri ? 180 : 90
+      return { bottom: 20, height: 20, left: 0, right: width, toJSON: () => {}, top: 0, width, x: 0, y: 0 } as DOMRect
+    })
+    const scrollWidth = vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return this.textContent === jamiUri ? 200 : 100
+    })
+    renderJamiIdDisplay({ registeredName })
+
+    expect(screen.getByTestId('jami-id-display-identity')).toHaveStyle('transition: width 300ms ease-out')
+    expect(screen.getByTestId('jami-id-display-identity')).toHaveStyle('width: 100px')
+    expect(screen.getByTestId('jami-id-display-text')).toHaveStyle('align-items: center')
+    expect(screen.getByTestId('jami-id-display-name')).toHaveAttribute('aria-hidden', 'false')
+    expect(screen.getByTestId('jami-id-display-hash')).toHaveAttribute('aria-hidden', 'true')
+
+    const toggle = screen.getByRole('button', { name: 'show_jami_id' })
+    expect(toggle).toHaveAttribute('aria-pressed', 'false')
+
+    vi.useFakeTimers()
+    fireEvent.click(toggle)
+
+    expect(screen.getByTestId('jami-id-display-identity')).toHaveStyle('width: 0px')
+    act(() => vi.advanceTimersByTime(300))
+    expect(screen.getByTestId('jami-id-display-identity')).toHaveStyle('width: 200px')
+    expect(screen.getByTestId('jami-id-display-name')).toHaveAttribute('aria-hidden', 'true')
+    expect(screen.getByTestId('jami-id-display-hash')).toHaveAttribute('aria-hidden', 'false')
+    expect(screen.getByRole('button', { name: 'show_registered_name' })).toHaveAttribute('aria-pressed', 'true')
+    getBoundingClientRect.mockRestore()
+    scrollWidth.mockRestore()
+    vi.useRealTimers()
+  })
+
+  it('shows the hash without a fingerprint toggle when no registered name exists', () => {
+    renderJamiIdDisplay()
+
+    expect(screen.getByText(jamiUri)).toBeVisible()
+    expect(screen.queryByRole('button', { name: 'show_jami_id' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'show_registered_name' })).not.toBeInTheDocument()
   })
 })
