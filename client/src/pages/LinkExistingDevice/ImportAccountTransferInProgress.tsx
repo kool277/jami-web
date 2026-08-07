@@ -16,14 +16,22 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+import { keyframes } from '@emotion/react'
 import { Box, Typography } from '@mui/material'
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
 import { useTranslation } from 'react-i18next'
 
+import MaterialSymbol from '../../components/MaterialSymbol.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import CancelLinkDeviceButton from './CancelLinkDeviceButton.js'
 import LinkFlowProgress from './LinkFlowProgress.js'
 import { useImportFlowGuard } from './useImportFlowGuard.js'
+
+const spin = keyframes`
+  to {
+    transform: rotate(360deg);
+  }
+`
 
 export default function ImportAccountTransferInProgress() {
   const { t } = useTranslation()
@@ -52,9 +60,17 @@ export default function ImportAccountTransferInProgress() {
             alignItems: 'center',
           }}
         >
-          <Typography variant="body2" gutterBottom>
-            {t('import_account_in_progress')}
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <MaterialSymbol
+              aria-hidden="true"
+              symbol="progress_activity"
+              sx={{
+                animation: `${spin} 1.5s linear infinite`,
+                '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
+              }}
+            />
+            <Typography variant="body2">{t('import_account_in_progress')}</Typography>
+          </Box>
           <CancelLinkDeviceButton />
         </Box>
       </Box>

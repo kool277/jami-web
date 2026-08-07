@@ -61,6 +61,7 @@ describe('ImportAccountTransferInProgress', () => {
     renderPage()
 
     expect(navigate).not.toHaveBeenCalled()
+    expect(screen.getByText('progress_activity')).toBeInTheDocument()
   })
 
   it('does not redirect to itself', () => {
