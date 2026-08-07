@@ -81,7 +81,11 @@ export default function UnconnectedUserLayout({
             transition={{ duration: 0.5 }}
           >
             <Card sx={cardStyle}>
-              <CardHeader title={pageName} />
+              <CardHeader
+                title={pageName}
+                slotProps={{ title: { variant: 'h3', align: 'center' } }}
+                sx={{ '& .MuiCardHeader-content': { flex: 1 } }}
+              />
               <CardContent
                 sx={
                   isMobile
