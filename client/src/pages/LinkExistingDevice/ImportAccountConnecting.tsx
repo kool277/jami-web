@@ -20,6 +20,7 @@ import { Box, Typography } from '@mui/material'
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
 import { useTranslation } from 'react-i18next'
 
+import { FrameExclamationIcon } from '../../components/SvgIcon.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import CancelLinkDeviceButton from './CancelLinkDeviceButton.js'
 import LinkFlowProgress from './LinkFlowProgress.js'
@@ -54,13 +55,18 @@ export default function ImportAccountConnecting() {
             textAlign: 'center',
           }}
         >
-          <Typography variant="body2" gutterBottom>
-            {t('action_required')}
-          </Typography>
-          <Typography variant="body2" gutterBottom>
-            {t('import_confirm_account')}
-          </Typography>
-          <CancelLinkDeviceButton />
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+            <FrameExclamationIcon aria-hidden="true" fontSize="small" />
+            <Typography variant="body2" sx={{ whiteSpace: 'nowrap' }}>
+              <Box component="span" sx={{ fontWeight: 'bold' }}>
+                {t('action_required')}:
+              </Box>{' '}
+              {t('import_confirm_account')}
+            </Typography>
+          </Box>
+          <Box sx={{ mt: 2 }}>
+            <CancelLinkDeviceButton />
+          </Box>
         </Box>
       </Box>
     </UnconnectedUserLayout>
