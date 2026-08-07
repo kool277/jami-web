@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
 import { useTranslation } from 'react-i18next'
 
@@ -25,8 +25,6 @@ import CancelLinkDeviceButton from './CancelLinkDeviceButton.js'
 import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountConnecting() {
-  const theme = useTheme()
-  const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const { t } = useTranslation()
   useImportFlowGuard(DeviceAuthStateCode.Connecting)
 
@@ -40,7 +38,6 @@ export default function ImportAccountConnecting() {
           justifyContent: 'center',
           flexDirection: 'column',
           gap: '20px',
-          marginTop: isMobile ? '70px' : '-50px',
         }}
       >
         <Box

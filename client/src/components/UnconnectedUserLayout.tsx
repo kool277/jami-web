@@ -24,6 +24,7 @@ interface UnconnectedUserLayoutProps {
   pageName?: string
   children: React.ReactNode
   message?: string
+  centerMessage?: boolean
   /** Widen the card for content that cannot be wrapped, such as a code meant to be read out. */
   cardWidth?: string
 }
@@ -32,6 +33,7 @@ export default function UnconnectedUserLayout({
   pageName,
   children,
   message,
+  centerMessage = false,
   cardWidth = '450px',
 }: UnconnectedUserLayoutProps) {
   const theme = useTheme()
@@ -103,9 +105,9 @@ export default function UnconnectedUserLayout({
                 <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', mb: 2 }}>
                   <Typography
                     variant="body2"
-                    style={{ textAlign: 'start' }}
                     sx={{
                       width: '100%',
+                      textAlign: centerMessage ? 'center' : 'start',
                     }}
                   >
                     {message}

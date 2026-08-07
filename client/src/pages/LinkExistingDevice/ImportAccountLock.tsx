@@ -82,7 +82,6 @@ export default function ImportAccountLock() {
           justifyContent: 'center',
           textAlign: 'center',
           alignItems: 'center',
-          marginTop: '-120px',
         }}
       >
         <Card sx={{ maxWidth: '400px', width: '100%' }}>
@@ -93,19 +92,19 @@ export default function ImportAccountLock() {
                 flexDirection: 'column',
                 gap: '5px',
                 alignItems: 'center',
-                textAlign: 'enter',
+                textAlign: 'center',
                 justifyContent: 'center',
               }}
             >
               <Box>
-                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', gap: '8px' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '8px' }}>
                   <Box sx={{ display: 'flex', flexWrap: 'nowrap', fontWeight: 'bolder' }}>{'PeerId: '}</Box>{' '}
                   <Box sx={{ maxWidth: isMobile ? '200px' : '300px' }}>
                     {' '}
                     <EllipsisMiddle text={peerId || t('unknown')} />
                   </Box>
                 </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', gap: '8px' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '8px' }}>
                   <Box sx={{ display: 'flex', flexWrap: 'nowrap', fontWeight: 'bolder' }}>{'DeviceId: '}</Box>
                   <Box sx={{ maxWidth: isMobile ? '200px' : '300px' }}>
                     <EllipsisMiddle text={peerDeviceId || t('unknown')} />

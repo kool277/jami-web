@@ -57,7 +57,6 @@ export default function ImportAccountConfirmation() {
             textAlign: 'center',
             alignContent: 'center',
             alignItems: 'center',
-            marginTop: '-40px',
           }}
         >
           {hasConfirmed ? (
@@ -115,7 +114,16 @@ const SetPassWord = () => {
   }
 
   return (
-    <Box sx={{ marginTop: '-100px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+    <Box
+      sx={{
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px',
+        alignItems: 'center',
+        textAlign: 'center',
+      }}
+    >
       <JamiWelcomeLogo logoWidth={'100px'} logoHeight={'100px'} />
       <Typography variant="body2">{t('create_password_for_online_account')}</Typography>
 

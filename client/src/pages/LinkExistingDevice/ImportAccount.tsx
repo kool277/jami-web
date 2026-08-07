@@ -91,6 +91,7 @@ export default function ImportAccount() {
     <UnconnectedUserLayout
       pageName={t('import_account')}
       message={t('import_account_initiate_on_old_device_qr')}
+      centerMessage
       cardWidth={LINK_CODE_CARD_WIDTH}
     >
       <Box
