@@ -101,6 +101,7 @@ describe('ImportAccount', () => {
 
     renderPage()
 
+    expect(screen.getByAltText('')).toHaveAttribute('src', '/jami-failure.svg')
     expect(screen.getByText('link_device_could_not_initiate')).toBeInTheDocument()
   })
 

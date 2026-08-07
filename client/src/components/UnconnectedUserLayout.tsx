@@ -86,19 +86,20 @@ export default function UnconnectedUserLayout({
               <CardHeader
                 title={pageName}
                 slotProps={{ title: { variant: 'h3', align: 'center' } }}
-                sx={{ '& .MuiCardHeader-content': { flex: 1 } }}
+                sx={{ pb: 0, '& .MuiCardHeader-content': { flex: 1 } }}
               />
               <CardContent
                 sx={
                   isMobile
                     ? {
+                        pt: 0,
                         width: '100%',
                         height: '90%',
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'center',
                       }
-                    : {}
+                    : { pt: 0 }
                 }
                 component="div"
               >

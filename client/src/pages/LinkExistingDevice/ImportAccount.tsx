@@ -76,6 +76,7 @@ export default function ImportAccount() {
             gap: '20px',
           }}
         >
+          <Box component="img" src="/jami-failure.svg" alt="" sx={{ width: 96, height: 96 }} />
           <Typography variant="body2" color="error" align="center">
             {t('link_device_could_not_initiate')}
           </Typography>
