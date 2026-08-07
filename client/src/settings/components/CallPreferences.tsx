@@ -184,6 +184,7 @@ export default function CallPreferences() {
                 id={moderatorInputId}
                 open={moderatorMenuAnimation.open}
                 slots={moderatorMenuAnimation.slots}
+                slotProps={moderatorMenuAnimation.slotProps}
                 options={moderatorOptions}
                 value={null}
                 inputValue={defaultModeratorUri}

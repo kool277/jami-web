@@ -17,7 +17,7 @@
  */
 import { keyframes } from '@emotion/react'
 import { Paper, type PaperProps } from '@mui/material'
-import { type Ref, useEffect, useRef, useState } from 'react'
+import { type Ref, useEffect, useMemo, useRef, useState } from 'react'
 
 const duration = 180
 
@@ -33,30 +33,54 @@ const collapseMenu = keyframes`
 
 type AnimatedPaperProps = PaperProps & { ref?: Ref<HTMLDivElement> }
 
-function OpeningPaper({ children, ref, ...props }: AnimatedPaperProps) {
-  return (
-    <Paper ref={ref} {...props} sx={{ animation: `${expandMenu} ${duration}ms ease-out`, transformOrigin: 'top' }}>
-      {children}
-    </Paper>
-  )
-}
-
-function ClosingPaper({ children, ref, ...props }: AnimatedPaperProps) {
-  return (
-    <Paper
-      ref={ref}
-      {...props}
-      sx={{ animation: `${collapseMenu} ${duration}ms ease-out forwards`, transformOrigin: 'top' }}
-    >
-      {children}
-    </Paper>
-  )
+export function getAutocompleteMenuTransformOrigin(placement: string | null | undefined) {
+  return placement?.startsWith('top') ? 'bottom' : 'top'
 }
 
 export function useAutocompleteMenuAnimation() {
   const [open, setOpen] = useState(false)
   const [closing, setClosing] = useState(false)
+  const [placement, setPlacement] = useState<string>()
+  const [animationReady, setAnimationReady] = useState(false)
   const closeTimerRef = useRef<number | undefined>(undefined)
+  const transformOrigin = getAutocompleteMenuTransformOrigin(placement)
+
+  const OpeningPaper = useMemo(
+    () =>
+      function OpeningPaper({ children, ref, ...props }: AnimatedPaperProps) {
+        return (
+          <Paper
+            ref={ref}
+            {...props}
+            sx={{
+              animation: animationReady ? `${expandMenu} ${duration}ms ease-out` : 'none',
+              opacity: animationReady ? undefined : 0,
+              transform: animationReady ? undefined : 'scaleY(0)',
+              transformOrigin,
+            }}
+          >
+            {children}
+          </Paper>
+        )
+      },
+    [animationReady, transformOrigin],
+  )
+
+  const ClosingPaper = useMemo(
+    () =>
+      function ClosingPaper({ children, ref, ...props }: AnimatedPaperProps) {
+        return (
+          <Paper
+            ref={ref}
+            {...props}
+            sx={{ animation: `${collapseMenu} ${duration}ms ease-out forwards`, transformOrigin }}
+          >
+            {children}
+          </Paper>
+        )
+      },
+    [transformOrigin],
+  )
 
   useEffect(() => () => window.clearTimeout(closeTimerRef.current), [])
 
@@ -64,6 +88,16 @@ export function useAutocompleteMenuAnimation() {
     open,
     closing,
     slots: { paper: closing ? ClosingPaper : OpeningPaper },
+    slotProps: {
+      popper: {
+        popperOptions: {
+          onFirstUpdate: ({ placement }: { placement?: string }) => {
+            setPlacement(placement)
+            setAnimationReady(true)
+          },
+        },
+      },
+    },
     popupIndicatorSx: {
       '& .MuiAutocomplete-popupIndicator': {
         transform: open && !closing ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -72,6 +106,8 @@ export function useAutocompleteMenuAnimation() {
     },
     onOpen: () => {
       window.clearTimeout(closeTimerRef.current)
+      setPlacement(undefined)
+      setAnimationReady(false)
       setClosing(false)
       setOpen(true)
     },

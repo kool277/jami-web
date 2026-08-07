@@ -50,6 +50,7 @@ export const CustomSelect = <OptionPayload,>({
       disableClearable
       open={menuAnimation.open}
       slots={menuAnimation.slots}
+      slotProps={menuAnimation.slotProps}
       options={options}
       value={option}
       getOptionLabel={(selectOption) => selectOption.label}
