@@ -16,12 +16,13 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Card, CardContent, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Card, CardContent, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
-import { t } from 'i18next'
 import { use, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import BaseButton from '../../components/common/BaseButton.js'
+import PasswordField from '../../components/common/PasswordField.js'
 import EllipsisMiddle from '../../components/EllipsisMiddle.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
@@ -31,6 +32,7 @@ import { IProvideAccountAuthentication } from '../../utils/utils.js'
 import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountLock() {
+  const { t } = useTranslation()
   const theme = useTheme()
   const [password, setPassword] = useState('')
   const { setAlertContent } = use(AlertSnackbarContext)
@@ -55,7 +57,8 @@ export default function ImportAccountLock() {
     })
   }, [authError, setAlertContent])
 
-  const handleSubmit = () => {
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault()
     // An empty password is a legitimate answer: the account may be protected by a scheme the daemon
     // resolves on its own, and only the daemon can tell whether the credentials are accepted.
     const data: IProvideAccountAuthentication = {
@@ -66,13 +69,11 @@ export default function ImportAccountLock() {
     provideAccountAuthenticationMutation.mutate(data)
   }
 
-  const onChangepassword = (e: any) => {
-    setPassword(e.target.value)
-  }
-
   return (
     <UnconnectedUserLayout pageName={hasPassword ? t('unlock_account') : t('confirm_connection')}>
       <Box
+        component="form"
+        onSubmit={handleSubmit}
         sx={{
           display: 'flex',
           gap: '20px',
@@ -101,13 +102,13 @@ export default function ImportAccountLock() {
                   <Box sx={{ display: 'flex', flexWrap: 'nowrap', fontWeight: 'bolder' }}>{'PeerId: '}</Box>{' '}
                   <Box sx={{ maxWidth: isMobile ? '200px' : '300px' }}>
                     {' '}
-                    <EllipsisMiddle text={' ' + (peerId || 'e3eaee01f47f98216f4160658179420ff5e30f50')} />
+                    <EllipsisMiddle text={peerId || t('unknown')} />
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', gap: '8px' }}>
                   <Box sx={{ display: 'flex', flexWrap: 'nowrap', fontWeight: 'bolder' }}>{'DeviceId: '}</Box>
                   <Box sx={{ maxWidth: isMobile ? '200px' : '300px' }}>
-                    <EllipsisMiddle text={' ' + (peerDeviceId || 'e3eaee01f47f98216f4160658179420ff5e30f50')} />
+                    <EllipsisMiddle text={peerDeviceId || t('unknown')} />
                   </Box>
                 </Box>
               </Box>
@@ -125,10 +126,15 @@ export default function ImportAccountLock() {
                 {t('unlock_to_continue')}
               </Typography>
             </Box>
-            <TextField onChange={onChangepassword} size="small" />
+            <PasswordField
+              label={t('account_password')}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              size="small"
+            />
           </>
         )}
-        <BaseButton variant="contained" onClick={handleSubmit}>
+        <BaseButton type="submit" variant="contained" disabled={provideAccountAuthenticationMutation.isPending}>
           {hasPassword ? t('connect') : t('confirm')}
         </BaseButton>
       </Box>

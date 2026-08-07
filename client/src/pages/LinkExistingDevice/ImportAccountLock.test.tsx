@@ -23,10 +23,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { buildDefaultTheme } from '../../themes/Default.js'
 import ImportAccountLock from './ImportAccountLock.js'
 
-const { navigate, setAlertContent, provideAuthentication, importDeviceContext } = vi.hoisted(() => ({
+const { navigate, setAlertContent, provideAuthentication, isPending, importDeviceContext } = vi.hoisted(() => ({
   navigate: vi.fn(),
   setAlertContent: vi.fn(),
   provideAuthentication: vi.fn(),
+  isPending: { value: false },
   importDeviceContext: {
     value: {
       state: 3 as DeviceAuthStateCode,
@@ -38,7 +39,7 @@ const { navigate, setAlertContent, provideAuthentication, importDeviceContext } 
 }))
 
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }))
-vi.mock('i18next', () => ({ t: (key: string) => key }))
+vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 vi.mock('../../contexts/AlertSnackbarProvider.js', async () => {
   const { createContext } = await import('react')
   return { AlertSnackbarContext: createContext({ setAlertContent }) }
@@ -47,7 +48,7 @@ vi.mock('../../contexts/ImportDeviceProvider.js', () => ({
   useImportDeviceContext: () => importDeviceContext.value,
 }))
 vi.mock('../../services/accountQueries.js', () => ({
-  useProvideAccountAuthentication: () => ({ mutate: provideAuthentication, isPending: false }),
+  useProvideAccountAuthentication: () => ({ mutate: provideAuthentication, isPending: isPending.value }),
 }))
 vi.mock('../../components/UnconnectedUserLayout.js', () => ({
   default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
@@ -65,6 +66,7 @@ describe('ImportAccountLock', () => {
     navigate.mockClear()
     setAlertContent.mockClear()
     provideAuthentication.mockClear()
+    isPending.value = false
     importDeviceContext.value = {
       state: DeviceAuthStateCode.Authenticating,
       token: 'link-token',
@@ -119,5 +121,58 @@ describe('ImportAccountLock', () => {
     renderPage()
 
     expect(navigate).toHaveBeenCalledWith('/import-account-in-progress')
+  })
+
+  it('masks the password while it is typed', () => {
+    importDeviceContext.value.details = new Map([['auth_scheme', 'password']])
+
+    renderPage()
+
+    expect(screen.getByLabelText('account_password')).toHaveAttribute('type', 'password')
+  })
+
+  it('submits the password when the user presses enter', () => {
+    importDeviceContext.value.details = new Map([['auth_scheme', 'password']])
+
+    renderPage()
+    const field = screen.getByLabelText('account_password')
+    fireEvent.change(field, { target: { value: 'hunter2' } })
+    fireEvent.submit(field)
+
+    expect(provideAuthentication).toHaveBeenCalledWith({
+      password: 'hunter2',
+      scheme: 'password',
+      accountId: 'account-1',
+    })
+  })
+
+  it('does not let the user submit twice while a request is running', () => {
+    importDeviceContext.value.details = new Map([['auth_scheme', 'password']])
+    isPending.value = true
+
+    renderPage()
+
+    expect(screen.getByRole('button', { name: 'connect' })).toBeDisabled()
+  })
+
+  it('does not show a made up peer identity', () => {
+    const { container } = renderPage()
+
+    // Showing a plausible looking identity on a security confirmation invites the user
+    // to approve a device they never checked. EllipsisMiddle splits the text across
+    // elements, so assert on the rendered text as a whole.
+    expect(container.textContent).not.toContain('e3eaee01f47f98216f4160658179420ff5e30f50')
+  })
+
+  it('shows the peer identity reported by the daemon', () => {
+    importDeviceContext.value.details = new Map([
+      ['peer_id', '761ee5cca44191c6f4649d78fa5910440edce697'],
+      ['peer_device_id', '1710b3b1556d555911a4d976acb2d5d3879cbfe8'],
+    ])
+
+    const { container } = renderPage()
+
+    expect(container.textContent).toContain('761ee5cca44191c6f4649d78fa5910440edce697')
+    expect(container.textContent).toContain('1710b3b1556d555911a4d976acb2d5d3879cbfe8')
   })
 })
