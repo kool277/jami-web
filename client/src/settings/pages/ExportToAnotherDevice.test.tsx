@@ -30,6 +30,7 @@ const {
   confirmAddDevice,
   cancelAddDevice,
   confirmOpIds,
+  cancelOpIds,
   exportAccountFailed,
 } = vi.hoisted(() => ({
   navigate: vi.fn(),
@@ -38,6 +39,7 @@ const {
   confirmAddDevice: vi.fn(),
   cancelAddDevice: vi.fn(),
   confirmOpIds: [] as number[],
+  cancelOpIds: [] as number[],
   exportAccountFailed: { value: false },
 }))
 
@@ -66,7 +68,10 @@ vi.mock('../../services/accountQueries.js', () => ({
     confirmOpIds.push(opId)
     return { mutate: () => confirmAddDevice(opId), isPending: false }
   },
-  useCancelAddDeviceMutation: () => ({ mutate: cancelAddDevice, isPending: false }),
+  useCancelAddDeviceMutation: (opId: number) => {
+    cancelOpIds.push(opId)
+    return { mutate: () => cancelAddDevice(opId), isPending: false }
+  },
 }))
 vi.mock('../components/QrReader.js', () => ({ default: () => <div>qr-reader</div> }))
 
@@ -96,6 +101,7 @@ describe('ExportToAnotherDevice', () => {
     confirmAddDevice.mockClear()
     cancelAddDevice.mockClear()
     confirmOpIds.length = 0
+    cancelOpIds.length = 0
     exportAccountFailed.value = false
     addDeviceListener = undefined
   })
@@ -162,5 +168,26 @@ describe('ExportToAnotherDevice', () => {
     fireEvent.click(screen.getByRole('button', { name: 'confirm' }))
 
     expect(confirmAddDevice).toHaveBeenCalledWith(7)
+  })
+
+  it('lets the user cancel while connecting to the new device', () => {
+    renderPage()
+    startExport()
+
+    emit({ opId: 7, state: DeviceAuthStateCode.Connecting, details: {} })
+    fireEvent.click(screen.getByRole('button', { name: 'dialog_cancel' }))
+
+    // Leaving without cancelling strands the operation on the daemon.
+    expect(cancelAddDevice).toHaveBeenCalledWith(7)
+  })
+
+  it('lets the user cancel while the transfer is running', () => {
+    renderPage()
+    startExport()
+
+    emit({ opId: 7, state: DeviceAuthStateCode.InProgress, details: {} })
+    fireEvent.click(screen.getByRole('button', { name: 'dialog_cancel' }))
+
+    expect(cancelAddDevice).toHaveBeenCalledWith(7)
   })
 })

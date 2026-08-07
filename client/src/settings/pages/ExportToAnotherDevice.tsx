@@ -136,11 +136,11 @@ export function ExportToAnotherDevice() {
     <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
       <Card sx={{ width: '600px', height: '700px' }}>
         {state === DeviceAuthStateCode.Init && <EnterCode setCode={setUri} />}
-        {state === DeviceAuthStateCode.Connecting && <InProgress isConnecting={true} />}
+        {state === DeviceAuthStateCode.Connecting && <InProgress isConnecting={true} opId={opId} />}
         {state === DeviceAuthStateCode.Authenticating && opId !== undefined && (
           <AcceptLink peerAddress={peerAddress || 'unknown'} opId={opId} />
         )}
-        {state === DeviceAuthStateCode.InProgress && <InProgress isConnecting={false} />}
+        {state === DeviceAuthStateCode.InProgress && <InProgress isConnecting={false} opId={opId} />}
         {state === DeviceAuthStateCode.Done && <ExportDone />}
       </Card>
     </Box>
@@ -173,9 +173,10 @@ const ExportDone = () => {
 
 interface InProgressProps {
   isConnecting: boolean
+  opId: number | undefined
 }
 
-const InProgress = ({ isConnecting }: InProgressProps) => {
+const InProgress = ({ isConnecting, opId }: InProgressProps) => {
   const { t } = useTranslation()
   return (
     <CardHeader
@@ -189,6 +190,7 @@ const InProgress = ({ isConnecting }: InProgressProps) => {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
+            gap: '20px',
           }}
         >
           {isConnecting ? (
@@ -197,9 +199,29 @@ const InProgress = ({ isConnecting }: InProgressProps) => {
             <Typography>{t('account_transfer_in_progress')}</Typography>
           )}
           <Typography>{t('please_wait')}</Typography>
+          {opId !== undefined && <CancelExportButton opId={opId} />}
         </Box>
       }
     />
+  )
+}
+
+interface CancelExportButtonProps {
+  opId: number
+}
+
+/**
+ * Way out of the waiting steps: the daemon may never report the next state, and leaving the page
+ * without cancelling strands the operation on the daemon.
+ */
+const CancelExportButton = ({ opId }: CancelExportButtonProps) => {
+  const { t } = useTranslation()
+  const cancelMutation = useCancelAddDeviceMutation(opId)
+
+  return (
+    <BaseButton variant="outlined" disabled={cancelMutation.isPending} onClick={() => cancelMutation.mutate()}>
+      {t('dialog_cancel')}
+    </BaseButton>
   )
 }
 
@@ -278,14 +300,14 @@ interface EnterCodeProps {
 }
 
 const EnterCode = ({ setCode }: EnterCodeProps) => {
-  const [tmpCode, setTmpCode] = useState<string | undefined>()
+  const [tmpCode, setTmpCode] = useState('')
   const [isQrCodeSelected, setIsQrCodeSelected] = useState(true)
   const { setAlertContent } = use(AlertSnackbarContext)
   const { t } = useTranslation()
 
   const handleScannedCode = useCallback(
     (code: string | undefined) => {
-      setTmpCode(code)
+      setTmpCode(code ?? '')
       if (!code) {
         return
       }
@@ -295,7 +317,7 @@ const EnterCode = ({ setCode }: EnterCodeProps) => {
           severity: 'error',
           alertOpen: true,
         })
-        setTmpCode(undefined)
+        setTmpCode('')
         return
       }
       setCode(code)
@@ -322,7 +344,7 @@ const EnterCode = ({ setCode }: EnterCodeProps) => {
         severity: 'error',
         alertOpen: true,
       })
-      setTmpCode(undefined)
+      setTmpCode('')
     } else {
       setCode(tmpCode)
     }
