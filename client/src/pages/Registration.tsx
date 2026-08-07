@@ -15,17 +15,19 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, TextField, Typography } from '@mui/material'
+import { Box, TextField } from '@mui/material'
 import { Theme, useTheme } from '@mui/material/styles'
 import { HttpStatusCode, MIN_PASSWORD_LENGTH } from '@savoirfairelinux/jami-web-common'
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Form, Link, useNavigate } from 'react-router-dom'
+import { Form, useNavigate } from 'react-router-dom'
 
 import BaseButton from '../components/common/BaseButton.js'
+import BaseIconButton from '../components/common/BaseIconButton.js'
 import PasswordField from '../components/common/PasswordField.js'
 import JamiWelcomeLogo from '../components/JamiWelcomeLogo.js'
 import ProcessingRequest from '../components/ProcessingRequest.js'
+import { ArrowBackIcon } from '../components/SvgIcon.js'
 import UnconnectedUserLayout from '../components/UnconnectedUserLayout.js'
 import { PasswordStrength } from '../enums/passwordStrength.js'
 import { useGetAdminConfigQuery } from '../services/adminConfigQueries.js'
@@ -173,6 +175,7 @@ function RegistrationForm() {
             flexDirection: 'row',
             color: 'text.primary',
             justifyContent: 'center',
+            mb: '36px',
           }}
         >
           <JamiWelcomeLogo logoWidth={jamiAuthLogoSize} />
@@ -193,7 +196,7 @@ function RegistrationForm() {
             helperText={
               usernameStatus !== 'default' && usernameStatus !== 'valid'
                 ? t('username_input_helper_text', { context: usernameStatus })
-                : ' '
+                : undefined
             }
             size="small"
             sx={{ width: theme.typography.pxToRem(inputWidth) }}
@@ -211,40 +214,24 @@ function RegistrationForm() {
                 ? t('password_input_helper_text_too_weak')
                 : passwordStatus === 'registration_failed'
                   ? t('password_input_helper_text_registration_failed')
-                  : ' '
+                  : undefined
             }
             size="small"
             sx={{ width: theme.typography.pxToRem(inputWidth) }}
           />
-          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
+          <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
             <BaseButton
               disabled={!usernameOk || !passwordOk}
               data-cy="register-button"
               variant="contained"
               type="submit"
               onClick={handleSubmit}
-              sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(20) }}
+              sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
             >
               {t('registration_form_submit_button')}
             </BaseButton>
           </Box>
         </Form>
-
-        <Box
-          sx={{
-            mt: theme.typography.pxToRem(10),
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-          }}
-        >
-          <Typography variant="body2">
-            {t('registration_form_to_login_text')} &nbsp;
-            <Link style={{ color: theme.palette.text.primary }} data-cy="login-link" to={'/login'}>
-              {t('registration_form_to_login_link')}
-            </Link>
-          </Typography>
-        </Box>
       </UnconnectedUserLayout>
     </>
   )

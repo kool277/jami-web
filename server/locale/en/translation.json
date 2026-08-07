@@ -402,6 +402,7 @@
   "ongoing_call_muted": "Ongoing call (muted)",
   "ongoing_call_unmuted": "Ongoing call",
   "openid": "OpenID",
+  "openid_login_with": "Login with",
   "openid_authentication": "OpenID authentication",
   "oauth2_provider": "OAuth2 Provider",
   "ouath_provider_updated_success": "OAuth provider updated successfully.",

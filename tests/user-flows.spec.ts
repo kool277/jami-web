@@ -158,22 +158,20 @@ test.describe('Login Page Details', () => {
     await expect(page.getByText(/invalid credentials/i)).toBeVisible({ timeout: 10_000 })
   })
 
-  test('login page has link to registration', async ({ page }) => {
+  test('login page has button to registration', async ({ page }) => {
     await page.goto('/login')
     const usernameInput = page.locator('[data-cy="username-input"] input')
     await expect(usernameInput).toBeVisible({ timeout: 30_000 })
 
-    const registerLink = page.locator('[data-cy="register-link"]')
-    await expect(registerLink).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Create Jami account' })).toBeVisible()
   })
 
-  test('registration link navigates to register page', async ({ page }) => {
+  test('registration button navigates to register page', async ({ page }) => {
     await page.goto('/login')
     const usernameInput = page.locator('[data-cy="username-input"] input')
     await expect(usernameInput).toBeVisible({ timeout: 30_000 })
 
-    const registerLink = page.locator('[data-cy="register-link"]')
-    await registerLink.click()
+    await page.getByRole('button', { name: 'Create Jami account' }).click()
 
     await expect(page).toHaveURL(/\/register/, { timeout: 10_000 })
   })

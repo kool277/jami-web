@@ -31,6 +31,7 @@ interface UnconnectedUserLayoutProps {
   children: React.ReactNode
   message?: string
   centerMessage?: boolean
+  headerAccessory?: React.ReactNode
   footerAccessory?: React.ReactNode
   /** Widen the card for content that cannot be wrapped, such as a code meant to be read out. */
   cardWidth?: string
@@ -42,6 +43,7 @@ export default function UnconnectedUserLayout({
   children,
   message,
   centerMessage = false,
+  headerAccessory,
   footerAccessory,
   cardWidth = '450px',
   showAppearanceControls = false,
@@ -66,6 +68,7 @@ export default function UnconnectedUserLayout({
     marginTop: isMobile ? '0' : '-5%',
     overflowY: 'auto',
     borderRadius: isMobile ? '0' : '24px',
+    position: 'relative',
   }
 
   const isDark = theme.palette.mode === 'dark'
@@ -91,6 +94,7 @@ export default function UnconnectedUserLayout({
           transition={{ duration: 0.5 }}
         >
           <Card sx={cardStyle}>
+            {headerAccessory && <Box sx={{ position: 'absolute', top: 8, left: 8 }}>{headerAccessory}</Box>}
             <CardHeader
               title={pageName}
               slotProps={{ title: { variant: 'h3', align: 'center' } }}
