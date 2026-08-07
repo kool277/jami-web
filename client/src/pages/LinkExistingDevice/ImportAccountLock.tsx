@@ -120,6 +120,11 @@ export default function ImportAccountLock() {
               onChange={(event) => setPassword(event.target.value)}
               size="small"
             />
+            {authError && (
+              <Typography variant="body2" color="error" role="alert">
+                {t('incorrect_password')}
+              </Typography>
+            )}
           </>
         )}
         <BaseButton type="submit" variant="contained" disabled={provideAccountAuthenticationMutation.isPending}>

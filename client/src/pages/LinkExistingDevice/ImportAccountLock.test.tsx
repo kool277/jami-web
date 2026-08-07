@@ -100,6 +100,7 @@ describe('ImportAccountLock', () => {
       severity: 'error',
       alertOpen: true,
     })
+    expect(screen.getByRole('alert')).toHaveTextContent('incorrect_password')
   })
 
   it('submits an empty password for a password protected account', () => {
