@@ -25,6 +25,7 @@ interface UnconnectedUserLayoutProps {
   children: React.ReactNode
   message?: string
   centerMessage?: boolean
+  footerAccessory?: React.ReactNode
   /** Widen the card for content that cannot be wrapped, such as a code meant to be read out. */
   cardWidth?: string
 }
@@ -34,6 +35,7 @@ export default function UnconnectedUserLayout({
   children,
   message,
   centerMessage = false,
+  footerAccessory,
   cardWidth = '450px',
 }: UnconnectedUserLayoutProps) {
   const theme = useTheme()
@@ -130,6 +132,9 @@ export default function UnconnectedUserLayout({
                   {children}
                 </Box>
               </CardContent>
+              {footerAccessory && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', px: 2, pb: 2 }}>{footerAccessory}</Box>
+              )}
             </Card>
           </motion.div>
         </Container>

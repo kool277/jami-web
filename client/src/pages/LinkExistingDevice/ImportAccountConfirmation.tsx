@@ -29,6 +29,7 @@ import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 import { PasswordStrength } from '../../enums/passwordStrength.js'
 import { checkPasswordStrength, type PasswordStatus, useSetPasswordMutation } from '../../services/authQueries.js'
+import LinkFlowProgress from './LinkFlowProgress.js'
 import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountConfirmation() {
@@ -37,7 +38,7 @@ export default function ImportAccountConfirmation() {
   useImportFlowGuard(DeviceAuthStateCode.Done)
 
   return (
-    <UnconnectedUserLayout pageName={t('import_account')}>
+    <UnconnectedUserLayout pageName={t('import_account')} footerAccessory={<LinkFlowProgress currentStep={5} />}>
       <Box
         sx={{
           width: '100%',

@@ -29,6 +29,7 @@ import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 import { useProvideAccountAuthentication } from '../../services/accountQueries.js'
 import { IProvideAccountAuthentication } from '../../utils/utils.js'
+import LinkFlowProgress from './LinkFlowProgress.js'
 import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountLock() {
@@ -70,7 +71,10 @@ export default function ImportAccountLock() {
   }
 
   return (
-    <UnconnectedUserLayout pageName={hasPassword ? t('unlock_account') : t('confirm_connection')}>
+    <UnconnectedUserLayout
+      pageName={hasPassword ? t('unlock_account') : t('confirm_connection')}
+      footerAccessory={<LinkFlowProgress currentStep={3} />}
+    >
       <Box
         component="form"
         onSubmit={handleSubmit}

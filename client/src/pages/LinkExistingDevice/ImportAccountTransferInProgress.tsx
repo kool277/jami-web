@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import CancelLinkDeviceButton from './CancelLinkDeviceButton.js'
+import LinkFlowProgress from './LinkFlowProgress.js'
 import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountTransferInProgress() {
@@ -29,7 +30,7 @@ export default function ImportAccountTransferInProgress() {
   useImportFlowGuard(DeviceAuthStateCode.InProgress)
 
   return (
-    <UnconnectedUserLayout pageName={t('import_account')}>
+    <UnconnectedUserLayout pageName={t('import_account')} footerAccessory={<LinkFlowProgress currentStep={4} />}>
       <Box
         sx={{
           width: '100%',

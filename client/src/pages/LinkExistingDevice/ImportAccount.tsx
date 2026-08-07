@@ -28,6 +28,7 @@ import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 import { useWebSocketLinkContext } from '../../contexts/WebSocketLinkProvider.js'
 import { useGetLinkTokenQuery } from '../../services/authQueries.js'
+import LinkFlowProgress from './LinkFlowProgress.js'
 
 /** Wide enough for the whole code to be read out on a single line, which is what it is there for. */
 const LINK_CODE_CARD_WIDTH = '800px'
@@ -65,7 +66,7 @@ export default function ImportAccount() {
 
   if (values.isError) {
     return (
-      <UnconnectedUserLayout pageName={t('import_account')}>
+      <UnconnectedUserLayout pageName={t('import_account')} footerAccessory={<LinkFlowProgress currentStep={1} />}>
         <Box
           sx={{
             width: '100%',
@@ -93,6 +94,7 @@ export default function ImportAccount() {
       pageName={t('import_account')}
       message={t('import_account_initiate_on_old_device_qr')}
       centerMessage
+      footerAccessory={<LinkFlowProgress currentStep={1} />}
       cardWidth={LINK_CODE_CARD_WIDTH}
     >
       <Box
