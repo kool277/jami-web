@@ -127,6 +127,11 @@ describe('ExportToAnotherDevice', () => {
 
     expect(setAlertContent).not.toHaveBeenCalled()
     expect(navigate).not.toHaveBeenCalled()
+    expect(screen.getByText('please_wait')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'dialog_cancel' }))
+
+    expect(cancelAddDevice).toHaveBeenCalledWith(7)
   })
 
   it('reports a transfer failure once', () => {

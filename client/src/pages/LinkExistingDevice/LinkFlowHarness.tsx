@@ -21,6 +21,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { MemoryRouter } from 'react-router-dom'
 
+import { CustomThemeContext } from '../../contexts/CustomThemeProvider.js'
 import { type IImportDeviceContext, ImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 import { WebSocketLinkContext } from '../../contexts/WebSocketLinkProvider.js'
 import { WithChildren } from '../../utils/utils.js'
@@ -109,20 +110,31 @@ export const LinkFlowHarness = ({
     }),
     [],
   )
+  const customTheme = useMemo(
+    () => ({
+      mode: 'light' as const,
+      toggleMode: () => undefined,
+      animationsEnabled: true,
+      toggleAnimations: () => undefined,
+    }),
+    [],
+  )
 
   return (
     <MemoryRouter>
       <QueryClientProvider client={queryClient}>
-        <WebSocketLinkContext value={webSocketLink as never}>
-          <ImportDeviceContext value={importDevice}>
-            {/*
-             * The pages size themselves against a full-viewport ancestor, which the application
-             * root provides but a story root does not, so the layout would otherwise collapse to
-             * the height of its own content and push the card out of view.
-             */}
-            <Box sx={{ height: '100vh', width: '100%', overflow: 'hidden' }}>{children}</Box>
-          </ImportDeviceContext>
-        </WebSocketLinkContext>
+        <CustomThemeContext value={customTheme}>
+          <WebSocketLinkContext value={webSocketLink as never}>
+            <ImportDeviceContext value={importDevice}>
+              {/*
+               * The pages size themselves against a full-viewport ancestor, which the application
+               * root provides but a story root does not, so the layout would otherwise collapse to
+               * the height of its own content and push the card out of view.
+               */}
+              <Box sx={{ height: '100vh', width: '100%', overflow: 'hidden' }}>{children}</Box>
+            </ImportDeviceContext>
+          </WebSocketLinkContext>
+        </CustomThemeContext>
       </QueryClientProvider>
     </MemoryRouter>
   )

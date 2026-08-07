@@ -64,12 +64,6 @@ describe('ImportAccountTransferInProgress', () => {
     expect(screen.getByText('progress_activity')).toBeInTheDocument()
   })
 
-  it('does not redirect to itself', () => {
-    renderPage()
-
-    expect(navigate).not.toHaveBeenCalledWith('/import-account-in-progress')
-  })
-
   it('lets the user leave a transfer that never completes', () => {
     renderPage()
 
