@@ -64,17 +64,11 @@ export default function ImportAccountConfirmation() {
             <SetPassWord />
           ) : (
             <>
-              {
-                <>
-                  {' '}
-                  <DoneIcon sx={{ fontSize: 100 }} />
-                  <Typography variant="body2">{t('import_account_done')}</Typography>
-                  <Typography variant="body2">{t('import_account_successfully_imported')}</Typography>
-                  <BaseButton sx={{ marginTop: '8px' }} variant="contained" onClick={() => setHasConfirmed(true)}>
-                    {t('continue')}
-                  </BaseButton>
-                </>
-              }
+              <DoneIcon sx={{ fontSize: 100 }} />
+              <Typography variant="body2">{t('import_account_done')}</Typography>
+              <BaseButton sx={{ marginTop: '8px' }} variant="contained" onClick={() => setHasConfirmed(true)}>
+                {t('continue')}
+              </BaseButton>
             </>
           )}
         </Box>
