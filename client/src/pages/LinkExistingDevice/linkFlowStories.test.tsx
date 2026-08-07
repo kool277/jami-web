@@ -17,7 +17,7 @@
  */
 import { composeStories } from '@storybook/react-vite'
 import { render, waitFor, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { userEvent } from '@testing-library/user-event'
 import type { ComponentType } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -88,7 +88,7 @@ describe.each<StoryGroup>([
     const { container } = render(<Story />)
 
     if (storyName === 'SetAPassword') {
-      await userEvent.click(within(container).getByRole('button', { name: 'Continue' }))
+      await userEvent.setup().click(within(container).getByRole('button', { name: 'Continue' }))
     }
 
     await waitFor(() => expect(container.textContent).toContain(expectedContent[storyName]))
