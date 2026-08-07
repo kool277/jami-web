@@ -30,7 +30,7 @@ import { WithChildren } from '../utils/utils.js'
 import { AlertSnackbarContext } from './AlertSnackbarProvider.js'
 import { useWebSocketLinkContext } from './WebSocketLinkProvider.js'
 
-interface IImportDeviceContext {
+export interface IImportDeviceContext {
   accountId: string
   state: DeviceAuthStateCode
   token: string
@@ -38,7 +38,7 @@ interface IImportDeviceContext {
   setToken: (token: string) => void
 }
 const optionalImportDeviceContext = createOptionalContext<IImportDeviceContext>('ImportDeviceContext')
-const ImportDeviceContext = optionalImportDeviceContext.Context
+export const ImportDeviceContext = optionalImportDeviceContext.Context
 export const useImportDeviceContext = optionalImportDeviceContext.useOptionalContext
 
 const ImportDeviceProvider: React.FC<WithChildren> = ({ children }) => {

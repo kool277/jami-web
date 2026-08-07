@@ -31,6 +31,7 @@ export interface IWebSocketLinkContext {
 }
 
 const optionalWebSocketLinkContext = createOptionalContext<IWebSocketLinkContext>('WebSocketLinkContext')
+export const WebSocketLinkContext = optionalWebSocketLinkContext.Context
 export const useWebSocketLinkContext = optionalWebSocketLinkContext.useOptionalContext
 
 export default ({ children }: WithChildren) => {
