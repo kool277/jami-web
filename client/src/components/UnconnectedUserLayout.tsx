@@ -24,9 +24,16 @@ interface UnconnectedUserLayoutProps {
   pageName?: string
   children: React.ReactNode
   message?: string
+  /** Widen the card for content that cannot be wrapped, such as a code meant to be read out. */
+  cardWidth?: string
 }
 
-export default function UnconnectedUserLayout({ pageName, children, message }: UnconnectedUserLayoutProps) {
+export default function UnconnectedUserLayout({
+  pageName,
+  children,
+  message,
+  cardWidth = '450px',
+}: UnconnectedUserLayoutProps) {
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
 
@@ -39,7 +46,8 @@ export default function UnconnectedUserLayout({ pageName, children, message }: U
   }
 
   const cardStyle = {
-    width: isMobile ? '100vw' : '450px',
+    width: isMobile ? '100vw' : cardWidth,
+    maxWidth: '100vw',
     padding: isMobile ? '8px' : '16px 24px',
     marginTop: isMobile ? '0' : '-5%',
     overflowY: 'auto',
@@ -93,7 +101,7 @@ export default function UnconnectedUserLayout({ pageName, children, message }: U
                     variant="body2"
                     style={{ textAlign: 'start' }}
                     sx={{
-                      width: '400px',
+                      width: '100%',
                     }}
                   >
                     {message}

@@ -29,6 +29,9 @@ import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 import { useWebSocketLinkContext } from '../../contexts/WebSocketLinkProvider.js'
 import { useGetLinkTokenQuery } from '../../services/authQueries.js'
 
+/** Wide enough for the whole code to be read out on a single line, which is what it is there for. */
+const LINK_CODE_CARD_WIDTH = '800px'
+
 export default function ImportAccount() {
   const { t } = useTranslation()
   const { setToken: setWebSocketToken, token: webSocketToken } = useWebSocketLinkContext()
@@ -85,7 +88,11 @@ export default function ImportAccount() {
   }
 
   return (
-    <UnconnectedUserLayout pageName={t('import_account')} message={t('import_account_initiate_on_old_device_qr')}>
+    <UnconnectedUserLayout
+      pageName={t('import_account')}
+      message={t('import_account_initiate_on_old_device_qr')}
+      cardWidth={LINK_CODE_CARD_WIDTH}
+    >
       <Box
         sx={{
           width: '100%',
@@ -118,19 +125,29 @@ export default function ImportAccount() {
               maxWidth: '100%',
             }}
           >
-            <Typography
-              variant="body2"
+            <Box
               sx={{
-                fontFamily: 'monospace',
-                fontWeight: 'bold',
-                wordBreak: 'break-all',
-                textAlign: 'center',
+                // A screen too narrow for the whole code scrolls it rather than wrapping it, so
+                // the code stays on the single line it is meant to be read from.
+                overflowX: 'auto',
+                minWidth: 0,
               }}
             >
-              {token}
-            </Typography>
+              <Typography
+                variant="body2"
+                sx={{
+                  fontFamily: 'monospace',
+                  fontWeight: 'bold',
+                  whiteSpace: 'nowrap',
+                  textAlign: 'center',
+                }}
+              >
+                {token}
+              </Typography>
+            </Box>
             <Tooltip title={copied ? t('copied_to_clipboard') : t('copy_to_clipboard')}>
-              <IconButton onClick={handleCopy} size="small" aria-label={t('copy_to_clipboard')}>
+              {/* Kept out of the scrolling area so copying stays possible on a narrow screen. */}
+              <IconButton onClick={handleCopy} size="small" aria-label={t('copy_to_clipboard')} sx={{ flexShrink: 0 }}>
                 <ContentCopyIcon fontSize="small" />
               </IconButton>
             </Tooltip>
