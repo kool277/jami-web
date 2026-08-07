@@ -159,8 +159,7 @@ describe('ImportAccountLock', () => {
     const { container } = renderPage()
 
     // Showing a plausible looking identity on a security confirmation invites the user
-    // to approve a device they never checked. EllipsisMiddle splits the text across
-    // elements, so assert on the rendered text as a whole.
+    // to approve a device they never checked.
     expect(container.textContent).not.toContain('e3eaee01f47f98216f4160658179420ff5e30f50')
   })
 
@@ -172,6 +171,10 @@ describe('ImportAccountLock', () => {
 
     const { container } = renderPage()
 
+    expect(screen.getByText('Peer ID')).toBeInTheDocument()
+    expect(screen.getByText('Device ID')).toBeInTheDocument()
+    expect(screen.queryByText('PeerId:')).not.toBeInTheDocument()
+    expect(screen.queryByText('DeviceId:')).not.toBeInTheDocument()
     expect(container.textContent).toContain('761ee5cca44191c6f4649d78fa5910440edce697')
     expect(container.textContent).toContain('1710b3b1556d555911a4d976acb2d5d3879cbfe8')
   })

@@ -16,14 +16,13 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import { Box, Card, CardContent, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { DeviceAuthStateCode } from '@savoirfairelinux/jami-web-common'
 import { use, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import BaseButton from '../../components/common/BaseButton.js'
 import PasswordField from '../../components/common/PasswordField.js'
-import EllipsisMiddle from '../../components/EllipsisMiddle.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
@@ -34,11 +33,9 @@ import { useImportFlowGuard } from './useImportFlowGuard.js'
 
 export default function ImportAccountLock() {
   const { t } = useTranslation()
-  const theme = useTheme()
   const [password, setPassword] = useState('')
   const { setAlertContent } = use(AlertSnackbarContext)
   const { details, accountId } = useImportDeviceContext()
-  const isMobile = useMediaQuery(theme.breakpoints.only('xs'))
   const peerId = details.get('peer_id')
   const peerDeviceId = details.get('peer_device_id')
   const hasPassword = details.get('auth_scheme') === 'password'
@@ -88,36 +85,24 @@ export default function ImportAccountLock() {
           alignItems: 'center',
         }}
       >
-        <Card sx={{ maxWidth: '400px', width: '100%' }}>
-          <CardContent>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '5px',
-                alignItems: 'center',
-                textAlign: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Box>
-                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '8px' }}>
-                  <Box sx={{ display: 'flex', flexWrap: 'nowrap', fontWeight: 'bolder' }}>{'PeerId: '}</Box>{' '}
-                  <Box sx={{ maxWidth: isMobile ? '200px' : '300px' }}>
-                    {' '}
-                    <EllipsisMiddle text={peerId || t('unknown')} />
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: '8px' }}>
-                  <Box sx={{ display: 'flex', flexWrap: 'nowrap', fontWeight: 'bolder' }}>{'DeviceId: '}</Box>
-                  <Box sx={{ maxWidth: isMobile ? '200px' : '300px' }}>
-                    <EllipsisMiddle text={peerDeviceId || t('unknown')} />
-                  </Box>
-                </Box>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center', width: '100%' }}>
+          <Box sx={{ width: '100%' }}>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+              Peer ID
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: 'monospace', overflowWrap: 'anywhere' }}>
+              {peerId || t('unknown')}
+            </Typography>
+          </Box>
+          <Box sx={{ width: '100%' }}>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+              Device ID
+            </Typography>
+            <Typography variant="body2" sx={{ fontFamily: 'monospace', overflowWrap: 'anywhere' }}>
+              {peerDeviceId || t('unknown')}
+            </Typography>
+          </Box>
+        </Box>
         {hasPassword && (
           <>
             {' '}
