@@ -584,7 +584,7 @@
   "unauthorized_access": "Unauthorized access",
   "unread": "Unread",
   "unlock_account": "Unlock account",
-  "unlock_to_continue": "To continue, unlock the account.",
+  "unlock_to_continue": "Please enter the password for this account to continue.",
   "unknown_error_alert": "An unexpected error occurred. Please try again.",
   "unknown_user": "Unknown user",
   "unknown": "Unknown",
