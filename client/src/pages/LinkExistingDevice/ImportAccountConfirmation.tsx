@@ -17,18 +17,19 @@
  */
 
 import { Box, Typography } from '@mui/material'
+import { Theme, useTheme } from '@mui/material/styles'
 import { DeviceAuthStateCode, MIN_PASSWORD_LENGTH } from '@savoirfairelinux/jami-web-common'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import BaseButton from '../../components/common/BaseButton.js'
 import PasswordField from '../../components/common/PasswordField.js'
-import JamiWelcomeLogo from '../../components/JamiWelcomeLogo.js'
 import { DoneIcon } from '../../components/SvgIcon.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 import { PasswordStrength } from '../../enums/passwordStrength.js'
 import { checkPasswordStrength, type PasswordStatus, useSetPasswordMutation } from '../../services/authQueries.js'
+import { inputWidth, submitButtonWidth } from '../../utils/constants.js'
 import LinkFlowProgress from './LinkFlowProgress.js'
 import { useImportFlowGuard } from './useImportFlowGuard.js'
 
@@ -78,6 +79,7 @@ export default function ImportAccountConfirmation() {
 }
 
 const SetPassWord = () => {
+  const theme: Theme = useTheme()
   const [password, setPassword] = useState('')
   const [repeatPassword, setRepeatPassword] = useState('')
   const [passwordStatus, setPasswordStatus] = useState<PasswordStatus>('default')
@@ -114,35 +116,45 @@ const SetPassWord = () => {
         width: '100%',
         display: 'flex',
         flexDirection: 'column',
-        gap: '8px',
         alignItems: 'center',
         textAlign: 'center',
       }}
     >
-      <JamiWelcomeLogo logoWidth={'100px'} logoHeight={'100px'} />
-      <Typography variant="body2">{t('create_password_for_online_account')}</Typography>
+      <Typography variant="body2" sx={{ mb: theme.typography.pxToRem(36) }}>
+        {t('create_password_for_online_account')}
+      </Typography>
 
       <PasswordField
         label={t('password_input_label')}
         value={password}
         onChange={handlePasswordChange}
         autoComplete="new-password"
+        size="small"
+        sx={{ width: theme.typography.pxToRem(inputWidth) }}
         error={passwordStatus === PasswordStrength.TooWeak || passwordStatus === 'registration_failed'}
-        helperText={passwordStatus === PasswordStrength.TooWeak ? t('password_input_helper_text_too_weak') : ' '}
+        helperText={passwordStatus === PasswordStrength.TooWeak ? t('password_input_helper_text_too_weak') : undefined}
       />
       <PasswordField
         label={t('password_input_label_repeat')}
         value={repeatPassword}
         onChange={handleRepeatPasswordChange}
         autoComplete="new-password"
+        size="small"
+        sx={{ width: theme.typography.pxToRem(inputWidth) }}
         error={repeatPassword !== '' && repeatPassword !== password}
         helperText={
-          repeatPassword !== '' && repeatPassword !== password ? t('password_input_helper_text_not_match') : ' '
+          repeatPassword !== '' && repeatPassword !== password ? t('password_input_helper_text_not_match') : undefined
         }
       />
-      <BaseButton variant="contained" onClick={handlePasswordSubmit}>
-        {t('submit')}
-      </BaseButton>
+      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
+        <BaseButton
+          variant="contained"
+          onClick={handlePasswordSubmit}
+          sx={{ width: theme.typography.pxToRem(submitButtonWidth), mt: theme.typography.pxToRem(5) }}
+        >
+          {t('submit')}
+        </BaseButton>
+      </Box>
     </Box>
   )
 }
