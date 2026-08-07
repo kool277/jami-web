@@ -248,6 +248,13 @@ export const useGetLinkTokenQuery = () => {
       setImportToken(data.jwt)
       return data
     },
+    // Each request makes the daemon create an account and start a link operation, so a refetch
+    // would leave the previous one dangling and swap the code the user is reading.
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    retry: false,
   })
 }
 

@@ -16,25 +16,30 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ThemeProvider } from '@mui/material/styles'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { buildDefaultTheme } from '../../themes/Default.js'
 import ImportAccount from './ImportAccount.js'
 
-const { setWebSocketToken, setImportToken, linkTokenQuery, importDeviceContext, webSocketToken } = vi.hoisted(() => ({
-  setWebSocketToken: vi.fn(),
-  setImportToken: vi.fn(),
-  linkTokenQuery: {
-    value: {
-      data: { jwt: 'ws-jwt', details: { token: 'jami-auth://code' } } as unknown,
-      isLoading: false,
-      isPending: false,
+const { setWebSocketToken, setImportToken, refetch, linkTokenQuery, importDeviceContext, webSocketToken } = vi.hoisted(
+  () => ({
+    setWebSocketToken: vi.fn(),
+    setImportToken: vi.fn(),
+    refetch: vi.fn(),
+    linkTokenQuery: {
+      value: {
+        data: { jwt: 'ws-jwt', details: { token: 'jami-auth://code' } } as unknown,
+        isLoading: false,
+        isPending: false,
+        isError: false,
+        refetch: undefined as unknown,
+      },
     },
-  },
-  importDeviceContext: { value: { token: '' } },
-  webSocketToken: { value: undefined as string | undefined },
-}))
+    importDeviceContext: { value: { token: '' } },
+    webSocketToken: { value: undefined as string | undefined },
+  }),
+)
 
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
 vi.mock('../../contexts/ImportDeviceProvider.js', () => ({
@@ -61,6 +66,14 @@ describe('ImportAccount', () => {
   beforeEach(() => {
     setWebSocketToken.mockClear()
     setImportToken.mockClear()
+    refetch.mockClear()
+    linkTokenQuery.value = {
+      data: { jwt: 'ws-jwt', details: { token: 'jami-auth://code' } },
+      isLoading: false,
+      isPending: false,
+      isError: false,
+      refetch,
+    }
     importDeviceContext.value = { token: '' }
     webSocketToken.value = undefined
     localStorage.clear()
@@ -81,5 +94,22 @@ describe('ImportAccount', () => {
 
     expect(setWebSocketToken).not.toHaveBeenCalled()
     expect(screen.getByText('jami-auth://code')).toBeInTheDocument()
+  })
+
+  it('reports a failure to obtain a link code instead of showing an empty screen', () => {
+    linkTokenQuery.value = { data: undefined, isLoading: false, isPending: false, isError: true, refetch: refetch }
+
+    renderPage()
+
+    expect(screen.getByText('link_device_could_not_initiate')).toBeInTheDocument()
+  })
+
+  it('lets the user ask for a new link code after a failure', () => {
+    linkTokenQuery.value = { data: undefined, isLoading: false, isPending: false, isError: true, refetch: refetch }
+
+    renderPage()
+    fireEvent.click(screen.getByRole('button', { name: 'retry' }))
+
+    expect(refetch).toHaveBeenCalled()
   })
 })

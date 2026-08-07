@@ -342,6 +342,7 @@
   "jams_url_already_set": "JAMS server is already set.",
   "link_new_device": "Link new device",
   "link_device_could_not_initiate": "An error occurred while linking the device. Please try again.",
+  "retry": "Try again",
   "limit_cannot_be_negative": "The limit cannot be negative",
   "kick_member": "Kick member",
   "loading": "Loading…",

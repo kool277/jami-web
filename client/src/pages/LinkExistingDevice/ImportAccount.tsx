@@ -21,6 +21,7 @@ import { QRCodeCanvas } from 'qrcode.react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import BaseButton from '../../components/common/BaseButton.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { ContentCopyIcon } from '../../components/SvgIcon.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
@@ -57,6 +58,30 @@ export default function ImportAccount() {
 
   if (values.isLoading || values.isPending) {
     return <ProcessingRequest open={true} />
+  }
+
+  if (values.isError) {
+    return (
+      <UnconnectedUserLayout pageName={t('import_account')}>
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            gap: '20px',
+          }}
+        >
+          <Typography variant="body2" color="error" align="center">
+            {t('link_device_could_not_initiate')}
+          </Typography>
+          <BaseButton variant="outlined" onClick={() => values.refetch()}>
+            {t('retry')}
+          </BaseButton>
+        </Box>
+      </UnconnectedUserLayout>
+    )
   }
 
   return (
