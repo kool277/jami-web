@@ -34,6 +34,7 @@ import {
   ConversationMessage,
   ConversationPreferences,
   DataTransferError,
+  DeviceAuthStateCode,
   DeviceRevocationState,
   Devices,
   LookupResult,
@@ -468,18 +469,18 @@ export class Jamid {
     this.jamiSwig.cancelAddDevice(accountId, opId)
   }
 
-  async getLinkToken(): Promise<RegistrationStateChanged> {
+  async getLinkToken(): Promise<DeviceAuthStateChanged> {
     const accountDetailsStringMap: StringMap = new this.jamiSwig.StringMap()
     accountDetailsStringMap.set('Account.archiveURL', 'jami-auth')
     accountDetailsStringMap.set('Account.type', 'RING')
 
     const accountId = this.jamiSwig.addAccount(accountDetailsStringMap)
+    // Subscribe before yielding: the daemon delivers signals on the main thread,
+    // so nothing can be emitted until this synchronous block returns.
     return firstValueFrom(
-      this.events.onRegistrationStateChanged.pipe(
+      this.events.onDeviceAuthStateChanged.pipe(
         filter((value) => value.accountId === accountId),
-        filter(
-          (value) => value.state === RegistrationState.Registered || value.state === RegistrationState.ErrorGeneric,
-        ),
+        filter((value) => value.state === DeviceAuthStateCode.TokenAvailable),
       ),
     )
   }
@@ -846,9 +847,6 @@ export class Jamid {
     return this.accountUrisToAccountIds.has(accountId)
   }
 
-  async waitForDeviceAuthStateChanged(): Promise<DeviceAuthStateChanged> {
-    return firstValueFrom(this.events.onDeviceAuthStateChanged)
-  }
   publish(accountId: string, status: boolean, note: string): void {
     this.jamiSwig.publish(accountId, status, note)
   }

@@ -23,6 +23,14 @@ type SignalHandlers = Record<string, (...args: unknown[]) => void>
 
 let signalHandlers: SignalHandlers = {}
 let accountDetailsCalls: string[] = []
+let nextAccountId = 'account-1'
+
+class MockStringMap {
+  private entries = new Map<string, string>()
+  set(key: string, value: string) {
+    this.entries.set(key, value)
+  }
+}
 
 const jamiSwig = {
   init: (handlers: SignalHandlers) => {
@@ -32,13 +40,15 @@ const jamiSwig = {
     accountDetailsCalls.push(accountId)
     return { 'Account.username': `uri-of-${accountId}` }
   },
+  StringMap: MockStringMap,
+  addAccount: () => nextAccountId,
   monitor: () => undefined,
   fini: () => undefined,
 }
 
 mock.module('@savoirfairelinux/jami-core', {
   namedExports: {
-    JamiSignal: { VolatileDetailsChanged: 'VolatileDetailsChanged' },
+    JamiSignal: { VolatileDetailsChanged: 'VolatileDetailsChanged', DeviceAuthStateChanged: 'DeviceAuthStateChanged' },
     loadNativeModule: () => jamiSwig,
     stringMapToRecord: (value: unknown) => value,
     stringVectToArray: (value: unknown) => value,
@@ -46,9 +56,16 @@ mock.module('@savoirfairelinux/jami-core', {
   },
 })
 
+interface DeviceAuthStateChanged {
+  accountId: string
+  state: number
+  details: Record<string, string>
+}
+
 let jamid: {
   isUriAlreadyImported(uri: string): boolean
   getAccountIdFromUsername(username: string): string | undefined
+  getLinkToken(): Promise<DeviceAuthStateChanged>
 }
 
 before(async () => {
@@ -85,5 +102,31 @@ describe('Jamid signal handlers', () => {
     signalHandlers.VolatileDetailsChanged('account-2', { 'Account.registeredName': 'bob' })
 
     assert.equal(jamid.getAccountIdFromUsername('bob'), 'account-2')
+  })
+})
+
+describe('Jamid.getLinkToken', () => {
+  it('resolves with the token of the account it created', async () => {
+    nextAccountId = 'linking-account'
+    const pending = jamid.getLinkToken()
+
+    signalHandlers.DeviceAuthStateChanged('linking-account', 1, { token: 'jami-auth://token' })
+
+    const values = await pending
+    assert.equal(values.accountId, 'linking-account')
+    assert.deepEqual(values.details, { token: 'jami-auth://token' })
+  })
+
+  it('ignores events belonging to another linking account', async () => {
+    nextAccountId = 'mine'
+    const pending = jamid.getLinkToken()
+
+    // A concurrent link on another account must not hand its token to this caller.
+    signalHandlers.DeviceAuthStateChanged('someone-else', 1, { token: 'jami-auth://theirs' })
+    signalHandlers.DeviceAuthStateChanged('mine', 1, { token: 'jami-auth://mine' })
+
+    const values = await pending
+    assert.equal(values.accountId, 'mine')
+    assert.deepEqual(values.details, { token: 'jami-auth://mine' })
   })
 })
