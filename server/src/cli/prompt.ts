@@ -45,7 +45,8 @@ export function prompt(question: string): Promise<string> {
 }
 
 export async function promptPassword(question: string): Promise<string> {
-  const rlInstance = getReadline()
+  // Read raw input alone so readline cannot echo password characters.
+  closePrompt()
   return new Promise((resolve) => {
     // Disable echoing by intercepting keypress
     const stdin = process.stdin
@@ -79,8 +80,6 @@ export async function promptPassword(question: string): Promise<string> {
       }
     }
 
-    // Pause readline to avoid conflict, read raw from stdin
-    rlInstance.pause()
     stdin.resume()
     stdin.on('data', onData)
   })
