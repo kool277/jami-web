@@ -188,7 +188,7 @@ function AdminPasskeySection() {
         </DialogContent>
         <DialogActions>
           <BaseButton variant="text" onClick={() => setDialogOpen(false)}>
-            {t('cancel')}
+            {t('dialog_cancel')}
           </BaseButton>
           <BaseButton onClick={handleRegister} disabled={registerMutation.isPending} variant="contained">
             {t('passkey_register_button')}
