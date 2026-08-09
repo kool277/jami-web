@@ -664,6 +664,7 @@ adminRouter.delete(
         fs.rmdirSync(userFilePath, { recursive: true })
       }
     }
+    await accounts.save()
     await tokenStore.save()
     res.sendStatus(HttpStatusCode.Ok)
   }),
