@@ -172,8 +172,8 @@ describe('ImportAccountLock', () => {
 
     const { container } = renderPage()
 
-    expect(screen.getByText('Peer ID')).toBeInTheDocument()
-    expect(screen.getByText('Device ID')).toBeInTheDocument()
+    expect(screen.getByText('link_device_peer_id')).toBeInTheDocument()
+    expect(screen.getByText('link_device_peer_device_id')).toBeInTheDocument()
     expect(screen.queryByText('PeerId:')).not.toBeInTheDocument()
     expect(screen.queryByText('DeviceId:')).not.toBeInTheDocument()
     expect(container.textContent).toContain('761ee5cca44191c6f4649d78fa5910440edce697')

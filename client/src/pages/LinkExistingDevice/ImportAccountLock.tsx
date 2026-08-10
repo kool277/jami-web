@@ -88,7 +88,7 @@ export default function ImportAccountLock() {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: 'center', width: '100%' }}>
           <Box sx={{ width: '100%' }}>
             <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-              Peer ID
+              {t('link_device_peer_id')}
             </Typography>
             <Typography variant="body2" sx={{ fontFamily: 'monospace', overflowWrap: 'anywhere' }}>
               {peerId || t('unknown')}
@@ -96,7 +96,7 @@ export default function ImportAccountLock() {
           </Box>
           <Box sx={{ width: '100%' }}>
             <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-              Device ID
+              {t('link_device_peer_device_id')}
             </Typography>
             <Typography variant="body2" sx={{ fontFamily: 'monospace', overflowWrap: 'anywhere' }}>
               {peerDeviceId || t('unknown')}
