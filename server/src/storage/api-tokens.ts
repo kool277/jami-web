@@ -17,7 +17,7 @@
  */
 import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
-import { writeFile } from 'node:fs/promises'
+import { rename, unlink, writeFile } from 'node:fs/promises'
 
 import { API_TOKEN_SCOPES, type ApiTokenInfo, type ApiTokenScope } from '@savoirfairelinux/jami-web-common'
 import { Service } from 'typedi'
@@ -29,6 +29,10 @@ export type TokenScope = ApiTokenScope
 
 export const MAX_API_TOKEN_NAME_LENGTH = 100
 export const MAX_API_TOKEN_LIFETIME_SECONDS = 5 * 365 * 24 * 60 * 60
+
+// `lastUsedAt` is only informational, so it is batched instead of rewriting the whole store on
+// every authenticated request.
+const USAGE_FLUSH_INTERVAL_MS = 30_000
 
 export interface StoredApiToken {
   id: string
@@ -50,6 +54,9 @@ interface TokenStoreFormat {
 export class ApiTokenStore {
   private readonly filename = dataDir + '/api-tokens.json'
   private store: TokenStoreFormat
+  private pendingWrite: Promise<void> = Promise.resolve()
+  private usageFlushTimer?: ReturnType<typeof setTimeout>
+  private hasUnsavedUsage = false
 
   constructor() {
     try {
@@ -139,10 +146,55 @@ export class ApiTokenStore {
   }
 
   async save(): Promise<void> {
+    this.hasUnsavedUsage = false
+    // Requests can overlap, and an interleaved write would leave a truncated file that stops the
+    // server from parsing any token on the next start, so writes are queued and swapped in atomically.
+    const write = this.pendingWrite.then(
+      () => this.writeStore(),
+      () => this.writeStore(),
+    )
+    this.pendingWrite = write.catch(() => {})
+    return write
+  }
+
+  /** Notes that a token was used, without paying for a full store rewrite on the request path. */
+  recordUsage(): void {
+    this.hasUnsavedUsage = true
+    if (this.usageFlushTimer !== undefined) {
+      return
+    }
+
+    this.usageFlushTimer = setTimeout(() => {
+      this.usageFlushTimer = undefined
+      void this.flushUsage().catch((error) => console.error('Unable to persist API token usage', error))
+    }, USAGE_FLUSH_INTERVAL_MS)
+    this.usageFlushTimer.unref?.()
+  }
+
+  async flushUsage(): Promise<void> {
+    if (this.usageFlushTimer !== undefined) {
+      clearTimeout(this.usageFlushTimer)
+      this.usageFlushTimer = undefined
+    }
+    if (!this.hasUnsavedUsage) {
+      return
+    }
+    await this.save()
+  }
+
+  private async writeStore(): Promise<void> {
     if (!existsSync(dataDir)) {
       mkdirSync(dataDir, { recursive: true })
     }
-    await writeFile(this.filename, JSON.stringify(this.store, null, 2) + '\n', { mode: 0o600 })
+
+    const temporaryFilename = `${this.filename}.${randomBytes(8).toString('hex')}.tmp`
+    try {
+      await writeFile(temporaryFilename, JSON.stringify(this.store, null, 2) + '\n', { mode: 0o600 })
+      await rename(temporaryFilename, this.filename)
+    } catch (error) {
+      await unlink(temporaryFilename).catch(() => {})
+      throw error
+    }
   }
 }
 

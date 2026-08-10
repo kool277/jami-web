@@ -61,7 +61,7 @@ function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
       res.locals.accountId = result.accountId
       res.locals.tokenScopes = result.scopes
       res.locals.credentialKind = 'apiToken' satisfies CredentialKind
-      await tokenStore.save()
+      tokenStore.recordUsage()
       next()
       return
     }
