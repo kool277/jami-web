@@ -44,6 +44,7 @@ describe('ValidationRequiredModal', () => {
 
     expect(screen.getByRole('heading', { name: 'dialog_confirm_title_default' })).toBeVisible()
     expect(remove).toHaveClass('MuiButton-contained', 'MuiButton-colorError')
+    expect(remove).toHaveStyle({ backgroundColor: 'rgb(204, 0, 34)' })
     expect(cancel).toHaveClass('MuiButton-text')
     expect(cancel.compareDocumentPosition(remove) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(screen.getByText('remove_account_info')).toHaveStyle({ textAlign: 'center' })

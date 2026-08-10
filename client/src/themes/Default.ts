@@ -233,6 +233,13 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
             '&:active': {
               background: BaseButton.interaction.activeBackgroundColor,
             },
+            '&.MuiButton-colorError': {
+              color: palette.getContrastText(palette.error.main),
+              background: palette.error.main,
+              '&:hover': {
+                background: palette.error.dark,
+              },
+            },
           },
           outlined: {
             background: BaseButton.outlined.backgroundColor,
