@@ -73,4 +73,14 @@ describe('SettingsPage', () => {
     const title = screen.getByRole('heading', { level: 1, name: 'Jami authentication' })
     expect(title.parentElement?.parentElement).toContainElement(screen.getByRole('button', { name: 'Enabled' }))
   })
+
+  it('can expand its card to accommodate wider content', () => {
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <SettingsPage contentMaxWidth={960} />
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByTestId('settings-page-island').parentElement).toHaveStyle({ maxWidth: '960px' })
+  })
 })

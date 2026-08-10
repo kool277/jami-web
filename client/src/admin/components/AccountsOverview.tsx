@@ -43,7 +43,13 @@ import { t } from 'i18next'
 import { ChangeEvent, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { DeleteIcon, MoreVerticalIcon, PasswordIcon } from '../../components/SvgIcon.js'
+import {
+  DeleteIcon,
+  MoreVerticalIcon,
+  PasswordIcon,
+  PeopleWithPlusSignIcon,
+  SearchRoundedIcon,
+} from '../../components/SvgIcon.js'
 import { SettingsPage, SettingsSection } from '../../settings/components/SettingsPage.js'
 import { getDataSizeUnits } from '../../utils/units.js'
 import {
@@ -174,10 +180,9 @@ interface EnhancedTableToolbarProps {
   numSelected: number
   accountsNumber: number
   onDelete: () => void
-  onCreate: () => void
 }
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-  const { numSelected, accountsNumber, onDelete, onCreate } = props
+  const { numSelected, accountsNumber, onDelete } = props
   const { t } = useTranslation()
   return (
     <Toolbar
@@ -214,18 +219,13 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
           </IconButton>
         </Tooltip>
       )}
-      {numSelected === 0 && (
-        <Button variant="contained" onClick={onCreate}>
-          {t('admin_account_add')}
-        </Button>
-      )}
     </Toolbar>
   )
 }
 export default function AccountsOverview() {
   const { i18n } = useTranslation()
   const [order, setOrder] = useState<Order>('asc')
-  const [orderBy, setOrderBy] = useState<keyof AccountOverview>('auth')
+  const [orderBy, setOrderBy] = useState<keyof AccountOverview>('username')
   const [selected, setSelected] = useState<readonly string[]>([])
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(rowPerPagesOptions[0])
@@ -295,10 +295,14 @@ export default function AccountsOverview() {
   }
 
   const handleAccountDialogSubmit = async ({ username, password }: { username?: string; password: string }) => {
-    if (accountDialogMode === 'create' && username) {
-      await accountCreationMutation.mutateAsync({ username, password })
-    } else if (accountDialogMode === 'reset-password' && actionAccount) {
-      await accountPasswordMutation.mutateAsync({ accountId: actionAccount.accountId, password })
+    try {
+      if (accountDialogMode === 'create' && username) {
+        await accountCreationMutation.mutateAsync({ username, password })
+      } else if (accountDialogMode === 'reset-password' && actionAccount) {
+        await accountPasswordMutation.mutateAsync({ accountId: actionAccount.accountId, password })
+      }
+    } catch {
+      return
     }
     setAccountDialogMode(null)
     setActionAccount(null)
@@ -329,27 +333,33 @@ export default function AccountsOverview() {
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredRows.length) : 0
 
   return (
-    <SettingsPage>
+    <SettingsPage contentMaxWidth={960}>
       <SettingsSection list={false}>
         <EnhancedTableToolbar
           numSelected={selected.length}
           accountsNumber={rows.length}
           onDelete={handleSubmitDeletion}
-          onCreate={() => setAccountDialogMode('create')}
         />
-        <Box sx={{ display: 'flex', gap: 2, px: 2, pb: 2 }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, px: 2, pb: 2 }}>
           <TextField
             fullWidth
+            size="small"
             label={t('admin_account_search')}
             value={search}
+            slotProps={{
+              input: {
+                startAdornment: <SearchRoundedIcon />,
+              },
+            }}
             onChange={(event) => {
               setSearch(event.target.value)
               setPage(0)
             }}
           />
-          <FormControl sx={{ minWidth: 180 }}>
+          <FormControl size="small" sx={{ minWidth: 180 }}>
             <InputLabel id="account-auth-filter-label">{t('admin_account_auth_filter')}</InputLabel>
             <Select
+              size="small"
               labelId="account-auth-filter-label"
               label={t('admin_account_auth_filter')}
               value={authFilter}
@@ -366,6 +376,14 @@ export default function AccountsOverview() {
               ))}
             </Select>
           </FormControl>
+          <Button
+            variant="contained"
+            startIcon={<PeopleWithPlusSignIcon />}
+            sx={{ flexShrink: 0 }}
+            onClick={() => setAccountDialogMode('create')}
+          >
+            {t('admin_account_add')}
+          </Button>
         </Box>
         <TableContainer sx={{ borderTop: 1, borderBottom: 1, borderColor: 'divider' }}>
           <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="medium">
@@ -395,9 +413,13 @@ export default function AccountsOverview() {
                   >
                     <TableCell sx={{ paddingLeft: '0.5%' }} component="th" id={labelId} scope="row" padding="none">
                       {row.username}
-                      <Box sx={{ typography: 'caption', color: 'text.secondary' }}>{row.accountUri}</Box>
+                      <Box sx={{ typography: 'caption', color: 'text.secondary', fontFamily: 'monospace' }}>
+                        {row.accountUri}
+                      </Box>
                     </TableCell>
-                    <TableCell align="right">{row.accountId}</TableCell>
+                    <TableCell align="right" sx={{ fontFamily: 'monospace' }}>
+                      {row.accountId}
+                    </TableCell>
                     <TableCell align="right">{row.auth}</TableCell>
                     <TableCell align="right">{getDataSizeUnits(row.storage, i18n.language)}</TableCell>
                     <TableCell padding="checkbox">
@@ -467,7 +489,7 @@ export default function AccountsOverview() {
           }}
         >
           <PasswordIcon sx={{ mr: 1 }} />
-          {t('admin_account_reset_password')}
+          {t('change_password')}
         </MenuItem>
         <MenuItem
           onClick={() => {

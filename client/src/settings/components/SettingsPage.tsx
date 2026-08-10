@@ -31,6 +31,7 @@ interface SettingsPageProps {
   headerEndAction?: ReactNode
   sectionGap?: number
   desktopFlushLeft?: boolean
+  contentMaxWidth?: number
   children?: ReactNode
 }
 
@@ -43,6 +44,7 @@ export function SettingsPage({
   headerEndAction,
   sectionGap = 2,
   desktopFlushLeft = false,
+  contentMaxWidth = 680,
   children,
 }: SettingsPageProps) {
   const hasHeader = title || description || icon || headerAction || headerEndAction
@@ -52,7 +54,7 @@ export function SettingsPage({
       <Stack
         sx={{
           width: '100%',
-          maxWidth: 680,
+          maxWidth: contentMaxWidth,
           mx: 'auto',
           p: ISLAND_MARGIN,
           ...(desktopFlushLeft && { pl: { md: 0 } }),
