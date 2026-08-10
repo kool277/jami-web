@@ -51,11 +51,11 @@ export default function ValidationRequiredModal({
       dialogWidth={350}
       actions={
         <>
-          <BaseButton color="error" variant="contained" onClick={onValidation}>
-            {buttonText}
-          </BaseButton>
           <BaseButton variant="text" onClick={onClose}>
             {t('dialog_cancel')}
+          </BaseButton>
+          <BaseButton color="error" variant="contained" onClick={onValidation}>
+            {buttonText}
           </BaseButton>
         </>
       }
@@ -65,7 +65,6 @@ export default function ValidationRequiredModal({
           sx={{
             typography: 'body2',
             color: 'text.secondary',
-            minHeight: 160,
             overflowWrap: 'anywhere',
             display: 'flex',
             alignItems: 'center',
