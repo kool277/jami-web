@@ -240,8 +240,22 @@ authRouter.post(
         res.status(HttpStatusCode.Unauthorized).send('Invalid credentials')
         return
       }
-      const jwt = await signJwt(JAMSAccountId)
-      guard.resetAttempts(JAMSAccountId)
+
+      let accountId = JAMSAccountId
+      if (!jamid.getAccountIds().includes(accountId)) {
+        const registration = await jamid.addAccount(accountDetails)
+        if (registration.state === RegistrationState.ErrorGeneric) {
+          jamid.removeAccount(registration.accountId)
+          res.status(HttpStatusCode.Unauthorized).send('Invalid JAMS credentials')
+          return
+        }
+        accountId = registration.accountId
+        accounts.set(username, data.password, authMethod, accountId)
+        await accounts.save()
+      }
+
+      const jwt = await signJwt(accountId)
+      guard.resetAttempts(accountId)
       res.status(HttpStatusCode.Ok).send({ accessToken: jwt })
       return
     } else if (authMethod === 'local') {

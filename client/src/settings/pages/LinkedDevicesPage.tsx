@@ -21,7 +21,7 @@ import { SettingsPage } from '../components/SettingsPage.js'
 
 export default function LinkedDevicesPage() {
   return (
-    <SettingsPage desktopFlushLeft>
+    <SettingsPage contentMaxWidth={900} desktopFlushLeft>
       <LinkedDevices />
     </SettingsPage>
   )

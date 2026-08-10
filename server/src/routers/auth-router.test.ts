@@ -25,6 +25,9 @@ import { Container } from 'typedi'
 const removedPendingAccounts: string[] = []
 const providedAuthentications: Array<{ accountId: string; credentials: string; scheme: string }> = []
 const accountWrites: Array<{ username: string; value: string; authMethod: string; accountId: string }> = []
+let daemonAccountIds: string[] = []
+let jamsAccount: { password: string; accountId: string } | undefined
+let nextJamsAccountId = 'jams-account-2'
 const openIdJwtArguments: Array<{ email: string; userName: string; service: string }> = []
 let openIdUserInfo: Record<string, unknown> | undefined
 let profilePictureDownloadFails = false
@@ -36,7 +39,10 @@ class MockOpenIdProviders {}
 
 const jamid = {
   getLinkToken: () => undefined,
-  addAccount: async () => ({ accountId: 'guest-account-1' }),
+  addAccount: async (details: Record<string, string>) => ({
+    accountId: details['Account.managerUri'] ? nextJamsAccountId : 'guest-account-1',
+  }),
+  getAccountIds: () => daemonAccountIds,
   provideAccountAuthentication: (accountId: string, credentials: string, scheme: string) => {
     providedAuthentications.push({ accountId, credentials, scheme })
     return true
@@ -51,7 +57,11 @@ const accounts = {
   },
   set: (username: string, value: string, authMethod: string, accountId: string) => {
     accountWrites.push({ username, value, authMethod, accountId })
+    if (authMethod === 'jams') {
+      jamsAccount = { password: value, accountId }
+    }
   },
+  get: (_username: string, authMethod?: string) => (authMethod === 'jams' ? jamsAccount : undefined),
   getOpenIdAccount: () => ({ accountId: 'openid-account-1' }),
   save: () => undefined,
 }
@@ -99,7 +109,8 @@ before(async () => {
   Container.set(MockJamid, jamid)
   Container.set(MockAccounts, accounts)
   Container.set(MockAdminAccount, {
-    getConfig: () => ({ guestAccessEnabled: true, openIdAuthEnabled: true }),
+    getConfig: () => ({ guestAccessEnabled: true, jamsAuthEnabled: true, openIdAuthEnabled: true }),
+    getJamsServerUrl: () => 'https://jams.example',
     getOpenIdProvidersNames: () => ['discord', 'linkedin'],
     isProviderActive: () => true,
   })
@@ -118,6 +129,9 @@ beforeEach(() => {
   removedPendingAccounts.length = 0
   providedAuthentications.length = 0
   accountWrites.length = 0
+  daemonAccountIds = []
+  jamsAccount = undefined
+  nextJamsAccountId = 'jams-account-2'
   openIdJwtArguments.length = 0
   openIdUserInfo = undefined
   profilePictureDownloadFails = false
@@ -193,6 +207,22 @@ describe('auth router guest login', () => {
       },
     )
     assert.equal(Number.isFinite(Number(accountWrite.value)), true)
+  })
+})
+
+describe('auth router JAMS login', () => {
+  it('recreates a stored account that is no longer available in the daemon', async () => {
+    jamsAccount = { password: 'password', accountId: 'missing-jams-account' }
+
+    const response = await request('/auth/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ username: 'ada', password: 'password', authMethod: 'jams' }),
+    })
+
+    assert.equal(response.status, 200)
+    assert.deepEqual(await response.json(), { accessToken: 'jwt' })
+    assert.deepEqual(jamsAccount, { password: 'password', accountId: 'jams-account-2' })
   })
 })
 

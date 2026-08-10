@@ -40,5 +40,6 @@ describe('LinkedDevicesPage', () => {
     expect(screen.queryByRole('heading', { level: 1, name: 'settings_linked_devices' })).not.toBeInTheDocument()
     expect(screen.getByText('Device list')).toBeInTheDocument()
     expect(screen.getByTestId('settings-page-island')).toBeVisible()
+    expect(screen.getByTestId('settings-page-island').parentElement).toHaveStyle({ maxWidth: '900px' })
   })
 })

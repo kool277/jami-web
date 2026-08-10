@@ -15,11 +15,10 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import IconButton from '@mui/material/IconButton'
-import { alpha, useTheme } from '@mui/material/styles'
+import { alpha } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -35,7 +34,6 @@ import { visuallyHidden } from '@mui/utils'
 import { ChangeEvent, MouseEvent, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import EllipsisMiddle from '../../../components/EllipsisMiddle.js'
 import { DeleteIcon, DevicesIcon } from '../../../components/SvgIcon.js'
 import { useAuthContext } from '../../../contexts/AuthProvider.js'
 import { useRemoveLinkedDevice } from '../../../services/accountQueries.js'
@@ -168,8 +166,6 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
   const { numSelected, devicesNumber, onDelete } = props
   const { t } = useTranslation()
   const { account } = useAuthContext()
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   return (
     <>
@@ -221,24 +217,35 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
         >
           {t('Current device:')}
         </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: '5px', alignItems: 'center', alignContent: 'center' }}>
-          <Box
-            sx={{ typography: 'body2', display: 'flex', justifyContent: 'center', alignContent: 'center', gap: '10px' }}
-          >
-            {' '}
-            <DevicesIcon sx={{ height: '20px', width: '20px', marginTop: '1px' }} />{' '}
-            <Box sx={{ textWrap: 'nowrap' }}>{account.details['Account.deviceName']}</Box>
-          </Box>{' '}
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: '5px', alignItems: 'center', minWidth: 0 }}>
           <Box
             sx={{
-              typography: 'caption',
-              fontFamily: 'monospace',
-              marginTop: '2px',
-              maxWidth: isMobile ? '150px' : 'unset',
+              typography: 'body2',
+              display: 'flex',
+              flexShrink: 0,
+              justifyContent: 'center',
+              alignContent: 'center',
+              gap: '10px',
             }}
           >
-            <EllipsisMiddle text={account.volatileDetails['Account.deviceID']} />
-          </Box>
+            {' '}
+            <DevicesIcon sx={{ fontSize: 20, marginTop: '1px' }} />{' '}
+            <Box sx={{ textWrap: 'nowrap' }}>{account.details['Account.deviceName']}</Box>
+          </Box>{' '}
+          <Typography
+            data-testid="current-device-id"
+            noWrap
+            sx={{
+              flex: '1 1 auto',
+              minWidth: 0,
+              fontFamily: 'monospace',
+              marginTop: '2px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
+            {account.volatileDetails['Account.deviceID']}
+          </Typography>
         </Box>
       </Box>
     </>
@@ -372,7 +379,7 @@ export default function LinkedDevices() {
                       sx={{ paddingLeft: paddingValue }}
                     >
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <DevicesIcon sx={{ height: '20px', width: '20px' }} />
+                        <DevicesIcon sx={{ fontSize: 20 }} />
                         {row.deviceName}
                       </Box>
                     </TableCell>
@@ -410,6 +417,14 @@ export default function LinkedDevices() {
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
+          slotProps={{
+            toolbar: {
+              sx: {
+                flexWrap: 'wrap',
+                '& .MuiTablePagination-actions': { ml: { xs: 0, sm: 2.5 } },
+              },
+            },
+          }}
         />
       </Box>
       {open && (
