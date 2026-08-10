@@ -56,7 +56,13 @@ interface NavigationSection {
   items?: NavigationItem[]
 }
 
-export default function AdminSettingsNavigation() {
+interface AdminSettingsNavigationProps {
+  /** Compact navigation is an index, so its child destinations stay visible. */
+  compact?: boolean
+  compactSection?: string
+}
+
+export default function AdminSettingsNavigation({ compact = false, compactSection }: AdminSettingsNavigationProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -121,44 +127,53 @@ export default function AdminSettingsNavigation() {
     localStorage.removeItem('adminAccessToken')
     navigate('/admin/login')
   }
+  const visibleSections = compactSection ? sections.filter((section) => section.id === compactSection) : sections
 
   return (
-    <Stack component="nav" aria-label={t('admin_page_welcome')} sx={{ minHeight: 0, flex: 1, overflowY: 'auto' }}>
-      <Typography variant="h3" sx={{ px: 2, pt: { xs: 2, md: 1 }, pb: 1 }}>
-        {t('admin_page_welcome')}
-      </Typography>
+    <Stack
+      component="nav"
+      aria-label={t('admin_page_welcome')}
+      sx={{ minHeight: 0, flex: 1, overflowY: 'auto', ...(compact && { pt: 2, pb: 2 }) }}
+    >
+      {!compact && (
+        <Typography variant="h3" sx={{ px: 2, pt: { xs: 2, md: 1 }, pb: 1 }}>
+          {t('admin_page_welcome')}
+        </Typography>
+      )}
       <List disablePadding>
-        {sections.map((section) => {
+        {visibleSections.map((section) => {
           const isSelected = isRoutePathActive(pathname, section.activePath)
           const selectedItemIndex = section.items?.findIndex((item) => isRoutePathActive(pathname, item.path)) ?? -1
           const SectionIcon = section.icon
 
           return (
             <li key={section.id}>
-              <ListSubheader component="h2" disableSticky sx={{ minHeight: 48, lineHeight: '48px' }}>
-                <ButtonBase
-                  component={NavLink}
-                  to={section.path}
-                  aria-current={isSelected ? 'page' : undefined}
-                  sx={{
-                    width: '100%',
-                    minHeight: 48,
-                    justifyContent: 'flex-start',
-                    gap: 1,
-                    px: 1,
-                    borderRadius: 2,
-                    typography: 'body1',
-                    fontWeight: 500,
-                    color: isSelected ? 'primary.dark' : 'text.secondary',
-                    backgroundColor: isSelected ? 'primary.light' : 'transparent',
-                  }}
-                >
-                  <SectionIcon filled={isSelected} />
-                  {section.title}
-                </ButtonBase>
-              </ListSubheader>
+              {!compact && (
+                <ListSubheader component="h2" disableSticky sx={{ minHeight: 48, lineHeight: '48px' }}>
+                  <ButtonBase
+                    component={NavLink}
+                    to={section.path}
+                    aria-current={isSelected ? 'page' : undefined}
+                    sx={{
+                      width: '100%',
+                      minHeight: 48,
+                      justifyContent: 'flex-start',
+                      gap: 1,
+                      px: 1,
+                      borderRadius: 2,
+                      typography: 'body1',
+                      fontWeight: 500,
+                      color: isSelected ? 'primary.dark' : 'text.secondary',
+                      backgroundColor: isSelected ? 'primary.light' : 'transparent',
+                    }}
+                  >
+                    <SectionIcon filled={isSelected} />
+                    {section.title}
+                  </ButtonBase>
+                </ListSubheader>
+              )}
               {section.items && (
-                <Collapse in={isSelected} timeout="auto" unmountOnExit>
+                <Collapse in={compact || isSelected} timeout="auto" unmountOnExit>
                   <List
                     disablePadding
                     sx={{
@@ -219,14 +234,16 @@ export default function AdminSettingsNavigation() {
           )
         })}
       </List>
-      <BaseButton
-        variant="text"
-        onClick={logout}
-        startIcon={<LogoutIcon />}
-        sx={{ justifyContent: 'flex-start', mx: 1, mt: 'auto', mb: 2 }}
-      >
-        {t('logout')}
-      </BaseButton>
+      {!compact && (
+        <BaseButton
+          variant="text"
+          onClick={logout}
+          startIcon={<LogoutIcon />}
+          sx={{ justifyContent: 'flex-start', mx: 1, mt: 'auto', mb: 2 }}
+        >
+          {t('logout')}
+        </BaseButton>
+      )}
     </Stack>
   )
 }

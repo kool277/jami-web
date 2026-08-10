@@ -15,16 +15,22 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { alpha, Box, Stack, useMediaQuery, useTheme } from '@mui/material'
+import { alpha, Box, IconButton, Stack, useMediaQuery, useTheme } from '@mui/material'
 import { AdminSettingSelection } from '@savoirfairelinux/jami-web-common'
-import { ReactElement } from 'react'
+import { type ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom'
 
 import Island, { ISLAND_MARGIN, ISLAND_PADDING } from '../../components/common/Island.js'
 import NavItem from '../../components/shell/NavItem.js'
-import { AdminPanelSettingsIcon, GppMaybeIcon, LogoutIcon, ManageAccountsIcon } from '../../components/SvgIcon.js'
-import { AdminConfigurationOptions } from '../../enums/adminConfigurationOptions.js'
+import {
+  AdminPanelSettingsIcon,
+  ArrowBackIcon,
+  GppMaybeIcon,
+  LogoutIcon,
+  ManageAccountsIcon,
+} from '../../components/SvgIcon.js'
+import { CompactBackActionContext } from '../../settings/components/SettingsPage.js'
 import { isRoutePathActive } from '../../utils/routes.js'
 import AdminSettingsNavigation from '../components/AdminSettingsNavigation.js'
 
@@ -42,7 +48,7 @@ function AdminNavRail() {
   const navigate = useNavigate()
   const destinations = [
     {
-      path: `/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`,
+      path: ADMIN_LIST_ROUTE,
       activePath: `/admin/${AdminSettingSelection.CONFIGURATION}`,
       label: t('admin_account_configuration'),
       Icon: AdminPanelSettingsIcon,
@@ -100,9 +106,20 @@ function AdminNavRail() {
  * own two-pane layout instead of borrowing the messenger navigation rail.
  */
 export default function AdminPanel({ children }: AdminPanelProps) {
+  const { t } = useTranslation()
   const theme = useTheme()
   const isCompact = useMediaQuery(theme.breakpoints.down('md'))
+  const { pathname } = useLocation()
   const isDark = theme.palette.mode === 'dark'
+  const configurationPath = `/admin/${AdminSettingSelection.CONFIGURATION}`
+  const authenticationPath = `/admin/${AdminSettingSelection.AUTHENTICATION}`
+  const backPath = isCompact
+    ? pathname.startsWith(`${configurationPath}/`)
+      ? ADMIN_LIST_ROUTE
+      : pathname.startsWith(`${authenticationPath}/`)
+        ? authenticationPath
+        : undefined
+    : undefined
   const navigation = (
     <Stack
       sx={{
@@ -147,7 +164,17 @@ export default function AdminPanel({ children }: AdminPanelProps) {
     >
       {!isCompact && <Island sx={{ m: ISLAND_MARGIN, p: ISLAND_PADDING }}>{navigation}</Island>}
       <Box component="main" sx={{ flex: 1, minWidth: 0, minHeight: 0, overflowY: 'auto' }}>
-        {children}
+        <CompactBackActionContext
+          value={
+            backPath && (
+              <IconButton component={RouterLink} to={backPath} aria-label={t('back')}>
+                <ArrowBackIcon />
+              </IconButton>
+            )
+          }
+        >
+          {children}
+        </CompactBackActionContext>
       </Box>
       {isCompact && <AdminNavRail />}
     </Stack>

@@ -65,6 +65,9 @@ const AppAccessSettings = lazy(() =>
 )
 const AdminLogin = lazy(() => loadAdminBundle().then(({ AdminLogin }) => ({ default: AdminLogin })))
 const AdminPanel = lazy(() => loadAdminBundle().then(({ AdminPanel }) => ({ default: AdminPanel })))
+const AdminSettingsIndex = lazy(() =>
+  loadAdminBundle().then(({ AdminSettingsIndex }) => ({ default: AdminSettingsIndex })),
+)
 const AdminConfigureJams = lazy(() =>
   loadAdminBundle().then(({ AdminConfigureJams }) => ({ default: AdminConfigureJams })),
 )
@@ -140,15 +143,7 @@ export const router = createBrowserRouter(
           </AdminAuthWrapper>
         }
       >
-        <Route
-          path="admin/settings"
-          element={
-            <Navigate
-              to={`/admin/${AdminSettingSelection.CONFIGURATION}/${AdminConfigurationOptions.ACCOUNT}`}
-              replace
-            />
-          }
-        />
+        <Route path="admin/settings" element={<AdminSettingsIndex />} />
         <Route
           path={`/admin/${AdminSettingSelection.CONFIGURATION}`}
           element={
