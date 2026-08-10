@@ -45,7 +45,12 @@ const removedAccountIds: string[] = []
 let failNextAccountSave = false
 
 const accounts = {
-  getAll: () => ({ local: {}, jams: {}, openid: {}, guest: {} }),
+  getAll: () => ({
+    local: Object.fromEntries(localCredentials),
+    jams: {},
+    openid: {},
+    guest: {},
+  }),
   get: (username: string) => (accountUsernames.has(username) ? (localCredentials.get(username) ?? {}) : undefined),
   set: (username: string, password: string, _auth: string, accountId: string) => {
     accountUsernames.add(username)
@@ -74,6 +79,7 @@ const accounts = {
   reload: () => {
     accountUsernames = new Set(persistedAccountUsernames)
   },
+  getGuests: () => ({}),
 }
 
 mock.module('../jamid/jamid.js', { namedExports: { Jamid: MockJamid } })
@@ -105,6 +111,8 @@ let app: express.Express
 before(async () => {
   Container.set(MockJamid, {
     addAccount: async () => ({ accountId: 'new-account' }),
+    getAccountDetails: () => ({ 'Account.username': 'alice' }),
+    getAccountIdFromUsername: () => 'stale-account-id',
     registerUsername: async () => 0,
     removeAccount: (accountId: string) => removedAccountIds.push(accountId),
   })
@@ -179,6 +187,23 @@ describe('DELETE /admin/accounts', () => {
     assert.equal(response.status, 200)
     accounts.reload()
     assert.equal(accountUsernames.has('alice'), false)
+  })
+})
+
+describe('GET /admin/accounts', () => {
+  it('uses the stored local credential account ID for password actions', async () => {
+    const response = await request('/admin/accounts', { method: 'GET' })
+
+    assert.equal(response.status, 200)
+    assert.deepEqual(await response.json(), [
+      {
+        accountId: 'account-1',
+        accountUri: 'alice',
+        auth: 'local',
+        storage: 0,
+        username: 'alice',
+      },
+    ])
   })
 })
 

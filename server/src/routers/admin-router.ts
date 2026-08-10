@@ -595,20 +595,17 @@ adminRouter.get(
         })
       }
     }
-    for (const [username] of Object.entries(localAccounts)) {
-      const accountId = jamid.getAccountIdFromUsername(username)
-      if (accountId) {
-        const accountUri = jamid.getAccountDetails(accountId)['Account.username']
-        const path = dataPath + '/' + accountId
-        if (accountUri) {
-          accountsList.push({
-            username,
-            accountUri,
-            auth: 'local',
-            storage: await getSizeOnDisk(path),
-            accountId,
-          })
-        }
+    for (const [username, account] of Object.entries(localAccounts)) {
+      const accountUri = jamid.getAccountDetails(account.accountId)['Account.username']
+      const path = dataPath + '/' + account.accountId
+      if (accountUri) {
+        accountsList.push({
+          username,
+          accountUri,
+          auth: 'local',
+          storage: await getSizeOnDisk(path),
+          accountId: account.accountId,
+        })
       }
     }
 
