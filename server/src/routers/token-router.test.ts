@@ -131,4 +131,15 @@ describe('token router', () => {
     assert.equal(response.status, 400)
     assert.equal(createTokenCalls.length, 0)
   })
+
+  it('rejects an empty scope list instead of minting an unrestricted token', async () => {
+    const response = await request('/tokens', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: 'integration', scopes: [] }),
+    })
+
+    assert.equal(response.status, 400)
+    assert.equal(createTokenCalls.length, 0)
+  })
 })

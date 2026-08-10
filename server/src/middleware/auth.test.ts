@@ -41,15 +41,28 @@ mock.module('../utils/jwt.js', {
 })
 
 let app: express.Express
+let scopedApp: express.Express
 
 before(async () => {
   Container.set(MockAccounts, accounts)
   Container.set(MockApiTokenStore, { validateToken: () => undefined })
   const authModulePath = './auth.js?session-invalidation-test'
-  const { authenticateToken } = await import(authModulePath)
+  const { authenticateToken, requireApiTokenScope } = await import(authModulePath)
 
   app = express()
   app.get('/protected', authenticateToken, (_req, res) => res.sendStatus(HttpStatusCode.NoContent))
+
+  scopedApp = express()
+  scopedApp.get(
+    '/scoped',
+    (req: express.Request, res: express.Response, next: express.NextFunction) => {
+      res.locals.credentialKind = 'apiToken'
+      res.locals.tokenScopes = JSON.parse(String(req.headers['x-test-scopes'] ?? '[]'))
+      next()
+    },
+    requireApiTokenScope('account'),
+    (_req: express.Request, res: express.Response) => res.sendStatus(HttpStatusCode.NoContent),
+  )
 })
 
 after(() => {
@@ -83,5 +96,39 @@ describe('authenticateToken session invalidation', () => {
     const response = await request('current')
 
     assert.equal(response.status, HttpStatusCode.NoContent)
+  })
+})
+
+async function requestScoped(scopes: string[]): Promise<Response> {
+  const server = createServer(scopedApp)
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+  try {
+    const address = server.address()
+    assert.ok(address && typeof address !== 'string')
+    return await fetch(`http://127.0.0.1:${address.port}/scoped`, {
+      headers: { 'x-test-scopes': JSON.stringify(scopes) },
+    })
+  } finally {
+    await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
+  }
+}
+
+describe('requireApiTokenScope', () => {
+  it('allows a token holding the scope the route requires', async () => {
+    const response = await requestScoped(['account:read'])
+
+    assert.equal(response.status, HttpStatusCode.NoContent)
+  })
+
+  it('rejects a token that lacks the scope the route requires', async () => {
+    const response = await requestScoped(['contacts:read'])
+
+    assert.equal(response.status, HttpStatusCode.Forbidden)
+  })
+
+  it('treats a token carrying no scopes as granting no access', async () => {
+    const response = await requestScoped([])
+
+    assert.equal(response.status, HttpStatusCode.Forbidden)
   })
 })

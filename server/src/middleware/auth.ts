@@ -111,11 +111,6 @@ export function requireApiTokenScope(resource: ApiTokenResource) {
     }
 
     const scopes = res.locals.tokenScopes as ApiTokenScope[]
-    if (scopes.length === 0) {
-      next()
-      return
-    }
-
     const operation = req.method === 'GET' || req.method === 'HEAD' ? 'read' : 'write'
     const requiredScope = `${resource}:${operation}` as ApiTokenScope
     if (!scopes.includes(requiredScope)) {

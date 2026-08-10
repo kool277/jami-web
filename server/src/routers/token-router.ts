@@ -52,10 +52,11 @@ tokenRouter.post(
 
     if (
       !Array.isArray(scopes) ||
+      scopes.length === 0 ||
       !scopes.every((scope): scope is TokenScope => API_TOKEN_SCOPES.includes(scope as TokenScope)) ||
       new Set(scopes).size !== scopes.length
     ) {
-      res.status(HttpStatusCode.BadRequest).send('Token scopes must be unique supported scopes')
+      res.status(HttpStatusCode.BadRequest).send('Token scopes must be a non-empty list of unique supported scopes')
       return
     }
 
