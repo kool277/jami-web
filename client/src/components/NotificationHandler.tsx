@@ -50,6 +50,10 @@ export default function NotificationHandler({ children }: { children: React.Reac
   const preferencesQuery = useConversationPreferencesQuery(conversationId)
 
   useEffect(() => {
+    if (!contactUri || !conversationId || !message) {
+      return
+    }
+
     const fetchData = async () => {
       const contactData = await contactQuery.refetch()
       const conversationData = await preferencesQuery.refetch()
