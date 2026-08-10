@@ -34,7 +34,7 @@ import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useConversationPreferencesStateContext } from '../contexts/ConversationPreferencesStateContext.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
-import { useMarkConversationSummaryRead, useMessagesQuery } from '../services/conversationQueries.js'
+import { useKeepConversationSummaryRead, useMessagesQuery } from '../services/conversationQueries.js'
 import { getReadReceiptTarget } from '../utils/readReceipts.js'
 import LoadingSkeleton from './common/LoadingSkeleton.js'
 import ComposingMembersIndicator from './ComposingMembersIndicator.js'
@@ -105,7 +105,6 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
   const [state, dispatch] = useReducer(reducer, initialState)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const lastSentReadReceiptRef = useRef<string | undefined>(undefined)
-  const markConversationSummaryRead = useMarkConversationSummaryRead()
   const { messagesMap, messageOrder, replies, lastSeen, isLoading, error } = state
 
   const messagesQuery = useMessagesQuery(conversationId, messagesMap.size === 0)
@@ -529,6 +528,7 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
   const messagesArray = useMemo(() => {
     return messageOrder.map((id) => messagesMap.get(id)).filter(Boolean) as Message[]
   }, [messageOrder, messagesMap])
+  useKeepConversationSummaryRead(conversationId, messagesArray[0]?.id)
 
   const { searchQuery } = useConversationPreferencesStateContext()
 
@@ -543,11 +543,6 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
       return
     }
 
-    // Opening a conversation clears its badge even when the daemon already has
-    // an up-to-date marker, since the cached summaries would otherwise keep
-    // serving the count they were fetched with.
-    markConversationSummaryRead(conversationId)
-
     const accountUri = account.getUri()
     const messageId = getReadReceiptTarget(messagesArray, accountUri)
     if (!messageId || lastSentReadReceiptRef.current === messageId) {
@@ -561,7 +556,7 @@ const ChatInterfaceManagerContent = ({ openFilePicker }: ChatInterfaceManagerPro
       conversationId,
       status: MessageStatusCode.read,
     })
-  }, [messagesArray, account, conversationId, webSocket, markConversationSummaryRead])
+  }, [messagesArray, account, conversationId, webSocket])
 
   if (isLoading) {
     return <LoadingSkeleton />

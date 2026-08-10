@@ -26,13 +26,31 @@ import {
 } from '@savoirfairelinux/jami-web-common'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AxiosResponse } from 'axios'
-import { use, useCallback } from 'react'
+import { use, useCallback, useEffect } from 'react'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { ConversationMember } from '../models/conversation-member.js'
 import { useAddToCache, useRemoveFromCache } from '../utils/reactquery.js'
 import { markSummaryRead } from '../utils/readReceipts.js'
+
+const readMessagesByAccount = new Map<string, Map<string, string>>()
+
+export const applyReadStateOverrides = <T extends { id: string; lastMessage: { id: string }; unreadMessages: number }>(
+  summaries: T[],
+  readMessages: ReadonlyMap<string, string>,
+): T[] => {
+  const hasStaleCount = summaries.some(
+    (summary) => readMessages.get(summary.id) === summary.lastMessage.id && summary.unreadMessages !== 0,
+  )
+  if (!hasStaleCount) {
+    return summaries
+  }
+
+  return summaries.map((summary) =>
+    readMessages.get(summary.id) === summary.lastMessage.id ? { ...summary, unreadMessages: 0 } : summary,
+  )
+}
 
 export const useConversationInfosQuery = (conversationId?: string) => {
   const { axiosInstance } = useAuthContext()
@@ -59,12 +77,12 @@ export const useConversationInfosMutation = (conversationId: string) => {
 }
 
 export const useConversationsSummariesQuery = (enabled = true) => {
-  const { axiosInstance } = useAuthContext()
+  const { accountId, axiosInstance } = useAuthContext()
   return useQuery({
     queryKey: ['conversations', 'summaries'],
     queryFn: async () => {
       const { data } = await axiosInstance.get<IConversationSummary[]>(`/conversations`)
-      return data
+      return applyReadStateOverrides(data, readMessagesByAccount.get(accountId) ?? new Map())
     },
     enabled,
   })
@@ -105,6 +123,25 @@ export const useMarkConversationSummaryRead = () => {
     },
     [queryClient],
   )
+}
+
+/**
+ * Prevents a stale summaries refresh from restoring the unread badge while
+ * the user is actively viewing that conversation.
+ */
+export const useKeepConversationSummaryRead = (conversationId: string, lastReadMessageId?: string) => {
+  const { accountId } = useAuthContext()
+  const { data: summaries } = useConversationsSummariesQuery()
+  const markConversationSummaryRead = useMarkConversationSummaryRead()
+
+  useEffect(() => {
+    if (lastReadMessageId) {
+      const readMessages = readMessagesByAccount.get(accountId) ?? new Map<string, string>()
+      readMessages.set(conversationId, lastReadMessageId)
+      readMessagesByAccount.set(accountId, readMessages)
+    }
+    markConversationSummaryRead(conversationId)
+  }, [accountId, conversationId, lastReadMessageId, markConversationSummaryRead, summaries])
 }
 
 export const useRefreshConversationsSummaries = () => {

@@ -21,9 +21,11 @@ import type { ReactNode } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 
 import {
+  applyReadStateOverrides,
   conversationRequestsQueryKey,
   normalizeConversationRequests,
   useAddConversationRequestToCache,
+  useKeepConversationSummaryRead,
   useRemoveConversationRequestFromCache,
 } from './conversationQueries.js'
 
@@ -73,5 +75,50 @@ describe('conversation request cache updates', () => {
     result.current(request.conversationId)
 
     expect(queryClient.getQueryData(conversationRequestsQueryKey)).toEqual([])
+  })
+})
+
+describe('active conversation read state', () => {
+  it('rejects a stale unread count for the last message read locally', () => {
+    const summaries = [
+      { id: 'active-conversation', unreadMessages: 1, lastMessage: { id: 'read-message' } },
+      { id: 'other-conversation', unreadMessages: 2, lastMessage: { id: 'other-message' } },
+    ]
+    const readMessages = new Map([['active-conversation', 'read-message']])
+
+    const updated = applyReadStateOverrides(summaries, readMessages)
+
+    expect(updated[0].unreadMessages).toBe(0)
+    expect(updated[1].unreadMessages).toBe(2)
+  })
+
+  it('keeps unread counts when a newer message replaces the local read watermark', () => {
+    const summaries = [{ id: 'active-conversation', unreadMessages: 1, lastMessage: { id: 'new-message' } }]
+    const readMessages = new Map([['active-conversation', 'read-message']])
+
+    expect(applyReadStateOverrides(summaries, readMessages)).toBe(summaries)
+  })
+
+  it('keeps the active conversation read after a summaries refresh', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    )
+    const summaries = [{ id: 'active-conversation', unreadMessages: 3 }]
+    queryClient.setQueryData(['conversations', 'summaries'], summaries)
+
+    const { result } = renderHook(() => useKeepConversationSummaryRead('active-conversation'), { wrapper })
+
+    await vi.waitFor(() => {
+      expect(queryClient.getQueryData<typeof summaries>(['conversations', 'summaries'])?.[0].unreadMessages).toBe(0)
+    })
+
+    queryClient.setQueryData(['conversations', 'summaries'], summaries)
+
+    await vi.waitFor(() => {
+      expect(queryClient.getQueryData<typeof summaries>(['conversations', 'summaries'])?.[0].unreadMessages).toBe(0)
+    })
+
+    expect(result.current).toBeUndefined()
   })
 })
