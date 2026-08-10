@@ -951,6 +951,9 @@ paths:
     patch:
       tags: [Account]
       summary: Change the local Jami Web account password
+      description: >-
+        Invalidates every session and API token issued for the account and closes its open
+        websockets, so credentials minted under the previous password stop working.
       requestBody:
         required: true
         content:

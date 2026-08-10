@@ -36,11 +36,15 @@ import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken, requireApiTokenScope } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 import { Accounts } from '../storage/accounts.js'
+import { ApiTokenStore } from '../storage/api-tokens.js'
 import { hashPassword, verifyPassword } from '../utils/password.js'
 import { clearAvatarCache } from '../utils/vCard.js'
+import { WebSocketServer } from '../websocket/websocket-server.js'
 
 const jamid = Container.get(Jamid)
 const accounts = Container.get(Accounts)
+const tokenStore = Container.get(ApiTokenStore)
+const webSocketServer = Container.get(WebSocketServer)
 export const accountRouter = Router()
 
 accountRouter.use(authenticateToken)
@@ -142,12 +146,18 @@ accountRouter.patch(
     const hashedPassword = await hashPassword(newPassword)
     const previousHashedPassword = account.password
     accounts.updateLocalPassword(accountId, hashedPassword)
+    // A password change is how a user locks out a compromised device, so every credential minted
+    // under the old password has to stop working before the request is acknowledged.
+    accounts.setSessionsInvalidAfter(accountId)
     try {
       await accounts.save()
     } catch (error) {
       accounts.updateLocalPassword(accountId, previousHashedPassword)
       throw error
     }
+    tokenStore.revokeAllTokens(accountId)
+    await tokenStore.save()
+    webSocketServer.closeAccountSockets(accountId)
     res.sendStatus(HttpStatusCode.NoContent)
   }),
 )

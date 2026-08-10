@@ -27,9 +27,15 @@ const credential = { accountId, password: 'hashed-current-password' }
 let hasLocalCredential = true
 let saveShouldFail = false
 let saveCalls = 0
+let sessionsInvalidatedFor: string[] = []
+let revokedTokensFor: string[] = []
+let closedSocketsFor: string[] = []
+let tokenSaveCalls = 0
 
 class MockJamid {}
 class MockAccounts {}
+class MockApiTokenStore {}
+class MockWebSocketServer {}
 
 const accounts = {
   getLocalByAccountId: (id: string) => (hasLocalCredential && id === accountId ? credential : undefined),
@@ -40,6 +46,9 @@ const accounts = {
     credential.password = password
     return true
   },
+  setSessionsInvalidAfter: (id: string) => {
+    sessionsInvalidatedFor.push(id)
+  },
   save: async () => {
     saveCalls += 1
     if (saveShouldFail) {
@@ -48,8 +57,26 @@ const accounts = {
   },
 }
 
+const tokenStore = {
+  revokeAllTokens: (id: string) => {
+    revokedTokensFor.push(id)
+    return true
+  },
+  save: async () => {
+    tokenSaveCalls += 1
+  },
+}
+
+const webSocketServer = {
+  closeAccountSockets: (id: string) => {
+    closedSocketsFor.push(id)
+  },
+}
+
 mock.module('../jamid/jamid.js', { namedExports: { Jamid: MockJamid } })
 mock.module('../storage/accounts.js', { namedExports: { Accounts: MockAccounts } })
+mock.module('../storage/api-tokens.js', { namedExports: { ApiTokenStore: MockApiTokenStore } })
+mock.module('../websocket/websocket-server.js', { namedExports: { WebSocketServer: MockWebSocketServer } })
 mock.module('../middleware/auth.js', {
   namedExports: {
     authenticateToken: (_req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -78,6 +105,8 @@ let app: express.Express
 before(async () => {
   Container.set(MockJamid, {})
   Container.set(MockAccounts, accounts)
+  Container.set(MockApiTokenStore, tokenStore)
+  Container.set(MockWebSocketServer, webSocketServer)
   const accountRouterModule = './account-router.js?password-route-test'
   const { accountRouter } = await import(accountRouterModule)
 
@@ -91,12 +120,18 @@ beforeEach(() => {
   hasLocalCredential = true
   saveShouldFail = false
   saveCalls = 0
+  sessionsInvalidatedFor = []
+  revokedTokensFor = []
+  closedSocketsFor = []
+  tokenSaveCalls = 0
 })
 
 after(() => {
   mock.restoreAll()
   Container.remove(MockJamid)
   Container.remove(MockAccounts)
+  Container.remove(MockApiTokenStore)
+  Container.remove(MockWebSocketServer)
 })
 
 async function request(body: unknown): Promise<Response> {
@@ -129,6 +164,25 @@ describe('PATCH /account/password', () => {
     assert.equal(response.status, 204)
     assert.equal(credential.password, 'hashed-new-password')
     assert.equal(saveCalls, 1)
+  })
+
+  it('invalidates existing sessions, API tokens, and sockets so old credentials cannot be reused', async () => {
+    const response = await request({ currentPassword: 'CurrentPass1!', newPassword: 'NewPassword1!' })
+
+    assert.equal(response.status, 204)
+    assert.deepEqual(sessionsInvalidatedFor, [accountId])
+    assert.deepEqual(revokedTokensFor, [accountId])
+    assert.deepEqual(closedSocketsFor, [accountId])
+    assert.equal(tokenSaveCalls, 1)
+  })
+
+  it('keeps sessions and tokens untouched when the current password is wrong', async () => {
+    const response = await request({ currentPassword: 'WrongPassword1!', newPassword: 'NewPassword1!' })
+
+    assert.equal(response.status, 409)
+    assert.deepEqual(sessionsInvalidatedFor, [])
+    assert.deepEqual(revokedTokensFor, [])
+    assert.deepEqual(closedSocketsFor, [])
   })
 
   it('rejects an incorrect current password without modifying the credential', async () => {
@@ -168,5 +222,7 @@ describe('PATCH /account/password', () => {
     assert.equal(response.status, 500)
     assert.equal(credential.password, 'hashed-current-password')
     assert.equal(saveCalls, 1)
+    assert.deepEqual(revokedTokensFor, [])
+    assert.deepEqual(closedSocketsFor, [])
   })
 })
