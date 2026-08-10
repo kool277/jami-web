@@ -37,10 +37,98 @@ describe('AdminAccountDialog', () => {
     )
 
     await user.type(screen.getByLabelText(/admin_page_accounts_overview_title_username/), 'alice')
-    await user.type(screen.getByLabelText(/admin_page_password_placeholder/), 'secure-password')
-    await user.type(screen.getByLabelText(/admin_page_password_repeat_placeholder/), 'secure-password')
+    await user.type(screen.getAllByLabelText(/password_input_label/)[0], 'secure-password')
+    await user.type(screen.getByLabelText(/password_input_label_repeat/), 'secure-password')
     await user.click(screen.getByRole('button', { name: 'admin_account_create' }))
 
     expect(onSubmit).toHaveBeenCalledWith({ username: 'alice', password: 'secure-password' })
+  })
+
+  it('prevents submitting an invalid username', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <AdminAccountDialog open mode="create" pending={false} onClose={vi.fn()} onSubmit={vi.fn()} />
+      </ThemeProvider>,
+    )
+
+    await user.type(screen.getByLabelText(/admin_page_accounts_overview_title_username/), 'a!')
+    await user.type(screen.getAllByLabelText(/password_input_label/)[0], 'secure-password')
+    await user.type(screen.getByLabelText(/password_input_label_repeat/), 'secure-password')
+
+    expect(screen.getByText('username_input_helper_text_invalid')).toHaveClass('Mui-error')
+    expect(screen.getByRole('button', { name: 'admin_account_create' })).toBeDisabled()
+  })
+
+  it('uses compact, icon-led fields and the password length guidance', () => {
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <AdminAccountDialog open mode="create" pending={false} onClose={vi.fn()} onSubmit={vi.fn()} />
+      </ThemeProvider>,
+    )
+
+    const username = screen.getByLabelText(/admin_page_accounts_overview_title_username/)
+    const [password] = screen.getAllByLabelText(/password_input_label/)
+    const confirmation = screen.getByLabelText(/password_input_label_repeat/)
+
+    for (const field of [username, password, confirmation]) {
+      expect(field.closest('.MuiInputBase-root')).toHaveClass('MuiInputBase-sizeSmall')
+    }
+    expect(username.parentElement).toHaveTextContent('person')
+    expect(password.parentElement).toHaveTextContent('password')
+    expect(confirmation.parentElement).toHaveTextContent('password')
+    expect(screen.queryByText('password_input_helper_text_too_short')).not.toBeInTheDocument()
+  })
+
+  it('shows localized password errors only when their validation conditions apply', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <AdminAccountDialog open mode="create" pending={false} onClose={vi.fn()} onSubmit={vi.fn()} />
+      </ThemeProvider>,
+    )
+
+    const [password] = screen.getAllByLabelText(/password_input_label/)
+    const confirmation = screen.getByLabelText(/password_input_label_repeat/)
+
+    await user.type(password, 'short')
+    expect(screen.getByText('password_input_helper_text_too_short')).toHaveClass('Mui-error')
+
+    await user.type(password, 'password')
+    expect(screen.queryByText('password_input_helper_text_too_short')).not.toBeInTheDocument()
+
+    await user.type(confirmation, 'different')
+    expect(screen.getByText('password_input_helper_text_not_match')).toHaveClass('Mui-error')
+    expect(screen.queryByText('passwords_do_not_match')).not.toBeInTheDocument()
+  })
+
+  it('keeps the floating username label clear of the outlined border', () => {
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <AdminAccountDialog open mode="create" pending={false} onClose={vi.fn()} onSubmit={vi.fn()} />
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByText(/admin_page_accounts_overview_title_username/, { selector: 'label' })).toHaveStyle({
+      backgroundColor: 'rgb(250, 246, 240)',
+    })
+    expect(document.getElementById('admin-account-form')?.closest('.MuiDialogContent-root')).toHaveStyle({
+      paddingTop: '12px',
+    })
+  })
+
+  it('retains new-password labels when resetting a password', () => {
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <AdminAccountDialog open mode="reset-password" pending={false} onClose={vi.fn()} onSubmit={vi.fn()} />
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByLabelText(/admin_page_password_placeholder/)).toBeVisible()
+    expect(screen.getByLabelText(/admin_page_password_repeat_placeholder/)).toBeVisible()
+    expect(screen.getByRole('heading', { name: 'change_password' })).toBeVisible()
+    expect(screen.getByRole('button', { name: 'change_password' })).toBeVisible()
   })
 })
