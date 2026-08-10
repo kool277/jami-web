@@ -26,6 +26,7 @@ import * as WebSocket from 'ws'
 
 import { PresenceService } from '../services/PresenceService.js'
 import { Accounts } from '../storage/accounts.js'
+import { isElectronMode } from '../utils/electron.js'
 import { verifyJwt } from '../utils/jwt.js'
 const accounts = Container.get(Accounts)
 
@@ -123,6 +124,12 @@ export class WebSocketServer {
       const { payload } = await verifyJwt(token)
       const accountId = payload.accountId as string
 
+      if (!isElectronMode && !accounts.isSessionValid(accountId, payload.iat)) {
+        socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n')
+        socket.destroy()
+        return
+      }
+
       log.info('Authentication successful for account', accountId)
       this.wss.handleUpgrade(request, socket, head, (ws) => {
         this.wss.emit('connection', ws, request, accountId)
@@ -136,6 +143,12 @@ export class WebSocketServer {
 
   bind<T extends WebSocketMessageType>(type: T, callback: WebSocketCallback<T>): void {
     this.callbacks[type].add(callback)
+  }
+
+  closeAccountSockets(accountId: string): void {
+    for (const socket of this.sockets.get(accountId) ?? []) {
+      socket.close(4401, 'Session invalidated')
+    }
   }
 
   send<T extends WebSocketMessageType>(accountId: string, type: T, data: WebSocketMessageTable[T]): boolean {

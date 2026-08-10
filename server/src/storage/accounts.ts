@@ -41,12 +41,17 @@ interface AccountsFormat {
   >
 }
 
+interface PersistedAccountsFormat extends AccountsFormat {
+  sessionsInvalidAfter?: Record<string, number>
+}
+
 const METHODS = ['local', 'jams', 'guest', 'openid']
 
 @Service()
 export class Accounts {
   private readonly filename = dataDir + '/accounts.json'
   private accounts: AccountsFormat
+  private sessionsInvalidAfter: Record<string, number>
   private jamidInstance: Jamid | null = null // Lazy initialization
   private accountsIds: Set<string>
 
@@ -55,9 +60,14 @@ export class Accounts {
     try {
       buffer = readFileSync(this.filename)
     } catch (e) {
-      buffer = Buffer.from('{"local":{},"jams":{}, "guest":{}, "openid":{}, "pendingImports":{}}')
+      buffer = Buffer.from(
+        '{"local":{},"jams":{},"sessionsInvalidAfter":{},"guest":{},"openid":{},"pendingImports":{}}',
+      )
     }
-    this.accounts = JSON.parse(buffer.toString())
+    const persistedAccounts: PersistedAccountsFormat = JSON.parse(buffer.toString())
+    this.sessionsInvalidAfter = persistedAccounts.sessionsInvalidAfter ?? {}
+    delete persistedAccounts.sessionsInvalidAfter
+    this.accounts = persistedAccounts
 
     this.accountsIds = new Set<string>()
     // add the accountIds to the set
@@ -175,6 +185,15 @@ export class Accounts {
     return true
   }
 
+  setSessionsInvalidAfter(accountId: string): void {
+    this.sessionsInvalidAfter[accountId] = Date.now() / 1000
+  }
+
+  isSessionValid(accountId: string, issuedAt: unknown): boolean {
+    const invalidAfter = this.sessionsInvalidAfter[accountId]
+    return invalidAfter === undefined || (typeof issuedAt === 'number' && issuedAt > invalidAfter)
+  }
+
   removeByAccountId(accountId: string): boolean {
     let removed = false
 
@@ -201,6 +220,7 @@ export class Accounts {
     }
 
     this.accountsIds.delete(accountId)
+    delete this.sessionsInvalidAfter[accountId]
     return removed
   }
 
@@ -223,6 +243,9 @@ export class Accounts {
     }
 
     delete this.accounts[authMethod as keyof AccountsFormat][username.toLowerCase()]
+    if (typeof account !== 'string') {
+      delete this.sessionsInvalidAfter[account.accountId]
+    }
   }
 
   isInPendingAccounts(accountId: string) {
@@ -281,6 +304,9 @@ export class Accounts {
   }
 
   async save(): Promise<void> {
-    await writeFile(this.filename, JSON.stringify(this.accounts, null, 2) + '\n')
+    await writeFile(
+      this.filename,
+      JSON.stringify({ ...this.accounts, sessionsInvalidAfter: this.sessionsInvalidAfter }, null, 2) + '\n',
+    )
   }
 }

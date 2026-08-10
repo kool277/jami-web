@@ -45,7 +45,7 @@ export class WebSocketClient {
   // TODO: Add timeout (or something else) for messages that should be discarded when it takes too long
   private sendQueue: Parameters<WebSocketClient['send']>[] = []
 
-  connect(apiUrl: string, accessToken: string) {
+  connect(apiUrl: string, accessToken: string, onSessionInvalidated?: () => void) {
     if (this.accessToken === accessToken) {
       if (this.webSocket?.readyState === WebSocket.OPEN || this.webSocket?.readyState === WebSocket.CONNECTING) {
         return // Connection is already OK
@@ -74,6 +74,11 @@ export class WebSocketClient {
     }
 
     webSocket.onclose = (event) => {
+      if (event.code === 4401) {
+        console.debug('WebSocket session was invalidated')
+        onSessionInvalidated?.()
+        return
+      }
       // Involuntary disconnection. See 'disconnect' method to disconnect voluntarily.
       console.debug(`WebSocket has been involuntarily disconnected (code: ${event.code}). Reconnecting...`)
       this.reconnectionTimeout = setTimeout(() => this.connect(apiUrl, accessToken), 2000)

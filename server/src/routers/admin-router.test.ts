@@ -32,12 +32,15 @@ class MockAdminAccount {}
 class MockApiTokenStore {}
 class MockOpenIdProviders {}
 class MockPasskeyStore {}
+class MockWebSocketServer {}
 
 const uploadPath = mkdtempSync(join(tmpdir(), 'jami-web-admin-router-test-'))
 let accountUsernames = new Set<string>()
 let persistedAccountUsernames = new Set<string>()
 let localCredentials = new Map<string, { accountId: string; password: string }>()
 const revokedAccountIds: string[] = []
+const invalidatedAccountIds: string[] = []
+const disconnectedAccountIds: string[] = []
 const removedAccountIds: string[] = []
 let failNextAccountSave = false
 
@@ -56,6 +59,7 @@ const accounts = {
     credential.password = password
     return true
   },
+  setSessionsInvalidAfter: (accountId: string) => invalidatedAccountIds.push(accountId),
   remove: (username: string) => {
     localCredentials.delete(username)
     return accountUsernames.delete(username)
@@ -78,6 +82,7 @@ mock.module('../storage/admin-account.js', { namedExports: { AdminAccount: MockA
 mock.module('../storage/api-tokens.js', { namedExports: { ApiTokenStore: MockApiTokenStore } })
 mock.module('../storage/openid-providers.js', { namedExports: { OpenIdProviders: MockOpenIdProviders } })
 mock.module('../storage/passkey-store.js', { namedExports: { PasskeyStore: MockPasskeyStore } })
+mock.module('../websocket/websocket-server.js', { namedExports: { WebSocketServer: MockWebSocketServer } })
 mock.module('../middleware/auth.js', {
   namedExports: {
     adminAuthenticationMiddleware: (_req: express.Request, _res: express.Response, next: express.NextFunction) =>
@@ -115,6 +120,9 @@ before(async () => {
   })
   Container.set(MockOpenIdProviders, { getProviders: () => new Map() })
   Container.set(MockPasskeyStore, { removeAll: () => false })
+  Container.set(MockWebSocketServer, {
+    closeAccountSockets: (accountId: string) => disconnectedAccountIds.push(accountId),
+  })
 
   const adminRouterModule = `./admin-router.js?admin-router-test-${randomUUID()}`
   const { adminRouter } = await import(adminRouterModule)
@@ -128,6 +136,8 @@ beforeEach(() => {
   persistedAccountUsernames = new Set(['alice'])
   localCredentials = new Map([['alice', { accountId: 'account-1', password: 'old-password' }]])
   revokedAccountIds.length = 0
+  invalidatedAccountIds.length = 0
+  disconnectedAccountIds.length = 0
   removedAccountIds.length = 0
   failNextAccountSave = false
 })
@@ -141,6 +151,7 @@ after(() => {
   Container.remove(MockApiTokenStore)
   Container.remove(MockOpenIdProviders)
   Container.remove(MockPasskeyStore)
+  Container.remove(MockWebSocketServer)
 })
 
 async function request(path: string, init: RequestInit): Promise<Response> {
@@ -214,7 +225,7 @@ describe('POST /admin/accounts', () => {
 })
 
 describe('PATCH /admin/accounts/:accountId/password', () => {
-  it('updates a local password and revokes its tokens', async () => {
+  it('updates a local password and invalidates its active sessions', async () => {
     const response = await request('/admin/accounts/account-1/password', {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },
@@ -224,6 +235,8 @@ describe('PATCH /admin/accounts/:accountId/password', () => {
     assert.equal(response.status, 204)
     assert.equal(localCredentials.get('alice')?.password, 'new-secure-password')
     assert.deepEqual(revokedAccountIds, ['account-1'])
+    assert.deepEqual(invalidatedAccountIds, ['account-1'])
+    assert.deepEqual(disconnectedAccountIds, ['account-1'])
   })
 
   it('rejects password resets for non-local accounts', async () => {

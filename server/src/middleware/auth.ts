@@ -77,6 +77,10 @@ function createAuthenticationMiddleware(isAuthenticationRequired: boolean) {
           res.status(HttpStatusCode.Unauthorized).send('Invalid account ID')
           return
         }
+        if (!accounts.isSessionValid(accountId, payload.iat)) {
+          res.status(HttpStatusCode.Unauthorized).send('Session has been invalidated')
+          return
+        }
       }
       res.locals.accountId = accountId
       res.locals.credentialKind = 'session' satisfies CredentialKind

@@ -28,7 +28,7 @@ const signingKeys = Container.get(SigningKeys)
 export async function signJwt(accountId: string): Promise<string> {
   return new SignJWT({ accountId })
     .setProtectedHeader({ alg: 'EdDSA' })
-    .setIssuedAt()
+    .setIssuedAt(Date.now() / 1000)
     .setIssuer(jwtIssuer)
     .setAudience(jwtAudience)
     .setExpirationTime('2h')
@@ -38,7 +38,7 @@ export async function signJwt(accountId: string): Promise<string> {
 export async function signJwtWithExpiration(accountId: string, expiration: string): Promise<string> {
   return new SignJWT({ accountId })
     .setProtectedHeader({ alg: 'EdDSA' })
-    .setIssuedAt()
+    .setIssuedAt(Date.now() / 1000)
     .setIssuer(jwtIssuer)
     .setAudience(jwtAudience)
     .setExpirationTime(expiration)

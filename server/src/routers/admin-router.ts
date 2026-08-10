@@ -62,6 +62,7 @@ import { ChallengeStore } from '../utils/challenge-store.js'
 import { isElectronMode } from '../utils/electron.js'
 import { signJwt } from '../utils/jwt.js'
 import { hashPassword, verifyPassword } from '../utils/password.js'
+import { WebSocketServer } from '../websocket/websocket-server.js'
 
 const jamid = Container.get(Jamid)
 const adminAccount = Container.get(AdminAccount)
@@ -69,6 +70,7 @@ const accounts = Container.get(Accounts)
 const tokenStore = Container.get(ApiTokenStore)
 const providersSupport = Container.get(OpenIdProviders)
 const passkeyStore = Container.get(PasskeyStore)
+const webSocketServer = Container.get(WebSocketServer)
 
 const ADMIN_PASSKEY_USERNAME = '__admin__'
 const rpName = 'Jami Web'
@@ -695,9 +697,11 @@ adminRouter.patch(
         res.status(HttpStatusCode.NotFound).send('Account not found')
         return
       }
+      accounts.setSessionsInvalidAfter(accountId)
       await accounts.save()
       tokenStore.revokeAllTokens(accountId)
       await tokenStore.save()
+      webSocketServer.closeAccountSockets(accountId)
       res.sendStatus(HttpStatusCode.NoContent)
     },
   ),

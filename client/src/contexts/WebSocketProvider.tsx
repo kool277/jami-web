@@ -35,11 +35,11 @@ export const useWebSocketContext = optionalWebSocketContext.useOptionalContext
 export default ({ children }: WithChildren) => {
   const webSocketClientRef = useRef<WebSocketClient>(new WebSocketClient())
 
-  const { token: accessToken } = useAuthContext()
+  const { token: accessToken, logout } = useAuthContext()
 
   useEffect(() => {
-    webSocketClientRef.current.connect(apiUrl, accessToken)
-  }, [accessToken])
+    webSocketClientRef.current.connect(apiUrl, accessToken, logout)
+  }, [accessToken, logout])
 
   const value = useMemo(
     () => ({

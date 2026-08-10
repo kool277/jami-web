@@ -57,10 +57,16 @@ export default ({ children }: WithChildren) => {
     })
   }, [])
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('accessToken')
+  const redirectToLogin = useCallback(() => {
     navigate(isElectronMode() ? '/register' : '/login')
   }, [navigate])
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('accessToken')
+    setAccount(undefined)
+    setToken(undefined)
+    redirectToLogin()
+  }, [redirectToLogin])
 
   const switchAccount = useCallback((newToken: string) => {
     localStorage.setItem('accessToken', newToken)
@@ -98,9 +104,9 @@ export default ({ children }: WithChildren) => {
   useEffect(() => {
     if (!token) {
       console.warn('Missing authentication JWT. Redirecting to login page...')
-      logout()
+      redirectToLogin()
     }
-  }, [logout, token])
+  }, [redirectToLogin, token])
 
   useEffect(() => {
     if (!axiosInstance) {
