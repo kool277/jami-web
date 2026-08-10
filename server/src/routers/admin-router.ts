@@ -29,6 +29,7 @@ import {
   HttpStatusCode,
   isMailAddress,
   MIN_PASSWORD_LENGTH,
+  RegisteredNameFoundState,
   urlRegex,
 } from '@savoirfairelinux/jami-web-common'
 import {
@@ -650,6 +651,28 @@ adminRouter.get(
     }
 
     res.send(accountsList)
+  }),
+)
+
+adminRouter.head(
+  '/nameserver/username/:username',
+  asyncHandler<{ username: string }>(async (req, res) => {
+    try {
+      const result = await jamid.lookupUsername(req.params.username, adminAccount.getNameServerAddress())
+      switch (result.state) {
+        case RegisteredNameFoundState.Found:
+          res.status(HttpStatusCode.Ok).end()
+          break
+        case RegisteredNameFoundState.InvalidResponse:
+          res.status(HttpStatusCode.BadRequest).end()
+          break
+        default:
+          res.status(HttpStatusCode.NotFound).end()
+          break
+      }
+    } catch {
+      res.status(HttpStatusCode.InternalServerError).end()
+    }
   }),
 )
 

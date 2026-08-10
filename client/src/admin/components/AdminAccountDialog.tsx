@@ -15,15 +15,16 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Alert, InputAdornment, Stack, TextField } from '@mui/material'
+import { Alert, IconButton, InputAdornment, Stack, TextField, Tooltip } from '@mui/material'
 import axios from 'axios'
 import { FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import BaseButton from '../../components/common/BaseButton.js'
 import BaseModalDialog from '../../components/common/BaseModalDialog.js'
-import { PasswordIcon, PersonIcon } from '../../components/SvgIcon.js'
+import { InfoIcon, PasswordIcon, PersonIcon } from '../../components/SvgIcon.js'
 import { jamiUsernamePattern } from '../../utils/constants.js'
+import { useCheckAdminUsernameAvailabilityQuery } from '../services/adminQueries.js'
 
 interface AdminAccountDialogProps {
   open: boolean
@@ -41,13 +42,25 @@ export default function AdminAccountDialog({ open, mode, onClose, onSubmit, pend
   const [submitError, setSubmitError] = useState<string>()
   const isCreate = mode === 'create'
   const usernameInvalid = isCreate && username.length > 0 && !jamiUsernamePattern.test(username)
+  const usernameAvailability = useCheckAdminUsernameAvailabilityQuery(isCreate ? username : '')
+  const usernameTaken = usernameAvailability.data === 'taken'
+  const usernameUnavailable = usernameAvailability.data === 'invalid'
+  const usernameAvailable = usernameAvailability.data === 'available'
+  const usernameError = usernameInvalid || usernameTaken || usernameUnavailable
   const passwordTooShort = password.length > 0 && password.length < 8
   const passwordMismatch = confirmation !== '' && confirmation !== password
   const canSubmit =
     !pending &&
     password.length >= 8 &&
     confirmation === password &&
-    (!isCreate || (!usernameInvalid && username.length > 0))
+    (!isCreate || (!usernameError && usernameAvailable && !usernameAvailability.isFetching))
+
+  const usernameHelperText =
+    usernameInvalid || usernameUnavailable
+      ? t('username_input_helper_text_invalid')
+      : usernameTaken
+        ? t('username_input_helper_text_taken')
+        : undefined
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -114,11 +127,20 @@ export default function AdminAccountDialog({ open, mode, onClose, onSubmit, pend
                     <PersonIcon />
                   </InputAdornment>
                 ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Tooltip title={t('admin_account_username_nameserver_info')}>
+                      <IconButton aria-label={t('admin_account_username_nameserver_info')} edge="end" size="small">
+                        <InfoIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </InputAdornment>
+                ),
               },
             }}
             onChange={(event) => setUsername(event.target.value)}
-            error={usernameInvalid}
-            helperText={usernameInvalid ? t('username_input_helper_text_invalid') : undefined}
+            error={usernameError}
+            helperText={usernameHelperText}
           />
         )}
         <TextField

@@ -23,6 +23,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, before, beforeEach, describe, it, mock } from 'node:test'
 
+import { RegisteredNameFoundState } from '@savoirfairelinux/jami-web-common'
 import express from 'express'
 import { Container } from 'typedi'
 
@@ -43,6 +44,9 @@ const invalidatedAccountIds: string[] = []
 const disconnectedAccountIds: string[] = []
 const removedAccountIds: string[] = []
 let failNextAccountSave = false
+let nameLookupState = RegisteredNameFoundState.NotFound
+let nameServerAddress = ''
+const nameLookupArguments: Array<{ username: string; nameserver: string }> = []
 
 const accounts = {
   getAll: () => ({
@@ -113,6 +117,10 @@ before(async () => {
     addAccount: async () => ({ accountId: 'new-account' }),
     getAccountDetails: () => ({ 'Account.username': 'alice' }),
     getAccountIdFromUsername: () => 'stale-account-id',
+    lookupUsername: async (username: string, nameserver: string) => {
+      nameLookupArguments.push({ username, nameserver })
+      return { state: nameLookupState }
+    },
     registerUsername: async () => 0,
     removeAccount: (accountId: string) => removedAccountIds.push(accountId),
   })
@@ -120,7 +128,7 @@ before(async () => {
   Container.set(MockAdminAccount, {
     getUploadPath: () => uploadPath + '/',
     getPasswordHash: () => 'hash',
-    getNameServerAddress: () => '',
+    getNameServerAddress: () => nameServerAddress,
   })
   Container.set(MockApiTokenStore, {
     revokeAllTokens: (accountId: string) => revokedAccountIds.push(accountId),
@@ -148,6 +156,9 @@ beforeEach(() => {
   disconnectedAccountIds.length = 0
   removedAccountIds.length = 0
   failNextAccountSave = false
+  nameLookupState = RegisteredNameFoundState.NotFound
+  nameServerAddress = ''
+  nameLookupArguments.length = 0
 })
 
 after(() => {
@@ -204,6 +215,25 @@ describe('GET /admin/accounts', () => {
         username: 'alice',
       },
     ])
+  })
+})
+
+describe('HEAD /admin/nameserver/username/:username', () => {
+  it('checks the configured name server for username availability', async () => {
+    nameServerAddress = 'https://names.example'
+
+    const response = await request('/admin/nameserver/username/new-user', { method: 'HEAD' })
+
+    assert.equal(response.status, 404)
+    assert.deepEqual(nameLookupArguments, [{ username: 'new-user', nameserver: 'https://names.example' }])
+  })
+
+  it('reports taken and invalid usernames', async () => {
+    nameLookupState = RegisteredNameFoundState.Found
+    assert.equal((await request('/admin/nameserver/username/taken', { method: 'HEAD' })).status, 200)
+
+    nameLookupState = RegisteredNameFoundState.InvalidResponse
+    assert.equal((await request('/admin/nameserver/username/invalid', { method: 'HEAD' })).status, 400)
   })
 })
 

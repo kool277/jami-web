@@ -33,13 +33,37 @@ import { useNavigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../../contexts/AlertSnackbarProvider.js'
 import { AuthenticationMethods } from '../../enums/authenticationMethods.js'
-import { apiUrl } from '../../utils/constants.js'
+import { apiUrl, jamiUsernamePattern } from '../../utils/constants.js'
 
 export { useGetAdminConfigQuery } from '../../services/adminConfigQueries.js'
+
+export type AdminUsernameAvailability = 'available' | 'taken' | 'invalid'
 
 const getAdminAuthorizationHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem('adminAccessToken')}`,
 })
+
+export const useCheckAdminUsernameAvailabilityQuery = (username: string) =>
+  useQuery({
+    queryKey: ['admin', 'nameserver', 'username', username],
+    queryFn: async (): Promise<AdminUsernameAvailability> => {
+      try {
+        await axios.head(`/admin/nameserver/username/${encodeURIComponent(username)}`, {
+          baseURL: apiUrl,
+          headers: getAdminAuthorizationHeaders(),
+        })
+        return 'taken'
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          if (error.response?.status === HttpStatusCode.NotFound) return 'available'
+          if (error.response?.status === HttpStatusCode.BadRequest) return 'invalid'
+        }
+        throw error
+      }
+    },
+    enabled: jamiUsernamePattern.test(username),
+    retry: false,
+  })
 
 export const useSetupAdminMutation = () => {
   const navigate = useNavigate()

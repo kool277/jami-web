@@ -18,14 +18,66 @@
 import { ThemeProvider } from '@mui/material/styles'
 import { render, screen } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { buildDefaultTheme } from '../../themes/Default.js'
 import AdminAccountDialog from './AdminAccountDialog.js'
 
+const { usernameAvailability } = vi.hoisted(() => ({
+  usernameAvailability: { data: 'available' as 'available' | 'taken' | 'invalid' | undefined, isFetching: false },
+}))
+
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (key: string) => key }) }))
+vi.mock('../services/adminQueries.js', () => ({
+  useCheckAdminUsernameAvailabilityQuery: () => usernameAvailability,
+}))
 
 describe('AdminAccountDialog', () => {
+  beforeEach(() => {
+    usernameAvailability.data = 'available'
+    usernameAvailability.isFetching = false
+  })
+
+  it('explains name server registration and keeps the username icon static', () => {
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <AdminAccountDialog open mode="create" pending={false} onClose={vi.fn()} onSubmit={vi.fn()} />
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByLabelText('admin_account_username_nameserver_info')).toBeVisible()
+    expect(screen.getByText('person')).toBeVisible()
+    expect(screen.queryByText('username_input_helper_text_success')).not.toBeInTheDocument()
+  })
+
+  it('keeps the person icon while the name server is queried', () => {
+    usernameAvailability.data = undefined
+    usernameAvailability.isFetching = true
+
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <AdminAccountDialog open mode="create" pending={false} onClose={vi.fn()} onSubmit={vi.fn()} />
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByText('person')).toBeVisible()
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'admin_account_create' })).toBeDisabled()
+  })
+
+  it('reports a taken username in helper text without changing the icon', () => {
+    usernameAvailability.data = 'taken'
+
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <AdminAccountDialog open mode="create" pending={false} onClose={vi.fn()} onSubmit={vi.fn()} />
+      </ThemeProvider>,
+    )
+
+    expect(screen.getByText('person')).toBeVisible()
+    expect(screen.getByText('username_input_helper_text_taken')).toBeVisible()
+  })
+
   it('submits a confirmed local account password and username', async () => {
     const user = userEvent.setup()
     const onSubmit = vi.fn().mockResolvedValue(undefined)
