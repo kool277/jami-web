@@ -27,6 +27,7 @@ const providedAuthentications: Array<{ accountId: string; credentials: string; s
 const accountWrites: Array<{ username: string; value: string; authMethod: string; accountId: string }> = []
 const openIdJwtArguments: Array<{ email: string; userName: string; service: string }> = []
 let openIdUserInfo: Record<string, unknown> | undefined
+let profilePictureDownloadFails = false
 
 class MockJamid {}
 class MockAccounts {}
@@ -79,7 +80,12 @@ mock.module('../utils/openid.js', {
       access_token: 'openid-access-token',
     }),
     exchangeTokenForUserInfo: async () => openIdUserInfo,
-    getBase64Picture: async () => undefined,
+    getBase64Picture: async () => {
+      if (profilePictureDownloadFails) {
+        throw new Error('Profile picture download failed')
+      }
+      return undefined
+    },
     getJwt: async (email: string, userName: string, service: string) => {
       openIdJwtArguments.push({ email, userName, service })
       return 'jwt'
@@ -94,12 +100,12 @@ before(async () => {
   Container.set(MockAccounts, accounts)
   Container.set(MockAdminAccount, {
     getConfig: () => ({ guestAccessEnabled: true, openIdAuthEnabled: true }),
-    getOpenIdProvidersNames: () => ['discord'],
+    getOpenIdProvidersNames: () => ['discord', 'linkedin'],
     isProviderActive: () => true,
   })
   Container.set(MockOpenIdProviders, {
     getProviders: () => [],
-    getOpenIdProvidersNames: () => ['discord'],
+    getOpenIdProvidersNames: () => ['discord', 'linkedin'],
   })
   const authRouterModule = './auth-router.js?auth-router-test'
   const { authRouter } = await import(authRouterModule)
@@ -114,6 +120,7 @@ beforeEach(() => {
   accountWrites.length = 0
   openIdJwtArguments.length = 0
   openIdUserInfo = undefined
+  profilePictureDownloadFails = false
 })
 
 after(() => {
@@ -197,5 +204,17 @@ describe('auth router OpenID callbacks', () => {
 
     assert.equal(response.status, 302)
     assert.deepEqual(openIdJwtArguments, [{ email: 'discord-user-id', userName: 'discord-user', service: 'discord' }])
+  })
+
+  it('completes login when the provider blocks profile picture downloads', async () => {
+    openIdUserInfo = { id: 'linkedin-user-id', name: 'LinkedIn User', picture: 'https://media.licdn.com/profile' }
+    profilePictureDownloadFails = true
+
+    const response = await request('/auth/oauth/linkedin/callback?code=code', { redirect: 'manual' })
+
+    assert.equal(response.status, 302)
+    const redirectUrl = new URL(response.headers.get('location')!)
+    assert.equal(redirectUrl.pathname, '/login')
+    assert.equal(redirectUrl.searchParams.get('accessToken'), 'jwt')
   })
 })

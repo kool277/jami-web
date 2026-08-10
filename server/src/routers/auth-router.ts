@@ -548,13 +548,16 @@ authRouter.get(
       return
     }
 
-    if (userInfo.picture) {
-      const base64Img = await getBase64Picture(userInfo.picture)
-      jamid.updateProfile(account.accountId, name, base64Img, 'PNG', '', 1)
-    }
-    if (userInfo.avatar_url) {
-      const base64Img = await getBase64Picture(userInfo.avatar_url)
-      jamid.updateProfile(account.accountId, name, base64Img, 'PNG', '', 1)
+    for (const profilePicture of [userInfo.picture, userInfo.avatar_url]) {
+      if (typeof profilePicture !== 'string') {
+        continue
+      }
+      try {
+        const base64Img = await getBase64Picture(profilePicture)
+        jamid.updateProfile(account.accountId, name, base64Img, 'PNG', '', 1)
+      } catch {
+        console.warn(`Unable to download profile picture from ${provider}`)
+      }
     }
 
     res.redirect(loginUrl + '?accessToken=' + jwt)
