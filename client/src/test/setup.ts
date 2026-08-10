@@ -16,7 +16,11 @@
  * <https://www.gnu.org/licenses/>.
  */
 import '@testing-library/jest-dom/vitest'
-import { cleanup } from '@testing-library/react'
+import { cleanup, configure } from '@testing-library/react'
 import { afterEach } from 'vitest'
+
+// The suite runs every file in parallel, so a saturated machine can push a legitimate render past
+// the one second default and fail queries that are not actually waiting on anything.
+configure({ asyncUtilTimeout: 5000 })
 
 afterEach(() => cleanup())
