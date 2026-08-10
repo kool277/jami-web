@@ -223,15 +223,17 @@ export const normalizeConversationRequests = (
   requests: IConversationRequest[] | IConversationRequest | undefined,
 ): IConversationRequest[] => (Array.isArray(requests) ? requests : requests ? [requests] : [])
 
+export const conversationRequestsQueryKey = ['conversationRequests']
+
 export const useAddConversationRequestToCache = () =>
-  useAddToCache(['conversationsRequests'], CheckConversationRequestsAreEqual)
+  useAddToCache(conversationRequestsQueryKey, CheckConversationRequestsAreEqual)
 export const useRemoveConversationRequestFromCache = () =>
-  useRemoveFromCache(['conversationsRequests'], checkIsConversationRequestFn)
+  useRemoveFromCache(conversationRequestsQueryKey, checkIsConversationRequestFn)
 
 export const useConversationRequestsQuery = () => {
   const { axiosInstance } = useAuthContext()
   return useQuery({
-    queryKey: ['conversationRequests'],
+    queryKey: conversationRequestsQueryKey,
     queryFn: async () => {
       const { data } = await axiosInstance.get<IConversationRequest[]>('/conversation-requests/')
       return normalizeConversationRequests(data)
