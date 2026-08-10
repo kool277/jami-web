@@ -380,7 +380,7 @@ export default function AppAccessSettings() {
         </DialogContent>
         <DialogActions>
           <BaseButton variant="text" onClick={closeCreateDialog}>
-            {t('cancel')}
+            {t('dialog_cancel')}
           </BaseButton>
           <BaseButton
             onClick={createToken}
@@ -404,7 +404,10 @@ export default function AppAccessSettings() {
             <Typography>{t('app_access_token_created_description')}</Typography>
             <Stack direction="row" sx={{ alignItems: 'flex-start', gap: 1 }}>
               <Typography sx={{ flex: 1, fontFamily: 'monospace', overflowWrap: 'anywhere' }}>{secret}</Typography>
-              <IconButton aria-label={t('copy')} onClick={() => navigator.clipboard.writeText(secret ?? '')}>
+              <IconButton
+                aria-label={t('copy_to_clipboard')}
+                onClick={() => navigator.clipboard.writeText(secret ?? '')}
+              >
                 <TwoSheetsIcon />
               </IconButton>
             </Stack>
@@ -414,7 +417,7 @@ export default function AppAccessSettings() {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <BaseButton onClick={() => setSecret(undefined)}>{t('ok')}</BaseButton>
+          <BaseButton onClick={() => setSecret(undefined)}>{t('dialog_close')}</BaseButton>
         </DialogActions>
       </Dialog>
 
@@ -425,7 +428,7 @@ export default function AppAccessSettings() {
         </DialogContent>
         <DialogActions>
           <BaseButton variant="text" onClick={() => setTokenToRevoke(undefined)}>
-            {t('cancel')}
+            {t('dialog_cancel')}
           </BaseButton>
           <BaseButton
             color="error"
