@@ -15,7 +15,8 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { InputAdornment, Stack, TextField } from '@mui/material'
+import { Alert, InputAdornment, Stack, TextField } from '@mui/material'
+import axios from 'axios'
 import { FormEvent, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -37,6 +38,7 @@ export default function AdminAccountDialog({ open, mode, onClose, onSubmit, pend
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmation, setConfirmation] = useState('')
+  const [submitError, setSubmitError] = useState<string>()
   const isCreate = mode === 'create'
   const usernameInvalid = isCreate && username.length > 0 && !jamiUsernamePattern.test(username)
   const passwordTooShort = password.length > 0 && password.length < 8
@@ -50,7 +52,17 @@ export default function AdminAccountDialog({ open, mode, onClose, onSubmit, pend
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
     if (!canSubmit) return
-    await onSubmit({ username: isCreate ? username.trim() : undefined, password })
+    try {
+      await onSubmit({ username: isCreate ? username.trim() : undefined, password })
+    } catch (error) {
+      setSubmitError(
+        axios.isAxiosError(error) && typeof error.response?.data === 'string'
+          ? error.response.data
+          : error instanceof Error
+            ? error.message
+            : t('unknown_error_alert'),
+      )
+    }
   }
 
   return (
@@ -62,6 +74,7 @@ export default function AdminAccountDialog({ open, mode, onClose, onSubmit, pend
         setUsername('')
         setPassword('')
         setConfirmation('')
+        setSubmitError(undefined)
         onClose()
       }}
       closePolicy={['escapeKeyDown', 'backdropClick']}
@@ -79,6 +92,7 @@ export default function AdminAccountDialog({ open, mode, onClose, onSubmit, pend
       }
     >
       <Stack component="form" id="admin-account-form" spacing={2} onSubmit={handleSubmit}>
+        {submitError && <Alert severity="error">{submitError}</Alert>}
         {isCreate && (
           <TextField
             autoFocus

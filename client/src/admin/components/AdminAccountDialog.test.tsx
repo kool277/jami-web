@@ -61,6 +61,24 @@ describe('AdminAccountDialog', () => {
     expect(screen.getByRole('button', { name: 'admin_account_create' })).toBeDisabled()
   })
 
+  it('shows an account creation rejection in the dialog', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn().mockRejectedValue(new Error('Username already exists'))
+
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <AdminAccountDialog open mode="create" pending={false} onClose={vi.fn()} onSubmit={onSubmit} />
+      </ThemeProvider>,
+    )
+
+    await user.type(screen.getByLabelText(/admin_page_accounts_overview_title_username/), 'alice')
+    await user.type(screen.getAllByLabelText(/password_input_label/)[0], 'secure-password')
+    await user.type(screen.getByLabelText(/password_input_label_repeat/), 'secure-password')
+    await user.click(screen.getByRole('button', { name: 'admin_account_create' }))
+
+    expect(await screen.findByText('Username already exists')).toHaveClass('MuiAlert-message')
+  })
+
   it('uses compact, icon-led fields and the password length guidance', () => {
     render(
       <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>

@@ -295,14 +295,10 @@ export default function AccountsOverview() {
   }
 
   const handleAccountDialogSubmit = async ({ username, password }: { username?: string; password: string }) => {
-    try {
-      if (accountDialogMode === 'create' && username) {
-        await accountCreationMutation.mutateAsync({ username, password })
-      } else if (accountDialogMode === 'reset-password' && actionAccount) {
-        await accountPasswordMutation.mutateAsync({ accountId: actionAccount.accountId, password })
-      }
-    } catch {
-      return
+    if (accountDialogMode === 'create' && username) {
+      await accountCreationMutation.mutateAsync({ username, password })
+    } else if (accountDialogMode === 'reset-password' && actionAccount) {
+      await accountPasswordMutation.mutateAsync({ accountId: actionAccount.accountId, password })
     }
     setAccountDialogMode(null)
     setActionAccount(null)
