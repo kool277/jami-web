@@ -16,8 +16,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
+import FormControl from '@mui/material/FormControl'
 import IconButton from '@mui/material/IconButton'
+import InputLabel from '@mui/material/InputLabel'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import Select from '@mui/material/Select'
 import { alpha } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -27,6 +33,7 @@ import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
+import TextField from '@mui/material/TextField'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
@@ -36,10 +43,16 @@ import { t } from 'i18next'
 import { ChangeEvent, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { DeleteIcon } from '../../components/SvgIcon.js'
+import { DeleteIcon, MoreVerticalIcon, PasswordIcon } from '../../components/SvgIcon.js'
 import { SettingsPage, SettingsSection } from '../../settings/components/SettingsPage.js'
 import { getDataSizeUnits } from '../../utils/units.js'
-import { useDeleteAccounts, useGetAllAccounts } from '../services/adminQueries.js'
+import {
+  useCreateAccount,
+  useDeleteAccounts,
+  useGetAllAccounts,
+  useResetAccountPassword,
+} from '../services/adminQueries.js'
+import AdminAccountDialog from './AdminAccountDialog.js'
 import ValidationRequiredModal from './ValidationRequiredModal.js'
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -59,7 +72,7 @@ type Order = 'asc' | 'desc'
 function getComparator<Key extends keyof any>(
   order: Order,
   orderBy: Key,
-): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
+): (a: { [key in Key]?: number | string }, b: { [key in Key]?: number | string }) => number {
   return order === 'desc'
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy)
@@ -152,6 +165,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             }}
           />
         </TableCell>
+        <TableCell padding="checkbox" />
       </TableRow>
     </TableHead>
   )
@@ -160,9 +174,10 @@ interface EnhancedTableToolbarProps {
   numSelected: number
   accountsNumber: number
   onDelete: () => void
+  onCreate: () => void
 }
 function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
-  const { numSelected, accountsNumber, onDelete } = props
+  const { numSelected, accountsNumber, onDelete, onCreate } = props
   const { t } = useTranslation()
   return (
     <Toolbar
@@ -199,6 +214,11 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
           </IconButton>
         </Tooltip>
       )}
+      {numSelected === 0 && (
+        <Button variant="contained" onClick={onCreate}>
+          {t('admin_account_add')}
+        </Button>
+      )}
     </Toolbar>
   )
 }
@@ -211,7 +231,14 @@ export default function AccountsOverview() {
   const [rowsPerPage, setRowsPerPage] = useState(rowPerPagesOptions[0])
   const getAllAccounts = useGetAllAccounts()
   const accountDeletionMutation = useDeleteAccounts()
+  const accountCreationMutation = useCreateAccount()
+  const accountPasswordMutation = useResetAccountPassword()
   const [modalOpen, setModalOpen] = useState(false)
+  const [accountDialogMode, setAccountDialogMode] = useState<'create' | 'reset-password' | null>(null)
+  const [actionAccount, setActionAccount] = useState<AccountOverview | null>(null)
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
+  const [search, setSearch] = useState('')
+  const [authFilter, setAuthFilter] = useState('all')
 
   const rows = useMemo(() => {
     if (getAllAccounts.data) {
@@ -228,7 +255,7 @@ export default function AccountsOverview() {
 
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelected = rows.map((n: AccountOverview) => n.accountUri)
+      const newSelected = filteredRows.map((n: AccountOverview) => n.accountUri)
       setSelected(newSelected)
       return
     }
@@ -267,6 +294,16 @@ export default function AccountsOverview() {
     setModalOpen(false)
   }
 
+  const handleAccountDialogSubmit = async ({ username, password }: { username?: string; password: string }) => {
+    if (accountDialogMode === 'create' && username) {
+      await accountCreationMutation.mutateAsync({ username, password })
+    } else if (accountDialogMode === 'reset-password' && actionAccount) {
+      await accountPasswordMutation.mutateAsync({ accountId: actionAccount.accountId, password })
+    }
+    setAccountDialogMode(null)
+    setActionAccount(null)
+  }
+
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
@@ -276,13 +313,20 @@ export default function AccountsOverview() {
     setPage(0)
   }
 
-  // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
+  const filteredRows = rows.filter(
+    (row) =>
+      (authFilter === 'all' || row.auth === authFilter) &&
+      [row.username, row.accountUri, row.accountId].some((value) => value.toLowerCase().includes(search.toLowerCase())),
+  )
 
   const visibleRows = useMemo(
-    () => [...rows].sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [order, orderBy, page, rows, rowsPerPage],
+    () =>
+      [...filteredRows].sort(getComparator(order, orderBy)).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [filteredRows, order, orderBy, page, rowsPerPage],
   )
+
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - filteredRows.length) : 0
 
   return (
     <SettingsPage>
@@ -291,7 +335,38 @@ export default function AccountsOverview() {
           numSelected={selected.length}
           accountsNumber={rows.length}
           onDelete={handleSubmitDeletion}
+          onCreate={() => setAccountDialogMode('create')}
         />
+        <Box sx={{ display: 'flex', gap: 2, px: 2, pb: 2 }}>
+          <TextField
+            fullWidth
+            label={t('admin_account_search')}
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value)
+              setPage(0)
+            }}
+          />
+          <FormControl sx={{ minWidth: 180 }}>
+            <InputLabel id="account-auth-filter-label">{t('admin_account_auth_filter')}</InputLabel>
+            <Select
+              labelId="account-auth-filter-label"
+              label={t('admin_account_auth_filter')}
+              value={authFilter}
+              onChange={(event) => {
+                setAuthFilter(event.target.value)
+                setPage(0)
+              }}
+            >
+              <MenuItem value="all">{t('all')}</MenuItem>
+              {[...new Set(rows.map((row) => row.auth))].map((auth) => (
+                <MenuItem key={auth} value={auth}>
+                  {auth}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
         <TableContainer sx={{ borderTop: 1, borderBottom: 1, borderColor: 'divider' }}>
           <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="medium">
             <EnhancedTableHead
@@ -300,7 +375,7 @@ export default function AccountsOverview() {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={filteredRows.length}
             />
             <TableBody>
               {visibleRows.map((row, index) => {
@@ -336,6 +411,18 @@ export default function AccountsOverview() {
                         }}
                       />
                     </TableCell>
+                    <TableCell padding="checkbox">
+                      <IconButton
+                        aria-label={t('admin_account_actions')}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          setActionAccount(row)
+                          setMenuAnchor(event.currentTarget)
+                        }}
+                      >
+                        <MoreVerticalIcon />
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
                 )
               })}
@@ -345,7 +432,7 @@ export default function AccountsOverview() {
                     height: 53 * emptyRows,
                   }}
                 >
-                  <TableCell colSpan={6} />
+                  <TableCell colSpan={7} />
                 </TableRow>
               )}
             </TableBody>
@@ -354,7 +441,7 @@ export default function AccountsOverview() {
         <TablePagination
           rowsPerPageOptions={rowPerPagesOptions}
           component="div"
-          count={rows.length}
+          count={filteredRows.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
@@ -369,6 +456,42 @@ export default function AccountsOverview() {
           open={modalOpen}
           onClose={() => setModalOpen(false)}
           onValidation={handleSubmitDeletionValidation}
+        />
+      )}
+      <Menu anchorEl={menuAnchor} open={menuAnchor !== null} onClose={() => setMenuAnchor(null)}>
+        <MenuItem
+          disabled={actionAccount?.auth !== 'local'}
+          onClick={() => {
+            setMenuAnchor(null)
+            setAccountDialogMode('reset-password')
+          }}
+        >
+          <PasswordIcon sx={{ mr: 1 }} />
+          {t('admin_account_reset_password')}
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            if (actionAccount) {
+              setSelected([actionAccount.accountUri])
+              setModalOpen(true)
+            }
+            setMenuAnchor(null)
+          }}
+        >
+          <DeleteIcon sx={{ mr: 1 }} />
+          {t('remove_button')}
+        </MenuItem>
+      </Menu>
+      {accountDialogMode && (
+        <AdminAccountDialog
+          open
+          mode={accountDialogMode}
+          onClose={() => {
+            setAccountDialogMode(null)
+            setActionAccount(null)
+          }}
+          onSubmit={handleAccountDialogSubmit}
+          pending={accountCreationMutation.isPending || accountPasswordMutation.isPending}
         />
       )}
     </SettingsPage>

@@ -19,6 +19,8 @@
 import {
   AccessToken,
   AccountOverview,
+  AdminCreateAccountRequest,
+  AdminResetAccountPasswordRequest,
   AdminSettingSelection,
   IAdminConfigState,
 } from '@savoirfairelinux/jami-web-common'
@@ -398,7 +400,7 @@ export const useSetJamsUrl = () => {
 }
 
 export const useGetAllAccounts = () => {
-  return useQuery({
+  return useQuery<AccountOverview[]>({
     queryKey: ['all', 'accounts'],
     queryFn: async () => {
       const { data } = await axios.get('/admin/accounts', {
@@ -412,6 +414,7 @@ export const useGetAllAccounts = () => {
 
 export const useDeleteAccounts = () => {
   const queryClient = useQueryClient()
+  const { setAlertContent } = use(AlertSnackbarContext)
   return useMutation({
     mutationKey: ['delete', 'accounts'],
     mutationFn: async (accounts: AccountOverview[]) => {
@@ -426,8 +429,73 @@ export const useDeleteAccounts = () => {
       queryClient.invalidateQueries({ queryKey: ['all', 'accounts'] })
     },
     onError: () => {
-      console.log(`Error deleting accounts`)
+      setAlertContent({
+        messageI18nKey: 'unknown_error_alert',
+        severity: 'error',
+        alertOpen: true,
+      })
       queryClient.invalidateQueries({ queryKey: ['all', 'accounts'] })
+    },
+  })
+}
+
+export const useCreateAccount = () => {
+  const queryClient = useQueryClient()
+  const { setAlertContent } = use(AlertSnackbarContext)
+  return useMutation({
+    mutationKey: ['create', 'account'],
+    mutationFn: async (account: AdminCreateAccountRequest) => {
+      const { data } = await axios.post<{ accountId: string }>('/admin/accounts', account, {
+        baseURL: apiUrl,
+        headers: getAdminAuthorizationHeaders(),
+      })
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all', 'accounts'] })
+      setAlertContent({
+        messageI18nKey: 'registration_success',
+        severity: 'success',
+        alertOpen: true,
+      })
+    },
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'unknown_error_alert',
+        severity: 'error',
+        alertOpen: true,
+      })
+    },
+  })
+}
+
+export const useResetAccountPassword = () => {
+  const { setAlertContent } = use(AlertSnackbarContext)
+  return useMutation({
+    mutationKey: ['reset', 'account', 'password'],
+    mutationFn: async ({ accountId, password }: AdminResetAccountPasswordRequest & { accountId: string }) => {
+      await axios.patch(
+        `/admin/accounts/${encodeURIComponent(accountId)}/password`,
+        { password },
+        {
+          baseURL: apiUrl,
+          headers: getAdminAuthorizationHeaders(),
+        },
+      )
+    },
+    onSuccess: () => {
+      setAlertContent({
+        messageI18nKey: 'account_password_changed_successfully',
+        severity: 'success',
+        alertOpen: true,
+      })
+    },
+    onError: () => {
+      setAlertContent({
+        messageI18nKey: 'unknown_error_alert',
+        severity: 'error',
+        alertOpen: true,
+      })
     },
   })
 }
