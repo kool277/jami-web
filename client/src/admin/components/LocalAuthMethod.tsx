@@ -91,7 +91,6 @@ const LocalAuthMethodForm = ({
     <SettingsPage
       title={t('jami_authentication')}
       description={t('jami_authentication_info')}
-      descriptionOnOwnLine
       headerEndAction={
         <Switch
           checked={data.localAuthEnabled}

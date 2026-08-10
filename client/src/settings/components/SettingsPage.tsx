@@ -17,15 +17,16 @@
  */
 import { Box, List, ListItem, type ListItemProps, Stack, type StackProps, Typography } from '@mui/material'
 import { motion } from 'framer-motion'
-import { type ReactNode } from 'react'
+import { createContext, type ReactNode, use } from 'react'
 
 import Island, { ISLAND_MARGIN, ISLAND_PADDING } from '../../components/common/Island.js'
 import { thumbnailVariants } from '../../themes/MotionVariants.js'
 
+export const CompactBackActionContext = createContext<ReactNode>(null)
+
 interface SettingsPageProps {
   title?: string
   description?: string
-  descriptionOnOwnLine?: boolean
   icon?: ReactNode
   headerAction?: ReactNode
   headerEndAction?: ReactNode
@@ -38,7 +39,6 @@ interface SettingsPageProps {
 export function SettingsPage({
   title,
   description,
-  descriptionOnOwnLine = false,
   icon,
   headerAction,
   headerEndAction,
@@ -47,7 +47,9 @@ export function SettingsPage({
   contentMaxWidth = 680,
   children,
 }: SettingsPageProps) {
-  const hasHeader = title || description || icon || headerAction || headerEndAction
+  const compactBackAction = use(CompactBackActionContext)
+  const resolvedHeaderAction = headerAction ?? compactBackAction
+  const hasHeader = title || description || icon || resolvedHeaderAction || headerEndAction
 
   return (
     <Box component="article" sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
@@ -64,23 +66,16 @@ export function SettingsPage({
           {hasHeader && (
             <Stack sx={{ px: 2, pt: { xs: 2, md: 1 }, pb: description ? 0 : 1 }}>
               <Stack direction="row" spacing={1.5} useFlexGap sx={{ alignItems: 'center' }}>
-                {headerAction}
+                {resolvedHeaderAction}
                 {icon}
-                <Stack sx={{ gap: 0.5 }}>
-                  {title && (
-                    <Typography component="h1" variant="h3">
-                      {title}
-                    </Typography>
-                  )}
-                  {description && !descriptionOnOwnLine && (
-                    <Typography color="text.secondary" variant="body2">
-                      {description}
-                    </Typography>
-                  )}
-                </Stack>
+                {title && (
+                  <Typography component="h1" variant="h3">
+                    {title}
+                  </Typography>
+                )}
                 {headerEndAction && <Box sx={{ ml: 'auto', flexShrink: 0 }}>{headerEndAction}</Box>}
               </Stack>
-              {description && descriptionOnOwnLine && (
+              {description && (
                 <Typography color="text.secondary" variant="body2" sx={{ mt: 1.5 }}>
                   {description}
                 </Typography>

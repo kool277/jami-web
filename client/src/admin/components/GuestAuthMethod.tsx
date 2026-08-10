@@ -41,7 +41,6 @@ export default function GuestAuthMethod() {
     <SettingsPage
       title={t('guest_authentication')}
       description={t('guest_authentication_info')}
-      descriptionOnOwnLine
       headerEndAction={
         <Switch
           checked={data.guestAccessEnabled}

@@ -39,16 +39,41 @@ vi.mock('react-i18next', () => ({
   }),
 }))
 
-const renderSettingsNavigation = (path: string) =>
-  render(
+const renderSettingsNavigation = (path: string, compact = false) => {
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: compact && query.includes('max-width'),
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }))
+
+  return render(
     <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
       <MemoryRouter initialEntries={[path]}>
         <SettingsNavigation />
       </MemoryRouter>
     </ThemeProvider>,
   )
+}
 
 describe('SettingsNavigation', () => {
+  it('shows all submenu links from the compact settings index', async () => {
+    renderSettingsNavigation('/settings', true)
+
+    expect(await screen.findByRole('link', { name: 'settings_title_system' })).toHaveAttribute(
+      'href',
+      '/settings/general/system',
+    )
+    expect(screen.getByRole('link', { name: 'settings_account_information' })).toHaveAttribute(
+      'href',
+      '/settings/account/manage-account',
+    )
+  })
+
   it('exposes every settings page as a navigable link', () => {
     renderSettingsNavigation('/settings/general/system')
 

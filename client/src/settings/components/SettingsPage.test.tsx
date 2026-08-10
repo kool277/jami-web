@@ -46,10 +46,10 @@ describe('SettingsPage', () => {
     expect(screen.getAllByTestId('settings-page-island')).toHaveLength(1)
   })
 
-  it('can place its description below the header row', () => {
+  it('places its description below the title row', () => {
     render(
       <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
-        <SettingsPage title="Jami authentication" description="Use a Jami account" descriptionOnOwnLine>
+        <SettingsPage title="Jami authentication" description="Use a Jami account">
           <SettingsSection list={false}>
             <SettingsRow title="Enabled" />
           </SettingsSection>

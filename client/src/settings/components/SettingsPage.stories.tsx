@@ -42,7 +42,5 @@ type Story = StoryObj<typeof meta>
 export const Standard: Story = {}
 
 export const DescriptionOnOwnLine: Story = {
-  args: {
-    descriptionOnOwnLine: true,
-  },
+  args: {},
 }

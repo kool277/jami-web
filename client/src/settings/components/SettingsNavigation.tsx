@@ -286,7 +286,7 @@ export default function SettingsNavigation() {
                   </ButtonBase>
                 </ListSubheader>
               )}
-              <Collapse in={normalizedSearch.length > 0 || isSelected} timeout="auto" unmountOnExit>
+              <Collapse in={isCompact || normalizedSearch.length > 0 || isSelected} timeout="auto" unmountOnExit>
                 <List
                   disablePadding
                   sx={

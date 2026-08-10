@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next'
 import { Link as RouterLink, useLocation, useOutlet } from 'react-router-dom'
 
 import { useConversationRequestsQuery, useConversationsSummariesQuery } from '../../services/conversationQueries.js'
+import { CompactBackActionContext } from '../../settings/components/SettingsPage.js'
 import { isConversationUnread } from '../../utils/conversationFilters.js'
 import { isElectronMode } from '../../utils/electron.js'
 import Island, { ISLAND_MARGIN, ISLAND_PADDING } from '../common/Island.js'
@@ -75,6 +76,7 @@ export default function AppShell({
   const outlet = useOutlet()
   const normalizeRoute = (route: string) => route.replace(/\/+$/, '') || '/'
   const hasDetail = outlet !== null && normalizeRoute(location.pathname) !== normalizeRoute(listRoute)
+  const usesSettingsCards = listRoute === '/settings'
   const isDark = theme.palette.mode === 'dark'
   const conversationRequestsQuery = useConversationRequestsQuery()
   const conversationsSummariesQuery = useConversationsSummariesQuery()
@@ -129,9 +131,21 @@ export default function AppShell({
 
   const main = (
     <Box component="main" sx={{ flex: 1, minWidth: 0, minHeight: 0, overflow: 'hidden', display: 'flex', ...paneSx }}>
-      <Suspense fallback={detailLoadingFallback ?? <LoadingSkeleton />}>
-        {outlet ?? <Stack sx={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>{placeholder}</Stack>}
-      </Suspense>
+      <CompactBackActionContext
+        value={
+          isCompact &&
+          hasDetail &&
+          usesSettingsCards && (
+            <IconButton component={RouterLink} to={listRoute} aria-label={t('back')}>
+              <ArrowBackIcon />
+            </IconButton>
+          )
+        }
+      >
+        <Suspense fallback={detailLoadingFallback ?? <LoadingSkeleton />}>
+          {outlet ?? <Stack sx={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>{placeholder}</Stack>}
+        </Suspense>
+      </CompactBackActionContext>
     </Box>
   )
 
@@ -170,7 +184,7 @@ export default function AppShell({
       }}
     >
       {(!isCompact || !hasDetail) && navigation}
-      {isCompact && hasDetail && (
+      {isCompact && hasDetail && !usesSettingsCards && (
         <Box sx={{ flexShrink: 0, p: 0.5, borderBottom: 1, borderColor: 'divider', ...paneSx }}>
           <IconButton component={RouterLink} to={listRoute} aria-label={t('back')}>
             <ArrowBackIcon />

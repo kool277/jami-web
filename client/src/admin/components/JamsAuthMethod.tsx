@@ -96,7 +96,6 @@ const JamsAuthMethodForm = ({
     <SettingsPage
       title={t('jams_authentication')}
       description={t('jams_authentication_info')}
-      descriptionOnOwnLine
       headerEndAction={
         <Switch
           checked={data.jamsAuthEnabled}
