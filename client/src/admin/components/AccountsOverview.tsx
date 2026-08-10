@@ -473,7 +473,7 @@ export default function AccountsOverview() {
       {modalOpen && (
         <ValidationRequiredModal
           info={t('remove_account_info')}
-          title={t('validation_required')}
+          title={t('dialog_confirm_title_default')}
           buttonText={t('remove_button')}
           open={modalOpen}
           onClose={() => setModalOpen(false)}
