@@ -20,12 +20,15 @@ import { randomUUID } from 'node:crypto'
 import {
   AccessToken,
   AccountOverview,
+  AdminCreateAccountRequest,
   AdminCredentials,
+  AdminResetAccountPasswordRequest,
   AdminWizardState,
   ConferenceResolution,
   conferenceResolutionValues,
   HttpStatusCode,
   isMailAddress,
+  MIN_PASSWORD_LENGTH,
   urlRegex,
 } from '@savoirfairelinux/jami-web-common'
 import {
@@ -48,6 +51,7 @@ import { Container } from 'typedi'
 import { Jamid } from '../jamid/jamid.js'
 import { adminAuthenticationMiddleware } from '../middleware/auth.js'
 import { checkAdminSetup } from '../middleware/setup.js'
+import { createLocalAccount, LocalAccountCreationError } from '../services/local-account-service.js'
 import { Accounts } from '../storage/accounts.js'
 import { AdminAccount } from '../storage/admin-account.js'
 import { ApiTokenStore } from '../storage/api-tokens.js'
@@ -650,15 +654,81 @@ adminRouter.get(
   }),
 )
 
+adminRouter.post(
+  '/accounts',
+  asyncHandler(async (req: Request<ParamsDictionary, unknown, AdminCreateAccountRequest>, res) => {
+    try {
+      const accountId = await createLocalAccount(req.body?.username, req.body?.password, {
+        accounts,
+        config: adminAccount,
+        jamid,
+      })
+      res.status(HttpStatusCode.Created).send({ accountId })
+    } catch (error) {
+      if (error instanceof LocalAccountCreationError) {
+        res.status(error.status).send(error.message)
+        return
+      }
+      throw error
+    }
+  }),
+)
+
+adminRouter.patch(
+  '/accounts/:accountId/password',
+  asyncHandler<{ accountId: string }>(
+    async (req: Request<{ accountId: string }, unknown, AdminResetAccountPasswordRequest>, res) => {
+      const { password } = req.body
+      if (typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
+        res.status(HttpStatusCode.BadRequest).send(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`)
+        return
+      }
+
+      const { accountId } = req.params
+      if (accounts.getLocalByAccountId(accountId) === undefined) {
+        res.status(HttpStatusCode.BadRequest).send('Only local account passwords can be reset')
+        return
+      }
+
+      const hashedPassword = await hashPassword(password)
+      if (!accounts.updateLocalPassword(accountId, hashedPassword)) {
+        res.status(HttpStatusCode.NotFound).send('Account not found')
+        return
+      }
+      await accounts.save()
+      tokenStore.revokeAllTokens(accountId)
+      await tokenStore.save()
+      res.sendStatus(HttpStatusCode.NoContent)
+    },
+  ),
+)
+
 adminRouter.delete(
   '/accounts',
   asyncHandler(async (req, res) => {
     const users = req.body
+    if (
+      !Array.isArray(users) ||
+      users.some(
+        (user) =>
+          typeof user !== 'object' ||
+          user === null ||
+          typeof user.accountId !== 'string' ||
+          typeof user.username !== 'string' ||
+          typeof user.auth !== 'string',
+      )
+    ) {
+      res.status(HttpStatusCode.BadRequest).send('Invalid accounts payload')
+      return
+    }
+
+    let passkeysChanged = false
     for (const user of users) {
       const accountId = user.accountId
       jamid.removeAccount(accountId)
       tokenStore.revokeAllTokens(accountId)
       accounts.remove(user.username, user.auth)
+      passkeysChanged = passkeyStore.removeAll(user.username) || passkeysChanged
       const userFilePath = multerPath + accountId + '/'
       if (fs.existsSync(userFilePath)) {
         fs.rmdirSync(userFilePath, { recursive: true })
@@ -666,6 +736,9 @@ adminRouter.delete(
     }
     await accounts.save()
     await tokenStore.save()
+    if (passkeysChanged) {
+      await passkeyStore.save()
+    }
     res.sendStatus(HttpStatusCode.Ok)
   }),
 )

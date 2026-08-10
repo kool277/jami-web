@@ -86,6 +86,13 @@ export class PasskeyStore {
     return true
   }
 
+  removeAll(username: string): boolean {
+    const key = username.toLowerCase()
+    if (!this.data[key]) return false
+    delete this.data[key]
+    return true
+  }
+
   updateCounter(username: string, credentialId: string, newCounter: number): void {
     const key = username.toLowerCase()
     const passkey = this.data[key]?.find((p) => p.credentialId === credentialId)

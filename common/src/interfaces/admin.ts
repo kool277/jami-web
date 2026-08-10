@@ -79,3 +79,18 @@ export interface AccountOverview {
   accountId: string
   expirationDate?: number
 }
+
+export interface AdminCreateAccountRequest {
+  username: string
+  password: string
+}
+
+export interface AdminResetAccountPasswordRequest {
+  password: string
+}
+
+export interface AdminAccountActionResult {
+  accountId: string
+  success: boolean
+  error?: string
+}

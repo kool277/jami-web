@@ -36,11 +36,35 @@ class MockPasskeyStore {}
 const uploadPath = mkdtempSync(join(tmpdir(), 'jami-web-admin-router-test-'))
 let accountUsernames = new Set<string>()
 let persistedAccountUsernames = new Set<string>()
+let localCredentials = new Map<string, { accountId: string; password: string }>()
+const revokedAccountIds: string[] = []
+const removedAccountIds: string[] = []
+let failNextAccountSave = false
 
 const accounts = {
   getAll: () => ({ local: {}, jams: {}, openid: {}, guest: {} }),
-  remove: (username: string) => accountUsernames.delete(username),
+  get: (username: string) => (accountUsernames.has(username) ? (localCredentials.get(username) ?? {}) : undefined),
+  set: (username: string, password: string, _auth: string, accountId: string) => {
+    accountUsernames.add(username)
+    localCredentials.set(username, { accountId, password })
+  },
+  getLocalByAccountId: (accountId: string) =>
+    [...localCredentials.values()].find((credential) => credential.accountId === accountId),
+  updateLocalPassword: (accountId: string, password: string) => {
+    const credential = [...localCredentials.values()].find((item) => item.accountId === accountId)
+    if (!credential) return false
+    credential.password = password
+    return true
+  },
+  remove: (username: string) => {
+    localCredentials.delete(username)
+    return accountUsernames.delete(username)
+  },
   save: async () => {
+    if (failNextAccountSave) {
+      failNextAccountSave = false
+      throw new Error('Unable to persist account credentials')
+    }
     persistedAccountUsernames = new Set(accountUsernames)
   },
   reload: () => {
@@ -74,15 +98,23 @@ mock.module('../utils/password.js', {
 let app: express.Express
 
 before(async () => {
-  Container.set(MockJamid, { removeAccount: () => undefined })
+  Container.set(MockJamid, {
+    addAccount: async () => ({ accountId: 'new-account' }),
+    registerUsername: async () => 0,
+    removeAccount: (accountId: string) => removedAccountIds.push(accountId),
+  })
   Container.set(MockAccounts, accounts)
   Container.set(MockAdminAccount, {
     getUploadPath: () => uploadPath + '/',
     getPasswordHash: () => 'hash',
+    getNameServerAddress: () => '',
   })
-  Container.set(MockApiTokenStore, { revokeAllTokens: () => undefined, save: async () => undefined })
+  Container.set(MockApiTokenStore, {
+    revokeAllTokens: (accountId: string) => revokedAccountIds.push(accountId),
+    save: async () => undefined,
+  })
   Container.set(MockOpenIdProviders, { getProviders: () => new Map() })
-  Container.set(MockPasskeyStore, {})
+  Container.set(MockPasskeyStore, { removeAll: () => false })
 
   const adminRouterModule = `./admin-router.js?admin-router-test-${randomUUID()}`
   const { adminRouter } = await import(adminRouterModule)
@@ -94,6 +126,10 @@ before(async () => {
 beforeEach(() => {
   accountUsernames = new Set(['alice'])
   persistedAccountUsernames = new Set(['alice'])
+  localCredentials = new Map([['alice', { accountId: 'account-1', password: 'old-password' }]])
+  revokedAccountIds.length = 0
+  removedAccountIds.length = 0
+  failNextAccountSave = false
 })
 
 after(() => {
@@ -132,5 +168,71 @@ describe('DELETE /admin/accounts', () => {
     assert.equal(response.status, 200)
     accounts.reload()
     assert.equal(accountUsernames.has('alice'), false)
+  })
+})
+
+describe('POST /admin/accounts', () => {
+  it('creates a local account even when self-registration is disabled', async () => {
+    const response = await request('/admin/accounts', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ username: 'bob', password: 'secure-password' }),
+    })
+
+    assert.equal(response.status, 201)
+    assert.deepEqual(await response.json(), { accountId: 'new-account' })
+    assert.deepEqual(localCredentials.get('bob'), { accountId: 'new-account', password: 'secure-password' })
+  })
+
+  it('rejects duplicate usernames and short passwords', async () => {
+    for (const body of [
+      { username: 'alice', password: 'secure-password' },
+      { username: 'bob', password: 'short' },
+    ]) {
+      const response = await request('/admin/accounts', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      assert.equal(response.status, body.username === 'alice' ? 409 : 400)
+    }
+  })
+
+  it('rolls back a registered account when credential persistence fails', async () => {
+    failNextAccountSave = true
+
+    const response = await request('/admin/accounts', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ username: 'bob', password: 'secure-password' }),
+    })
+
+    assert.equal(response.status, 500)
+    assert.equal(localCredentials.has('bob'), false)
+    assert.deepEqual(removedAccountIds, ['new-account'])
+  })
+})
+
+describe('PATCH /admin/accounts/:accountId/password', () => {
+  it('updates a local password and revokes its tokens', async () => {
+    const response = await request('/admin/accounts/account-1/password', {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ password: 'new-secure-password' }),
+    })
+
+    assert.equal(response.status, 204)
+    assert.equal(localCredentials.get('alice')?.password, 'new-secure-password')
+    assert.deepEqual(revokedAccountIds, ['account-1'])
+  })
+
+  it('rejects password resets for non-local accounts', async () => {
+    const response = await request('/admin/accounts/not-local/password', {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ password: 'new-secure-password' }),
+    })
+
+    assert.equal(response.status, 400)
   })
 })

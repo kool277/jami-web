@@ -15,13 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import {
-  AccessToken,
-  AccountDetails,
-  HttpStatusCode,
-  MIN_PASSWORD_LENGTH,
-  UserCredentials,
-} from '@savoirfairelinux/jami-web-common'
+import { AccessToken, AccountDetails, HttpStatusCode, UserCredentials } from '@savoirfairelinux/jami-web-common'
 import { Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import rateLimit from 'express-rate-limit'
@@ -29,7 +23,8 @@ import { ParamsDictionary, Request } from 'express-serve-static-core'
 import { Container } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
-import { NameRegistrationEndedState, RegistrationState } from '../jamid/state-enums.js'
+import { RegistrationState } from '../jamid/state-enums.js'
+import { createLocalAccount, LocalAccountCreationError } from '../services/local-account-service.js'
 import { LoginGuard } from '../services/LoginGuard.js'
 import { Accounts } from '../storage/accounts.js'
 import { AdminAccount } from '../storage/admin-account.js'
@@ -119,66 +114,20 @@ authRouter.post(
   newAccountLimiter,
   asyncHandler(async (req: Request<ParamsDictionary, string, Partial<UserCredentials>>, res) => {
     const { username, password } = req.body
-    if (username === undefined || password === undefined) {
-      res.status(HttpStatusCode.BadRequest).send('Missing username or password in body')
-      return
-    }
-    const isAccountAlreadyCreated = accounts.get(username) !== undefined
-    if (isAccountAlreadyCreated) {
-      res.status(HttpStatusCode.Conflict).send('Username already exists locally')
-      return
-    }
-    if (!password || typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
-      res.status(HttpStatusCode.BadRequest).send(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`)
-      return
-    }
-
     if (config.getConfig().localAuthEnabled === false) {
       res.status(HttpStatusCode.BadRequest).send('Local authentication is disabled')
       return
     }
 
-    const hashedPassword = password ? await hashPassword(password) : ''
-    const accountDetails: Partial<AccountDetails> = {
-      // TODO: Enable encrypted archives
-      // 'Account.archivePassword': password
-    }
-
-    const nameserver = config.getNameServerAddress()
-
-    if (nameserver !== '') {
-      accountDetails['RingNS.uri'] = nameserver
-    }
-    const { accountId } = await jamid.addAccount(accountDetails)
-
     try {
-      const state = await jamid.registerUsername(accountId, username, '')
-      if (state !== NameRegistrationEndedState.Success) {
-        jamid.removeAccount(accountId)
-        switch (state) {
-          case NameRegistrationEndedState.InvalidName:
-            res.status(HttpStatusCode.BadRequest).send('Invalid username or password')
-            break
-          case NameRegistrationEndedState.AlreadyTaken:
-            res.status(HttpStatusCode.Conflict).send('Username already exists')
-            break
-          default:
-            res.status(HttpStatusCode.InternalServerError).send('Error registering username')
-        }
+      await createLocalAccount(username, password, { accounts, config, jamid })
+      res.sendStatus(HttpStatusCode.Created)
+    } catch (error) {
+      if (error instanceof LocalAccountCreationError) {
+        res.status(error.status).send(error.message)
         return
       }
-    } catch (e: any) {
-      console.error(e)
-      res.status(HttpStatusCode.InternalServerError).send(e.message)
-    }
-
-    try {
-      accounts.set(username, hashedPassword, 'local', accountId)
-      await accounts.save()
-      res.sendStatus(HttpStatusCode.Created)
-    } catch (e: any) {
-      console.error(e)
-      res.status(HttpStatusCode.InternalServerError).send(e.message)
+      throw error
     }
   }),
 )
