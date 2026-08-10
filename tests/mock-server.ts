@@ -344,8 +344,56 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     res.send('')
   })
 
+  api.head('/admin/nameserver/username/:username', (req, res) => {
+    res.sendStatus(state.users[req.params.username] ? 200 : 404)
+  })
+
   api.get('/admin/accounts', (_req, res) => {
-    res.json([])
+    res.json(
+      Object.entries(state.users).map(([username, account]) => ({
+        username,
+        accountUri: username,
+        auth: 'local',
+        storage: 0,
+        accountId: account.accountId,
+      })),
+    )
+  })
+
+  api.post('/admin/accounts', (req, res) => {
+    const { username, password } = req.body
+    if (typeof username !== 'string' || typeof password !== 'string' || password.length < 8) {
+      res.status(400).send('Invalid account')
+      return
+    }
+    if (state.users[username]) {
+      res.status(409).send('Username already exists locally')
+      return
+    }
+    const accountId = `acc-${randomUUID()}`
+    state.users[username] = { accountId, password }
+    res.status(201).json({ accountId })
+  })
+
+  api.patch('/admin/accounts/:accountId/password', (req, res) => {
+    const account = Object.values(state.users).find((user) => user.accountId === req.params.accountId)
+    if (!account || typeof req.body.password !== 'string' || req.body.password.length < 8) {
+      res.status(400).send('Invalid account password')
+      return
+    }
+    account.password = req.body.password
+    res.sendStatus(204)
+  })
+
+  api.delete('/admin/accounts', (req, res) => {
+    if (!Array.isArray(req.body)) {
+      res.status(400).send('Invalid accounts payload')
+      return
+    }
+    for (const account of req.body) {
+      delete state.users[account.username]
+    }
+    res.sendStatus(200)
   })
 
   api.get('/admin/oauth/providers', (_req, res) => {
