@@ -31,25 +31,30 @@ describe('promptPassword', () => {
     mock.restoreAll()
   })
 
-  it('reads passwords without attaching readline echo handling', async () => {
+  it('does not write typed password text to stdout', async () => {
     const { promptPassword } = await import(`./prompt.ts?case=${Date.now()}-${Math.random()}`)
-    let onData: ((char: Buffer) => void) | undefined
-    mock.method(process.stdin, 'on', ((event: string | symbol, listener: (char: Buffer) => void) => {
-      if (event === 'data') {
-        onData = listener
-      }
-      return process.stdin
-    }) as typeof process.stdin.on)
+    let answer: ((value: string) => void) | undefined
+    let output: { write(chunk: string): boolean } | undefined
+    const stdoutWrite = mock.method(process.stdout, 'write', (() => true) as typeof process.stdout.write)
+    createInterface.mock.mockImplementation((options) => {
+      output = options.output as typeof output
+      return {
+        question: (_question: string, callback: (value: string) => void) => {
+          answer = callback
+        },
+        close: mock.fn(),
+      } as never
+    })
 
     const passwordPromise = promptPassword('Password: ')
-    if (!onData) {
-      throw new Error('Expected password prompt to listen for input')
+    if (!output || !answer) {
+      throw new Error('Expected password prompt to create a readline interface')
     }
-    for (const character of 'hidden-password\r') {
-      onData(Buffer.from(character))
-    }
+    const writesAfterQuestion = stdoutWrite.mock.callCount()
+    output.write('hidden-password')
+    answer('hidden-password')
 
     assert.equal(await passwordPromise, 'hidden-password')
-    assert.equal(createInterface.mock.callCount(), 0)
+    assert.equal(stdoutWrite.mock.callCount(), writesAfterQuestion)
   })
 })
