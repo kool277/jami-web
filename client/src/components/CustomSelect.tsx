@@ -58,6 +58,7 @@ export const CustomSelect = <OptionPayload,>({
       openOnFocus
       onOpen={menuAnimation.onOpen}
       onClose={menuAnimation.onClose}
+      onInputChange={(_, value, reason) => menuAnimation.onInputChange(value, reason)}
       onChange={(_, newValue) => onChange(newValue)}
       renderOption={({ key, ...props }, selectOption) => (
         <Box key={key} component="li" {...props}>

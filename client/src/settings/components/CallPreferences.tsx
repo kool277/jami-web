@@ -195,7 +195,10 @@ export default function CallPreferences() {
                 openOnFocus
                 onOpen={moderatorMenuAnimation.onOpen}
                 onClose={moderatorMenuAnimation.onClose}
-                onInputChange={(_, value) => setDefaultModeratorUri(value)}
+                onInputChange={(_, value, reason) => {
+                  moderatorMenuAnimation.onInputChange(value, reason)
+                  setDefaultModeratorUri(value)
+                }}
                 onChange={(_, contact) => {
                   if (contact) {
                     void addModerator(contact.uri, contact)

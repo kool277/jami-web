@@ -105,4 +105,26 @@ describe('CallPreferences', () => {
     await user.type(screen.getByRole('combobox', { name: 'settings_add_moderator' }), 'Grace')
     expect(await screen.findByRole('option', { name: /Grace Hopper/ })).toBeVisible()
   })
+
+  it('keeps the menu open when typing right after the empty input collapsed it', async () => {
+    const user = userEvent.setup()
+
+    render(
+      <ThemeProvider theme={buildDefaultTheme('light', 'ltr')}>
+        <CallPreferences />
+      </ThemeProvider>,
+    )
+
+    const moderatorInput = screen.getByRole('combobox', { name: 'settings_add_moderator' })
+    await user.click(screen.getByRole('button', { name: 'Open' }))
+    expect(await screen.findByRole('option', { name: /Grace Hopper/ })).toBeVisible()
+
+    // Clicking the empty input asks MUI to collapse the menu. Typing before the collapse animation
+    // has finished must bring it back rather than let the pending close win.
+    await user.click(moderatorInput)
+    await user.type(moderatorInput, 'Grace')
+
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    expect(await screen.findByRole('option', { name: /Grace Hopper/ })).toBeVisible()
+  })
 })

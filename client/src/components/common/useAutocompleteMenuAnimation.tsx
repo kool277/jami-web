@@ -111,6 +111,19 @@ export function useAutocompleteMenuAnimation() {
       setClosing(false)
       setOpen(true)
     },
+    // MUI mirrors the controlled `open` prop into its own state, so while the collapse animation
+    // keeps the prop true it believes the menu is already open and skips `onOpen`. Clicking an
+    // empty input asks it to close, so without this the pending close would silently win and leave
+    // the user typing into a menu that never comes back.
+    onInputChange: (value: string, reason: string) => {
+      if (reason !== 'input' || value === '') {
+        return
+      }
+
+      window.clearTimeout(closeTimerRef.current)
+      setClosing(false)
+      setOpen(true)
+    },
     onClose: () => {
       if (!open || closing) {
         return
