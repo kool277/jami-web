@@ -118,7 +118,11 @@ conversationRouter.get(
       return
     }
 
-    res.send(infos)
+    res.send({
+      ...infos,
+      avatar:
+        infos.avatar && !infos.avatar.startsWith('data:') ? `data:image/jpeg;base64,${infos.avatar}` : infos.avatar,
+    })
   }),
 )
 
