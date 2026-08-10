@@ -2504,6 +2504,26 @@ paths:
         '200':
           description: Nameserver reset
 
+  /admin/nameserver/username/{username}:
+    head:
+      tags: [Admin]
+      summary: Check whether a username is registered on the nameserver
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Username is already registered
+        '400':
+          description: The nameserver returned an invalid response
+        '404':
+          description: Username is not registered
+        '500':
+          description: The nameserver could not be reached
+
   /admin/jams-url:
     get:
       tags: [Admin]
@@ -2579,6 +2599,71 @@ paths:
       responses:
         '200':
           description: Accounts deleted
+    post:
+      tags: [Admin]
+      summary: Create a local user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        '201':
+          description: Account created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [accountId]
+                properties:
+                  accountId:
+                    type: string
+        '400':
+          description: Missing username or password, or password shorter than the minimum length
+        '409':
+          description: Username already exists
+        '500':
+          description: The username could not be registered on the nameserver
+
+  /admin/accounts/{accountId}/password:
+    patch:
+      tags: [Admin]
+      summary: Reset a local account password
+      description: >-
+        Invalidates every session and API token issued for the account and closes its open
+        websockets, so credentials minted under the previous password stop working.
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+                  format: password
+      responses:
+        '204':
+          description: Password reset
+        '400':
+          description: Password shorter than the minimum length, or the account is not a local account
+        '404':
+          description: Account not found
 
   /admin/oauth/providers:
     get:
