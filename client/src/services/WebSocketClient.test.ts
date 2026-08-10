@@ -60,4 +60,25 @@ describe('WebSocketClient', () => {
     expect(onSessionInvalidated).toHaveBeenCalledOnce()
     expect(MockWebSocket.instances).toHaveLength(1)
   })
+
+  it('still logs out on an invalidated session after reconnecting from a dropped connection', () => {
+    vi.useFakeTimers()
+    vi.stubGlobal('WebSocket', MockWebSocket)
+    const client = new WebSocketClient()
+    const onSessionInvalidated = vi.fn()
+
+    client.connect('http://localhost/api', 'access-token', onSessionInvalidated)
+    MockWebSocket.instances[0].readyState = MockWebSocket.CLOSED
+    MockWebSocket.instances[0].onclose?.({ code: 1006 } as CloseEvent)
+    vi.advanceTimersByTime(2000)
+
+    expect(MockWebSocket.instances).toHaveLength(2)
+
+    MockWebSocket.instances[1].readyState = MockWebSocket.CLOSED
+    MockWebSocket.instances[1].onclose?.({ code: 4401 } as CloseEvent)
+    vi.advanceTimersByTime(2000)
+
+    expect(onSessionInvalidated).toHaveBeenCalledOnce()
+    expect(MockWebSocket.instances).toHaveLength(2)
+  })
 })

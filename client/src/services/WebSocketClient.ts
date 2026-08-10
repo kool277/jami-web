@@ -40,6 +40,7 @@ export class WebSocketClient {
   private accessToken: string | null = null
   private callbacks: WebSocketCallbacks = buildWebSocketCallbacks()
   private reconnectionTimeout: ReturnType<typeof setTimeout> | null = null
+  private onSessionInvalidated?: () => void
 
   // Queue of messages waiting for connection
   // TODO: Add timeout (or something else) for messages that should be discarded when it takes too long
@@ -56,6 +57,11 @@ export class WebSocketClient {
     }
 
     this.accessToken = accessToken
+    // Reconnections re-enter this method without the caller's arguments, so the handler is kept on
+    // the instance to survive them. Otherwise a dropped connection would silently disable logout.
+    if (onSessionInvalidated) {
+      this.onSessionInvalidated = onSessionInvalidated
+    }
     const url = new URL(apiUrl)
 
     url.protocol = isDevMode ? 'ws:' : 'wss:'
@@ -76,7 +82,7 @@ export class WebSocketClient {
     webSocket.onclose = (event) => {
       if (event.code === 4401) {
         console.debug('WebSocket session was invalidated')
-        onSessionInvalidated?.()
+        this.onSessionInvalidated?.()
         return
       }
       // Involuntary disconnection. See 'disconnect' method to disconnect voluntarily.
@@ -119,6 +125,7 @@ export class WebSocketClient {
 
     this.sendQueue = []
     this.accessToken = null
+    this.onSessionInvalidated = undefined
 
     if (this.webSocket) {
       this.webSocket.onclose = (event) =>
