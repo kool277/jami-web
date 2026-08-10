@@ -505,8 +505,6 @@ authRouter.get(
       return
     }
 
-    const name = userInfo.name
-
     let key
 
     const sub = userInfo.sub !== undefined ? String(userInfo.sub) : undefined
@@ -522,6 +520,11 @@ authRouter.get(
       res.redirect(loginUrl)
       return
     }
+
+    const name =
+      [userInfo.name, userInfo.global_name, userInfo.username].find(
+        (value): value is string => typeof value === 'string' && value.trim() !== '',
+      ) ?? key
 
     // this duplicates the account storage for the same user but
     // ensure that the user can login with any of the keys

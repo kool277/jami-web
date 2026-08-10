@@ -25,6 +25,8 @@ import { Container } from 'typedi'
 const removedPendingAccounts: string[] = []
 const providedAuthentications: Array<{ accountId: string; credentials: string; scheme: string }> = []
 const accountWrites: Array<{ username: string; value: string; authMethod: string; accountId: string }> = []
+const openIdJwtArguments: Array<{ email: string; userName: string; service: string }> = []
+let openIdUserInfo: Record<string, unknown> | undefined
 
 class MockJamid {}
 class MockAccounts {}
@@ -49,6 +51,7 @@ const accounts = {
   set: (username: string, value: string, authMethod: string, accountId: string) => {
     accountWrites.push({ username, value, authMethod, accountId })
   },
+  getOpenIdAccount: () => ({ accountId: 'openid-account-1' }),
   save: () => undefined,
 }
 
@@ -70,10 +73,17 @@ mock.module('../utils/password.js', {
 })
 mock.module('../utils/openid.js', {
   namedExports: {
-    exchangeCodeForToken: async () => undefined,
-    exchangeTokenForUserInfo: async () => undefined,
+    exchangeCodeForToken: async () => ({
+      // OAuth responses use this external snake_case field.
+      // eslint-disable-next-line camelcase
+      access_token: 'openid-access-token',
+    }),
+    exchangeTokenForUserInfo: async () => openIdUserInfo,
     getBase64Picture: async () => undefined,
-    getJwt: async () => undefined,
+    getJwt: async (email: string, userName: string, service: string) => {
+      openIdJwtArguments.push({ email, userName, service })
+      return 'jwt'
+    },
   },
 })
 
@@ -82,8 +92,15 @@ let app: express.Express
 before(async () => {
   Container.set(MockJamid, jamid)
   Container.set(MockAccounts, accounts)
-  Container.set(MockAdminAccount, { getConfig: () => ({ guestAccessEnabled: true }) })
-  Container.set(MockOpenIdProviders, { getProviders: () => [] })
+  Container.set(MockAdminAccount, {
+    getConfig: () => ({ guestAccessEnabled: true, openIdAuthEnabled: true }),
+    getOpenIdProvidersNames: () => ['discord'],
+    isProviderActive: () => true,
+  })
+  Container.set(MockOpenIdProviders, {
+    getProviders: () => [],
+    getOpenIdProvidersNames: () => ['discord'],
+  })
   const authRouterModule = './auth-router.js?auth-router-test'
   const { authRouter } = await import(authRouterModule)
   app = express()
@@ -95,6 +112,8 @@ beforeEach(() => {
   removedPendingAccounts.length = 0
   providedAuthentications.length = 0
   accountWrites.length = 0
+  openIdJwtArguments.length = 0
+  openIdUserInfo = undefined
 })
 
 after(() => {
@@ -167,5 +186,16 @@ describe('auth router guest login', () => {
       },
     )
     assert.equal(Number.isFinite(Number(accountWrite.value)), true)
+  })
+})
+
+describe('auth router OpenID callbacks', () => {
+  it('uses a Discord username when the profile has no name', async () => {
+    openIdUserInfo = { id: 'discord-user-id', username: 'discord-user' }
+
+    const response = await request('/auth/oauth/discord/callback?code=code', { redirect: 'manual' })
+
+    assert.equal(response.status, 302)
+    assert.deepEqual(openIdJwtArguments, [{ email: 'discord-user-id', userName: 'discord-user', service: 'discord' }])
   })
 })
