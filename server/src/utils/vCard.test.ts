@@ -22,7 +22,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, it, mock } from 'node:test'
 
+import sharp from 'sharp'
+
 import {
+  AVATAR_MAX_DIMENSION,
   cacheAvatar,
   cacheProfile,
   decodeVCard,
@@ -80,20 +83,34 @@ describe('decodeVCard', () => {
 })
 
 describe('cacheAvatar', () => {
-  it('replaces every stale format with the detected image format', async () => {
+  it('replaces stale formats with a bounded WebP thumbnail', async () => {
     const home = await mkdtemp(join(tmpdir(), 'jami-web-avatar-cache-'))
     const accountId = 'account-id'
     const contactUri = 'contact-id'
     const profileFolder = join(home, '.local/share/jami', accountId, 'cache/profile')
     const imageName = btoa(contactUri)
     const homedir = mock.method(os, 'homedir', () => home)
+    const source = await sharp({
+      create: {
+        width: AVATAR_MAX_DIMENSION * 2,
+        height: AVATAR_MAX_DIMENSION,
+        channels: 3,
+        background: '#da1f26',
+      },
+    })
+      .jpeg()
+      .toBuffer()
 
     try {
       await mkdir(profileFolder, { recursive: true })
       await writeFile(join(profileFolder, `${imageName}.png`), Buffer.from('stale'))
-      await cacheAvatar(accountId, contactUri, '/9j/4AAQSkY=')
+      await cacheAvatar(accountId, contactUri, source.toString('base64'))
 
-      assert.deepEqual(await readFile(join(profileFolder, `${imageName}.jpeg`)), Buffer.from('/9j/4AAQSkY=', 'base64'))
+      const thumbnail = await readFile(join(profileFolder, `${imageName}.webp`))
+      const metadata = await sharp(thumbnail).metadata()
+      assert.equal(metadata.format, 'webp')
+      assert.equal(metadata.width, AVATAR_MAX_DIMENSION)
+      assert.ok((metadata.height ?? 0) <= AVATAR_MAX_DIMENSION)
       await assert.rejects(readFile(join(profileFolder, `${imageName}.png`)), { code: 'ENOENT' })
     } finally {
       homedir.mock.restore()

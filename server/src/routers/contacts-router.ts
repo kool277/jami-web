@@ -108,8 +108,10 @@ contactsRouter.get('/:contactUri/profile/picture', async (req, res) => {
     // The avatar cache lives under ~/.local/share/jami; sendFile refuses
     // paths with dot-segments by default, which would turn every avatar
     // into a 500 despite the file existing.
+    res.setHeader('Cache-Control', 'private, no-cache')
     res.sendFile(path, { dotfiles: 'allow' })
     return
   }
-  res.sendStatus(HttpStatusCode.NotFound)
+  // A missing avatar is a normal state. A successful empty response lets clients cache it.
+  res.sendStatus(HttpStatusCode.NoContent)
 })

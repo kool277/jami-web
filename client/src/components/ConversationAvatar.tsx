@@ -21,6 +21,7 @@ import { type SxProps, type Theme } from '@mui/material/styles'
 import { ReactNode, use, useCallback, useEffect, useRef, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useTranslation } from 'react-i18next'
+import { useInView } from 'react-intersection-observer'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { PresenceContext } from '../contexts/PresenceProvider.js'
@@ -63,8 +64,13 @@ export default function ConversationAvatar({
   src: srcProp,
   ...props
 }: ConversationAvatarProps) {
-  const profilePictureQuery = useContactProfilePicture(contactUri)
-  const url = profilePictureQuery.data
+  const { ref, inView } = useInView({
+    fallbackInView: true,
+    rootMargin: '200px 0px',
+    triggerOnce: true,
+  })
+  const profilePictureQuery = useContactProfilePicture(contactUri, inView && !srcProp)
+  const url = profilePictureQuery.data ?? undefined
   const src = srcProp || url || '/broken'
   const color = getColor(contactUri ? 'jami:' + contactUri : '')
 
@@ -72,6 +78,7 @@ export default function ConversationAvatar({
     return (
       <ConversationAvatarPresence buddy={contactUri} backgroundColor={presenceBackgroundColor}>
         <Avatar
+          ref={ref}
           {...props}
           alt={displayName?.toUpperCase()}
           src={src}
@@ -82,6 +89,7 @@ export default function ConversationAvatar({
   }
   return (
     <Avatar
+      ref={ref}
       {...props}
       alt={displayName?.toUpperCase()}
       src={src}
@@ -233,7 +241,7 @@ export const AvatarEditor = ({ onAvatarChange }: AvatarEditorProps) => {
   const { t } = useTranslation()
   const { account } = useAuthContext()
   const profilePictureQuery = useContactProfilePicture(account.getUri())
-  const url = profilePictureQuery.data
+  const url = profilePictureQuery.data ?? undefined
   const [editionToolsIsOpen, setEditionToolsIsOpen] = useState(false)
   const [popupAnchor, setPopupAnchor] = useState<HTMLElement | null>(null)
   const [avatarHandler, setAvatarHandler] = useState<FileHandler | null>(null)

@@ -17,6 +17,7 @@
  */
 import fs from 'fs/promises'
 import os from 'os'
+import sharp from 'sharp'
 import { parseVCards } from 'vcard4-ts'
 
 export async function decodeVCard(path: string) {
@@ -79,6 +80,9 @@ export function getAvatarBase64(photo: string) {
 }
 
 const avatarExtensions = ['png', 'jpeg', 'gif', 'webp'] as const
+export const AVATAR_MAX_DIMENSION = 256
+const AVATAR_MAX_SOURCE_BYTES = 25 * 1024 * 1024
+const AVATAR_WEBP_QUALITY = 80
 
 async function clearAvatarImages(profileFolder: string, imageName: string) {
   for (const extension of avatarExtensions) {
@@ -112,15 +116,25 @@ export async function cacheAvatar(accountId: string, contactUri: string, photo: 
   await fs.mkdir(profileFolder, { recursive: true })
   const extension = detectImageExtension(buffer)
   await clearAvatarImages(profileFolder, imageName)
-  if (!extension) {
+  if (!extension || buffer.length === 0 || buffer.length > AVATAR_MAX_SOURCE_BYTES) {
     return undefined
   }
 
-  if (buffer.length === 0) {
+  const imagePath = `${profileFolder}/${imageName}.webp`
+  try {
+    await sharp(buffer, { limitInputPixels: 64 * 1024 * 1024 })
+      .rotate()
+      .resize(AVATAR_MAX_DIMENSION, AVATAR_MAX_DIMENSION, {
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+      .webp({ quality: AVATAR_WEBP_QUALITY })
+      .toFile(imagePath)
+  } catch (error) {
+    console.warn('Unable to cache invalid profile image', error)
     return undefined
   }
-  const imagePath = `${profileFolder}/${imageName}.${extension}`
-  await fs.writeFile(imagePath, buffer)
+
   return imagePath
 }
 
@@ -148,6 +162,10 @@ export async function getAvatar(accountId: string, contactUri: string, isOwnProf
     const cachedPath = `${profileFolder}/${imgName}.${extension}`
     try {
       await fs.access(cachedPath)
+      if (extension !== 'webp') {
+        const cachedAvatar = await fs.readFile(cachedPath)
+        return cacheAvatar(accountId, contactUri, cachedAvatar.toString('base64'))
+      }
       return cachedPath
     } catch (e) {
       /* not cached under this extension */

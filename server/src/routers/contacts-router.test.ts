@@ -32,6 +32,7 @@ class MockJamid {}
 const subscribe = mock.fn()
 
 let avatarPath: string
+let avatarAvailable = true
 let tempDirectory: string
 let app: express.Express
 
@@ -71,7 +72,7 @@ before(async () => {
   })
   mock.module('../utils/vCard.js', {
     namedExports: {
-      getAvatar: async () => avatarPath,
+      getAvatar: async () => (avatarAvailable ? avatarPath : undefined),
       getDisplayName: async () => '',
     },
   })
@@ -126,6 +127,18 @@ describe('GET /contacts/:contactUri/profile/picture', () => {
 
     assert.equal(response.status, 200)
     assert.equal(response.headers.get('content-type'), 'image/png')
+    assert.equal(response.headers.get('cache-control'), 'private, no-cache')
     assert.deepEqual(Buffer.from(await response.arrayBuffer()), pngBytes)
+  })
+
+  it('returns a cacheable empty response when the contact has no avatar', async () => {
+    avatarAvailable = false
+    try {
+      const response = await request('/contacts/alice/profile/picture')
+
+      assert.equal(response.status, 204)
+    } finally {
+      avatarAvailable = true
+    }
   })
 })

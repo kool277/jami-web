@@ -107,7 +107,7 @@ export default function AccountMenu({ compact }: AccountMenuProps) {
             <ConversationAvatar
               displayName={account.getDisplayName() || account.getRegisteredName()}
               contactUri={account.getUri()}
-              src={profilePictureQuery.data}
+              src={profilePictureQuery.data ?? undefined}
               sx={{ width: 40, height: 40 }}
             />
           </IconButton>

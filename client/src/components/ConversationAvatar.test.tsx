@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { PresenceContext } from '../contexts/PresenceProvider.js'
 import ConversationAvatar, { GroupConversationAvatar } from './ConversationAvatar.js'
@@ -25,11 +25,25 @@ const contactQueries = vi.hoisted(() => ({
   useContactProfilePicture: vi.fn(),
 }))
 
+const intersectionObserver = vi.hoisted(() => ({
+  useInView: vi.fn(() => ({ ref: vi.fn(), inView: true })),
+}))
+
 vi.mock('../services/contactQueries.js', () => ({
   useContactProfilePicture: contactQueries.useContactProfilePicture,
 }))
 
+vi.mock('react-intersection-observer', () => ({
+  useInView: intersectionObserver.useInView,
+}))
+
 describe('ConversationAvatar', () => {
+  beforeEach(() => {
+    contactQueries.useContactProfilePicture.mockClear()
+    intersectionObserver.useInView.mockReset()
+    intersectionObserver.useInView.mockReturnValue({ ref: vi.fn(), inView: true })
+  })
+
   it('renders an explicit src prop without overriding it from the query', () => {
     contactQueries.useContactProfilePicture.mockReturnValue({ data: undefined })
 
@@ -46,6 +60,22 @@ describe('ConversationAvatar', () => {
 
     const image = screen.getByRole('img')
     expect(image).toHaveAttribute('src', 'blob:http://localhost/1234')
+    expect(contactQueries.useContactProfilePicture).toHaveBeenCalledWith(
+      '260d9aaee80c84ffda86bdc579a0be8d07a70b65',
+      true,
+    )
+  })
+
+  it('does not fetch a profile picture until the avatar is near the viewport', () => {
+    intersectionObserver.useInView.mockReturnValueOnce({ ref: vi.fn(), inView: false })
+    contactQueries.useContactProfilePicture.mockReturnValue({ data: undefined })
+
+    render(<ConversationAvatar displayName="Ada" contactUri="260d9aaee80c84ffda86bdc579a0be8d07a70b65" />)
+
+    expect(contactQueries.useContactProfilePicture).toHaveBeenCalledWith(
+      '260d9aaee80c84ffda86bdc579a0be8d07a70b65',
+      false,
+    )
   })
 
   it('uses a custom group picture before participant avatars', () => {

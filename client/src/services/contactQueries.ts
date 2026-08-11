@@ -152,19 +152,24 @@ export const useBlockContactMutation = () => {
   })
 }
 
-export const useContactProfilePicture = (contactId?: string) => {
+export const useContactProfilePicture = (contactId?: string, enabled = true) => {
   const { axiosInstance } = useAuthContext()
 
   return useQuery({
     queryKey: ['picture', contactId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get<File>(`/contacts/${contactId}/profile/picture`, {
+      const { data, status } = await axiosInstance.get<File>(`/contacts/${contactId}/profile/picture`, {
         responseType: 'blob',
       })
+      if (status === 204) {
+        return null
+      }
       const blobUrl = URL.createObjectURL(data)
       return blobUrl
     },
-    enabled: !!contactId,
+    enabled: !!contactId && enabled,
+    retry: false,
+    staleTime: Infinity,
   })
 }
 
