@@ -30,9 +30,11 @@ const dataSizeSymbols: Record<string, Record<string, string>> = {
 }
 
 export const getDataSizeUnits = (nbBytes: number, language: string) => {
+  const locale = language.replaceAll('_', '-')
+  const languageCode = locale.split('-')[0]
   const options = {
-    symbols: dataSizeSymbols[language] || dataSizeSymbols['default'], // undefined is not supported
-    locale: language,
+    symbols: dataSizeSymbols[languageCode] || dataSizeSymbols['default'], // undefined is not supported
+    locale,
   }
   return filesize(nbBytes, options)
 }
