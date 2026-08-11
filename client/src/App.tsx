@@ -18,16 +18,17 @@
 import './dayjsInitializer.js' // Initialized once and globally to ensure available locales are always imported
 
 import axios from 'axios'
-import { Suspense, useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { LoaderFunctionArgs, Outlet, redirect, useLocation } from 'react-router-dom'
 
 import { InviteDetailSkeletonContent } from './components/common/InviteDetailSkeleton.js'
 import LoadingSkeleton from './components/common/LoadingSkeleton.js'
-import WelcomeAnimation from './components/WelcomeAnimation.js'
 import { getAccessToken, setAccessToken } from './services/authQueries.js'
 import { apiUrl } from './utils/constants.js'
 import { isElectronMode } from './utils/electron.js'
 import { isRoutePathActive } from './utils/routes.js'
+
+const WelcomeAnimation = lazy(() => import('./components/WelcomeAnimation.js'))
 
 export async function appLoader({ request }: LoaderFunctionArgs) {
   const initialUrl = new URL(request.url)
@@ -83,7 +84,11 @@ const App = () => {
   const contentIsland = isAdmin || isInvites || isSettings || /^\/conversation\/[^/]+(?:\/|$)/.test(pathname)
 
   if (displayWelcome) {
-    return <WelcomeAnimation onComplete={() => setDisplayWelcome(false)} />
+    return (
+      <Suspense fallback={<LoadingSkeleton fullPage />}>
+        <WelcomeAnimation onComplete={() => setDisplayWelcome(false)} />
+      </Suspense>
+    )
   }
 
   return (

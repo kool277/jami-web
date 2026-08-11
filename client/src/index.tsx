@@ -16,21 +16,19 @@
  * <https://www.gnu.org/licenses/>.
  */
 'use strict'
-import 'material-symbols/outlined.css'
 import './index.scss'
+import './material-symbols.scss'
 import './i18n.js'
 import './themes/fonts.js'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Provider } from 'react-redux'
 import { RouterProvider } from 'react-router-dom'
 
 import AlertSnackbarProvider from './contexts/AlertSnackbarProvider.js'
 import CustomThemeProvider from './contexts/CustomThemeProvider.js'
 import NotificationsProvider from './contexts/NotificationsProvider.js'
-import { store } from './redux/store.js'
 import { router } from './router.js'
 
 const queryClient = new QueryClient()
@@ -41,18 +39,16 @@ if (!container) {
 }
 const root = createRoot(container)
 root.render(
-  <Provider store={store}>
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <CustomThemeProvider>
-          <NotificationsProvider>
-            <AlertSnackbarProvider>
-              <RouterProvider router={router} />
-              {/*<ReactQueryDevtools initialIsOpen={false} />*/}
-            </AlertSnackbarProvider>
-          </NotificationsProvider>
-        </CustomThemeProvider>
-      </QueryClientProvider>
-    </StrictMode>
-  </Provider>,
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <CustomThemeProvider>
+        <NotificationsProvider>
+          <AlertSnackbarProvider>
+            <RouterProvider router={router} />
+            {/*<ReactQueryDevtools initialIsOpen={false} />*/}
+          </AlertSnackbarProvider>
+        </NotificationsProvider>
+      </CustomThemeProvider>
+    </QueryClientProvider>
+  </StrictMode>,
 )

@@ -60,7 +60,11 @@ export default function WelcomePage() {
           gap: '24px',
         }}
       >
-        {isDark ? <JamiLogoWhite width={'auto'} height={'80px'} /> : <JamiLogo width={'auto'} height={'80px'} />}
+        {isDark ? (
+          <JamiLogoWhite style={{ width: 'auto', height: 80 }} />
+        ) : (
+          <JamiLogo style={{ width: 'auto', height: 80 }} />
+        )}
         <JamiIdDisplay account={account} />
       </Box>
 

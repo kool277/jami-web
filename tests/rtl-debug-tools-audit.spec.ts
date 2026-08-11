@@ -109,6 +109,7 @@ test.describe('RTL and Debug Tools Audit', () => {
       .locator('span')
     await expect(directionalSymbol).toBeVisible()
     await expect(nonDirectionalSymbol).toBeVisible()
+    await expect.poll(() => page.evaluate(() => document.fonts.check('24px "Material Symbols Outlined"'))).toBe(true)
     await expect(directionalSymbol).toHaveCSS('transform', 'none')
     await expect(nonDirectionalSymbol).toHaveCSS('transform', 'none')
 

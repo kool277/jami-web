@@ -15,7 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import 'material-symbols/outlined.css'
+import '../src/material-symbols.scss'
 import '../src/themes/fonts.js'
 
 import createCache from '@emotion/cache'

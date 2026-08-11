@@ -144,7 +144,9 @@ export default defineConfig(({ mode }) => {
               },
               {
                 name: 'settings',
-                test: /client[\\/]src[\\/]settings[\\/]/,
+                // Route constants are needed by the root router and must not pull
+                // the settings implementation into the initial bundle.
+                test: /client[\\/]src[\\/]settings[\\/](?!routes\.)/,
                 priority: 20,
                 includeDependenciesRecursively: false,
               },
@@ -157,7 +159,7 @@ export default defineConfig(({ mode }) => {
               },
               {
                 name: 'ui-vendor',
-                test: /node_modules[\\/](@mui|@emotion|@popperjs|material-symbols|react-transition-group)[\\/]/,
+                test: /node_modules[\\/](@mui|@emotion|@popperjs|react-transition-group)[\\/]/,
               },
             ],
           },
