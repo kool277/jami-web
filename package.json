@@ -81,7 +81,7 @@
     "ws": "^8.21.1"
   },
   "optionalDependencies": {
-    "@savoirfairelinux/jami-core-linux-x64": "0.4.2"
+    "@savoirfairelinux/jami-core-linux-x64": "0.5.0"
   },
   "overrides": {
     "stylis": "4.2.0"
