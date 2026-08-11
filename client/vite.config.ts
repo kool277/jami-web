@@ -149,14 +149,15 @@ export default defineConfig(({ mode }) => {
                 includeDependenciesRecursively: false,
               },
               {
+                // Recursively including dependencies (the rolldown default) keeps modules
+                // shared with app chunks out of this vendor bucket, which avoids the
+                // circular chunk imports that caused "u is not a function" at runtime.
                 name: 'react-vendor',
                 test: /node_modules[\\/](react|react-dom|react-router|scheduler)[\\/]/,
-                includeDependenciesRecursively: false,
               },
               {
                 name: 'ui-vendor',
                 test: /node_modules[\\/](@mui|@emotion|@popperjs|material-symbols|react-transition-group)[\\/]/,
-                includeDependenciesRecursively: false,
               },
             ],
           },
