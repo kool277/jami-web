@@ -39,6 +39,7 @@ import { defaultModeratorsRouter } from './routers/default-moderators-router.js'
 import { linkPreviewRouter } from './routers/link-preview-router.js'
 import { nameserverRouter } from './routers/nameserver-router.js'
 import { passkeyRouter } from './routers/passkey-router.js'
+import { presenceRouter } from './routers/presence-router.js'
 import { tokenRouter } from './routers/token-router.js'
 import { AdminAccount } from './storage/admin-account.js'
 import { isElectronMode } from './utils/electron.js'
@@ -136,6 +137,7 @@ export class App {
     apiRouter.use('/auth', authRouter)
     apiRouter.use('/account', accountRouter)
     apiRouter.use('/contacts', contactsRouter)
+    apiRouter.use('/presence', presenceRouter)
     apiRouter.use('/default-moderators', defaultModeratorsRouter)
     apiRouter.use('/conversations', conversationRouter)
     apiRouter.use('/conversation-requests', conversationRequestRouter)

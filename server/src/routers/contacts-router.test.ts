@@ -30,6 +30,7 @@ import { PresenceService } from '../services/PresenceService.js'
 const pngBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
 class MockJamid {}
 const subscribe = mock.fn()
+const unsubscribe = mock.fn()
 
 let avatarPath: string
 let avatarAvailable = true
@@ -49,8 +50,9 @@ before(async () => {
     getAccountDetails: () => ({ 'Account.username': 'alice' }),
     getContacts: () => [{ id: 'bob', username: 'Bob' }],
     lookupAddress: async () => ({ name: 'Bob' }),
+    removeContact: () => {},
   })
-  Container.set(PresenceService, { subscribe })
+  Container.set(PresenceService, { subscribe, unsubscribe })
   mock.module('../jamid/jamid.js', {
     namedExports: {
       Jamid: MockJamid,
@@ -90,14 +92,14 @@ after(async () => {
   await rm(tempDirectory, { recursive: true })
 })
 
-async function request(path: string): Promise<Response> {
+async function request(path: string, init?: RequestInit): Promise<Response> {
   const server = createServer(app)
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
 
   try {
     const address = server.address()
     assert.ok(address && typeof address !== 'string')
-    return await fetch(`http://127.0.0.1:${address.port}${path}`)
+    return await fetch(`http://127.0.0.1:${address.port}${path}`, init)
   } finally {
     await closeServer(server)
   }
@@ -116,6 +118,18 @@ describe('GET /contacts', () => {
     assert.equal(response.status, 200)
     assert.deepEqual(
       subscribe.mock.calls.map((call) => call.arguments),
+      [['account-id', 'bob']],
+    )
+  })
+})
+
+describe('DELETE /contacts/:contactId', () => {
+  it('stops tracking the removed contact presence', async () => {
+    const response = await request('/contacts/bob', { method: 'DELETE' })
+
+    assert.equal(response.status, 204)
+    assert.deepEqual(
+      unsubscribe.mock.calls.map((call) => call.arguments),
       [['account-id', 'bob']],
     )
   })

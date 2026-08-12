@@ -24,13 +24,10 @@ import { Container, Service } from 'typedi'
 import { URL } from 'whatwg-url'
 import * as WebSocket from 'ws'
 
-import { PresenceService } from '../services/PresenceService.js'
 import { Accounts } from '../storage/accounts.js'
 import { isElectronMode } from '../utils/electron.js'
 import { verifyJwt } from '../utils/jwt.js'
 const accounts = Container.get(Accounts)
-
-const presenceService = Container.get(PresenceService)
 
 type WebSocketCallback<T extends WebSocketMessageType> = (accountId: string, data: WebSocketMessageTable[T]) => void
 
@@ -101,8 +98,9 @@ export class WebSocketServer {
         if (index !== -1) {
           accountSockets.splice(index, 1)
           if (accountSockets.length === 0) {
-            // Unsubscribe from all presence updates when the last socket is closed
-            presenceService.unsubscribeAll(accountId)
+            // Presence subscriptions are deliberately kept alive: the daemon
+            // tracks buddy state for the account, so a reconnecting client can
+            // be served an up-to-date snapshot (see PresenceService.getStatuses).
             this.sockets.delete(accountId)
           }
         }

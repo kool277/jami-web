@@ -20,6 +20,7 @@ import { NewBuddyNotification, WebSocketMessageType } from '@savoirfairelinux/ja
 import { createContext, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
+import { usePresenceQuery } from '../services/presenceQueries.js'
 
 interface IPresenceContext {
   getPresence: (buddy: string) => number
@@ -36,8 +37,20 @@ interface PresenceProviderProps {
 }
 
 const PresenceProvider: React.FC<PresenceProviderProps> = ({ children }) => {
-  const [presence, setPresence] = useState<Map<string, number>>(() => new Map())
+  const [livePresence, setLivePresence] = useState<Map<string, number>>(() => new Map())
   const webSocket = useWebSocketContext()
+  const { data: knownStatuses } = usePresenceQuery()
+
+  // The daemon emits a status once, so a notification can land before this
+  // provider is mounted. The snapshot fills those gaps, while notifications
+  // received since then always take precedence over it.
+  const presence = useMemo(() => {
+    const merged = new Map<string, number>(Object.entries(knownStatuses ?? {}))
+    for (const [buddyUri, status] of livePresence) {
+      merged.set(buddyUri, status)
+    }
+    return merged
+  }, [knownStatuses, livePresence])
 
   const getPresence = useCallback(
     (buddy: string) => {
@@ -48,7 +61,7 @@ const PresenceProvider: React.FC<PresenceProviderProps> = ({ children }) => {
 
   useEffect(() => {
     function handlePresence(data: NewBuddyNotification) {
-      setPresence((prev) => {
+      setLivePresence((prev) => {
         const newPresence = new Map(prev)
         newPresence.set(data.buddyUri, data.status)
         return newPresence

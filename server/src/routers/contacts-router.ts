@@ -84,6 +84,8 @@ contactsRouter.put('/:contactId', async (req, res) => {
 
 contactsRouter.delete('/:contactId', (req, res) => {
   jamid.removeContact(res.locals.accountId, req.params.contactId)
+  // Mirror the daemon clients: presence tracking follows the contact lifecycle
+  presenceService.unsubscribe(res.locals.accountId, req.params.contactId)
   res.sendStatus(HttpStatusCode.NoContent)
 })
 

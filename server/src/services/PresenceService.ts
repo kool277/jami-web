@@ -20,6 +20,11 @@ import { Container, Service } from 'typedi'
 
 import { Jamid } from '../jamid/jamid.js'
 
+// Daemon getSubscriptions entry keys and values (see daemon presence_const.h)
+const BUDDY_KEY = 'Buddy'
+const STATUS_KEY = 'Status'
+const ONLINE_VALUE = 'Online'
+
 @Service()
 export class PresenceService {
   private activeSubscribers: Map<string, Set<string>> = new Map()
@@ -45,17 +50,6 @@ export class PresenceService {
     this.getJamid().subscribeBuddy(accountId, buddyUri, true)
   }
 
-  unsubscribeAll(accountId: string) {
-    const set = this.activeSubscribers.get(accountId)
-    if (!set) {
-      return
-    }
-    for (const uri of set) {
-      this.getJamid().subscribeBuddy(accountId, uri, false)
-    }
-    this.activeSubscribers.delete(accountId)
-  }
-
   unsubscribe(accountId: string, buddyUri: string) {
     const set = this.activeSubscribers.get(accountId)
     if (!set?.has(buddyUri)) {
@@ -63,5 +57,19 @@ export class PresenceService {
     }
     set.delete(buddyUri)
     this.getJamid().subscribeBuddy(accountId, buddyUri, false)
+  }
+
+  // The daemon tracks buddy state itself, so it is the authoritative source:
+  // it also re-emits NewBuddyNotification whenever a buddy is re-subscribed.
+  getStatuses(accountId: string): Record<string, number> {
+    const statuses: Record<string, number> = {}
+    for (const subscription of this.getJamid().getSubscriptions(accountId)) {
+      const buddyUri = subscription[BUDDY_KEY]
+      if (!buddyUri) {
+        continue
+      }
+      statuses[buddyUri] = subscription[STATUS_KEY] === ONLINE_VALUE ? 1 : 0
+    }
+    return statuses
   }
 }

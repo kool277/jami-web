@@ -1119,6 +1119,20 @@ paths:
                 items:
                   $ref: '#/components/schemas/ContactDetails'
 
+  /presence:
+    get:
+      tags: [Contacts]
+      summary: Get the last known presence status of every subscribed buddy
+      responses:
+        '200':
+          description: Map of buddy URI to presence status
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+
   /contacts/{contact-id}:
     get:
       tags: [Contacts]
