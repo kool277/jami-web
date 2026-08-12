@@ -18,7 +18,6 @@
 
 import { WebSocketMessage, WebSocketMessageTable, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 
-import { isDevMode } from '../utils/constants.js'
 type WebSocketCallback<T extends WebSocketMessageType> = (data: WebSocketMessageTable[T]) => void
 
 type WebSocketCallbacks = {
@@ -33,6 +32,12 @@ const buildWebSocketCallbacks = (): WebSocketCallbacks => {
     webSocketCallback[messageType] = new Set() as any
   }
   return webSocketCallback
+}
+
+export const getWebSocketUrl = (apiUrl: string): URL => {
+  const url = new URL(apiUrl)
+  url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
+  return url
 }
 
 export class WebSocketClient {
@@ -62,9 +67,7 @@ export class WebSocketClient {
     if (onSessionInvalidated) {
       this.onSessionInvalidated = onSessionInvalidated
     }
-    const url = new URL(apiUrl)
-
-    url.protocol = isDevMode ? 'ws:' : 'wss:'
+    const url = getWebSocketUrl(apiUrl)
     url.searchParams.set('accessToken', accessToken)
 
     this.webSocket = new WebSocket(url)

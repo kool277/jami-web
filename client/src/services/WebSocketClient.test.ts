@@ -17,7 +17,7 @@
  */
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { WebSocketClient } from './WebSocketClient.js'
+import { getWebSocketUrl, WebSocketClient } from './WebSocketClient.js'
 
 class MockWebSocket {
   static instances: MockWebSocket[] = []
@@ -44,6 +44,11 @@ describe('WebSocketClient', () => {
     vi.useRealTimers()
     vi.unstubAllGlobals()
     MockWebSocket.instances = []
+  })
+
+  it('uses the page transport for the WebSocket connection', () => {
+    expect(getWebSocketUrl('http://localhost:8080/api').toString()).toBe('ws://localhost:8080/api')
+    expect(getWebSocketUrl('https://chat.example.com/api').toString()).toBe('wss://chat.example.com/api')
   })
 
   it('logs out and does not reconnect after the server closes an invalidated session', () => {

@@ -103,7 +103,7 @@ export class App {
             imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
             scriptSrc: ["'self'"],
             styleSrc: ["'self'", "'unsafe-inline'"],
-            connectSrc: ["'self'", ...(isDevMode ? ['ws:'] : []), 'wss:'],
+            connectSrc: ["'self'", 'ws:', 'wss:'],
             upgradeInsecureRequests: null,
           },
         },
