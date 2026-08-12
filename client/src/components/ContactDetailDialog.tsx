@@ -16,13 +16,13 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ContactDetails as ContactDetailType } from '@savoirfairelinux/jami-web-common'
-import { QRCodeCanvas } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
 
 import { IdentifierText } from './ContactIdentity.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import { InfosDialog } from './Dialog.js'
 import { DialogContentList } from './Dialog.js'
+import JamiQrCode from './JamiQrCode.js'
 import LoadingPage from './Loading.js'
 
 interface ContactDetailDialogProps {
@@ -44,7 +44,7 @@ const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDial
     },
     {
       label: t('contact_details_qr_code'),
-      value: <QRCodeCanvas size={80} value={`${contactDetail?.id}`} />,
+      value: <JamiQrCode size={80} value={`${contactDetail?.id}`} />,
     },
   ]
 

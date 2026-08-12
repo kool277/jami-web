@@ -17,11 +17,11 @@
  */
 
 import { Box, IconButton, Tooltip, Typography } from '@mui/material'
-import { QRCodeCanvas } from 'qrcode.react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import BaseButton from '../../components/common/BaseButton.js'
+import JamiQrCode from '../../components/JamiQrCode.js'
 import ProcessingRequest from '../../components/ProcessingRequest.js'
 import { ContentCopyIcon } from '../../components/SvgIcon.js'
 import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
@@ -113,7 +113,7 @@ export default function ImportAccount() {
           gap: '20px',
         }}
       >
-        <Box>{token && <QRCodeCanvas size={160} value={token} />}</Box>
+        <Box>{token && <JamiQrCode size={160} value={token} />}</Box>
         <Box
           sx={{
             width: '100%',

@@ -15,11 +15,11 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { QRCodeCanvas } from 'qrcode.react'
 import { useTranslation } from 'react-i18next'
 
 import { Account } from '../models/account.js'
 import BaseModalDialog from './common/BaseModalDialog.js'
+import JamiQrCode from './JamiQrCode.js'
 
 interface QrCodeModalProps {
   account: Account
@@ -40,7 +40,7 @@ const QrCodeModal = ({ account, open, onClose }: QrCodeModalProps) => {
       closePolicy={['escapeKeyDown', 'backdropClick']}
       contentSx={{ margin: '0px' }}
     >
-      <QRCodeCanvas style={{ borderRadius: '12px', display: 'block' }} size={qrCodeSize} value={account.getUri()} />
+      <JamiQrCode size={qrCodeSize} value={account.getUri()} />
     </BaseModalDialog>
   )
 }

@@ -19,7 +19,6 @@ import { Box, List, Stack, Typography } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { IConversationSummary, MAX_UNREAD_MESSAGE_COUNT } from '@savoirfairelinux/jami-web-common'
 import dayjs from 'dayjs'
-import { QRCodeCanvas } from 'qrcode.react'
 import { ReactNode, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -41,6 +40,7 @@ import ContextMenu, { ContextMenuHandler, useContextMenuHandler } from './Contex
 import ConversationAvatar, { GroupConversationAvatar } from './ConversationAvatar.js'
 import { CustomListItemButton } from './CustomListItemButton.js'
 import { ConfirmationDialog, DialogContentList, InfosDialog, useDialogHandler } from './Dialog.js'
+import JamiQrCode from './JamiQrCode.js'
 import MaterialSymbol from './MaterialSymbol.js'
 import { PopoverListItemData } from './PopoverList.js'
 import RemoveConversationDialog from './RemoveComversationDialog.js'
@@ -591,7 +591,7 @@ const DetailsDialog = ({
       },
       {
         label: t('conversation_details_qr_code'),
-        value: <QRCodeCanvas size={80} value={`${conversationId}`} />,
+        value: <JamiQrCode size={80} value={`${conversationId}`} />,
       },
       {
         label: t('conversation_details_is_swarm'),
