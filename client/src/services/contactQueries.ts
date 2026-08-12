@@ -53,6 +53,7 @@ export const useContactsSearchQuery = (searchQuery: string) => {
       }
     },
     enabled: !!searchQuery.trim(),
+    retry: false,
   })
 }
 
@@ -69,6 +70,7 @@ export const useJamsContactsSearchQuery = (searchQuery: string) => {
       return contacts
     },
     enabled: !!searchQuery.trim() && !jamiAddressPattern.test(searchQuery.trim()),
+    retry: false,
   })
 }
 

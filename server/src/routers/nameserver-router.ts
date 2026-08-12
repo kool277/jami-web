@@ -48,7 +48,7 @@ nameserverRouter.get(
           break
       }
     } catch (e) {
-      res.status(HttpStatusCode.InternalServerError)
+      res.status(HttpStatusCode.InternalServerError).end()
     }
   }),
 )
@@ -70,7 +70,7 @@ nameserverRouter.get(
           break
       }
     } catch (e) {
-      res.status(HttpStatusCode.InternalServerError)
+      res.status(HttpStatusCode.InternalServerError).end()
     }
   }),
 )
@@ -118,7 +118,7 @@ nameserverRouter.get(
           break
       }
     } catch (e) {
-      res.status(HttpStatusCode.InternalServerError)
+      res.status(HttpStatusCode.InternalServerError).end()
     }
   }),
 )
