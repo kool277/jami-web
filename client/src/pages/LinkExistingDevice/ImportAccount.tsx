@@ -28,6 +28,7 @@ import UnconnectedUserLayout from '../../components/UnconnectedUserLayout.js'
 import { useImportDeviceContext } from '../../contexts/ImportDeviceProvider.js'
 import { useWebSocketLinkContext } from '../../contexts/WebSocketLinkProvider.js'
 import { useGetLinkTokenQuery } from '../../services/authQueries.js'
+import ImportAccountBackButton from './ImportAccountBackButton.js'
 import LinkFlowProgress from './LinkFlowProgress.js'
 
 /** Wide enough for the whole code to be read out on a single line, which is what it is there for. */
@@ -66,7 +67,11 @@ export default function ImportAccount() {
 
   if (values.isError) {
     return (
-      <UnconnectedUserLayout pageName={t('import_account')} footerAccessory={<LinkFlowProgress currentStep={1} />}>
+      <UnconnectedUserLayout
+        pageName={t('import_account')}
+        headerAccessory={<ImportAccountBackButton />}
+        footerAccessory={<LinkFlowProgress currentStep={1} />}
+      >
         <Box
           sx={{
             width: '100%',
@@ -96,6 +101,7 @@ export default function ImportAccount() {
       centerMessage
       footerAccessory={<LinkFlowProgress currentStep={1} />}
       cardWidth={LINK_CODE_CARD_WIDTH}
+      headerAccessory={<ImportAccountBackButton />}
     >
       <Box
         sx={{
