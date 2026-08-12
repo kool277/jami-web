@@ -20,14 +20,96 @@ import { Box } from '@mui/material'
 import { Message } from '@savoirfairelinux/jami-web-common'
 import { MessageStatusCode } from '@savoirfairelinux/jami-web-common/src/enums/message-status-code'
 import { motion } from 'framer-motion'
-import { use, useCallback, useMemo } from 'react'
+import { use, useMemo } from 'react'
 
 import { CurrentLastSeenMessageContext } from '../components/ChatInterfaceManager.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import SendingIcon from '../icons/sendingIcon.svg?react'
 import SentIcon from '../icons/sentIcon.svg?react'
+import { ConversationMember } from '../models/conversation-member.js'
 import AvatarMouseOver from './AvatarMouseOver.js'
+
+interface DisplayedIconProps {
+  message: Message
+  accountUri: string
+  messageStatus: Map<string, string>
+  members: ConversationMember[]
+  highestStatus: MessageStatusCode
+  statusColor: string
+}
+
+function DisplayedIcon({
+  message,
+  accountUri,
+  messageStatus,
+  members,
+  highestStatus,
+  statusColor,
+}: DisplayedIconProps) {
+  if (message.author !== accountUri) {
+    return <></>
+  }
+  const peers = []
+  for (const [peerId, messageId] of messageStatus.entries()) {
+    if (message.id === messageId) {
+      peers.push(peerId)
+    }
+  }
+
+  if (peers.length > 0) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          position: 'relative',
+          gap: '0',
+        }}
+      >
+        {peers.map((peerId, index) => {
+          const member = members.find((member) => peerId === member.contact.uri)
+          return (
+            <Box
+              key={peerId}
+              sx={{
+                position: 'absolute',
+                right: `${index * 14}px`,
+                zIndex: 1,
+                border: '4px solid',
+                borderColor: 'background.default',
+                borderRadius: '25px',
+              }}
+            >
+              <AvatarMouseOver
+                key={peerId}
+                contactUri={peerId}
+                displayName={member?.getDisplayName() || member?.contact.registeredName || peerId}
+              />
+            </Box>
+          )
+        })}
+      </Box>
+    )
+  }
+
+  const messageSentIconWidth = '15px'
+  if (highestStatus === MessageStatusCode.read) {
+    return null
+  }
+  switch (highestStatus) {
+    case MessageStatusCode.sending:
+      return (
+        <SendingIcon
+          style={{ color: statusColor, stroke: statusColor, fill: statusColor }}
+          width={messageSentIconWidth}
+        />
+      )
+    case MessageStatusCode.sent:
+      return <SentIcon width={messageSentIconWidth} />
+    default:
+      return null
+  }
+}
 
 export interface MessageStatusProps {
   message: Message
@@ -51,76 +133,6 @@ export default function MessageStatus({ message }: MessageStatusProps) {
     return highest
   }, [accountUri, message.status])
 
-  const DisplayedIcon = useCallback(
-    (message: Message) => {
-      if (message.author !== accountUri) {
-        return <></>
-      }
-      const peers = []
-      for (const [peerId, messageId] of messageStatus.entries()) {
-        if (message.id === messageId) {
-          peers.push(peerId)
-        }
-      }
-
-      if (peers.length > 0) {
-        return (
-          <Box
-            sx={{
-              display: 'flex',
-              position: 'relative',
-              gap: '0',
-            }}
-          >
-            {peers.map((peerId, index) => {
-              const member = members.find((member) => peerId === member.contact.uri)
-              return (
-                <Box
-                  key={peerId}
-                  sx={{
-                    position: 'absolute',
-                    right: `${index * 14}px`,
-                    zIndex: 1,
-                    border: '4px solid',
-                    borderColor: 'background.default',
-                    borderRadius: '25px',
-                  }}
-                >
-                  <AvatarMouseOver
-                    key={peerId}
-                    contactUri={peerId}
-                    displayName={member?.getDisplayName() || member?.contact.registeredName || peerId}
-                  />
-                </Box>
-              )
-            })}
-          </Box>
-        )
-      }
-
-      const messageSentIconWidth = '15px'
-      if (highestStatus === MessageStatusCode.read) {
-        return null
-      } else {
-        switch (highestStatus) {
-          case MessageStatusCode.sending:
-            return (
-              <SendingIcon
-                style={{ color: statusColor, stroke: statusColor, fill: statusColor }}
-                width={messageSentIconWidth}
-              />
-            )
-          case MessageStatusCode.sent:
-            return <SentIcon width={messageSentIconWidth} />
-          default:
-            return null
-        }
-      }
-    },
-    [accountUri, highestStatus, members, messageStatus, statusColor],
-  )
-
-  const Icon = DisplayedIcon(message)
   const item = {
     hidden: { y: 20, opacity: 0 },
     visible: {
@@ -144,7 +156,16 @@ export default function MessageStatus({ message }: MessageStatusProps) {
       animate={message.animate ? 'visible' : undefined}
       transition={message.animate ? { delay: 0.3 } : undefined}
     >
-      <Box>{Icon}</Box>
+      <Box>
+        <DisplayedIcon
+          message={message}
+          accountUri={accountUri}
+          messageStatus={messageStatus}
+          members={members}
+          highestStatus={highestStatus}
+          statusColor={statusColor}
+        />
+      </Box>
     </motion.div>
   )
 }
