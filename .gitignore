@@ -49,3 +49,14 @@ client/vite.config.js
 
 # AI Audits for personal use
 audits/
+
+# Daemon and server runtime artifacts
+dhParams
+treatedMessages
+server/dhParams
+server/treatedMessages
+server/client/
+client/certificates/
+
+# Local git worktrees
+.worktrees/
