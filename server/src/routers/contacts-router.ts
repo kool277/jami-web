@@ -23,6 +23,7 @@ import { Jamid } from '../jamid/jamid.js'
 import { authenticateToken, requireApiTokenScope } from '../middleware/auth.js'
 import { extendIfGuest } from '../middleware/guest.js'
 import { PresenceService } from '../services/PresenceService.js'
+import { addContactAndResolveConversation } from '../utils/add-contact.js'
 import { getAvatar, getDisplayName } from '../utils/vCard.js'
 const jamid = Container.get(Jamid)
 const presenceService = Container.get(PresenceService)
@@ -71,16 +72,9 @@ contactsRouter.get('/:contactId', async (req, res) => {
   }
 })
 
-contactsRouter.put('/:contactId', (req, res) => {
-  const accountId = res.locals.accountId
-  const contactId = req.params.contactId
-
-  jamid.addContact(accountId, contactId)
-  // We need to manually send a conversation request
-  jamid.sendTrustRequest(accountId, contactId)
-
-  const contactDetails = jamid.getContactDetails(accountId, contactId)
-  if (Object.keys(contactDetails).length === 0) {
+contactsRouter.put('/:contactId', async (req, res) => {
+  const contactDetails = await addContactAndResolveConversation(jamid, res.locals.accountId, req.params.contactId)
+  if (!contactDetails) {
     res.status(HttpStatusCode.NotFound).send('No such contact found')
     return
   }
