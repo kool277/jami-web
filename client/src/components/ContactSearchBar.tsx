@@ -17,22 +17,16 @@
  */
 
 import { Box, InputBase, Stack } from '@mui/material'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 
-import BaseIconButton from './common/BaseIconButton.js'
 import { SearchRoundedIcon as SearchRounded } from './SvgIcon.js'
-import { PeopleWithPlusSignIcon } from './SvgIcon.js'
 
 interface ContactSearchBarProps {
   placeholder: string
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
+// TODO: restore the "open contacts" button here once the contacts page is implemented.
 export default function ContactSearchBar({ placeholder, handleChange }: ContactSearchBarProps) {
-  const navigate = useNavigate()
-  const { t } = useTranslation()
-
   return (
     <Stack direction="row" sx={{ flexShrink: 0 }}>
       <Box
@@ -65,16 +59,6 @@ export default function ContactSearchBar({ placeholder, handleChange }: ContactS
             color: 'text.primary',
           }}
         />
-        <BaseIconButton
-          aria-label={t('button_open_contacts')}
-          tooltip={t('button_open_contacts')}
-          sx={{ fontSize: '25px', height: '36px', width: '36px' }}
-          onClick={() => {
-            navigate('/contacts')
-          }}
-        >
-          <PeopleWithPlusSignIcon fontSize="inherit" />
-        </BaseIconButton>
       </Box>
     </Stack>
   )
