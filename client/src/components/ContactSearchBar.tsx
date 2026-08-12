@@ -22,11 +22,12 @@ import { SearchRoundedIcon as SearchRounded } from './SvgIcon.js'
 
 interface ContactSearchBarProps {
   placeholder: string
+  value: string
   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
 // TODO: restore the "open contacts" button here once the contacts page is implemented.
-export default function ContactSearchBar({ placeholder, handleChange }: ContactSearchBarProps) {
+export default function ContactSearchBar({ placeholder, value, handleChange }: ContactSearchBarProps) {
   return (
     <Stack direction="row" sx={{ flexShrink: 0 }}>
       <Box
@@ -43,6 +44,7 @@ export default function ContactSearchBar({ placeholder, handleChange }: ContactS
         <InputBase
           type="search"
           placeholder={placeholder}
+          value={value}
           onChange={handleChange}
           startAdornment={
             <SearchRounded

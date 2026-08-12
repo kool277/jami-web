@@ -21,6 +21,7 @@ import { WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { t } from 'i18next'
 import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 
 import { useActionMessageReadContext, useActionMessageWriteContext } from '../contexts/ActionMessageProvider.js'
 import { useAuthContext } from '../contexts/AuthProvider.js'
@@ -30,6 +31,7 @@ import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
 import { ConversationMember } from '../models/conversation-member.js'
 import { useEditMessageMutation, useSendMessageMutation } from '../services/conversationQueries.js'
 import { useSendFilesMutation } from '../services/dataTransferQueries.js'
+import { useStartConversationMutation } from '../services/pendingConversationQueries.js'
 import { translateEnumeration, TranslateEnumerationOptions } from '../utils/translations.js'
 import BaseIconButton from './common/BaseIconButton.js'
 import SelectEmojiButton from './SelectEmojiButton.js'
@@ -62,7 +64,8 @@ export default function SendMessageForm({ openFilePicker }: SendMessageFormProps
 
 const SendMessageFormContent = ({ openFilePicker }: SendMessageFormProps) => {
   const webSocket = useWebSocketContext()
-  const { members, conversationId } = useConversationContext()
+  const { members, conversationId, isPending, pendingContact } = useConversationContext()
+  const navigate = useNavigate()
   const { editMessage, replyMessage: selectedReply, fileHandlers } = useActionMessageReadContext()
   const [currentMessage, setCurrentMessage] = useState<string>(editMessage?.body || '')
   const composingNotificationTimeRef = useRef(0)
@@ -91,6 +94,7 @@ const SendMessageFormContent = ({ openFilePicker }: SendMessageFormProps) => {
   const sendMessageMutation = useSendMessageMutation(conversationId)
   const editMessageMutation = useEditMessageMutation(conversationId)
   const sendFilesMutation = useSendFilesMutation(conversationId)
+  const startConversationMutation = useStartConversationMutation()
 
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
@@ -123,8 +127,45 @@ const SendMessageFormContent = ({ openFilePicker }: SendMessageFormProps) => {
     [editMessage, editMessageMutation],
   )
 
+  // The first message of a pending conversation doubles as the invitation: the
+  // swarm only comes into existence once the peer has been added as a contact.
+  const startPendingConversation = useCallback(
+    (body: string | undefined, files: File[]) => {
+      if (!pendingContact) {
+        return
+      }
+
+      let data: FormData | undefined
+      if (files.length > 0) {
+        data = new FormData()
+        for (const file of files) {
+          data.append('file', file)
+        }
+      }
+
+      startConversationMutation.mutate(
+        { contactUri: pendingContact.uri, body, files: data },
+        { onSuccess: (conversationId) => navigate(`/conversation/${conversationId}`, { replace: true }) },
+      )
+      setFileHandlers([])
+    },
+    [navigate, pendingContact, setFileHandlers, startConversationMutation],
+  )
+
   const handleSendMessage = useCallback(
     (message: string, audioFile?: File) => {
+      if (isPending) {
+        if (message === 'audio-message') {
+          startPendingConversation(undefined, audioFile ? [audioFile] : [])
+        } else {
+          startPendingConversation(
+            message === 'files-to-send' ? undefined : message,
+            fileHandlers.map((fileHandler) => fileHandler.file),
+          )
+        }
+        return
+      }
+
       if (message === 'audio-message') {
         if (audioFile) {
           const data: FormData = new FormData()
@@ -148,16 +189,23 @@ const SendMessageFormContent = ({ openFilePicker }: SendMessageFormProps) => {
     [
       editMessage,
       editMessageHandler,
+      fileHandlers,
+      isPending,
       selectedReply?.id,
       sendFilesMutation,
       sendMessage,
       setFileHandlers,
       setIsEditing,
       setSelectedReply,
+      startPendingConversation,
     ],
   )
 
   const notifyComposing = useCallback(() => {
+    if (isPending) {
+      return
+    }
+
     const currentTime = new Date().getTime()
     // The daemon automatically turns off "isComposing" after 12 seconds
     // We ensure it will stay on at least 4 seconds after the last typed character
@@ -165,12 +213,16 @@ const SendMessageFormContent = ({ openFilePicker }: SendMessageFormProps) => {
       composingNotificationTimeRef.current = currentTime
       webSocket.send(WebSocketMessageType.ComposingStatus, { conversationId, isWriting: true })
     }
-  }, [webSocket, conversationId])
+  }, [isPending, webSocket, conversationId])
 
   const notifyStopcomposing = useCallback(() => {
+    if (isPending) {
+      return
+    }
+
     composingNotificationTimeRef.current = 0
     webSocket?.send(WebSocketMessageType.ComposingStatus, { conversationId, isWriting: false })
-  }, [webSocket, conversationId])
+  }, [isPending, webSocket, conversationId])
 
   const applyFormatting = useCallback(
     (prefix: string, suffix: string, placeholder: string) => {

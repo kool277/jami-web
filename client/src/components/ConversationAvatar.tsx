@@ -71,8 +71,9 @@ export default function ConversationAvatar({
   })
   const profilePictureQuery = useContactProfilePicture(contactUri, inView && !srcProp)
   const url = profilePictureQuery.data ?? undefined
-  const src = srcProp || url || '/broken'
+  const src = srcProp || url
   const color = getColor(contactUri ? 'jami:' + contactUri : '')
+  const initial = displayName.slice(0, 1).toUpperCase()
 
   if (presence) {
     return (
@@ -83,7 +84,9 @@ export default function ConversationAvatar({
           alt={displayName?.toUpperCase()}
           src={src}
           style={{ backgroundColor: color, color: '#E5E5E5' }}
-        />
+        >
+          {initial}
+        </Avatar>
       </ConversationAvatarPresence>
     )
   }
@@ -94,7 +97,9 @@ export default function ConversationAvatar({
       alt={displayName?.toUpperCase()}
       src={src}
       style={{ backgroundColor: color, color: '#E5E5E5' }}
-    />
+    >
+      {initial}
+    </Avatar>
   )
 }
 

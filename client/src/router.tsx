@@ -51,6 +51,7 @@ const ActionMessageProvider = lazy(() => import('./contexts/ActionMessageProvide
 import AuthProvider from './contexts/AuthProvider.js'
 const CallManagerProvider = lazy(() => import('./contexts/CallManagerProvider.js'))
 const ConversationProvider = lazy(() => import('./contexts/ConversationProvider.js'))
+const PendingConversationProvider = lazy(() => import('./contexts/PendingConversationProvider.js'))
 const ImportDeviceProvider = lazy(() => import('./contexts/ImportDeviceProvider.js'))
 const MessengerProvider = lazy(() => import('./contexts/MessengerProvider.js'))
 const PresenceProvider = lazy(() => import('./contexts/PresenceProvider.js'))
@@ -111,6 +112,7 @@ const SettingsIndex = lazy(() =>
 )
 
 export type ConversationRouteParams = RouteParams<{ conversationId?: string }, Record<string, never>>
+export type PendingConversationRouteParams = RouteParams<{ contactUri?: string }, Record<string, never>>
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -223,6 +225,16 @@ export const router = createBrowserRouter(
         >
           <Route index element={<Navigate to="/conversation" replace />} />
           <Route path="conversation" element={<Messenger />}>
+            <Route
+              path="new/:contactUri"
+              element={
+                <ActionMessageProvider>
+                  <PendingConversationProvider>
+                    <ConversationView />
+                  </PendingConversationProvider>
+                </ActionMessageProvider>
+              }
+            />
             <Route
               path=":conversationId"
               element={

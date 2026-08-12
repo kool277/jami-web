@@ -28,6 +28,7 @@ import LoadingPage from '../components/Loading.js'
 import { createOptionalContext } from '../hooks/createOptionalContext.js'
 import { useConversationDisplayName } from '../hooks/useConversationDisplayName.js'
 import { useUrlParams } from '../hooks/useUrlParams.js'
+import { Contact } from '../models/contact.js'
 import { ConversationMember } from '../models/conversation-member.js'
 import { ConversationRouteParams } from '../router.js'
 import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries.js'
@@ -41,10 +42,14 @@ interface IConversationContext {
   conversationInfos: ConversationInfos
   members: ConversationMember[]
   composingMembers: ConversationMember[]
+  /** True while the conversation is only local: the peer has not been invited yet. */
+  isPending: boolean
+  /** The peer to invite, set only while the conversation is pending. */
+  pendingContact?: Contact
 }
 
 const optionalConversationContext = createOptionalContext<IConversationContext>('ConversationContext')
-const ConversationContext = optionalConversationContext.Context
+export const ConversationContext = optionalConversationContext.Context
 export const useConversationContext = optionalConversationContext.useOptionalContext
 
 export default ({ children }: WithChildren) => {
@@ -144,6 +149,7 @@ export default ({ children }: WithChildren) => {
       conversationInfos,
       members,
       composingMembers,
+      isPending: false,
     }
   }, [conversationId, conversationDisplayName, conversationInfos, members, composingMembers])
 

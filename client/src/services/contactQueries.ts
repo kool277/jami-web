@@ -22,9 +22,8 @@ import axios from 'axios'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { Contact } from '../models/contact.js'
+import { jamiAddressPattern } from '../utils/pendingConversation.js'
 import { useRefreshConversationsSummaries } from './conversationQueries.js'
-
-const jamiAddressPattern = /^[0-9a-f]{40}$/i
 
 function isLookupMiss(error: unknown): boolean {
   return (

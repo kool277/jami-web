@@ -113,7 +113,7 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
         setIsBlocking={setIsBlocking}
         setContactDetailDialogOpen={setContactDetailDialogOpen}
       />
-      <ContactSearchBar placeholder={t('find_contacts')} handleChange={handleFilterChange} />
+      <ContactSearchBar placeholder={t('find_contacts')} value={filterValue} handleChange={handleFilterChange} />
       <List sx={{ maxHeight: '400px', overflowY: 'scroll' }}>
         {filteredContacts?.map((contact) => (
           <Fragment key={contact.id}>

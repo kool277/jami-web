@@ -405,6 +405,7 @@
   "next": "Next",
   "page_not_found": "Page not found",
   "page_not_found_description": "The page you were looking for does not exist.",
+  "pending_conversation_description": "Send a message to invite this person to a conversation.",
   "no_contact_found": "Contact not found.",
   "no_files_found": "No files yet.",
   "no_local_media": "Disable local media devices*",

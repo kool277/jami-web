@@ -15,25 +15,22 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { Box, Dialog, DialogProps, Fab, List, ListSubheader, Typography } from '@mui/material'
+import { List, ListSubheader } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
+import { useUrlParams } from '../hooks/useUrlParams.js'
 import { Contact } from '../models/contact.js'
-import {
-  useAddContactMutation,
-  useContactsSearchQuery,
-  useJamsContactsSearchQuery,
-} from '../services/contactQueries.js'
+import { PendingConversationRouteParams } from '../router.js'
+import { useContactsSearchQuery, useJamsContactsSearchQuery } from '../services/contactQueries.js'
 import { useConversationsSummariesQuery } from '../services/conversationQueries.js'
 import { type ConversationFilter, filterConversationSummaries } from '../utils/conversationFilters.js'
+import { pendingConversationPath } from '../utils/pendingConversation.js'
 import { ContactIdentity } from './ContactIdentity.js'
 import ConversationAvatar from './ConversationAvatar.js'
 import { ConversationSummaryList } from './ConversationSummaryList.js'
 import { CustomListItemButton } from './CustomListItemButton.js'
-import { useDialogHandler } from './Dialog.js'
 import LoadingPage from './Loading.js'
-import { GroupAddRoundedIcon as GroupAddRounded } from './SvgIcon.js'
 
 type ContactSearchResultListProps = {
   searchFilter: string
@@ -42,6 +39,9 @@ type ContactSearchResultListProps = {
 
 export default ({ searchFilter, conversationFilter }: ContactSearchResultListProps) => {
   const { t } = useTranslation()
+  const {
+    urlParams: { contactUri: selectedContactUri },
+  } = useUrlParams<PendingConversationRouteParams>()
 
   const contactsSearchQuery = useContactsSearchQuery(searchFilter)
   const contactsJamsSearchQuery = useJamsContactsSearchQuery(searchFilter)
@@ -67,14 +67,22 @@ export default ({ searchFilter, conversationFilter }: ContactSearchResultListPro
       {contactsSearchResult && contactsSearchResult.length > 0 && (
         <>
           {contactsSearchResult?.map((contact) => (
-            <ContactSearchResultListItem key={contact.uri} contact={contact} />
+            <ContactSearchResultListItem
+              key={contact.uri}
+              contact={contact}
+              selected={contact.uri === selectedContactUri}
+            />
           ))}
         </>
       )}
       {contactsJamsSearchResult && contactsJamsSearchResult.length > 0 && (
         <>
           {contactsJamsSearchResult?.map((contact) => (
-            <ContactSearchResultListItem key={contact.uri} contact={contact} />
+            <ContactSearchResultListItem
+              key={contact.uri}
+              contact={contact}
+              selected={contact.uri === selectedContactUri}
+            />
           ))}
         </>
       )}
@@ -90,58 +98,29 @@ export default ({ searchFilter, conversationFilter }: ContactSearchResultListPro
 
 type ContactSearchResultListItemProps = {
   contact: Contact
+  selected: boolean
 }
 
-const ContactSearchResultListItem = ({ contact }: ContactSearchResultListItemProps) => {
-  const dialogHandler = useDialogHandler()
-
-  return (
-    <>
-      <AddContactDialog {...dialogHandler.props} contactId={contact.uri} />
-      <CustomListItemButton
-        key={contact.uri}
-        onClick={() => {
-          dialogHandler.openDialog()
-        }}
-        icon={<ConversationAvatar contactUri={contact.uri} displayName={contact.getDisplayName()} />}
-        primaryText={
-          <ContactIdentity
-            uri={contact.uri}
-            displayName={contact.displayName}
-            registeredName={contact.registeredName}
-          />
-        }
-      />
-    </>
-  )
-}
-
-type AddContactDialogProps = DialogProps & {
-  contactId: string
-}
-
-const AddContactDialog = ({ contactId, ...props }: AddContactDialogProps) => {
-  const { t } = useTranslation()
+const ContactSearchResultListItem = ({ contact, selected }: ContactSearchResultListItemProps) => {
+  const { pathname } = useLocation()
   const navigate = useNavigate()
-  const addContactMutation = useAddContactMutation()
-
-  const handleClick = async () => {
-    addContactMutation.mutate(contactId, {
-      onSuccess: (data) => navigate(`/conversation/${data.conversationId}`),
-      onSettled: () => props.onClose?.({}, 'escapeKeyDown'), // dummy arguments for 'onClose'
-    })
-  }
 
   return (
-    <Dialog {...props}>
-      <Typography variant="h6">{t('jami_user_id')}</Typography>
-      <Typography variant="body1">{contactId}</Typography>
-      <Box style={{ textAlign: 'center', marginTop: 16 }}>
-        <Fab variant="extended" color="primary" onClick={handleClick}>
-          <GroupAddRounded />
-          {t('conversation_add_contact')}
-        </Fab>
-      </Box>
-    </Dialog>
+    <CustomListItemButton
+      key={contact.uri}
+      selected={selected}
+      onClick={() =>
+        navigate(pendingConversationPath(contact.uri), {
+          state: {
+            searchFilter: contact.registeredName || contact.uri,
+            previousPath: pathname,
+          },
+        })
+      }
+      icon={<ConversationAvatar contactUri={contact.uri} displayName={contact.getDisplayName()} />}
+      primaryText={
+        <ContactIdentity uri={contact.uri} displayName={contact.displayName} registeredName={contact.registeredName} />
+      }
+    />
   )
 }

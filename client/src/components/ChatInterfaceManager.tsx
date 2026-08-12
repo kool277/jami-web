@@ -40,6 +40,7 @@ import LoadingSkeleton from './common/LoadingSkeleton.js'
 import ComposingMembersIndicator from './ComposingMembersIndicator.js'
 import EditMessage from './EditMessage.js'
 import FilePreviewsList from './FilePreviewsList.js'
+import PendingConversationChat from './PendingConversationChat.js'
 import ReplyToMessage from './ReplyToMessage.js'
 import SendMessageForm from './SendMessageForm.js'
 export const CurrentLastSeenMessageContext = createContext<Map<string, string>>(new Map())
@@ -94,7 +95,11 @@ const reducer = (state: State, action: Action): State => {
 }
 
 const ChatInterfaceManager = ({ openFilePicker }: ChatInterfaceManagerProps) => {
-  const { conversationId } = useConversationContext()
+  const { conversationId, isPending } = useConversationContext()
+
+  if (isPending) {
+    return <PendingConversationChat openFilePicker={openFilePicker} />
+  }
 
   return <ChatInterfaceManagerContent key={conversationId} openFilePicker={openFilePicker} />
 }

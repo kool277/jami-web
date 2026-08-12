@@ -118,6 +118,12 @@ const mockOAuthProviders = [
   { name: 'github', isActive: false, displayName: 'GitHub' },
 ]
 
+/** Accounts the name server knows about, keyed by registered name. */
+const registeredAddresses: Record<string, string> = {
+  bob: 'contact-bob-uri',
+  dana: '260d9aaee80c84ffda86bdc579a0be8d07a70b65',
+}
+
 const conversationFixtures = [
   { id: 'conv-1', title: '', mode: '0', membersNames: ['Bob'], body: 'Hello Alice!', unreadFor: ['alice'] },
   { id: 'conv-2', title: '', mode: '0', membersNames: ['Casey'], body: 'See you tomorrow.', unreadFor: ['bob'] },
@@ -181,6 +187,8 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   wsClients: Set<WebSocket>
 } {
   const state: MockServerState = { ...defaultState, ...initialState }
+  /** Contacts invited during a test run, exposed through `/__invited-contacts`. */
+  const invitedContacts: { contactId: string; conversationId: string }[] = []
   const wsClients = new Set<WebSocket>()
   const app = express()
 
@@ -556,6 +564,30 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     }
   })
 
+  api.get('/ns/name/:username', (req, res) => {
+    const { username } = req.params
+    const address = registeredAddresses[username]
+    if (!address) {
+      res.status(404).send('Name not registered')
+      return
+    }
+    res.json({ name: username, address })
+  })
+
+  api.get('/ns/address/:address', (req, res) => {
+    const { address } = req.params
+    const name = Object.keys(registeredAddresses).find((username) => registeredAddresses[username] === address)
+    if (!name) {
+      res.status(404).send('Address not registered')
+      return
+    }
+    res.json({ name, address })
+  })
+
+  api.get('/ns/jams/:query', (_req, res) => {
+    res.json({ state: 1, results: [] })
+  })
+
   // --- Config routes ---
 
   api.get('/config', (_req, res) => {
@@ -590,6 +622,7 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
     state.apiTokens = {}
     state.adminPasskeys = []
     state.userPasskeys = {}
+    invitedContacts.length = 0
     res.sendStatus(200)
   })
 
@@ -741,12 +774,27 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   api.get('/contacts', (_req, res) => {
     res.json([
       {
+        id: 'contact-bob-uri',
         uri: 'contact-bob-uri',
+        conversationId: 'conv-1',
         registeredName: 'bob',
         added: String(Math.floor(Date.now() / 1000) - 3600),
         confirmed: 'true',
       },
     ])
+  })
+
+  api.put('/contacts/:contactId', (req, res) => {
+    const { contactId } = req.params
+    const conversationId = `conv-invited-${contactId}`
+    invitedContacts.push({ contactId, conversationId })
+    res.json({
+      id: contactId,
+      conversationId,
+      added: String(Math.floor(Date.now() / 1000)),
+      confirmed: 'false',
+      username: '',
+    })
   })
 
   api.get('/contacts/:contactId', (req, res) => {
@@ -950,6 +998,11 @@ export function createMockServer(initialState: Partial<MockServerState> = {}): {
   // --- Test helper: report number of connected WebSocket clients ---
   app.get('/__ws-clients', (_req, res) => {
     res.json({ count: [...wsClients].filter((c) => c.readyState === WebSocket.OPEN).length })
+  })
+
+  // --- Test helper: report the contacts invited so far ---
+  app.get('/__invited-contacts', (_req, res) => {
+    res.json(invitedContacts)
   })
 
   // --- Test helper: add a mock admin passkey ---

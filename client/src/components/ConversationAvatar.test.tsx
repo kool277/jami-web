@@ -78,6 +78,14 @@ describe('ConversationAvatar', () => {
     )
   })
 
+  it('shows the first letter when no profile picture is available', () => {
+    contactQueries.useContactProfilePicture.mockReturnValue({ data: undefined })
+
+    render(<ConversationAvatar displayName="Ada" contactUri="260d9aaee80c84ffda86bdc579a0be8d07a70b65" />)
+
+    expect(screen.getByText('A')).toBeInTheDocument()
+  })
+
   it('uses a custom group picture before participant avatars', () => {
     contactQueries.useContactProfilePicture.mockReturnValue({ data: undefined })
 
@@ -106,8 +114,8 @@ describe('ConversationAvatar', () => {
       </PresenceContext>,
     )
 
-    const image = screen.getByRole('img')
-    const indicator = image.parentElement?.parentElement?.querySelector('[aria-hidden="true"]')
+    const avatar = screen.getByText('A')
+    const indicator = avatar.parentElement?.querySelector('[aria-hidden="true"]')
     expect(indicator).toHaveStyle({
       position: 'absolute',
       right: '-2px',

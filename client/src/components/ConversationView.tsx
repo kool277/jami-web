@@ -17,8 +17,9 @@
  */
 import { InputBase, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { alpha, darken, lighten } from '@mui/material/styles'
-import { lazy, useMemo } from 'react'
+import { lazy, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 
 import { useAuthContext } from '../contexts/AuthProvider.js'
 import { useCallManagerContext } from '../contexts/CallManagerProvider.js'
@@ -31,6 +32,7 @@ import ConversationPreferencesStateProvider, {
 } from '../contexts/ConversationPreferencesStateContext.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
 import { useContactQuery } from '../services/contactQueries.js'
+import { useStartConversationMutation } from '../services/pendingConversationQueries.js'
 //import CallInterface from '../pages/CallInterface.js'
 const CallInterface = lazy(() => import('../pages/CallInterface.js'))
 import ChatInterface from '../pages/ChatInterface.js'
@@ -117,12 +119,40 @@ const ConversationContent = () => {
 
 export const ConversationHeader = () => {
   const { t } = useTranslation()
-  const { conversationDisplayName, conversationId, conversationInfos, members } = useConversationContext()
+  const { conversationDisplayName, conversationId, conversationInfos, members, isPending, pendingContact } =
+    useConversationContext()
   const { account } = useAuthContext()
   const { startCall } = useCallManagerContext()
   const { isOpen, setIsOpen, isSearchOpen, setIsSearchOpen, setSearchQuery } = useConversationPreferencesStateContext()
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
+  const startConversationMutation = useStartConversationMutation()
+  const navigate = useNavigate()
+
+  // Calling a peer that has not been invited yet invites them first, so the call
+  // has a swarm to ring in.
+  const startConversationCall = useCallback(
+    (withVideoOn: boolean) => {
+      if (!isPending) {
+        startCall(conversationId, withVideoOn)
+        return
+      }
+      if (!pendingContact) {
+        return
+      }
+
+      startConversationMutation.mutate(
+        { contactUri: pendingContact.uri },
+        {
+          onSuccess: (newConversationId) => {
+            navigate(`/conversation/${newConversationId}`, { replace: true })
+            startCall(newConversationId, withVideoOn)
+          },
+        },
+      )
+    },
+    [conversationId, isPending, navigate, pendingContact, startCall, startConversationMutation],
+  )
 
   // `members` includes the local account, so a one-to-one conversation has two
   // entries: resolve the contact from the peers rather than the total count.
@@ -134,7 +164,8 @@ export const ConversationHeader = () => {
   const isGroup = Number(conversationInfos.mode) !== 0
   const avatarUri = otherMember?.contact.uri
   const contactUri = otherMembers.length === 1 ? avatarUri : undefined
-  const contactQuery = useContactQuery(contactUri)
+  // A pending peer is not a contact yet, so there are no contact details to fetch.
+  const contactQuery = useContactQuery(isPending ? undefined : contactUri)
   const displayName = contactQuery.data?.displayName || conversationDisplayName
   const { primary, secondary, primaryIsJamiId } = getConversationHeaderIdentity(
     displayName,
@@ -268,33 +299,37 @@ export const ConversationHeader = () => {
             <BaseIconButton
               aria-label={t('conversation_start_audiocall')}
               tooltip={t('conversation_start_audiocall')}
-              onClick={() => startCall(conversationId)}
+              onClick={() => startConversationCall(false)}
             >
               <AudioCallIcon />
             </BaseIconButton>
             <BaseIconButton
               aria-label={t('conversation_start_videocall')}
               tooltip={t('conversation_start_videocall')}
-              onClick={() => startCall(conversationId, true)}
+              onClick={() => startConversationCall(true)}
             >
               <VideoCallIcon />
             </BaseIconButton>
-            <BaseIconButton
-              aria-label={t('conversation_search')}
-              tooltip={t('conversation_search')}
-              onClick={() => setIsSearchOpen(true)}
-            >
-              <SearchRoundedIcon sx={{ fontSize: 22 }} />
-            </BaseIconButton>
-            <BaseIconButton
-              aria-label={t('conversation_show_options')}
-              aria-pressed={isOpen}
-              tooltip={t('conversation_show_options')}
-              onClick={() => setIsOpen(!isOpen)}
-              sx={{ backgroundColor: isOpen ? 'action.selected' : 'transparent' }}
-            >
-              <ListIcon />
-            </BaseIconButton>
+            {!isPending && (
+              <>
+                <BaseIconButton
+                  aria-label={t('conversation_search')}
+                  tooltip={t('conversation_search')}
+                  onClick={() => setIsSearchOpen(true)}
+                >
+                  <SearchRoundedIcon sx={{ fontSize: 22 }} />
+                </BaseIconButton>
+                <BaseIconButton
+                  aria-label={t('conversation_show_options')}
+                  aria-pressed={isOpen}
+                  tooltip={t('conversation_show_options')}
+                  onClick={() => setIsOpen(!isOpen)}
+                  sx={{ backgroundColor: isOpen ? 'action.selected' : 'transparent' }}
+                >
+                  <ListIcon />
+                </BaseIconButton>
+              </>
+            )}
           </Stack>
         </>
       )}

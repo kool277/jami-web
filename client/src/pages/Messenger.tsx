@@ -18,6 +18,7 @@
 import { Stack } from '@mui/material'
 import { type ChangeEvent, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { ISLAND_PADDING } from '../components/common/Island.js'
 import ContactSearchBar from '../components/ContactSearchBar.js'
@@ -29,18 +30,65 @@ import useDocumentTitle from '../hooks/useDocumentTitle.js'
 import { useConversationsSummariesQuery } from '../services/conversationQueries.js'
 import { type ConversationFilter, isConversationUnread } from '../utils/conversationFilters.js'
 
+type PendingConversationState = {
+  searchFilter?: string
+  previousPath?: string
+}
+
 export default function Messenger() {
+  const { key, pathname, state } = useLocation()
+  const pendingContactUri = /^\/conversation\/new\/([^/]+)$/.exec(pathname)?.[1]
+  const selectedSearchFilter =
+    state &&
+    typeof state === 'object' &&
+    'searchFilter' in state &&
+    typeof state.searchFilter === 'string' &&
+    state.searchFilter
+      ? (state as PendingConversationState).searchFilter
+      : pendingContactUri
+
+  const previousPath =
+    state && typeof state === 'object' && 'previousPath' in state && typeof state.previousPath === 'string'
+      ? (state as PendingConversationState).previousPath
+      : undefined
+
+  return (
+    <MessengerContent
+      key={pendingContactUri ? key : undefined}
+      initialSearchFilter={selectedSearchFilter || ''}
+      pendingContactUri={pendingContactUri}
+      previousPath={previousPath}
+    />
+  )
+}
+
+type MessengerContentProps = {
+  initialSearchFilter: string
+  pendingContactUri?: string
+  previousPath?: string
+}
+
+function MessengerContent({ initialSearchFilter, pendingContactUri, previousPath }: MessengerContentProps) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const conversationsSummariesQuery = useConversationsSummariesQuery()
   useDocumentTitle(t('conversations'))
-  const [searchFilter, setSearchFilter] = useState('')
+  const [searchFilter, setSearchFilter] = useState(initialSearchFilter)
   const [conversationFilter, setConversationFilter] = useState<ConversationFilter>('all')
+
   const unreadConversationCount = (conversationsSummariesQuery.data || []).filter((conversation) =>
     isConversationUnread(conversation),
   ).length
-  const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setSearchFilter(event.target.value)
-  }, [])
+  const handleSearchChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      if (!event.target.value && pendingContactUri) {
+        navigate(previousPath || '/conversation', { replace: true })
+        return
+      }
+      setSearchFilter(event.target.value)
+    },
+    [navigate, pendingContactUri, previousPath],
+  )
 
   return (
     <AppShell
@@ -48,7 +96,11 @@ export default function Messenger() {
       listPaneLabel={t('conversations')}
       listSearch={
         <Stack sx={{ gap: 1, pr: ISLAND_PADDING, pb: '4px' }}>
-          <ContactSearchBar placeholder={t('find_users_and_conversations')} handleChange={handleSearchChange} />
+          <ContactSearchBar
+            placeholder={t('find_users_and_conversations')}
+            value={searchFilter}
+            handleChange={handleSearchChange}
+          />
           <ConversationFilterChips
             value={conversationFilter}
             unreadConversationCount={unreadConversationCount}
