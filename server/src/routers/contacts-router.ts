@@ -57,7 +57,7 @@ contactsRouter.get('/:contactId', async (req, res) => {
   }
 
   try {
-    const contactUsername = await jamid.lookupAddress(contactDetails.id, res.locals.accountId)
+    const contactUsername = await jamid.lookupAddress(contactDetails.id, '', res.locals.accountId)
     if (contactUsername.address === contactDetails.id) {
       contactDetails.username = contactUsername.name
     }

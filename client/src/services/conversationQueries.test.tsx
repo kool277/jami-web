@@ -25,6 +25,7 @@ import {
   conversationRequestsQueryKey,
   normalizeConversationRequests,
   useAddConversationRequestToCache,
+  useConversationPreferencesQuery,
   useKeepConversationSummaryRead,
   useRemoveConversationRequestFromCache,
 } from './conversationQueries.js'
@@ -120,5 +121,18 @@ describe('active conversation read state', () => {
     })
 
     expect(result.current).toBeUndefined()
+  })
+})
+
+describe('deferred conversation preferences', () => {
+  it('does not fetch preferences while disabled', () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    )
+
+    const { result } = renderHook(() => useConversationPreferencesQuery('conversation-id', false), { wrapper })
+
+    expect(result.current.fetchStatus).toBe('idle')
   })
 })

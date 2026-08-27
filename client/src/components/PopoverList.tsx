@@ -16,6 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 import {
+  alpha,
+  Divider,
   ListItemText,
   ListItemTextProps,
   MenuItem,
@@ -27,13 +29,16 @@ import {
   styled,
   SvgIconProps,
 } from '@mui/material'
-import { ComponentType } from 'react'
+import { ComponentType, Fragment } from 'react'
 
 export type PopoverListItemData = {
   label: string
   Icon: ComponentType<SvgIconProps>
   iconColor?: string
   iconSize?: string
+  dividerBefore?: boolean
+  destructive?: boolean
+  disabled?: boolean
   onClick: () => void
 }
 
@@ -44,10 +49,10 @@ interface ListIconProps extends SvgIconProps {
 }
 
 const ListIcon = styled(({ Icon, iconColor, iconSize, ...props }: ListIconProps) => <Icon {...props} />)(
-  ({ iconColor, iconSize = '16px', theme }) => ({
+  ({ iconColor, iconSize = '20px' }) => ({
     height: iconSize,
     fontSize: iconSize,
-    color: iconColor ?? theme?.palette?.primary?.dark,
+    color: iconColor ?? 'inherit',
   }),
 )
 
@@ -77,13 +82,20 @@ interface PopoverListItemProps extends MenuItemProps {
 const PopoverListItem = styled(({ item, closeMenu, ...props }: PopoverListItemProps) => (
   <MenuItem
     {...props}
+    disabled={item.disabled}
     onClick={() => {
       item.onClick()
       closeMenu?.({}, 'backdropClick')
     }}
     sx={{
-      paddingY: '11px',
-      paddingX: '16px',
+      paddingX: '8px',
+      borderRadius: '18px',
+      ...(item.destructive && {
+        '&:hover, &.Mui-focusVisible': {
+          backgroundColor: (theme) => alpha(theme.palette.error.main, 0.08),
+          color: 'error.main',
+        },
+      }),
     }}
   >
     <Stack direction="row" spacing="10px" sx={{ alignItems: 'center' }}>
@@ -93,6 +105,7 @@ const PopoverListItem = styled(({ item, closeMenu, ...props }: PopoverListItemPr
   </MenuItem>
 ))(() => ({
   // Failed to modify the styles from here
+  height: '36px',
 }))
 
 interface PopoverListProps extends MenuListProps {
@@ -104,11 +117,14 @@ interface PopoverListProps extends MenuListProps {
 const PopoverList = styled(({ items, onClose, ...props }: PopoverListProps) => (
   <MenuList {...props}>
     {items.map((item) => (
-      <PopoverListItem key={item.label} item={item} closeMenu={onClose} />
+      <Fragment key={item.label}>
+        {item.dividerBefore && <Divider sx={{ mx: 2 }} />}
+        <PopoverListItem item={item} closeMenu={onClose} />
+      </Fragment>
     ))}
   </MenuList>
 ))(() => ({
-  padding: '3px 0px',
+  padding: '6px 6px',
 }))
 
 export default PopoverList

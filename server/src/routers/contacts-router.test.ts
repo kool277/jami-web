@@ -36,6 +36,7 @@ let avatarPath: string
 let avatarAvailable = true
 let tempDirectory: string
 let app: express.Express
+const lookupAddress = mock.fn(async () => ({ address: 'bob', name: 'Bob' }))
 
 before(async () => {
   tempDirectory = await mkdtemp(join(tmpdir(), 'jami-web-avatar-route-'))
@@ -49,7 +50,8 @@ before(async () => {
   Container.set(MockJamid, {
     getAccountDetails: () => ({ 'Account.username': 'alice' }),
     getContacts: () => [{ id: 'bob', username: 'Bob' }],
-    lookupAddress: async () => ({ name: 'Bob' }),
+    getContactDetails: () => ({ id: 'bob', conversationId: 'conversation-id', added: '', confirmed: '' }),
+    lookupAddress,
     removeContact: () => {},
   })
   Container.set(PresenceService, { subscribe, unsubscribe })
@@ -120,6 +122,16 @@ describe('GET /contacts', () => {
       subscribe.mock.calls.map((call) => call.arguments),
       [['account-id', 'bob']],
     )
+  })
+})
+
+describe('GET /contacts/:contactId', () => {
+  it('looks up contact details with the account and default nameserver', async () => {
+    const response = await request('/contacts/bob')
+
+    assert.equal(response.status, 200)
+    assert.deepEqual(lookupAddress.mock.calls.at(-1)?.arguments, ['bob', '', 'account-id'])
+    assert.equal((await response.json()).username, 'Bob')
   })
 })
 

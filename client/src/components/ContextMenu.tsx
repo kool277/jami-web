@@ -18,6 +18,7 @@
 import { Menu, MenuProps, PopoverPosition, PopoverReference, styled } from '@mui/material'
 import { MouseEventHandler, useCallback, useMemo, useState } from 'react'
 
+import { ISLAND_RADIUS } from './common/Island.js'
 import PopoverList, { PopoverListItemData } from './PopoverList.js'
 
 export interface ContextMenuHandler {
@@ -69,7 +70,7 @@ const ContextMenu = styled(({ items, ...props }: ContextMenuProps) => (
   </Menu>
 ))(() => ({
   '& .MuiPaper-root': {
-    borderRadius: '12px 20px 20px 20px',
+    borderRadius: ISLAND_RADIUS,
     boxShadow: '3px 3px 7px #00000029',
   },
   '& .MuiMenu-list': {

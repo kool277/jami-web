@@ -83,7 +83,7 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
     if (filterValue === '') {
       return preFilter
     }
-    return preFilter?.filter((contact) => contact.username.toLowerCase().includes(filterValue.toLowerCase()))
+    return preFilter?.filter((contact) => (contact.username ?? '').toLowerCase().includes(filterValue.toLowerCase()))
   }, [contacts, filterValue, members])
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,7 +141,11 @@ export default function ContactList({ setSelectedContact, selectedContacts, memb
               }}
             >
               <ListItemAvatar>
-                <ConversationAvatar presence contactUri={contact.id} displayName={contact.username} />
+                <ConversationAvatar
+                  presence
+                  contactUri={contact.id}
+                  displayName={contact.displayName || contact.username || contact.id}
+                />
               </ListItemAvatar>
               <ListItemText
                 primary={

@@ -345,7 +345,7 @@ export const useRemoveMemberFromSwarm = (conversationId: string) => {
   })
 }
 
-export const useConversationPreferencesQuery = (conversationId: string) => {
+export const useConversationPreferencesQuery = (conversationId: string, enabled = true) => {
   const { axiosInstance } = useAuthContext()
   return useQuery({
     queryKey: ['conversationPreferences', conversationId],
@@ -353,7 +353,7 @@ export const useConversationPreferencesQuery = (conversationId: string) => {
       const { data } = await axiosInstance.get(`/conversations/${conversationId}/preferences`)
       return data
     },
-    enabled: !!conversationId,
+    enabled: enabled && !!conversationId,
   })
 }
 

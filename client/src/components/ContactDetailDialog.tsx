@@ -33,24 +33,26 @@ interface ContactDetailDialogProps {
 
 const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDialogProps) => {
   const { t } = useTranslation()
-  const items = [
-    {
-      label: t('contact_details_name'),
-      value: contactDetail?.username,
-    },
-    {
-      label: t('contact_details_identifier'),
-      value: <IdentifierText variant="body1">{contactDetail?.id}</IdentifierText>,
-    },
-    {
-      label: t('contact_details_qr_code'),
-      value: <JamiQrCode size={80} value={`${contactDetail?.id}`} />,
-    },
-  ]
 
   if (contactDetail === undefined) {
     return <InfosDialog open={open} onClose={onClose} title="" content={<LoadingPage />} />
   }
+
+  const displayName = contactDetail.displayName || contactDetail.username || contactDetail.id
+  const items = [
+    {
+      label: t('contact_details_name'),
+      value: displayName,
+    },
+    {
+      label: t('contact_details_identifier'),
+      value: <IdentifierText variant="body1">{contactDetail.id}</IdentifierText>,
+    },
+    {
+      label: t('contact_details_qr_code'),
+      value: <JamiQrCode size={80} value={contactDetail.id} />,
+    },
+  ]
 
   return (
     <InfosDialog
@@ -58,12 +60,12 @@ const ContactDetailDialog = ({ contactDetail, open, onClose }: ContactDetailDial
       onClose={onClose}
       icon={
         <ConversationAvatar
-          contactUri={contactDetail?.id}
+          contactUri={contactDetail.id}
           sx={{ width: 'inherit', height: 'inherit' }}
-          displayName={contactDetail?.username}
+          displayName={displayName}
         />
       }
-      title={contactDetail?.username || 'No contact selected'}
+      title={displayName}
       content={<DialogContentList title={t('contact_details_dialog_title')} items={items} />}
     />
   )

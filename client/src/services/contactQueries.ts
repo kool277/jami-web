@@ -73,7 +73,7 @@ export const useJamsContactsSearchQuery = (searchQuery: string) => {
   })
 }
 
-export const useContactQuery = (contactId?: string) => {
+export const useContactQuery = (contactId?: string, enabled = true) => {
   const { axiosInstance } = useAuthContext()
 
   return useQuery({
@@ -82,7 +82,7 @@ export const useContactQuery = (contactId?: string) => {
       const { data } = await axiosInstance.get<ContactDetails>(`/contacts/${contactId}`)
       return data
     },
-    enabled: !!contactId,
+    enabled: enabled && !!contactId,
   })
 }
 

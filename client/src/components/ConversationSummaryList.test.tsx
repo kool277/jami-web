@@ -17,10 +17,15 @@
  */
 import { ThemeProvider } from '@mui/material/styles'
 import { render } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { buildDefaultTheme } from '../themes/Default.js'
-import { ConversationSummaryList, getConversationContactUri } from './ConversationSummaryList.js'
+import {
+  ConversationSummaryList,
+  createConversationMenuOptions,
+  getConversationContactUri,
+} from './ConversationSummaryList.js'
+import { NotificationsActiveIcon } from './SvgIcon.js'
 
 describe('ConversationSummaryList', () => {
   // The list is a flex child of the scrolling pane: letting it shrink would make it
@@ -39,5 +44,94 @@ describe('ConversationSummaryList', () => {
     expect(getConversationContactUri('0', ['contact-uri'])).toBe('contact-uri')
     expect(getConversationContactUri('1', ['contact-uri'])).toBeUndefined()
     expect(getConversationContactUri('0', [])).toBeUndefined()
+  })
+
+  it('emits the block and mark-as-read actions for direct conversations', () => {
+    const startCall = vi.fn()
+    const handlers = {
+      openConversation: vi.fn(),
+      openInNewTab: vi.fn(),
+      toggleMute: vi.fn(),
+      markConversationRead: vi.fn(),
+      openContactInfo: vi.fn(),
+      leaveConversation: vi.fn(),
+      blockConversation: vi.fn(),
+    }
+    const options = createConversationMenuOptions({
+      conversationId: 'conversation-id',
+      conversationMemberUri: 'contact-uri',
+      isMuted: false,
+      hasUnreadMessages: true,
+      translate: (key) => key,
+      startCall,
+      isMutePreferenceReady: true,
+      ...handlers,
+    })
+
+    const labels = options.map(({ label }) => label)
+    expect(labels).toContain('conversation_block_action')
+    expect(labels).toContain('conversation_mark_as_read')
+    expect(labels).toContain('conversation_contact_info')
+    expect(labels).not.toContain('conversation_group_info')
+
+    options.forEach(({ onClick }) => onClick())
+
+    expect(startCall).toHaveBeenNthCalledWith(1, 'conversation-id')
+    expect(startCall).toHaveBeenNthCalledWith(2, 'conversation-id', true)
+    expect(handlers.openConversation).toHaveBeenCalledTimes(2)
+    expect(handlers.openInNewTab).toHaveBeenCalledOnce()
+    expect(handlers.toggleMute).toHaveBeenCalledOnce()
+    expect(handlers.markConversationRead).toHaveBeenCalledOnce()
+    expect(handlers.openContactInfo).toHaveBeenCalledOnce()
+    expect(handlers.leaveConversation).toHaveBeenCalledOnce()
+    expect(handlers.blockConversation).toHaveBeenCalledOnce()
+  })
+
+  it('omits the block action for group conversations', () => {
+    const options = createConversationMenuOptions({
+      conversationId: 'conversation-id',
+      isMuted: false,
+      hasUnreadMessages: true,
+      translate: (key) => key,
+      startCall: vi.fn(),
+      isMutePreferenceReady: true,
+      openConversation: vi.fn(),
+      openInNewTab: vi.fn(),
+      toggleMute: vi.fn(),
+      markConversationRead: vi.fn(),
+      openContactInfo: vi.fn(),
+      leaveConversation: vi.fn(),
+      blockConversation: vi.fn(),
+    })
+
+    const labels = options.map(({ label }) => label)
+    expect(labels).not.toContain('conversation_block_action')
+    expect(labels).toContain('conversation_mark_as_read')
+    expect(labels).toContain('conversation_group_info')
+    expect(labels).not.toContain('conversation_contact_info')
+  })
+
+  it('uses the unmute action and omits mark-as-read without unread messages', () => {
+    const options = createConversationMenuOptions({
+      conversationId: 'conversation-id',
+      isMuted: true,
+      hasUnreadMessages: false,
+      translate: (key) => key,
+      startCall: vi.fn(),
+      isMutePreferenceReady: false,
+      openConversation: vi.fn(),
+      openInNewTab: vi.fn(),
+      toggleMute: vi.fn(),
+      markConversationRead: vi.fn(),
+      openContactInfo: vi.fn(),
+      leaveConversation: vi.fn(),
+      blockConversation: vi.fn(),
+    })
+
+    const labels = options.map(({ label }) => label)
+    expect(labels).not.toContain('conversation_mark_as_read')
+    expect(labels).not.toContain('conversation_block_action')
+    expect(options[3].Icon).toBe(NotificationsActiveIcon)
+    expect(options[3].disabled).toBe(true)
   })
 })
