@@ -21,6 +21,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { buildDefaultTheme } from '../themes/Default.js'
 import {
+  conversationSummaryRefreshEvents,
   EmptyConversations,
   EmptyGroupsConversations,
   EmptyUnreadConversations,
@@ -33,6 +34,16 @@ vi.mock('react-i18next', () => ({
 }))
 
 describe('EmptyConversations', () => {
+  it('does not refresh summaries for message editions', async () => {
+    const { WebSocketMessageType } = await import('@savoirfairelinux/jami-web-common')
+
+    expect(conversationSummaryRefreshEvents).toEqual([
+      WebSocketMessageType.ConversationMessage,
+      WebSocketMessageType.ConversationReady,
+    ])
+    expect(conversationSummaryRefreshEvents).not.toContain(WebSocketMessageType.MessageEdition)
+  })
+
   it('shows fades only for scrollable content beyond the current edge', () => {
     expect(getConversationListFades(0, 400, 400)).toEqual({ top: false, bottom: false })
     expect(getConversationListFades(0, 400, 800)).toEqual({ top: false, bottom: true })

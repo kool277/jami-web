@@ -47,6 +47,11 @@ export function getConversationListFades(scrollTop: number, clientHeight: number
   }
 }
 
+export const conversationSummaryRefreshEvents = [
+  WebSocketMessageType.ConversationMessage,
+  WebSocketMessageType.ConversationReady,
+]
+
 export default function ConversationList({ searchFilter, conversationFilter }: ConversationListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -125,13 +130,11 @@ const ConversationSummaries = ({ conversationFilter }: Pick<ConversationListProp
   const refreshConversationsSummaries = useRefreshConversationsSummaries()
 
   useEffect(() => {
-    websocket.bind(WebSocketMessageType.ConversationMessage, refreshConversationsSummaries)
-    websocket.bind(WebSocketMessageType.ConversationReady, refreshConversationsSummaries)
-    websocket.bind(WebSocketMessageType.MessageEdition, refreshConversationsSummaries)
+    conversationSummaryRefreshEvents.forEach((eventType) => websocket.bind(eventType, refreshConversationsSummaries))
     return () => {
-      websocket.unbind(WebSocketMessageType.ConversationMessage, refreshConversationsSummaries)
-      websocket.unbind(WebSocketMessageType.ConversationReady, refreshConversationsSummaries)
-      websocket.unbind(WebSocketMessageType.MessageEdition, refreshConversationsSummaries)
+      conversationSummaryRefreshEvents.forEach((eventType) =>
+        websocket.unbind(eventType, refreshConversationsSummaries),
+      )
     }
   }, [websocket, refreshConversationsSummaries])
 
