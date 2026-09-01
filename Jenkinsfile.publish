@@ -71,6 +71,9 @@ pipeline {
         }
 
         stage('Publish @savoirfairelinux/jami-web-common') {
+            when {
+                changeset 'common/**'
+            }
             agent {
                 docker {
                     image 'node:24-slim'
