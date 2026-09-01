@@ -224,11 +224,13 @@ Creating a new admin account requires --admin-password (or JAMI_WEB_ADMIN_PASSWO
 
   // Step 4: Nameserver
   console.log('── Step 4: Name Server ──')
+  console.log('Enter the name server users will use to find each other by username.')
   await configureNameserver(account, options)
   console.log()
 
   // Step 5: Guest access
   console.log('── Step 5: Guest Access ──')
+  console.log('Allow users to join with an ephemeral account without providing credentials.')
   account.config.guestAccessEnabled = await resolveBool(
     'Enable guest access?',
     account.config.guestAccessEnabled,
@@ -305,6 +307,7 @@ async function setAdminPassword(account: IAdminAccount): Promise<void> {
 
 async function configureAuth(account: IAdminAccount, options: SetupOptions): Promise<void> {
   // Local auth
+  console.log('Local authentication: let users sign in with an account created on this server.')
   account.config.localAuthEnabled = await resolveBool(
     'Enable local authentication?',
     account.config.localAuthEnabled,
@@ -313,6 +316,7 @@ async function configureAuth(account: IAdminAccount, options: SetupOptions): Pro
   )
 
   // JAMS auth
+  console.log('JAMS authentication: let users sign in with credentials managed by a JAMS server.')
   const enableJams = await resolveBool(
     'Enable JAMS authentication?',
     account.config.jamsAuthEnabled,
@@ -337,6 +341,9 @@ async function configureAuth(account: IAdminAccount, options: SetupOptions): Pro
   }
 
   // OpenID — simplified; detailed per-provider config is better done via the web UI
+  console.log(
+    'OpenID authentication: let users sign in through an external identity provider (Google, GitHub, GitLab, Discord, LinkedIn).',
+  )
   account.config.openIdAuthEnabled = await resolveBool(
     'Enable OpenID authentication?',
     account.config.openIdAuthEnabled,
