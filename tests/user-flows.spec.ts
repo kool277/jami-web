@@ -64,14 +64,16 @@ test.describe.serial('Registration Flow', () => {
     await expect(page).toHaveURL(/\/register/)
   })
 
-  test('registration page has link to login', async ({ page }) => {
+  test('registration page returns to login with the back button', async ({ page }) => {
     await page.goto('/register')
     const usernameInput = page.locator('[data-cy="username-input"] input')
     await expect(usernameInput).toBeVisible({ timeout: 30_000 })
 
-    // Should have a link back to login
-    const loginLink = page.locator('[data-cy="login-link"]')
-    await expect(loginLink).toBeVisible({ timeout: 10_000 })
+    const backButton = page.getByRole('button', { name: /back/i })
+    await expect(backButton).toBeVisible({ timeout: 10_000 })
+    await backButton.click()
+
+    await expect(page).toHaveURL(/\/login$/)
   })
 
   test('successful registration creates account', async ({ page }) => {

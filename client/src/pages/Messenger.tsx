@@ -18,7 +18,7 @@
 import { Stack } from '@mui/material'
 import { type ChangeEvent, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import { ISLAND_PADDING } from '../components/common/Island.js'
 import ContactSearchBar from '../components/ContactSearchBar.js'
@@ -32,7 +32,6 @@ import { type ConversationFilter, isConversationUnread } from '../utils/conversa
 
 type PendingConversationState = {
   searchFilter?: string
-  previousPath?: string
 }
 
 export default function Messenger() {
@@ -47,30 +46,15 @@ export default function Messenger() {
       ? (state as PendingConversationState).searchFilter
       : pendingContactUri
 
-  const previousPath =
-    state && typeof state === 'object' && 'previousPath' in state && typeof state.previousPath === 'string'
-      ? (state as PendingConversationState).previousPath
-      : undefined
-
-  return (
-    <MessengerContent
-      key={pendingContactUri ? key : undefined}
-      initialSearchFilter={selectedSearchFilter || ''}
-      pendingContactUri={pendingContactUri}
-      previousPath={previousPath}
-    />
-  )
+  return <MessengerContent key={pendingContactUri ? key : undefined} initialSearchFilter={selectedSearchFilter || ''} />
 }
 
 type MessengerContentProps = {
   initialSearchFilter: string
-  pendingContactUri?: string
-  previousPath?: string
 }
 
-function MessengerContent({ initialSearchFilter, pendingContactUri, previousPath }: MessengerContentProps) {
+function MessengerContent({ initialSearchFilter }: MessengerContentProps) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const conversationsSummariesQuery = useConversationsSummariesQuery()
   useDocumentTitle(t('conversations'))
   const [searchFilter, setSearchFilter] = useState(initialSearchFilter)
@@ -79,16 +63,9 @@ function MessengerContent({ initialSearchFilter, pendingContactUri, previousPath
   const unreadConversationCount = (conversationsSummariesQuery.data || []).filter((conversation) =>
     isConversationUnread(conversation),
   ).length
-  const handleSearchChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      if (!event.target.value && pendingContactUri) {
-        navigate(previousPath || '/conversation', { replace: true })
-        return
-      }
-      setSearchFilter(event.target.value)
-    },
-    [navigate, pendingContactUri, previousPath],
-  )
+  const handleSearchChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setSearchFilter(event.target.value)
+  }, [])
 
   return (
     <AppShell

@@ -17,7 +17,7 @@
  */
 import { List, ListSubheader } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { useUrlParams } from '../hooks/useUrlParams.js'
 import { Contact } from '../models/contact.js'
@@ -102,7 +102,6 @@ type ContactSearchResultListItemProps = {
 }
 
 const ContactSearchResultListItem = ({ contact, selected }: ContactSearchResultListItemProps) => {
-  const { pathname } = useLocation()
   const navigate = useNavigate()
 
   return (
@@ -113,7 +112,6 @@ const ContactSearchResultListItem = ({ contact, selected }: ContactSearchResultL
         navigate(pendingConversationPath(contact.uri), {
           state: {
             searchFilter: contact.registeredName || contact.uri,
-            previousPath: pathname,
           },
         })
       }

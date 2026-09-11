@@ -51,10 +51,16 @@ test.describe('Inviting a peer from the search results', () => {
 
     await page.getByRole('searchbox').fill('')
 
-    await expect(page).toHaveURL(/\/conversation$/)
+    await expect(page).toHaveURL(new RegExp(`/conversation/new/${DANA_URI}$`))
+    await expect(page.getByRole('searchbox')).toHaveValue('')
+    await expect(page.getByText('Send a message to invite this person to a conversation.')).toBeVisible()
+
+    const bobConversation = page.getByRole('button', { name: /Bob/i }).first()
+    await expect(bobConversation).toBeVisible()
+    await expect(bobConversation).not.toHaveClass(/Mui-selected/)
   })
 
-  test('returns to the previous conversation when the pending search is cleared', async ({ page }) => {
+  test('keeps the pending chat open while clearing the search', async ({ page }) => {
     await page.goto('/conversation/conv-1')
 
     await page.getByRole('searchbox').fill('dana')
@@ -63,7 +69,13 @@ test.describe('Inviting a peer from the search results', () => {
 
     await page.getByRole('searchbox').fill('')
 
-    await expect(page).toHaveURL(/\/conversation\/conv-1$/)
+    await expect(page).toHaveURL(new RegExp(`/conversation/new/${DANA_URI}$`))
+    await expect(page.getByRole('searchbox')).toHaveValue('')
+    await expect(page.getByText('Send a message to invite this person to a conversation.')).toBeVisible()
+
+    const bobConversation = page.getByRole('button', { name: /Bob/i }).first()
+    await expect(bobConversation).toBeVisible()
+    await expect(bobConversation).not.toHaveClass(/Mui-selected/)
   })
 
   test('sends the invitation when the first message is sent', async ({ page, request }) => {
