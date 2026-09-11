@@ -69,6 +69,14 @@ pipeline {
                 }
             }
         }
+        stage('Production-preview tests (Playwright)') {
+            steps {
+                script {
+                    // Reuse the E2E image while testing the built production preview.
+                    sh "docker run --rm --ipc=host jami-web-playwright:${env.BUILD_ID} npx --no-install playwright test --config playwright.production.config.ts --project=chromium"
+                }
+            }
+        }
         stage('Build') {
             steps {
                 script {

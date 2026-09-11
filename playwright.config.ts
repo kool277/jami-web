@@ -50,7 +50,7 @@ export default defineConfig({
 
   webServer: [
     {
-      command: 'npx tsx tests/mock-server.ts',
+      command: 'npx --no-install tsx tests/mock-server.ts',
       url: 'http://localhost:5002/api/admin/check',
       reuseExistingServer: !process.env.CI,
     },
