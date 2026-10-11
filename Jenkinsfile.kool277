@@ -1,0 +1,69 @@
+// kool277 pipeline for kool277/jami-web (multibranch job from
+// ci/jenkins/setup.sh in kool277/jami). The build script lives in the
+// workspace repository kool277/jami: each build fetches it (outside the
+// checkout, into $WORKSPACE_TMP/kool277) at the same tag for a v* release,
+// else main.
+//
+// Every build: ci/web/build.sh (lint, production image, smoke test,
+// tarball). On a v* tag: publish the GitHub release and push
+// ghcr.io/kool277/jami-web:<tag> and :latest (see RELEASING.md in
+// kool277/jami). Needs the github-kool277 credential (token with
+// write:packages), docker and curl on the agent.
+
+def ciRef() { env.TAG_NAME?.startsWith('v') ? env.TAG_NAME : 'main' }
+
+pipeline {
+    agent any
+    options {
+        timestamps()
+        ansiColor('xterm')
+        timeout(time: 1, unit: 'HOURS')
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+    }
+    environment {
+        KOOL277 = "${env.WORKSPACE_TMP}/kool277"
+        CI = "${env.WORKSPACE_TMP}/kool277/ci"
+        WEB_DIR = "${env.WORKSPACE}"
+        // The image tag and asset names: the release tag, else the build.
+        VERSION = "${env.TAG_NAME ?: "ci-${env.BUILD_NUMBER}"}"
+    }
+    stages {
+        stage('CI scripts') {
+            steps {
+                retry(3) {
+                    sh "rm -rf \"\$KOOL277\" && git clone -q --depth 1 --branch ${ciRef()} https://github.com/kool277/jami.git \"\$KOOL277\""
+                }
+            }
+        }
+        stage('Build and test') {
+            steps {
+                retry(2) {
+                    sh '"$CI/web/build.sh"'
+                }
+                archiveArtifacts artifacts: 'out/dist/*', fingerprint: true
+            }
+        }
+        stage('Release') {
+            when { tag 'v*' }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github-kool277',
+                                                  usernameVariable: 'GH_USER',
+                                                  passwordVariable: 'GH_TOKEN')]) {
+                    retry(3) {
+                        sh '"$CI/release/publish-release.sh" jami-web "$TAG_NAME" out/dist/*'
+                    }
+                    retry(3) {
+                        sh '"$CI/release/push-image.sh" "jami-web:$TAG_NAME" jami-web "$TAG_NAME"'
+                    }
+                }
+            }
+        }
+    }
+    post {
+        // Images of branch builds are not kept; release images are pushed.
+        always {
+            sh 'docker rmi "jami-web:$VERSION" "jami-web-test:$VERSION" >/dev/null 2>&1 || true'
+        }
+    }
+}
