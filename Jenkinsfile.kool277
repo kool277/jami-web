@@ -82,5 +82,14 @@ pipeline {
         always {
             sh 'docker rmi "jami-web:$VERSION" "jami-web-test:$VERSION" >/dev/null 2>&1 || true'
         }
+        // A v* tag is built once, for a release: free its workspace when
+        // the build ends. Branch and pull request builds keep theirs.
+        cleanup {
+            script {
+                if (env.TAG_NAME?.startsWith('v')) {
+                    cleanWs(notFailBuild: true)
+                }
+            }
+        }
     }
 }
