@@ -7,8 +7,9 @@
 // Every build: ci/web/build.sh (lint, production image, smoke test,
 // tarball). On a v* tag: publish the GitHub release and push
 // ghcr.io/kool277/jami-web:<tag> and :latest (see RELEASING.md in
-// kool277/jami). Needs the github-kool277 credential (token with
-// write:packages), docker and curl on the agent.
+// kool277/jami). Needs the credentials github-kool277 (GitHub release)
+// and ghcr-kool277 (kool277 + a token with write:packages), docker and
+// curl on the agent.
 
 def ciRef() { env.TAG_NAME?.startsWith('v') ? env.TAG_NAME : 'main' }
 
@@ -70,6 +71,12 @@ pipeline {
                     withNetRetry {
                         sh '"$CI/release/publish-release.sh" jami-web "$TAG_NAME" out/dist/*'
                     }
+                }
+                // A GitHub App token (github-kool277) cannot create GHCR
+                // packages; ghcr-kool277 holds a personal access token.
+                withCredentials([usernamePassword(credentialsId: 'ghcr-kool277',
+                                                  usernameVariable: 'GH_USER',
+                                                  passwordVariable: 'GH_TOKEN')]) {
                     withNetRetry {
                         sh '"$CI/release/push-image.sh" "jami-web:$TAG_NAME" jami-web "$TAG_NAME"'
                     }
