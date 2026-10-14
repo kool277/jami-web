@@ -1,8 +1,8 @@
 // kool277 pipeline for kool277/jami-web (multibranch job from
 // ci/jenkins/setup.sh in kool277/jami). The build script lives in the
 // workspace repository kool277/jami: each build fetches it (outside the
-// checkout, into $WORKSPACE_TMP/kool277) at the same tag for a v* release,
-// else main.
+// checkout, into $WORKSPACE_TMP/kool277) for a v* release tag at the
+// platform release named in the tag message, else main.
 //
 // Every build: ci/web/build.sh (lint, production image, smoke test,
 // tarball). On a v* tag: publish the GitHub release and push
@@ -11,7 +11,21 @@
 // and ghcr-kool277 (kool277 + a token with write:packages), docker and
 // curl on the agent.
 
-def ciRef() { env.TAG_NAME?.startsWith('v') ? env.TAG_NAME : 'main' }
+// The kool277/jami ref to build with: for a v* release tag, the platform
+// release that made it, from the "Platform:" line of the tag message (see
+// ci/release/platform-release.sh in kool277/jami); else main. Call it after
+// the checkout.
+def ciRef() {
+    if (!env.TAG_NAME?.startsWith('v')) {
+        return 'main'
+    }
+    def platform = sh(returnStdout: true,
+                      script: 'git for-each-ref --format="%(contents)" "refs/tags/$TAG_NAME" | sed -n "s/^Platform: //p"').trim()
+    if (!platform) {
+        error("The message of tag ${env.TAG_NAME} names no platform release (no Platform: line)")
+    }
+    return platform
+}
 
 // Run a network step up to 10 times, 30 s apart: this agent's connection
 // drops for minutes at a time.
@@ -49,8 +63,11 @@ pipeline {
                 withNetRetry {
                     checkout scm
                 }
+                script {
+                    env.CI_REF = ciRef()
+                }
                 withNetRetry {
-                    sh "rm -rf \"\$KOOL277\" && git clone -q --depth 1 --branch ${ciRef()} https://github.com/kool277/jami.git \"\$KOOL277\""
+                    sh 'rm -rf "$KOOL277" && git clone -q --depth 1 --branch "$CI_REF" https://github.com/kool277/jami.git "$KOOL277"'
                 }
             }
         }
@@ -69,7 +86,7 @@ pipeline {
                                                   usernameVariable: 'GH_USER',
                                                   passwordVariable: 'GH_TOKEN')]) {
                     withNetRetry {
-                        sh '"$CI/release/publish-release.sh" jami-web "$TAG_NAME" out/dist/*'
+                        sh 'PLATFORM="$CI_REF" "$CI/release/publish-release.sh" jami-web "$TAG_NAME" out/dist/*'
                     }
                 }
                 // A GitHub App token (github-kool277) cannot create GHCR
