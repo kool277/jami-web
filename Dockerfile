@@ -31,7 +31,10 @@ RUN npm run build
 # dependencies, not the full source tree or dev tooling.
 FROM node:26-slim AS production
 
+# ca-certificates: the daemon verifies the HTTPS servers it talks to, JAMS
+# in particular, against the system CA store, which the slim image lacks.
 RUN apt-get update && apt-get install -y --no-install-recommends \
+  ca-certificates \
   libexpat1 \
   libpulse0 \
   libva-drm2 \
