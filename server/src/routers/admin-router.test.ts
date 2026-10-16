@@ -46,6 +46,7 @@ const removedAccountIds: string[] = []
 let failNextAccountSave = false
 let nameLookupState = RegisteredNameFoundState.NotFound
 let nameServerAddress = ''
+let jamsServerUrl = ''
 const nameLookupArguments: Array<{ username: string; nameserver: string }> = []
 
 const accounts = {
@@ -129,6 +130,10 @@ before(async () => {
     getUploadPath: () => uploadPath + '/',
     getPasswordHash: () => 'hash',
     getNameServerAddress: () => nameServerAddress,
+    setJamsServerUrl: (url: string) => {
+      jamsServerUrl = url
+    },
+    save: () => undefined,
   })
   Container.set(MockApiTokenStore, {
     revokeAllTokens: (accountId: string) => revokedAccountIds.push(accountId),
@@ -158,6 +163,7 @@ beforeEach(() => {
   failNextAccountSave = false
   nameLookupState = RegisteredNameFoundState.NotFound
   nameServerAddress = ''
+  jamsServerUrl = ''
   nameLookupArguments.length = 0
 })
 
@@ -234,6 +240,30 @@ describe('HEAD /admin/nameserver/username/:username', () => {
 
     nameLookupState = RegisteredNameFoundState.InvalidResponse
     assert.equal((await request('/admin/nameserver/username/invalid', { method: 'HEAD' })).status, 400)
+  })
+})
+
+describe('POST /admin/jams-url', () => {
+  async function setJamsUrl(url: string): Promise<Response> {
+    return request('/admin/jams-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    })
+  }
+
+  it('accepts a JAMS server addressed by IP', async () => {
+    assert.equal((await setJamsUrl('https://192.168.1.92')).status, 200)
+    assert.equal(jamsServerUrl, 'https://192.168.1.92')
+
+    assert.equal((await setJamsUrl('https://[fd00::1]:8443')).status, 200)
+    assert.equal(jamsServerUrl, 'https://[fd00::1]:8443')
+  })
+
+  it('rejects malformed addresses', async () => {
+    assert.equal((await setJamsUrl('https://192.168.1')).status, 400)
+    assert.equal((await setJamsUrl('https://256.1.1.1')).status, 400)
+    assert.equal(jamsServerUrl, '')
   })
 })
 

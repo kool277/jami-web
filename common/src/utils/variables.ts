@@ -28,4 +28,6 @@ export const MAX_UNREAD_MESSAGE_COUNT = 99
 
 export const MIN_PASSWORD_LENGTH = 8
 
-export const urlRegex = /^(https?:\/\/)?(localhost|([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?::\d{1,5})?(\/[^\s]*)?$/
+// Self-hosted servers, JAMS in particular, are often reached by IP address.
+export const urlRegex =
+  /^(https?:\/\/)?(localhost|([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}|((25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(25[0-5]|2[0-4]\d|1?\d?\d)|\[[0-9a-fA-F:.]+\])(?::\d{1,5})?(\/[^\s]*)?$/
