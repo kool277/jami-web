@@ -519,6 +519,7 @@
   "chat_background_ocean": "Океан",
   "chat_background_meadow": "Луг",
   "chat_background_dusk": "Сумерки",
+  "presence_online": "В сети",
   "settings_add_moderator": "Добавить нового модератора по умолчанию",
   "settings_add_moderator_placeholder": "Введите имя или URI нового модератора",
   "settings_calls": "Звонки",

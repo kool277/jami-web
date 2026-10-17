@@ -202,6 +202,7 @@ const ConversationAvatarPresence = ({
   buddy: string
   backgroundColor?: string
 }) => {
+  const { t } = useTranslation()
   const theme = useTheme()
   const { getPresence } = use(PresenceContext)
   const presenceState = getPresence(buddy)
@@ -223,7 +224,8 @@ const ConversationAvatarPresence = ({
           backgroundColor: backgroundColor || theme.palette.background.paper,
           borderRadius: '50%',
         }}
-        aria-hidden="true"
+        role="img"
+        aria-label={t('presence_online')}
       >
         <Box
           sx={{

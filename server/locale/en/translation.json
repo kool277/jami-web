@@ -519,6 +519,7 @@
   "chat_background_ocean": "Ocean",
   "chat_background_meadow": "Meadow",
   "chat_background_dusk": "Dusk",
+  "presence_online": "Online",
   "settings_add_moderator": "Add new default moderator",
   "settings_add_moderator_placeholder": "Enter new moderator name or URI",
   "settings_calls": "Calls",
