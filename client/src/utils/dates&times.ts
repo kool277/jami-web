@@ -19,25 +19,26 @@ import dayjs, { Dayjs } from 'dayjs'
 import { Duration } from 'dayjs/plugin/duration.js'
 import { i18n } from 'i18next'
 
+import { languageTag } from './browserLanguage.js'
+
 export const formatTime = (time: Dayjs, i18n: i18n) => {
   return dayjs(time).locale(i18n.language).format('LT')
 }
 
 export const formatRelativeDate = (time: Dayjs, i18n: i18n) => {
-  let languageTag = i18n.language
-  languageTag = languageTag.replace(/_/g, '-')
+  const locale = languageTag(i18n.language)
 
   if (time.isToday()) {
-    return new Intl.RelativeTimeFormat(languageTag, { numeric: 'auto' }).format(0, 'day')
+    return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(0, 'day')
   } else if (time.isYesterday()) {
-    return new Intl.RelativeTimeFormat(languageTag, { numeric: 'auto' }).format(-1, 'day')
+    return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(-1, 'day')
   } else {
-    return dayjs(time).locale(languageTag).format('L')
+    return dayjs(time).locale(locale).format('L')
   }
 }
 
 export const formatConversationDate = (time: Dayjs, i18n: i18n) => {
-  const languageTag = i18n.language.replace(/_/g, '-')
+  const locale = languageTag(i18n.language)
   const today = dayjs()
   const daysDiff = today.startOf('day').diff(time.startOf('day'), 'day')
 
@@ -45,14 +46,14 @@ export const formatConversationDate = (time: Dayjs, i18n: i18n) => {
     return formatTime(time, i18n)
   }
   if (daysDiff === 1) {
-    return new Intl.RelativeTimeFormat(languageTag, { numeric: 'auto' }).format(-1, 'day')
+    return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(-1, 'day')
   }
 
   if (daysDiff > 0 && daysDiff < 7) {
-    return new Intl.DateTimeFormat(languageTag, { weekday: 'long' }).format(time.toDate())
+    return new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(time.toDate())
   }
 
-  return new Intl.DateTimeFormat(languageTag, {
+  return new Intl.DateTimeFormat(locale, {
     month: 'short',
     day: 'numeric',
     ...(time.year() === today.year() ? {} : { year: 'numeric' }),

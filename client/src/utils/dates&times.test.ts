@@ -15,10 +15,12 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import '../dayjsInitializer.js'
+
 import dayjs from 'dayjs'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { formatConversationDate, formatTime } from './dates&times.js'
+import { formatConversationDate, formatRelativeDate, formatTime } from './dates&times.js'
 
 const i18n = { language: 'en' } as never
 
@@ -50,5 +52,22 @@ describe('formatConversationDate', () => {
 
   it('includes the year for dates from prior years', () => {
     expect(formatConversationDate(dayjs(new Date(2025, 11, 31, 12)), i18n)).toBe('Dec 31, 2025')
+  })
+})
+
+describe('formatRelativeDate', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 7, 3, 12))
+  })
+
+  afterEach(() => vi.useRealTimers())
+
+  it('formats dates in a translation named after its script', () => {
+    const uzbekCyrillic = { language: 'uz@Cyrl' } as never
+
+    expect(formatRelativeDate(dayjs(new Date(2026, 7, 3, 9)), uzbekCyrillic)).toBe('бугун')
+    expect(formatRelativeDate(dayjs(new Date(2026, 7, 2, 9)), uzbekCyrillic)).toBe('кеча')
+    expect(formatConversationDate(dayjs(new Date(2026, 6, 29, 12)), uzbekCyrillic)).toBe('чоршанба')
   })
 })

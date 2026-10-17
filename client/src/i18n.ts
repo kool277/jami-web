@@ -18,6 +18,7 @@
 import i18n, { ResourceLanguage } from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
+import { matchBrowserLanguage } from './utils/browserLanguage.js'
 import { apiUrl } from './utils/constants.js'
 
 interface LanguageInfo {
@@ -60,9 +61,7 @@ export const languagesInfos: readonly LanguageInfo[] = availableLanguages
 const availableLanguageTags = new Set(languagesInfos.map((language) => language.tag))
 
 const lastLanguage = localStorage.getItem('language')
-// transifex uses underscores instead of dashes
-const systemLanguage = navigator.language.replace('-', '_')
-const getSystemLanguage = () => (availableLanguageTags.has(systemLanguage) ? systemLanguage : 'en')
+const getSystemLanguage = () => matchBrowserLanguage(navigator.language, availableLanguageTags) ?? 'en'
 const defaultLanguage = lastLanguage && availableLanguageTags.has(lastLanguage) ? lastLanguage : getSystemLanguage()
 
 const initialResources = await getTranslation(defaultLanguage)

@@ -27,6 +27,7 @@ import { prefixer } from 'stylis'
 
 import { resetLanguageToSystem } from '../i18n.js'
 import { buildDefaultTheme } from '../themes/Default.js'
+import { languageTag } from '../utils/browserLanguage.js'
 import { WithChildren } from '../utils/utils.js'
 
 const ltrCache = createCache({ key: 'mui', stylisPlugins: [prefixer] })
@@ -88,7 +89,7 @@ export default ({ children }: WithChildren) => {
 
   useEffect(() => {
     document.documentElement.dir = direction
-    document.documentElement.lang = i18n.language.replace('_', '-')
+    document.documentElement.lang = languageTag(i18n.language)
   }, [direction, i18n.language])
 
   const theme = useMemo(() => buildDefaultTheme(mode, direction), [direction, mode])
