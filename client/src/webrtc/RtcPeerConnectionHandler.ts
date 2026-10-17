@@ -94,12 +94,18 @@ export class RTCPeerConnectionHandler {
       if (senders) {
         const promises: Promise<void>[] = []
         for (let i = 0; i < senders.length; i++) {
+          const track = tracks[i] ?? null
+          // This runs again on every connection change, also while a description is being negotiated: Chrome
+          // aborts the page when a sender being renegotiated gets a track, even the one it already has.
+          if (senders[i].track === track) {
+            continue
+          }
           // TODO: There is a bug where calling multiple times `addTrack` when changing an input device doesn't work.
           //       Calling `addTrack` doesn't trigger the `track` event listener for the other user.
           //       This workaround makes it possible to replace a track, but it could be improved by figuring out the
           //       proper way of changing a track.
           promises.push(
-            senders[i].replaceTrack(tracks[i]).catch((e) => {
+            senders[i].replaceTrack(track).catch((e) => {
               console.error('Error replacing track:', e)
             }),
           )
