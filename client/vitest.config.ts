@@ -18,10 +18,18 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 
+// Node.js 25 and later define a localStorage of their own, undefined unless
+// --localstorage-file is given. Vitest keeps the globals Node.js already
+// has, so that one hides jsdom's localStorage: turn it off in the workers.
+const nodeWebStorageFlags = process.allowedNodeEnvironmentFlags.has('--experimental-webstorage')
+  ? ['--no-experimental-webstorage']
+  : []
+
 export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'jsdom',
+    execArgv: nodeWebStorageFlags,
     setupFiles: ['./src/test/setup.ts', './.storybook/vitest.setup.ts'],
   },
 })
