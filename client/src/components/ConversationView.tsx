@@ -17,7 +17,7 @@
  */
 import { InputBase, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import { alpha, darken, lighten } from '@mui/material/styles'
-import { lazy, useCallback, useMemo } from 'react'
+import { lazy, use, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 
@@ -31,8 +31,10 @@ import ConversationPreferencesStateProvider, {
   useConversationPreferencesStateContext,
 } from '../contexts/ConversationPreferencesStateContext.js'
 import { useConversationContext } from '../contexts/ConversationProvider.js'
+import { CustomThemeContext } from '../contexts/CustomThemeProvider.js'
 import { useContactQuery } from '../services/contactQueries.js'
 import { useStartConversationMutation } from '../services/pendingConversationQueries.js'
+import { chatBackgroundCss } from '../utils/chatBackground.js'
 //import CallInterface from '../pages/CallInterface.js'
 const CallInterface = lazy(() => import('../pages/CallInterface.js'))
 import ChatInterface from '../pages/ChatInterface.js'
@@ -82,6 +84,9 @@ const ConversationContent = () => {
   const theme = useTheme()
   const isMobile: boolean = useMediaQuery(theme.breakpoints.only('xs'))
   const isMedium: boolean = useMediaQuery(theme.breakpoints.only('sm'))
+  // A chat background chosen in the settings takes precedence over the conversation colour.
+  const { chatBackground } = use(CustomThemeContext)
+  const chosenBackground = chatBackgroundCss(chatBackground, theme.palette.mode)
   // The conversation colour washes the chat pane rather than the whole window, so
   // the pane stays identifiable without tinting the rest of the shell.
   const background = conversationColor
@@ -105,7 +110,7 @@ const ConversationContent = () => {
             m: ISLAND_MARGIN,
             ml: 0,
             position: 'relative',
-            backgroundColor: background,
+            ...(chosenBackground ? { background: chosenBackground } : { backgroundColor: background }),
             transition: 'background-color 0.6s ease-in-out',
           }}
         >

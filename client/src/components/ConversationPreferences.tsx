@@ -239,6 +239,7 @@ export default function ConversationPreferences() {
                         {Number(conversationInfos.mode) === 0 ? (
                           <ConversationAvatar
                             contactUri={otherMember?.contact.uri || ''}
+                            presence={true}
                             sx={{ width: '160px', height: '160px' }}
                             displayName={conversationDisplayName}
                           />

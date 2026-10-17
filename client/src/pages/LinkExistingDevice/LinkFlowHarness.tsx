@@ -116,6 +116,8 @@ export const LinkFlowHarness = ({
       toggleMode: () => undefined,
       animationsEnabled: true,
       toggleAnimations: () => undefined,
+      chatBackground: { kind: 'default' as const },
+      setChatBackground: () => undefined,
     }),
     [],
   )

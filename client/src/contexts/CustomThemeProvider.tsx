@@ -28,6 +28,7 @@ import { prefixer } from 'stylis'
 import { resetLanguageToSystem } from '../i18n.js'
 import { buildDefaultTheme } from '../themes/Default.js'
 import { languageTag } from '../utils/browserLanguage.js'
+import { ChatBackground, parseChatBackground } from '../utils/chatBackground.js'
 import { WithChildren } from '../utils/utils.js'
 
 const ltrCache = createCache({ key: 'mui', stylisPlugins: [prefixer] })
@@ -39,6 +40,8 @@ interface ICustomThemeContext {
   toggleMode: () => void
   animationsEnabled: boolean
   toggleAnimations: () => void
+  chatBackground: ChatBackground
+  setChatBackground: (background: ChatBackground) => void
 }
 
 export const CustomThemeContext = createContext<ICustomThemeContext>(undefined!)
@@ -63,6 +66,9 @@ export default ({ children }: WithChildren) => {
     return animationsEnabledInStorage === null ? undefined : animationsEnabledInStorage === 'true'
   })
   const animationsEnabled = selectedAnimationsEnabled ?? !prefersReducedMotion
+  const [chatBackground, setSelectedChatBackground] = useState<ChatBackground>(() =>
+    parseChatBackground(localStorage.getItem('chatBackground')),
+  )
 
   const toggleMode = useCallback(() => {
     setSelectedMode((selectedMode) => {
@@ -79,6 +85,11 @@ export default ({ children }: WithChildren) => {
       return next
     })
   }, [prefersReducedMotion])
+
+  const setChatBackground = useCallback((background: ChatBackground) => {
+    localStorage.setItem('chatBackground', JSON.stringify(background))
+    setSelectedChatBackground(background)
+  }, [])
 
   const resetDebugTools = useCallback(async () => {
     setDebugDirection(null)
@@ -101,8 +112,10 @@ export default ({ children }: WithChildren) => {
       toggleMode,
       animationsEnabled,
       toggleAnimations,
+      chatBackground,
+      setChatBackground,
     }),
-    [animationsEnabled, mode, toggleAnimations, toggleMode],
+    [animationsEnabled, chatBackground, mode, setChatBackground, toggleAnimations, toggleMode],
   )
 
   return (
