@@ -23,8 +23,12 @@ import { arch, platform } from 'node:process'
 const daemonDir = resolve(process.env.JAMI_DAEMON_DIR ?? 'daemon')
 const buildDir = join(daemonDir, 'build')
 const daemonBuildType = process.env.DAEMON_BUILD_TYPE ?? 'Debug'
-const nativeSource = join(daemonDir, 'bin', 'nodejs', 'build', daemonBuildType, 'jamid.node')
+// The daemon builds the addon with node-gyp in its Release configuration,
+// whatever its own build type.
+const nativeSource = join(daemonDir, 'bin', 'nodejs', 'build', 'Release', 'jamid.node')
 const packageName = `@savoirfairelinux/jami-core-${platform}-${arch}`
+// The daemon's own copy of the platform package, the one it publishes.
+const sourcePackageDir = join(daemonDir, 'bin', 'nodejs', 'npm', `${platform}-${arch}`)
 const installedPackageDir = resolve('node_modules', '@savoirfairelinux', `jami-core-${platform}-${arch}`)
 
 if (!existsSync(join(daemonDir, 'CMakeLists.txt'))) {
@@ -44,17 +48,20 @@ function run(command, args) {
   }
 }
 
-run('cmake', [
-  '-S',
-  daemonDir,
-  '-B',
-  buildDir,
-  '-G',
-  'Ninja',
-  '-DJAMI_NODEJS=ON',
-  '-DBUILD_TESTING=OFF',
-  `-DCMAKE_BUILD_TYPE=${daemonBuildType}`,
-])
+// Configure only a new build directory: an existing one keeps its options.
+if (!existsSync(join(buildDir, 'CMakeCache.txt'))) {
+  run('cmake', [
+    '-S',
+    daemonDir,
+    '-B',
+    buildDir,
+    '-G',
+    'Ninja',
+    '-DJAMI_NODEJS=ON',
+    '-DBUILD_TESTING=OFF',
+    `-DCMAKE_BUILD_TYPE=${daemonBuildType}`,
+  ])
+}
 run('cmake', ['--build', buildDir])
 
 if (!existsSync(nativeSource)) {
@@ -66,6 +73,9 @@ if (!existsSync(join(installedPackageDir, 'package.json'))) {
   console.error(`Package ${packageName} was not found at ${installedPackageDir}`)
   console.error('Run npm install before building the local daemon.')
   process.exit(1)
+}
+if (existsSync(join(sourcePackageDir, 'package.json'))) {
+  copyFileSync(nativeSource, join(sourcePackageDir, 'jamid.node'))
 }
 copyFileSync(nativeSource, join(installedPackageDir, 'jamid.node'))
 

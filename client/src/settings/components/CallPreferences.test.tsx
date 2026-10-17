@@ -16,14 +16,23 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ThemeProvider } from '@mui/material/styles'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
 import { buildDefaultTheme } from '../../themes/Default.js'
 import CallPreferences from './CallPreferences.js'
 
-const { put } = vi.hoisted(() => ({ put: vi.fn() }))
+// The same account at every render, as AuthProvider gives it: the component
+// drops its moderator list when account.defaultModerators changes.
+const { account, put } = vi.hoisted(() => ({
+  account: {
+    defaultModerators: [],
+    details: {},
+    updateDetails: vi.fn(),
+  },
+  put: vi.fn(),
+}))
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -31,11 +40,7 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('../../contexts/AuthProvider.js', () => ({
   useAuthContext: () => ({
-    account: {
-      defaultModerators: [],
-      details: {},
-      updateDetails: vi.fn(),
-    },
+    account,
     axiosInstance: {
       delete: vi.fn(),
       patch: vi.fn(),
@@ -53,7 +58,9 @@ vi.mock('../../services/contactQueries.js', () => ({
   useContactListQuery: () => ({
     data: [{ displayName: 'Grace Hopper', id: 'grace-uri', username: 'grace' }],
   }),
-  useContactProfilePicture: () => ({ data: undefined }),
+  // With a profile picture, an avatar is an image with the contact's name as
+  // its alt text; without one, it shows their initial instead.
+  useContactProfilePicture: () => ({ data: 'blob:profile-picture' }),
 }))
 
 describe('CallPreferences', () => {
@@ -84,6 +91,8 @@ describe('CallPreferences', () => {
     await user.click(await screen.findByRole('option', { name: /Ada Lovelace/ }))
 
     expect(put).toHaveBeenCalledWith('/default-moderators/ada-uri')
+    // Once the menu has closed, the name and the avatar left are the moderator's.
+    await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument())
     const moderatorName = await screen.findByText('Ada Lovelace')
     const moderatorAvatar = screen.getByAltText('ADA LOVELACE')
     expect(moderatorAvatar.compareDocumentPosition(moderatorName) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
