@@ -15,6 +15,7 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
+import { WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { IWebSocketContext } from '../contexts/WebSocketProvider.js'
@@ -29,6 +30,9 @@ class FakeRTCPeerConnection {
   signalingState = 'stable'
   localDescription = null
   senders: FakeSender[] = []
+  setRemoteDescription = vi.fn(async () => {})
+  setLocalDescription = vi.fn(async () => {})
+  addIceCandidate = vi.fn(async () => {})
 
   addTrack(track: MediaStreamTrack) {
     const sender: FakeSender = {
@@ -53,7 +57,12 @@ function createHandler(localStream: MediaStream) {
   const handler = new RTCPeerConnectionHandler(webSocket, account, 'carol', callData, localStream, undefined, vi.fn())
   // The handler keeps its connection private: reach it to inspect the senders.
   const connection = (handler as unknown as { connection: FakeRTCPeerConnection }).connection
-  return { handler, connection }
+  // The signaling listeners the handler bound, to play messages to it.
+  const listener = (type: WebSocketMessageType) =>
+    vi.mocked(webSocket.bind).mock.calls.find(([boundType]) => boundType === type)?.[1] as (
+      data: unknown,
+    ) => Promise<void>
+  return { handler, connection, listener }
 }
 
 describe('RTCPeerConnectionHandler', () => {
@@ -89,5 +98,26 @@ describe('RTCPeerConnectionHandler', () => {
     const [audioSender, videoSender] = connection.senders
     expect(audioSender.replaceTrack).not.toHaveBeenCalled()
     expect(videoSender.replaceTrack).toHaveBeenCalledWith(newVideo)
+  })
+
+  it('ignores the descriptions and ICE candidates other participants send', async () => {
+    const { connection, listener } = createHandler(stream([track('audio')], []))
+    const onDescription = listener(WebSocketMessageType.onWebRtcDescription)
+    const onIceCandidate = listener(WebSocketMessageType.onWebRtcIceCandidate)
+    const offer = { type: 'offer', sdp: 'v=0' }
+    const candidate = { candidate: 'candidate:1 1 udp 1 192.0.2.1 9 typ host' }
+
+    // In a group, every participant receives the signaling of every pair it is part of.
+    await onDescription({ conversationId: 'conversation', senderId: 'dave', sdp: offer })
+    expect(connection.setRemoteDescription).not.toHaveBeenCalled()
+
+    await onDescription({ conversationId: 'conversation', senderId: 'carol', sdp: offer })
+    expect(connection.setRemoteDescription).toHaveBeenCalledWith(offer)
+
+    await onIceCandidate({ conversationId: 'conversation', senderId: 'dave', candidate })
+    expect(connection.addIceCandidate).not.toHaveBeenCalled()
+
+    await onIceCandidate({ conversationId: 'conversation', senderId: 'carol', candidate })
+    expect(connection.addIceCandidate).toHaveBeenCalledWith(candidate)
   })
 })
