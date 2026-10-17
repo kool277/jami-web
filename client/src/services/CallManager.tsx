@@ -25,6 +25,7 @@ import { useUserMediaContext } from '../contexts/UserMediaProvider.js'
 import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
 import { ConversationMember } from '../models/conversation-member.js'
 import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries.js'
+import { callPeers } from '../utils/callPeers.js'
 import { callTimeoutMs } from '../utils/constants.js'
 import { AsyncSetState, SetState } from '../utils/utils.js'
 import { useWebRtcManager } from '../webrtc/WebRtcManager.js'
@@ -128,7 +129,9 @@ export const useCallManager = () => {
   }, [webSocket, navigate, callData, setAlertContent])
 
   const conversationId = callData?.conversationId
-  const contactUri = callMembers?.[0]?.contact.uri
+  // The daemon lists a conversation's creator first, so the first member is often this account.
+  const peers = useMemo(() => callPeers(callMembers, account.getUri()), [callMembers, account])
+  const contactUri = peers[0]?.contact.uri
   const connectionInfos = contactUri ? webRtcManager.connectionsInfos[contactUri] : undefined
   const remoteStreams = useMemo(() => connectionInfos?.remoteStreams || [], [connectionInfos])
   const iceConnectionState = connectionInfos?.iceConnectionState
@@ -250,7 +253,7 @@ export const useCallManager = () => {
           console.info('Sending CallJoin', callAccept)
           webSocket.send(WebSocketMessageType.sendCallJoin, callAccept)
           // TODO: move this to "onWebRtcDescription" listener so we don't add connections for non-connected members
-          callMembers.forEach((member) =>
+          peers.forEach((member) =>
             webRtcManager.addConnection(
               webSocket,
               account,
@@ -272,6 +275,7 @@ export const useCallManager = () => {
       conversationId,
       localStream,
       callMembers,
+      peers,
       screenShareLocalStream,
       updateLocalStream,
       webRtcManager,
