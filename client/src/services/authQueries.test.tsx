@@ -17,13 +17,15 @@
  */
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { renderHook, waitFor } from '@testing-library/react'
+import { ContextType } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { useGetLinkTokenQuery } from './authQueries.js'
+import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
+import { useGetLinkTokenQuery, useLoginMutation } from './authQueries.js'
 
-const { get } = vi.hoisted(() => ({ get: vi.fn() }))
+const { get, post } = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }))
 
-vi.mock('axios', () => ({ default: { get } }))
+vi.mock('axios', () => ({ default: { get, post } }))
 vi.mock('react-router-dom', () => ({ useNavigate: () => vi.fn() }))
 
 const renderQuery = (queryClient: QueryClient) =>
@@ -70,5 +72,48 @@ describe('useGetLinkTokenQuery', () => {
     window.dispatchEvent(new Event('focus'))
 
     await waitFor(() => expect(get).toHaveBeenCalledTimes(1))
+  })
+})
+
+describe('useLoginMutation', () => {
+  const setAlertContent = vi.fn<ContextType<typeof AlertSnackbarContext>['setAlertContent']>()
+  const alertContext: ContextType<typeof AlertSnackbarContext> = {
+    alertContent: { alertOpen: false, messageI18nKey: '', severity: 'info' },
+    closeAlert: () => {},
+    setAlertContent,
+  }
+
+  // The message shown when the server answers the login with the status.
+  const loginAlert = async (authMethod: string, status: number) => {
+    post.mockRejectedValueOnce({ response: { status } })
+    const { result } = renderHook(() => useLoginMutation(), {
+      wrapper: ({ children }) => (
+        <QueryClientProvider client={newQueryClient()}>
+          <AlertSnackbarContext value={alertContext}>{children}</AlertSnackbarContext>
+        </QueryClientProvider>
+      ),
+    })
+
+    result.current.mutate({ username: 'ada', password: 'password', authMethod })
+    await waitFor(() => expect(result.current.isError).toBe(true))
+    return setAlertContent.mock.lastCall?.[0]
+  }
+
+  beforeEach(() => {
+    post.mockReset()
+    setAlertContent.mockReset()
+  })
+
+  it('tells refused JAMS credentials from a JAMS server that cannot be used', async () => {
+    expect(await loginAlert('jams', 401)).toMatchObject({ messageI18nKey: 'login_invalid_credentials' })
+    expect(await loginAlert('jams', 502)).toMatchObject({ messageI18nKey: 'login_jams_unavailable' })
+  })
+
+  it('reports a login method disabled since the page loaded', async () => {
+    expect(await loginAlert('local', 400)).toMatchObject({ messageI18nKey: 'login_method_disabled' })
+  })
+
+  it('keeps the generic message for other server errors', async () => {
+    expect(await loginAlert('local', 502)).toMatchObject({ messageI18nKey: 'unknown_error_alert' })
   })
 })

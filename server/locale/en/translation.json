@@ -375,6 +375,8 @@
   "login_form_to_registration_text": "Join Jami",
   "login_form_username_tooltip": "The username for the account.",
   "login_invalid_credentials": "Invalid credentials",
+  "login_jams_unavailable": "Unable to connect to the JAMS server. Please try again later or contact your administrator.",
+  "login_method_disabled": "This login method is disabled. Please reload the page.",
   "logout": "Log out",
   "media_deleted": "Media deleted successfully.",
   "Menu": "Menu",

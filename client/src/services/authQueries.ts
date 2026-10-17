@@ -163,14 +163,16 @@ export const useLoginMutation = () => {
       setAccessToken(response.accessToken)
       navigate('/conversation', { replace: true })
     },
-    onError: (e: any) => {
+    onError: (e: any, loginData) => {
       //e: any is a simple workaround for type check since the error is of type unknown and we are unable to reference a property on an unknown
       const status = e.response?.status
       if (status === HttpStatusCode.BadRequest) {
-        //TODO: the only bad request response defined in the server is missing credentials. add the response message to the locale.
-        //continue when the auth flow is clear
+        // The form sends no request without credentials: the login method was disabled since the page loaded.
+        setAlertContent({ messageI18nKey: 'login_method_disabled', severity: 'error', alertOpen: true })
       } else if (status === HttpStatusCode.NotFound || status === HttpStatusCode.Unauthorized) {
         setAlertContent({ messageI18nKey: 'login_invalid_credentials', severity: 'error', alertOpen: true })
+      } else if (status === HttpStatusCode.BadGateway && loginData.authMethod === 'jams') {
+        setAlertContent({ messageI18nKey: 'login_jams_unavailable', severity: 'error', alertOpen: true })
       } else if (status === HttpStatusCode.TooManyRequests) {
         setAlertContent({ messageI18nKey: 'too_many_requests', severity: 'error', alertOpen: true })
       } else {
