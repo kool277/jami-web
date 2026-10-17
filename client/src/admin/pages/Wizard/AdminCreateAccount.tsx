@@ -63,15 +63,17 @@ export default function AdminSetup() {
   }
 
   return (
-    <UnconnectedUserLayout
-      pageName={t('admin_page_setup_title')}
-      message={
-        'This is the admin password account, you need to configure it to access the other step of the configuration.'
-      }
-    >
+    <UnconnectedUserLayout pageName={t('admin_page_setup_title')} message={t('admin_page_setup_intro')}>
       <Box sx={mainContentBoxStyle}>
         <div>
-          <TextField value="admin" name="username" autoComplete="username" disabled size="small" label="Username" />
+          <TextField
+            value="admin"
+            name="username"
+            autoComplete="username"
+            disabled
+            size="small"
+            label={t('username_input_label')}
+          />
         </div>
         <div>
           <TextField
