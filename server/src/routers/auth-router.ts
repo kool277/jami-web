@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { AccessToken, AccountDetails, HttpStatusCode, UserCredentials } from '@savoirfairelinux/jami-web-common'
-import { Router } from 'express'
+import { Response, Router } from 'express'
 import asyncHandler from 'express-async-handler'
 import rateLimit from 'express-rate-limit'
 import { ParamsDictionary, Request } from 'express-serve-static-core'
@@ -31,6 +31,7 @@ import { AdminAccount } from '../storage/admin-account.js'
 import { OpenIdProviders } from '../storage/openid-providers.js'
 import { isElectronMode } from '../utils/electron.js'
 import { clearGuest, clearGuests } from '../utils/guests.js'
+import { describeJamsSignInFailure, diagnoseJamsSignInFailure } from '../utils/jams.js'
 import { signJwt, signJwtWithExpiration } from '../utils/jwt.js'
 import { exchangeCodeForToken, exchangeTokenForUserInfo, getBase64Picture, getJwt } from '../utils/openid.js'
 import { hashPassword, verifyPassword } from '../utils/password.js'
@@ -139,6 +140,21 @@ const loginlimiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 })
 
+// The daemon could not sign in to JAMS: answer whether JAMS refused the
+// credentials or could not be reached, trusted or used. In Electron, the
+// daemon uses the system's OpenSSL, whose view no check from this process
+// reproduces: the credentials are blamed, as before.
+async function sendJamsSignInFailure(res: Response, jamsUrl: string) {
+  const failure = isElectronMode ? ({ reason: 'credentials' } as const) : await diagnoseJamsSignInFailure(jamsUrl)
+  const message = describeJamsSignInFailure(jamsUrl, failure)
+  if (failure.reason === 'credentials') {
+    res.status(HttpStatusCode.Unauthorized).send(message)
+    return
+  }
+  console.error(`JAMS sign-in failed: ${message}`)
+  res.status(HttpStatusCode.BadGateway).send(message)
+}
+
 authRouter.post(
   '/login',
   loginlimiter,
@@ -172,7 +188,8 @@ authRouter.post(
     }
     // Check if the account is stored on this daemon instance
     if (authMethod === 'jams') {
-      if (config.getConfig().jamsAuthEnabled === false) {
+      const jamsUrl = config.getJamsServerUrl()
+      if (config.getConfig().jamsAuthEnabled === false || jamsUrl === undefined) {
         res.status(HttpStatusCode.BadRequest).send('Jams authentication is disabled')
         return
       }
@@ -187,7 +204,7 @@ authRouter.post(
         // TODO: Enable encrypted archives
         // 'Account.archivePassword': password
       }
-      accountDetails['Account.managerUri'] = config.getJamsServerUrl()
+      accountDetails['Account.managerUri'] = jamsUrl
       accountDetails['Account.managerUsername'] = username
       accountDetails['Account.archivePassword'] = password
 
@@ -199,7 +216,7 @@ authRouter.post(
         const { accountId: JAMSAccountId, state } = await jamid.addAccount(accountDetails)
         if (state === RegistrationState.ErrorGeneric) {
           jamid.removeAccount(JAMSAccountId)
-          res.status(HttpStatusCode.Unauthorized).send('Invalid JAMS credentials')
+          await sendJamsSignInFailure(res, jamsUrl)
         } else {
           const hashedPassword = await hashPassword(password!)
           try {
@@ -217,6 +234,7 @@ authRouter.post(
       }
 
       if (typeof data === 'object' && !('password' in data)) {
+        res.status(HttpStatusCode.Unauthorized).send('Invalid credentials')
         return
       }
       if (data.password === undefined) {
@@ -246,7 +264,7 @@ authRouter.post(
         const registration = await jamid.addAccount(accountDetails)
         if (registration.state === RegistrationState.ErrorGeneric) {
           jamid.removeAccount(registration.accountId)
-          res.status(HttpStatusCode.Unauthorized).send('Invalid JAMS credentials')
+          await sendJamsSignInFailure(res, jamsUrl)
           return
         }
         accountId = registration.accountId

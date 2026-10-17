@@ -16,7 +16,8 @@
  * <https://www.gnu.org/licenses/>.
  */
 import assert from 'node:assert/strict'
-import { createServer } from 'node:http'
+import { createServer, type Server } from 'node:http'
+import { type AddressInfo } from 'node:net'
 import { after, before, beforeEach, describe, it, mock } from 'node:test'
 
 import express from 'express'
@@ -26,8 +27,11 @@ const removedPendingAccounts: string[] = []
 const providedAuthentications: Array<{ accountId: string; credentials: string; scheme: string }> = []
 const accountWrites: Array<{ username: string; value: string; authMethod: string; accountId: string }> = []
 let daemonAccountIds: string[] = []
-let jamsAccount: { password: string; accountId: string } | undefined
+let jamsAccount: { password?: string; accountId: string } | undefined
 let nextJamsAccountId = 'jams-account-2'
+let nextJamsRegistrationState: string | undefined
+const removedDaemonAccounts: string[] = []
+let jamsUrl = 'https://jams.example'
 const openIdJwtArguments: Array<{ email: string; userName: string; service: string }> = []
 let openIdUserInfo: Record<string, unknown> | undefined
 let profilePictureDownloadFails = false
@@ -41,7 +45,11 @@ const jamid = {
   getLinkToken: () => undefined,
   addAccount: async (details: Record<string, string>) => ({
     accountId: details['Account.managerUri'] ? nextJamsAccountId : 'guest-account-1',
+    state: details['Account.managerUri'] ? nextJamsRegistrationState : undefined,
   }),
+  removeAccount: (accountId: string) => {
+    removedDaemonAccounts.push(accountId)
+  },
   getAccountIds: () => daemonAccountIds,
   provideAccountAuthentication: (accountId: string, credentials: string, scheme: string) => {
     providedAuthentications.push({ accountId, credentials, scheme })
@@ -110,7 +118,7 @@ before(async () => {
   Container.set(MockAccounts, accounts)
   Container.set(MockAdminAccount, {
     getConfig: () => ({ guestAccessEnabled: true, jamsAuthEnabled: true, openIdAuthEnabled: true }),
-    getJamsServerUrl: () => 'https://jams.example',
+    getJamsServerUrl: () => jamsUrl,
     getOpenIdProvidersNames: () => ['discord', 'linkedin'],
     isProviderActive: () => true,
   })
@@ -132,6 +140,9 @@ beforeEach(() => {
   daemonAccountIds = []
   jamsAccount = undefined
   nextJamsAccountId = 'jams-account-2'
+  nextJamsRegistrationState = undefined
+  removedDaemonAccounts.length = 0
+  jamsUrl = 'https://jams.example'
   openIdJwtArguments.length = 0
   openIdUserInfo = undefined
   profilePictureDownloadFails = false
@@ -210,7 +221,78 @@ describe('auth router guest login', () => {
   })
 })
 
+// A JAMS stand-in answering every request with the given HTTP status.
+async function jamsAnswering(status: number): Promise<{ url: string; server: Server }> {
+  const server = createServer((_request, response) => response.writeHead(status).end())
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
+  return { url: `http://127.0.0.1:${(server.address() as AddressInfo).port}`, server }
+}
+
+function jamsLogin() {
+  return request('/auth/login', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ username: 'ada', password: 'password', authMethod: 'jams' }),
+  })
+}
+
 describe('auth router JAMS login', () => {
+  it('answers 401 when JAMS refuses the credentials', async () => {
+    const jams = await jamsAnswering(401)
+    jamsUrl = jams.url
+    nextJamsRegistrationState = 'ERROR_GENERIC'
+
+    try {
+      const response = await jamsLogin()
+
+      assert.equal(response.status, 401)
+      assert.equal(await response.text(), 'Invalid JAMS credentials')
+      assert.deepEqual(removedDaemonAccounts, ['jams-account-2'])
+      assert.deepEqual(accountWrites, [])
+    } finally {
+      jams.server.close()
+    }
+  })
+
+  it('answers 502, not 401, when JAMS cannot be reached', async () => {
+    const jams = await jamsAnswering(401)
+    jamsUrl = jams.url
+    await new Promise((resolve) => jams.server.close(resolve))
+    nextJamsRegistrationState = 'ERROR_GENERIC'
+
+    const response = await jamsLogin()
+
+    assert.equal(response.status, 502)
+    assert.match(await response.text(), /^Unable to reach the JAMS server http:\/\/127\.0\.0\.1:\d+: .*ECONNREFUSED/)
+    assert.deepEqual(accountWrites, [])
+  })
+
+  it('answers 502 when JAMS fails while a stored account is recreated', async () => {
+    const jams = await jamsAnswering(500)
+    jamsUrl = jams.url
+    jamsAccount = { password: 'password', accountId: 'missing-jams-account' }
+    nextJamsRegistrationState = 'ERROR_GENERIC'
+
+    try {
+      const response = await jamsLogin()
+
+      assert.equal(response.status, 502)
+      assert.equal(await response.text(), `The JAMS server ${jams.url} failed: HTTP 500`)
+      assert.deepEqual(removedDaemonAccounts, ['jams-account-2'])
+    } finally {
+      jams.server.close()
+    }
+  })
+
+  it('answers a stored account without a password instead of leaving the request pending', async () => {
+    jamsAccount = { accountId: 'jams-account-1' }
+
+    const response = await jamsLogin()
+
+    assert.equal(response.status, 401)
+    assert.equal(await response.text(), 'Invalid credentials')
+  })
+
   it('recreates a stored account that is no longer available in the daemon', async () => {
     jamsAccount = { password: 'password', accountId: 'missing-jams-account' }
 

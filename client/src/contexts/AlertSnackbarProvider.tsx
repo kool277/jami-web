@@ -86,6 +86,8 @@ type AlertMessageKeys =
   | 'password_input_helper_text_empty'
   | 'password_input_helper_text_too_short'
   | 'login_invalid_credentials'
+  | 'login_jams_unavailable'
+  | 'login_method_disabled'
   | 'registration_success'
   | 'incorrect_password'
   | 'admin_password_changed_successfully'
@@ -168,6 +170,10 @@ const AlertSnackbarProvider = ({ children }: WithChildren) => {
           return t('password_input_helper_text_too_short')
         case 'login_invalid_credentials':
           return t('login_invalid_credentials')
+        case 'login_jams_unavailable':
+          return t('login_jams_unavailable')
+        case 'login_method_disabled':
+          return t('login_method_disabled')
         case 'registration_success':
           return t('registration_success')
         case 'redirect_admin_setup_complete':
