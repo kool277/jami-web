@@ -19,6 +19,8 @@ import { filesize } from 'filesize'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { languageTag } from './browserLanguage.js'
+
 // 'filesize.js' library requires us to define the symbols ourselves for localization:
 // https://github.com/avoidwork/filesize.js/issues/64
 // https://github.com/avoidwork/filesize.js/issues/96
@@ -30,7 +32,7 @@ const dataSizeSymbols: Record<string, Record<string, string>> = {
 }
 
 export const getDataSizeUnits = (nbBytes: number, language: string) => {
-  const locale = language.replaceAll('_', '-')
+  const locale = languageTag(language)
   const languageCode = locale.split('-')[0]
   const options = {
     symbols: dataSizeSymbols[languageCode] || dataSizeSymbols['default'], // undefined is not supported

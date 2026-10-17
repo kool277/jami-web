@@ -17,7 +17,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { matchBrowserLanguage } from './browserLanguage.js'
+import { languageTag, matchBrowserLanguage } from './browserLanguage.js'
 
 // Translation codes as Transifex names them.
 const available = new Set(['en', 'ru', 'ru_RU', 'sr', 'sr@Cyrl', 'uz', 'uz@Cyrl', 'zh-Hans'])
@@ -45,5 +45,26 @@ describe('matchBrowserLanguage', () => {
 
   it('finds nothing for a language without a translation', () => {
     expect(matchBrowserLanguage('kk-KZ', available)).toBeUndefined()
+  })
+})
+
+describe('languageTag', () => {
+  it('names a translation with its region as a locale', () => {
+    expect(languageTag('ru_RU')).toBe('ru-RU')
+    expect(languageTag('es_419')).toBe('es-419')
+  })
+
+  it('names a translation in a script as a locale in that script', () => {
+    expect(languageTag('uz@Cyrl')).toBe('uz-Cyrl')
+    expect(languageTag('sr@Cyrl')).toBe('sr-Cyrl')
+  })
+
+  it('keeps a code that already is a locale', () => {
+    expect(languageTag('uz')).toBe('uz')
+    expect(languageTag('zh-Hans')).toBe('zh-Hans')
+  })
+
+  it('falls back to the language when the rest is not a locale', () => {
+    expect(languageTag('zh_CN.GB2312')).toBe('zh')
   })
 })

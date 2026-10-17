@@ -34,3 +34,17 @@ export function matchBrowserLanguage(browserLanguage: string, available: Readonl
   ]
   return candidates.find((candidate) => candidate && available.has(candidate)) || undefined
 }
+
+/**
+ * The locale (BCP 47) of a translation named as Transifex does, for the formatters of dates, numbers and
+ * sizes, which throw on those names: `ru_RU` is `ru-RU`, `uz@Cyrl` is `uz-Cyrl`.
+ */
+export function languageTag(translation: string): string {
+  const [name, script] = translation.split('@')
+  const [language, ...subtags] = name.split(/[-_]/)
+  try {
+    return Intl.getCanonicalLocales([language, script, ...subtags].filter(Boolean).join('-'))[0]
+  } catch {
+    return language
+  }
+}

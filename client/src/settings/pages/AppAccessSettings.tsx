@@ -55,6 +55,7 @@ import {
   useCreateApiTokenMutation,
   useRevokeApiTokenMutation,
 } from '../../services/apiTokenQueries.js'
+import { languageTag } from '../../utils/browserLanguage.js'
 import { SettingsPage, SettingsRow, SettingsSection } from '../components/SettingsPage.js'
 
 const expiryOptions = [
@@ -84,8 +85,8 @@ const permissionResources: Array<{
   { resource: 'account', access: ['read', 'write'], Icon: AccountCircleIcon },
 ]
 
-function formatDate(date: string | undefined, locale: string): string {
-  return date ? new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(date)) : ''
+function formatDate(date: string | undefined, language: string): string {
+  return date ? new Intl.DateTimeFormat(languageTag(language), { dateStyle: 'medium' }).format(new Date(date)) : ''
 }
 
 function tokenPermissions(token: ApiTokenInfo, t: TFunction): string {

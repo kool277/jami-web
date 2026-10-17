@@ -23,4 +23,9 @@ describe('getDataSizeUnits', () => {
   it('formats sizes for Transifex locale tags', () => {
     expect(() => getDataSizeUnits(1_024, 'fr_FR')).not.toThrow()
   })
+
+  it('formats sizes for translations named after their script', () => {
+    expect(getDataSizeUnits(1_500, 'uz@Cyrl')).toBe('1,5 kB')
+    expect(getDataSizeUnits(1_500, 'sr@Cyrl')).toBe('1,5 kB')
+  })
 })
