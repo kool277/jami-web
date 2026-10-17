@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next'
 import SettingLanguage from '../../../components/SettingLanguage.js'
 import { SettingsPage, SettingsRow, SettingsSection } from '../SettingsPage.js'
 import SettingAnimations from './SettingAnimations.js'
+import SettingChatBackground from './SettingChatBackground.js'
 import SettingLinkPreview from './SettingLinkPreview.js'
 import SettingNotifications from './SettingNotifications.js'
 import SettingTheme from './SettingTheme.js'
@@ -44,11 +45,16 @@ function System({ section = 'system' }: { section?: GeneralSettingsSection }) {
         </SettingsSection>
       )}
       {section === 'appearance' && (
-        <SettingsSection>
-          <SettingsRow title={t('settings_dark_theme')} control={<SettingTheme controlOnly />} />
-          <SettingsRow title={t('settings_enable_animations')} control={<SettingAnimations controlOnly />} />
-          <SettingsRow title={t('show_tips')} control={<SettingTips controlOnly />} />
-        </SettingsSection>
+        <>
+          <SettingsSection>
+            <SettingsRow title={t('settings_dark_theme')} control={<SettingTheme controlOnly />} />
+            <SettingsRow title={t('settings_enable_animations')} control={<SettingAnimations controlOnly />} />
+            <SettingsRow title={t('show_tips')} control={<SettingTips controlOnly />} />
+          </SettingsSection>
+          <SettingsSection title={t('settings_chat_background')} list={false}>
+            <SettingChatBackground />
+          </SettingsSection>
+        </>
       )}
       {section === 'chat' && (
         <SettingsSection title={t('settings_title_view')}>

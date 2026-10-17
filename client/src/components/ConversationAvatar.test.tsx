@@ -37,11 +37,39 @@ vi.mock('react-intersection-observer', () => ({
   useInView: intersectionObserver.useInView,
 }))
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}))
+
 describe('ConversationAvatar', () => {
   beforeEach(() => {
     contactQueries.useContactProfilePicture.mockClear()
     intersectionObserver.useInView.mockReset()
     intersectionObserver.useInView.mockReturnValue({ ref: vi.fn(), inView: true })
+  })
+
+  it('marks an online contact with a presence dot that screen readers announce', () => {
+    contactQueries.useContactProfilePicture.mockReturnValue({ data: undefined })
+
+    render(
+      <PresenceContext value={{ getPresence: () => 1, presence: new Map() }}>
+        <ConversationAvatar displayName="Ada" contactUri="ada" presence />
+      </PresenceContext>,
+    )
+
+    expect(screen.getByRole('img', { name: 'presence_online' })).toBeInTheDocument()
+  })
+
+  it('shows no presence dot for an offline contact', () => {
+    contactQueries.useContactProfilePicture.mockReturnValue({ data: undefined })
+
+    render(
+      <PresenceContext value={{ getPresence: () => 0, presence: new Map() }}>
+        <ConversationAvatar displayName="Ada" contactUri="ada" presence />
+      </PresenceContext>,
+    )
+
+    expect(screen.queryByRole('img', { name: 'presence_online' })).not.toBeInTheDocument()
   })
 
   it('renders an explicit src prop without overriding it from the query', () => {
@@ -114,8 +142,7 @@ describe('ConversationAvatar', () => {
       </PresenceContext>,
     )
 
-    const avatar = screen.getByText('A')
-    const indicator = avatar.parentElement?.querySelector('[aria-hidden="true"]')
+    const indicator = screen.getByRole('img', { name: 'presence_online' })
     expect(indicator).toHaveStyle({
       position: 'absolute',
       right: '-2px',
