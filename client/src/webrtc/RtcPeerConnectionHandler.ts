@@ -16,12 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-import {
-  WebRtcIceCandidate,
-  WebRtcSdp,
-  WebSocketMessageTable,
-  WebSocketMessageType,
-} from '@savoirfairelinux/jami-web-common'
+import { WebSocketMessageTable, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
 
 import { IWebSocketContext } from '../contexts/WebSocketProvider.js'
 import { Account } from '../models/account.js'
@@ -196,10 +191,14 @@ export class RTCPeerConnectionHandler {
       }
     }
 
-    const webRtcDescriptionListener = async (data: WebRtcSdp) => {
+    const webRtcDescriptionListener = async (data: WebSocketMessageTable['onWebRtcDescription']) => {
       console.info('Received event on WebRtcAnswer', data)
       if (data.conversationId !== conversationId) {
         console.warn('Wrong incoming conversationId, ignoring action')
+        return
+      }
+      // Every handler of the call hears every description: keep the ones of this handler's peer.
+      if (data.senderId !== contactUri) {
         return
       }
 
@@ -219,9 +218,12 @@ export class RTCPeerConnectionHandler {
       await addQueuedIceCandidates()
     }
 
-    const webRtcIceCandidateListener = async (data: WebRtcIceCandidate) => {
+    const webRtcIceCandidateListener = async (data: WebSocketMessageTable['onWebRtcIceCandidate']) => {
       if (data.conversationId !== conversationId) {
         console.warn('Wrong incoming conversationId, ignoring action')
+        return
+      }
+      if (data.senderId !== contactUri) {
         return
       }
 
