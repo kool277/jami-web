@@ -16,7 +16,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 import { ConversationInfos, WebSocketMessageTable, WebSocketMessageType } from '@savoirfairelinux/jami-web-common'
-import { use, useCallback, useEffect, useMemo, useState } from 'react'
+import { use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { AlertSnackbarContext } from '../contexts/AlertSnackbarProvider.js'
@@ -36,6 +36,15 @@ export type CallData = {
   conversationId: string
   role: CallRole
   withVideoOn?: boolean
+  // This account's attempt at the call, sent with each of its call messages (see CallAction.sessionId).
+  sessionId: string
+  // The member whose invitation a receiver is answering.
+  callerUri?: string
+}
+
+export type CallParticipant = {
+  uri: string
+  stream: MediaStream
 }
 
 export enum CallStatus {
@@ -58,7 +67,8 @@ export interface ICallManager {
   callConversationInfos: ConversationInfos | undefined
   callMembers: ConversationMember[] | undefined
 
-  remoteStreams: readonly MediaStream[]
+  // The other participants whose media arrived, in the order they connected.
+  remoteParticipants: readonly CallParticipant[]
 
   isAudioOn: boolean
   setIsAudioOn: SetState<boolean>
@@ -75,6 +85,14 @@ export interface ICallManager {
   acceptCall: (withVideoOn: boolean) => void
   endCall: () => void
 }
+
+const newCallSessionId = () =>
+  Array.from(crypto.getRandomValues(new Uint8Array(8)), (byte) => byte.toString(16).padStart(2, '0')).join('')
+
+// Once this account has called or answered, the other members know it takes part in the call. A
+// call is a mesh: whoever takes part connects to every member who joins after it.
+const isParticipating = (callStatus: CallStatus) =>
+  callStatus === CallStatus.Ringing || callStatus === CallStatus.Connecting || callStatus === CallStatus.InCall
 
 export const useCallManager = () => {
   const { setAlertContent } = use(AlertSnackbarContext)
@@ -103,38 +121,30 @@ export const useCallManager = () => {
   const [callStatus, setCallStatus] = useState(CallStatus.Default)
   const [callStartTime, setCallStartTime] = useState<number | undefined>(undefined)
 
-  useEffect(() => {
-    const callInviteListener = ({ conversationId, withVideoOn }: WebSocketMessageTable['onCallInvite']) => {
-      if (callData) {
-        // TODO: Currently, we display a notification if already in a call.
-        //       In the future, we should handle receiving a call while already in another.
-        setAlertContent({
-          messageI18nKey: 'missed_incoming_call',
-          messageI18nContext: { conversationId },
-          severity: 'info',
-          alertOpen: true,
-        })
-        return
-      }
-
-      setCallData({ conversationId: conversationId, role: 'receiver', withVideoOn })
-      navigate(`/conversation/${conversationId}`)
-    }
-
-    webSocket.bind(WebSocketMessageType.onCallInvite, callInviteListener)
-
-    return () => {
-      webSocket.unbind(WebSocketMessageType.onCallInvite, callInviteListener)
-    }
-  }, [webSocket, navigate, callData, setAlertContent])
+  // The other members known to take part in the call: whoever invited this account, joined or
+  // connected to it. The call ends for this account once the last of them has left.
+  const participants = useRef(new Set<string>())
+  // The members who declined or left. A call ends while it still rings once every member has.
+  const leftMembers = useRef(new Set<string>())
 
   const conversationId = callData?.conversationId
   // The daemon lists a conversation's creator first, so the first member is often this account.
   const peers = useMemo(() => callPeers(callMembers, account.getUri()), [callMembers, account])
-  const contactUri = peers[0]?.contact.uri
-  const connectionInfos = contactUri ? webRtcManager.connectionsInfos[contactUri] : undefined
-  const remoteStreams = useMemo(() => connectionInfos?.remoteStreams || [], [connectionInfos])
-  const iceConnectionState = connectionInfos?.iceConnectionState
+
+  const connectionsInfos = webRtcManager.connectionsInfos
+  const remoteParticipants = useMemo(
+    () =>
+      Object.entries(connectionsInfos).flatMap(([uri, { remoteStreams }]) =>
+        remoteStreams.length > 0 ? [{ uri, stream: remoteStreams[0] }] : [],
+      ),
+    [connectionsInfos],
+  )
+  const isConnected = Object.values(connectionsInfos).some(
+    ({ iceConnectionState }) => iceConnectionState === 'connected' || iceConnectionState === 'completed',
+  )
+  const hasLostConnection = Object.values(connectionsInfos).some(
+    ({ iceConnectionState }) => iceConnectionState === 'disconnected' || iceConnectionState === 'failed',
+  )
 
   // TODO: Transform the effect into a callback
   const updateLocalStreams = webRtcManager.updateLocalStreams
@@ -210,108 +220,35 @@ export const useCallManager = () => {
     }
   }, [])
 
-  const startCall = useCallback(
-    (conversationId: string, withVideoOn = false) => {
-      setCallData({ conversationId, withVideoOn, role: 'caller' })
-      if (callStatus === CallStatus.Default) {
-        setCallStatus(CallStatus.Loading)
-        updateLocalStream()
-          .then(() => {
-            const callInvite: WebSocketMessageTable['sendCallInvite'] = {
-              conversationId: conversationId,
-              withVideoOn,
-            }
-
-            setCallStatus(CallStatus.Ringing)
-            setVideoStatus(withVideoOn ? VideoStatus.Camera : VideoStatus.Off)
-            webSocket.send(WebSocketMessageType.sendCallInvite, callInvite)
-          })
-          .catch((e) => {
-            console.error(e)
-            setCallStatus(CallStatus.PermissionsDenied)
-          })
-      }
-    },
-    [webSocket, updateLocalStream, callStatus],
-  )
-
-  const acceptCall = useCallback(
-    (withVideoOn: boolean) => {
-      if (!callMembers || !conversationId) {
-        console.warn('acceptCall without callMembers or conversationId')
+  const connect = useCallback(
+    (contactUri: string, sessionId: string | undefined) => {
+      if (!callData) {
         return
       }
-      setCallStatus(CallStatus.Loading)
-      updateLocalStream()
-        .then(() => {
-          const callAccept: WebSocketMessageTable['sendCallJoin'] = {
-            conversationId,
-          }
 
-          setVideoStatus(withVideoOn ? VideoStatus.Camera : VideoStatus.Off)
-          setCallStatus(CallStatus.Connecting)
-          console.info('Sending CallJoin', callAccept)
-          webSocket.send(WebSocketMessageType.sendCallJoin, callAccept)
-          // TODO: move this to "onWebRtcDescription" listener so we don't add connections for non-connected members
-          peers.forEach((member) =>
-            webRtcManager.addConnection(
-              webSocket,
-              account,
-              member.contact.uri,
-              callData,
-              localStream,
-              screenShareLocalStream,
-            ),
-          )
-        })
-        .catch((e) => {
-          console.error(e)
-          setCallStatus(CallStatus.PermissionsDenied)
-        })
+      participants.current.add(contactUri)
+      leftMembers.current.delete(contactUri)
+      webRtcManager.addConnection(
+        webSocket,
+        account,
+        contactUri,
+        callData,
+        localStream,
+        screenShareLocalStream,
+        sessionId,
+      )
     },
-    [
-      account,
-      callData,
-      conversationId,
-      localStream,
-      callMembers,
-      peers,
-      screenShareLocalStream,
-      updateLocalStream,
-      webRtcManager,
-      webSocket,
-    ],
+    [account, callData, localStream, screenShareLocalStream, webRtcManager, webSocket],
   )
 
-  useEffect(() => {
-    if (callData?.role === 'caller' && callStatus === CallStatus.Ringing) {
-      const callJoinListener = (data: WebSocketMessageTable['onCallJoin']) => {
-        console.info('Received event on CallJoin', data, callData)
-        if (data.conversationId !== conversationId) {
-          console.warn('Wrong incoming conversationId, ignoring action')
-          return
-        }
-
-        setCallStatus(CallStatus.Connecting)
-
-        webRtcManager.addConnection(webSocket, account, data.senderId, callData, localStream, screenShareLocalStream)
-      }
-
-      webSocket.bind(WebSocketMessageType.onCallJoin, callJoinListener)
-
-      return () => {
-        webSocket.unbind(WebSocketMessageType.onCallJoin, callJoinListener)
-      }
-    }
-  }, [account, callData, callStatus, conversationId, localStream, screenShareLocalStream, webRtcManager, webSocket])
-
   const endCall = useCallback(() => {
-    if (!conversationId) {
+    if (!callData) {
       return
     }
 
     const callExit: WebSocketMessageTable['sendCallExit'] = {
-      conversationId,
+      conversationId: callData.conversationId,
+      sessionId: callData.sessionId,
     }
 
     console.info('Sending CallExit', callExit)
@@ -319,8 +256,147 @@ export const useCallManager = () => {
     webSocket.send(WebSocketMessageType.sendCallExit, callExit)
     setCallData(undefined)
     setCallStatus(CallStatus.Default)
+    participants.current = new Set()
+    leftMembers.current = new Set()
     // TODO: write in chat that the call ended
-  }, [webSocket, conversationId, closeConnection])
+  }, [webSocket, callData, closeConnection])
+
+  useEffect(() => {
+    const callInviteListener = ({
+      conversationId,
+      withVideoOn,
+      senderId,
+      sessionId,
+    }: WebSocketMessageTable['onCallInvite']) => {
+      if (callData?.conversationId === conversationId) {
+        // Another member started a call in the conversation of this one, not knowing about it: it is
+        // the same call.
+        if (isParticipating(callStatus)) {
+          if (callStatus === CallStatus.Ringing) {
+            setCallStatus(CallStatus.Connecting)
+          }
+          connect(senderId, sessionId)
+        } else {
+          participants.current.add(senderId)
+        }
+        return
+      }
+
+      if (callData) {
+        // TODO: Currently, we display a notification if already in a call.
+        //       In the future, we should handle receiving a call while already in another.
+        setAlertContent({
+          messageI18nKey: 'missed_incoming_call',
+          messageI18nContext: { conversationId },
+          severity: 'info',
+          alertOpen: true,
+        })
+        return
+      }
+
+      participants.current = new Set([senderId])
+      leftMembers.current = new Set()
+      setCallData({ conversationId, role: 'receiver', withVideoOn, sessionId: newCallSessionId(), callerUri: senderId })
+      navigate(`/conversation/${conversationId}`)
+    }
+
+    webSocket.bind(WebSocketMessageType.onCallInvite, callInviteListener)
+
+    return () => {
+      webSocket.unbind(WebSocketMessageType.onCallInvite, callInviteListener)
+    }
+  }, [webSocket, navigate, callData, callStatus, connect, setAlertContent])
+
+  const startCall = useCallback(
+    (conversationId: string, withVideoOn = false) => {
+      if (callStatus !== CallStatus.Default) {
+        return
+      }
+
+      const sessionId = newCallSessionId()
+      participants.current = new Set()
+      leftMembers.current = new Set()
+      setCallData({ conversationId, withVideoOn, role: 'caller', sessionId })
+      setCallStatus(CallStatus.Loading)
+      updateLocalStream()
+        .then(() => {
+          const callInvite: WebSocketMessageTable['sendCallInvite'] = {
+            conversationId: conversationId,
+            withVideoOn,
+            sessionId,
+          }
+
+          setCallStatus(CallStatus.Ringing)
+          setVideoStatus(withVideoOn ? VideoStatus.Camera : VideoStatus.Off)
+          webSocket.send(WebSocketMessageType.sendCallInvite, callInvite)
+        })
+        .catch((e) => {
+          console.error(e)
+          setCallStatus(CallStatus.PermissionsDenied)
+        })
+    },
+    [webSocket, updateLocalStream, callStatus],
+  )
+
+  const acceptCall = useCallback(
+    (withVideoOn: boolean) => {
+      if (!callData) {
+        console.warn('acceptCall without callData')
+        return
+      }
+      setCallStatus(CallStatus.Loading)
+      updateLocalStream()
+        .then(() => {
+          const callAccept: WebSocketMessageTable['sendCallJoin'] = {
+            conversationId: callData.conversationId,
+            sessionId: callData.sessionId,
+          }
+
+          setVideoStatus(withVideoOn ? VideoStatus.Camera : VideoStatus.Off)
+          setCallStatus(CallStatus.Connecting)
+          // The members in the call connect to this account when they hear it joined: it does not
+          // know who they are, and the members who are not in the call would not answer.
+          console.info('Sending CallJoin', callAccept)
+          webSocket.send(WebSocketMessageType.sendCallJoin, callAccept)
+        })
+        .catch((e) => {
+          console.error(e)
+          setCallStatus(CallStatus.PermissionsDenied)
+        })
+    },
+    [callData, updateLocalStream, webSocket],
+  )
+
+  useEffect(() => {
+    if (!callData) {
+      return
+    }
+
+    const callJoinListener = (data: WebSocketMessageTable['onCallJoin']) => {
+      console.info('Received event on CallJoin', data, callData)
+      if (data.conversationId !== callData.conversationId) {
+        console.warn('Wrong incoming conversationId, ignoring action')
+        return
+      }
+
+      if (!isParticipating(callStatus)) {
+        // This account has not answered yet: the member who joined connects to it once it does.
+        participants.current.add(data.senderId)
+        return
+      }
+
+      if (callStatus === CallStatus.Ringing) {
+        setCallStatus(CallStatus.Connecting)
+      }
+      connect(data.senderId, data.sessionId)
+    }
+
+    webSocket.bind(WebSocketMessageType.onCallJoin, callJoinListener)
+
+    return () => {
+      webSocket.unbind(WebSocketMessageType.onCallJoin, callJoinListener)
+    }
+  }, [callData, callStatus, connect, webSocket])
 
   useEffect(() => {
     const callExitListener = (data: WebSocketMessageTable['onCallExit']) => {
@@ -330,7 +406,23 @@ export const useCallManager = () => {
         return
       }
 
-      endCall()
+      const { senderId, sessionId } = data
+      if (webRtcManager.hasConnection(senderId) && !webRtcManager.hasSession(senderId, sessionId)) {
+        // The exit of an earlier session of a member who came back since.
+        return
+      }
+
+      webRtcManager.removeConnection(senderId)
+      participants.current.delete(senderId)
+      leftMembers.current.add(senderId)
+
+      const isOver =
+        callStatus === CallStatus.Ringing
+          ? peers.length > 0 && peers.every(({ contact }) => leftMembers.current.has(contact.uri))
+          : participants.current.size === 0
+      if (isOver) {
+        endCall()
+      }
       // TODO: write in chat that the call ended
     }
 
@@ -338,27 +430,79 @@ export const useCallManager = () => {
     return () => {
       webSocket.unbind(WebSocketMessageType.onCallExit, callExitListener)
     }
-  }, [webSocket, endCall, conversationId])
+  }, [webSocket, endCall, conversationId, callStatus, peers, webRtcManager])
 
   useEffect(() => {
-    if (
-      callStatus === CallStatus.Connecting &&
-      (iceConnectionState === 'connected' || iceConnectionState === 'completed')
-    ) {
+    if (!callData || !isParticipating(callStatus)) {
+      return
+    }
+
+    const webRtcDescriptionListener = (data: WebSocketMessageTable['onWebRtcDescription']) => {
+      if (data.conversationId !== callData.conversationId) {
+        console.warn('Wrong incoming conversationId, ignoring action')
+        return
+      }
+
+      if (!webRtcManager.hasSession(data.senderId, data.sessionId)) {
+        if (data.sdp.type !== 'offer') {
+          // The answer to a connection this account has replaced or closed since.
+          return
+        }
+        // A member in the call connects to this account, which just joined, or came back itself.
+        if (callStatus === CallStatus.Ringing) {
+          setCallStatus(CallStatus.Connecting)
+        }
+        connect(data.senderId, data.sessionId)
+      }
+      void webRtcManager.receiveDescription(data.senderId, data.sessionId, data.sdp)
+    }
+
+    const webRtcIceCandidateListener = (data: WebSocketMessageTable['onWebRtcIceCandidate']) => {
+      if (data.conversationId !== callData.conversationId) {
+        console.warn('Wrong incoming conversationId, ignoring action')
+        return
+      }
+
+      void webRtcManager.receiveIceCandidate(data.senderId, data.sessionId, data.candidate)
+    }
+
+    webSocket.bind(WebSocketMessageType.onWebRtcDescription, webRtcDescriptionListener)
+    webSocket.bind(WebSocketMessageType.onWebRtcIceCandidate, webRtcIceCandidateListener)
+
+    return () => {
+      webSocket.unbind(WebSocketMessageType.onWebRtcDescription, webRtcDescriptionListener)
+      webSocket.unbind(WebSocketMessageType.onWebRtcIceCandidate, webRtcIceCandidateListener)
+    }
+  }, [callData, callStatus, connect, webRtcManager, webSocket])
+
+  useEffect(() => {
+    if (callStatus === CallStatus.Connecting && isConnected) {
       console.info('Changing call status to InCall')
       void Promise.resolve().then(() => {
         setCallStatus(CallStatus.InCall)
         setCallStartTime(Date.now())
       })
     }
-  }, [iceConnectionState, callStatus])
+  }, [isConnected, callStatus])
 
   useEffect(() => {
-    if (iceConnectionState === 'disconnected' || iceConnectionState === 'failed') {
-      console.info('ICE connection disconnected or failed, ending call')
-      void Promise.resolve().then(endCall)
+    if (!hasLostConnection) {
+      return
     }
-  }, [iceConnectionState, callStatus, videoStatus, endCall])
+
+    void Promise.resolve().then(() => {
+      const lostContactUris = webRtcManager.removeLostConnections()
+      if (lostContactUris.length === 0) {
+        return
+      }
+
+      console.info('ICE connection disconnected or failed, leaving out', lostContactUris)
+      lostContactUris.forEach((contactUri) => participants.current.delete(contactUri))
+      if (participants.current.size === 0) {
+        endCall()
+      }
+    })
+  }, [hasLostConnection, webRtcManager, endCall])
 
   useEffect(() => {
     const checkStatusTimeout = () => {
@@ -378,7 +522,7 @@ export const useCallManager = () => {
       callData,
       callConversationInfos,
       callMembers,
-      remoteStreams,
+      remoteParticipants,
       isAudioOn,
       setIsAudioOn,
       videoStatus,
@@ -397,7 +541,7 @@ export const useCallManager = () => {
       callData,
       callConversationInfos,
       callMembers,
-      remoteStreams,
+      remoteParticipants,
       isAudioOn,
       videoStatus,
       setIsAudioOn,

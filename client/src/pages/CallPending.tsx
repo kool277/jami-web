@@ -165,15 +165,15 @@ const CallPendingDetails = ({
 export const CallPendingCallerInterface = () => {
   const { callStatus } = useCallManagerContext()
   const { t } = useTranslation()
-  const { members } = useConversationContext()
-  const memberName = useMemo(() => members[0].getDisplayName(), [members])
+  // A call rings every member of the conversation.
+  const { conversationDisplayName } = useConversationContext()
 
   let title = t('loading')
 
   switch (callStatus) {
     case CallStatus.Ringing:
       title = t('calling', {
-        member0: memberName,
+        member0: conversationDisplayName,
       })
       break
     case CallStatus.Connecting:
@@ -196,11 +196,15 @@ export const CallPendingCallerInterface = () => {
 
 export const CallPendingReceiverInterface = () => {
   const { state } = useLocation()
-  const { callStatus } = useCallManagerContext()
+  const { callStatus, callData } = useCallManagerContext()
 
   const { t } = useTranslation()
-  const { members } = useConversationContext()
-  const memberName = useMemo(() => members[0].getDisplayName(), [members])
+  const { members, conversationDisplayName } = useConversationContext()
+  const memberName = useMemo(
+    () =>
+      members.find((member) => member.contact.uri === callData?.callerUri)?.getDisplayName() ?? conversationDisplayName,
+    [members, callData, conversationDisplayName],
+  )
 
   let title = t('loading')
 

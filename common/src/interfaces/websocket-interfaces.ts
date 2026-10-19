@@ -129,6 +129,10 @@ export interface WithReceiver {
 
 export interface CallAction {
   conversationId: string
+  // The sender's attempt at the call: a new one each time it calls or answers, so that a member who
+  // leaves and joins again gets a new connection, and a late message of its earlier attempt is
+  // told apart. Older clients leave it out.
+  sessionId?: string
 }
 
 export interface CallInvite extends CallAction {
@@ -138,9 +142,8 @@ export interface CallInvite extends CallAction {
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface CallJoin extends CallAction {}
 
-export interface CallExit {
-  conversationId: string
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CallExit extends CallAction {}
 
 export interface WebRtcSdp extends CallAction {
   sdp: RTCSessionDescriptionInit

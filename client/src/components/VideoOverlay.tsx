@@ -84,7 +84,7 @@ const VideoOverlay = ({ onClick, size = 'medium', ...props }: VideoOverlayProps)
 }
 
 export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId: string }) => {
-  const { remoteStreams } = useCallManagerContext()
+  const { remoteParticipants } = useCallManagerContext()
   const {
     currentMediaDeviceIds: {
       audiooutput: { id: audioOutDeviceId },
@@ -92,9 +92,8 @@ export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId:
   } = useUserMediaContext()
   const navigate = useNavigate()
 
-  // TODO: For now, `remoteStream` is the first remote stream in the array.
-  //       There should only be one in the array, but we should make sure this is right.
-  const stream = remoteStreams?.at(0)
+  // The overlay shows one participant. The others of a group call stay heard.
+  const [shownParticipant, ...heardParticipants] = remoteParticipants
 
   return (
     <Box
@@ -112,7 +111,7 @@ export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId:
         }}
       >
         <VideoOverlay
-          stream={stream}
+          stream={shownParticipant?.stream}
           audioOutDeviceId={audioOutDeviceId}
           onClick={() => {
             navigate(`/conversation/${callConversationId}`)
@@ -120,6 +119,9 @@ export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId:
           size={'small'}
         />
       </Box>
+      {heardParticipants.map(({ uri, stream }) => (
+        <VideoStream key={uri} stream={stream} audioOutDeviceId={audioOutDeviceId} hidden />
+      ))}
     </Box>
   )
 }

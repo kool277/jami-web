@@ -30,6 +30,9 @@ export type RTCPeerConnectionInfos = {
 
 export class RTCPeerConnectionHandler {
   private readonly connection: RTCPeerConnection
+  private readonly webSocket: IWebSocketContext
+  private readonly contactUri: string
+  private readonly callData: CallData
   private remoteStreams: readonly MediaStream[] = []
   private iceConnectionState: RTCIceConnectionState = 'new'
   private isReadyForIceCandidates = false
@@ -50,7 +53,6 @@ export class RTCPeerConnectionHandler {
   //       - https://stackoverflow.com/questions/57256828/how-to-fix-invalidstateerror-cannot-add-ice-candidate-when-there-is-no-remote-s
   private iceCandidateQueue: RTCIceCandidate[] = []
 
-  private cleaningFunctions: (() => void)[] = []
   private listener: Listener
 
   getInfos(): RTCPeerConnectionInfos {
@@ -69,12 +71,14 @@ export class RTCPeerConnectionHandler {
     screenShareLocalStream: MediaStream | undefined,
     listener: Listener,
   ) {
+    this.webSocket = webSocket
+    this.contactUri = contactUri
+    this.callData = callData
     this.isPolite = account.getUri() < contactUri
     this.listener = listener
     const iceServers = this.getIceServers(account)
     this.connection = new RTCPeerConnection({ iceServers })
-    this.setConnectionListeners(webSocket, callData.conversationId, contactUri)
-    this.setWebSocketListeners(webSocket, callData.conversationId, contactUri)
+    this.setConnectionListeners()
     this.updateLocalStreams(localStream, screenShareLocalStream)
   }
 
@@ -129,10 +133,44 @@ export class RTCPeerConnectionHandler {
     }
   }
 
+  // The peer's offer or answer. The caller routes to each handler the signaling of its own peer.
+  async receiveDescription(remoteDescription: RTCSessionDescriptionInit) {
+    console.info('Received WebRTC description', remoteDescription)
+    const offerCollision =
+      remoteDescription.type === 'offer' && (this.makingOffer || this.connection.signalingState !== 'stable')
+
+    this.ignoreOffer = !this.isPolite && offerCollision
+    if (this.ignoreOffer) {
+      return
+    }
+
+    await this.connection.setRemoteDescription(remoteDescription)
+    if (remoteDescription.type === 'offer') {
+      await this.sendLocalDescription()
+    }
+    await this.addQueuedIceCandidates()
+  }
+
+  async receiveIceCandidate(candidate: RTCIceCandidate | undefined) {
+    if (!candidate) {
+      return
+    }
+
+    if (this.isReadyForIceCandidates) {
+      try {
+        await this.connection.addIceCandidate(candidate)
+      } catch (err) {
+        if (!this.ignoreOffer) {
+          console.error(err)
+        }
+      }
+    } else {
+      this.iceCandidateQueue.push(candidate)
+    }
+  }
+
   disconnect() {
     this.connection?.close()
-    this.cleaningFunctions.forEach((func) => func())
-    this.cleaningFunctions = []
     this.emitChange()
   }
 
@@ -156,108 +194,46 @@ export class RTCPeerConnectionHandler {
     return iceServers
   }
 
-  private async sendLocalDescription(webSocket: IWebSocketContext, conversationId: string, contactUri: string) {
+  private async sendLocalDescription() {
     await this.connection.setLocalDescription()
     const sdp = this.connection.localDescription
     if (sdp) {
       const webRtcDescription: WebSocketMessageTable['sendWebRtcDescription'] = {
-        receiverId: contactUri,
-        conversationId: conversationId,
+        receiverId: this.contactUri,
+        conversationId: this.callData.conversationId,
+        sessionId: this.callData.sessionId,
         sdp,
       }
-      webSocket.send(WebSocketMessageType.sendWebRtcDescription, webRtcDescription)
+      this.webSocket.send(WebSocketMessageType.sendWebRtcDescription, webRtcDescription)
       console.info('Sending webRtcDescription', webRtcDescription)
     }
   }
 
-  private setWebSocketListeners(webSocket: IWebSocketContext, conversationId: string, contactUri: string) {
-    const addQueuedIceCandidates = async () => {
-      console.info('WebRTC remote description has been set. Ready to receive ICE candidates')
-      this.isReadyForIceCandidates = true
-      if (this.iceCandidateQueue.length !== 0) {
-        console.warn(
-          'Found queued ICE candidates that were added before `setRemoteDescription` was called. ' +
-            'Adding queued ICE candidates...',
-          this.iceCandidateQueue,
-        )
+  private async addQueuedIceCandidates() {
+    console.info('WebRTC remote description has been set. Ready to receive ICE candidates')
+    this.isReadyForIceCandidates = true
+    if (this.iceCandidateQueue.length !== 0) {
+      console.warn(
+        'Found queued ICE candidates that were added before `setRemoteDescription` was called. ' +
+          'Adding queued ICE candidates...',
+        this.iceCandidateQueue,
+      )
 
-        await Promise.all(
-          this.iceCandidateQueue.map((iceCandidate) => this.connection.addIceCandidate(iceCandidate)),
-        ).catch((err) => {
-          if (!this.ignoreOffer) {
-            console.error(err)
-          }
-        })
-      }
-    }
-
-    const webRtcDescriptionListener = async (data: WebSocketMessageTable['onWebRtcDescription']) => {
-      console.info('Received event on WebRtcAnswer', data)
-      if (data.conversationId !== conversationId) {
-        console.warn('Wrong incoming conversationId, ignoring action')
-        return
-      }
-      // Every handler of the call hears every description: keep the ones of this handler's peer.
-      if (data.senderId !== contactUri) {
-        return
-      }
-
-      const remoteDescription = data.sdp
-      const offerCollision =
-        remoteDescription.type === 'offer' && (this.makingOffer || this.connection.signalingState !== 'stable')
-
-      this.ignoreOffer = !this.isPolite && offerCollision
-      if (this.ignoreOffer) {
-        return
-      }
-
-      await this.connection.setRemoteDescription(remoteDescription)
-      if (remoteDescription.type === 'offer') {
-        await this.sendLocalDescription(webSocket, conversationId, contactUri)
-      }
-      await addQueuedIceCandidates()
-    }
-
-    const webRtcIceCandidateListener = async (data: WebSocketMessageTable['onWebRtcIceCandidate']) => {
-      if (data.conversationId !== conversationId) {
-        console.warn('Wrong incoming conversationId, ignoring action')
-        return
-      }
-      if (data.senderId !== contactUri) {
-        return
-      }
-
-      if (!data.candidate) {
-        return
-      }
-
-      if (this.isReadyForIceCandidates) {
-        try {
-          await this.connection.addIceCandidate(data.candidate)
-        } catch (err) {
-          if (!this.ignoreOffer) {
-            console.error(err)
-          }
+      await Promise.all(
+        this.iceCandidateQueue.map((iceCandidate) => this.connection.addIceCandidate(iceCandidate)),
+      ).catch((err) => {
+        if (!this.ignoreOffer) {
+          console.error(err)
         }
-      } else {
-        this.iceCandidateQueue.push(data.candidate)
-      }
+      })
     }
-
-    webSocket.bind(WebSocketMessageType.onWebRtcDescription, webRtcDescriptionListener)
-    webSocket.bind(WebSocketMessageType.onWebRtcIceCandidate, webRtcIceCandidateListener)
-
-    this.cleaningFunctions.push(() => {
-      webSocket.unbind(WebSocketMessageType.onWebRtcDescription, webRtcDescriptionListener)
-      webSocket.unbind(WebSocketMessageType.onWebRtcIceCandidate, webRtcIceCandidateListener)
-    })
   }
 
-  private setConnectionListeners(webSocket: IWebSocketContext, conversationId: string, contactUri: string) {
+  private setConnectionListeners() {
     this.connection.onnegotiationneeded = async () => {
       try {
         this.makingOffer = true
-        await this.sendLocalDescription(webSocket, conversationId, contactUri)
+        await this.sendLocalDescription()
       } catch (err) {
         // This is not an error if there was a collision
         console.warn(err)
@@ -277,13 +253,14 @@ export class RTCPeerConnectionHandler {
     this.connection.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
       if (event.candidate) {
         const webRtcIceCandidate: WebSocketMessageTable['sendWebRtcIceCandidate'] = {
-          receiverId: contactUri,
-          conversationId: conversationId,
+          receiverId: this.contactUri,
+          conversationId: this.callData.conversationId,
+          sessionId: this.callData.sessionId,
           candidate: event.candidate,
         }
 
         // Send ice candidates as soon as they're found. This is called "trickle ice"
-        webSocket.send(WebSocketMessageType.sendWebRtcIceCandidate, webRtcIceCandidate)
+        this.webSocket.send(WebSocketMessageType.sendWebRtcIceCandidate, webRtcIceCandidate)
       }
     }
 

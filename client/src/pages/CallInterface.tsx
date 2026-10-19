@@ -45,6 +45,7 @@ import {
   CallingVolumeButton,
 } from '../components/CallButtons.js'
 import CallChatDrawer from '../components/CallChatDrawer.js'
+import CallParticipantsGrid from '../components/CallParticipantsGrid.js'
 import { type ExpandableButtonProps } from '../components/common/ExpandableIconButton.js'
 import VideoOverlay from '../components/VideoOverlay.js'
 import VideoStream from '../components/VideoStream.js'
@@ -98,6 +99,14 @@ interface Props {
   children?: ReactNode
 }
 
+const backgroundStyle = {
+  zIndex: -1,
+  backgroundColor: 'black',
+  position: 'absolute',
+  height: '100%',
+  width: '100%',
+} as const
+
 const CallInterface = () => {
   const {
     localStream,
@@ -106,7 +115,7 @@ const CallInterface = () => {
       audiooutput: { id: audioOutDeviceId },
     },
   } = useUserMediaContext()
-  const { remoteStreams, videoStatus } = useCallManagerContext()
+  const { remoteParticipants, videoStatus } = useCallManagerContext()
   const remoteVideoRef = useRef<VideoElementWithSinkId | null>(null)
   const gridItemRef = useRef<HTMLDivElement | null>(null)
   const [isLocalVideoZoomed, setIsLocalVideoZoomed] = useState(false)
@@ -122,9 +131,8 @@ const CallInterface = () => {
 
   const hasSetSinkId = typeof HTMLMediaElement !== 'undefined' && 'setSinkId' in HTMLMediaElement.prototype
 
-  // TODO: For now, `remoteStream` is the first remote stream in the array.
-  //       There should only be one in the array, but we should make sure this is right.
-  const remoteStream = remoteStreams?.at(0)
+  // With one other participant, its video fills the screen. With more, every participant gets a tile.
+  const isGroupView = remoteParticipants.length > 1
 
   return (
     <Box
@@ -133,12 +141,16 @@ const CallInterface = () => {
         flexGrow: 1,
       }}
     >
-      <VideoStream
-        ref={remoteVideoRef}
-        stream={remoteStream}
-        audioOutDeviceId={audioOutDeviceId}
-        style={{ zIndex: -1, backgroundColor: 'black', position: 'absolute', height: '100%', width: '100%' }}
-      />
+      {isGroupView ? (
+        <Box sx={backgroundStyle} />
+      ) : (
+        <VideoStream
+          ref={remoteVideoRef}
+          stream={remoteParticipants[0]?.stream}
+          audioOutDeviceId={audioOutDeviceId}
+          style={backgroundStyle}
+        />
+      )}
       <Box
         sx={{
           flexGrow: 1,
@@ -156,13 +168,17 @@ const CallInterface = () => {
             position: 'relative',
           }}
         >
-          <VideoOverlay
-            stream={stream}
-            hidden={!stream}
-            muted
-            size={isLocalVideoZoomed ? 'large' : 'medium'}
-            onClick={() => setIsLocalVideoZoomed((v) => !v)}
-          />
+          {isGroupView ? (
+            <CallParticipantsGrid localStream={stream} audioOutDeviceId={audioOutDeviceId} />
+          ) : (
+            <VideoOverlay
+              stream={stream}
+              hidden={!stream}
+              muted
+              size={isLocalVideoZoomed ? 'large' : 'medium'}
+              onClick={() => setIsLocalVideoZoomed((v) => !v)}
+            />
+          )}
         </Box>
         <Grid container>
           <Grid size="grow" />
