@@ -21,52 +21,21 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { IWebSocketContext } from '../contexts/WebSocketProvider.js'
 import { Account } from '../models/account.js'
 import { CallData } from '../services/CallManager.js'
+import { FakeRTCPeerConnection, stream, track } from '../test/fakeWebRtc.js'
 import { RTCPeerConnectionHandler } from './RtcPeerConnectionHandler.js'
-
-type FakeSender = { track: MediaStreamTrack | null; replaceTrack: ReturnType<typeof vi.fn> }
-
-class FakeRTCPeerConnection {
-  iceConnectionState = 'new'
-  signalingState = 'stable'
-  localDescription = null
-  senders: FakeSender[] = []
-  setRemoteDescription = vi.fn(async () => {})
-  setLocalDescription = vi.fn(async () => {})
-  addIceCandidate = vi.fn(async () => {})
-
-  addTrack(track: MediaStreamTrack) {
-    const sender: FakeSender = {
-      track,
-      replaceTrack: vi.fn(async (newTrack: MediaStreamTrack | null) => {
-        sender.track = newTrack
-      }),
-    }
-    this.senders.push(sender)
-    return sender
-  }
-}
-
-const track = (kind: 'audio' | 'video') => ({ kind }) as MediaStreamTrack
-const stream = (audio: MediaStreamTrack[], video: MediaStreamTrack[]) =>
-  ({ getAudioTracks: () => audio, getVideoTracks: () => video }) as unknown as MediaStream
 
 function createHandler(localStream: MediaStream) {
   const webSocket = { bind: vi.fn(), unbind: vi.fn(), send: vi.fn() } as unknown as IWebSocketContext
   const account = { getUri: () => 'bob', details: {} } as unknown as Account
-  const callData = { conversationId: 'conversation', withVideoOn: true, role: 'caller' } as CallData
+  const callData: CallData = { conversationId: 'conversation', withVideoOn: true, role: 'caller', sessionId: 'bob-1' }
   const handler = new RTCPeerConnectionHandler(webSocket, account, 'carol', callData, localStream, undefined, vi.fn())
-  // The handler keeps its connection private: reach it to inspect the senders.
-  const connection = (handler as unknown as { connection: FakeRTCPeerConnection }).connection
-  // The signaling listeners the handler bound, to play messages to it.
-  const listener = (type: WebSocketMessageType) =>
-    vi.mocked(webSocket.bind).mock.calls.find(([boundType]) => boundType === type)?.[1] as (
-      data: unknown,
-    ) => Promise<void>
-  return { handler, connection, listener }
+  const connection = FakeRTCPeerConnection.instances.at(-1)!
+  return { handler, connection, webSocket }
 }
 
 describe('RTCPeerConnectionHandler', () => {
   beforeEach(() => {
+    FakeRTCPeerConnection.instances = []
     vi.stubGlobal('RTCPeerConnection', FakeRTCPeerConnection)
   })
 
@@ -100,24 +69,32 @@ describe('RTCPeerConnectionHandler', () => {
     expect(videoSender.replaceTrack).toHaveBeenCalledWith(newVideo)
   })
 
-  it('ignores the descriptions and ICE candidates other participants send', async () => {
-    const { connection, listener } = createHandler(stream([track('audio')], []))
-    const onDescription = listener(WebSocketMessageType.onWebRtcDescription)
-    const onIceCandidate = listener(WebSocketMessageType.onWebRtcIceCandidate)
-    const offer = { type: 'offer', sdp: 'v=0' }
-    const candidate = { candidate: 'candidate:1 1 udp 1 192.0.2.1 9 typ host' }
+  it('answers an offer, telling the peer which session of this account answers', async () => {
+    const { handler, connection, webSocket } = createHandler(stream([track('audio')], []))
+    const offer: RTCSessionDescriptionInit = { type: 'offer', sdp: 'v=0' }
 
-    // In a group, every participant receives the signaling of every pair it is part of.
-    await onDescription({ conversationId: 'conversation', senderId: 'dave', sdp: offer })
-    expect(connection.setRemoteDescription).not.toHaveBeenCalled()
+    await handler.receiveDescription(offer)
 
-    await onDescription({ conversationId: 'conversation', senderId: 'carol', sdp: offer })
     expect(connection.setRemoteDescription).toHaveBeenCalledWith(offer)
+    expect(webSocket.send).toHaveBeenCalledWith(WebSocketMessageType.sendWebRtcDescription, {
+      receiverId: 'carol',
+      conversationId: 'conversation',
+      sessionId: 'bob-1',
+      sdp: { type: 'answer', sdp: 'v=0 answer' },
+    })
+  })
 
-    await onIceCandidate({ conversationId: 'conversation', senderId: 'dave', candidate })
-    expect(connection.addIceCandidate).not.toHaveBeenCalled()
+  it('sends its ICE candidates with the session of this account', () => {
+    const { connection, webSocket } = createHandler(stream([track('audio')], []))
+    const candidate = { candidate: 'candidate:1 1 udp 1 192.0.2.1 9 typ host' } as RTCIceCandidate
 
-    await onIceCandidate({ conversationId: 'conversation', senderId: 'carol', candidate })
-    expect(connection.addIceCandidate).toHaveBeenCalledWith(candidate)
+    connection.onicecandidate?.({ candidate } as RTCPeerConnectionIceEvent)
+
+    expect(webSocket.send).toHaveBeenCalledWith(WebSocketMessageType.sendWebRtcIceCandidate, {
+      receiverId: 'carol',
+      conversationId: 'conversation',
+      sessionId: 'bob-1',
+      candidate,
+    })
   })
 })

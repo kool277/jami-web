@@ -84,7 +84,7 @@ const VideoOverlay = ({ onClick, size = 'medium', ...props }: VideoOverlayProps)
 }
 
 export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId: string }) => {
-  const { remoteStreams } = useCallManagerContext()
+  const { remoteParticipants } = useCallManagerContext()
   const {
     currentMediaDeviceIds: {
       audiooutput: { id: audioOutDeviceId },
@@ -92,9 +92,8 @@ export const RemoteVideoOverlay = ({ callConversationId }: { callConversationId:
   } = useUserMediaContext()
   const navigate = useNavigate()
 
-  // TODO: For now, `remoteStream` is the first remote stream in the array.
-  //       There should only be one in the array, but we should make sure this is right.
-  const stream = remoteStreams?.at(0)
+  // TODO: For now, `stream` is the stream of the first participant. A group call has more.
+  const stream = remoteParticipants.at(0)?.stream
 
   return (
     <Box

@@ -106,7 +106,7 @@ const CallInterface = () => {
       audiooutput: { id: audioOutDeviceId },
     },
   } = useUserMediaContext()
-  const { remoteStreams, videoStatus } = useCallManagerContext()
+  const { remoteParticipants, videoStatus } = useCallManagerContext()
   const remoteVideoRef = useRef<VideoElementWithSinkId | null>(null)
   const gridItemRef = useRef<HTMLDivElement | null>(null)
   const [isLocalVideoZoomed, setIsLocalVideoZoomed] = useState(false)
@@ -122,9 +122,8 @@ const CallInterface = () => {
 
   const hasSetSinkId = typeof HTMLMediaElement !== 'undefined' && 'setSinkId' in HTMLMediaElement.prototype
 
-  // TODO: For now, `remoteStream` is the first remote stream in the array.
-  //       There should only be one in the array, but we should make sure this is right.
-  const remoteStream = remoteStreams?.at(0)
+  // TODO: For now, `remoteStream` is the stream of the first participant. A group call has more.
+  const remoteStream = remoteParticipants.at(0)?.stream
 
   return (
     <Box
