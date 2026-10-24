@@ -15,12 +15,14 @@
  * License along with this program.  If not, see
  * <https://www.gnu.org/licenses/>.
  */
-import { type PaletteMode } from '@mui/material/styles'
+import { getContrastRatio, type PaletteMode } from '@mui/material/styles'
 import { describe, expect, it } from 'vitest'
 
 import { buildDefaultTheme } from './Default.js'
 
 const modes: PaletteMode[] = ['light', 'dark']
+
+const khakiAccents: Record<PaletteMode, string> = { light: '#666600', dark: '#CACA73' }
 
 /**
  * The slots the application reads directly off the theme. A slot misspelt in
@@ -59,6 +61,46 @@ describe('default theme', () => {
       expect(overrides?.contained?.background).toBe(theme.palette.primary.dark)
       expect(overrides?.outlined?.color).toBe(theme.palette.primary.dark)
       expect(overrides?.outlined?.borderColor).toBe(theme.palette.primary.dark)
+    })
+  }
+
+  for (const mode of modes) {
+    it(`draws the ${mode} accent in khaki`, () => {
+      const { primary } = buildDefaultTheme(mode, 'ltr').palette
+
+      expect(primary.main).toBe(khakiAccents[mode])
+      expect(primary.dark).toBe(khakiAccents[mode])
+    })
+  }
+
+  for (const mode of modes) {
+    it(`keeps text on and beside the ${mode} accent at WCAG AA contrast`, () => {
+      const { primary, background } = buildDefaultTheme(mode, 'ltr').palette
+
+      for (const fill of [primary.dark, primary.hover ?? primary.dark]) {
+        expect(getContrastRatio(primary.contrastText, fill)).toBeGreaterThanOrEqual(4.5)
+      }
+      // Links, selected navigation items and outlined buttons draw the accent as text.
+      for (const surface of [background.default, background.paper, primary.light]) {
+        expect(getContrastRatio(primary.dark, surface)).toBeGreaterThanOrEqual(4.5)
+      }
+    })
+  }
+
+  for (const mode of modes) {
+    it(`moves ${mode} accent fills to a hover tone of their own`, () => {
+      const theme = buildDefaultTheme(mode, 'ltr')
+      const { hover } = theme.palette.primary
+      const fab = theme.components?.MuiFab?.styleOverrides?.primary as Record<string, Record<string, unknown>>
+      const chipVariants = (theme.components?.MuiChip?.styleOverrides?.root as { variants: { style: object }[] })
+        .variants
+
+      expect(hover).toBeDefined()
+      expect(hover).not.toBe(theme.palette.primary.main)
+      expect(fab['&:hover'].backgroundColor).toBe(hover)
+      expect(chipVariants.map(({ style }) => style)).toContainEqual({
+        '&:hover, &.Mui-focusVisible': { backgroundColor: hover },
+      })
     })
   }
 
