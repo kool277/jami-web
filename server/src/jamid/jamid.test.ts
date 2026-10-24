@@ -24,6 +24,7 @@ type SignalHandlers = Record<string, (...args: unknown[]) => void>
 let signalHandlers: SignalHandlers = {}
 let accountDetailsCalls: string[] = []
 let nextAccountId = 'account-1'
+let conversationMembers: Record<string, { uri: string; role: string }[]> = {}
 
 class MockStringMap {
   private entries = new Map<string, string>()
@@ -41,6 +42,7 @@ const jamiSwig = {
     return { 'Account.username': `uri-of-${accountId}` }
   },
   StringMap: MockStringMap,
+  getConversationMembers: (_accountId: string, conversationId: string) => conversationMembers[conversationId] ?? [],
   addAccount: () => nextAccountId,
   monitor: () => undefined,
   fini: () => undefined,
@@ -128,5 +130,76 @@ describe('Jamid.getLinkToken', () => {
     const values = await pending
     assert.equal(values.accountId, 'mine')
     assert.deepEqual(values.details, { token: 'jami-auth://mine' })
+  })
+})
+
+describe('Jamid account messages from peers', () => {
+  const ALICE = 'a'.repeat(40)
+  const MALLORY = 'b'.repeat(40)
+  const message = (type: string, data: Record<string, unknown>) => ({
+    'application/json': JSON.stringify({ type, data }),
+  })
+  const offer = { conversationId: 'conversation', senderId: ALICE, sdp: { type: 'offer', sdp: 'v=0' } }
+
+  let sent: unknown[][]
+  let parseCallMessage: (signal: { accountId: string; from: string; payload: Record<string, string> }) => unknown
+
+  before(async () => {
+    const specifier = './jamid.js?jamid-account-messages-test'
+    const module = (await import(specifier)) as {
+      Jamid: new (...args: unknown[]) => unknown
+      parseCallMessage: typeof parseCallMessage
+    }
+    parseCallMessage = module.parseCallMessage
+    new module.Jamid(
+      { send: (...args: unknown[]) => sent.push(args) },
+      { getConfig: () => ({ noLocalMediaEnabled: false }) },
+    )
+  })
+
+  beforeEach(() => {
+    sent = []
+    conversationMembers = { conversation: [{ uri: ALICE, role: 'member' }] }
+  })
+
+  it('gives the call message of a member to the browser', async () => {
+    signalHandlers.IncomingAccountMessage('account-1', ALICE, message('onWebRtcDescription', offer))
+    await setImmediateAsync()
+
+    assert.deepEqual(sent, [['account-1', 'onWebRtcDescription', offer]])
+  })
+
+  it('drops a message from someone who is not a member of the conversation', async () => {
+    conversationMembers = { conversation: [{ uri: ALICE, role: 'banned' }] }
+    signalHandlers.IncomingAccountMessage('account-1', ALICE, message('onWebRtcDescription', offer))
+    await setImmediateAsync()
+
+    assert.deepEqual(sent, [])
+  })
+
+  it('drops a message that claims another sender than the one that sent it', () => {
+    const forged = { accountId: 'account-1', from: MALLORY, payload: message('onWebRtcDescription', offer) }
+    assert.equal(parseCallMessage(forged), undefined)
+  })
+
+  it('cannot check the sender with a daemon binding that passes the message ID', () => {
+    const signal = { accountId: 'account-1', from: '', payload: message('onCallInvite', offer) }
+    assert.notEqual(parseCallMessage(signal), undefined)
+  })
+
+  it('drops anything but call messages, without throwing', async () => {
+    const payloads = [
+      { 'application/json': 'not json' },
+      { 'text/plain': 'hello' },
+      message('AccountDetails', { conversationId: 'conversation', senderId: ALICE }),
+      message('onCallInvite', { senderId: ALICE }),
+      { 'application/json': 'null' },
+    ]
+    for (const payload of payloads) {
+      signalHandlers.IncomingAccountMessage('account-1', ALICE, payload)
+    }
+    await setImmediateAsync()
+
+    assert.deepEqual(sent, [])
   })
 })
