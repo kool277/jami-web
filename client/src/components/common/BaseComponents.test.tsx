@@ -163,7 +163,7 @@ describe('BaseButton', () => {
     expect(button).toHaveStyle({ borderRadius: '9999px' })
     expect(button).toHaveStyle({
       backgroundColor: theme.palette.primary.dark,
-      color: theme.palette.getContrastText(theme.palette.primary.dark),
+      color: theme.palette.primary.contrastText,
     })
     expect(dialog).toHaveStyle({ backgroundColor: theme.palette.background.paper })
     expect(button.parentElement).toHaveAttribute('dir', direction)

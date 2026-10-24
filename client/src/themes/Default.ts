@@ -36,16 +36,28 @@ declare module '@mui/material/styles' {
       itemPadding: string
     }
   }
+
+  interface PaletteColor {
+    hover?: string
+  }
+
+  interface SimplePaletteColorOptions {
+    hover?: string
+  }
 }
 
+// The accent is one khaki per mode, in both `main` and `dark`: in light mode the ramp has no lighter
+// tone that keeps white text at 4.5:1, and `main` carries text (focused labels, badges, chips).
+// `hover` is the tone an accent fill moves to on hover and focus, which MUI takes from `dark`.
 const palettes = {
   light: {
     palette: {
       mode: 'light' as PaletteMode,
       primary: {
-        light: '#E5EEF5', // same as "#0056991A"
-        main: '#0071C9',
-        dark: '#005699',
+        light: '#EDEDCF',
+        main: '#666600',
+        dark: '#666600',
+        hover: '#4D4D00',
       },
       error: {
         main: '#CC0022',
@@ -87,11 +99,14 @@ const palettes = {
       mode: 'dark' as PaletteMode,
       // The ramp inverts between modes on purpose. `light` is always the subtle surface
       // tint and `dark` always the strong accent, so on dark surfaces they swap lightness,
-      // the same way a Material tonal palette moves from tone 40 to tone 80.
+      // the same way a Material tonal palette moves from tone 40 to tone 80. Text on the
+      // light accent is the ramp's darkest tone rather than MUI's near-black.
       primary: {
-        light: '#0A2A40',
-        main: '#5CB8FF',
-        dark: '#8FCBFF',
+        light: '#333300',
+        main: '#CACA73',
+        dark: '#CACA73',
+        hover: '#DCDCA3',
+        contrastText: '#333300',
       },
       error: {
         main: '#FF6B7A',
@@ -158,7 +173,10 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
   // The button accent is the strong end of the primary ramp in both modes, so it stays in step
   // with the palette instead of drifting into a colour of its own.
   const accent = palette.primary.dark
-  const onAccent = palette.getContrastText(accent)
+  // `main` and `dark` coincide, so the contrast text the palette defines for `main` is the one for
+  // the accent too.
+  const onAccent = palette.primary.contrastText
+  const accentHover = palette.primary.hover ?? accent
   const BaseButton = {
     interaction: {
       hoverBackgroundColor: alpha(accent, 0.92),
@@ -381,13 +399,13 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
               borderBottom: `2px solid ${palette.primary.dark}`,
             },
             '&:hover:not(.Mui-disabled, .Mui-error):before': {
-              borderBottom: '2px solid #03B9E9',
+              borderBottom: `2px solid ${accentHover}`,
             },
             '&:after': {
-              borderBottom: '2px solid #03B9E9',
+              borderBottom: `2px solid ${accentHover}`,
             },
             '&:hover:not(.Mui-error):after': {
-              borderBottom: '2px solid #03B9E9',
+              borderBottom: `2px solid ${accentHover}`,
             },
           },
         },
@@ -396,6 +414,30 @@ export const buildDefaultTheme = (mode: PaletteMode, direction: Direction) => {
         styleOverrides: {
           root: {
             textTransform: 'none',
+          },
+          primary: {
+            '&:hover': {
+              backgroundColor: accentHover,
+              '@media (hover: none)': {
+                backgroundColor: palette.primary.main,
+              },
+            },
+          },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            variants: [
+              {
+                props: { color: 'primary', variant: 'filled', clickable: true },
+                style: {
+                  '&:hover, &.Mui-focusVisible': {
+                    backgroundColor: accentHover,
+                  },
+                },
+              },
+            ],
           },
         },
       },

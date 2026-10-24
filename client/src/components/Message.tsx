@@ -629,7 +629,7 @@ const LinkPreview = memo(({ isAccountMessage, link }: LinkPreviewProps) => {
           {linkPreview.title}
         </Typography>
         {linkPreview.description && (
-          <Typography variant="body1" sx={{ color: isAccountMessage ? '#ffffff' : '#005699' }}>
+          <Typography variant="body1" sx={{ color: isAccountMessage ? '#ffffff' : 'primary.dark' }}>
             {linkPreview.description}
           </Typography>
         )}
@@ -1313,7 +1313,7 @@ const MessageTooltip = styled(
                   tooltip={open ? 'Less' : 'More'}
                   sx={{
                     ...messageActionButtonSx,
-                    '&:active': { color: theme.palette.common.white, background: theme.palette.primary.dark },
+                    '&:active': { color: theme.palette.primary.contrastText, background: theme.palette.primary.dark },
                   }}
                   onClick={toggleMoreMenu}
                 >

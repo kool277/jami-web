@@ -28,7 +28,7 @@ const RoundIconButton = styled(BaseIconButton)(({ theme }) => ({
   color: theme.palette.primary.main,
   fontSize: '15px',
   '&:active': {
-    color: theme.palette.common.white,
+    color: theme.palette.primary.contrastText,
     background: theme.palette.primary.dark,
   },
   '&.MuiIconButton-sizeSmall': {

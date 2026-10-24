@@ -135,7 +135,7 @@ describe('ConversationAvatar', () => {
       <PresenceContext value={{ getPresence: () => 1, presence: new Map() }}>
         <ConversationAvatar
           presence
-          presenceBackgroundColor="#E5EEF5"
+          presenceBackgroundColor="#EDEDCF"
           displayName="Ada"
           contactUri="260d9aaee80c84ffda86bdc579a0be8d07a70b65"
         />
@@ -148,7 +148,7 @@ describe('ConversationAvatar', () => {
       right: '-2px',
       bottom: '-2px',
       width: '30%',
-      backgroundColor: '#E5EEF5',
+      backgroundColor: '#EDEDCF',
     })
     expect(indicator?.firstElementChild).toHaveStyle({
       position: 'absolute',

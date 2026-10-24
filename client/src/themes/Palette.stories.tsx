@@ -73,6 +73,7 @@ const PaletteSheet = () => {
         <Swatch name="primary.light (surface)" color={palette.primary.light} on={palette.text.primary} />
         <Swatch name="primary.main" color={palette.primary.main} on={surface} />
         <Swatch name="primary.dark (accent)" color={palette.primary.dark} on={surface} />
+        {palette.primary.hover && <Swatch name="primary.hover" color={palette.primary.hover} on={surface} />}
       </Section>
       <Section title="Status">
         <Swatch name="error.main" color={palette.error.main} on={surface} />

@@ -38,7 +38,8 @@ const FilledIconButton = styled(BaseIconButton, {
     color: color.contrastText,
     backgroundColor: color.dark,
     '&:hover': {
-      backgroundColor: color.main,
+      // A palette whose `main` and `dark` coincide names the tone its fill moves to on hover.
+      backgroundColor: color.hover ?? color.main,
     },
     '&.Mui-disabled': {
       backgroundColor: theme.palette.action.disabled,

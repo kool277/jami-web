@@ -639,7 +639,7 @@ const MemberInfo = ({ member, isAdmin }: MemberInfoProps) => {
                   navigate(`/conversation/${contactDetail.conversationId}`)
                 }}
                 sx={{
-                  '&:hover': { backgroundColor: 'primary.dark' },
+                  '&:hover': { backgroundColor: 'primary.hover' },
                   backgroundColor: 'primary.main',
                   color: 'primary.contrastText',
                   height: 32,
