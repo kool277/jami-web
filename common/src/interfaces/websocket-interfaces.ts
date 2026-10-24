@@ -133,10 +133,20 @@ export interface CallAction {
   // leaves and joins again gets a new connection, and a late message of its earlier attempt is
   // told apart. Older clients leave it out.
   sessionId?: string
+  // False from a peer that reads ICE candidates only in descriptions, such as the desktop and mobile
+  // apps: a description to it waits for every candidate, and no candidate is sent on its own.
+  trickleIce?: boolean
 }
 
 export interface CallInvite extends CallAction {
   withVideoOn: boolean
+  // The call of a native app's device that hosts it (the desktop and mobile apps' group calls): each
+  // member connects to that device alone, which sends it the mix of everyone, rather than to each
+  // other member.
+  hosted?: boolean
+  // When the inviter's server sent it (ms since the epoch): an invite delivered late, because this
+  // account was unreachable, rings for a call long over. Older senders leave it out.
+  sentAt?: number
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

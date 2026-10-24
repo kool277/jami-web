@@ -28,11 +28,15 @@ export type RTCPeerConnectionInfos = {
   iceConnectionState: RTCIceConnectionState
 }
 
+const ICE_GATHERING_TIMEOUT_MS = 5000
+
 export class RTCPeerConnectionHandler {
   private readonly connection: RTCPeerConnection
   private readonly webSocket: IWebSocketContext
   private readonly contactUri: string
   private readonly callData: CallData
+  // False when the peer reads candidates only in descriptions (see CallAction.trickleIce).
+  private readonly trickleIce: boolean
   private remoteStreams: readonly MediaStream[] = []
   private iceConnectionState: RTCIceConnectionState = 'new'
   private isReadyForIceCandidates = false
@@ -70,8 +74,10 @@ export class RTCPeerConnectionHandler {
     localStream: MediaStream | undefined,
     screenShareLocalStream: MediaStream | undefined,
     listener: Listener,
+    trickleIce = true,
   ) {
     this.webSocket = webSocket
+    this.trickleIce = trickleIce
     this.contactUri = contactUri
     this.callData = callData
     this.isPolite = account.getUri() < contactUri
@@ -196,6 +202,10 @@ export class RTCPeerConnectionHandler {
 
   private async sendLocalDescription() {
     await this.connection.setLocalDescription()
+    if (!this.trickleIce) {
+      // The description itself carries the candidates.
+      await this.iceGathered()
+    }
     const sdp = this.connection.localDescription
     if (sdp) {
       const webRtcDescription: WebSocketMessageTable['sendWebRtcDescription'] = {
@@ -207,6 +217,28 @@ export class RTCPeerConnectionHandler {
       this.webSocket.send(WebSocketMessageType.sendWebRtcDescription, webRtcDescription)
       console.info('Sending webRtcDescription', webRtcDescription)
     }
+  }
+
+  // Resolves once every candidate is gathered, or after ICE_GATHERING_TIMEOUT_MS: a slow STUN or
+  // TURN server then leaves its candidates out rather than delaying the call.
+  private iceGathered(): Promise<void> {
+    if (this.connection.iceGatheringState === 'complete') {
+      return Promise.resolve()
+    }
+    return new Promise((resolve) => {
+      const done = () => {
+        clearTimeout(timer)
+        this.connection.removeEventListener('icegatheringstatechange', onChange)
+        resolve()
+      }
+      const onChange = () => {
+        if (this.connection.iceGatheringState === 'complete') {
+          done()
+        }
+      }
+      const timer = setTimeout(done, ICE_GATHERING_TIMEOUT_MS)
+      this.connection.addEventListener('icegatheringstatechange', onChange)
+    })
   }
 
   private async addQueuedIceCandidates() {
@@ -251,7 +283,7 @@ export class RTCPeerConnectionHandler {
     }
 
     this.connection.onicecandidate = (event: RTCPeerConnectionIceEvent) => {
-      if (event.candidate) {
+      if (event.candidate && this.trickleIce) {
         const webRtcIceCandidate: WebSocketMessageTable['sendWebRtcIceCandidate'] = {
           receiverId: this.contactUri,
           conversationId: this.callData.conversationId,

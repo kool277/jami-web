@@ -42,7 +42,6 @@ import {
   Reaction,
   RegisteredNameFoundState,
   VolatileDetails,
-  WebSocketMessage,
   WebSocketMessageType,
 } from '@savoirfairelinux/jami-web-common'
 import fs from 'fs'
@@ -101,9 +100,69 @@ const LIBJAMI_FLAG_DEBUG = 1 << 0
 const LIBJAMI_FLAG_NO_LOCAL_AUDIO = 1 << 6
 const LIBJAMI_FLAG_NO_LOCAL_VIDEO = 1 << 7
 const LIBJAMI_FLAG_NO_LOCAL_MEDIA = LIBJAMI_FLAG_NO_LOCAL_AUDIO | LIBJAMI_FLAG_NO_LOCAL_VIDEO
+// The call messages of the accounts' peers reach this server as account messages, for the browsers:
+// a daemon that takes calls with browsers itself must leave them (the daemon of kool277/jami-daemon;
+// others ignore the flag).
+const LIBJAMI_FLAG_NO_WEB_CALLS = 1 << 10
 
 type JamiSwigWithInitOptions = Omit<JamiSwig, 'init'> & {
   init(args: Record<string, unknown>, options?: { flags?: number }): void
+}
+
+// The only account messages a peer sends to the browser are those of calls (webrtc-handler.ts).
+const CALL_MESSAGE_TYPES = [
+  WebSocketMessageType.onCallInvite,
+  WebSocketMessageType.onCallJoin,
+  WebSocketMessageType.onCallExit,
+  WebSocketMessageType.onWebRtcDescription,
+  WebSocketMessageType.onWebRtcIceCandidate,
+] as const
+
+type CallMessageType = (typeof CALL_MESSAGE_TYPES)[number]
+
+const JAMI_URI = /^[0-9a-f]{40}$/
+
+// A call message to give the browser, or nothing for anything else: a peer controls the message, so
+// it must parse, be one of the call types, and name its sender and conversation. The daemon
+// authenticated the account that sent it, `from`: the message must name that one. (Daemons whose
+// Node.js binding passes the message ID in `from` cannot tell; the member check still applies.)
+export function parseCallMessage(
+  signal: IncomingAccountMessage,
+): { type: CallMessageType; data: { senderId: string; conversationId: string } & Record<string, unknown> } | undefined {
+  const json = signal.payload['application/json']
+  if (typeof json !== 'string') {
+    return undefined
+  }
+  let message: unknown
+  try {
+    message = JSON.parse(json)
+  } catch {
+    log.warn('Dropping an account message that is not JSON')
+    return undefined
+  }
+  if (typeof message !== 'object' || message === null) {
+    return undefined
+  }
+  const { type, data } = message as { type?: unknown; data?: unknown }
+  if (!CALL_MESSAGE_TYPES.includes(type as CallMessageType)) {
+    log.warn(`Dropping an account message of type ${String(type)}`)
+    return undefined
+  }
+  if (typeof data !== 'object' || data === null) {
+    return undefined
+  }
+  const { senderId, conversationId } = data as Record<string, unknown>
+  if (typeof senderId !== 'string' || typeof conversationId !== 'string') {
+    return undefined
+  }
+  if (JAMI_URI.test(signal.from) && signal.from !== senderId) {
+    log.warn(`Dropping a call message from ${signal.from} that claims to come from ${senderId}`)
+    return undefined
+  }
+  return {
+    type: type as CallMessageType,
+    data: data as { senderId: string; conversationId: string } & Record<string, unknown>,
+  }
 }
 
 @Service()
@@ -397,7 +456,7 @@ export class Jamid {
   }
 
   private getInitFlags(): number {
-    let flags = LIBJAMI_FLAG_DEBUG
+    let flags = LIBJAMI_FLAG_DEBUG | LIBJAMI_FLAG_NO_WEB_CALLS
     if (this.adminAccount.getConfig().noLocalMediaEnabled) {
       flags |= LIBJAMI_FLAG_NO_LOCAL_MEDIA
     }
@@ -994,27 +1053,24 @@ export class Jamid {
       this.webSocketServer.send(signal.accountId, WebSocketMessageType.KnownDevicesChanged, { devices: signal.devices })
     })
 
-    this.events.onIncomingAccountMessage.subscribe(<T extends WebSocketMessageType>(signal: IncomingAccountMessage) => {
-      log.debug('Received IncomingAccountMessage:', JSON.stringify(signal))
-
-      const message: Partial<WebSocketMessage<T>> = JSON.parse(signal.payload['application/json'])
-
-      if (typeof message !== 'object' || message === null) {
-        log.warn('Account message is not an object')
+    this.events.onIncomingAccountMessage.subscribe((signal: IncomingAccountMessage) => {
+      const message = parseCallMessage(signal)
+      if (!message) {
         return
       }
-
-      if (message.type === undefined || message.data === undefined) {
-        log.warn('Account message is not a valid WebSocketMessage (missing type or data fields)')
-        return
-      }
-
-      if (!Object.values(WebSocketMessageType).includes(message.type)) {
-        log.warn(`Invalid WebSocket message type: ${message.type}`)
-        return
-      }
-
-      this.webSocketServer.send(signal.accountId, message.type, message.data)
+      // The emitting daemon thread may still hold the account lock that the member lookup needs
+      // (see VolatileDetailsChanged): check once the callback has unwound.
+      setImmediate(() => {
+        const members = this.getConversationMembers(signal.accountId, message.data.conversationId)
+        const isMember = members.some(
+          (member) => member.uri === message.data.senderId && (member.role === 'member' || member.role === 'admin'),
+        )
+        if (!isMember) {
+          log.warn(`Dropping a call message from ${message.data.senderId}, not a member of the conversation`)
+          return
+        }
+        this.webSocketServer.send(signal.accountId, message.type, message.data)
+      })
     })
 
     this.events.onAccountMessageStatusChanged.subscribe((signal) => {

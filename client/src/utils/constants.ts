@@ -26,6 +26,10 @@ export const jamiLogoDefaultSize = '256px'
 
 export const callTimeoutMs = 60_000
 
+// An invite older than this was delivered late (this account was unreachable): it rings for a call
+// long over. Servers' clocks may disagree a little.
+export const callInviteMaxAgeMs = 2 * 60_000
+
 export const jamiAuthLogoSize = '200px'
 
 export const isDevMode = import.meta.env.DEV
