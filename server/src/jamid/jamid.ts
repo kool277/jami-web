@@ -100,6 +100,10 @@ const LIBJAMI_FLAG_DEBUG = 1 << 0
 const LIBJAMI_FLAG_NO_LOCAL_AUDIO = 1 << 6
 const LIBJAMI_FLAG_NO_LOCAL_VIDEO = 1 << 7
 const LIBJAMI_FLAG_NO_LOCAL_MEDIA = LIBJAMI_FLAG_NO_LOCAL_AUDIO | LIBJAMI_FLAG_NO_LOCAL_VIDEO
+// The call messages of the accounts' peers reach this server as account messages, for the browsers:
+// a daemon that takes calls with browsers itself must leave them (the daemon of kool277/jami-daemon;
+// others ignore the flag).
+const LIBJAMI_FLAG_NO_WEB_CALLS = 1 << 10
 
 type JamiSwigWithInitOptions = Omit<JamiSwig, 'init'> & {
   init(args: Record<string, unknown>, options?: { flags?: number }): void
@@ -452,7 +456,7 @@ export class Jamid {
   }
 
   private getInitFlags(): number {
-    let flags = LIBJAMI_FLAG_DEBUG
+    let flags = LIBJAMI_FLAG_DEBUG | LIBJAMI_FLAG_NO_WEB_CALLS
     if (this.adminAccount.getConfig().noLocalMediaEnabled) {
       flags |= LIBJAMI_FLAG_NO_LOCAL_MEDIA
     }

@@ -24,11 +24,20 @@ import { CallData } from '../services/CallManager.js'
 import { FakeRTCPeerConnection, stream, track } from '../test/fakeWebRtc.js'
 import { RTCPeerConnectionHandler } from './RtcPeerConnectionHandler.js'
 
-function createHandler(localStream: MediaStream) {
+function createHandler(localStream: MediaStream, trickleIce = true) {
   const webSocket = { bind: vi.fn(), unbind: vi.fn(), send: vi.fn() } as unknown as IWebSocketContext
   const account = { getUri: () => 'bob', details: {} } as unknown as Account
   const callData: CallData = { conversationId: 'conversation', withVideoOn: true, role: 'caller', sessionId: 'bob-1' }
-  const handler = new RTCPeerConnectionHandler(webSocket, account, 'carol', callData, localStream, undefined, vi.fn())
+  const handler = new RTCPeerConnectionHandler(
+    webSocket,
+    account,
+    'carol',
+    callData,
+    localStream,
+    undefined,
+    vi.fn(),
+    trickleIce,
+  )
   const connection = FakeRTCPeerConnection.instances.at(-1)!
   return { handler, connection, webSocket }
 }
@@ -95,6 +104,50 @@ describe('RTCPeerConnectionHandler', () => {
       conversationId: 'conversation',
       sessionId: 'bob-1',
       candidate,
+    })
+  })
+
+  describe('with a peer that reads candidates only in descriptions, such as the desktop app', () => {
+    const offer: RTCSessionDescriptionInit = { type: 'offer', sdp: 'v=0' }
+    const candidate = { candidate: 'candidate:1 1 udp 1 192.0.2.1 9 typ host' } as RTCIceCandidate
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('answers once every candidate is gathered, and sends none on its own', async () => {
+      const { handler, connection, webSocket } = createHandler(stream([track('audio')], []), false)
+
+      const answered = handler.receiveDescription(offer)
+      await vi.waitFor(() => expect(connection.setLocalDescription).toHaveBeenCalled())
+      connection.onicecandidate?.({ candidate } as RTCPeerConnectionIceEvent)
+      expect(webSocket.send).not.toHaveBeenCalled()
+
+      connection.finishGathering()
+      await answered
+
+      expect(webSocket.send).toHaveBeenCalledTimes(1)
+      expect(webSocket.send).toHaveBeenCalledWith(
+        WebSocketMessageType.sendWebRtcDescription,
+        expect.objectContaining({ sdp: { type: 'answer', sdp: 'v=0 answer' } }),
+      )
+    })
+
+    it('answers without the candidates of a slow server', async () => {
+      vi.useFakeTimers()
+      const { handler, connection, webSocket } = createHandler(stream([track('audio')], []), false)
+
+      const answered = handler.receiveDescription(offer)
+      await vi.waitFor(() => expect(connection.setLocalDescription).toHaveBeenCalled())
+      expect(webSocket.send).not.toHaveBeenCalled()
+
+      await vi.advanceTimersByTimeAsync(5000)
+      await answered
+
+      expect(webSocket.send).toHaveBeenCalledWith(
+        WebSocketMessageType.sendWebRtcDescription,
+        expect.objectContaining({ sdp: { type: 'answer', sdp: 'v=0 answer' } }),
+      )
     })
   })
 })

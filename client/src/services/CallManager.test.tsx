@@ -315,6 +315,15 @@ describe('useCallManager', () => {
       }
     })
 
+    it('does not ring for an invite delivered long after it was sent', async () => {
+      const { result } = renderHook(() => useCallManager())
+      await receive(WebSocketMessageType.onCallInvite, { ...invite, sentAt: Date.now() - 3 * 60_000 })
+      expect(result.current.callData).toBeUndefined()
+
+      await receive(WebSocketMessageType.onCallInvite, { ...invite, sentAt: Date.now() - 5_000 })
+      expect(result.current.callData).toMatchObject({ conversationId: 'group', role: 'receiver' })
+    })
+
     it('ignores an answer from a session it has no connection with', async () => {
       const { result } = renderHook(() => useCallManager())
       await receive(WebSocketMessageType.onCallInvite, invite)
@@ -355,6 +364,87 @@ describe('useCallManager', () => {
       })
 
       expect(result.current.callData).toMatchObject({ conversationId: 'group', role: 'receiver' })
+    })
+  })
+
+  describe('when the device of a member on the desktop or mobile apps hosts the call', () => {
+    const invite = {
+      conversationId: 'group',
+      senderId: 'frank',
+      sessionId: 'frank-1',
+      withVideoOn: true,
+      hosted: true,
+      trickleIce: false,
+    }
+
+    it('connects to the host alone, and ends with it', async () => {
+      const { result } = renderHook(() => useCallManager())
+      await receive(WebSocketMessageType.onCallInvite, invite)
+      expect(result.current.callData).toMatchObject({ conversationId: 'group', role: 'receiver', hostUri: 'frank' })
+      await act(async () => result.current.acceptCall(true))
+      expect(sent(WebSocketMessageType.sendCallJoin)).toHaveLength(1)
+
+      // Another member joins or reaches out: the host connects it, not this account.
+      await receive(WebSocketMessageType.onCallJoin, {
+        conversationId: 'group',
+        senderId: 'carol',
+        sessionId: 'carol-1',
+      })
+      await receive(WebSocketMessageType.onWebRtcDescription, {
+        conversationId: 'group',
+        senderId: 'carol',
+        sessionId: 'carol-1',
+        sdp: offer,
+      })
+      expect(connections()).toHaveLength(0)
+
+      await receive(WebSocketMessageType.onWebRtcDescription, {
+        conversationId: 'group',
+        senderId: 'frank',
+        sessionId: 'frank-1',
+        trickleIce: false,
+        sdp: offer,
+      })
+      expect(connections()).toHaveLength(1)
+
+      // A member leaving does not end it; the host leaving does.
+      await receive(WebSocketMessageType.onCallExit, {
+        conversationId: 'group',
+        senderId: 'carol',
+        sessionId: 'carol-1',
+      })
+      expect(result.current.callData).toBeDefined()
+      await receive(WebSocketMessageType.onCallExit, {
+        conversationId: 'group',
+        senderId: 'frank',
+        sessionId: 'frank-1',
+      })
+      expect(result.current.callData).toBeUndefined()
+    })
+  })
+
+  describe('with a member on the desktop or mobile apps', () => {
+    it('offers it every candidate in the description, not one by one', async () => {
+      await call('one-to-one')
+      await receive(WebSocketMessageType.onCallJoin, {
+        conversationId: 'one-to-one',
+        senderId: 'carol',
+        sessionId: 'carol-1',
+        trickleIce: false,
+      })
+      const [connection] = connections()
+
+      // The offer waits for the candidates: not awaited here.
+      act(() => {
+        void connection.onnegotiationneeded?.()
+      })
+      await vi.waitFor(() => expect(connection.setLocalDescription).toHaveBeenCalled())
+      connection.onicecandidate?.({ candidate: { candidate: 'candidate:1' } } as RTCPeerConnectionIceEvent)
+      expect(sent(WebSocketMessageType.sendWebRtcDescription)).toEqual([])
+      expect(sent(WebSocketMessageType.sendWebRtcIceCandidate)).toEqual([])
+
+      await act(async () => connection.finishGathering())
+      await vi.waitFor(() => expect(sent(WebSocketMessageType.sendWebRtcDescription)).toHaveLength(1))
     })
   })
 })

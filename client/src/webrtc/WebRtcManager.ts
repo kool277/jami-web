@@ -75,6 +75,8 @@ export class WebRtcManager {
     localStream: MediaStream | undefined,
     screenShareLocalStream: MediaStream | undefined,
     sessionId: string | undefined,
+    // False for a peer that reads candidates only in descriptions (see CallAction.trickleIce).
+    trickleIce = true,
   ) {
     const existingConnection = this.connections[contactUri]
     if (existingConnection && existingConnection.sessionId === sessionId) {
@@ -92,6 +94,7 @@ export class WebRtcManager {
       localStream,
       screenShareLocalStream,
       this.emitChange.bind(this),
+      trickleIce,
     )
     this.connections[contactUri] = { handler, sessionId }
 

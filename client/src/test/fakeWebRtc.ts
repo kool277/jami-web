@@ -27,6 +27,7 @@ export class FakeRTCPeerConnection {
   static instances: FakeRTCPeerConnection[] = []
 
   iceConnectionState: RTCIceConnectionState = 'new'
+  iceGatheringState: RTCIceGatheringState = 'new'
   signalingState: RTCSignalingState = 'stable'
   localDescription: RTCSessionDescriptionInit | null = null
   senders: FakeSender[] = []
@@ -34,6 +35,7 @@ export class FakeRTCPeerConnection {
   oniceconnectionstatechange: ((event: Event) => void) | null = null
   onicecandidate: ((event: RTCPeerConnectionIceEvent) => void) | null = null
   ontrack: ((event: RTCTrackEvent) => void) | null = null
+  private listeners = new Map<string, Set<() => void>>()
 
   setRemoteDescription = vi.fn(async (description: RTCSessionDescriptionInit) => {
     this.signalingState = description.type === 'offer' ? 'have-remote-offer' : 'stable'
@@ -54,6 +56,14 @@ export class FakeRTCPeerConnection {
     FakeRTCPeerConnection.instances.push(this)
   }
 
+  addEventListener(type: string, listener: () => void) {
+    this.listeners.set(type, (this.listeners.get(type) ?? new Set()).add(listener))
+  }
+
+  removeEventListener(type: string, listener: () => void) {
+    this.listeners.get(type)?.delete(listener)
+  }
+
   addTrack(track: MediaStreamTrack) {
     const sender: FakeSender = {
       track,
@@ -69,6 +79,12 @@ export class FakeRTCPeerConnection {
   changeIceConnectionState(state: RTCIceConnectionState) {
     this.iceConnectionState = state
     this.oniceconnectionstatechange?.(new Event('iceconnectionstatechange'))
+  }
+
+  // What the browser does once it has gathered every ICE candidate.
+  finishGathering() {
+    this.iceGatheringState = 'complete'
+    this.listeners.get('icegatheringstatechange')?.forEach((listener) => listener())
   }
 
   // What the browser does when the peer's media arrives.

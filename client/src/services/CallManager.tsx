@@ -26,7 +26,7 @@ import { useWebSocketContext } from '../contexts/WebSocketProvider.js'
 import { ConversationMember } from '../models/conversation-member.js'
 import { useConversationInfosQuery, useMembersQuery } from '../services/conversationQueries.js'
 import { callPeers } from '../utils/callPeers.js'
-import { callTimeoutMs } from '../utils/constants.js'
+import { callInviteMaxAgeMs, callTimeoutMs } from '../utils/constants.js'
 import { AsyncSetState, SetState } from '../utils/utils.js'
 import { useWebRtcManager } from '../webrtc/WebRtcManager.js'
 
@@ -40,6 +40,8 @@ export type CallData = {
   sessionId: string
   // The member whose invitation a receiver is answering.
   callerUri?: string
+  // The member whose device hosts the call (CallInvite.hosted): this account connects to it alone.
+  hostUri?: string
 }
 
 export type CallParticipant = {
@@ -221,7 +223,7 @@ export const useCallManager = () => {
   }, [])
 
   const connect = useCallback(
-    (contactUri: string, sessionId: string | undefined) => {
+    (contactUri: string, sessionId: string | undefined, trickleIce: boolean) => {
       if (!callData) {
         return
       }
@@ -236,6 +238,7 @@ export const useCallManager = () => {
         localStream,
         screenShareLocalStream,
         sessionId,
+        trickleIce,
       )
     },
     [account, callData, localStream, screenShareLocalStream, webRtcManager, webSocket],
@@ -267,7 +270,15 @@ export const useCallManager = () => {
       withVideoOn,
       senderId,
       sessionId,
+      trickleIce,
+      sentAt,
+      hosted,
     }: WebSocketMessageTable['onCallInvite']) => {
+      if (sentAt !== undefined && Date.now() - sentAt > callInviteMaxAgeMs) {
+        // Delivered late, as this account was unreachable: the call is long over.
+        console.info('Ignoring a late call invite', { conversationId, senderId })
+        return
+      }
       if (callData?.conversationId === conversationId) {
         // Another member started a call in the conversation of this one, not knowing about it: it is
         // the same call.
@@ -275,7 +286,7 @@ export const useCallManager = () => {
           if (callStatus === CallStatus.Ringing) {
             setCallStatus(CallStatus.Connecting)
           }
-          connect(senderId, sessionId)
+          connect(senderId, sessionId, trickleIce !== false)
         } else {
           participants.current.add(senderId)
         }
@@ -296,7 +307,14 @@ export const useCallManager = () => {
 
       participants.current = new Set([senderId])
       leftMembers.current = new Set()
-      setCallData({ conversationId, role: 'receiver', withVideoOn, sessionId: newCallSessionId(), callerUri: senderId })
+      setCallData({
+        conversationId,
+        role: 'receiver',
+        withVideoOn,
+        sessionId: newCallSessionId(),
+        callerUri: senderId,
+        hostUri: hosted ? senderId : undefined,
+      })
       navigate(`/conversation/${conversationId}`)
     }
 
@@ -379,6 +397,11 @@ export const useCallManager = () => {
         return
       }
 
+      if (callData.hostUri !== undefined && data.senderId !== callData.hostUri) {
+        // In a hosted call, the host connects every member who joins.
+        return
+      }
+
       if (!isParticipating(callStatus)) {
         // This account has not answered yet: the member who joined connects to it once it does.
         participants.current.add(data.senderId)
@@ -388,7 +411,7 @@ export const useCallManager = () => {
       if (callStatus === CallStatus.Ringing) {
         setCallStatus(CallStatus.Connecting)
       }
-      connect(data.senderId, data.sessionId)
+      connect(data.senderId, data.sessionId, data.trickleIce !== false)
     }
 
     webSocket.bind(WebSocketMessageType.onCallJoin, callJoinListener)
@@ -412,6 +435,14 @@ export const useCallManager = () => {
         return
       }
 
+      if (callData?.hostUri !== undefined) {
+        // A hosted call ends with its host; the other members come and go through it.
+        if (senderId === callData.hostUri) {
+          endCall()
+        }
+        return
+      }
+
       webRtcManager.removeConnection(senderId)
       participants.current.delete(senderId)
       leftMembers.current.add(senderId)
@@ -430,7 +461,7 @@ export const useCallManager = () => {
     return () => {
       webSocket.unbind(WebSocketMessageType.onCallExit, callExitListener)
     }
-  }, [webSocket, endCall, conversationId, callStatus, peers, webRtcManager])
+  }, [webSocket, endCall, conversationId, callData, callStatus, peers, webRtcManager])
 
   useEffect(() => {
     if (!callData || !isParticipating(callStatus)) {
@@ -443,6 +474,10 @@ export const useCallManager = () => {
         return
       }
 
+      if (callData.hostUri !== undefined && data.senderId !== callData.hostUri) {
+        // In a hosted call, the host alone connects to this account.
+        return
+      }
       if (!webRtcManager.hasSession(data.senderId, data.sessionId)) {
         if (data.sdp.type !== 'offer') {
           // The answer to a connection this account has replaced or closed since.
@@ -452,7 +487,7 @@ export const useCallManager = () => {
         if (callStatus === CallStatus.Ringing) {
           setCallStatus(CallStatus.Connecting)
         }
-        connect(data.senderId, data.sessionId)
+        connect(data.senderId, data.sessionId, data.trickleIce !== false)
       }
       void webRtcManager.receiveDescription(data.senderId, data.sessionId, data.sdp)
     }

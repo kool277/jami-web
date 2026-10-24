@@ -27,8 +27,10 @@ const webSocketServer = Container.get(WebSocketServer)
 export function bindWebRtcCallbacks() {
   webSocketServer.bind(WebSocketMessageType.sendCallInvite, (accountId, data) => {
     const members = jamid.getConversationMembers(accountId, data.conversationId)
+    // The server's clock, not the browser's.
+    const invite = { ...data, sentAt: Date.now() }
     members.forEach((member) => {
-      sendWebRtcData(WebSocketMessageType.onCallInvite, data, accountId, member.uri)
+      sendWebRtcData(WebSocketMessageType.onCallInvite, invite, accountId, member.uri)
     })
   })
 
