@@ -97,7 +97,7 @@
   "app_access_scope_conversations_write": "Суҳбатларни бошқариш",
   "app_access_scope_files_read": "Файлларни ўқиш",
   "app_access_scope_files_write": "Файлларни бошқариш",
-  "app_access_search_terms": "API токен токенлар илова кириш дастурчи интеграция",
+  "app_access_search_terms": "api токен токенлар илова кириш дастурчи интеграция",
   "app_access_title": "Иловаларга рухсат",
   "app_access_token_copy_warning": "Ушбу токенни ҳозир нусхалаб олинг. Кейин уни қайта кўра олмайсиз.",
   "app_access_token_created": "API токени яратилди",
