@@ -70,4 +70,11 @@ describe('formatRelativeDate', () => {
     expect(formatRelativeDate(dayjs(new Date(2026, 7, 2, 9)), uzbekCyrillic)).toBe('кеча')
     expect(formatConversationDate(dayjs(new Date(2026, 6, 29, 12)), uzbekCyrillic)).toBe('чоршанба')
   })
+
+  it('formats dates in the Uzbek Latin alphabet of 2026', () => {
+    const uzbekLatin2026 = { language: 'uz-Latn-2026' } as never
+
+    expect(formatRelativeDate(dayjs(new Date(2026, 7, 2, 9)), uzbekLatin2026)).toBe('keça')
+    expect(formatConversationDate(dayjs(new Date(2026, 6, 29, 12)), uzbekLatin2026)).toBe('çorşanba')
+  })
 })
