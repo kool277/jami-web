@@ -48,3 +48,16 @@ export function languageTag(translation: string): string {
     return language
   }
 }
+
+/**
+ * Text that the browser formats for a translation (day and month names, "yesterday"), in the alphabet of the
+ * translation. Browsers write Uzbek in the Latin alphabet of 1995 only; in the alphabet of 2026 (`uz-Latn-2026`,
+ * law OʻRQ-1184) oʻ, gʻ, sh and ch are ö, ğ, ş and ç: "chorshanba" is "çorşanba".
+ */
+export function inTranslationScript(text: string, translation: string): string {
+  if (translation !== 'uz-Latn-2026') {
+    return text
+  }
+  const letters: Record<string, string> = { O: 'Ö', o: 'ö', G: 'Ğ', g: 'ğ', S: 'Ş', s: 'ş', C: 'Ç', c: 'ç' }
+  return text.replace(/([OoGg])[ʻ‘']|([SsCc])[Hh]/g, (_, okina: string, digraph: string) => letters[okina ?? digraph])
+}

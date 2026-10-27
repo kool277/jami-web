@@ -17,10 +17,10 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { languageTag, matchBrowserLanguage } from './browserLanguage.js'
+import { inTranslationScript, languageTag, matchBrowserLanguage } from './browserLanguage.js'
 
 // Translation codes as Transifex names them.
-const available = new Set(['en', 'ru', 'ru_RU', 'sr', 'sr@Cyrl', 'uz', 'uz@Cyrl', 'zh-Hans'])
+const available = new Set(['en', 'ru', 'ru_RU', 'sr', 'sr@Cyrl', 'uz', 'uz-Latn-2026', 'uz@Cyrl', 'zh-Hans'])
 
 describe('matchBrowserLanguage', () => {
   it('keeps a language with its region when that translation exists', () => {
@@ -41,6 +41,7 @@ describe('matchBrowserLanguage', () => {
 
   it('accepts a code that names a translation as it is', () => {
     expect(matchBrowserLanguage('zh-Hans', available)).toBe('zh-Hans')
+    expect(matchBrowserLanguage('uz-Latn-2026', available)).toBe('uz-Latn-2026')
   })
 
   it('finds nothing for a language without a translation', () => {
@@ -62,9 +63,25 @@ describe('languageTag', () => {
   it('keeps a code that already is a locale', () => {
     expect(languageTag('uz')).toBe('uz')
     expect(languageTag('zh-Hans')).toBe('zh-Hans')
+    expect(languageTag('uz-Latn-2026')).toBe('uz-Latn-2026')
   })
 
   it('falls back to the language when the rest is not a locale', () => {
     expect(languageTag('zh_CN.GB2312')).toBe('zh')
+  })
+})
+
+describe('inTranslationScript', () => {
+  it('writes Uzbek dates in the Latin alphabet of 2026', () => {
+    expect(inTranslationScript('chorshanba', 'uz-Latn-2026')).toBe('çorşanba')
+    expect(inTranslationScript('Kecha', 'uz-Latn-2026')).toBe('Keça')
+    expect(inTranslationScript('DUSHANBA', 'uz-Latn-2026')).toBe('DUŞANBA')
+    expect(inTranslationScript('Shanba, o‘tgan hafta', 'uz-Latn-2026')).toBe('Şanba, ötgan hafta')
+    expect(inTranslationScript('Gʻalaba', 'uz-Latn-2026')).toBe('Ğalaba')
+  })
+
+  it('leaves the other translations as they are', () => {
+    expect(inTranslationScript('chorshanba', 'uz')).toBe('chorshanba')
+    expect(inTranslationScript('Thursday', 'en')).toBe('Thursday')
   })
 })

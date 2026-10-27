@@ -19,7 +19,17 @@ import dayjs, { Dayjs } from 'dayjs'
 import { Duration } from 'dayjs/plugin/duration.js'
 import { i18n } from 'i18next'
 
-import { languageTag } from './browserLanguage.js'
+import { inTranslationScript, languageTag } from './browserLanguage.js'
+
+// The day and month names of the browser, in the alphabet of the translation.
+const relativeDay = (days: number, i18n: i18n) =>
+  inTranslationScript(
+    new Intl.RelativeTimeFormat(languageTag(i18n.language), { numeric: 'auto' }).format(days, 'day'),
+    i18n.language,
+  )
+
+const formatDate = (time: Dayjs, options: Intl.DateTimeFormatOptions, i18n: i18n) =>
+  inTranslationScript(new Intl.DateTimeFormat(languageTag(i18n.language), options).format(time.toDate()), i18n.language)
 
 export const formatTime = (time: Dayjs, i18n: i18n) => {
   return dayjs(time).locale(i18n.language).format('LT')
@@ -29,16 +39,15 @@ export const formatRelativeDate = (time: Dayjs, i18n: i18n) => {
   const locale = languageTag(i18n.language)
 
   if (time.isToday()) {
-    return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(0, 'day')
+    return relativeDay(0, i18n)
   } else if (time.isYesterday()) {
-    return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(-1, 'day')
+    return relativeDay(-1, i18n)
   } else {
     return dayjs(time).locale(locale).format('L')
   }
 }
 
 export const formatConversationDate = (time: Dayjs, i18n: i18n) => {
-  const locale = languageTag(i18n.language)
   const today = dayjs()
   const daysDiff = today.startOf('day').diff(time.startOf('day'), 'day')
 
@@ -46,18 +55,22 @@ export const formatConversationDate = (time: Dayjs, i18n: i18n) => {
     return formatTime(time, i18n)
   }
   if (daysDiff === 1) {
-    return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(-1, 'day')
+    return relativeDay(-1, i18n)
   }
 
   if (daysDiff > 0 && daysDiff < 7) {
-    return new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(time.toDate())
+    return formatDate(time, { weekday: 'long' }, i18n)
   }
 
-  return new Intl.DateTimeFormat(locale, {
-    month: 'short',
-    day: 'numeric',
-    ...(time.year() === today.year() ? {} : { year: 'numeric' }),
-  }).format(time.toDate())
+  return formatDate(
+    time,
+    {
+      month: 'short',
+      day: 'numeric',
+      ...(time.year() === today.year() ? {} : { year: 'numeric' }),
+    },
+    i18n,
+  )
 }
 
 export const formatCallDuration = (duration: Duration) => {

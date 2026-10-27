@@ -55,7 +55,7 @@ import {
   useCreateApiTokenMutation,
   useRevokeApiTokenMutation,
 } from '../../services/apiTokenQueries.js'
-import { languageTag } from '../../utils/browserLanguage.js'
+import { inTranslationScript, languageTag } from '../../utils/browserLanguage.js'
 import { SettingsPage, SettingsRow, SettingsSection } from '../components/SettingsPage.js'
 
 const expiryOptions = [
@@ -86,7 +86,12 @@ const permissionResources: Array<{
 ]
 
 function formatDate(date: string | undefined, language: string): string {
-  return date ? new Intl.DateTimeFormat(languageTag(language), { dateStyle: 'medium' }).format(new Date(date)) : ''
+  return date
+    ? inTranslationScript(
+        new Intl.DateTimeFormat(languageTag(language), { dateStyle: 'medium' }).format(new Date(date)),
+        language,
+      )
+    : ''
 }
 
 function tokenPermissions(token: ApiTokenInfo, t: TFunction): string {
